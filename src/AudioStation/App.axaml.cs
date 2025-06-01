@@ -44,6 +44,9 @@ public partial class App : Application
             };
         }
 
+        // Open Configuration / Library (if available)
+        //viewModel.Open();
+
         base.OnFrameworkInitializationCompleted();
     }
 

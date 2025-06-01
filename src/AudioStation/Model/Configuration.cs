@@ -10,9 +10,12 @@ using AudioStation.Views;
 using Avalonia.Controls;
 using Avalonia.Platform.Storage;
 
+using SimpleWpf.RecursiveSerializer.Component.Interface;
+using SimpleWpf.RecursiveSerializer.Interface;
+
 namespace AudioStation.Model
 {
-    public class Configuration : ViewModelBase, ISerializable
+    public class Configuration : ViewModelBase, IRecursiveSerializable
     {
         public const string LIBRARY_DATABASE_FILE = ".AudioPlayerLibrary";
 
@@ -38,13 +41,13 @@ namespace AudioStation.Model
         }
 
 
-        public Configuration(IDialogController dialogController)
+        public Configuration()
         {
-            this.LibraryConfiguration = new LibraryConfiguration(dialogController);
+            this.LibraryConfiguration = new LibraryConfiguration();
             this.LibraryDatabaseFile = LIBRARY_DATABASE_FILE;
             this.SelectLibraryDatabaseFileCommand = new ModelCommand(async () =>
             {
-                this.LibraryDatabaseFile = await dialogController.ShowSaveFile(new FilePickerSaveOptions()
+                this.LibraryDatabaseFile = await MainViewModel.DialogController.ShowSaveFile(new FilePickerSaveOptions()
                 {
                     Title = "Save Library Database",
                     SuggestedFileName = LIBRARY_DATABASE_FILE                    
@@ -59,15 +62,16 @@ namespace AudioStation.Model
                 }
             };
         }
-        public Configuration(SerializationInfo info, StreamingContext context)
+        public Configuration(IPropertyReader reader)
         {
-            this.LibraryConfiguration = (LibraryConfiguration)info.GetValue("LibraryConfiguration", typeof(LibraryConfiguration));
-            this.LibraryDatabaseFile = (string)info.GetValue("LibraryDatabaseFile", typeof(string));
+            this.LibraryConfiguration = reader.Read<LibraryConfiguration>("LibraryConfiguration");
+            this.LibraryDatabaseFile = reader.Read<string>("LibraryDatabaseFile");
         }
-        public void GetObjectData(SerializationInfo info, StreamingContext context)
+
+        public void GetProperties(IPropertyWriter writer)
         {
-            info.AddValue("LibraryConfiguration", this.LibraryConfiguration);
-            info.AddValue("LibraryDatabaseFile", this.LibraryDatabaseFile);
+            writer.Write("LibraryConfiguration", this.LibraryConfiguration);
+            writer.Write("LibraryDatabaseFile", this.LibraryDatabaseFile);
         }
     }
 }

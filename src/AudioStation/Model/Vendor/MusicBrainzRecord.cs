@@ -4,6 +4,8 @@ using System.Runtime.CompilerServices;
 
 using SimpleWpf.Extensions.ObservableCollection;
 using AudioStation.ViewModels;
+using SimpleWpf.RecursiveSerializer.Interface;
+using SimpleWpf.RecursiveSerializer.Component.Interface;
 
 namespace AudioStation.Model.Vendor
 {

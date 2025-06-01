@@ -18,6 +18,9 @@ namespace AudioStation.ViewModels;
 
 public partial class MainViewModel : ViewModelBase
 {
+    // Could move these to dependency injection; but too many other issues
+    public static IDialogController DialogController { get; private set; }
+
     public const string CONFIGURATION_FILE = ".AudioStation";
 
     // Some View Properties
@@ -69,8 +72,10 @@ public partial class MainViewModel : ViewModelBase
 
     public MainViewModel(IDialogController dialogController)
     {
+        MainViewModel.DialogController = dialogController;
+
         this.Library = new Library();
-        this.Configuration = new Configuration(dialogController);
+        this.Configuration = new Configuration();
         this.ShowOutputMessages = true;
         this.OutputMessages = new ObservableCollection<LogMessageViewModel>();
 
@@ -92,7 +97,7 @@ public partial class MainViewModel : ViewModelBase
         });
     }
 
-    private void Save()
+    public void Save()
     {
         try
         {
@@ -116,7 +121,7 @@ public partial class MainViewModel : ViewModelBase
             OnLog("Error saving configuration / data files:  {0}", LogMessageType.General, LogMessageSeverity.Error, ex.Message);
         }
     }
-    private void Open()
+    public void Open()
     {
         try
         {

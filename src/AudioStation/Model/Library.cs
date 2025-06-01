@@ -86,6 +86,7 @@ namespace AudioStation.Model
                         var albumEntry = new AlbumViewModel()
                         {
                             Album = entry.Album,
+                            Artist = entry.PrimaryArtist,
                             FileNameRef = entry.FileName,
                             Year = entry.Year,
                             Duration = entry.Duration
@@ -125,6 +126,7 @@ namespace AudioStation.Model
                     var albumEntry = new AlbumViewModel()
                     {
                         Album = entry.Album,
+                        Artist = entry.PrimaryArtist,
                         FileNameRef = entry.FileName,
                         Year = entry.Year
                     };

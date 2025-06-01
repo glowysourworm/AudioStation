@@ -12,10 +12,12 @@ using AudioStation.ViewModel;
 using AudioStation.ViewModels;
 
 using SimpleWpf.Extensions.ObservableCollection;
+using SimpleWpf.RecursiveSerializer.Component.Interface;
+using SimpleWpf.RecursiveSerializer.Interface;
 
 namespace AudioStation.Model
 {
-    public class LibraryEntry : ViewModelBase, ISerializable
+    public class LibraryEntry : ViewModelBase, IRecursiveSerializable
     {
         public event SimpleEventHandler<string, LogMessageSeverity> LogEvent;
 
@@ -217,46 +219,45 @@ namespace AudioStation.Model
                 this.LogEvent(string.Format(message, args), severity);
         }
 
-        public LibraryEntry(SerializationInfo info, StreamingContext context)
+        public LibraryEntry(IPropertyReader reader)
         {
-            this.FileName = info.GetString("FileName");
+            this.FileName = reader.Read<string>("FileName");
 
-            this.Album = info.GetString("Album");
-            this.Title = info.GetString("Title");
-            this.Year = info.GetUInt32("Year");
-            this.Track = info.GetUInt32("Track");
-            this.Disc = info.GetUInt32("Disc");
-            this.DiscCount = info.GetUInt32("DiscCount");
-            this.AlbumArtists = (SortedObservableCollection<Artist>)info.GetValue("AlbumArtists", typeof(SortedObservableCollection<Artist>));
-            this.Genres = (SortedObservableCollection<string>)info.GetValue("Genres", typeof(SortedObservableCollection<string>));
+            this.Album = reader.Read<string>("Album");
+            this.Title = reader.Read<string>("Title");
+            this.Year = reader.Read<uint>("Year");
+            this.Track = reader.Read<uint>("Track");
+            this.Disc = reader.Read<uint>("Disc");
+            this.DiscCount = reader.Read<uint>("DiscCount");
+            this.AlbumArtists = reader.Read<SortedObservableCollection<Artist>>("AlbumArtists");
+            this.Genres = reader.Read<SortedObservableCollection<string>>("Genres");
 
-            this.FileMissing = info.GetBoolean("FileMissing");
-            this.FileLoadError = info.GetBoolean("FileLoadError");
-            this.FileLocationNameMismatch = info.GetBoolean("FileLocationNameMismatch");
-            this.FileLoadErrorMessage = info.GetString("FileLoadErrorMessage");
+            this.FileMissing = reader.Read<bool>("FileMissing");
+            this.FileLoadError = reader.Read<bool>("FileLoadError");
+            this.FileLocationNameMismatch = reader.Read<bool>("FileLocationNameMismatch");
+            this.FileLoadErrorMessage = reader.Read<string>("FileLoadErrorMessage");
 
-            this.MusicBrainzRecord = (MusicBrainzRecord)info.GetValue("MusicBrainzRecord", typeof(MusicBrainzRecord));
+            this.MusicBrainzRecord = reader.Read<MusicBrainzRecord>("MusicBrainzRecord");
         }
-
-        public void GetObjectData(SerializationInfo info, StreamingContext context)
+        public void GetProperties(IPropertyWriter writer)
         {
-            info.AddValue("FileName", this.FileName);
+            writer.Write("FileName", this.FileName);
 
-            info.AddValue("Album", this.Album);
-            info.AddValue("Title", this.Title);
-            info.AddValue("Year", this.Year);
-            info.AddValue("Track", this.Track);
-            info.AddValue("Disc", this.Disc);
-            info.AddValue("DiscCount", this.DiscCount);
-            info.AddValue("AlbumArtists", this.AlbumArtists);
-            info.AddValue("Genres", this.Genres);
+            writer.Write("Album", this.Album);
+            writer.Write("Title", this.Title);
+            writer.Write("Year", this.Year);
+            writer.Write("Track", this.Track);
+            writer.Write("Disc", this.Disc);
+            writer.Write("DiscCount", this.DiscCount);
+            writer.Write("AlbumArtists", this.AlbumArtists);
+            writer.Write("Genres", this.Genres);
 
-            info.AddValue("FileMissing", this.FileMissing);
-            info.AddValue("FileLoadError", this.FileLoadError);
-            info.AddValue("FileLocationNameMismatch", this.FileLocationNameMismatch);
-            info.AddValue("FileLoadErrorMessage", this.FileLoadErrorMessage);
+            writer.Write("FileMissing", this.FileMissing);
+            writer.Write("FileLoadError", this.FileLoadError);
+            writer.Write("FileLocationNameMismatch", this.FileLocationNameMismatch);
+            writer.Write("FileLoadErrorMessage", this.FileLoadErrorMessage);
 
-            info.AddValue("MusicBrainzRecord", this.MusicBrainzRecord);
+            writer.Write("MusicBrainzRecord", this.MusicBrainzRecord);
         }
     }
 }

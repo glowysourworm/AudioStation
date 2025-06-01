@@ -1,14 +1,15 @@
-﻿using System.Runtime.Serialization;
-
-using AudioStation.Controller.Interface;
+﻿using AudioStation.Controller.Interface;
 using AudioStation.Model.Command;
 using AudioStation.ViewModels;
 
 using Avalonia.Platform.Storage;
 
+using SimpleWpf.RecursiveSerializer.Component.Interface;
+using SimpleWpf.RecursiveSerializer.Interface;
+
 namespace AudioStation.Model
 {
-    public class LibraryConfiguration : ViewModelBase, ISerializable
+    public class LibraryConfiguration : ViewModelBase, IRecursiveSerializable
     {
         string _directoryBase;
         ModelCommand _openLibraryFolderCommand;
@@ -24,12 +25,12 @@ namespace AudioStation.Model
             set { this.SetProperty(ref _openLibraryFolderCommand, value); }
         }
 
-        public LibraryConfiguration(IDialogController dialogController)
+        public LibraryConfiguration()
         {
             this.DirectoryBase = string.Empty;
             this.OpenLibraryFolderCommand = new ModelCommand(async () =>
             {
-                this.DirectoryBase = await dialogController.ShowSelectFolder(new FolderPickerOpenOptions()
+                this.DirectoryBase = await MainViewModel.DialogController.ShowSelectFolder(new FolderPickerOpenOptions()
                 {
                     AllowMultiple = false,
                     Title = "Select Library Folder"
@@ -37,13 +38,13 @@ namespace AudioStation.Model
             });
         }
 
-        public LibraryConfiguration(SerializationInfo info, StreamingContext context)
+        public LibraryConfiguration(IPropertyReader reader)
         {
-            this.DirectoryBase = (string)info.GetValue("DirectoryBase", typeof(string));
+            this.DirectoryBase = reader.Read<string>("DirectoryBase");
         }
-        public void GetObjectData(SerializationInfo info, StreamingContext context)
+        public void GetProperties(IPropertyWriter writer)
         {
-            info.AddValue("DirectoryBase", this.DirectoryBase);
+            writer.Write("DirectoryBase", this.DirectoryBase);
         }
     }
 }

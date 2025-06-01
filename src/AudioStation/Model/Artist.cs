@@ -1,8 +1,11 @@
 ﻿using AudioStation.ViewModels;
 
+using SimpleWpf.RecursiveSerializer.Component.Interface;
+using SimpleWpf.RecursiveSerializer.Interface;
+
 namespace AudioStation.Model
 {
-    public class Artist : ViewModelBase
+    public class Artist : ViewModelBase, IRecursiveSerializable
     {
         string _name;
 
@@ -15,6 +18,14 @@ namespace AudioStation.Model
         public Artist()
         {
             this.Name = string.Empty;
+        }
+        public Artist(IPropertyReader reader)
+        {
+            this.Name = reader.Read<string>("Name");
+        }
+        public void GetProperties(IPropertyWriter writer)
+        {
+            writer.Write("Name", this.Name);
         }
     }
 }

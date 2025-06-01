@@ -6,33 +6,51 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
 			 Background="White"
              x:Class="AudioStation.AlbumView">
-	<Grid Grid.ColumnDefinitions="Auto,*" Grid.RowDefinitions="Auto,*">
 
-		<Image Source="{Binding FileNameRef, Converter={StaticResource ArtworkFileConverter}}" Height="200" Width="200" Grid.RowSpan="2" VerticalAlignment="Top" Margin="10" />
+	<Border Padding="10">
+		<Grid Grid.ColumnDefinitions="Auto,*" Grid.RowDefinitions="Auto,*">
 
-		<Grid Grid.RowDefinitions="Auto,Auto" Grid.Column="1">
+			<Image Source="{Binding FileNameRef, Converter={StaticResource ArtworkFileConverter}}"
+				   Height="200" Width="200" Grid.RowSpan="2"
+				   VerticalAlignment="Top" />
 
 			<!-- Album Banner -->
-			<TextBlock Text="{Binding Album}" HorizontalAlignment="Left" FontSize="14" Foreground="DarkGray" Margin="3 10" />
+			<Border Background="AliceBlue" Grid.Column="1">
+				<Grid Grid.RowDefinitions="Auto,Auto" Margin="5 0 0 0">
 
-			<!-- Album Year / Genre / Other Details... -->
-			<TextBlock Text="{Binding Year}" HorizontalAlignment="Left" FontSize="12" Foreground="LightGray" Grid.Row="1" Margin="3" />
-			<TextBlock Text="{Binding Duration}" HorizontalAlignment="Right" FontSize="12" Foreground="LightGray" Grid.Row="1" Margin="3" />
+					<StackPanel Orientation="Horizontal">
+						<TextBlock Text="{Binding Artist}" HorizontalAlignment="Left" FontSize="16" Foreground="#555555" Margin="3 5" />
+						<iconPacks:PackIconFontAwesome Kind="CircleSolid" Width="3" Height="3" Foreground="#555555" Margin="10" VerticalAlignment="Center" />
+						<TextBlock Text="{Binding Album}" HorizontalAlignment="Left" FontSize="16" Foreground="#555555" Margin="3 5" />
+					</StackPanel>
+
+
+					<!-- Album Year / Genre / Other Details... -->
+					<TextBlock Text="{Binding Year}" HorizontalAlignment="Left" FontSize="12" Foreground="Gray" Grid.Row="1" Margin="3" />
+					<TextBlock Text="{Binding Duration, StringFormat=HH:mm:ss}" HorizontalAlignment="Right" FontSize="12" Foreground="Gray" Grid.Row="1" Margin="3" />
+
+				</Grid>
+			</Border>
 			
-		</Grid>
+			<ListBox ItemsSource="{Binding Tracks}"
+					 Grid.Column="1" Grid.Row="1"
+					 ScrollViewer.IsScrollInertiaEnabled="False"
+					 Background="White">
+				
+				<ListBox.ItemTemplate>
+					<DataTemplate>
+						<Border>
+							<Grid Grid.ColumnDefinitions="Auto,Auto,*,Auto">
+								<iconPacks:PackIconFontAwesome Kind="CirclePlaySolid" Height="12" Width="12" Foreground="LightGray" VerticalAlignment="Center" Margin="3" IsVisible="{Binding NowPlaying}" />
+								<TextBlock Text="{Binding Track}" Grid.Column="1" FontSize="12" Foreground="Gray" Margin="3" />
+								<TextBlock Text="{Binding Name}" Grid.Column="2" FontSize="12" Foreground="Gray" Margin="3" />
+								<TextBlock Text="{Binding Duration, StringFormat=HH:mm:ss}" Grid.Column="3" FontSize="12" Foreground="Gray" Margin="3" />
+							</Grid>
+						</Border>
+					</DataTemplate>
+				</ListBox.ItemTemplate>
+			</ListBox>
 
-		<ListBox ItemsSource="{Binding Tracks}" Grid.Column="1" Grid.Row="1" ScrollViewer.IsScrollInertiaEnabled="False" Background="White">
-			<ListBox.ItemTemplate>
-				<DataTemplate>
-					<Grid Grid.ColumnDefinitions="Auto,Auto,*,Auto">
-						<iconPacks:PackIconFontAwesome Kind="CirclePlaySolid" Height="12" Width="12" Foreground="LightGray" VerticalAlignment="Center" Margin="3" IsVisible="{Binding NowPlaying}" />
-						<TextBlock Text="{Binding Track}" Grid.Column="1" FontSize="12" Foreground="Gray" Margin="3" />
-						<TextBlock Text="{Binding Name}" Grid.Column="2" FontSize="12" Foreground="Gray" Margin="3" />
-						<TextBlock Text="{Binding Duration}" Grid.Column="3" FontSize="12" Foreground="Gray" Margin="3" />
-					</Grid>
-				</DataTemplate>
-			</ListBox.ItemTemplate>
-		</ListBox>
-		
-	</Grid>
+		</Grid>
+	</Border>
 </UserControl>

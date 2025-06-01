@@ -1,13 +1,9 @@
 ﻿using System;
-using System.Collections.ObjectModel;
 
-using SimpleWpf.Extensions.ObservableCollection;
-using AudioStation.Model;
 using AudioStation.Model.Comparer;
 using AudioStation.ViewModels;
 
-using Avalonia.Controls;
-using Avalonia.Media;
+using SimpleWpf.Extensions.ObservableCollection;
 
 namespace AudioStation.ViewModel.LibraryViewModel
 {
@@ -18,6 +14,7 @@ namespace AudioStation.ViewModel.LibraryViewModel
     {
         string _fileNameRef;
         string _album;
+        string _artist;
         uint _year;
         TimeSpan _duration;
         SortedObservableCollection<TitleViewModel> _tracks;
@@ -36,6 +33,11 @@ namespace AudioStation.ViewModel.LibraryViewModel
         {
             get { return _album; }
             set { this.SetProperty(ref _album, value); }
+        }
+        public string Artist
+        {
+            get { return _artist; }
+            set { this.SetProperty(ref _artist, value); }
         }
         public uint Year
         {

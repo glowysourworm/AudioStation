@@ -6,10 +6,45 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="AudioStation.NowPlayingView">
 
-	<Grid Grid.ColumnDefinitions="300,*">
+	<Grid Grid.ColumnDefinitions="400,*">
 
 		<!-- Artist List -->
-		<ListBox x:Name="ArtistLB" ItemsSource="{Binding ValidArtists}" SelectionChanged="OnArtistSelectionChanged" Background="AliceBlue">
+		<ListBox x:Name="ArtistLB" 
+				 ItemsSource="{Binding ValidArtists}" 
+				 SelectionChanged="OnArtistSelectionChanged" 
+				 Background="White"
+				 BorderBrush="LightGray"
+				 BorderThickness="1">
+
+			<!-- Disables mouse styling -->
+			<ListBox.ItemContainerTheme>
+				<ControlTheme TargetType="ListBoxItem">
+					<Setter Property="Background" Value="White" />
+				</ControlTheme>
+			</ListBox.ItemContainerTheme>
+
+			<!-- Enables custom mouse styling using their selectors -->
+			<ListBox.Styles>
+				<Style Selector="ListBoxItem:nth-child(2n) Border">
+					<Setter Property="Background" Value="AliceBlue" />
+				</Style>
+				<Style Selector="ListBoxItem:nth-child(2n):pointerover Border">
+					<Setter Property="Background" Value="#EEEEEE" />
+				</Style>
+				<Style Selector="ListBoxItem:nth-child(2n):selected Border">
+					<Setter Property="Background" Value="LightBlue" />
+				</Style>
+				
+				<Style Selector="ListBoxItem:nth-child(2n + 1) Border">
+					<Setter Property="Background" Value="White" />
+				</Style>
+				<Style Selector="ListBoxItem:nth-child(2n + 1):pointerover Border">
+					<Setter Property="Background" Value="#EEEEEE" />
+				</Style>
+				<Style Selector="ListBoxItem:nth-child(2n + 1):selected Border">
+					<Setter Property="Background" Value="LightBlue" />
+				</Style>
+			</ListBox.Styles>
 			
 			<ListBox.ItemsPanel>
 				<ItemsPanelTemplate>
@@ -19,21 +54,23 @@
 
 			<ListBox.ItemTemplate>
 				<DataTemplate>
-					<StackPanel Orientation="Horizontal">
+					<Border>
+						<StackPanel Orientation="Horizontal">
 
-						<Image Source="{Binding FileNameRef, Converter={StaticResource ArtworkFileConverter}}" Height="50" Width="50" VerticalAlignment="Top" Margin="5" />
+							<Image Source="{Binding FileNameRef, Converter={StaticResource ArtworkFileConverter}}" Height="50" Width="50" VerticalAlignment="Top" Margin="5" />
 
-						<StackPanel>
-							<TextBlock Text="{Binding Artist}" FontSize="14" Margin="5" />
+							<StackPanel>
+								<TextBlock Text="{Binding Artist}" FontSize="14" Margin="5" />
 
-							<StackPanel Orientation="Horizontal" Margin="0 5">
-								<TextBlock Text="{Binding Albums.Count}" Margin="5 0" FontSize="10" />
-								<TextBlock Text=" Album(s)" Margin="5 0" FontSize="10" />
+								<StackPanel Orientation="Horizontal" Margin="0 5">
+									<TextBlock Text="{Binding Albums.Count}" Margin="5 0" FontSize="10" />
+									<TextBlock Text=" Album(s)" Margin="5 0" FontSize="10" />
+								</StackPanel>
+
 							</StackPanel>
-							
-						</StackPanel>
 
-					</StackPanel>
+						</StackPanel>
+					</Border>
 				</DataTemplate>				
 			</ListBox.ItemTemplate>
 		</ListBox>
@@ -41,9 +78,17 @@
 		<!-- Artist Detail (List of Album Details) -->
 		<ListBox x:Name="ArtistDetailLB" Grid.Column="1" DoubleTapped="OnArtistDetailDoubleClick"  ScrollViewer.IsScrollInertiaEnabled="False">
 
+			<ListBox.ItemContainerTheme>
+				<ControlTheme TargetType="ListBoxItem">
+					<Setter Property="Background" Value="White" />
+				</ControlTheme>
+			</ListBox.ItemContainerTheme>
+			
 			<ListBox.ItemTemplate>
 				<DataTemplate>
-					<view:AlbumView />
+					<Border BorderBrush="LightGray" BorderThickness="0 0 0 0">
+						<view:AlbumView />
+					</Border>
 				</DataTemplate>				
 			</ListBox.ItemTemplate>
 

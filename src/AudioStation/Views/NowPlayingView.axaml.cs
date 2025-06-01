@@ -7,6 +7,7 @@ using AudioStation.Model;
 using AudioStation.ViewModel.LibraryViewModel;
 
 using Avalonia.Controls;
+using Avalonia.Controls.Generators;
 
 namespace AudioStation;
 

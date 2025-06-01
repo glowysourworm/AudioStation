@@ -3,14 +3,16 @@ using System.Collections.Generic;
 
 using AudioStation.Component;
 
+using SimpleWpf.RecursiveSerializer.Component.Interface;
+using SimpleWpf.RecursiveSerializer.Interface;
+
 namespace AudioStation.Model.Database
 {
     /// <summary>
     /// Represents library entries and other serialized data for the library. This is separate to
     /// the Configuration (serialized) object.
     /// </summary>
-    [Serializable]
-    public class LibraryDatabase
+    public class LibraryDatabase : IRecursiveSerializable
     {
         public List<LibraryEntry> Entries { get; set; }
 
@@ -25,6 +27,15 @@ namespace AudioStation.Model.Database
         public LibraryDatabase(IEnumerable<LibraryEntry> entries)
         {
             this.Entries = new List<LibraryEntry>(entries);
+        }
+        public LibraryDatabase(IPropertyReader reader)
+        {
+            this.Entries = reader.Read<List<LibraryEntry>>("Entries");
+        }
+
+        public void GetProperties(IPropertyWriter writer)
+        {
+            writer.Write("Entries", this.Entries);
         }
 
         /// <summary>

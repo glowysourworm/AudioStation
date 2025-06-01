@@ -1,9 +1,7 @@
 using AudioStation.Model;
 using AudioStation.ViewModels;
 
-using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Markup.Xaml;
 
 namespace AudioStation;
 
