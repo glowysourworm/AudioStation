@@ -1,11 +1,13 @@
-using Avalonia;
-using Avalonia.Controls.ApplicationLifetimes;
-using Avalonia.Data.Core;
-using Avalonia.Data.Core.Plugins;
 using System.Linq;
-using Avalonia.Markup.Xaml;
+
+using AudioStation.Controller;
 using AudioStation.ViewModels;
 using AudioStation.Views;
+
+using Avalonia;
+using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Data.Core.Plugins;
+using Avalonia.Markup.Xaml;
 
 namespace AudioStation;
 
@@ -18,6 +20,9 @@ public partial class App : Application
 
     public override void OnFrameworkInitializationCompleted()
     {
+        var dialogController = new DialogController();
+        var viewModel = new MainViewModel(dialogController);
+
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
             // Avoid duplicate validations from both Avalonia and the CommunityToolkit. 
@@ -25,14 +30,17 @@ public partial class App : Application
             DisableAvaloniaDataAnnotationValidation();
             desktop.MainWindow = new MainWindow
             {
-                DataContext = new MainViewModel()
+                DataContext = viewModel
             };
+
+            // Main Window Dependency (TopLevel, dialog support)
+            dialogController.Initialize(desktop.MainWindow as MainWindow);
         }
         else if (ApplicationLifetime is ISingleViewApplicationLifetime singleViewPlatform)
         {
             singleViewPlatform.MainView = new MainView
             {
-                DataContext = new MainViewModel()
+                DataContext = viewModel
             };
         }
 

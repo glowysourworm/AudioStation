@@ -10,6 +10,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="AcoustID.NET" />
     <PackageReference Include="Avalonia" />
     <PackageReference Include="Avalonia.Themes.Fluent" />
     <PackageReference Include="Avalonia.Fonts.Inter" />
@@ -19,5 +20,16 @@
       <PrivateAssets Condition="'$(Configuration)' != 'Debug'">All</PrivateAssets>
     </PackageReference>
     <PackageReference Include="CommunityToolkit.Mvvm" />
+    <PackageReference Include="FontAwesome5" />
+    <PackageReference Include="IconPacks.Avalonia" />
+    <PackageReference Include="IconPacks.Avalonia.FontAwesome" />
+    <PackageReference Include="Inflatable.Lastfm" />
+    <PackageReference Include="JetBrains.Annotations" />
+    <PackageReference Include="MetaBrainz.MusicBrainz" />
+    <PackageReference Include="MetaBrainz.MusicBrainz.CoverArt" />
+    <PackageReference Include="NAudio" />
+    <PackageReference Include="SimpleWpf" />
+    <PackageReference Include="System.Security.Permissions" />
+    <PackageReference Include="taglib-sharp-netstandard2.0" />
   </ItemGroup>
 </Project>

@@ -1,0 +1,53 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+			 xmlns:view="clr-namespace:AudioStation;assembly=AudioStation"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="AudioStation.NowPlayingView">
+
+	<Grid Grid.ColumnDefinitions="300,*">
+
+		<!-- Artist List -->
+		<ListBox x:Name="ArtistLB" ItemsSource="{Binding ValidArtists}" SelectionChanged="OnArtistSelectionChanged" Background="AliceBlue">
+			
+			<ListBox.ItemsPanel>
+				<ItemsPanelTemplate>
+					<VirtualizingStackPanel />
+				</ItemsPanelTemplate>
+			</ListBox.ItemsPanel>
+
+			<ListBox.ItemTemplate>
+				<DataTemplate>
+					<StackPanel Orientation="Horizontal">
+
+						<Image Source="{Binding FileNameRef, Converter={StaticResource ArtworkFileConverter}}" Height="50" Width="50" VerticalAlignment="Top" Margin="5" />
+
+						<StackPanel>
+							<TextBlock Text="{Binding Artist}" FontSize="14" Margin="5" />
+
+							<StackPanel Orientation="Horizontal" Margin="0 5">
+								<TextBlock Text="{Binding Albums.Count}" Margin="5 0" FontSize="10" />
+								<TextBlock Text=" Album(s)" Margin="5 0" FontSize="10" />
+							</StackPanel>
+							
+						</StackPanel>
+
+					</StackPanel>
+				</DataTemplate>				
+			</ListBox.ItemTemplate>
+		</ListBox>
+
+		<!-- Artist Detail (List of Album Details) -->
+		<ListBox x:Name="ArtistDetailLB" Grid.Column="1" DoubleTapped="OnArtistDetailDoubleClick"  ScrollViewer.IsScrollInertiaEnabled="False">
+
+			<ListBox.ItemTemplate>
+				<DataTemplate>
+					<view:AlbumView />
+				</DataTemplate>				
+			</ListBox.ItemTemplate>
+
+		</ListBox>
+
+	</Grid>
+</UserControl>

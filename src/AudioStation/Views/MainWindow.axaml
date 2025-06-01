@@ -8,5 +8,5 @@
         x:Class="AudioStation.Views.MainWindow"
         Icon="/Assets/avalonia-logo.ico"
         Title="AudioStation">
-        <views:MainView />
+        <views:MainView DataContext="{Binding}" />
 </Window>
