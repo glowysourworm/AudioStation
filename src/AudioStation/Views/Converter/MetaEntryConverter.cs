@@ -3,7 +3,7 @@ using System.Globalization;
 
 using Avalonia.Data.Converters;
 
-namespace AudioStation.View.Converter
+namespace AudioStation.Views.Converter
 {
     public class MetaEntryConverter : IValueConverter
     {

@@ -1,4 +1,5 @@
 ﻿using AudioStation.Event;
+using AudioStation.Model;
 
 using NAudio.Wave;
 
@@ -6,9 +7,11 @@ namespace AudioStation.Controller.Interface
 {
     public interface IAudioController
     {
-        event SimpleEventHandler PlaybackStoppedEvent;
+        event SimpleEventHandler<Playlist> PlaybackStartedEvent;
+        event SimpleEventHandler<Playlist> PlaybackStoppedEvent;
+        event SimpleEventHandler<Playlist> TrackChangedEvent;
 
-        void Play(string fileName);
+        void Play(Playlist playlist);
         void Stop();
         void Pause();
         PlaybackState GetPlaybackState();

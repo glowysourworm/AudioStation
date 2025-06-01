@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
 
-namespace AudioStation.View.Converter
+namespace AudioStation.Views.Converter
 {
     public class StringArrayConverter : IValueConverter
     {

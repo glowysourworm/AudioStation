@@ -20,6 +20,7 @@ public partial class MainViewModel : ViewModelBase
 {
     // Could move these to dependency injection; but too many other issues
     public static IDialogController DialogController { get; private set; }
+    public static IAudioController AudioController { get; private set; }
 
     public const string CONFIGURATION_FILE = ".AudioStation";
 
@@ -32,6 +33,7 @@ public partial class MainViewModel : ViewModelBase
 
     Library _library;
     Configuration _configuration;
+    string _statusMessage;
     bool _showOutputMessages;
 
     ObservableCollection<LogMessageViewModel> _outputMessages;
@@ -54,6 +56,11 @@ public partial class MainViewModel : ViewModelBase
         get { return _outputMessages; }
         set { this.SetProperty(ref _outputMessages, value); }
     }
+    public string StatusMessage
+    {
+        get { return _statusMessage; }
+        set { this.SetProperty(ref _statusMessage, value); }
+    }
     public bool ShowOutputMessages
     {
         get { return _showOutputMessages; }
@@ -70,9 +77,10 @@ public partial class MainViewModel : ViewModelBase
         set { this.SetProperty(ref _openCommand, value); }
     }
 
-    public MainViewModel(IDialogController dialogController)
+    public MainViewModel(IDialogController dialogController, IAudioController audioController)
     {
         MainViewModel.DialogController = dialogController;
+        MainViewModel.AudioController = audioController;
 
         this.Library = new Library();
         this.Configuration = new Configuration();
@@ -183,5 +191,8 @@ public partial class MainViewModel : ViewModelBase
         {
             this.OutputMessages.RemoveAt(this.OutputMessages.Count - 1);
         }
+
+        // Status Message (for now, last log message)
+        this.StatusMessage = string.Format(message, parameters);
     }
 }

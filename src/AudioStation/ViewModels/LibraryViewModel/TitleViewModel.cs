@@ -8,6 +8,7 @@ namespace AudioStation.ViewModel.LibraryViewModel
     public class TitleViewModel : ViewModelBase
     {
         string _fileName;
+        LibraryEntry _entry;
         string _name;
         uint _track;
         TimeSpan _duration;
@@ -17,6 +18,11 @@ namespace AudioStation.ViewModel.LibraryViewModel
         {
             get { return _fileName; }
             set { this.SetProperty(ref _fileName, value); }
+        }
+        public LibraryEntry Entry
+        {
+            get { return _entry; }
+            set { this.SetProperty(ref _entry, value); }
         }
         public string Name
         {
@@ -42,6 +48,7 @@ namespace AudioStation.ViewModel.LibraryViewModel
         public TitleViewModel()
         {
             this.Track = 0;
+            this.Entry = null;
             this.FileName = string.Empty;
             this.Name = string.Empty;
             this.Duration = TimeSpan.Zero;

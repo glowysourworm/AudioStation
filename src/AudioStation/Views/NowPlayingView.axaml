@@ -3,10 +3,11 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 			 xmlns:view="clr-namespace:AudioStation;assembly=AudioStation"
+			 xmlns:iconPacks="https://github.com/MahApps/IconPacks.Avalonia"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="AudioStation.NowPlayingView">
 
-	<Grid Grid.ColumnDefinitions="400,*">
+	<Grid Grid.ColumnDefinitions="400,*,350">
 
 		<!-- Artist List -->
 		<ListBox x:Name="ArtistLB" 
@@ -76,7 +77,10 @@
 		</ListBox>
 
 		<!-- Artist Detail (List of Album Details) -->
-		<ListBox x:Name="ArtistDetailLB" Grid.Column="1" DoubleTapped="OnArtistDetailDoubleClick"  ScrollViewer.IsScrollInertiaEnabled="False">
+		<ListBox x:Name="ArtistDetailLB" Grid.Column="1" 
+				 DoubleTapped="OnArtistDetailDoubleClick"  
+				 ScrollViewer.IsScrollInertiaEnabled="False" 
+				 BorderBrush="LightGray" BorderThickness="0,1,1,1">
 
 			<ListBox.ItemContainerTheme>
 				<ControlTheme TargetType="ListBoxItem">
@@ -93,6 +97,41 @@
 			</ListBox.ItemTemplate>
 
 		</ListBox>
+
+		<!-- Now Playing:  Playlist -->
+		<Border x:Name="PlaylistContainer" Grid.Column="2">
+			<Grid Grid.RowDefinitions="Auto, *">
+
+				<!-- Album Detail (brief)-->
+				<TextBlock Text="{Binding Name}" />
+
+				<!-- Playlist -->
+				<ListBox x:Name="PlaylistLB"
+						 ItemsSource="{Binding Tracks}"
+						 DoubleTapped="OnPlaylistDoubleClick"
+						 ScrollViewer.IsScrollInertiaEnabled="False"
+						 BorderBrush="LightGray" BorderThickness="0,1,1,1">
+					<ListBox.ItemTemplate>
+						<DataTemplate>
+							<Border>
+								<Grid Grid.ColumnDefinitions="Auto,Auto,*,Auto">
+									<iconPacks:PackIconFontAwesome Kind="CirclePlaySolid"
+																   Height="12" Width="12"
+																   Foreground="LightGray"
+																   VerticalAlignment="Center"
+																   Margin="3"
+																   IsVisible="{Binding NowPlaying}" />
+									<TextBlock Text="{Binding Track}" Grid.Column="1" FontSize="12" Foreground="Gray" Margin="3" />
+									<TextBlock Text="{Binding Name}" Grid.Column="2" FontSize="12" Foreground="Gray" Margin="3" />
+									<TextBlock Text="{Binding Duration, StringFormat=HH:mm:ss}" Grid.Column="3" FontSize="12" Foreground="Gray" Margin="3" />
+								</Grid>
+							</Border>
+						</DataTemplate>
+					</ListBox.ItemTemplate>
+				</ListBox>
+
+			</Grid>
+		</Border>
 
 	</Grid>
 </UserControl>

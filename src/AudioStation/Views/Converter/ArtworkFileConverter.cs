@@ -8,7 +8,7 @@ using AudioStation.Model.Database;
 
 using Avalonia.Data.Converters;
 
-namespace AudioStation.View.Converter
+namespace AudioStation.Views.Converter
 {
     public class ArtworkFileConverter : IValueConverter
     {

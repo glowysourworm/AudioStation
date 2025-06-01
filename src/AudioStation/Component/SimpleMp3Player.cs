@@ -57,6 +57,9 @@ namespace AudioStation.Component
 
         public PlaybackState GetPlaybackState()
         {
+            if (_wavePlayer == null)
+                return PlaybackState.Stopped;
+
             return _wavePlayer.PlaybackState;
         }
 

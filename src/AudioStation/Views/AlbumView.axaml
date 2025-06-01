@@ -41,7 +41,6 @@
 					<DataTemplate>
 						<Border>
 							<Grid Grid.ColumnDefinitions="Auto,Auto,*,Auto">
-								<iconPacks:PackIconFontAwesome Kind="CirclePlaySolid" Height="12" Width="12" Foreground="LightGray" VerticalAlignment="Center" Margin="3" IsVisible="{Binding NowPlaying}" />
 								<TextBlock Text="{Binding Track}" Grid.Column="1" FontSize="12" Foreground="Gray" Margin="3" />
 								<TextBlock Text="{Binding Name}" Grid.Column="2" FontSize="12" Foreground="Gray" Margin="3" />
 								<TextBlock Text="{Binding Duration, StringFormat=HH:mm:ss}" Grid.Column="3" FontSize="12" Foreground="Gray" Margin="3" />

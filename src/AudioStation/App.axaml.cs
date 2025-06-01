@@ -21,7 +21,8 @@ public partial class App : Application
     public override void OnFrameworkInitializationCompleted()
     {
         var dialogController = new DialogController();
-        var viewModel = new MainViewModel(dialogController);
+        var audioController = new AudioController();
+        var viewModel = new MainViewModel(dialogController, audioController);
 
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {

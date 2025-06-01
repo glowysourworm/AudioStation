@@ -96,10 +96,10 @@ namespace AudioStation.Model
                         albumEntry.Tracks.Add(new TitleViewModel()
                         {
                             FileName = entry.FileName,
+                            Entry = entry,
                             Name = entry.Title,
                             Track = entry.Track,
-                            Duration = entry.Duration,
-                            NowPlaying = false
+                            Duration = entry.Duration
                         });
 
                         artistEntry.Albums.Add(albumEntry);
@@ -112,10 +112,10 @@ namespace AudioStation.Model
                         albumEntry.Tracks.Add(new TitleViewModel()
                         {
                             FileName = entry.FileName,
+                            Entry = entry,
                             Name = entry.Title,
                             Track= entry.Track,
-                            Duration = entry.Duration,
-                            NowPlaying = false
+                            Duration = entry.Duration
                         });
                     }
                 }
@@ -139,10 +139,10 @@ namespace AudioStation.Model
                     albumEntry.Tracks.Add(new TitleViewModel()
                     {
                         FileName = entry.FileName,
+                        Entry = entry,
                         Name = entry.Title,
                         Track = entry.Track,
-                        Duration = entry.Duration,
-                        NowPlaying = false
+                        Duration = entry.Duration
                     });
                     artistEntry.Albums.Add(albumEntry);
 

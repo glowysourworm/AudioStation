@@ -6,7 +6,7 @@ using AudioStation.Model;
 
 using Avalonia.Data.Converters;
 
-namespace AudioStation.View.Converter
+namespace AudioStation.Views.Converter
 {
     public class MusicBrainzConverter : IValueConverter
     {

@@ -7,7 +7,7 @@ using AudioStation.ViewModels;
 using Avalonia.Data.Converters;
 using Avalonia.Media;
 
-namespace AudioStation.View.Converter
+namespace AudioStation.Views.Converter
 {
     public class MusicBrainzValidColorConverter : IValueConverter
     {

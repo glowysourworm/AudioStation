@@ -16,6 +16,7 @@
 			<RowDefinition Height="Auto" />
 			<RowDefinition Height="*" />
 			<RowDefinition Height="Auto" />
+			<RowDefinition Height="28" />
 		</Grid.RowDefinitions>
 
 		<!-- Toolbar -->
@@ -130,6 +131,14 @@
 				</TabItem>
 
 			</TabControl>
+		</Border>
+
+		<!-- Status Bar -->
+		<Border x:Name="StatusBorder" Grid.Row="3" Background="#EEEEEE">
+			<TextBlock x:Name="StatusMessageTB" 
+					   Text="{Binding StatusMessage}" 
+					   FontSize="14" Margin="5" 
+					   Foreground="#555555" VerticalAlignment="Center" />
 		</Border>
 
 	</Grid>
