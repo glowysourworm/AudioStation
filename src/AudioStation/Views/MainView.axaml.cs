@@ -22,7 +22,7 @@ public partial class MainView : UserControl
             // Bindings weren't working (tried ViewLocator, CompiledBindings)
             this.ConfigurationView.DataContext = viewModel.Configuration;
             this.ManagerView.DataContext = viewModel;
-            this.NowPlayingView.DataContext = viewModel.Library;
+            this.NowPlayingView.DataContext = viewModel;
             this.OutputLB.ItemsSource = viewModel.OutputMessages;
         }
     }

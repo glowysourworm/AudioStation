@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Diagnostics;
+using System.Threading;
 
 using AudioStation.Event;
 
@@ -12,14 +14,30 @@ namespace AudioStation.Component
     public class SimpleMp3Player : IDisposable
     {
         private IWavePlayer _wavePlayer;
+        private Timer _timer;
+        private Stopwatch _stopwatch;                               // Stopwatch will be shared on the timer thread
+        private object _lock = new object();
+        private const int TIMER_INTERVAL_MILLISECONDS = 1000;
+        private const int TIMER_SLEEP_INTERVAL = 100;
 
         public event SimpleEventHandler<string> MessageEvent;
+        public event SimpleEventHandler<TimeSpan> PlaybackTickEvent;
 
         public event SimpleEventHandler PlaybackStoppedEvent;
 
         public SimpleMp3Player()
         {
             _wavePlayer = null;
+            _stopwatch = new Stopwatch();
+            _timer = new Timer(new TimerCallback(TimerThread), null, 0, TIMER_INTERVAL_MILLISECONDS);
+        }
+        ~SimpleMp3Player()
+        {
+            _timer.Dispose();
+            _stopwatch.Stop();
+            _wavePlayer.Dispose();
+            _wavePlayer = null;
+            _timer = null;
         }
 
         public void SetVolume(float volume)
@@ -29,30 +47,62 @@ namespace AudioStation.Component
 
         public void Play(string fileName)
         {
-            if (_wavePlayer != null)
+            // Stopwatch is shared
+            lock(_lock)
             {
-                _wavePlayer.PlaybackStopped -= OnPlaybackStopped;
-                _wavePlayer.Stop();
-                _wavePlayer.Dispose();
-                _wavePlayer = null;
-            }
+                if (_wavePlayer != null)
+                {
+                    _stopwatch.Restart();
+                    _wavePlayer.PlaybackStopped -= OnPlaybackStopped;
+                    _wavePlayer.Stop();
+                    _wavePlayer.Dispose();
+                    _wavePlayer = null;
+                }
 
-            var audioFileReader = new AudioFileReader(fileName);
-            audioFileReader.Volume = 1;
-            _wavePlayer = new WasapiOut();
-            _wavePlayer.PlaybackStopped += OnPlaybackStopped;
-            _wavePlayer.Init(audioFileReader);
-            _wavePlayer.Play();
+                var audioFileReader = new AudioFileReader(fileName);
+                audioFileReader.Volume = 1;
+                _wavePlayer = new WasapiOut();
+                _wavePlayer.PlaybackStopped += OnPlaybackStopped;
+                _wavePlayer.Init(audioFileReader);
+                _wavePlayer.Play();
+            }
         }
 
         public void Pause()
         {
-            _wavePlayer.Pause();
+            lock (_lock)
+            {
+                _wavePlayer.Pause();
+                _stopwatch.Stop();
+            }
         }
 
         public void Stop()
         {
-            _wavePlayer.Stop();
+            lock (_lock)
+            {
+                _wavePlayer.Stop();
+                _stopwatch.Stop();
+            }
+        }
+
+        private void TimerThread(object? state)
+        {
+            while (true)
+            {
+                lock(_lock)
+                {
+                    if (_stopwatch.IsRunning)
+                    {
+                        if (this.PlaybackTickEvent != null)
+                        {
+                            this.PlaybackTickEvent(_stopwatch.Elapsed);
+                        }
+                    }
+                }
+
+                Thread.Sleep(TIMER_SLEEP_INTERVAL);
+            }
         }
 
         public PlaybackState GetPlaybackState()

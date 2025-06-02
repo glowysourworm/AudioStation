@@ -1,0 +1,27 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="AudioStation.Controls.ScrubberControl">
+	<Grid>
+		
+		<Line x:Name="ScrubberLine" 
+			  Height="5" 
+			  Fill="AliceBlue" 
+			  Stroke="LightGray" 
+			  StrokeThickness="1"
+			  HorizontalAlignment="Stretch"
+			  VerticalAlignment="Center"
+			  />
+
+		<Ellipse x:Name="ScrubberCursor"
+				 Height="10" Width="10"
+				 Fill="LightBlue" 
+				 Stroke="LightGray"
+				 StrokeThickness="1" 
+				 Cursor="Hand"
+				 HorizontalAlignment="Left"
+				 VerticalAlignment="Center"/>
+	</Grid>
+</UserControl>

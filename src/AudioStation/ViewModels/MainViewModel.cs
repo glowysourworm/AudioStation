@@ -13,6 +13,7 @@ using Avalonia.Media;
 using Avalonia.Threading;
 using AudioStation.Views;
 using AudioStation.Controller.Interface;
+using AudioStation.ViewModel.LibraryViewModel;
 
 namespace AudioStation.ViewModels;
 
@@ -35,6 +36,9 @@ public partial class MainViewModel : ViewModelBase
     Configuration _configuration;
     string _statusMessage;
     bool _showOutputMessages;
+
+    Playlist _playlist;
+    float _volume;
 
     ObservableCollection<LogMessageViewModel> _outputMessages;
 
@@ -65,6 +69,16 @@ public partial class MainViewModel : ViewModelBase
     {
         get { return _showOutputMessages; }
         set { this.SetProperty(ref _showOutputMessages, value); }
+    }
+    public Playlist Playlist
+    {
+        get { return _playlist; }
+        set { this.SetProperty(ref _playlist, value); }
+    }
+    public float Volume
+    {
+        get { return _volume; }
+        set { this.SetProperty(ref _volume, value); }
     }
     public ModelCommand SaveCommand
     {
@@ -103,6 +117,32 @@ public partial class MainViewModel : ViewModelBase
         {
             Open();
         });
+
+        // Dependency Injection Needed:  too many other issues right now
+        MainViewModel.AudioController.PlaybackStartedEvent += OnAudioControllerPlaybackStarted;
+        MainViewModel.AudioController.PlaybackStoppedEvent += OnAudioControllerPlaybackStopped;
+    }
+
+    ~MainViewModel()
+    {
+        // Dependency Injection Needed:  too many other issues right now
+        MainViewModel.AudioController.PlaybackStartedEvent -= OnAudioControllerPlaybackStarted;
+        MainViewModel.AudioController.PlaybackStoppedEvent -= OnAudioControllerPlaybackStopped;
+    }
+
+    private void OnAudioControllerTrackChanged(Playlist payload, TitleViewModel nowPlaying)
+    {
+        
+    }
+
+    private void OnAudioControllerPlaybackStopped(Playlist payload)
+    {
+        
+    }
+
+    private void OnAudioControllerPlaybackStarted(Playlist payload, TitleViewModel nowPlaying)
+    {
+        
     }
 
     public void Save()

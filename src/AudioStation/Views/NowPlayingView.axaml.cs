@@ -15,27 +15,43 @@ public partial class NowPlayingView : UserControl
     {
         InitializeComponent();
 
-        // Dependency Injection Needed:  too many other issues right now
-        MainViewModel.AudioController.PlaybackStartedEvent += OnAudioControllerPlaybackStarted;
-        MainViewModel.AudioController.PlaybackStoppedEvent += OnAudioControllerPlaybackStopped;
-        MainViewModel.AudioController.TrackChangedEvent += OnAudioControllerTrackChanged;
+        // BINDING NOT WORKING!
+        this.DataContextChanged += NowPlayingView_DataContextChanged;
+        this.Loaded += NowPlayingView_Loaded;
     }
-    ~NowPlayingView()
+
+    private void NowPlayingView_Loaded(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
-        // Dependency Injection Needed:  too many other issues right now
-        MainViewModel.AudioController.PlaybackStartedEvent -= OnAudioControllerPlaybackStarted;
-        MainViewModel.AudioController.PlaybackStoppedEvent -= OnAudioControllerPlaybackStopped;
-        MainViewModel.AudioController.TrackChangedEvent -= OnAudioControllerTrackChanged;
+        var viewModel = this.DataContext as MainViewModel;
+
+        if (viewModel != null)
+        {
+            this.ArtistLB.ItemsSource = viewModel.Library.ValidArtists;
+        }
+    }
+
+    private void NowPlayingView_DataContextChanged(object? sender, System.EventArgs e)
+    {
+        var viewModel = this.DataContext as MainViewModel;
+
+        if (viewModel != null)
+        {
+            this.ArtistLB.ItemsSource = viewModel.Library.ValidArtists;
+        }
     }
 
     private void OnArtistSelectionChanged(object? sender, Avalonia.Controls.SelectionChangedEventArgs e)
     {
-        var library = this.DataContext as Library;
+        var library = (this.DataContext as MainViewModel)?.Library;
 
         if (e.AddedItems.Count > 0 && library != null)
         {
-            // View Artist Detail
-            this.ArtistDetailLB.ItemsSource = (e.AddedItems[0] as ArtistViewModel).Albums;
+            // ??? (it was null...)
+            if (e.AddedItems[0] != null)
+            {
+                // View Artist Detail
+                this.ArtistDetailLB.ItemsSource = (e.AddedItems[0] as ArtistViewModel).Albums;
+            }
         }
     }
 
@@ -72,45 +88,19 @@ public partial class NowPlayingView : UserControl
         var playlist = new Playlist();
         playlist.Name = selectedAlbum.Artist + " / " + selectedAlbum.Album;
 
-        var index = 0;
-
+        // Load tracks for playback
         foreach (var track in selectedAlbum.Tracks)
         {
             playlist.Tracks.Add(track);
-
-            if (track == selectedTitle)
-                playlist.NowPlayingIndex = index;
-
-            index++;
         }
+
+        // Setup playback (needs revision; but this works with the IAudioController)
+        playlist.LoadPlayback(selectedTitle);
 
         // Set View Model
-        this.PlaylistContainer.DataContext = playlist;
+        (this.DataContext as MainViewModel).Playlist = playlist;
 
-        // Play Selected Track
+        // Play Selected Track(s) (the audio controller <-> playlist handle the rest)
         MainViewModel.AudioController.Play(playlist);
-    }
-
-    private void SetNowPlaying(Playlist playlist, bool forceStop)
-    {
-        for (int index = 0; index < playlist.Tracks.Count; index++)
-        {
-            playlist.Tracks[index].NowPlaying = (index == playlist.NowPlayingIndex) && !forceStop;
-        }
-    }
-
-    private void OnAudioControllerPlaybackStarted(Playlist playlist)
-    {
-        SetNowPlaying(playlist, false);
-    }
-
-    private void OnAudioControllerPlaybackStopped(Playlist playlist)
-    {
-        SetNowPlaying(playlist, true);
-    }
-
-    private void OnAudioControllerTrackChanged(Playlist playlist)
-    {
-        SetNowPlaying(playlist, false);
     }
 }

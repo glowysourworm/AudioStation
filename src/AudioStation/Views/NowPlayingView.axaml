@@ -11,7 +11,6 @@
 
 		<!-- Artist List -->
 		<ListBox x:Name="ArtistLB" 
-				 ItemsSource="{Binding ValidArtists}" 
 				 SelectionChanged="OnArtistSelectionChanged" 
 				 Background="White"
 				 BorderBrush="LightGray"
@@ -99,7 +98,7 @@
 		</ListBox>
 
 		<!-- Now Playing:  Playlist -->
-		<Border x:Name="PlaylistContainer" Grid.Column="2">
+		<Border x:Name="PlaylistContainer" Grid.Column="2" DataContext="{Binding Playlist}">
 			<Grid Grid.RowDefinitions="Auto, *">
 
 				<!-- Album Detail (brief)-->
