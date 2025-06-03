@@ -1,12 +1,10 @@
-﻿using System;
-using System.IO;
-using System.Linq;
+﻿using System.IO;
 using System.Net;
-using System.Threading.Tasks;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
 
 using AudioStation.Constant;
 using AudioStation.Model;
-using AudioStation.Model.Database;
 
 using IF.Lastfm.Core.Api;
 using IF.Lastfm.Core.Api.Enums;
@@ -15,11 +13,11 @@ namespace AudioStation.Component
 {
     public static class LastFmClient
     {
-        public static async Task<SerializableBitmap> DownloadArtwork(LibraryEntry entry)
+        public static async Task<ImageSource> DownloadArtwork(LibraryEntry entry)
         {
             if (entry.IsUnknown(x => x.Album) ||
                 entry.IsUnknown(x => x.AlbumArtists))
-                return await Task.FromResult<SerializableBitmap>(null);
+                return await Task.FromResult<ImageSource>(null);
 
             else
             {
@@ -37,16 +35,16 @@ namespace AudioStation.Component
                         return await DownloadImage(response.Content.Images.ExtraLarge.AbsoluteUri);
 
                     else
-                        return await Task.FromResult<SerializableBitmap>(null);
+                        return await Task.FromResult<ImageSource>(null);
                 }
                 catch (Exception)
                 {
-                    return await Task.FromResult<SerializableBitmap>(null);
+                    return await Task.FromResult<ImageSource>(null);
                 }
             }
         }
 
-        public static async Task<SerializableBitmap> DownloadImage(string imageUrl)
+        public static async Task<ImageSource> DownloadImage(string imageUrl)
         {
             try
             {
@@ -62,9 +60,9 @@ namespace AudioStation.Component
 
                         memoryStream.Seek(0, SeekOrigin.Begin);
 
-                        var bitmap = new SerializableBitmap(memoryStream);
+                        var decoder = BitmapDecoder.Create(memoryStream, BitmapCreateOptions.PreservePixelFormat, BitmapCacheOption.Default);
 
-                        return bitmap;
+                        return decoder.Frames[0];
                     }
                 }
             }

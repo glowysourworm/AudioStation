@@ -1,15 +1,9 @@
-﻿using System;
-using System.IO;
-using System.Runtime.Serialization;
+﻿using System.IO;
 
-using AudioStation.Controller.Interface;
-using AudioStation.Model.Command;
 using AudioStation.ViewModels;
-using AudioStation.Views;
 
-using Avalonia.Controls;
-using Avalonia.Platform.Storage;
-
+using SimpleWpf.Extensions;
+using SimpleWpf.Extensions.Command;
 using SimpleWpf.RecursiveSerializer.Component.Interface;
 using SimpleWpf.RecursiveSerializer.Interface;
 
@@ -22,22 +16,22 @@ namespace AudioStation.Model
         string _libraryDatabaseFile;
         LibraryConfiguration _libraryConfiguration;
 
-        ModelCommand _selectLibraryDatabaseFileCommand;
+        SimpleCommand _selectLibraryDatabaseFileCommand;
 
         public LibraryConfiguration LibraryConfiguration
         {
             get { return _libraryConfiguration; }
-            set { this.SetProperty(ref _libraryConfiguration, value); }
+            set { this.RaiseAndSetIfChanged(ref _libraryConfiguration, value); }
         }
         public string LibraryDatabaseFile
         {
             get { return _libraryDatabaseFile; }
-            set { this.SetProperty(ref _libraryDatabaseFile, value); }
+            set { this.RaiseAndSetIfChanged(ref _libraryDatabaseFile, value); }
         }
-        public ModelCommand SelectLibraryDatabaseFileCommand
+        public SimpleCommand SelectLibraryDatabaseFileCommand
         {
             get { return _selectLibraryDatabaseFileCommand; }
-            set { this.SetProperty(ref _selectLibraryDatabaseFileCommand, value); }
+            set { this.RaiseAndSetIfChanged(ref _selectLibraryDatabaseFileCommand, value); }
         }
 
 
@@ -45,13 +39,9 @@ namespace AudioStation.Model
         {
             this.LibraryConfiguration = new LibraryConfiguration();
             this.LibraryDatabaseFile = LIBRARY_DATABASE_FILE;
-            this.SelectLibraryDatabaseFileCommand = new ModelCommand(async () =>
+            this.SelectLibraryDatabaseFileCommand = new SimpleCommand(() =>
             {
-                this.LibraryDatabaseFile = await MainViewModel.DialogController.ShowSaveFile(new FilePickerSaveOptions()
-                {
-                    Title = "Save Library Database",
-                    SuggestedFileName = LIBRARY_DATABASE_FILE                    
-                });
+                this.LibraryDatabaseFile = MainViewModel.DialogController.ShowSaveFile();
             });
 
             this.LibraryConfiguration.PropertyChanged += (sender, args) =>

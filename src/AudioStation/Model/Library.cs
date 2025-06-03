@@ -1,15 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.IO;
-using System.Linq;
+﻿using System.IO;
 
-using AudioStation.Event;
 using AudioStation.Model.Comparer;
 using AudioStation.ViewModel;
 using AudioStation.ViewModel.LibraryViewModel;
 using AudioStation.ViewModels;
 
+using SimpleWpf.Extensions;
+using SimpleWpf.Extensions.Event;
 using SimpleWpf.Extensions.ObservableCollection;
 
 namespace AudioStation.Model
@@ -29,7 +26,7 @@ namespace AudioStation.Model
         public SortedObservableCollection<LibraryEntry> AllTitles
         {
             get { return _allTitles; }
-            set { this.SetProperty(ref _allTitles, value); }
+            set { this.RaiseAndSetIfChanged(ref _allTitles, value); }
         }
 
         /// <summary>
@@ -39,7 +36,7 @@ namespace AudioStation.Model
         public SortedObservableCollection<LibraryEntry> ValidTitles
         {
             get { return _validTitles; }
-            set { this.SetProperty(ref _validTitles, value); }
+            set { this.RaiseAndSetIfChanged(ref _validTitles, value); }
         }
 
         /// <summary>
@@ -48,7 +45,7 @@ namespace AudioStation.Model
         public SortedObservableCollection<ArtistViewModel> ValidArtists
         {
             get { return _validArtists; }
-            set { this.SetProperty(ref _validArtists, value); }
+            set { this.RaiseAndSetIfChanged(ref _validArtists, value); }
         }
 
         public Library()
@@ -114,7 +111,7 @@ namespace AudioStation.Model
                             FileName = entry.FileName,
                             Entry = entry,
                             Name = entry.Title,
-                            Track= entry.Track,
+                            Track = entry.Track,
                             Duration = entry.Duration
                         });
                     }
@@ -133,7 +130,7 @@ namespace AudioStation.Model
                     artistEntry = new ArtistViewModel()
                     {
                         Artist = entry.AlbumArtists.First().Name,
-                        FileNameRef= entry.FileName
+                        FileNameRef = entry.FileName
                     };
 
                     albumEntry.Tracks.Add(new TitleViewModel()

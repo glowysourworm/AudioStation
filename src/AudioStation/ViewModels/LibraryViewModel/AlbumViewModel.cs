@@ -1,8 +1,6 @@
-﻿using System;
+﻿using AudioStation.Model.Comparer;
 
-using AudioStation.Model.Comparer;
-using AudioStation.ViewModels;
-
+using SimpleWpf.Extensions;
 using SimpleWpf.Extensions.ObservableCollection;
 
 namespace AudioStation.ViewModel.LibraryViewModel
@@ -26,33 +24,33 @@ namespace AudioStation.ViewModel.LibraryViewModel
         public string FileNameRef
         {
             get { return _fileNameRef; }
-            set { this.SetProperty(ref _fileNameRef, value); }
+            set { this.RaiseAndSetIfChanged(ref _fileNameRef, value); }
         }
 
         public string Album
         {
             get { return _album; }
-            set { this.SetProperty(ref _album, value); }
+            set { this.RaiseAndSetIfChanged(ref _album, value); }
         }
         public string Artist
         {
             get { return _artist; }
-            set { this.SetProperty(ref _artist, value); }
+            set { this.RaiseAndSetIfChanged(ref _artist, value); }
         }
         public uint Year
         {
             get { return _year; }
-            set { this.SetProperty(ref _year, value); }
+            set { this.RaiseAndSetIfChanged(ref _year, value); }
         }
         public TimeSpan Duration
         {
             get { return _duration; }
-            set { this.SetProperty(ref _duration, value); }
+            set { this.RaiseAndSetIfChanged(ref _duration, value); }
         }
         public SortedObservableCollection<TitleViewModel> Tracks
         {
             get { return _tracks; }
-            set { this.SetProperty(ref _tracks, value); }
+            set { this.RaiseAndSetIfChanged(ref _tracks, value); }
         }
 
         public AlbumViewModel()

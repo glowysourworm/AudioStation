@@ -1,11 +1,5 @@
-﻿using System;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
-
+﻿using SimpleWpf.Extensions;
 using SimpleWpf.Extensions.ObservableCollection;
-using AudioStation.ViewModels;
-using SimpleWpf.RecursiveSerializer.Interface;
-using SimpleWpf.RecursiveSerializer.Component.Interface;
 
 namespace AudioStation.Model.Vendor
 {
@@ -39,69 +33,69 @@ namespace AudioStation.Model.Vendor
         public string MusicBrainzRecordingId
         {
             get { return _musicBrainzRecordingId; }
-            private set { SetProperty(ref _musicBrainzRecordingId, value); }
+            private set { RaiseAndSetIfChanged(ref _musicBrainzRecordingId, value); }
         }
         public string MusicBrainzReleaseCountry
         {
             get { return _musicBrainzReleaseCountry; }
-            set { SetProperty(ref _musicBrainzReleaseCountry, value); }
+            set { RaiseAndSetIfChanged(ref _musicBrainzReleaseCountry, value); }
         }
         public string MusicBrainzReleaseStatus
         {
             get { return _musicBrainzReleaseStatus; }
-            set { SetProperty(ref _musicBrainzReleaseStatus, value); }
+            set { RaiseAndSetIfChanged(ref _musicBrainzReleaseStatus, value); }
         }
         public string Album
         {
             get { return _album; }
-            set { SetProperty(ref _album, value); }
+            set { RaiseAndSetIfChanged(ref _album, value); }
         }
         public string Title
         {
             get { return _title; }
-            set { SetProperty(ref _title, value); }
+            set { RaiseAndSetIfChanged(ref _title, value); }
         }
         public uint Year
         {
             get { return _year; }
-            set { SetProperty(ref _year, value); }
+            set { RaiseAndSetIfChanged(ref _year, value); }
         }
         public uint Track
         {
             get { return _track; }
-            set { SetProperty(ref _track, value); }
+            set { RaiseAndSetIfChanged(ref _track, value); }
         }
         public uint Disc
         {
             get { return _disc; }
-            set { SetProperty(ref _disc, value); }
+            set { RaiseAndSetIfChanged(ref _disc, value); }
         }
         public uint DiscCount
         {
             get { return _discCount; }
-            set { SetProperty(ref _discCount, value); }
+            set { RaiseAndSetIfChanged(ref _discCount, value); }
         }
 
         public SortedObservableCollection<string> AlbumArtists
         {
             get { return _albumArtists; }
-            set { SetProperty(ref _albumArtists, value); }
+            set { RaiseAndSetIfChanged(ref _albumArtists, value); }
         }
         public SortedObservableCollection<string> Genres
         {
             get { return _genres; }
-            set { SetProperty(ref _genres, value); }
+            set { RaiseAndSetIfChanged(ref _genres, value); }
         }
         public int Score
         {
             get { return _score; }
-            set { this.SetProperty(ref _score, value); }
+            set { this.RaiseAndSetIfChanged(ref _score, value); }
         }
 
         public DateTime Timestamp
         {
             get { return _timestamp; }
-            set { this.SetProperty(ref _timestamp, value); }
+            set { this.RaiseAndSetIfChanged(ref _timestamp, value); }
         }
         public bool IsValid
         {
@@ -111,7 +105,7 @@ namespace AudioStation.Model.Vendor
 
         static MusicBrainzRecord()
         {
-             Empty = new MusicBrainzRecord("Empty (not queried)");
+            Empty = new MusicBrainzRecord("Empty (not queried)");
         }
         public MusicBrainzRecord(string recordingId)
         {

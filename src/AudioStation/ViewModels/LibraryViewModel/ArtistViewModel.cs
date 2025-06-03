@@ -1,10 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 
-using AudioStation.Model;
-using AudioStation.ViewModels;
-
-using Avalonia.Controls;
-using Avalonia.Media;
+using SimpleWpf.Extensions;
 
 namespace AudioStation.ViewModel.LibraryViewModel
 {
@@ -25,18 +21,18 @@ namespace AudioStation.ViewModel.LibraryViewModel
         public string FileNameRef
         {
             get { return _fileNameRef; }
-            set { this.SetProperty(ref _fileNameRef, value); }
+            set { this.RaiseAndSetIfChanged(ref _fileNameRef, value); }
         }
 
         public string Artist
         {
             get { return _artist; }
-            set { this.SetProperty(ref _artist, value); }
+            set { this.RaiseAndSetIfChanged(ref _artist, value); }
         }
         public ObservableCollection<AlbumViewModel> Albums
         {
             get { return _albums; }
-            set { this.SetProperty(ref _albums, value); }
+            set { this.RaiseAndSetIfChanged(ref _albums, value); }
         }
 
         public ArtistViewModel()

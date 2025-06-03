@@ -1,19 +1,17 @@
-﻿using System;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.IO;
-
-using AudioStation.ViewModel;
+using System.Windows;
+using System.Windows.Media;
 
 using AudioStation.Component;
-using AudioStation.Model;
-using AudioStation.Model.Command;
-using AudioStation.Model.Database;
-
-using Avalonia.Media;
-using Avalonia.Threading;
-using AudioStation.Views;
 using AudioStation.Controller.Interface;
+using AudioStation.Model;
+using AudioStation.Model.Database;
+using AudioStation.ViewModel;
 using AudioStation.ViewModel.LibraryViewModel;
+
+using SimpleWpf.Extensions;
+using SimpleWpf.Extensions.Command;
 
 namespace AudioStation.ViewModels;
 
@@ -26,9 +24,9 @@ public partial class MainViewModel : ViewModelBase
     public const string CONFIGURATION_FILE = ".AudioStation";
 
     // Some View Properties
-    public static SolidColorBrush DefaultMusicBrainzBackground = new SolidColorBrush(new Color(255, 220, 220, 220));
-    public static SolidColorBrush ValidMusicBrainzBackground = new SolidColorBrush(new Color(255, 220, 255, 220));
-    public static SolidColorBrush InvalidMusicBrainzBackground = new SolidColorBrush(new Color(255, 255, 220, 220));
+    public static SolidColorBrush DefaultMusicBrainzBackground = new SolidColorBrush(Color.FromArgb(255, 220, 220, 220));
+    public static SolidColorBrush ValidMusicBrainzBackground = new SolidColorBrush(Color.FromArgb(255, 220, 255, 220));
+    public static SolidColorBrush InvalidMusicBrainzBackground = new SolidColorBrush(Color.FromArgb(255, 255, 220, 220));
 
     const int MAX_LOG_COUNT = 1000;
 
@@ -42,53 +40,53 @@ public partial class MainViewModel : ViewModelBase
 
     ObservableCollection<LogMessageViewModel> _outputMessages;
 
-    ModelCommand _saveCommand;
-    ModelCommand _openCommand;
+    SimpleCommand _saveCommand;
+    SimpleCommand _openCommand;
 
     public Library Library
     {
         get { return _library; }
-        set { this.SetProperty(ref _library, value); }
+        set { this.RaiseAndSetIfChanged(ref _library, value); }
     }
     public Configuration Configuration
     {
         get { return _configuration; }
-        set { this.SetProperty(ref _configuration, value); }
+        set { this.RaiseAndSetIfChanged(ref _configuration, value); }
     }
     public ObservableCollection<LogMessageViewModel> OutputMessages
     {
         get { return _outputMessages; }
-        set { this.SetProperty(ref _outputMessages, value); }
+        set { this.RaiseAndSetIfChanged(ref _outputMessages, value); }
     }
     public string StatusMessage
     {
         get { return _statusMessage; }
-        set { this.SetProperty(ref _statusMessage, value); }
+        set { this.RaiseAndSetIfChanged(ref _statusMessage, value); }
     }
     public bool ShowOutputMessages
     {
         get { return _showOutputMessages; }
-        set { this.SetProperty(ref _showOutputMessages, value); }
+        set { this.RaiseAndSetIfChanged(ref _showOutputMessages, value); }
     }
     public Playlist Playlist
     {
         get { return _playlist; }
-        set { this.SetProperty(ref _playlist, value); }
+        set { this.RaiseAndSetIfChanged(ref _playlist, value); }
     }
     public float Volume
     {
         get { return _volume; }
-        set { this.SetProperty(ref _volume, value); }
+        set { this.RaiseAndSetIfChanged(ref _volume, value); }
     }
-    public ModelCommand SaveCommand
+    public SimpleCommand SaveCommand
     {
         get { return _saveCommand; }
-        set { this.SetProperty(ref _saveCommand, value); }
+        set { this.RaiseAndSetIfChanged(ref _saveCommand, value); }
     }
-    public ModelCommand OpenCommand
+    public SimpleCommand OpenCommand
     {
         get { return _openCommand; }
-        set { this.SetProperty(ref _openCommand, value); }
+        set { this.RaiseAndSetIfChanged(ref _openCommand, value); }
     }
 
     public MainViewModel(IDialogController dialogController, IAudioController audioController)
@@ -98,7 +96,7 @@ public partial class MainViewModel : ViewModelBase
 
         this.Library = new Library();
         this.Configuration = new Configuration();
-        this.ShowOutputMessages = true;
+        this.ShowOutputMessages = false;
         this.OutputMessages = new ObservableCollection<LogMessageViewModel>();
 
         OnLog("Welcome to Audio Player!");
@@ -109,11 +107,11 @@ public partial class MainViewModel : ViewModelBase
         };
         this.Configuration.LibraryConfiguration.PropertyChanged += OnConfigurationChanged;
 
-        this.SaveCommand = new ModelCommand(() =>
+        this.SaveCommand = new SimpleCommand(() =>
         {
             Save();
         });
-        this.OpenCommand = new ModelCommand(() =>
+        this.OpenCommand = new SimpleCommand(() =>
         {
             Open();
         });
@@ -132,17 +130,17 @@ public partial class MainViewModel : ViewModelBase
 
     private void OnAudioControllerTrackChanged(Playlist payload, TitleViewModel nowPlaying)
     {
-        
+
     }
 
     private void OnAudioControllerPlaybackStopped(Playlist payload)
     {
-        
+
     }
 
     private void OnAudioControllerPlaybackStarted(Playlist payload, TitleViewModel nowPlaying)
     {
-        
+
     }
 
     public void Save()
@@ -202,7 +200,7 @@ public partial class MainViewModel : ViewModelBase
 
             var libraryEntries = await LibraryLoader.Load(this.Configuration.LibraryConfiguration, (message, severity) =>
             {
-                Dispatcher.UIThread.Invoke(() =>
+                Application.Current.Dispatcher.Invoke(() =>
                 {
                     OnLog(message, LogMessageType.General, severity);
                 });

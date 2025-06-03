@@ -1,5 +1,6 @@
 ﻿using AudioStation.ViewModels;
 
+using SimpleWpf.Extensions;
 using SimpleWpf.Extensions.ObservableCollection;
 
 namespace AudioStation.Model

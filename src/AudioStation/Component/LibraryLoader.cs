@@ -1,15 +1,11 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 
-using AudioStation.Extensions.NativeIO.FastDirectory;
 using AudioStation.Model;
 using AudioStation.Model.EventHandler;
 using AudioStation.ViewModel;
+
+using SimpleWpf.NativeIO.FastDirectory;
 
 namespace AudioStation.Component
 {
@@ -59,8 +55,8 @@ namespace AudioStation.Component
                 });
 
                 // Report
-                messageHandler(string.Format("{0} music files read successfully! {1} of {2} loaded. {3} had loading issues.", 
-                               entries.Count, 
+                messageHandler(string.Format("{0} music files read successfully! {1} of {2} loaded. {3} had loading issues.",
+                               entries.Count,
                                entries.Where(x => !x.FileLoadError).Count(),
                                entries.Count,
                                entries.Where(x => x.FileLoadError).Count()),

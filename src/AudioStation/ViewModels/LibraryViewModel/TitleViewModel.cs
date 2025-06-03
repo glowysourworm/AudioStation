@@ -3,6 +3,8 @@
 using AudioStation.Model;
 using AudioStation.ViewModels;
 
+using SimpleWpf.Extensions;
+
 namespace AudioStation.ViewModel.LibraryViewModel
 {
     public class TitleViewModel : ViewModelBase
@@ -17,32 +19,32 @@ namespace AudioStation.ViewModel.LibraryViewModel
         public string FileName
         {
             get { return _fileName; }
-            set { this.SetProperty(ref _fileName, value); }
+            set { this.RaiseAndSetIfChanged(ref _fileName, value); }
         }
         public LibraryEntry Entry
         {
             get { return _entry; }
-            set { this.SetProperty(ref _entry, value); }
+            set { this.RaiseAndSetIfChanged(ref _entry, value); }
         }
         public string Name
         {
             get { return _name; }
-            set { this.SetProperty(ref _name, value); }
+            set { this.RaiseAndSetIfChanged(ref _name, value); }
         }
         public uint Track
         {
             get { return _track; }
-            set { this.SetProperty(ref _track, value); }
+            set { this.RaiseAndSetIfChanged(ref _track, value); }
         }
         public TimeSpan Duration
         {
             get { return _duration; }
-            set { this.SetProperty(ref _duration, value); }
+            set { this.RaiseAndSetIfChanged(ref _duration, value); }
         }
         public bool NowPlaying
         {
             get { return _nowPlaying; }
-            set { this.SetProperty(ref _nowPlaying, value); }
+            set { this.RaiseAndSetIfChanged(ref _nowPlaying, value); }
         }
 
         public TitleViewModel()

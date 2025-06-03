@@ -1,14 +1,14 @@
-﻿using System;
+﻿using System.Windows;
+using System.Windows.Threading;
 
 using AudioStation.Component;
 using AudioStation.Controller.Interface;
-using AudioStation.Event;
 using AudioStation.Model;
 using AudioStation.ViewModel.LibraryViewModel;
 
-using Avalonia.Threading;
-
 using NAudio.Wave;
+
+using SimpleWpf.Extensions.Event;
 
 namespace AudioStation.Controller
 {
@@ -154,7 +154,7 @@ namespace AudioStation.Controller
         }
         private void OnPlaybackTick(TimeSpan currentTime)
         {
-            Dispatcher.UIThread.Invoke(() =>
+            Application.Current.Dispatcher.Invoke(() =>
             {
                 if (_playlist == null)
                     return;

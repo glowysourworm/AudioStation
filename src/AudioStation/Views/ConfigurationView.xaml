@@ -1,0 +1,38 @@
+﻿<UserControl x:Class="AudioStation.Views.ConfigurationView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:fa5="http://schemas.fontawesome.com/icons/"
+             xmlns:local="clr-namespace:AudioStation.Views">
+    <!-- Library Configuration -->
+    <Grid>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="36" />
+            <RowDefinition Height="36" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+        
+        <!-- Label Column -->
+        <TextBlock Text="Directory" VerticalAlignment="Center" Margin="10, 0, 10, 0" />
+        <TextBlock Text="Library Database File" VerticalAlignment="Center" Margin="10, 0, 10, 0" Grid.Row="1" />
+
+        <!-- Input Column -->
+        <TextBox Text="{Binding LibraryConfiguration.DirectoryBase}" Focusable="False" VerticalContentAlignment="Center" IsReadOnly="True" Grid.Column="1" Margin="0,5" Foreground="Gray" />
+        <TextBox Text="{Binding LibraryDatabaseFile}" Focusable="False" VerticalContentAlignment="Center" IsReadOnly="True" Grid.Column="1" Grid.Row="1" Margin="0,5" Foreground="Gray"/>
+
+        <!-- Button Column -->
+        <Button Grid.Column="2" Command="{Binding LibraryConfiguration.OpenLibraryFolderCommand}" Cursor="Hand" Margin="10,5">
+            <fa5:SvgAwesome Icon="Regular_FolderOpen" Height="16" Width="16" />
+        </Button>
+        <!--Button Grid.Column="2" Grid.Row="1" Command="{Binding SelectLibraryDatabaseFileCommand}" Cursor="Hand" Margin="10,5">
+			<iconPacks:PackIconFontAwesome Kind="FolderOpenRegular" Height="16" Width="16" />
+		</Button-->
+
+    </Grid>
+</UserControl>

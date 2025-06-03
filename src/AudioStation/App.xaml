@@ -1,0 +1,19 @@
+﻿<Application x:Class="AudioStation.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:AudioStation"
+			 xmlns:converter="clr-namespace:AudioStation.Views.Converter"             
+             xmlns:simpleConverter="clr-namespace:SimpleWpf.UI.Converter;assembly=SimpleWpf.UI"
+             StartupUri="MainWindow.xaml">
+    <Application.Resources>
+        <converter:StringArrayConverter x:Key="StringArrayConverter" />
+        <converter:MusicBrainzValidColorConverter x:Key="MusicBrainzValidColorConverter" />
+        <converter:ArtworkFileConverter x:Key="ArtworkFileConverter" />
+        <converter:MusicBrainzConverter x:Key="MusicBrainzConverter" />
+        <converter:MetaEntryConverter x:Key="MetaEntryConverter" />
+        <SolidColorBrush x:Key="DefaultHeaderBrush" Color="#FF0000" />
+
+        <!-- SimpleWpf.UI Converters -->
+        <simpleConverter:BoolVisibilityCollapseConverter x:Key="BoolVisibilityCollapseConverter" />
+    </Application.Resources>
+</Application>

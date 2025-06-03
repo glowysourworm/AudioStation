@@ -1,63 +1,54 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using AudioStation.Controller.Interface;
 
-using AudioStation.Controller.Interface;
-using AudioStation.Views;
-
-using Avalonia.Controls;
-using Avalonia.Platform.Storage;
+using Microsoft.Win32;
 
 namespace AudioStation.Controller
 {
     public class DialogController : IDialogController
     {
-        private MainWindow _mainWindow;
-
-        public DialogController() 
+        public DialogController()
         {
 
         }
 
-        public void Initialize(MainWindow mainWindow)
+        public void Initialize()
         {
-            _mainWindow = mainWindow;
         }
 
-        public async Task<string> ShowSaveFile(FilePickerSaveOptions options)
+        public string ShowSaveFile()
         {
-            var file = await _mainWindow.StorageProvider.SaveFilePickerAsync(options);
+            var dialog = new SaveFileDialog();
 
-            if (file != null)
+            if (dialog.ShowDialog() == true)
             {
-                return file.Path.LocalPath;
+                return dialog.FileName;
             }
 
-            return "";
+            return string.Empty;
         }
 
-        public async Task<string> ShowSelectFile()
+        public string ShowSelectFile()
         {
-            throw new NotImplementedException();
-        }
+            var dialog = new OpenFileDialog();
 
-        public async Task<string> ShowSelectFolder(FolderPickerOpenOptions options)
-        {
-            // Start async operation to open the dialog.
-            var folders = await _mainWindow.StorageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions
+            if (dialog.ShowDialog() == true)
             {
-                Title = "Select Library Directory (Base)",
-                AllowMultiple = false
-            });
-
-            if (folders.Count >= 1)
-            {
-                return folders[0].Path.LocalPath;
+                return dialog.FileName;
             }
 
-            return "";
+            return string.Empty;
+        }
+
+        public string ShowSelectFolder()
+        {
+            var dialog = new OpenFolderDialog();
+
+            if (dialog.ShowDialog() == true)
+            {
+                return dialog.FolderName;
+            }
+
+            return string.Empty;
         }
     }
 }

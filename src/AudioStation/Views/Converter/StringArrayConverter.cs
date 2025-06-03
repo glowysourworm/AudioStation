@@ -1,8 +1,5 @@
-﻿using Avalonia.Data.Converters;
-using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Text;
+﻿using System.Globalization;
+using System.Windows.Data;
 
 namespace AudioStation.Views.Converter
 {
@@ -11,7 +8,7 @@ namespace AudioStation.Views.Converter
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             var array = value as IEnumerable<string>;
-            
+
             if (array != null)
             {
                 return string.Join(',', array);

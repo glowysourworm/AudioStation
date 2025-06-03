@@ -1,5 +1,4 @@
-﻿using AudioStation.Model;
-using AudioStation.ViewModels;
+﻿using SimpleWpf.Extensions;
 
 namespace AudioStation.ViewModel
 {
@@ -24,17 +23,17 @@ namespace AudioStation.ViewModel
         public string Message
         {
             get { return _message; }
-            set { this.SetProperty(ref _message, value); }
+            set { this.RaiseAndSetIfChanged(ref _message, value); }
         }
         public LogMessageSeverity Severity
         {
             get { return _severity; }
-            set { this.SetProperty(ref _severity, value); }
+            set { this.RaiseAndSetIfChanged(ref _severity, value); }
         }
         public LogMessageType Type
         {
             get { return _type; }
-            set { this.SetProperty(ref _type, value); }
+            set { this.RaiseAndSetIfChanged(ref _type, value); }
         }
 
         public LogMessageViewModel()

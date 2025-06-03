@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-
-using AudioStation.ViewModel.LibraryViewModel;
-using AudioStation.ViewModels;
+﻿using AudioStation.ViewModel.LibraryViewModel;
 using AudioStation.ViewModels.LibraryViewModel.Comparer;
 
 using NAudio.Wave;
 
+using SimpleWpf.Extensions;
 using SimpleWpf.Extensions.ObservableCollection;
 
 namespace AudioStation.Model
@@ -27,12 +23,12 @@ namespace AudioStation.Model
         public string Name
         {
             get { return _name; }
-            set { this.SetProperty(ref _name, value); }
+            set { this.RaiseAndSetIfChanged(ref _name, value); }
         }
         public TitleViewModel NowPlaying
         {
             get { return _nowPlaying; }
-            set { this.SetProperty(ref _nowPlaying, value); }
+            set { this.RaiseAndSetIfChanged(ref _nowPlaying, value); }
         }
         public TimeSpan NowPlayingCurrentTime
         {
@@ -41,12 +37,12 @@ namespace AudioStation.Model
         public SortedObservableCollection<TitleViewModel> Tracks
         {
             get { return _tracks; }
-            set { this.SetProperty(ref _tracks, value); }
+            set { this.RaiseAndSetIfChanged(ref _tracks, value); }
         }
         public PlaybackState NowPlayingState
         {
             get { return _nowPlayingState; }
-            set { this.SetProperty(ref _nowPlayingState, value); }
+            set { this.RaiseAndSetIfChanged(ref _nowPlayingState, value); }
         }
 
 

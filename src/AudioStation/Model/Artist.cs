@@ -1,5 +1,4 @@
-﻿using AudioStation.ViewModels;
-
+﻿using SimpleWpf.Extensions;
 using SimpleWpf.RecursiveSerializer.Component.Interface;
 using SimpleWpf.RecursiveSerializer.Interface;
 
@@ -12,7 +11,7 @@ namespace AudioStation.Model
         public string Name
         {
             get { return _name; }
-            set { this.SetProperty(ref _name, value); }
+            set { this.RaiseAndSetIfChanged(ref _name, value); }
         }
 
         public Artist()

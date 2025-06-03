@@ -1,10 +1,9 @@
-﻿using System;
-
-using AudioStation.Event;
-using AudioStation.Model;
+﻿using AudioStation.Model;
 using AudioStation.ViewModel.LibraryViewModel;
 
 using NAudio.Wave;
+
+using SimpleWpf.Extensions.Event;
 
 namespace AudioStation.Controller.Interface
 {

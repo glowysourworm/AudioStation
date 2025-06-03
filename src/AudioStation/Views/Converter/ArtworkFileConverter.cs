@@ -1,12 +1,9 @@
-﻿using System;
-using System.Globalization;
-using System.Linq;
+﻿using System.Globalization;
+using System.IO;
+using System.Windows.Data;
+using System.Windows.Media.Imaging;
 
-using AudioStation.Component;
-using AudioStation.Model;
 using AudioStation.Model.Database;
-
-using Avalonia.Data.Converters;
 
 namespace AudioStation.Views.Converter
 {
@@ -26,7 +23,13 @@ namespace AudioStation.Views.Converter
 
             // Creates IImage "source" for the Avalonia Image control
             if (fileRef.Tag.Pictures.Any())
-                return SerializableBitmap.ReadIPicture(fileRef.Tag.Pictures.First());
+            {
+                using (var stream = new MemoryStream(fileRef.Tag.Pictures.First().Data.Data))
+                {
+                    var decoder = BitmapDecoder.Create(stream, BitmapCreateOptions.PreservePixelFormat, BitmapCacheOption.Default);
+                    return decoder.Frames[0];
+                }
+            }
 
             else
                 return null;

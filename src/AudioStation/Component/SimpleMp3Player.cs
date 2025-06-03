@@ -1,10 +1,8 @@
-﻿using System;
-using System.Diagnostics;
-using System.Threading;
-
-using AudioStation.Event;
+﻿using System.Diagnostics;
 
 using NAudio.Wave;
+
+using SimpleWpf.Extensions.Event;
 
 namespace AudioStation.Component
 {
@@ -48,7 +46,7 @@ namespace AudioStation.Component
         public void Play(string fileName)
         {
             // Stopwatch is shared
-            lock(_lock)
+            lock (_lock)
             {
                 if (_wavePlayer != null)
                 {
@@ -90,7 +88,7 @@ namespace AudioStation.Component
         {
             while (true)
             {
-                lock(_lock)
+                lock (_lock)
                 {
                     if (_stopwatch.IsRunning)
                     {

@@ -1,11 +1,7 @@
-﻿using System;
-using System.Globalization;
+﻿using System.Globalization;
+using System.Windows.Data;
 
-using AudioStation.Model.Vendor;
 using AudioStation.ViewModels;
-
-using Avalonia.Data.Converters;
-using Avalonia.Media;
 
 namespace AudioStation.Views.Converter
 {

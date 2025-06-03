@@ -1,16 +1,13 @@
-﻿using System;
-using System.Linq;
-using System.Runtime.Serialization;
-using System.Threading.Tasks;
+﻿using System.Windows.Media;
 
 using AudioStation.Component;
-using AudioStation.Event;
-using AudioStation.Model.Command;
 using AudioStation.Model.Database;
 using AudioStation.Model.Vendor;
 using AudioStation.ViewModel;
-using AudioStation.ViewModels;
 
+using SimpleWpf.Extensions;
+using SimpleWpf.Extensions.Command;
+using SimpleWpf.Extensions.Event;
 using SimpleWpf.Extensions.ObservableCollection;
 using SimpleWpf.RecursiveSerializer.Component.Interface;
 using SimpleWpf.RecursiveSerializer.Interface;
@@ -24,7 +21,6 @@ namespace AudioStation.Model
         #region (private) Backing Fields
         SortedObservableCollection<Artist> _albumArtists;
         SortedObservableCollection<string> _genres;
-        SortedObservableCollection<SerializableBitmap> _albumArt;
 
         string _fileName;
         string _album;
@@ -47,14 +43,14 @@ namespace AudioStation.Model
         string _fileLoadErrorMessage;
 
         // Commands
-        ModelCommand _queryMusicBrainzCommand;
+        SimpleCommand _queryMusicBrainzCommand;
         #endregion
 
         #region (public) Tag Fields
         public string FileName
         {
             get { return _fileName; }
-            private set { SetProperty(ref _fileName, value); }
+            private set { RaiseAndSetIfChanged(ref _fileName, value); }
         }
         public string PrimaryArtist
         {
@@ -63,74 +59,74 @@ namespace AudioStation.Model
         public string Album
         {
             get { return _album; }
-            set { SetProperty(ref _album, value); }
+            set { RaiseAndSetIfChanged(ref _album, value); }
         }
         public string Title
         {
             get { return _title; }
-            set { SetProperty(ref _title, value); }
+            set { RaiseAndSetIfChanged(ref _title, value); }
         }
         public uint Year
         {
             get { return _year; }
-            set { SetProperty(ref _year, value); }
+            set { RaiseAndSetIfChanged(ref _year, value); }
         }
         public uint Track
         {
             get { return _track; }
-            set { SetProperty(ref _track, value); }
+            set { RaiseAndSetIfChanged(ref _track, value); }
         }
         public uint Disc
         {
             get { return _disc; }
-            set { SetProperty(ref _disc, value); }
+            set { RaiseAndSetIfChanged(ref _disc, value); }
         }
         public uint DiscCount
         {
             get { return _discCount; }
-            set { SetProperty(ref _discCount, value); }
+            set { RaiseAndSetIfChanged(ref _discCount, value); }
         }
         public TimeSpan Duration
         {
             get { return _duration; }
-            set { this.SetProperty(ref _duration, value); }
+            set { this.RaiseAndSetIfChanged(ref _duration, value); }
         }
 
         public SortedObservableCollection<Artist> AlbumArtists
         {
             get { return _albumArtists; }
-            set { SetProperty(ref _albumArtists, value); }
+            set { RaiseAndSetIfChanged(ref _albumArtists, value); }
         }
         public SortedObservableCollection<string> Genres
         {
             get { return _genres; }
-            set { SetProperty(ref _genres, value); }
+            set { RaiseAndSetIfChanged(ref _genres, value); }
         }
 
         public bool FileMissing
         {
             get { return _fileMissing; }
-            set { this.SetProperty(ref _fileMissing, value); }
+            set { this.RaiseAndSetIfChanged(ref _fileMissing, value); }
         }
         public bool FileLoadError
         {
             get { return _fileLoadError; }
-            set { this.SetProperty(ref _fileLoadError, value); }
+            set { this.RaiseAndSetIfChanged(ref _fileLoadError, value); }
         }
         public bool FileLocationNameMismatch
         {
             get { return _fileLocationNameMismatch; }
-            set { this.SetProperty(ref _fileLocationNameMismatch, value); }
+            set { this.RaiseAndSetIfChanged(ref _fileLocationNameMismatch, value); }
         }
         public string FileLoadErrorMessage
         {
             get { return _fileLoadErrorMessage; }
-            set { this.SetProperty(ref _fileLoadErrorMessage, value); }
+            set { this.RaiseAndSetIfChanged(ref _fileLoadErrorMessage, value); }
         }
         public SortedObservableCollection<MusicBrainzRecord> MusicBrainzResults
         {
             get { return _musicBrainzResults; }
-            set { this.SetProperty(ref _musicBrainzResults, value); }
+            set { this.RaiseAndSetIfChanged(ref _musicBrainzResults, value); }
         }
 
         public MusicBrainzRecord MusicBrainzRecord
@@ -138,7 +134,7 @@ namespace AudioStation.Model
             get { return _musicBrainzRecord; }
             set
             {
-                this.SetProperty(ref _musicBrainzRecord, value);
+                this.RaiseAndSetIfChanged(ref _musicBrainzRecord, value);
                 this.OnPropertyChanged("MusicBrainzRecordValid");
             }
         }
@@ -148,10 +144,10 @@ namespace AudioStation.Model
         }
 
 
-        public ModelCommand QueryMusicBrainzCommand
+        public SimpleCommand QueryMusicBrainzCommand
         {
             get { return _queryMusicBrainzCommand; }
-            set { this.SetProperty(ref _queryMusicBrainzCommand, value); }
+            set { this.RaiseAndSetIfChanged(ref _queryMusicBrainzCommand, value); }
         }
 
         #endregion
@@ -169,7 +165,7 @@ namespace AudioStation.Model
 
             this.OnPropertyChanged("MusicBrainzRecordValid");   // Calculated property (initialize)
 
-            this.QueryMusicBrainzCommand = new ModelCommand(async () =>
+            this.QueryMusicBrainzCommand = new SimpleCommand(async () =>
             {
                 await QueryMusicBrainz();
             });
