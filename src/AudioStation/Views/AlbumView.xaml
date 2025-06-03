@@ -46,36 +46,44 @@
                 </Grid>
             </Border>
 
-            <ListBox ItemsSource="{Binding Tracks}"
-					  Grid.Column="1" Grid.Row="1"
-					  Background="White">
+            <ItemsControl ItemsSource="{Binding Tracks}" AlternationCount="2"
+					 Grid.Column="1" Grid.Row="1" Margin="10 0 0 0"
+                     ScrollViewer.CanContentScroll="False"
+					 Background="White">
 
-                <ListBox.ItemsPanel>
+                <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
-                        <StackPanel VirtualizingPanel.IsVirtualizing="False" />
+                        <StackPanel VirtualizingPanel.IsVirtualizing="False" HorizontalAlignment="Stretch" />
                     </ItemsPanelTemplate>
-                </ListBox.ItemsPanel>
-                
-                <ListBox.ItemTemplate>
+                </ItemsControl.ItemsPanel>
+
+                <ItemsControl.ItemTemplate>
                     <DataTemplate>
                         <Border HorizontalAlignment="Stretch">
-                            <Grid>
-
+                            <Border.Style>
+                                <Style TargetType="Border">
+                                    <Style.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="Background" Value="#DFDFDFDF" />
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
+                            <Grid Margin="3">
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto" />
                                     <ColumnDefinition Width="Auto" />
                                     <ColumnDefinition Width="*" />
                                     <ColumnDefinition Width="Auto" />
                                 </Grid.ColumnDefinitions>
                                 
-                                <TextBlock Text="{Binding Track}" Grid.Column="1" FontSize="12" Foreground="Gray" Margin="3" />
-                                <TextBlock Text="{Binding Name}" Grid.Column="2" FontSize="12" Foreground="Gray" Margin="3" />
-                                <TextBlock Text="{Binding Duration}" Grid.Column="3" FontSize="12" Foreground="Gray" Margin="3" />
+                                <TextBlock Text="{Binding Track}" Grid.Column="0" FontSize="12" Foreground="Gray" Margin="3" />
+                                <TextBlock Text="{Binding Name}" Grid.Column="1" FontSize="12" Foreground="Gray" Margin="3" />
+                                <TextBlock Text="{Binding Duration}" Grid.Column="2" FontSize="12" Foreground="Gray" Margin="3" />
                             </Grid>
                         </Border>
                     </DataTemplate>
-                </ListBox.ItemTemplate>
-            </ListBox>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
 
         </Grid>
     </Border>

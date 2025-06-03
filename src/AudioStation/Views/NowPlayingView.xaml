@@ -21,6 +21,8 @@
                  VirtualizingPanel.IsContainerVirtualizable="True"
                  VirtualizingPanel.CacheLength="1"
                  VirtualizingPanel.ScrollUnit="Pixel"
+                 ItemContainerStyle="{StaticResource HoverSelectItemContainerStyleWithAlternation}"
+                 AlternationCount="2"
 				 SelectionChanged="OnArtistSelectionChanged" 
 				 Background="White"
 				 BorderBrush="LightGray"
@@ -59,6 +61,8 @@
         <ListBox x:Name="ArtistDetailLB" Grid.Column="1" 
                  VirtualizingPanel.IsVirtualizing="False"
                  VirtualizingPanel.ScrollUnit="Pixel"
+                 HorizontalContentAlignment="Stretch"
+                 ItemContainerStyle="{StaticResource TransparentItemContainerStyle}"
                  MouseDoubleClick="OnArtistDetailDoubleClick"
 				 BorderBrush="LightGray" BorderThickness="0,1,1,1">
 

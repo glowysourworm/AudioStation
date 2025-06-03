@@ -13,7 +13,7 @@ namespace AudioStation.Component
     // TODO: move this to DI using IocFramework
     public static class LibraryImageCache
     {
-        private static readonly int FULL_CACHE_MAX_ENTRIES = 50;
+        private static readonly int FULL_CACHE_MAX_ENTRIES = 30;
 
         private class ImageCache
         {
@@ -39,16 +39,14 @@ namespace AudioStation.Component
 
         public static IEnumerable<ImageSource> Get(string fileName)
         {
-            /*
             if (FullCache.ContainsKey(fileName))
             {
                 return FullCache[fileName].Images;
             }
-            */
 
-            return Load(fileName);
+            Load(fileName);
 
-            //return FullCache[fileName].Images;
+            return FullCache[fileName].Images;
         }
 
         private static IEnumerable<ImageSource> Load(string fileName)
@@ -70,50 +68,20 @@ namespace AudioStation.Component
 
                         images.Add(bitmapSource);
                     }
-                    
-
-                    /*
-                    BitmapDecoder decoder = null;
-
-                    switch (picture.MimeType)
-                    {
-                        case "image/bmp":
-                            decoder = BmpBitmapDecoder.Create(stream, BitmapCreateOptions.PreservePixelFormat, BitmapCacheOption.Default);
-                            break;
-                        case "image/jpeg":
-                        case "image/jpg":
-                            decoder = JpegBitmapDecoder.Create(stream, BitmapCreateOptions.PreservePixelFormat, BitmapCacheOption.Default);
-                            break;
-                        case "image/gif":
-                            decoder = GifBitmapDecoder.Create(stream, BitmapCreateOptions.PreservePixelFormat, BitmapCacheOption.Default);
-                            break;
-                        case "image/png":
-                            decoder = PngBitmapDecoder.Create(stream, BitmapCreateOptions.PreservePixelFormat, BitmapCacheOption.Default);
-                            break;
-                        default:
-                            throw new Exception("Unhandled mp3 picture mime/type:  LibraryImageCache.cs");
-                    }
-
-                    foreach (var frame in decoder.Frames)
-                    {
-                        images.Add(frame);
-                        thumbnails.Add(frame.Thumbnail);
-                    }
-                    */
                 }
             }
 
-            // Max Entries (Full)
-            //if (FullCache.Count > FULL_CACHE_MAX_ENTRIES)
-            //    FullCache.Remove(FullCache.Keys.Last());
+            // Max Entries (Full) (Thumbnail cache might be useful)
+            if (FullCache.Count > FULL_CACHE_MAX_ENTRIES)
+                FullCache.Remove(FullCache.Keys.Last());
 
-            //FullCache.Add(fileName, new ImageCache(fileName, images));
+            FullCache.Add(fileName, new ImageCache(fileName, images));
 
             return images;
         }
 
         /// https://stackoverflow.com/a/30729291
-        public static BitmapSource BitmapToBitmapSource(Bitmap bmp)
+        private static BitmapSource BitmapToBitmapSource(Bitmap bmp)
         {
             try
             {
@@ -125,7 +93,7 @@ namespace AudioStation.Component
                 var bitmapSource = BitmapSource.Create(
                     bitmapData.Width, bitmapData.Height,
                     bmp.HorizontalResolution, bmp.VerticalResolution,
-                    PixelFormats.Bgr24, null,
+                    GetWpfPixelFormat(bmp.PixelFormat), null,
                     bitmapData.Scan0, bitmapData.Stride * bitmapData.Height, bitmapData.Stride);
 
                 bmp.UnlockBits(bitmapData);
@@ -135,6 +103,29 @@ namespace AudioStation.Component
             catch (Exception)
             {
                 return null;
+            }
+        }
+
+        private static System.Windows.Media.PixelFormat GetWpfPixelFormat(System.Drawing.Imaging.PixelFormat format)
+        {
+            switch (format)
+            {
+                // Many of the old bitmap formats ARE NOT HANDLED! So, there had better be some way of knowing 
+                // how to translate these formats!
+                case System.Drawing.Imaging.PixelFormat.Format1bppIndexed:
+                    return System.Windows.Media.PixelFormats.Indexed1;
+                case System.Drawing.Imaging.PixelFormat.Format4bppIndexed:
+                    return System.Windows.Media.PixelFormats.Indexed4;
+                case System.Drawing.Imaging.PixelFormat.Format8bppIndexed:
+                    return System.Windows.Media.PixelFormats.Indexed8;
+                case System.Drawing.Imaging.PixelFormat.Format16bppGrayScale:
+                    return System.Windows.Media.PixelFormats.Gray16;
+                case System.Drawing.Imaging.PixelFormat.Format24bppRgb:
+                    return System.Windows.Media.PixelFormats.Bgr24;             // THIS WAS BACKWARDS!!!! CHECK FOR YOURSELF! (RGB != BGR)
+                case System.Drawing.Imaging.PixelFormat.Format48bppRgb:
+                    return System.Windows.Media.PixelFormats.Rgb48;
+                default:
+                    throw new Exception("Unhandled pixel format transfer (GDI -> WPF):  LibraryImageCache");
             }
         }
     }
