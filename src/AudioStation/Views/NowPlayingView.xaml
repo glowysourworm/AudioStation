@@ -4,6 +4,7 @@
              xmlns:fa5="http://schemas.fontawesome.com/icons/"
              xmlns:local="clr-namespace:AudioStation.Views"
              xmlns:controls="clr-namespace:AudioStation.Controls"
+             xmlns:controlAnimation="clr-namespace:AudioStation.Controls.Animation"             
              xmlns:views="clr-namespace:AudioStation.Views">
     <Grid>
 
@@ -39,7 +40,10 @@
                     <Border>
                         <StackPanel Orientation="Horizontal">
 
-                            <controls:LibraryImageControl ImageFile="{Binding FileNameRef}" Height="50" Width="50" VerticalAlignment="Top" Margin="5" />
+                            <controls:LibraryImageControl ImageFile="{Binding FileNameRef}"
+                                                                  Height="50" Width="50" 
+                                                                  VerticalAlignment="Top" Margin="5">
+                            </controls:LibraryImageControl>
 
                             <StackPanel>
                                 <TextBlock Text="{Binding Artist}" FontSize="14" Margin="5" />

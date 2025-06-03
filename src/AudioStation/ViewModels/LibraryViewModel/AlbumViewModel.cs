@@ -1,4 +1,10 @@
-﻿using AudioStation.Model.Comparer;
+﻿using System.Collections.ObjectModel;
+using System.Windows;
+using System.Windows.Media;
+using System.Windows.Threading;
+
+using AudioStation.Component;
+using AudioStation.Model.Comparer;
 
 using SimpleWpf.Extensions;
 using SimpleWpf.Extensions.ObservableCollection;
@@ -55,11 +61,11 @@ namespace AudioStation.ViewModel.LibraryViewModel
 
         public AlbumViewModel()
         {
+            this.Tracks = new SortedObservableCollection<TitleViewModel>(new TrackNumberComparer());
+            this.Duration = new TimeSpan();
             this.Album = string.Empty;
             this.FileNameRef = string.Empty;
-            this.Duration = new TimeSpan();
             this.Year = 0;
-            this.Tracks = new SortedObservableCollection<TitleViewModel>(new TrackNumberComparer());
         }
     }
 }

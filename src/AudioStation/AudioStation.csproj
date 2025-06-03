@@ -18,6 +18,7 @@
     <PackageReference Include="MetaBrainz.MusicBrainz.DiscId" Version="4.0.0" />
     <PackageReference Include="NAudio" Version="2.2.1" />
     <PackageReference Include="SimpleWpf" Version="0.0.1" />
+    <PackageReference Include="SimpleWpf.IocFramework" Version="0.0.1" />
     <PackageReference Include="SimpleWpf.UI" Version="0.0.1" />
     <PackageReference Include="taglib-sharp-netstandard2.0" Version="2.1.0" />
   </ItemGroup>

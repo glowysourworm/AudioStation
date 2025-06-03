@@ -1,5 +1,8 @@
-﻿using System.IO;
+﻿using System.Collections.ObjectModel;
+using System.IO;
+using System.Windows.Media;
 
+using AudioStation.Component;
 using AudioStation.Model.Comparer;
 using AudioStation.ViewModel;
 using AudioStation.ViewModel.LibraryViewModel;

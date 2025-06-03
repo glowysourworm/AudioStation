@@ -6,8 +6,6 @@ using System.Windows.Media.Imaging;
 
 using SimpleWpf.SimpleCollections.Collection;
 
-using TagLib;
-
 namespace AudioStation.Component
 {
     // TODO: move this to DI using IocFramework

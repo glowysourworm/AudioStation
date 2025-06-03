@@ -5,7 +5,8 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
 			 xmlns:fa5="http://schemas.fontawesome.com/icons/"    
              xmlns:local="clr-namespace:AudioStation.Views"
-             xmlns:controls="clr-namespace:AudioStation.Controls">
+             xmlns:controls="clr-namespace:AudioStation.Controls"
+             xmlns:controlAnimation="clr-namespace:AudioStation.Controls.Animation">
     <Border Padding="10">
         <Grid>
 
@@ -18,14 +19,15 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
-            
+
             <controls:LibraryImageControl ImageFile="{Binding FileNameRef}"
-				                          Height="200" Width="200" Grid.RowSpan="2"
-				                          VerticalAlignment="Top" />
+				                                  Height="200" Width="200" Grid.RowSpan="2"
+				                                  VerticalAlignment="Top">
+            </controls:LibraryImageControl>
 
             <!-- Album Banner -->
             <Border Background="AliceBlue" Grid.Column="1">
-                <Grid Margin="5 0 0 0">
+                <Grid>
 
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
@@ -33,21 +35,21 @@
                     </Grid.RowDefinitions>
                     
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="{Binding Artist}" HorizontalAlignment="Left" FontSize="16" Foreground="#555555" Margin="3 5" />
+                        <TextBlock Text="{Binding Artist}" HorizontalAlignment="Left" FontSize="16" Foreground="#555555" Margin="5" />
                         <fa5:SvgAwesome Icon="Solid_Circle" Width="3" Height="3" Foreground="#555555" Margin="10" VerticalAlignment="Center" />
-                        <TextBlock Text="{Binding Album}" HorizontalAlignment="Left" FontSize="16" Foreground="#555555" Margin="3 5" />
+                        <TextBlock Text="{Binding Album}" HorizontalAlignment="Left" FontSize="16" Foreground="#555555" Margin="5" />
                     </StackPanel>
 
 
                     <!-- Album Year / Genre / Other Details... -->
-                    <TextBlock Text="{Binding Year}" HorizontalAlignment="Left" FontSize="12" Foreground="Gray" Grid.Row="1" Margin="3" />
-                    <TextBlock Text="{Binding Duration}" HorizontalAlignment="Right" FontSize="12" Foreground="Gray" Grid.Row="1" Margin="3" />
+                    <TextBlock Text="{Binding Year}" HorizontalAlignment="Left" FontSize="12" Foreground="Gray" Grid.Row="1" Margin="5" />
+                    <TextBlock Text="{Binding Duration, StringFormat={}{0:hh}:{0:mm}:{0:ss}}" HorizontalAlignment="Right" FontSize="12" Foreground="Gray" Grid.Row="1" Margin="5" />
 
                 </Grid>
             </Border>
 
             <ItemsControl ItemsSource="{Binding Tracks}" AlternationCount="2"
-					 Grid.Column="1" Grid.Row="1" Margin="10 0 0 0"
+					 Grid.Column="1" Grid.Row="1" Margin="0"
                      ScrollViewer.CanContentScroll="False"
 					 Background="White">
 
@@ -69,16 +71,16 @@
                                     </Style.Triggers>
                                 </Style>
                             </Border.Style>
-                            <Grid Margin="3">
+                            <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto" />
                                     <ColumnDefinition Width="*" />
                                     <ColumnDefinition Width="Auto" />
                                 </Grid.ColumnDefinitions>
                                 
-                                <TextBlock Text="{Binding Track}" Grid.Column="0" FontSize="12" Foreground="Gray" Margin="3" />
-                                <TextBlock Text="{Binding Name}" Grid.Column="1" FontSize="12" Foreground="Gray" Margin="3" />
-                                <TextBlock Text="{Binding Duration}" Grid.Column="2" FontSize="12" Foreground="Gray" Margin="3" />
+                                <TextBlock Text="{Binding Track}" Grid.Column="0" FontSize="12" Foreground="Gray" Margin="5" />
+                                <TextBlock Text="{Binding Name}" Grid.Column="1" FontSize="12" Foreground="Gray" Margin="5" />
+                                <TextBlock Text="{Binding Duration, StringFormat={}{0:hh}:{0:mm}:{0:ss}}" Grid.Column="2" FontSize="12" Foreground="Gray" Margin="5" />
                             </Grid>
                         </Border>
                     </DataTemplate>
