@@ -1,5 +1,6 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
 
 using AudioStation.Model;
 using AudioStation.ViewModel.LibraryViewModel;
@@ -79,6 +80,13 @@ namespace AudioStation.Views
 
             // Play Selected Track(s) (the audio controller <-> playlist handle the rest)
             MainViewModel.AudioController.Play(playlist);
+        }
+
+        private void OnArtistListboxCleanupVirtualizedItem(object sender, CleanUpVirtualizedItemEventArgs e)
+        {
+            // MUST RELEASE IMAGE MEMORY! There's a bad memory leak if you can't get rid of the image sources.
+            //
+            
         }
     }
 }

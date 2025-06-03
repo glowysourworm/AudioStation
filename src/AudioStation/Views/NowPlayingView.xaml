@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:fa5="http://schemas.fontawesome.com/icons/"
              xmlns:local="clr-namespace:AudioStation.Views"
+             xmlns:controls="clr-namespace:AudioStation.Controls"
              xmlns:views="clr-namespace:AudioStation.Views">
     <Grid>
 
@@ -15,6 +16,11 @@
         <!-- Artist List -->
         <ListBox x:Name="ArtistLB" 
                  ItemsSource="{Binding Library.ValidArtists}"
+                 VirtualizingPanel.IsVirtualizing="True"
+                 VirtualizingPanel.VirtualizationMode="Recycling"
+                 VirtualizingPanel.IsContainerVirtualizable="True"
+                 VirtualizingPanel.CacheLength="1"
+                 VirtualizingPanel.ScrollUnit="Pixel"
 				 SelectionChanged="OnArtistSelectionChanged" 
 				 Background="White"
 				 BorderBrush="LightGray"
@@ -22,7 +28,7 @@
 
             <ListBox.ItemsPanel>
                 <ItemsPanelTemplate>
-                    <VirtualizingStackPanel />
+                    <VirtualizingStackPanel IsItemsHost="True" />
                 </ItemsPanelTemplate>
             </ListBox.ItemsPanel>
 
@@ -31,7 +37,7 @@
                     <Border>
                         <StackPanel Orientation="Horizontal">
 
-                            <Image Source="{Binding FileNameRef, Converter={StaticResource ArtworkFileConverter}}" Height="50" Width="50" VerticalAlignment="Top" Margin="5" />
+                            <controls:LibraryImageControl ImageFile="{Binding FileNameRef}" Height="50" Width="50" VerticalAlignment="Top" Margin="5" />
 
                             <StackPanel>
                                 <TextBlock Text="{Binding Artist}" FontSize="14" Margin="5" />
@@ -51,6 +57,8 @@
 
         <!-- Artist Detail (List of Album Details) -->
         <ListBox x:Name="ArtistDetailLB" Grid.Column="1" 
+                 VirtualizingPanel.IsVirtualizing="False"
+                 VirtualizingPanel.ScrollUnit="Pixel"
                  MouseDoubleClick="OnArtistDetailDoubleClick"
 				 BorderBrush="LightGray" BorderThickness="0,1,1,1">
 
