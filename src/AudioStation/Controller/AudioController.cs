@@ -131,6 +131,9 @@ namespace AudioStation.Controller
                 _playlist.NowPlayingState = PlaybackState.Playing;
                 _playlist.UpdateCurrentTrackTime(TimeSpan.Zero);
 
+                // START
+                _player.Play(_playlist.NowPlaying.FileName);
+
                 if (this.PlaybackStartedEvent != null)
                     this.PlaybackStartedEvent(_playlist, _playlist.NowPlaying);
             }
@@ -154,6 +157,12 @@ namespace AudioStation.Controller
         }
         private void OnPlaybackTick(TimeSpan currentTime)
         {
+            // No real life-cycle control here.. View -> Controller -> Timer (dispose)
+            if (Application.Current == null)
+            {
+                return;
+            }
+
             Application.Current.Dispatcher.Invoke(() =>
             {
                 if (_playlist == null)

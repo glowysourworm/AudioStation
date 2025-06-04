@@ -51,6 +51,7 @@ namespace AudioStation.Component
                 if (_wavePlayer != null)
                 {
                     _stopwatch.Restart();
+                    _stopwatch.Stop();
                     _wavePlayer.PlaybackStopped -= OnPlaybackStopped;
                     _wavePlayer.Stop();
                     _wavePlayer.Dispose();
@@ -63,6 +64,7 @@ namespace AudioStation.Component
                 _wavePlayer.PlaybackStopped += OnPlaybackStopped;
                 _wavePlayer.Init(audioFileReader);
                 _wavePlayer.Play();
+                _stopwatch.Start();
             }
         }
 

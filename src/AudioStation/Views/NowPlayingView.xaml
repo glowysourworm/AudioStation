@@ -66,6 +66,7 @@
                  VirtualizingPanel.IsVirtualizing="False"
                  VirtualizingPanel.ScrollUnit="Pixel"
                  HorizontalContentAlignment="Stretch"
+                 PreviewMouseWheel="ArtistDetailLB_PreviewMouseWheel"
                  ItemContainerStyle="{StaticResource TransparentItemContainerStyle}"
 				 BorderBrush="LightGray" BorderThickness="0,1,1,1">
 

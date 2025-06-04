@@ -7,10 +7,10 @@ namespace AudioStation.Controls
     public partial class ScrubberControl : UserControl
     {
         public static readonly DependencyProperty CurrentTimeProperty
-            = DependencyProperty.Register("CurrentTime", typeof(TimeSpan), typeof(ScrubberControl));
+            = DependencyProperty.Register("CurrentTime", typeof(TimeSpan), typeof(ScrubberControl), new PropertyMetadata(OnScrubberChanged));
 
         public static readonly DependencyProperty TotalTimeProperty =
-            DependencyProperty.Register("TotalTime", typeof(TimeSpan), typeof(ScrubberControl));
+            DependencyProperty.Register("TotalTime", typeof(TimeSpan), typeof(ScrubberControl), new PropertyMetadata(OnScrubberChanged));
 
         public static readonly DependencyProperty ScrubberHandleBrushProperty =
             DependencyProperty.Register("ScrubberHandleBrush", typeof(Brush), typeof(ScrubberControl));
@@ -68,11 +68,20 @@ namespace AudioStation.Controls
         {
             base.OnRenderSizeChanged(sizeInfo);
 
+            SetScrubberOffset();
+        }
+        private void SetScrubberOffset()
+        {
             if (this.TotalTime.Milliseconds > 0)
-                this.ScrubberCursor.Margin = new Thickness(sizeInfo.NewSize.Width * this.CurrentTime.TotalMilliseconds / this.TotalTime.TotalMilliseconds, 0, 0, 0);
+                this.ScrubberCursor.Margin = new Thickness(this.RenderSize.Width * this.CurrentTime.TotalMilliseconds / this.TotalTime.TotalMilliseconds, 0, 0, 0);
 
             else
                 this.ScrubberCursor.Margin = new Thickness(0);
+        }
+        private static void OnScrubberChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            var control = d as ScrubberControl;
+            control?.SetScrubberOffset();
         }
     }
 }

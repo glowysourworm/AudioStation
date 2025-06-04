@@ -1,0 +1,13 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Style TargetType="MenuItem" x:Key="MainMenuItemStyle">
+        <Setter Property="Background" Value="Transparent" />
+    </Style>
+    <Style TargetType="MenuItem" x:Key="MainMenuItemContainerStyle">
+        <Setter Property="Background" Value="White" />
+    </Style>
+    <Style TargetType="MenuItem" x:Key="MainMenuSubItemStyle">
+        <Setter Property="Background" Value="White" />
+        <Setter Property="Margin" Value="0" />
+    </Style>    
+</ResourceDictionary>

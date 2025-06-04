@@ -1,6 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
+using System.Windows.Input;
 using System.Windows.Media;
 
 using AudioStation.Model;
@@ -93,6 +94,11 @@ namespace AudioStation.Views
 
             // Play Selected Track(s) (the audio controller <-> playlist handle the rest)
             MainViewModel.AudioController.Play(playlist);
+        }
+
+        private void ArtistDetailLB_PreviewMouseWheel(object sender, System.Windows.Input.MouseWheelEventArgs e)
+        {
+
         }
     }
 }

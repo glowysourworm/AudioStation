@@ -3,7 +3,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:AudioStation.Views"
              xmlns:controls="clr-namespace:AudioStation.Controls"
-             xmlns:fa5="http://schemas.fontawesome.com/icons/">
+             xmlns:fa5="http://schemas.fontawesome.com/icons/"
+             Background="Transparent">
     
     <!-- Playlist Controller (Panel) (Bound to MainViewModel -> (Playlist)) -->
     <Grid>
@@ -99,8 +100,8 @@
         <!-- Scrubber (use margin of the ellipse to set the offset) -->
         <Border Grid.Row="1" Padding="10" CornerRadius="5">
             <Grid>
-                <controls:ScrubberControl CurrentTime="{Binding Playlist.NowPlayingCurrentTime}"
-                                          TotalTime="{Binding Playlist.NowPlaying.Duration}"
+                <controls:ScrubberControl CurrentTime="{Binding Playlist.NowPlayingCurrentTime, Mode=TwoWay}"
+                                          TotalTime="{Binding Playlist.NowPlaying.Duration, Mode=TwoWay}"
                                           HorizontalContentAlignment="Stretch"                                          
                                           ScrubberHandleBrush="{StaticResource PlayerControlHandleBrush}"
                                           ScrubberTimelineBrush="{StaticResource PlayerControlTimelineBrush}"
