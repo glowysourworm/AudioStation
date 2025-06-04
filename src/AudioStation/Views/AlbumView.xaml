@@ -48,10 +48,13 @@
                 </Grid>
             </Border>
 
-            <ItemsControl ItemsSource="{Binding Tracks}" AlternationCount="2"
-					 Grid.Column="1" Grid.Row="1" Margin="0"
-                     ScrollViewer.CanContentScroll="False"
-					 Background="White">
+            <ItemsControl x:Name="TracksLB"
+                          ItemsSource="{Binding Tracks}"
+                          AlternationCount="2"
+                          MouseDoubleClick="OnTracksDoubleClick"
+					        Grid.Column="1" Grid.Row="1" Margin="0"
+                            ScrollViewer.CanContentScroll="False"
+					        Background="White">
 
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>

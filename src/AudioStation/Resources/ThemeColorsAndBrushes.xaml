@@ -1,0 +1,16 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <SolidColorBrush x:Key="HoverSelectBackground">White</SolidColorBrush>
+    <SolidColorBrush x:Key="HoverSelectBackgroundAlternation">AliceBlue</SolidColorBrush>
+    <SolidColorBrush x:Key="HoverSelectBackgroundHover">#DFDFDFDF</SolidColorBrush>
+    <SolidColorBrush x:Key="HoverSelectBackgroundSelect">#CFCFCFCF</SolidColorBrush>
+
+    <SolidColorBrush x:Key="PlayerControlButtonBorder" Color="#FFAAAAAA" />
+    <SolidColorBrush x:Key="PlayerControlButtonBackground" Color="#FFAAAAAA" />
+    <SolidColorBrush x:Key="PlayerControlButtonBackgroundHover" Color="#FF888888" />
+
+    <SolidColorBrush x:Key="PlayerControlTimelineBrush" Color="#FF888888" />
+    <SolidColorBrush x:Key="PlayerControlHandleBrush" Color="#FF888888" />
+
+</ResourceDictionary>

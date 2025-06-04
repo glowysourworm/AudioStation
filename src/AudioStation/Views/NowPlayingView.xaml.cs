@@ -21,30 +21,24 @@ namespace AudioStation.Views
 
         private void OnArtistSelectionChanged(object? sender, SelectionChangedEventArgs e)
         {
-            var library = (this.DataContext as MainViewModel)?.Library;
+            var viewModel = this.DataContext as MainViewModel;
 
-            if (e.AddedItems.Count > 0 && library != null)
+            if (e.AddedItems.Count > 0 && viewModel != null)
             {
-                // ??? (it was null...)
-                if (e.AddedItems[0] != null)
-                {
-                    // View Artist Detail
-                    this.ArtistDetailLB.ItemsSource = (e.AddedItems[0] as ArtistViewModel).Albums;
-                }
+                // View Artist Detail
+                this.ArtistDetailLB.ItemsSource = (e.AddedItems[0] as ArtistViewModel).Albums;
             }
         }
 
         private void OnArtistDetailDoubleClick(object? sender, RoutedEventArgs e)
         {
-            var selectedTrack = (e.Source as Control).DataContext as TitleViewModel;
             var albums = this.ArtistDetailLB.ItemsSource as IEnumerable<AlbumViewModel>;
 
-            if (selectedTrack != null && albums != null)
+            if (albums != null)
             {
-                // Contains (by reference) not yet hooked up for sorted observable collection
-                var selectedAlbum = albums.First(album => album.Tracks.Any(x => x.FileName == selectedTrack.FileName));
+                var firstAlbum = albums.First();
 
-                LoadPlaylist(selectedTrack, selectedAlbum);
+                LoadPlaylist(firstAlbum.Tracks.First(), firstAlbum);
             }
         }
 
@@ -59,6 +53,24 @@ namespace AudioStation.Views
                 var selectedAlbum = albums.First(album => album.Tracks.Any(x => x.FileName == selectedTrack.FileName));
 
                 LoadPlaylist(selectedTrack, selectedAlbum);
+            }
+        }
+
+        private void AlbumViewItem_TrackSelected(object sender, TitleViewModel selectedTrack)
+        {
+            var viewModel = this.DataContext as MainViewModel;
+            var album = (sender as AlbumView).DataContext as AlbumViewModel;
+
+            if (viewModel != null && album != null)
+            {
+                foreach (var track in album.Tracks)
+                {
+                    if (track == selectedTrack)
+                    {
+                        LoadPlaylist(selectedTrack, album);
+                        return;
+                    }
+                }
             }
         }
 
@@ -81,13 +93,6 @@ namespace AudioStation.Views
 
             // Play Selected Track(s) (the audio controller <-> playlist handle the rest)
             MainViewModel.AudioController.Play(playlist);
-        }
-
-        private void OnArtistListboxCleanupVirtualizedItem(object sender, CleanUpVirtualizedItemEventArgs e)
-        {
-            // MUST RELEASE IMAGE MEMORY! There's a bad memory leak if you can't get rid of the image sources.
-            //
-            
         }
     }
 }

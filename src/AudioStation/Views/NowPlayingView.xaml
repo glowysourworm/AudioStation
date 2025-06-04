@@ -67,13 +67,12 @@
                  VirtualizingPanel.ScrollUnit="Pixel"
                  HorizontalContentAlignment="Stretch"
                  ItemContainerStyle="{StaticResource TransparentItemContainerStyle}"
-                 MouseDoubleClick="OnArtistDetailDoubleClick"
 				 BorderBrush="LightGray" BorderThickness="0,1,1,1">
 
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <Border BorderBrush="LightGray" BorderThickness="0 0 0 0">
-                        <views:AlbumView />
+                        <views:AlbumView x:Name="AlbumViewItem" TrackSelected="AlbumViewItem_TrackSelected" />
                     </Border>
                 </DataTemplate>
             </ListBox.ItemTemplate>
