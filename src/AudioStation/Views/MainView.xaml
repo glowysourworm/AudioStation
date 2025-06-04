@@ -49,15 +49,15 @@
         <TabControl TabStripPlacement="Left" Grid.Row="1">
 
 
-            <TabItem FontSize="14" Margin="0" Header="Configuration">
+            <TabItem FontSize="14" Margin="0" Header="Configuration" Style="{StaticResource MainTabItemControlStyle}">
                 <local:ConfigurationView x:Name="ConfigurationView" DataContext="{Binding Configuration}" />
             </TabItem>
 
-            <TabItem FontSize="14" Margin="0" Header="Library Manager">
+            <TabItem FontSize="14" Margin="0" Header="Library Manager" Style="{StaticResource MainTabItemControlStyle}">
                 <local:ManagerView x:Name="ManagerView" DataContext="{Binding Library}" />
             </TabItem>
 
-            <TabItem FontSize="14" Margin="0" Header="Now Playing">
+            <TabItem FontSize="14" Margin="0" Header="Now Playing" Style="{StaticResource MainTabItemControlStyle}">
                 <local:NowPlayingView x:Name="NowPlayingView" />
             </TabItem>
 

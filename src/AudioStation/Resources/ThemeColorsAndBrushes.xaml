@@ -1,6 +1,8 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
+    <SolidColorBrush x:Key="MainTabItemHoverSelectBackground">#FFAAAAAA</SolidColorBrush>
+    
     <SolidColorBrush x:Key="HoverSelectBackground">White</SolidColorBrush>
     <SolidColorBrush x:Key="HoverSelectBackgroundAlternation">AliceBlue</SolidColorBrush>
     <SolidColorBrush x:Key="HoverSelectBackgroundHover">#EFEFEFEF</SolidColorBrush>
