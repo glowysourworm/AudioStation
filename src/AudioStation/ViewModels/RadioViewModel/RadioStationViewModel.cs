@@ -9,6 +9,9 @@ namespace AudioStation.ViewModels.RadioViewModel
         string _endpoint;
         string _logoEndpoint;
 
+        int _bitrate;
+        string _codec;
+
         public string Name
         {
             get { return _name; }
@@ -28,6 +31,16 @@ namespace AudioStation.ViewModels.RadioViewModel
         {
             get { return _logoEndpoint; }
             set { this.RaiseAndSetIfChanged(ref _logoEndpoint, value); }
+        }
+        public int Bitrate
+        {
+            get { return _bitrate; }
+            set { this.RaiseAndSetIfChanged(ref _bitrate, value); }
+        }
+        public string Codec
+        {
+            get { return _codec; }
+            set { this.RaiseAndSetIfChanged(ref _codec, value); }
         }
 
         public RadioStationViewModel()

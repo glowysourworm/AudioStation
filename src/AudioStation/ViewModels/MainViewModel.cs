@@ -320,10 +320,14 @@ public partial class MainViewModel : ViewModelBase
             if (streams.Count == 0)
                 return;
 
-            this.Radio.RadioStations.AddRange(streams.Where(stream => stream != null).Select(stream =>
+            this.Radio.RadioStations.Clear();
+            this.Radio.RadioStations.AddRange(streams.Where(stream => stream != null && stream.Bitrate > 0 && !string.IsNullOrEmpty(stream.Codec))
+                                                     .Select(stream =>
             {
                 return new RadioStationViewModel()
                 {
+                    Bitrate = stream.Bitrate,
+                    Codec = stream.Codec,
                     Name = stream.Name,
                     Homepage = stream.Homepage.ToString(),
                     Endpoint = stream.Url.ToString(),

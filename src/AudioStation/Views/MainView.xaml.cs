@@ -20,6 +20,8 @@ namespace AudioStation.Views
         {
             var nowPlaying = new NowPlayingViewModel()
             {
+                Bitrate = sender.Bitrate,
+                Codec = sender.Codec,
                 Title = sender.Name,
                 Source = sender.Endpoint,
                 SourceType = Model.StreamSourceType.Network

@@ -46,7 +46,7 @@ namespace AudioStation.Component
             _wavePlayer.Volume = Math.Clamp(volume, 0, 1);
         }
 
-        public void Play(string fileName, StreamSourceType sourceType)
+        public void Play(string fileName, StreamSourceType sourceType, int bitrate, string codec)
         {
             if (sourceType != StreamSourceType.File)
                 throw new ArgumentException("Improper use of StreamMp3Player. Expecting file stream type");

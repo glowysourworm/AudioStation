@@ -89,7 +89,7 @@ namespace AudioStation.Controller
                 _nowPlaying.CurrentTime = TimeSpan.Zero;
 
                 // START
-                _player.Play(_nowPlaying.Source, _nowPlaying.SourceType);
+                _player.Play(_nowPlaying.Source, _nowPlaying.SourceType, _nowPlaying.Bitrate, _nowPlaying.Codec);
 
                 if (this.PlaybackStartedEvent != null)
                     this.PlaybackStartedEvent(_nowPlaying);

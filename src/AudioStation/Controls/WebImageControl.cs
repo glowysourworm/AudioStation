@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using System.Net;
 using System.Net.Http;
+using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -21,6 +22,8 @@ namespace AudioStation.Controls
             get { return (string)GetValue(ImageEndpointProperty); }
             set { SetValue(ImageEndpointProperty, value); }
         }
+
+        protected string LastImageEndpoint { get; private set; }
 
         public WebImageControl()
         {
@@ -56,12 +59,20 @@ namespace AudioStation.Controls
 
         private void LoadImageAsync()
         {
+            if (this.ImageEndpoint == this.LastImageEndpoint)
+                return;
+
             Application.Current.Dispatcher.BeginInvoke(async () =>
             {
+                // This can happen during virtual scrolling
+                if (this.ImageEndpoint == this.LastImageEndpoint)
+                    return;
+
                 var client = new HttpClient();
                 var buffer = await client.GetByteArrayAsync(this.ImageEndpoint);
 
                 this.Source = BitmapConverter.BitmapDataToBitmapSource(buffer);
+                this.LastImageEndpoint = this.ImageEndpoint;
 
                 client.Dispose();
                 client = null;
@@ -76,7 +87,7 @@ namespace AudioStation.Controls
             var control = d as WebImageControl;
             var imageFile = e.NewValue as string;
 
-            if (control != null && !string.IsNullOrEmpty(imageFile))
+            if (control != null && !string.IsNullOrEmpty(imageFile) && imageFile != control.LastImageEndpoint)
             {
                 control.LoadImageAsync();
             }

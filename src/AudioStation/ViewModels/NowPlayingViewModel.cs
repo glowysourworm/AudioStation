@@ -14,6 +14,8 @@ namespace AudioStation.ViewModels
         TimeSpan _duration;
         StreamSourceType _sourceType;
         string _source;
+        int _bitrate;
+        string _codec;
 
         public string Artist
         {
@@ -51,12 +53,26 @@ namespace AudioStation.ViewModels
             set { this.RaiseAndSetIfChanged(ref _source, value); }
         }
 
+        public int Bitrate
+        {
+            get { return _bitrate; }
+            set { this.RaiseAndSetIfChanged(ref _bitrate, value); }
+        }
+        public string Codec
+        {
+            get { return _codec; }
+            set { this.RaiseAndSetIfChanged(ref _codec, value); }
+        }
+
+
         public NowPlayingViewModel()
         {
             this.Artist = string.Empty;
             this.Album = string.Empty;
             this.Title = string.Empty;
             this.Source = string.Empty;
+            this.Bitrate = 0;
+            this.Codec = string.Empty;
         }
     }
 }

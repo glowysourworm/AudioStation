@@ -1,5 +1,7 @@
 ﻿using AudioStation.Model;
 
+using TagLib;
+
 namespace AudioStation.ViewModels.Interface
 {
     public interface INowPlayingViewModel
@@ -9,6 +11,11 @@ namespace AudioStation.ViewModels.Interface
         /// </summary>
         string Source { get; set; }
         StreamSourceType SourceType { get; set; }
+
+        // We need our own "codec" details for handling each of the audio libraries at runtime
+        int Bitrate { get; set; }
+        string Codec { get; set; }
+
 
         string Artist { get; set; }
         string Album { get; set; }

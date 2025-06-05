@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System.Runtime.CompilerServices;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Threading;
 
@@ -19,6 +20,8 @@ namespace AudioStation.Controls
             get { return (string)GetValue(ImageFileProperty); }
             set { SetValue(ImageFileProperty, value); }
         }
+
+        protected string LastImageFile { get; private set; }
 
         public LibraryImageControl()
         {
@@ -53,9 +56,18 @@ namespace AudioStation.Controls
 
         private void LoadImageAsync()
         {
+            // CHECK LAST SETTING
+            if (this.ImageFile == this.LastImageFile)
+                return;
+
             Application.Current.Dispatcher.BeginInvoke(() =>
             {
+                // This can happen during virtual scrolling
+                if (this.ImageFile == this.LastImageFile)
+                    return;
+
                 this.Source = LibraryImageCache.Get(this.ImageFile).FirstOrDefault();
+                this.LastImageFile = this.ImageFile;
 
             }, DispatcherPriority.ApplicationIdle);
         }
@@ -65,7 +77,7 @@ namespace AudioStation.Controls
             var control = d as LibraryImageControl;
             var imageFile = e.NewValue as string;
 
-            if (control != null && !string.IsNullOrEmpty(imageFile))
+            if (control != null && !string.IsNullOrEmpty(imageFile) && imageFile != control.LastImageFile)
             {
                 control.LoadImageAsync();
             }
