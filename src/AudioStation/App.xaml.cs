@@ -1,6 +1,4 @@
-﻿using System.Configuration;
-using System.Data;
-using System.Windows;
+﻿using System.Windows;
 
 namespace AudioStation
 {
@@ -21,6 +19,7 @@ namespace AudioStation
             var resourceUri3 = new Uri("pack://application:,,,/AudioStation;Component/Resources/TextBlockStyles.xaml");
             var resourceUri4 = new Uri("pack://application:,,,/AudioStation;Component/Resources/MenuControlStyles.xaml");
             var resourceUri5 = new Uri("pack://application:,,,/AudioStation;Component/Resources/TabControlStyles.xaml");
+            var resourceUri6 = new Uri("pack://application:,,,/AudioStation;Component/Resources/TextBoxStyles.xaml");
 
             var resourceDictionary0 = new ResourceDictionary();
             var resourceDictionary1 = new ResourceDictionary();
@@ -28,6 +27,7 @@ namespace AudioStation
             var resourceDictionary3 = new ResourceDictionary();
             var resourceDictionary4 = new ResourceDictionary();
             var resourceDictionary5 = new ResourceDictionary();
+            var resourceDictionary6 = new ResourceDictionary();
 
             resourceDictionary0.Source = resourceUri0;
             resourceDictionary1.Source = resourceUri1;
@@ -35,6 +35,7 @@ namespace AudioStation
             resourceDictionary3.Source = resourceUri3;
             resourceDictionary4.Source = resourceUri4;
             resourceDictionary5.Source = resourceUri5;
+            resourceDictionary6.Source = resourceUri6;
 
             this.Resources.MergedDictionaries.Add(resourceDictionary0);
             this.Resources.MergedDictionaries.Add(resourceDictionary1);
@@ -42,6 +43,7 @@ namespace AudioStation
             this.Resources.MergedDictionaries.Add(resourceDictionary3);
             this.Resources.MergedDictionaries.Add(resourceDictionary4);
             this.Resources.MergedDictionaries.Add(resourceDictionary5);
+            this.Resources.MergedDictionaries.Add(resourceDictionary6);
         }
     }
 

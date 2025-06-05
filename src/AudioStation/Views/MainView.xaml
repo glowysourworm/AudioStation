@@ -32,6 +32,11 @@
             <MenuItem Header="_File" Style="{StaticResource MainMenuItemStyle}">
                 <MenuItem Header="_Open Library" Style="{StaticResource MainMenuSubItemStyle}" />
                 <MenuItem Header="_Save Library" Style="{StaticResource MainMenuSubItemStyle}" />
+                <Separator />
+                <MenuItem Header="_Import" Style="{StaticResource MainMenuItemStyle}">
+                    <MenuItem Header=".m3u File" Command="{Binding ImportM3UFileCommand}" Style="{StaticResource MainMenuSubItemStyle}" />
+                    <MenuItem Header=".m3u Directory" Command="{Binding ImportM3UDirectoryCommand}" Style="{StaticResource MainMenuSubItemStyle}" />
+                </MenuItem>
             </MenuItem>
 
             <MenuItem Header="_View" Style="{StaticResource MainMenuItemStyle}">
@@ -61,18 +66,26 @@
                 <local:NowPlayingView x:Name="NowPlayingView" />
             </TabItem>
 
+            <TabItem FontSize="14" Margin="0" Header="Radio" Style="{StaticResource MainTabItemControlStyle}">
+                <local:RadioView x:Name="RadioView" />
+            </TabItem>
+
+            <TabItem FontSize="14" Margin="0" Header="Radio Browser" Style="{StaticResource MainTabItemControlStyle}">
+                <local:RadioBrowserView x:Name="RadioBrowserView" StartStationEvent="RadioBrowserView_StartStationEvent" />
+            </TabItem>
+
 
         </TabControl>
 
         <!-- Playlist Controller (Panel) (Bound to MainViewModel -> (Playlist)) -->
         <Border x:Name="PlaylistControllerPanel" 
-                Visibility="{Binding Playlist, Converter={StaticResource NonNullVisibilityConverter}}"
+                Visibility="{Binding NowPlayingViewModel, Converter={StaticResource NonNullVisibilityConverter}}"
                 Grid.Row="2" 
                 Background="Transparent" 
                 BorderBrush="LightGray" 
                 BorderThickness="1">
             <Grid>
-                <local:PlayerControlView />
+                <local:PlayerControlView DataContext="{Binding NowPlayingViewModel}" />
             </Grid>
         </Border>
 
@@ -82,12 +95,12 @@
 
                 <TabItem Header="Output" FontSize="14" Margin="0">
 
-                    <ListBox x:Name="OutputLB" FontSize="14" Foreground="#555555" Background="White">
+                    <ListBox x:Name="OutputLB" ItemsSource="{Binding OutputMessages}">
 
                         <ListBox.ItemTemplate>
                             <DataTemplate>
                                 <Border Padding="3">
-                                    <TextBlock Text="{Binding Message}" />
+                                    <TextBlock Text="{Binding Message}" Style="{StaticResource LabelTextBlock}" />
                                 </Border>
                             </DataTemplate>
                         </ListBox.ItemTemplate>

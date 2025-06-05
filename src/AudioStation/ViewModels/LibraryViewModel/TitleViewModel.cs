@@ -1,7 +1,4 @@
-﻿using System;
-
-using AudioStation.Model;
-using AudioStation.ViewModels;
+﻿using AudioStation.Model;
 
 using SimpleWpf.Extensions;
 

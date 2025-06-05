@@ -20,7 +20,9 @@
 						   HorizontalAlignment="Stretch"
 						   TextAlignment="Left" />
 
-                <Button Grid.Column="1" Command="{Binding QueryMusicBrainzCommand}" Cursor="Hand" Background="LightGray">
+                <Button Grid.Column="1" 
+                        Command="{Binding QueryMusicBrainzCommand}" 
+                        Style="{StaticResource SmallControlButton}">
                     <fa5:SvgAwesome Icon="Solid_Flag" Width="16" Height="16" VerticalAlignment="Center" HorizontalAlignment="Center" />
                 </Button>
             </Grid>

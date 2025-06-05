@@ -23,13 +23,16 @@ namespace AudioStation.Controls
         public LibraryImageControl()
         {
             this.Unloaded += LibraryImageControl_Unloaded;
+            this.IsVisibleChanged += LibraryImageControl_IsVisibleChanged;
         }
+
         ~LibraryImageControl()
         {
             // DESTRUCTOR CALED FROM NON-DISPATCHER ?!?
             Application.Current.Dispatcher.BeginInvoke(() =>
             {
                 this.Unloaded -= LibraryImageControl_Unloaded;
+                this.IsVisibleChanged -= LibraryImageControl_IsVisibleChanged;
 
             }, DispatcherPriority.ApplicationIdle);            
         }
@@ -37,6 +40,15 @@ namespace AudioStation.Controls
         private void LibraryImageControl_Unloaded(object sender, RoutedEventArgs e)
         {
             this.Source = null;
+        }
+        private void LibraryImageControl_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            if (this.IsVisible &&
+                !string.IsNullOrEmpty(this.ImageFile) &&
+                this.Source == null)
+            {
+                LoadImageAsync();
+            }
         }
 
         private void LoadImageAsync()

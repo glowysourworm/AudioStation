@@ -1,5 +1,4 @@
-﻿using AudioStation.Model;
-using AudioStation.ViewModel.LibraryViewModel;
+﻿using AudioStation.ViewModels.Interface;
 
 using NAudio.Wave;
 
@@ -9,14 +8,10 @@ namespace AudioStation.Controller.Interface
 {
     public interface IAudioController
     {
-        event SimpleEventHandler<Playlist, TitleViewModel> PlaybackStartedEvent;
-        event SimpleEventHandler<Playlist> PlaybackStoppedEvent;
+        event SimpleEventHandler<INowPlayingViewModel> PlaybackStartedEvent;
+        event SimpleEventHandler<INowPlayingViewModel> PlaybackStoppedEvent;
 
-        void SetTrack(TitleViewModel titleViewModel);
-        void NextTrack();
-        void PreviousTrack();
-
-        void Play(Playlist playlist);
+        void Play(INowPlayingViewModel nowPlaying);
         void Stop();
         void Pause();
         PlaybackState GetPlaybackState();

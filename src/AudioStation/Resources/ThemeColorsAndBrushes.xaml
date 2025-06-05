@@ -1,7 +1,19 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
+    <SolidColorBrush x:Key="DefaultLabelBrush">#FFAAAAAA</SolidColorBrush>
+    
     <SolidColorBrush x:Key="MainTabItemHoverSelectBackground">#FFAAAAAA</SolidColorBrush>
+
+    <SolidColorBrush x:Key="SmallButtonBackground">White</SolidColorBrush>
+    <SolidColorBrush x:Key="SmallButtonBackgroundHover">#8F33AAFF</SolidColorBrush>
+    <SolidColorBrush x:Key="SmallButtonBackgroundPressed">#AF33AAFF</SolidColorBrush>
+    <SolidColorBrush x:Key="SmallButtonBorder">#FFAAAAAA</SolidColorBrush>    
+    
+    <SolidColorBrush x:Key="LargeInputButtonBackground">White</SolidColorBrush>
+    <SolidColorBrush x:Key="LargeInputButtonBackgroundHover">#8F33AAFF</SolidColorBrush>
+    <SolidColorBrush x:Key="LargeInputButtonBackgroundPressed">#AF33AAFF</SolidColorBrush>
+    <SolidColorBrush x:Key="LargeInputButtonBorder">#FFAAAAAA</SolidColorBrush>
     
     <SolidColorBrush x:Key="HoverSelectBackground">White</SolidColorBrush>
     <SolidColorBrush x:Key="HoverSelectBackgroundAlternation">AliceBlue</SolidColorBrush>

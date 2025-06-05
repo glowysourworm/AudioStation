@@ -36,7 +36,9 @@
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Text="(Music Brainz)" VerticalAlignment="Center" Margin="3" Foreground="Gray" />
 
-                                    <Button Command="{Binding QueryMusicBrainzCommand}" Cursor="Hand" Background="LightGray" HorizontalAlignment="Right" Margin="3">
+                                    <Button Command="{Binding QueryMusicBrainzCommand}" 
+                                            Style="{StaticResource SmallControlButton}"
+                                            HorizontalAlignment="Right" Margin="3">
                                         <!--iconPacks:PackIconFontAwesome Kind="AlignJustifySolid" Height="12" Width="12" /-->
                                     </Button>
                                 </StackPanel>

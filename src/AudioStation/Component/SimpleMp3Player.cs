@@ -1,5 +1,8 @@
 ﻿using System.Diagnostics;
 
+using AudioStation.Component.Interface;
+using AudioStation.Model;
+
 using NAudio.Wave;
 
 using SimpleWpf.Extensions.Event;
@@ -9,7 +12,7 @@ namespace AudioStation.Component
     /// <summary>
     /// NAudio based Mp3 Player (see their docs)
     /// </summary>
-    public class SimpleMp3Player : IDisposable
+    public class SimpleMp3Player : IAudioPlayer
     {
         private IWavePlayer _wavePlayer;
         private Timer _timer;
@@ -43,8 +46,11 @@ namespace AudioStation.Component
             _wavePlayer.Volume = Math.Clamp(volume, 0, 1);
         }
 
-        public void Play(string fileName)
+        public void Play(string fileName, StreamSourceType sourceType)
         {
+            if (sourceType != StreamSourceType.File)
+                throw new ArgumentException("Improper use of StreamMp3Player. Expecting file stream type");
+
             // Stopwatch is shared
             lock (_lock)
             {

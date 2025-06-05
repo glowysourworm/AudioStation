@@ -93,7 +93,16 @@ namespace AudioStation.Views
             (this.DataContext as MainViewModel).Playlist = playlist;
 
             // Play Selected Track(s) (the audio controller <-> playlist handle the rest)
-            MainViewModel.AudioController.Play(playlist);
+            MainViewModel.AudioController.Play(new NowPlayingViewModel()
+            {
+                Album = selectedAlbum.Album,
+                Artist = selectedAlbum.Artist,
+                CurrentTime = TimeSpan.Zero,
+                Duration = selectedTitle.Duration,
+                Source = selectedTitle.FileName,
+                SourceType = StreamSourceType.File,
+                Title = selectedTitle.Name
+            });
         }
 
         private void ArtistDetailLB_PreviewMouseWheel(object sender, System.Windows.Input.MouseWheelEventArgs e)
