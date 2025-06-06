@@ -5,6 +5,13 @@ VisualStudioVersion = 17.3.32811.315
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AudioStation", "AudioStation\AudioStation.csproj", "{E499D343-0411-4CA2-B41C-C56373154BDC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AudioStation.Core", "AudioStation.Core\AudioStation.Core.csproj", "{0D7A20A1-2276-4F3C-841B-60D277AD0E56}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DatabaseScripts", "DatabaseScripts", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
+	ProjectSection(SolutionItems) = preProject
+		audio-station.sql = audio-station.sql
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +22,10 @@ Global
 		{E499D343-0411-4CA2-B41C-C56373154BDC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E499D343-0411-4CA2-B41C-C56373154BDC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E499D343-0411-4CA2-B41C-C56373154BDC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0D7A20A1-2276-4F3C-841B-60D277AD0E56}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0D7A20A1-2276-4F3C-841B-60D277AD0E56}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0D7A20A1-2276-4F3C-841B-60D277AD0E56}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0D7A20A1-2276-4F3C-841B-60D277AD0E56}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

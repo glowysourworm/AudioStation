@@ -3,8 +3,6 @@ using System.IO;
 using System.Windows.Data;
 using System.Windows.Media.Imaging;
 
-using AudioStation.Model.Database;
-
 namespace AudioStation.Views.Converter
 {
     public class ArtworkFileConverter : IValueConverter

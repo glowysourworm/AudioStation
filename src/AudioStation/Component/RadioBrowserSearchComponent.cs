@@ -1,20 +1,10 @@
 ﻿using System.Net;
 using System.Net.Http;
-using System.Net.Http.Json;
 using System.Net.NetworkInformation;
-using System.Text.Json.Serialization;
 
 using AudioStation.Component.RadioBrowser;
 
-using MetaBrainz.MusicBrainz.Interfaces.Entities;
-
 using Newtonsoft.Json;
-
-using RadioBrowser;
-using RadioBrowser.Api;
-using RadioBrowser.Models;
-
-using static System.Net.WebRequestMethods;
 
 namespace AudioStation.Component
 {
@@ -73,7 +63,7 @@ namespace AudioStation.Component
 
                 return JsonConvert.DeserializeObject<List<RadioBrowserStation>>(jsonResult, new JsonSerializerSettings()
                 {
-                    NullValueHandling = NullValueHandling.Ignore                    
+                    NullValueHandling = NullValueHandling.Ignore
                 });
 
                 // Advanced searching

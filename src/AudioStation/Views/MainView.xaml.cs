@@ -1,5 +1,6 @@
 ﻿using System.Windows.Controls;
 
+using AudioStation.Core.Model;
 using AudioStation.ViewModels;
 
 namespace AudioStation.Views
@@ -24,10 +25,10 @@ namespace AudioStation.Views
                 Codec = sender.Codec,
                 Title = sender.Name,
                 Source = sender.Endpoint,
-                SourceType = Model.StreamSourceType.Network
+                SourceType = StreamSourceType.Network
             };
 
-            MainViewModel.AudioController.Play(nowPlaying);
+            //MainViewModel.AudioController.Play(nowPlaying);
         }
     }
 }

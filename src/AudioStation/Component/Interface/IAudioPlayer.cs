@@ -1,4 +1,4 @@
-﻿using AudioStation.Model;
+﻿using AudioStation.Core.Model;
 
 using NAudio.Wave;
 

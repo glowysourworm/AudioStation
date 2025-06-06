@@ -4,7 +4,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
 using AudioStation.Constant;
-using AudioStation.Model;
+using AudioStation.Core.Model;
 
 using IF.Lastfm.Core.Api;
 using IF.Lastfm.Core.Api.Enums;
@@ -15,19 +15,19 @@ namespace AudioStation.Component
     {
         public static async Task<ImageSource> DownloadArtwork(LibraryEntry entry)
         {
-            if (entry.IsUnknown(x => x.Album) ||
-                entry.IsUnknown(x => x.AlbumArtists))
-                return await Task.FromResult<ImageSource>(null);
+            //if (entry.IsUnknown(x => x.Album) ||
+            //    entry.IsUnknown(x => x.AlbumArtists))
+            //    return await Task.FromResult<ImageSource>(null);
 
-            else
-            {
+            //else
+           // {
                 try
                 {
                     // Last FM API
                     var client = new LastfmClient(WebConfiguration.LastFmAPIKey, WebConfiguration.LastFmAPISecret);
 
                     // Web Call ...
-                    var response = await client.Album.GetInfoAsync(entry.AlbumArtists.First().Name, entry.Album, false);
+                    var response = await client.Album.GetInfoAsync(entry.PrimaryArtist, entry.Album, false);
 
                     // Status OK -> Create bitmap image from the url
                     if (response.Status == LastResponseStatus.Successful &&
@@ -41,7 +41,7 @@ namespace AudioStation.Component
                 {
                     return await Task.FromResult<ImageSource>(null);
                 }
-            }
+            //}
         }
 
         public static async Task<ImageSource> DownloadImage(string imageUrl)

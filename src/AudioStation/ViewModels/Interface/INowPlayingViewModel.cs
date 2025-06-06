@@ -1,6 +1,4 @@
-﻿using AudioStation.Model;
-
-using TagLib;
+﻿using AudioStation.Core.Model;
 
 namespace AudioStation.ViewModels.Interface
 {

@@ -1,10 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
-using System.Windows.Input;
-using System.Windows.Media;
 
-using AudioStation.Model;
+using AudioStation.Core.Model;
 using AudioStation.ViewModel.LibraryViewModel;
 using AudioStation.ViewModels;
 
@@ -83,16 +80,17 @@ namespace AudioStation.Views
             // Load tracks for playback
             foreach (var track in selectedAlbum.Tracks)
             {
-                playlist.Tracks.Add(track);
+                //playlist.Tracks.Add(track);
             }
 
             // Setup playback (needs revision; but this works with the IAudioController)
-            playlist.LoadPlayback(selectedTitle);
+            //playlist.LoadPlayback(selectedTitle);
 
             // Set View Model
-            (this.DataContext as MainViewModel).Playlist = playlist;
+            //(this.DataContext as MainViewModel).Playlist = playlist;
 
             // Play Selected Track(s) (the audio controller <-> playlist handle the rest)
+            /*
             MainViewModel.AudioController.Play(new NowPlayingViewModel()
             {
                 Album = selectedAlbum.Album,
@@ -103,6 +101,7 @@ namespace AudioStation.Views
                 SourceType = StreamSourceType.File,
                 Title = selectedTitle.Name
             });
+            */
         }
 
         private void ArtistDetailLB_PreviewMouseWheel(object sender, System.Windows.Input.MouseWheelEventArgs e)

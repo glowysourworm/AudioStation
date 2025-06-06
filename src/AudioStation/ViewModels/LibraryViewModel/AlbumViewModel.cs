@@ -1,13 +1,6 @@
 ﻿using System.Collections.ObjectModel;
-using System.Windows;
-using System.Windows.Media;
-using System.Windows.Threading;
-
-using AudioStation.Component;
-using AudioStation.Model.Comparer;
 
 using SimpleWpf.Extensions;
-using SimpleWpf.Extensions.ObservableCollection;
 
 namespace AudioStation.ViewModel.LibraryViewModel
 {
@@ -21,7 +14,7 @@ namespace AudioStation.ViewModel.LibraryViewModel
         string _artist;
         uint _year;
         TimeSpan _duration;
-        SortedObservableCollection<TitleViewModel> _tracks;
+        ObservableCollection<TitleViewModel> _tracks;
 
         /// <summary>
         /// Reference to the Mp3 file. The album art is too large to pre-load. So, loading will have
@@ -53,7 +46,7 @@ namespace AudioStation.ViewModel.LibraryViewModel
             get { return _duration; }
             set { this.RaiseAndSetIfChanged(ref _duration, value); }
         }
-        public SortedObservableCollection<TitleViewModel> Tracks
+        public ObservableCollection<TitleViewModel> Tracks
         {
             get { return _tracks; }
             set { this.RaiseAndSetIfChanged(ref _tracks, value); }
@@ -61,7 +54,7 @@ namespace AudioStation.ViewModel.LibraryViewModel
 
         public AlbumViewModel()
         {
-            this.Tracks = new SortedObservableCollection<TitleViewModel>(new TrackNumberComparer());
+            this.Tracks = new ObservableCollection<TitleViewModel>();
             this.Duration = new TimeSpan();
             this.Album = string.Empty;
             this.FileNameRef = string.Empty;

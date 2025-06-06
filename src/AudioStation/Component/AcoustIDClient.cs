@@ -1,8 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using AcoustID.Web;
 
-using AcoustID.Web;
-
-using AudioStation.Model;
+using AudioStation.Core.Model;
 
 namespace AudioStation.Component
 {

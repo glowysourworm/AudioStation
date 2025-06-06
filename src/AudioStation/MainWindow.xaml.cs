@@ -1,6 +1,7 @@
 ﻿using System.Windows;
 
 using AudioStation.Controller;
+using AudioStation.Core.Component;
 using AudioStation.ViewModels;
 
 namespace AudioStation
@@ -15,7 +16,9 @@ namespace AudioStation
 
             var dialogController = new DialogController();
             var audioController = new AudioController();
-            this.DataContext = new MainViewModel(dialogController, audioController);
+            var modelController = new ModelController(new Configuration());
+            var libraryLoader = new LibraryLoader();
+            this.DataContext = new MainViewModel(dialogController, audioController, modelController, libraryLoader);
         }
     }
 }

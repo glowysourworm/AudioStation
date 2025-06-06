@@ -1,9 +1,5 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-using AudioStation.Model;
-using AudioStation.Model.Vendor;
+﻿using AudioStation.Core.Model;
+using AudioStation.ViewModels.Vendor;
 
 using MetaBrainz.MusicBrainz;
 
@@ -16,9 +12,9 @@ namespace AudioStation.Component
         /// <summary>
         /// Tries to look up information for the provided library entry
         /// </summary>
-        public static Task<IEnumerable<MusicBrainzRecord>> Query(LibraryEntry entry)
+        public static Task<IEnumerable<MusicBrainzRecordViewModel>> Query(LibraryEntry entry)
         {
-            return Task.Run<IEnumerable<MusicBrainzRecord>>(() =>
+            return Task.Run<IEnumerable<MusicBrainzRecordViewModel>>(() =>
             {
                 // Initialize MetaBrainz.MusicBrainz client
                 var query = new Query();
@@ -52,7 +48,7 @@ namespace AudioStation.Component
                                     Artists = x.Artists.Select(artist => artist.Artist.SortName)
                                 };
                             }))
-                              .Select(x => new MusicBrainzRecord(x.Id.ToString())
+                              .Select(x => new MusicBrainzRecordViewModel(x.Id.ToString())
                               {
                                   Album = x.Release,
                                   AlbumArtists = new SortedObservableCollection<string>(x.Artists),

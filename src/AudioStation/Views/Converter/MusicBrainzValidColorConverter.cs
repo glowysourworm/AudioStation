@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿using System.Drawing;
+using System.Globalization;
 using System.Windows.Data;
 
 using AudioStation.ViewModels;
@@ -10,9 +11,9 @@ namespace AudioStation.Views.Converter
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             if (value == null)
-                return MainViewModel.DefaultMusicBrainzBackground;
+                return Brushes.Gray;
 
-            return (bool)value ? MainViewModel.ValidMusicBrainzBackground : MainViewModel.InvalidMusicBrainzBackground;
+            return (bool)value ? Brushes.Green : Brushes.Red;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

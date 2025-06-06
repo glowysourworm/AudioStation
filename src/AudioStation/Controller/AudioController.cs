@@ -4,6 +4,7 @@ using System.Windows.Threading;
 using AudioStation.Component;
 using AudioStation.Component.Interface;
 using AudioStation.Controller.Interface;
+using AudioStation.Core.Model;
 using AudioStation.ViewModels.Interface;
 
 using NAudio.Wave;
@@ -75,10 +76,10 @@ namespace AudioStation.Controller
                 {
                     switch (_nowPlaying.SourceType)
                     {
-                        case Model.StreamSourceType.File:
+                        case StreamSourceType.File:
                             _player = new SimpleMp3Player();
                             break;
-                        case Model.StreamSourceType.Network:
+                        case StreamSourceType.Network:
                             _player = new StreamMp3Player();
                             break;
                         default:

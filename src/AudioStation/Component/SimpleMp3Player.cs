@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics;
 
 using AudioStation.Component.Interface;
-using AudioStation.Model;
+using AudioStation.Core.Model;
 
 using NAudio.Wave;
 

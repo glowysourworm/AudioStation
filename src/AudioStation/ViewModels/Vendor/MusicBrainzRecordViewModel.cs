@@ -1,15 +1,16 @@
-﻿using SimpleWpf.Extensions;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+using SimpleWpf.Extensions;
 using SimpleWpf.Extensions.ObservableCollection;
 
-namespace AudioStation.Model.Vendor
+namespace AudioStation.ViewModels.Vendor
 {
-    /// <summary>
-    /// Extracted data from music brainz query
-    /// </summary>
-    public class MusicBrainzRecord : ViewModelBase
+    public class MusicBrainzRecordViewModel : ViewModelBase
     {
-        public static MusicBrainzRecord Empty;
-
         #region (private) Backing Fields
         SortedObservableCollection<string> _albumArtists;
         SortedObservableCollection<string> _genres;
@@ -89,25 +90,17 @@ namespace AudioStation.Model.Vendor
         public int Score
         {
             get { return _score; }
-            set { this.RaiseAndSetIfChanged(ref _score, value); }
+            set { RaiseAndSetIfChanged(ref _score, value); }
         }
 
         public DateTime Timestamp
         {
             get { return _timestamp; }
-            set { this.RaiseAndSetIfChanged(ref _timestamp, value); }
-        }
-        public bool IsValid
-        {
-            get { return this != MusicBrainzRecord.Empty; }
+            set { RaiseAndSetIfChanged(ref _timestamp, value); }
         }
         #endregion
 
-        static MusicBrainzRecord()
-        {
-            Empty = new MusicBrainzRecord("Empty (not queried)");
-        }
-        public MusicBrainzRecord(string recordingId)
+        public MusicBrainzRecordViewModel(string recordingId)
         {
             this.MusicBrainzRecordingId = recordingId;
             this.Timestamp = DateTime.Now;

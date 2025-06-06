@@ -1,4 +1,4 @@
-﻿namespace AudioStation.Model
+﻿namespace AudioStation.Core.Model
 {
     public enum StreamSourceType
     {

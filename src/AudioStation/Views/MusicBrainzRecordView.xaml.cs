@@ -1,7 +1,7 @@
 ﻿using System.Windows.Controls;
 
-using AudioStation.Model;
-using AudioStation.Model.Vendor;
+using AudioStation.Core.Model;
+using AudioStation.ViewModels.Vendor;
 
 namespace AudioStation.Views
 {
@@ -17,10 +17,10 @@ namespace AudioStation.Views
             if (e.AddedItems.Count > 0)
             {
                 var entry = this.DataContext as LibraryEntry;
-                var record = e.AddedItems[0] as MusicBrainzRecord;
+                var record = e.AddedItems[0] as MusicBrainzRecordViewModel;
 
                 // Set selected record in the primary LibraryEntry
-                entry.MusicBrainzRecord = record;
+                //entry.MusicBrainzRecord = record;
             }
         }
     }
