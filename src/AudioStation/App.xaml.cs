@@ -1,5 +1,7 @@
 ﻿using System.Windows;
 
+using AudioStation.ViewModels;
+
 namespace AudioStation
 {
     /// <summary>
@@ -20,6 +22,8 @@ namespace AudioStation
             var resourceUri4 = new Uri("pack://application:,,,/AudioStation;Component/Resources/MenuControlStyles.xaml");
             var resourceUri5 = new Uri("pack://application:,,,/AudioStation;Component/Resources/TabControlStyles.xaml");
             var resourceUri6 = new Uri("pack://application:,,,/AudioStation;Component/Resources/TextBoxStyles.xaml");
+            var resourceUri7 = new Uri("pack://application:,,,/AudioStation;Component/Resources/LibraryWorkItemDataTemplates.xaml");
+            var resourceUri8 = new Uri("pack://application:,,,/AudioStation;Component/Resources/LogDataTemplates.xaml");
 
             var resourceDictionary0 = new ResourceDictionary();
             var resourceDictionary1 = new ResourceDictionary();
@@ -28,6 +32,8 @@ namespace AudioStation
             var resourceDictionary4 = new ResourceDictionary();
             var resourceDictionary5 = new ResourceDictionary();
             var resourceDictionary6 = new ResourceDictionary();
+            var resourceDictionary7 = new ResourceDictionary();
+            var resourceDictionary8 = new ResourceDictionary();
 
             resourceDictionary0.Source = resourceUri0;
             resourceDictionary1.Source = resourceUri1;
@@ -36,6 +42,8 @@ namespace AudioStation
             resourceDictionary4.Source = resourceUri4;
             resourceDictionary5.Source = resourceUri5;
             resourceDictionary6.Source = resourceUri6;
+            resourceDictionary7.Source = resourceUri7;
+            resourceDictionary8.Source = resourceUri8;
 
             this.Resources.MergedDictionaries.Add(resourceDictionary0);
             this.Resources.MergedDictionaries.Add(resourceDictionary1);
@@ -44,7 +52,8 @@ namespace AudioStation
             this.Resources.MergedDictionaries.Add(resourceDictionary4);
             this.Resources.MergedDictionaries.Add(resourceDictionary5);
             this.Resources.MergedDictionaries.Add(resourceDictionary6);
+            this.Resources.MergedDictionaries.Add(resourceDictionary7);
+            this.Resources.MergedDictionaries.Add(resourceDictionary8);
         }
     }
-
 }

@@ -1,14 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using AudioStation.Core.Component;
+﻿using AudioStation.Core.Component;
 
 using SimpleWpf.Extensions;
 
-namespace AudioStation.ViewModels.CoreViewModel
+namespace AudioStation.ViewModels
 {
     public class LibraryWorkItemViewModel : ViewModelBase
     {
@@ -20,22 +14,22 @@ namespace AudioStation.ViewModels.CoreViewModel
         public string FileName
         {
             get { return _fileName; }
-            set { this.RaiseAndSetIfChanged(ref _fileName, value); }
+            set { RaiseAndSetIfChanged(ref _fileName, value); }
         }
         public LibraryLoadType LoadType
         {
             get { return _loadType; }
-            set { this.RaiseAndSetIfChanged(ref _loadType, value); }
+            set { RaiseAndSetIfChanged(ref _loadType, value); }
         }
         public bool Error
         {
             get { return _error; }
-            set { this.RaiseAndSetIfChanged(ref _error, value); }
+            set { RaiseAndSetIfChanged(ref _error, value); }
         }
         public bool Completed
         {
             get { return _completed; }
-            set { this.RaiseAndSetIfChanged(ref _completed, value); }
+            set { RaiseAndSetIfChanged(ref _completed, value); }
         }
 
         public LibraryWorkItemViewModel()

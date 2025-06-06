@@ -4,6 +4,7 @@
              xmlns:local="clr-namespace:AudioStation"
 			 xmlns:converter="clr-namespace:AudioStation.Views.Converter"             
              xmlns:simpleConverter="clr-namespace:SimpleWpf.UI.Converter;assembly=SimpleWpf.UI"
+             xmlns:templateSelector="clr-namespace:AudioStation.Views.TemplateSelector"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
         <converter:StringArrayConverter x:Key="StringArrayConverter" />
@@ -16,6 +17,10 @@
         <!-- SimpleWpf.UI Converters -->
         <simpleConverter:BoolVisibilityCollapseConverter x:Key="BoolVisibilityCollapseConverter" />
         <simpleConverter:NonNullVisibilityConverter x:Key="NonNullVisibilityConverter" />
+        
+        <!-- Template Selectors -->
+        <templateSelector:LibraryWorkItemTemplateSelector x:Key="LibraryWorkItemTemplateSelector" />
+        <templateSelector:LogItemTemplateSelector x:Key="LogItemTemplateSelector" />
 
         <ResourceDictionary x:Key="StyleResources">
             <ResourceDictionary.MergedDictionaries>

@@ -1,0 +1,27 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:viewModel="clr-namespace:AudioStation.ViewModels">
+
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="/Resources/TextBlockStyles.xaml" />
+    </ResourceDictionary.MergedDictionaries>
+
+    <DataTemplate x:Key="LogDataTemplateInfo" DataType="{x:Type viewModel:LogMessageViewModel}">
+        <Border Padding="3">
+            <TextBlock Text="{Binding Message}" Style="{StaticResource LabelTextBlock}" />
+        </Border>
+    </DataTemplate>
+
+    <DataTemplate x:Key="LogDataTemplateWarning" DataType="{x:Type viewModel:LogMessageViewModel}">
+        <Border Padding="3">
+            <TextBlock Text="{Binding Message}" Style="{StaticResource LabelWarningTextBlock}" />
+        </Border>
+    </DataTemplate>
+
+    <DataTemplate x:Key="LogDataTemplateError" DataType="{x:Type viewModel:LogMessageViewModel}">
+        <Border Padding="3">
+            <TextBlock Text="{Binding Message}" Style="{StaticResource LabelErrorTextBlock}" />
+        </Border>
+    </DataTemplate>
+
+</ResourceDictionary>

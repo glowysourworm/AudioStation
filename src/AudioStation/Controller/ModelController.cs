@@ -1,7 +1,7 @@
 ﻿using AudioStation.Controller.Interface;
 using AudioStation.Core.Database;
 using AudioStation.Core.Model;
-using AudioStation.ViewModel;
+using AudioStation.ViewModels;
 using AudioStation.ViewModels.Vendor;
 
 using SimpleWpf.Extensions.Event;
@@ -51,8 +51,8 @@ namespace AudioStation.Controller
                 }).Distinct().ToList();
                 var albums = context.Mp3FileReferenceAlbums.Select(x => new Album()
                 {
-                    Name = x.Name                    
-                    
+                    Name = x.Name
+
                 }).Distinct().ToList();
                 var artists = context.Mp3FileReferenceArtists.Select(x => new Artist()
                 {

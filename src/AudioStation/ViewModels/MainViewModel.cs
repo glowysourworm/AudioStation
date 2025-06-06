@@ -9,7 +9,6 @@ using AudioStation.Core.Component;
 using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Model;
 using AudioStation.ViewModel;
-using AudioStation.ViewModels.CoreViewModel;
 using AudioStation.ViewModels.Interface;
 
 using SimpleWpf.Extensions;
@@ -24,7 +23,7 @@ using AudioStation.ViewModels.LibraryViewModel.Comparer;
 
 namespace AudioStation.ViewModels;
 
-public partial class MainViewModel : ViewModelBase
+public partial class MainViewModel : ViewModelBase, IDisposable
 {
     private readonly IDialogController _dialogController;
     private readonly IAudioController _audioController;
@@ -35,6 +34,8 @@ public partial class MainViewModel : ViewModelBase
     public const string RADIO_FILE = ".AudioStationRadio";
 
     const int MAX_LOG_COUNT = 1000;
+
+    bool _disposed = false;
 
     #region Backing Fields
     Configuration _configuration;
@@ -191,22 +192,7 @@ public partial class MainViewModel : ViewModelBase
     }
     ~MainViewModel()
     {
-        // Dispose of any threads / unmanaged resources / and managed hooks (if they hold memory!) (but, application is now likely finished)
-        _libraryLoader.Dispose();
-        _dialogController.Dispose();
-        _modelController.Dispose();
-        _audioController.Dispose();
 
-        this.Configuration = null;
-        this.ShowOutputMessages = false;
-        this.OutputMessages.Clear();
-        this.LibraryCoreWorkItems.Clear();
-        this.RadioStations.Clear();
-        this.LibraryEntries.Clear();
-        this.Albums.Clear();
-        this.Artists.Clear();
-        this.Titles.Clear();
-        this.NowPlayingViewModel = null;
     }
 
     private void OnAudioControllerPlaybackStopped(INowPlayingViewModel nowPlaying)
@@ -434,5 +420,30 @@ public partial class MainViewModel : ViewModelBase
 
         // Status Message (for now, last log message)
         this.StatusMessage = string.Format(message, parameters);
+    }
+
+    public void Dispose()
+    {
+        if (!_disposed)
+        {
+            _disposed = true;
+
+            // Dispose of any threads / unmanaged resources / and managed hooks (if they hold memory!) (but, application is now likely finished)
+            _libraryLoader.Dispose();
+            _dialogController.Dispose();
+            _modelController.Dispose();
+            _audioController.Dispose();
+
+            this.Configuration = null;
+            this.ShowOutputMessages = false;
+            this.OutputMessages.Clear();
+            this.LibraryCoreWorkItems.Clear();
+            this.RadioStations.Clear();
+            this.LibraryEntries.Clear();
+            this.Albums.Clear();
+            this.Artists.Clear();
+            this.Titles.Clear();
+            this.NowPlayingViewModel = null;
+        }
     }
 }

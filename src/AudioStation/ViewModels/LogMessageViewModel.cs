@@ -1,6 +1,6 @@
 ﻿using SimpleWpf.Extensions;
 
-namespace AudioStation.ViewModel
+namespace AudioStation.ViewModels
 {
     public enum LogMessageSeverity
     {

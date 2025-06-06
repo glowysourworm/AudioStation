@@ -1,5 +1,5 @@
 ﻿using AudioStation.Core.Model;
-using AudioStation.ViewModel;
+using AudioStation.ViewModels;
 using AudioStation.ViewModels.Vendor;
 
 using SimpleWpf.Extensions.Event;

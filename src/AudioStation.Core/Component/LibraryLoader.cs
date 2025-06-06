@@ -281,6 +281,13 @@ namespace AudioStation.Core.Component
         {
             if (_workThread != null)
             {
+                // May have to finish a final iteration (only a problem is there is work running)
+                //
+                lock(_workThreadLock)
+                {
+                    _workerRun = false;
+                }
+                
                 _workThread.Join(WORKER_SLEEP_PERIOD * 3);
                 _workThread = null;
             }

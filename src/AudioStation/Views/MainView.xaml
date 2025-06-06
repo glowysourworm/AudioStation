@@ -89,21 +89,24 @@
             </Grid>
         </Border>
 
-        <!-- Output Messages (Status Panel) -->
+        <!-- Output Messages (Status Panel) / Work Queue Items -->
         <Border Grid.Row="3" Height="300" Visibility="{Binding ShowOutputMessages, Converter={StaticResource BoolVisibilityCollapseConverter}}">
             <TabControl Background="White">
 
                 <TabItem Header="Output" FontSize="14" Margin="0">
 
-                    <ListBox x:Name="OutputLB" ItemsSource="{Binding OutputMessages}">
+                    <ListBox x:Name="OutputLB" 
+                             ItemTemplateSelector="{StaticResource LogItemTemplateSelector}"
+                             ItemsSource="{Binding OutputMessages}">
+                    </ListBox>
 
-                        <ListBox.ItemTemplate>
-                            <DataTemplate>
-                                <Border Padding="3">
-                                    <TextBlock Text="{Binding Message}" Style="{StaticResource LabelTextBlock}" />
-                                </Border>
-                            </DataTemplate>
-                        </ListBox.ItemTemplate>
+                </TabItem>
+
+                <TabItem Header="Library Queue" FontSize="14" Margin="0">
+
+                    <ListBox x:Name="LibraryQueueLB" 
+                             ItemTemplateSelector="{StaticResource LibraryWorkItemTemplateSelector}"
+                             ItemsSource="{Binding LibraryCoreWorkItems}">
                     </ListBox>
 
                 </TabItem>
