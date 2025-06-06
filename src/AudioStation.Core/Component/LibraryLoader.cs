@@ -1,11 +1,12 @@
-﻿using System.Collections.Concurrent;
-using System.IO;
+﻿using System.IO;
+using System.Windows;
 
 using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Model;
 
 using m3uParser;
 
+using SimpleWpf.Extensions;
 using SimpleWpf.Extensions.Collection;
 using SimpleWpf.Extensions.Event;
 using SimpleWpf.NativeIO.FastDirectory;
@@ -15,116 +16,73 @@ namespace AudioStation.Core.Component
     public class LibraryLoader : ILibraryLoader
     {
         const string UNKNOWN = "Unknown";
+        const int WORKER_SLEEP_PERIOD = 500;                   // 1 second between queue checks
 
         public event SimpleEventHandler<string, bool> LogEvent;
+        public event SimpleEventHandler<LibraryEntry> LibraryEntryLoaded;
+        public event SimpleEventHandler<RadioEntry> RadioEntryLoaded;
+        public event SimpleEventHandler<LibraryLoaderWorkItem> WorkItemCompleted;
+        public event SimpleEventHandler<LibraryLoaderWorkItem[]> WorkItemsAdded;
+        public event SimpleEventHandler<LibraryLoaderWorkItem[]> WorkItemsRemoved;
 
-        public Task<List<LibraryEntry>> LoadLibraryAsync(string baseDirectory, int maxNumberOfThreads = 4)
+        private List<LibraryLoaderWorkItem> _workQueue;
+        private Thread _workThread;
+        private object _workThreadLock;
+        private bool _workerRun;
+        private bool _userRun;              // This is the flag to allow user to stop the queue
+
+        public LibraryLoader()
         {
-            return Task<List<LibraryEntry>>.Run(() =>
-            {
-                // Scan directories for files (Use NativeIO for much faster iteration. Less managed memory loading)
-                var files = FastDirectoryEnumerator.GetFiles(baseDirectory, "*.mp3", SearchOption.AllDirectories);
-
-                var entries = new ConcurrentBag<LibraryEntry>();
-
-                // Use TPL to create library entries
-                Parallel.ForEach(files, new ParallelOptions() { MaxDegreeOfParallelism = 4 }, (file) =>
-                {
-                    LibraryEntry entry = null;
-
-                    // Generate entry
-                    try
-                    {
-                        // SHOULD BE THREAD SAFE
-                        entry = this.LoadLibraryEntry(file.Path);
-
-                        OnLog(string.Format("Music file loaded:  {0}", file.Path), false);
-                    }
-                    catch (Exception ex)
-                    {
-                        entry = new LibraryEntry()
-                        {
-                            FileName = file.Path,
-                            FileError = true,
-                            FileErrorMessage = ex.Message,        // Should be handled based on exception (user friendly message)
-                        };
-
-                        OnLog(string.Format("Music file load error:  {0}", file.Path), true);
-                    }
-
-                    // Keep track of completed entries 
-                    if (entry != null)
-                        entries.Add(entry);
-
-                    else
-                        throw new Exception("Unhandled library loader exception:  LibraryLoader.cs");
-                });
-
-                // Report
-                OnLog(string.Format("{0} music files read successfully! {1} of {2} loaded. {3} had loading issues.",
-                        entries.Count,
-                        entries.Where(x => !x.FileError).Count(),
-                        entries.Count,
-                        entries.Where(x => x.FileError).Count()),
-                        entries.Where(x => x.FileError).Count() != 0);
-
-                OnLog("See Library Manager to resolve loading issues", false);
-
-                return entries.ToList();
-            });
+            _workQueue = new List<LibraryLoaderWorkItem>();
+            _workThread = new Thread(WorkFunction);
+            _workThreadLock = new object();
+            _workerRun = true;
+            _userRun = false;               // Queue must be started by user code
+            _workThread.Start();
         }
 
-        public Task<List<RadioEntry>> LoadRadioAsync(string baseDirectory, int maxNumberOfThreads = 4)
+        public void LoadLibraryAsync(string baseDirectory)
         {
-            return Task<List<RadioEntry>>.Run(() =>
+            LoadDirectoryAsync(baseDirectory, "*.mp3");
+        }
+
+        public void LoadRadioAsync(string baseDirectory)
+        {
+            LoadDirectoryAsync(baseDirectory, "*.m3u");
+        }
+
+        private void LoadDirectoryAsync(string baseDirectory, string searchPattern)
+        {
+            LibraryLoadType loadType;
+
+            if (searchPattern == "*.mp3")
+                loadType = LibraryLoadType.Mp3File;
+
+            else if (searchPattern == "*.m3u")
+                loadType = LibraryLoadType.M3UFile;
+
+            else
+                throw new FormattedException("Unhandled search pattern type: {0}  LibraryLoader.cs", searchPattern);
+
+            // Scan directories for files (Use NativeIO for much faster iteration. Less managed memory loading)
+            var files = FastDirectoryEnumerator.GetFiles(baseDirectory, searchPattern, SearchOption.AllDirectories);
+            var workItems = new LibraryLoaderWorkItem[files.Length];
+            var index = 0;
+
+            foreach (var file in files)
             {
-                // Scan directories for files (Use NativeIO for much faster iteration. Less managed memory loading)
-                var files = FastDirectoryEnumerator.GetFiles(baseDirectory, "*.m3u", SearchOption.AllDirectories);
+                workItems[index++] = new LibraryLoaderWorkItem(file.Path, loadType);
+            }
 
-                var entries = new ConcurrentBag<RadioEntry>();
-                var errorCount = 0;
-                var totalStreamCount = 0;
+            lock (_workThreadLock)
+            {
+                // COPY THESE - we're sending the rest to the main thread
+                _workQueue.AddRange(workItems.Select(item => new LibraryLoaderWorkItem(item)));
+            }
 
-                // Use TPL to create library entries
-                Parallel.ForEach(files, new ParallelOptions() { MaxDegreeOfParallelism = 4 }, (file) =>
-                {
-                    RadioEntry entry = null;
-
-                    // Generate entry
-                    try
-                    {
-                        // SHOULD BE THREAD SAFE
-                        entry = this.LoadRadioEntry(file.Path);
-
-                        totalStreamCount += entry.Streams.Count;
-
-                        OnLog(string.Format("Radio M3U file loaded:  {0}", file.Path), false);
-                    }
-                    catch (Exception ex)
-                    {
-                        OnLog(string.Format("Radio M3U file load error:  {0}", file.Path), true);
-                    }
-
-                    // Keep track of completed entries 
-                    if (entry != null)
-                        entries.Add(entry);
-
-                    else
-                        errorCount++;
-                });
-
-                // Report
-                OnLog(string.Format("{0} M3U files read successfully! {1} of {2} loaded. {3} total streams loaded.",
-                        files.Count(),
-                        entries.Count(),
-                        files.Count(),
-                        totalStreamCount),
-                        errorCount > 0);
-
-                OnLog("See Library Manager to resolve loading issues", false);
-
-                return entries.ToList();
-            });
+            // Fire event for new items in the queue
+            if (this.WorkItemsAdded != null)
+                this.WorkItemsAdded(workItems);
         }
 
         public LibraryEntry LoadLibraryEntry(string file)
@@ -137,7 +95,7 @@ namespace AudioStation.Core.Component
 
                 var fileRef = TagLib.File.Create(file);
 
-                return new LibraryEntry()
+                var entry = new LibraryEntry()
                 {
                     FileName = file,
                     PrimaryArtist = fileRef.Tag.FirstAlbumArtist,
@@ -151,23 +109,35 @@ namespace AudioStation.Core.Component
                     Title = Format(fileRef.Tag.Title),
                     Track = fileRef.Tag.Track
                 };
+
+                OnLog(string.Format("Music file loaded:  {0}", file), false);
+
+                return entry;
             }
             catch (Exception ex)
             {
-                throw ex;
-            }
+                var entry = new LibraryEntry()
+                {
+                    FileName = file,
+                    FileError = true,
+                    FileErrorMessage = ex.Message,        // Should be handled based on exception (user friendly message)
+                };
 
+                OnLog(string.Format("Music file load error:  {0}", file), true);
+
+                return entry;
+            }
         }
 
         public RadioEntry LoadRadioEntry(string fileName)
         {
-            // Adding a nested try / catch for these files
-            var fileContents = File.ReadAllText(fileName);
-            var m3uFile = M3U.Parse(fileContents);
-
-            if (m3uFile != null)
+            try
             {
-                return new RadioEntry()
+                // Adding a nested try / catch for these files
+                var fileContents = File.ReadAllText(fileName);
+                var m3uFile = M3U.Parse(fileContents);
+
+                var entry = new RadioEntry()
                 {
                     Name = m3uFile.Attributes.TvgName,
                     Streams = m3uFile.Medias.Select(media => new RadioEntryStreamInfo()
@@ -178,9 +148,24 @@ namespace AudioStation.Core.Component
                         LogoEndpoint = media.Attributes.TvgLogo
                     }).ToList()
                 };
-            }
 
-            return null;
+                OnLog(string.Format("Radio M3U file loaded:  {0}", fileName), false);
+
+                return entry;
+            }
+            catch (Exception ex)
+            {
+                var entry = new RadioEntry()
+                {
+                    FileName = fileName,
+                    FileError = true,
+                    FileErrorMessage = ex.Message,
+                };
+
+                OnLog(string.Format("Radio M3U file load error:  {0}", fileName), true);
+
+                return entry;
+            }
         }
 
         private string Format(string tagField)
@@ -190,8 +175,115 @@ namespace AudioStation.Core.Component
 
         private void OnLog(string message, bool error)
         {
+            // Shared between Dispatcher / our Worker Thread
+            if (Application.Current.Dispatcher.Thread.ManagedThreadId != _workThread.ManagedThreadId)
+            {
+                Application.Current.Dispatcher.BeginInvoke(OnLog);
+                return;
+            }
+
             if (this.LogEvent != null)
                 this.LogEvent(message, error);
+        }
+
+        public void Stop()
+        {
+            lock(_workThreadLock)
+            {
+                _userRun = false;
+            }
+        }
+
+        public void Start()
+        {
+            lock (_workThreadLock)
+            {
+                _userRun = true;
+            }
+        }
+
+        public void Clear()
+        {
+            lock (_workThreadLock)
+            {
+                _userRun = false;
+
+                var workItems = _workQueue;
+
+                // Clear the worker thread
+                _workQueue.Clear();
+
+                // Copy to the main thread (essentially)
+                if (this.WorkItemsRemoved != null)
+                    this.WorkItemsRemoved(workItems.ToArray());
+            }
+        }
+
+        private void WorkFunction()
+        {
+            while (_workerRun)
+            {
+                var workToProcess = false;
+
+                lock (_workThreadLock)
+                {
+                    // Check for queue work (user has control over this portion from the front end)
+                    if (_workQueue.Count > 0 && _userRun)
+                    {
+                        var workItem = _workQueue.FirstOrDefault(item => !item.ProcessingComplete);
+
+                        // DONE!
+                        if (workItem != null)
+                        {
+                            workToProcess = true;
+
+                            switch (workItem.LoadType)
+                            {
+                                case LibraryLoadType.Mp3File:
+                                {
+                                    var entry = LoadLibraryEntry(workItem.FileName);
+
+                                    // Set Work Item
+                                    workItem.ProcessingSuccessful = !entry.FileError;
+                                    workItem.ProcessingComplete = true;
+
+                                    if (this.LibraryEntryLoaded != null)
+                                        this.LibraryEntryLoaded(entry);
+                                }
+                                break;
+                                case LibraryLoadType.M3UFile:
+                                {
+                                    var entry = LoadRadioEntry(workItem.FileName);
+
+                                    // Set Work Item
+                                    workItem.ProcessingSuccessful = !entry.FileError;
+                                    workItem.ProcessingComplete = true;
+
+                                    if (this.RadioEntryLoaded != null)
+                                        this.RadioEntryLoaded(entry);
+                                }
+                                break;
+                                default:
+                                    throw new Exception("Worker load type not handled:  LibraryLoader.cs");
+                            }
+                        }
+                    }
+                }
+
+                if (!workToProcess)
+                {
+                    Thread.Sleep(WORKER_SLEEP_PERIOD);
+                }
+            }
+        }
+
+        public void Dispose()
+        {
+            if (_workThread != null)
+            {
+                _workThread.Join(WORKER_SLEEP_PERIOD * 3);
+                _workThread = null;
+            }
         }
     }
 }

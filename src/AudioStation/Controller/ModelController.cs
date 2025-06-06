@@ -96,5 +96,10 @@ namespace AudioStation.Controller
         {
             throw new NotImplementedException();
         }
+
+        public void Dispose()
+        {
+            // TODO
+        }
     }
 }

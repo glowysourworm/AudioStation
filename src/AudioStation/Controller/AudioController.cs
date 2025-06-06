@@ -134,5 +134,14 @@ namespace AudioStation.Controller
             if (this.PlaybackStoppedEvent != null)
                 this.PlaybackStoppedEvent(_nowPlaying);
         }
+
+        public void Dispose()
+        {
+            if (_player != null)
+            {
+                _player.Dispose();
+                _player = null;
+            }
+        }
     }
 }

@@ -7,26 +7,19 @@ namespace AudioStation.ViewModel.LibraryViewModel
     public class TitleViewModel : ViewModelBase
     {
         string _fileName;
-        LibraryEntry _entry;
-        string _name;
+        string _title;
         uint _track;
         TimeSpan _duration;
-        bool _nowPlaying;
 
         public string FileName
         {
             get { return _fileName; }
             set { this.RaiseAndSetIfChanged(ref _fileName, value); }
         }
-        public LibraryEntry Entry
+        public string Title
         {
-            get { return _entry; }
-            set { this.RaiseAndSetIfChanged(ref _entry, value); }
-        }
-        public string Name
-        {
-            get { return _name; }
-            set { this.RaiseAndSetIfChanged(ref _name, value); }
+            get { return _title; }
+            set { this.RaiseAndSetIfChanged(ref _title, value); }
         }
         public uint Track
         {
@@ -38,20 +31,13 @@ namespace AudioStation.ViewModel.LibraryViewModel
             get { return _duration; }
             set { this.RaiseAndSetIfChanged(ref _duration, value); }
         }
-        public bool NowPlaying
-        {
-            get { return _nowPlaying; }
-            set { this.RaiseAndSetIfChanged(ref _nowPlaying, value); }
-        }
 
         public TitleViewModel()
         {
             this.Track = 0;
-            this.Entry = null;
             this.FileName = string.Empty;
-            this.Name = string.Empty;
+            this.Title = string.Empty;
             this.Duration = TimeSpan.Zero;
-            this.NowPlaying = false;
         }
     }
 }

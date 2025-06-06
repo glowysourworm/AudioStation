@@ -75,7 +75,7 @@ namespace AudioStation.Views
         private void LoadPlaylist(TitleViewModel selectedTitle, AlbumViewModel selectedAlbum)
         {
             var playlist = new Playlist();
-            playlist.Name = selectedAlbum.Artist + " / " + selectedAlbum.Album;
+            playlist.Name = selectedAlbum.PrimaryArtist + " / " + selectedAlbum.Album;
 
             // Load tracks for playback
             foreach (var track in selectedAlbum.Tracks)

@@ -50,5 +50,10 @@ namespace AudioStation.Controller
 
             return string.Empty;
         }
+
+        public void Dispose()
+        {
+            // TODO
+        }
     }
 }

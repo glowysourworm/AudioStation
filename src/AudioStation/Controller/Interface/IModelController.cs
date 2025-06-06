@@ -6,7 +6,7 @@ using SimpleWpf.Extensions.Event;
 
 namespace AudioStation.Controller.Interface
 {
-    public interface IModelController
+    public interface IModelController : IDisposable
     {
         public event SimpleEventHandler<string, LogMessageType, LogMessageSeverity> LogEvent;
 

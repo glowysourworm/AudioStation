@@ -6,7 +6,7 @@ using SimpleWpf.Extensions.Event;
 
 namespace AudioStation.Controller.Interface
 {
-    public interface IAudioController
+    public interface IAudioController : IDisposable
     {
         event SimpleEventHandler<INowPlayingViewModel> PlaybackStartedEvent;
         event SimpleEventHandler<INowPlayingViewModel> PlaybackStoppedEvent;

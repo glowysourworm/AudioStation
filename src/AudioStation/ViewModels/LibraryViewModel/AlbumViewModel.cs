@@ -9,9 +9,9 @@ namespace AudioStation.ViewModel.LibraryViewModel
     /// </summary>
     public class AlbumViewModel : ViewModelBase
     {
-        string _fileNameRef;
+        string _fileName;
         string _album;
-        string _artist;
+        string _primaryArtist;
         uint _year;
         TimeSpan _duration;
         ObservableCollection<TitleViewModel> _tracks;
@@ -20,10 +20,10 @@ namespace AudioStation.ViewModel.LibraryViewModel
         /// Reference to the Mp3 file. The album art is too large to pre-load. So, loading will have
         /// to be accomplished on the fly.
         /// </summary>
-        public string FileNameRef
+        public string FileName
         {
-            get { return _fileNameRef; }
-            set { this.RaiseAndSetIfChanged(ref _fileNameRef, value); }
+            get { return _fileName; }
+            set { this.RaiseAndSetIfChanged(ref _fileName, value); }
         }
 
         public string Album
@@ -31,10 +31,10 @@ namespace AudioStation.ViewModel.LibraryViewModel
             get { return _album; }
             set { this.RaiseAndSetIfChanged(ref _album, value); }
         }
-        public string Artist
+        public string PrimaryArtist
         {
-            get { return _artist; }
-            set { this.RaiseAndSetIfChanged(ref _artist, value); }
+            get { return _primaryArtist; }
+            set { this.RaiseAndSetIfChanged(ref _primaryArtist, value); }
         }
         public uint Year
         {
@@ -55,9 +55,10 @@ namespace AudioStation.ViewModel.LibraryViewModel
         public AlbumViewModel()
         {
             this.Tracks = new ObservableCollection<TitleViewModel>();
-            this.Duration = new TimeSpan();
+            this.Duration = TimeSpan.Zero;
             this.Album = string.Empty;
-            this.FileNameRef = string.Empty;
+            this.FileName = string.Empty;
+            this.PrimaryArtist = string.Empty;
             this.Year = 0;
         }
     }
