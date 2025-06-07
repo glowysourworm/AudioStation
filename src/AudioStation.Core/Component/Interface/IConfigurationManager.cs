@@ -8,5 +8,6 @@
     {
         void Initialize();
         Configuration GetConfiguration();
+        void SaveConfiguration();
     }
 }

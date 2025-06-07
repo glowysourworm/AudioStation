@@ -8,25 +8,53 @@
     
     <DataTemplate x:Key="LibraryWorkItemDataTemplateNormal" DataType="{x:Type viewModel:LibraryWorkItemViewModel}">
         <Border Padding="3">
-            <TextBlock Text="{Binding FileName}" Style="{StaticResource LabelTextBlock}" />
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="{Binding FileName}" Style="{StaticResource LabelTextBlock}" HorizontalAlignment="Left" />
+                <TextBlock Text="Complete" Grid.Column="1" Style="{StaticResource LabelTextBlock}" HorizontalAlignment="Right" />
+            </Grid>
         </Border>
     </DataTemplate>
 
     <DataTemplate x:Key="LibraryWorkItemDataTemplateError" DataType="{x:Type viewModel:LibraryWorkItemViewModel}">
         <Border Padding="3">
-            <TextBlock Text="{Binding FileName}" Style="{StaticResource LabelErrorTextBlock}" />
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="{Binding FileName}" Style="{StaticResource LabelErrorTextBlock}" HorizontalAlignment="Left" />
+                <TextBlock Text="Error" Grid.Column="1" Style="{StaticResource LabelErrorTextBlock}" HorizontalAlignment="Right" />
+            </Grid>
         </Border>
     </DataTemplate>
 
     <DataTemplate x:Key="LibraryWorkItemDataTemplatePending" DataType="{x:Type viewModel:LibraryWorkItemViewModel}">
         <Border Padding="3">
-            <TextBlock Text="{Binding FileName}" Style="{StaticResource LabelPendingTextBlock}" />
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="{Binding FileName}" Style="{StaticResource LabelPendingTextBlock}" HorizontalAlignment="Left" />
+                <TextBlock Text="Pending" Grid.Column="1" Style="{StaticResource LabelPendingTextBlock}" HorizontalAlignment="Right" />
+            </Grid>
         </Border>
     </DataTemplate>
 
     <DataTemplate x:Key="LibraryWorkItemDataTemplateSuccess" DataType="{x:Type viewModel:LibraryWorkItemViewModel}">
         <Border Padding="3">
-            <TextBlock Text="{Binding FileName}" Style="{StaticResource LabelTextBlock}" />
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="{Binding FileName}" Style="{StaticResource LabelTextBlock}" HorizontalAlignment="Left" />
+                <TextBlock Text="Success" Grid.Column="1" Style="{StaticResource LabelTextBlock}" HorizontalAlignment="Right" />
+            </Grid>            
         </Border>
     </DataTemplate>
 

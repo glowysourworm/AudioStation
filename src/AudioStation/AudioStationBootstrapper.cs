@@ -23,12 +23,6 @@ namespace AudioStation
 
         protected override void UserPreModuleInitialize()
         {
-            // This will only call initialize on the module(s). Any other pieces will wait
-            // on their injector until they're called from the container. So, the main view
-            // model will wait (for the configuration) until it's used by the MainWindow.
-            //
-            base.UserPreModuleInitialize();
-
             // We can inject our initialize procedure(s) here
             //
             var configurationManager = IocContainer.Get<IConfigurationManager>();
@@ -40,6 +34,12 @@ namespace AudioStation
 
             // Apply configuration
             modelController.Initialize();
+
+            // This will only call initialize on the module(s). Any other pieces will wait
+            // on their injector until they're called from the container. So, the main view
+            // model will wait (for the configuration) until it's used by the MainWindow.
+            //
+            base.UserPreModuleInitialize();
         }
 
         public override IEnumerable<ModuleDefinition> DefineModules()

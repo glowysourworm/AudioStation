@@ -59,6 +59,9 @@ public partial class MainViewModel : ViewModelBase, IDisposable
     SortedObservableCollection<TitleViewModel> _titles;
 
     SimpleCommand<string> _searchRadioBrowserCommand;
+    SimpleCommand _openLibraryFolderCommand;
+    SimpleCommand _saveConfigurationCommand;
+    SimpleCommand _loadLibraryCommand;
     #endregion
 
     #region Properties
@@ -132,6 +135,21 @@ public partial class MainViewModel : ViewModelBase, IDisposable
         get { return _searchRadioBrowserCommand; }
         set { this.RaiseAndSetIfChanged(ref _searchRadioBrowserCommand, value); }
     }
+    public SimpleCommand OpenLibraryFolderCommand
+    {
+        get { return _openLibraryFolderCommand; }
+        set { this.RaiseAndSetIfChanged(ref _openLibraryFolderCommand, value); }
+    }
+    public SimpleCommand SaveConfigurationCommand
+    {
+        get { return _saveConfigurationCommand; }
+        set { this.RaiseAndSetIfChanged(ref _saveConfigurationCommand, value); }
+    }
+    public SimpleCommand LoadLibraryCommand
+    {
+        get { return _loadLibraryCommand; }
+        set { this.RaiseAndSetIfChanged(ref _loadLibraryCommand, value); }
+    }
     #endregion
 
     [IocImportingConstructor]
@@ -175,6 +193,19 @@ public partial class MainViewModel : ViewModelBase, IDisposable
         this.SearchRadioBrowserCommand = new SimpleCommand<string>((search) =>
         {
             SearchRadioBrowser(search);
+        });
+        this.LoadLibraryCommand = new SimpleCommand(() =>
+        {
+            libraryLoader.LoadLibraryAsync(this.Configuration.DirectoryBase);
+            libraryLoader.Start();
+        });
+        this.SaveConfigurationCommand = new SimpleCommand(() =>
+        {
+            configurationManager.SaveConfiguration();
+        });
+        this.OpenLibraryFolderCommand = new SimpleCommand(() =>
+        {
+            this.Configuration.DirectoryBase = dialogController.ShowSelectFolder();
         });
 
         outputController.AddLog("Welcome to Audio Station!");

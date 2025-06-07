@@ -55,7 +55,7 @@
 
 
             <TabItem FontSize="14" Margin="0" Header="Configuration" Style="{StaticResource MainTabItemControlStyle}">
-                <local:ConfigurationView x:Name="ConfigurationView" DataContext="{Binding Configuration}" />
+                <local:ConfigurationView x:Name="ConfigurationView" />
             </TabItem>
 
             <TabItem FontSize="14" Margin="0" Header="Library Manager" Style="{StaticResource MainTabItemControlStyle}">
@@ -96,8 +96,17 @@
                 <TabItem Header="Output" FontSize="14" Margin="0">
 
                     <ListBox x:Name="OutputLB" 
+                             HorizontalContentAlignment="Stretch"
+                             VirtualizingPanel.CacheLength="3"
+                             VirtualizingPanel.IsVirtualizing="True"
+                             VirtualizingPanel.VirtualizationMode="Recycling"                             
                              ItemTemplateSelector="{StaticResource LogItemTemplateSelector}"
                              ItemsSource="{Binding OutputMessages}">
+                        <ListBox.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <VirtualizingStackPanel IsItemsHost="True" />
+                            </ItemsPanelTemplate>
+                        </ListBox.ItemsPanel>                        
                     </ListBox>
 
                 </TabItem>
@@ -105,8 +114,17 @@
                 <TabItem Header="Library Queue" FontSize="14" Margin="0">
 
                     <ListBox x:Name="LibraryQueueLB" 
+                             HorizontalContentAlignment="Stretch"
+                             VirtualizingPanel.CacheLength="3"
+                             VirtualizingPanel.IsVirtualizing="True"
+                             VirtualizingPanel.VirtualizationMode="Recycling"
                              ItemTemplateSelector="{StaticResource LibraryWorkItemTemplateSelector}"
                              ItemsSource="{Binding LibraryCoreWorkItems}">
+                        <ListBox.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <VirtualizingStackPanel IsItemsHost="True" />
+                            </ItemsPanelTemplate>
+                        </ListBox.ItemsPanel>
                     </ListBox>
 
                 </TabItem>

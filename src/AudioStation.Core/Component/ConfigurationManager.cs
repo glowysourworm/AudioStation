@@ -27,13 +27,16 @@ namespace AudioStation.Core.Component
         public void Initialize()
         {
             _configuration = this.Open();
-
-            _configuration.PropertyChanged += OnConfigurationChanged;
         }
 
         public Configuration GetConfiguration()
         {
             return _configuration;
+        }
+
+        public void SaveConfiguration()
+        {
+            Save();
         }
 
         private void Save()
@@ -89,11 +92,6 @@ namespace AudioStation.Core.Component
                 configPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, CONFIGURATION_FILE);
 
             return configPath;
-        }
-
-        private void OnConfigurationChanged(object? sender, PropertyChangedEventArgs e)
-        {
-            Save();
         }
     }
 }
