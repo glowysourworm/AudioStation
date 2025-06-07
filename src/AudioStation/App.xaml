@@ -4,8 +4,7 @@
              xmlns:local="clr-namespace:AudioStation"
 			 xmlns:converter="clr-namespace:AudioStation.Views.Converter"             
              xmlns:simpleConverter="clr-namespace:SimpleWpf.UI.Converter;assembly=SimpleWpf.UI"
-             xmlns:templateSelector="clr-namespace:AudioStation.Views.TemplateSelector"
-             StartupUri="MainWindow.xaml">
+             xmlns:templateSelector="clr-namespace:AudioStation.Views.TemplateSelector">
     <Application.Resources>
         <converter:StringArrayConverter x:Key="StringArrayConverter" />
         <converter:MusicBrainzValidColorConverter x:Key="MusicBrainzValidColorConverter" />

@@ -1,31 +1,33 @@
-﻿using AudioStation.Controller.Interface;
+﻿using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Database;
 using AudioStation.Core.Model;
-using AudioStation.ViewModels;
-using AudioStation.ViewModels.Vendor;
 
-using SimpleWpf.Extensions.Event;
+using SimpleWpf.IocFramework.Application.Attribute;
 
 using TagLib;
 
 namespace AudioStation.Controller
 {
+    [IocExport(typeof(IModelController))]
     public class ModelController : IModelController
     {
-        private readonly Configuration _configuration;
-
-        public event SimpleEventHandler<string, LogMessageType, LogMessageSeverity> LogEvent;
+        private readonly IConfigurationManager _configurationManager;
+        private readonly IOutputController _outputController;
 
         public Library Library { get; private set; }
         public Radio Radio { get; private set; }
 
-        public ModelController(Configuration configuration)
+        [IocImportingConstructor]
+        public ModelController(IConfigurationManager configurationManager, IOutputController outputController)
         {
-            _configuration = configuration;
+            _configurationManager = configurationManager;
+            _outputController = outputController;
         }
 
         public void Initialize()
         {
+            var configuration = _configurationManager.GetConfiguration();
+
             // Procedure: The Library and Radio components are loaded from
             //            any database data that exists. At runtime, the rest
             //            of the data may be queried from this controller.
@@ -33,7 +35,13 @@ namespace AudioStation.Controller
             this.Library = new Library();
             this.Radio = new Radio();
 
-            using (var context = new AudioStationDbContext("Host=localhost;Database=AudioStation;Username=admin;Password=!ngndol234"))
+            var connectionString = "Host={0};Database={1};Username={2};Password={3}";
+
+            using (var context = new AudioStationDbContext(string.Format(connectionString,
+                                                                         configuration.DatabaseHost,
+                                                                         configuration.DatabaseName,
+                                                                         configuration.DatabaseUser,
+                                                                         configuration.DatabasePassword), _outputController))
             {
                 // Load data from the database that will be used to group / view entries. The
                 // rest of the data will be loaded lazily. The mp3 tag data will be called once
@@ -87,10 +95,10 @@ namespace AudioStation.Controller
             }
         }
 
-        public MusicBrainzRecordViewModel LoadFromMusicBrainz(string musicBrainzId)
-        {
-            throw new NotImplementedException();
-        }
+        //public MusicBrainzRecordViewModel LoadFromMusicBrainz(string musicBrainzId)
+        //{
+        //    throw new NotImplementedException();
+        //}
 
         public File LoadTag(string fileName)
         {

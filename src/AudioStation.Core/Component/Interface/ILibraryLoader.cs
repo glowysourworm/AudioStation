@@ -9,7 +9,6 @@ namespace AudioStation.Core.Component.Interface
         /// <summary>
         /// Log event, with a bool to represent whether it was an error
         /// </summary>
-        public event SimpleEventHandler<string, bool> LogEvent;
         public event SimpleEventHandler<LibraryLoaderWorkItem[]> WorkItemsRemoved;
         public event SimpleEventHandler<LibraryLoaderWorkItem[]> WorkItemsAdded;
         public event SimpleEventHandler<LibraryLoaderWorkItem> WorkItemCompleted;

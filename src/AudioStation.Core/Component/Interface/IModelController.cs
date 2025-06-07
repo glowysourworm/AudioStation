@@ -1,15 +1,9 @@
 ﻿using AudioStation.Core.Model;
-using AudioStation.ViewModels;
-using AudioStation.ViewModels.Vendor;
 
-using SimpleWpf.Extensions.Event;
-
-namespace AudioStation.Controller.Interface
+namespace AudioStation.Core.Component.Interface
 {
     public interface IModelController : IDisposable
     {
-        public event SimpleEventHandler<string, LogMessageType, LogMessageSeverity> LogEvent;
-
         /// <summary>
         /// Method to initialize the controller. This must be called prior to usage.
         /// </summary>
@@ -38,6 +32,6 @@ namespace AudioStation.Controller.Interface
         /// data to include the music brainz ID - then you may load the rest of their data at runtime
         /// using this method.
         /// </summary>
-        MusicBrainzRecordViewModel LoadFromMusicBrainz(string musicBrainzId);
+        //MusicBrainzRecordViewModel LoadFromMusicBrainz(string musicBrainzId);
     }
 }

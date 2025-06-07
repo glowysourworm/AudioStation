@@ -1,19 +1,9 @@
-﻿using SimpleWpf.Extensions;
+﻿using AudioStation.Model;
+
+using SimpleWpf.Extensions;
 
 namespace AudioStation.ViewModels
 {
-    public enum LogMessageSeverity
-    {
-        Info,
-        Warning,
-        Error
-    }
-    public enum LogMessageType
-    {
-        General,
-        MusicBrainz,
-        LastFm
-    }
     public class LogMessageViewModel : ViewModelBase
     {
         string _message;

@@ -1,5 +1,8 @@
-﻿namespace AudioStation.Core.Database
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace AudioStation.Core.Database
 {
+    [Table("Mp3FileReference", Schema = "public")]
     public class Mp3FileReference
     {
         public int Id { get; set; }
@@ -9,6 +12,7 @@
         public string PrimaryArtist { get; set; }
         public int Track { get; set; }
 
+        public Mp3FileReference() { }
         public Mp3FileReference(int Id_, string FileName_, string Title_, string Album_, string PrimaryArtist_, int Track_)
         {
             this.Id = Id_;

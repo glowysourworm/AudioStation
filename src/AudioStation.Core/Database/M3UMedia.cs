@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 
 namespace AudioStation.Core.Database
 {
+    [Table("M3UMedia", Schema = "public")]
     public class M3UMedia
     {
         public int Id { get; set; }
@@ -15,6 +12,7 @@ namespace AudioStation.Core.Database
         public string MediaFile { get; set; }
         public bool UserExcluded { get; set; }
 
+        public M3UMedia() { }
         public M3UMedia(int Id_, int DurationMilliseconds_, string RawTitle_, string InnerTitle_, string MediaFile_, bool UserExcluded_)
         {
             this.Id = Id_;

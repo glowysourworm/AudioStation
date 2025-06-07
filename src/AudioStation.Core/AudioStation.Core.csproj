@@ -11,6 +11,7 @@
     <PackageReference Include="m3uParser.NET" Version="1.0.17" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4" />
     <PackageReference Include="SimpleWpf" Version="0.0.1" />
+    <PackageReference Include="SimpleWpf.IocFramework" Version="0.0.1" />
     <PackageReference Include="taglib-sharp-netstandard2.0" Version="2.1.0" />
   </ItemGroup>
 

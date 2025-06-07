@@ -31,4 +31,8 @@
     <ProjectReference Include="..\AudioStation.Core\AudioStation.Core.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Event\" />
+  </ItemGroup>
+
 </Project>

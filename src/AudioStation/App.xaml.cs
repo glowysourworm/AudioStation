@@ -1,7 +1,5 @@
 ﻿using System.Windows;
 
-using AudioStation.ViewModels;
-
 namespace AudioStation
 {
     /// <summary>
@@ -9,10 +7,15 @@ namespace AudioStation
     /// </summary>
     public partial class App : Application
     {
-        protected override void OnStartup(StartupEventArgs e)
-        {
-            base.OnStartup(e);
+        AudioStationBootstrapper _bootstrapper;
 
+        public App()
+        {
+            _bootstrapper = new AudioStationBootstrapper();
+        }
+
+        private void InitializeResources()
+        {
             // These aren't seen unless they're loaded by hand. This is some common WPF issue.
 
             var resourceUri0 = new Uri("pack://application:,,,/AudioStation;Component/Resources/ThemeColorsAndBrushes.xaml");
@@ -54,6 +57,28 @@ namespace AudioStation
             this.Resources.MergedDictionaries.Add(resourceDictionary6);
             this.Resources.MergedDictionaries.Add(resourceDictionary7);
             this.Resources.MergedDictionaries.Add(resourceDictionary8);
+        }
+
+        protected override void OnStartup(StartupEventArgs e)
+        {
+            base.OnStartup(e);
+
+            InitializeResources();
+
+            // (Small splash window example)
+
+            //var loadingWindow = SplashWindowFactory.CreatePopupWindow(SplashEventType.Loading);
+
+            // Show loading window - allow primary thread to process
+            //loadingWindow.Show();
+
+            // Next, initialize the bootstrapper
+            _bootstrapper.Initialize();
+
+            // Loads configuration prior to other injectors (MainViewModel needs Configuration)
+
+            // Run() -> Window.Show()
+            _bootstrapper.Run();
         }
     }
 }

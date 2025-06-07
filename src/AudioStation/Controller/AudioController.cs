@@ -10,9 +10,11 @@ using AudioStation.ViewModels.Interface;
 using NAudio.Wave;
 
 using SimpleWpf.Extensions.Event;
+using SimpleWpf.IocFramework.Application.Attribute;
 
 namespace AudioStation.Controller
 {
+    [IocExport(typeof(IAudioController))]
     public class AudioController : IAudioController
     {
         public event SimpleEventHandler<INowPlayingViewModel> PlaybackStartedEvent;
@@ -21,6 +23,7 @@ namespace AudioStation.Controller
         private IAudioPlayer _player;
         private INowPlayingViewModel _nowPlaying;
 
+        [IocImportingConstructor]
         public AudioController()
         {
             _player = null;

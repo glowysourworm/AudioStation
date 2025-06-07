@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 
 namespace AudioStation.Core.Database
 {
+    [Table("M3UInfoAttributes", Schema = "public")]
     public class M3UInfoAttributes
     {
         public int Id { get; set; }
@@ -28,6 +25,7 @@ namespace AudioStation.Core.Database
         public M3UInfo? M3UInfo { get; set; }
         public M3UMedia? M3UInfoMedia { get; set; }
 
+        public M3UInfoAttributes() { }
         public M3UInfoAttributes(int Id_, int? M3UInfoId_, string GroupTitle_, string TvgShift_, string TvgName_, string TvgLogo_, string AudioTrack_, string AspectRatio_, string TvgId_, string UrlTvg_, int? M3UAutoLoad_, int? Cache_, int? Deinterlace_, int? Refresh_, int? ChannelNumber_, int? M3UMediaId_)
         {
             this.Id = Id_;

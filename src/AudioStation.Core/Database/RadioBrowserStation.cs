@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 
 namespace AudioStation.Core.Database
 {
+    [Table("RadioBrowserStation", Schema = "public")]
     public class RadioBrowserStation
     {
         public int Id { get; set; }
@@ -26,6 +23,7 @@ namespace AudioStation.Core.Database
         public int Hls { get; set; }
         public bool UserExcluded { get; set; }
 
+        public RadioBrowserStation() { }
         public RadioBrowserStation(int Id_, Guid StationUUID_, Guid ServerUUID_, string Name_, string Url_, string UrlResolved_, string Homepage_, string Favicon_, string Tags_, string Country_, string State_, string Language_, string LanguageCodes_, string Codec_, int Bitrate_, int Hls_, bool UserExcluded_)
         {
             this.Id = Id_;

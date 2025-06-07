@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 
 namespace AudioStation.Core.Database
 {
+    [Table("Mp3FileReferenceAlbum", Schema = "public")]
     public class Mp3FileReferenceAlbum
     {
         public int Id { get; set; }
@@ -14,6 +11,7 @@ namespace AudioStation.Core.Database
         public int DiscNumber { get; set; }
         public int DiscCount { get; set; }
 
+        public Mp3FileReferenceAlbum() { }
         public Mp3FileReferenceAlbum(int Id_, int Mp3FileReferenceId_, string Name_, int DiscNumber_, int DiscCount_)
         {
             this.Id = Id_;

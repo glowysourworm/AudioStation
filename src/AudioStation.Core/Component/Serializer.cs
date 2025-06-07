@@ -2,7 +2,7 @@
 
 using SimpleWpf.RecursiveSerializer.Shared;
 
-namespace AudioStation.Component
+namespace AudioStation.Core.Component
 {
     public static class Serializer
     {

@@ -1,37 +1,38 @@
 ﻿using System.Collections.ObjectModel;
-using System.IO;
 using System.Windows;
 using System.Windows.Threading;
 
 using AudioStation.Component;
 using AudioStation.Controller.Interface;
+using AudioStation.Core;
 using AudioStation.Core.Component;
 using AudioStation.Core.Component.Interface;
+using AudioStation.Core.Event;
 using AudioStation.Core.Model;
-using AudioStation.ViewModel;
+using AudioStation.Model;
+using AudioStation.ViewModel.LibraryViewModel;
 using AudioStation.ViewModels.Interface;
+using AudioStation.ViewModels.LibraryViewModel;
+using AudioStation.ViewModels.LibraryViewModel.Comparer;
+using AudioStation.ViewModels.RadioViewModel;
 
 using SimpleWpf.Extensions;
-using SimpleWpf.Extensions.Command;
 using SimpleWpf.Extensions.Collection;
-using SimpleWpf.IocFramework.Application.Attribute;
-using AudioStation.ViewModels.RadioViewModel;
-using AudioStation.ViewModel.LibraryViewModel;
-using AudioStation.ViewModels.LibraryViewModel;
+using SimpleWpf.Extensions.Command;
 using SimpleWpf.Extensions.ObservableCollection;
-using AudioStation.ViewModels.LibraryViewModel.Comparer;
+using SimpleWpf.IocFramework.Application.Attribute;
+using SimpleWpf.IocFramework.EventAggregation;
 
 namespace AudioStation.ViewModels;
 
+[IocExportDefault]
 public partial class MainViewModel : ViewModelBase, IDisposable
 {
     private readonly IDialogController _dialogController;
     private readonly IAudioController _audioController;
     private readonly IModelController _modelController;
     private readonly ILibraryLoader _libraryLoader;
-
-    public const string CONFIGURATION_FILE = ".AudioStation";
-    public const string RADIO_FILE = ".AudioStationRadio";
+    private readonly IOutputController _outputController;
 
     const int MAX_LOG_COUNT = 1000;
 
@@ -41,6 +42,7 @@ public partial class MainViewModel : ViewModelBase, IDisposable
     Configuration _configuration;
     string _statusMessage;
     bool _showOutputMessages;
+    bool _loadedFromConfiguration;
     float _volume;
 
     INowPlayingViewModel _nowPlayingViewModel;
@@ -56,11 +58,8 @@ public partial class MainViewModel : ViewModelBase, IDisposable
     SortedObservableCollection<ArtistViewModel> _artists;
     SortedObservableCollection<TitleViewModel> _titles;
 
-    SimpleCommand _saveCommand;
-    SimpleCommand _openCommand;
     SimpleCommand<string> _searchRadioBrowserCommand;
     #endregion
-    
 
     #region Properties
     public Configuration Configuration
@@ -113,6 +112,11 @@ public partial class MainViewModel : ViewModelBase, IDisposable
         get { return _showOutputMessages; }
         set { this.RaiseAndSetIfChanged(ref _showOutputMessages, value); }
     }
+    public bool LoadedFromConfiguration
+    {
+        get { return _loadedFromConfiguration; }
+        set { this.RaiseAndSetIfChanged(ref _loadedFromConfiguration, value); }
+    }
     public float Volume
     {
         get { return _volume; }
@@ -123,16 +127,6 @@ public partial class MainViewModel : ViewModelBase, IDisposable
         get { return _nowPlayingViewModel; }
         set { this.RaiseAndSetIfChanged(ref _nowPlayingViewModel, value); }
     }
-    public SimpleCommand SaveCommand
-    {
-        get { return _saveCommand; }
-        set { this.RaiseAndSetIfChanged(ref _saveCommand, value); }
-    }
-    public SimpleCommand OpenCommand
-    {
-        get { return _openCommand; }
-        set { this.RaiseAndSetIfChanged(ref _openCommand, value); }
-    }
     public SimpleCommand<string> SearchRadioBrowserCommand
     {
         get { return _searchRadioBrowserCommand; }
@@ -141,17 +135,21 @@ public partial class MainViewModel : ViewModelBase, IDisposable
     #endregion
 
     [IocImportingConstructor]
-    public MainViewModel(IDialogController dialogController,
+    public MainViewModel(IConfigurationManager configurationManager,
+                         IDialogController dialogController,
                          IAudioController audioController,
                          IModelController modelController,
-                         ILibraryLoader libraryLoader)
+                         ILibraryLoader libraryLoader,
+                         IOutputController outputController,
+                         IIocEventAggregator eventAggregator)
     {
         _dialogController = dialogController;
         _audioController = audioController;
         _modelController = modelController;
         _libraryLoader = libraryLoader;
+        _outputController = outputController;
 
-        this.Configuration = new Configuration();
+        this.Configuration = configurationManager.GetConfiguration();
         this.ShowOutputMessages = false;
         this.OutputMessages = new ObservableCollection<LogMessageViewModel>();
         this.LibraryCoreWorkItems = new ObservableCollection<LibraryWorkItemViewModel>();
@@ -162,37 +160,24 @@ public partial class MainViewModel : ViewModelBase, IDisposable
         this.Titles = new SortedObservableCollection<TitleViewModel>(new PropertyComparer<string, TitleViewModel>(x => x.Title));
         this.NowPlayingViewModel = null;
 
-        OnLog("Welcome to Audio Player!");
+        // Log Message (model) -> OnLogImpl (view-model)
+        eventAggregator.GetEvent<LogEvent>().Subscribe(OnLog);
 
-        libraryLoader.LogEvent += (message, error) =>
-        {
-            OnLog(message, LogMessageType.General, error ? LogMessageSeverity.Error : LogMessageSeverity.Info);
-        };
         libraryLoader.LibraryEntryLoaded += OnLibraryEntryLoaded;
         libraryLoader.RadioEntryLoaded += OnRadioEntryLoaded;
         libraryLoader.WorkItemCompleted += OnWorkItemCompleted;
         libraryLoader.WorkItemsAdded += OnWorkItemsAdded;
         libraryLoader.WorkItemsRemoved += OnWorkItemsRemoved;
 
-        this.SaveCommand = new SimpleCommand(() =>
-        {
-            Save();
-        });
-        this.OpenCommand = new SimpleCommand(() =>
-        {
-            Open();
-        });
+        audioController.PlaybackStartedEvent += OnAudioControllerPlaybackStarted;
+        audioController.PlaybackStoppedEvent += OnAudioControllerPlaybackStopped;
+
         this.SearchRadioBrowserCommand = new SimpleCommand<string>((search) =>
         {
             SearchRadioBrowser(search);
         });
 
-        audioController.PlaybackStartedEvent += OnAudioControllerPlaybackStarted;
-        audioController.PlaybackStoppedEvent += OnAudioControllerPlaybackStopped;
-    }
-    ~MainViewModel()
-    {
-
+        outputController.AddLog("Welcome to Audio Station!");
     }
 
     private void OnAudioControllerPlaybackStopped(INowPlayingViewModel nowPlaying)
@@ -248,7 +233,7 @@ public partial class MainViewModel : ViewModelBase, IDisposable
                 item.Completed = true;
 
             else
-                OnLog("Cannot find work item in local cache:  {0}", LogMessageType.General, LogMessageSeverity.Error, workItem.FileName);
+                _outputController.AddLog("Cannot find work item in local cache:  {0}", LogMessageType.General, LogMessageSeverity.Error, workItem.FileName);
         }
     }
     private void OnRadioEntryLoaded(RadioEntry radioEntry)
@@ -279,7 +264,7 @@ public partial class MainViewModel : ViewModelBase, IDisposable
             }
             else
             {
-                OnLog("Radio Station already exists! {0}", LogMessageType.General, LogMessageSeverity.Error, radioEntry.Name);
+                _outputController.AddLog("Radio Station already exists! {0}", LogMessageType.General, LogMessageSeverity.Error, radioEntry.Name);
             }
         }
     }
@@ -302,53 +287,18 @@ public partial class MainViewModel : ViewModelBase, IDisposable
                     PrimaryArtist = entry.PrimaryArtist,
                     PrimaryGenre = entry.PrimaryGenre,
                     Title = entry.Title,
-                    Track = entry.Track                    
+                    Track = entry.Track
                 };
 
                 this.LibraryEntries.Add(newEntry);
             }
             else
             {
-                OnLog("Library Entry already exists! {0}", LogMessageType.General, LogMessageSeverity.Error, entry.FileName);
+                _outputController.AddLog("Library Entry already exists! {0}", LogMessageType.General, LogMessageSeverity.Error, entry.FileName);
             }
         }
     }
     #endregion
-
-
-    public void Save()
-    {
-        try
-        {
-            // Current working directory + configuration file name
-            var configPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, CONFIGURATION_FILE);
-
-            // Configuration
-            Serializer.Serialize(this.Configuration, configPath);
-
-            OnLog("Configuration saved successfully: {0}", LogMessageType.General, LogMessageSeverity.Info, configPath);
-        }
-        catch (Exception ex)
-        {
-            OnLog("Error saving configuration / data files:  {0}", LogMessageType.General, LogMessageSeverity.Error, ex.Message);
-        }
-    }
-    public void Open()
-    {
-        try
-        {
-            // Current working directory + configuration file name
-            var configPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, CONFIGURATION_FILE);
-
-            this.Configuration = Serializer.Deserialize<Configuration>(configPath);
-
-            OnLog("Configuration read successfully!");
-        }
-        catch (Exception ex)
-        {
-            OnLog("Error reading configuration file. Please try saving the working configuration first and then restarting.");
-        }
-    }
 
     public async void SearchRadioBrowser(string search)
     {
@@ -377,40 +327,34 @@ public partial class MainViewModel : ViewModelBase, IDisposable
         }
         catch (Exception ex)
         {
-            OnLog("Error querying Radio Browser:  {0}", LogMessageType.General, LogMessageSeverity.Error, ex.Message);
+            //OnLog("Error querying Radio Browser:  {0}", LogMessageType.General, LogMessageSeverity.Error, ex.Message);
         }
     }
 
-    private void OnLog(string message,
-                        LogMessageType type = LogMessageType.General,
-                        LogMessageSeverity severity = LogMessageSeverity.Info,
-                        params object[] parameters)
+    private void OnLog(LogMessage message)
     {
         if (Thread.CurrentThread.ManagedThreadId != Application.Current.Dispatcher.Thread.ManagedThreadId)
         {
             Application.Current.Dispatcher.BeginInvoke(() =>
             {
-                OnLogImpl(message, type, severity, parameters);
+                OnLogImpl(message);
 
             }, DispatcherPriority.Background);
         }
         else
-            OnLogImpl(message, type, severity, parameters);
+            OnLogImpl(message);
     }
 
-    private void OnLogImpl(string message,
-                           LogMessageType type = LogMessageType.General,
-                           LogMessageSeverity severity = LogMessageSeverity.Info,
-                           params object[] parameters)
+    private void OnLogImpl(LogMessage message)
     {
         if (Thread.CurrentThread.ManagedThreadId != Application.Current.Dispatcher.Thread.ManagedThreadId)
             throw new Exception("Trying to access MainViewModel on non-dispatcher thread");
 
         this.OutputMessages.Insert(0, new LogMessageViewModel()
         {
-            Message = string.Format(message, parameters),
-            Type = type,
-            Severity = severity,
+            Message = message.Message,
+            Type = message.Type,
+            Severity = message.Severity,
         });
 
         if (this.OutputMessages.Count > MAX_LOG_COUNT)
@@ -419,7 +363,7 @@ public partial class MainViewModel : ViewModelBase, IDisposable
         }
 
         // Status Message (for now, last log message)
-        this.StatusMessage = string.Format(message, parameters);
+        this.StatusMessage = message.Message;
     }
 
     public void Dispose()

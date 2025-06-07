@@ -2,10 +2,14 @@
 
 using Microsoft.Win32;
 
+using SimpleWpf.IocFramework.Application.Attribute;
+
 namespace AudioStation.Controller
 {
+    [IocExport(typeof(IDialogController))]
     public class DialogController : IDialogController
     {
+        [IocImportingConstructor]
         public DialogController()
         {
 

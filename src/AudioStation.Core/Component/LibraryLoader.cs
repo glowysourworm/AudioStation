@@ -3,22 +3,26 @@ using System.Windows;
 
 using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Model;
+using AudioStation.Model;
 
 using m3uParser;
 
 using SimpleWpf.Extensions;
 using SimpleWpf.Extensions.Collection;
 using SimpleWpf.Extensions.Event;
+using SimpleWpf.IocFramework.Application.Attribute;
 using SimpleWpf.NativeIO.FastDirectory;
 
 namespace AudioStation.Core.Component
 {
+    [IocExport(typeof(ILibraryLoader))]
     public class LibraryLoader : ILibraryLoader
     {
+        private readonly IOutputController _outputController;
+
         const string UNKNOWN = "Unknown";
         const int WORKER_SLEEP_PERIOD = 500;                   // 1 second between queue checks
 
-        public event SimpleEventHandler<string, bool> LogEvent;
         public event SimpleEventHandler<LibraryEntry> LibraryEntryLoaded;
         public event SimpleEventHandler<RadioEntry> RadioEntryLoaded;
         public event SimpleEventHandler<LibraryLoaderWorkItem> WorkItemCompleted;
@@ -31,8 +35,11 @@ namespace AudioStation.Core.Component
         private bool _workerRun;
         private bool _userRun;              // This is the flag to allow user to stop the queue
 
-        public LibraryLoader()
+        [IocImportingConstructor]
+        public LibraryLoader(IOutputController outputController)
         {
+            _outputController = outputController;
+
             _workQueue = new List<LibraryLoaderWorkItem>();
             _workThread = new Thread(WorkFunction);
             _workThreadLock = new object();
@@ -182,8 +189,7 @@ namespace AudioStation.Core.Component
                 return;
             }
 
-            if (this.LogEvent != null)
-                this.LogEvent(message, error);
+            _outputController.AddLog(message, error ? LogMessageSeverity.Error : LogMessageSeverity.Info);
         }
 
         public void Stop()
@@ -233,7 +239,7 @@ namespace AudioStation.Core.Component
                         var workItem = _workQueue.FirstOrDefault(item => !item.ProcessingComplete);
 
                         // DONE!
-                        if (workItem != null)
+                        if (workItem.Equals(default(LibraryLoaderWorkItem)))
                         {
                             workToProcess = true;
 
