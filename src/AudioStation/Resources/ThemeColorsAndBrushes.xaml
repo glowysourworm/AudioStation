@@ -8,6 +8,7 @@
     <SolidColorBrush x:Key="SmallButtonBackground">White</SolidColorBrush>
     <SolidColorBrush x:Key="SmallButtonBackgroundHover">#8F33AAFF</SolidColorBrush>
     <SolidColorBrush x:Key="SmallButtonBackgroundPressed">#AF33AAFF</SolidColorBrush>
+    <SolidColorBrush x:Key="SmallToggleButtonBackgroundChecked">#8F33AAFF</SolidColorBrush>
     <SolidColorBrush x:Key="SmallButtonBorder">#FFAAAAAA</SolidColorBrush>    
     
     <SolidColorBrush x:Key="LargeInputButtonBackground">White</SolidColorBrush>

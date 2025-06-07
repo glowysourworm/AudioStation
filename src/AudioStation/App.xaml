@@ -11,12 +11,13 @@
         <converter:ArtworkFileConverter x:Key="ArtworkFileConverter" />
         <converter:MusicBrainzConverter x:Key="MusicBrainzConverter" />
         <converter:MetaEntryConverter x:Key="MetaEntryConverter" />
-        <SolidColorBrush x:Key="DefaultHeaderBrush" Color="#FF0000" />
+        <converter:BoolToParameterConverter x:Key="BoolToParameterConverter" />
 
         <!-- SimpleWpf.UI Converters -->
         <simpleConverter:BoolVisibilityCollapseConverter x:Key="BoolVisibilityCollapseConverter" />
         <simpleConverter:NonNullVisibilityConverter x:Key="NonNullVisibilityConverter" />
-        
+        <simpleConverter:ParameterEqualityBoolConverter x:Key="ParameterEqualityBoolConverter" />
+
         <!-- Template Selectors -->
         <templateSelector:LibraryWorkItemTemplateSelector x:Key="LibraryWorkItemTemplateSelector" />
         <templateSelector:LogItemTemplateSelector x:Key="LogItemTemplateSelector" />

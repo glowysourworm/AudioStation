@@ -1,9 +1,23 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:fa5="http://schemas.fontawesome.com/icons/">
 
     <ResourceDictionary.MergedDictionaries>
         <ResourceDictionary Source="/Resources/ThemeColorsAndBrushes.xaml" />
     </ResourceDictionary.MergedDictionaries>
+    
+    <!-- Font Awesome Icon Styles -->
+    <Style TargetType="{x:Type fa5:SvgAwesome}" x:Key="FontAwesomeIconDefault">
+        <Setter Property="Width" Value="16" />
+        <Setter Property="Height" Value="16" />
+        <Setter Property="Foreground" Value="Gray" />
+    </Style>
+    <Style TargetType="{x:Type fa5:SvgAwesome}" x:Key="FontAwesomeIconControlPanelButton">
+        <Setter Property="Width" Value="16" />
+        <Setter Property="Height" Value="16" />
+        <Setter Property="Foreground" Value="Gray" />
+    </Style>    
+    <!-- ************************ -->
 
     <Style x:Key="UserControlButton" TargetType="Button">
         <Setter Property="Padding" Value="2" />
@@ -37,6 +51,66 @@
                     </ControlTemplate.Triggers>
 
                 </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="ControlPanelRadioButtonLeft" TargetType="RadioButton">
+        <Setter Property="Width" Value="30" />
+        <Setter Property="Height" Value="30" />
+        <Setter Property="Padding" Value="2" />
+        <Setter Property="Foreground" Value="{StaticResource DefaultLabelBrush}" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="Background" Value="{StaticResource SmallButtonBackground}" />
+        <Setter Property="BorderBrush" Value="{StaticResource SmallButtonBorder}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="Tag">
+            <Setter.Value>
+                <CornerRadius BottomLeft="5" BottomRight="0" TopLeft="5" TopRight="0" />
+            </Setter.Value>
+        </Setter>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="RadioButton">
+                    <Border VerticalAlignment="{TemplateBinding VerticalAlignment}"
+                            HorizontalAlignment="{TemplateBinding HorizontalAlignment}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            Background="{TemplateBinding Background}"
+                            CornerRadius="{TemplateBinding Tag}">
+                        <Grid>
+                            <ContentPresenter VerticalAlignment="Center"
+                                              HorizontalAlignment="Center" />
+                        </Grid>
+                    </Border>
+
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Background" Value="{StaticResource SmallButtonBackgroundHover}" />
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter Property="Background" Value="{StaticResource SmallButtonBackgroundPressed}" />
+                        </Trigger>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter Property="Background" Value="{StaticResource SmallToggleButtonBackgroundChecked}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style x:Key="ControlPanelRadioButtonMiddle" TargetType="RadioButton" BasedOn="{StaticResource ControlPanelRadioButtonLeft}">
+        <Setter Property="Tag">
+            <Setter.Value>
+                <CornerRadius BottomLeft="0" BottomRight="0" TopLeft="0" TopRight="0" />
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style x:Key="ControlPanelRadioButtonRight" TargetType="RadioButton" BasedOn="{StaticResource ControlPanelRadioButtonLeft}">
+        <Setter Property="Tag">
+            <Setter.Value>
+                <CornerRadius BottomLeft="0" BottomRight="5" TopLeft="0" TopRight="5" />
             </Setter.Value>
         </Setter>
     </Style>

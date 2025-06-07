@@ -16,6 +16,8 @@ using AudioStation.ViewModels.LibraryViewModel;
 using AudioStation.ViewModels.LibraryViewModel.Comparer;
 using AudioStation.ViewModels.RadioViewModel;
 
+using Microsoft.Extensions.Logging;
+
 using SimpleWpf.Extensions;
 using SimpleWpf.Extensions.Collection;
 using SimpleWpf.Extensions.Command;
@@ -44,6 +46,10 @@ public partial class MainViewModel : ViewModelBase, IDisposable
     bool _showOutputMessages;
     bool _loadedFromConfiguration;
     float _volume;
+
+    LogMessageType _selectedLogType;
+    LogLevel _databaseLogLevel;
+    LogMessageSeverity _generalLogLevel;
 
     INowPlayingViewModel _nowPlayingViewModel;
 
@@ -125,6 +131,21 @@ public partial class MainViewModel : ViewModelBase, IDisposable
         get { return _volume; }
         set { this.RaiseAndSetIfChanged(ref _volume, value); }
     }
+    public LogMessageType SelectedLogType
+    {
+        get { return _selectedLogType; }
+        set { this.RaiseAndSetIfChanged(ref _selectedLogType, value); }
+    }
+    public LogLevel DatabaseLogLevel
+    {
+        get { return _databaseLogLevel; }
+        set { this.RaiseAndSetIfChanged(ref _databaseLogLevel, value); }
+    }
+    public LogMessageSeverity GeneralLogLevel
+    {
+        get { return _generalLogLevel; }
+        set { this.RaiseAndSetIfChanged(ref _generalLogLevel, value); }
+    }
     public INowPlayingViewModel NowPlayingViewModel
     {
         get { return _nowPlayingViewModel; }
@@ -178,6 +199,10 @@ public partial class MainViewModel : ViewModelBase, IDisposable
         this.Titles = new SortedObservableCollection<TitleViewModel>(new PropertyComparer<string, TitleViewModel>(x => x.Title));
         this.NowPlayingViewModel = null;
 
+        this.DatabaseLogLevel = LogLevel.None;
+        this.GeneralLogLevel = LogMessageSeverity.None;
+        this.SelectedLogType = LogMessageType.General;
+
         // Log Message (model) -> OnLogImpl (view-model)
         eventAggregator.GetEvent<LogEvent>().Subscribe(OnLog);
 
@@ -215,7 +240,6 @@ public partial class MainViewModel : ViewModelBase, IDisposable
     {
         this.NowPlayingViewModel = null;        // Remove View Model (affects view binding to the player controls)
     }
-
     private void OnAudioControllerPlaybackStarted(INowPlayingViewModel nowPlaying)
     {
         this.NowPlayingViewModel = nowPlaying;  // Primary settings for the view (binding)
@@ -361,7 +385,15 @@ public partial class MainViewModel : ViewModelBase, IDisposable
             //OnLog("Error querying Radio Browser:  {0}", LogMessageType.General, LogMessageSeverity.Error, ex.Message);
         }
     }
+    
+    private void OnLogModeChanged()
+    {
 
+    }
+    private void OnLogFilterChanged()
+    {
+
+    }
     private void OnLog(LogMessage message)
     {
         if (Thread.CurrentThread.ManagedThreadId != Application.Current.Dispatcher.Thread.ManagedThreadId)
@@ -375,7 +407,6 @@ public partial class MainViewModel : ViewModelBase, IDisposable
         else
             OnLogImpl(message);
     }
-
     private void OnLogImpl(LogMessage message)
     {
         if (Thread.CurrentThread.ManagedThreadId != Application.Current.Dispatcher.Thread.ManagedThreadId)

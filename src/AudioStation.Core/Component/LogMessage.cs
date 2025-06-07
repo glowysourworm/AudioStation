@@ -2,15 +2,14 @@
 {
     public enum LogMessageSeverity
     {
-        Info,
-        Warning,
-        Error
+        Info = 1,
+        Warning = 2,
+        Error = 3,
+        None = 4
     }
     public enum LogMessageType
     {
         General,
-        MusicBrainz,
-        LastFm,
         Database
     }
     public struct LogMessage
