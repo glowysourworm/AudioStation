@@ -8,8 +8,8 @@ namespace AudioStation.ViewModels
     {
         string _fileName;
         LibraryLoadType _loadType;
-        bool _error;
-        bool _completed;
+        LibraryWorkItemState _loadState;
+        string _errorMessage;
 
         public string FileName
         {
@@ -21,20 +21,21 @@ namespace AudioStation.ViewModels
             get { return _loadType; }
             set { RaiseAndSetIfChanged(ref _loadType, value); }
         }
-        public bool Error
+        public LibraryWorkItemState LoadState
         {
-            get { return _error; }
-            set { RaiseAndSetIfChanged(ref _error, value); }
+            get { return _loadState; }
+            set { this.RaiseAndSetIfChanged(ref _loadState, value); }
         }
-        public bool Completed
+        public string ErrorMessage
         {
-            get { return _completed; }
-            set { RaiseAndSetIfChanged(ref _completed, value); }
+            get { return _errorMessage; }
+            set { this.RaiseAndSetIfChanged(ref _errorMessage, value); }
         }
 
         public LibraryWorkItemViewModel()
         {
             this.FileName = string.Empty;
+            this.ErrorMessage = string.Empty;
         }
     }
 }

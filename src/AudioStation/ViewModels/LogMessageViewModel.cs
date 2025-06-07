@@ -1,5 +1,7 @@
 ﻿using AudioStation.Model;
 
+using Microsoft.Extensions.Logging;
+
 using SimpleWpf.Extensions;
 
 namespace AudioStation.ViewModels
@@ -7,7 +9,7 @@ namespace AudioStation.ViewModels
     public class LogMessageViewModel : ViewModelBase
     {
         string _message;
-        LogMessageSeverity _severity;
+        LogLevel _level;
         LogMessageType _type;
 
         public string Message
@@ -15,10 +17,10 @@ namespace AudioStation.ViewModels
             get { return _message; }
             set { this.RaiseAndSetIfChanged(ref _message, value); }
         }
-        public LogMessageSeverity Severity
+        public LogLevel Level
         {
-            get { return _severity; }
-            set { this.RaiseAndSetIfChanged(ref _severity, value); }
+            get { return _level; }
+            set { this.RaiseAndSetIfChanged(ref _level, value); }
         }
         public LogMessageType Type
         {

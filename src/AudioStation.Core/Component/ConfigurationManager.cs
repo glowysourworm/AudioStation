@@ -4,6 +4,8 @@ using System.IO;
 using AudioStation.Core.Component.Interface;
 using AudioStation.Model;
 
+using Microsoft.Extensions.Logging;
+
 using SimpleWpf.IocFramework.Application.Attribute;
 
 namespace AudioStation.Core.Component
@@ -49,11 +51,11 @@ namespace AudioStation.Core.Component
                 // Configuration
                 Serializer.Serialize(_configuration, configPath);
 
-                _outputController.AddLog("Configuration saved successfully: {0}", LogMessageType.General, LogMessageSeverity.Info, configPath);
+                _outputController.AddLog("Configuration saved successfully: {0}", LogMessageType.General, LogLevel.Information, configPath);
             }
             catch (Exception ex)
             {
-                _outputController.AddLog("Error saving configuration / data files:  {0}", LogMessageType.General, LogMessageSeverity.Error, ex.Message);
+                _outputController.AddLog("Error saving configuration / data files:  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
             }
         }
         private Configuration Open()
@@ -67,8 +69,8 @@ namespace AudioStation.Core.Component
             }
             catch (Exception ex)
             {
-                _outputController.AddLog(new LogMessage("Error reading configuration file. Please try saving the working configuration first and then restarting.", LogMessageSeverity.Error));
-                _outputController.AddLog(new LogMessage("Creating default configuration.", LogMessageSeverity.Error));
+                _outputController.AddLog(new LogMessage("Error reading configuration file. Please try saving the working configuration first and then restarting.", LogMessageType.General, LogLevel.Error));
+                _outputController.AddLog(new LogMessage("Creating default configuration.", LogMessageType.General, LogLevel.Error));
 
                 return new Configuration()
                 {

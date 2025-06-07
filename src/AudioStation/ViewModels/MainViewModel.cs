@@ -47,9 +47,12 @@ public partial class MainViewModel : ViewModelBase, IDisposable
     bool _loadedFromConfiguration;
     float _volume;
 
+    PlayStopPause _libraryLoaderState;
+
     LogMessageType _selectedLogType;
     LogLevel _databaseLogLevel;
-    LogMessageSeverity _generalLogLevel;
+    LogLevel _generalLogLevel;
+    LibraryWorkItemState _selectedLibraryWorkItemState;
 
     INowPlayingViewModel _nowPlayingViewModel;
 
@@ -131,20 +134,30 @@ public partial class MainViewModel : ViewModelBase, IDisposable
         get { return _volume; }
         set { this.RaiseAndSetIfChanged(ref _volume, value); }
     }
+    public PlayStopPause LibraryLoaderState
+    {
+        get { return _libraryLoaderState; }
+        set { this.RaiseAndSetIfChanged(ref _libraryLoaderState, value); OnLibraryLoaderStateRequest(); }
+    }
     public LogMessageType SelectedLogType
     {
         get { return _selectedLogType; }
-        set { this.RaiseAndSetIfChanged(ref _selectedLogType, value); }
+        set { this.RaiseAndSetIfChanged(ref _selectedLogType, value); OnLogTypeChanged(); }
     }
     public LogLevel DatabaseLogLevel
     {
         get { return _databaseLogLevel; }
-        set { this.RaiseAndSetIfChanged(ref _databaseLogLevel, value); }
+        set { this.RaiseAndSetIfChanged(ref _databaseLogLevel, value); OnLogLevelChanged(LogMessageType.Database); }
     }
-    public LogMessageSeverity GeneralLogLevel
+    public LogLevel GeneralLogLevel
     {
         get { return _generalLogLevel; }
-        set { this.RaiseAndSetIfChanged(ref _generalLogLevel, value); }
+        set { this.RaiseAndSetIfChanged(ref _generalLogLevel, value); OnLogLevelChanged(LogMessageType.General); }
+    }
+    public LibraryWorkItemState SelectedLibraryWorkItemState
+    {
+        get { return _selectedLibraryWorkItemState; }
+        set { this.RaiseAndSetIfChanged(ref _selectedLibraryWorkItemState, value); }
     }
     public INowPlayingViewModel NowPlayingViewModel
     {
@@ -200,7 +213,7 @@ public partial class MainViewModel : ViewModelBase, IDisposable
         this.NowPlayingViewModel = null;
 
         this.DatabaseLogLevel = LogLevel.None;
-        this.GeneralLogLevel = LogMessageSeverity.None;
+        this.GeneralLogLevel = LogLevel.None;
         this.SelectedLogType = LogMessageType.General;
 
         // Log Message (model) -> OnLogImpl (view-model)
@@ -211,6 +224,8 @@ public partial class MainViewModel : ViewModelBase, IDisposable
         libraryLoader.WorkItemCompleted += OnWorkItemCompleted;
         libraryLoader.WorkItemsAdded += OnWorkItemsAdded;
         libraryLoader.WorkItemsRemoved += OnWorkItemsRemoved;
+        libraryLoader.ProcessingComplete += OnLibraryProcessingComplete;
+        libraryLoader.ProcessingChanged += OnLibraryProcessingChanged;
 
         audioController.PlaybackStartedEvent += OnAudioControllerPlaybackStarted;
         audioController.PlaybackStoppedEvent += OnAudioControllerPlaybackStopped;
@@ -233,7 +248,7 @@ public partial class MainViewModel : ViewModelBase, IDisposable
             this.Configuration.DirectoryBase = dialogController.ShowSelectFolder();
         });
 
-        outputController.AddLog("Welcome to Audio Station!");
+        outputController.AddLog("Welcome to Audio Station!", LogMessageType.General);
     }
 
     private void OnAudioControllerPlaybackStopped(INowPlayingViewModel nowPlaying)
@@ -268,10 +283,10 @@ public partial class MainViewModel : ViewModelBase, IDisposable
             {
                 this.LibraryCoreWorkItems.Add(new LibraryWorkItemViewModel()
                 {
-                    FileName = workItem.FileName,
-                    Completed = workItem.ProcessingComplete,
-                    Error = !workItem.ProcessingSuccessful,
-                    LoadType = workItem.LoadType
+                    FileName = workItem.FileName,                    
+                    LoadType = workItem.LoadType,
+                    ErrorMessage = workItem.ErrorMessage,
+                    LoadState = workItem.LoadState
                 });
             }
         }
@@ -285,11 +300,20 @@ public partial class MainViewModel : ViewModelBase, IDisposable
             var item = this.LibraryCoreWorkItems.FirstOrDefault(x => x.FileName == workItem.FileName);
 
             if (item != null)
-                item.Completed = true;
+                item.LoadState = workItem.LoadState;
 
             else
-                _outputController.AddLog("Cannot find work item in local cache:  {0}", LogMessageType.General, LogMessageSeverity.Error, workItem.FileName);
+                _outputController.AddLog("Cannot find work item in local cache:  {0}", LogMessageType.General, LogLevel.Error, workItem.FileName);
         }
+    }
+    private void OnLibraryProcessingChanged(PlayStopPause sender)
+    {
+        // Two-way:  This sets from the component
+        this.LibraryLoaderState = sender;
+    }
+    private void OnLibraryProcessingComplete()
+    {
+        _outputController.AddLog("Library Loader processing complete", LogMessageType.General);
     }
     private void OnRadioEntryLoaded(RadioEntry radioEntry)
     {
@@ -319,7 +343,7 @@ public partial class MainViewModel : ViewModelBase, IDisposable
             }
             else
             {
-                _outputController.AddLog("Radio Station already exists! {0}", LogMessageType.General, LogMessageSeverity.Error, radioEntry.Name);
+                _outputController.AddLog("Radio Station already exists! {0}", LogMessageType.General, LogLevel.Error, radioEntry.Name);
             }
         }
     }
@@ -349,7 +373,7 @@ public partial class MainViewModel : ViewModelBase, IDisposable
             }
             else
             {
-                _outputController.AddLog("Library Entry already exists! {0}", LogMessageType.General, LogMessageSeverity.Error, entry.FileName);
+                _outputController.AddLog("Library Entry already exists! {0}", LogMessageType.General, LogLevel.Error, entry.FileName);
             }
         }
     }
@@ -386,13 +410,28 @@ public partial class MainViewModel : ViewModelBase, IDisposable
         }
     }
     
-    private void OnLogModeChanged()
+    private void OnLibraryLoaderStateRequest()
     {
-
+        switch (this.LibraryLoaderState)
+        {
+            case PlayStopPause.Play:
+                _libraryLoader.Start();
+                break;
+            case PlayStopPause.Pause:
+            case PlayStopPause.Stop:
+                _libraryLoader.Stop();
+                break;
+            default:
+                throw new Exception("Unhandled play / stop / pause state:  MainViewModel.cs");
+        }
     }
-    private void OnLogFilterChanged()
+    private void OnLogTypeChanged()
     {
-
+        ResetOutputMessages();
+    }
+    private void OnLogLevelChanged(LogMessageType type)
+    {
+        ResetOutputMessages();
     }
     private void OnLog(LogMessage message)
     {
@@ -416,7 +455,7 @@ public partial class MainViewModel : ViewModelBase, IDisposable
         {
             Message = message.Message,
             Type = message.Type,
-            Severity = message.Severity,
+            Level = message.Level
         });
 
         if (this.OutputMessages.Count > MAX_LOG_COUNT)
@@ -426,6 +465,19 @@ public partial class MainViewModel : ViewModelBase, IDisposable
 
         // Status Message (for now, last log message)
         this.StatusMessage = message.Message;
+    }
+    private void ResetOutputMessages()
+    {
+        var logLevel = this.SelectedLogType == LogMessageType.General ? this.GeneralLogLevel : this.DatabaseLogLevel;
+
+        this.OutputMessages.Clear();
+        this.OutputMessages.AddRange(_outputController.GetLatestLogs(this.SelectedLogType, logLevel, MAX_LOG_COUNT)
+                                                      .Select(log => new LogMessageViewModel()
+                                                      {
+                                                          Level = log.Level,
+                                                          Message = log.Message,
+                                                          Type = log.Type,
+                                                      }));
     }
 
     public void Dispose()

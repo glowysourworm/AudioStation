@@ -14,6 +14,10 @@ namespace AudioStation.Core.Component.Interface
         public event SimpleEventHandler<LibraryLoaderWorkItem> WorkItemCompleted;
         public event SimpleEventHandler<LibraryEntry> LibraryEntryLoaded;
         public event SimpleEventHandler<RadioEntry> RadioEntryLoaded;
+        public event SimpleEventHandler<PlayStopPause> ProcessingChanged;
+        public event SimpleEventHandler ProcessingComplete;
+
+        PlayStopPause GetState();
 
         /// <summary>
         /// Stops the work queue

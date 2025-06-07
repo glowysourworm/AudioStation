@@ -7,6 +7,8 @@ using AudioStation.Model;
 
 using m3uParser;
 
+using Microsoft.Extensions.Logging;
+
 using SimpleWpf.Extensions;
 using SimpleWpf.Extensions.Collection;
 using SimpleWpf.Extensions.Event;
@@ -28,6 +30,8 @@ namespace AudioStation.Core.Component
         public event SimpleEventHandler<LibraryLoaderWorkItem> WorkItemCompleted;
         public event SimpleEventHandler<LibraryLoaderWorkItem[]> WorkItemsAdded;
         public event SimpleEventHandler<LibraryLoaderWorkItem[]> WorkItemsRemoved;
+        public event SimpleEventHandler ProcessingComplete;
+        public event SimpleEventHandler<PlayStopPause> ProcessingChanged;
 
         private List<LibraryLoaderWorkItem> _workQueue;
         private Thread _workThread;
@@ -189,7 +193,23 @@ namespace AudioStation.Core.Component
                 return;
             }
 
-            _outputController.AddLog(message, error ? LogMessageSeverity.Error : LogMessageSeverity.Info);
+            _outputController.AddLog(message, LogMessageType.General, error ? LogLevel.Error : LogLevel.Information);
+        }
+
+        public PlayStopPause GetState()
+        {
+            lock(_workThreadLock)
+            {
+                if (_userRun && _workQueue.Count > 0)
+                    return PlayStopPause.Play;
+
+                else if (_workQueue.Count > 0)
+                    return PlayStopPause.Pause;
+
+                else
+                    return PlayStopPause.Stop;
+            }
+            
         }
 
         public void Stop()
@@ -230,13 +250,19 @@ namespace AudioStation.Core.Component
             while (_workerRun)
             {
                 var workToProcess = false;
+                var previousState = GetState();      // ENTERS LOCK
 
                 lock (_workThreadLock)
                 {
                     // Check for queue work (user has control over this portion from the front end)
                     if (_workQueue.Count > 0 && _userRun)
                     {
-                        var workItem = _workQueue.FirstOrDefault(item => !item.ProcessingComplete);
+                        var workItem = _workQueue.FirstOrDefault(item => item.LoadState == LibraryWorkItemState.Pending);
+
+                        // This state will not be needed unless we have processing that allows for transmission of 
+                        // this to the main thread. Also, the processing will be done right here in a simple pass.
+                        //
+                        workItem.LoadState = LibraryWorkItemState.Processing;
 
                         // DONE!
                         if (workItem.Equals(default(LibraryLoaderWorkItem)))
@@ -250,8 +276,15 @@ namespace AudioStation.Core.Component
                                     var entry = LoadLibraryEntry(workItem.FileName);
 
                                     // Set Work Item
-                                    workItem.ProcessingSuccessful = !entry.FileError;
-                                    workItem.ProcessingComplete = true;
+                                    if (entry.FileError)
+                                    {
+                                        workItem.LoadState = LibraryWorkItemState.CompleteError;
+                                        workItem.ErrorMessage = entry.FileErrorMessage;
+                                    }
+                                    else
+                                    {
+                                        workItem.LoadState = LibraryWorkItemState.CompleteSuccessful;
+                                    }
 
                                     if (this.LibraryEntryLoaded != null)
                                         this.LibraryEntryLoaded(entry);
@@ -262,8 +295,15 @@ namespace AudioStation.Core.Component
                                     var entry = LoadRadioEntry(workItem.FileName);
 
                                     // Set Work Item
-                                    workItem.ProcessingSuccessful = !entry.FileError;
-                                    workItem.ProcessingComplete = true;
+                                    if (entry.FileError)
+                                    {
+                                        workItem.LoadState = LibraryWorkItemState.CompleteError;
+                                        workItem.ErrorMessage = entry.FileErrorMessage;
+                                    }
+                                    else
+                                    {
+                                        workItem.LoadState = LibraryWorkItemState.CompleteSuccessful;
+                                    }
 
                                     if (this.RadioEntryLoaded != null)
                                         this.RadioEntryLoaded(entry);
@@ -274,6 +314,20 @@ namespace AudioStation.Core.Component
                             }
                         }
                     }
+
+                    // Go ahead and report that we're done with the queue (needs event)
+                    else if (_workQueue.Count == 0)
+                    {
+                        _userRun = false;
+                    }
+                }
+
+                var currentState = GetState();       // ENTERS LOCK
+
+                if (previousState != currentState)
+                {
+                    if (this.ProcessingChanged != null)
+                        this.ProcessingChanged(currentState);
                 }
 
                 if (!workToProcess)

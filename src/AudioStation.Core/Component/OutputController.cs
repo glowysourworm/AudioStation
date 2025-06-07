@@ -1,6 +1,9 @@
-﻿using AudioStation.Core.Component.Interface;
+﻿
+using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Event;
 using AudioStation.Model;
+
+using Microsoft.Extensions.Logging;
 
 using SimpleWpf.IocFramework.Application.Attribute;
 using SimpleWpf.IocFramework.EventAggregation;
@@ -12,67 +15,88 @@ namespace AudioStation.Core.Component
     {
         private readonly IIocEventAggregator _eventAggregator;
 
-        List<LogMessage> _logMessages;
-        List<LibraryLoaderWorkItem> _workItems;
+        List<LogMessage> _generalLog;
+        List<LogMessage> _databaseLog;
 
         [IocImportingConstructor]
         public OutputController(IIocEventAggregator eventAggregator)
         {
             _eventAggregator = eventAggregator;
 
-            _logMessages = new List<LogMessage>();
-            _workItems = new List<LibraryLoaderWorkItem>();
+            _generalLog = new List<LogMessage>();
+            _databaseLog = new List<LogMessage>();
         }
 
         public void AddLog(LogMessage message)
         {
-            _logMessages.Add(message);
+            switch (message.Type)
+            {
+                case LogMessageType.General:
+                    _generalLog.Insert(0, message);
+                    break;
+                case LogMessageType.Database:
+                    _databaseLog.Insert(0, message);
+                    break;
+                default:
+                    break;
+            }
+
             _eventAggregator.GetEvent<LogEvent>().Publish(message);
         }
-        public void AddLog(string message)
+        public void AddLog(string message, LogMessageType type)
         {
-            var logMessage = new LogMessage(message);
-            _logMessages.Add(logMessage);
+            var logMessage = new LogMessage(message, type);
+
+            this.AddLog(logMessage);
+
             _eventAggregator.GetEvent<LogEvent>().Publish(logMessage);
         }
-        public void AddLog(string message, LogMessageSeverity severity)
-        {
-            var logMessage = new LogMessage(message, severity);
-            _logMessages.Add(logMessage);
-            _eventAggregator.GetEvent<LogEvent>().Publish(logMessage);
-        }
-        public void AddLog(string message, LogMessageType type, LogMessageSeverity severity, params object[] parameters)
+        public void AddLog(string message, LogMessageType type, LogLevel severity, params object[] parameters)
         {
             var logMessage = new LogMessage(string.Format(message, parameters), type, severity);
-            _logMessages.Add(logMessage);
+
+            this.AddLog(logMessage);
+
             _eventAggregator.GetEvent<LogEvent>().Publish(logMessage);
         }
 
-        public void AddWorkItem(LibraryLoaderWorkItem workItem)
+        public IEnumerable<LogMessage> GetLatestLogs(LogMessageType type, LogLevel level, int count)
         {
-            _workItems.Add(workItem);
-            _eventAggregator.GetEvent<WorkItemEvent>().Publish(workItem);
+            switch (type)
+            {
+                case LogMessageType.General:
+                    return _generalLog.Where(log => log.Level >= level).Take(count);
+                case LogMessageType.Database:
+                    return _databaseLog.Where(log => log.Level >= level).Take(count);
+                default:
+                    throw new Exception("Unhandled log message type:  OutputController.cs");
+            }
         }
 
-        public void ClearLogs()
+        public void ClearLogs(LogMessageType type)
         {
-            _logMessages.Clear();
-            _eventAggregator.GetEvent<WorkItemsClearedEvent>().Publish();
-        }
+            switch (type)
+            {
+                case LogMessageType.General:
+                    _generalLog.Clear();
+                    break;
+                case LogMessageType.Database:
+                    _databaseLog.Clear();
+                    break;
+                default:
+                    throw new Exception("Unhandled log message type:  OutputController.cs");
+            }
 
-        public void ClearWorkItems()
-        {
-            _workItems.Clear();
-            _eventAggregator.GetEvent<LogClearedEvent>().Publish();
+            _eventAggregator.GetEvent<LogClearedEvent>().Publish(type);
         }
 
         public void Dispose()
         {
-            _logMessages.Clear();
-            _workItems.Clear();
+            _generalLog.Clear();
+            _databaseLog.Clear();
 
-            _logMessages = null;
-            _workItems = null;
+            _generalLog = null;
+            _databaseLog = null;
         }
     }
 }

@@ -1,5 +1,7 @@
 ﻿using AudioStation.Model;
 
+using Microsoft.Extensions.Logging;
+
 namespace AudioStation.Core.Component.Interface
 {
     /// <summary>
@@ -11,12 +13,11 @@ namespace AudioStation.Core.Component.Interface
     public interface IOutputController : IDisposable
     {
         void AddLog(LogMessage message);
-        void AddLog(string message);
-        void AddLog(string message, LogMessageSeverity severity);
-        void AddLog(string message, LogMessageType type, LogMessageSeverity severity, params object[] parameters);
-        void AddWorkItem(LibraryLoaderWorkItem workItem);
+        void AddLog(string message, LogMessageType type);
+        void AddLog(string message, LogMessageType type, LogLevel level, params object[] parameters);
 
-        void ClearLogs();
-        void ClearWorkItems();
+        IEnumerable<LogMessage> GetLatestLogs(LogMessageType type, LogLevel level, int count);
+
+        void ClearLogs(LogMessageType type);
     }
 }

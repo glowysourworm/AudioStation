@@ -1,12 +1,8 @@
-﻿namespace AudioStation.Model
+﻿
+using Microsoft.Extensions.Logging;
+
+namespace AudioStation.Model
 {
-    public enum LogMessageSeverity
-    {
-        Info = 1,
-        Warning = 2,
-        Error = 3,
-        None = 4
-    }
     public enum LogMessageType
     {
         General,
@@ -15,33 +11,25 @@
     public struct LogMessage
     {
         public string Message { get; set; }
-        public LogMessageSeverity Severity { get; set; }
+        public LogLevel Level { get; set; }
         public LogMessageType Type { get; set; }
+        public DateTime Timestamp { get; set; }
 
-        public LogMessage()
+        public LogMessage() : 
+            this(string.Empty, LogMessageType.General, LogLevel.Information)
         {
-            this.Message = string.Empty;
-            this.Severity = LogMessageSeverity.Info;
-            this.Type = LogMessageType.General;
         }
-
-        public LogMessage(string message)
+        public LogMessage(string message, LogMessageType type) : 
+            this(message, type, LogLevel.Information)
+        {
+            
+        }
+        public LogMessage(string message, LogMessageType type, LogLevel level)
         {
             this.Message = message;
-            this.Severity = LogMessageSeverity.Info;
-            this.Type = LogMessageType.General;
-        }
-        public LogMessage(string message, LogMessageSeverity severity)
-        {
-            this.Message = message;
-            this.Severity = severity;
-            this.Type = LogMessageType.General;
-        }
-        public LogMessage(string message, LogMessageType type, LogMessageSeverity severity)
-        {
-            this.Message = message;
-            this.Severity = severity;
+            this.Level = level;
             this.Type = type;
+            this.Timestamp = DateTime.Now;
         }
     }
 }

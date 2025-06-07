@@ -4,6 +4,8 @@ using System.Windows.Controls;
 using AudioStation.Model;
 using AudioStation.ViewModels;
 
+using Microsoft.Extensions.Logging;
+
 namespace AudioStation.Views.TemplateSelector
 {
     public class LogItemTemplateSelector : DataTemplateSelector
@@ -16,13 +18,14 @@ namespace AudioStation.Views.TemplateSelector
             if (viewModel == null || presenter == null)
                 throw new NullReferenceException("Improper handling of LogItemTemplateSelector");
 
-            if (viewModel.Severity == LogMessageSeverity.Info)
+            if (viewModel.Level <= LogLevel.Information)
                 return presenter.FindResource("LogDataTemplateInfo") as DataTemplate;
 
-            else if (viewModel.Severity == LogMessageSeverity.Warning)
+            else if (viewModel.Level <= LogLevel.Warning)
                 return presenter.FindResource("LogDataTemplateWarning") as DataTemplate;
 
-            else if (viewModel.Severity == LogMessageSeverity.Error)
+            // ALL ERRORS
+            else if (viewModel.Level <= LogLevel.None)
                 return presenter.FindResource("LogDataTemplateError") as DataTemplate;
 
             else

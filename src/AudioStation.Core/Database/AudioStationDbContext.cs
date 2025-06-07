@@ -57,7 +57,7 @@ namespace AudioStation.Core.Database
             _outputController.AddLog(new LogMessage()
             {
                  Message = eventData.ToString(),
-                 Severity = eventData.LogLevel == LogLevel.Error ? LogMessageSeverity.Error : LogMessageSeverity.Info,
+                 Level = eventData.LogLevel,
                  Type = LogMessageType.Database
             });
         }

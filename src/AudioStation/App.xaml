@@ -11,7 +11,6 @@
         <converter:ArtworkFileConverter x:Key="ArtworkFileConverter" />
         <converter:MusicBrainzConverter x:Key="MusicBrainzConverter" />
         <converter:MetaEntryConverter x:Key="MetaEntryConverter" />
-        <converter:BoolToParameterConverter x:Key="BoolToParameterConverter" />
 
         <!-- SimpleWpf.UI Converters -->
         <simpleConverter:BoolVisibilityCollapseConverter x:Key="BoolVisibilityCollapseConverter" />

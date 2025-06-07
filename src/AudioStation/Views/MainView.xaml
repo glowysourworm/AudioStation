@@ -10,7 +10,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
-            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" MaxHeight="400"  />
             <RowDefinition Height="28" />
         </Grid.RowDefinitions>
 
@@ -108,7 +108,7 @@
                       Style="{StaticResource GridSplitterStyle}" />
 
         <!-- Output Messages (Status Panel) / Work Queue Items -->
-        <Border Grid.Row="2" MinHeight="300" Visibility="{Binding ShowOutputMessages, Converter={StaticResource BoolVisibilityCollapseConverter}}">
+        <Border Grid.Row="2" MinHeight="300" MaxHeight="400" Visibility="{Binding ShowOutputMessages, Converter={StaticResource BoolVisibilityCollapseConverter}}">
 
             <TabControl x:Name="OutputTabControl" Background="White" Style="{StaticResource OutputTabControlStyle}">
 

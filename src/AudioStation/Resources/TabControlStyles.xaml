@@ -152,10 +152,13 @@
                                               SelectedValue="{Binding GeneralLogLevel}"
                                               Visibility="{Binding SelectedLogType, Converter={StaticResource ParameterVisibilityCollapsedConverter}, ConverterParameter={x:Static model:LogMessageType.General}}">
                                         <ComboBox.Items>
-                                                <model:LogMessageSeverity>Info</model:LogMessageSeverity>
-                                                <model:LogMessageSeverity>Warning</model:LogMessageSeverity>
-                                                <model:LogMessageSeverity>Error</model:LogMessageSeverity>
-                                                <model:LogMessageSeverity>None</model:LogMessageSeverity>
+                                            <efLogging:LogLevel>Trace</efLogging:LogLevel>
+                                            <efLogging:LogLevel>Debug</efLogging:LogLevel>
+                                            <efLogging:LogLevel>Information</efLogging:LogLevel>
+                                            <efLogging:LogLevel>Warning</efLogging:LogLevel>
+                                            <efLogging:LogLevel>Error</efLogging:LogLevel>
+                                            <efLogging:LogLevel>Critical</efLogging:LogLevel>
+                                            <efLogging:LogLevel>None</efLogging:LogLevel>
                                         </ComboBox.Items>
                                     </ComboBox>
                                     
@@ -168,14 +171,14 @@
                                               Width="160"
                                               Visibility="{Binding SelectedLogType, Converter={StaticResource ParameterVisibilityCollapsedConverter}, ConverterParameter={x:Static model:LogMessageType.Database}}">
                                         <ComboBox.Items>
-                                                <efLogging:LogLevel>Information</efLogging:LogLevel>
-                                                <efLogging:LogLevel>Warning</efLogging:LogLevel>
-                                                <efLogging:LogLevel>Error</efLogging:LogLevel>
-                                                <efLogging:LogLevel>Debug</efLogging:LogLevel>
-                                                <efLogging:LogLevel>Trace</efLogging:LogLevel>
-                                                <efLogging:LogLevel>Critical</efLogging:LogLevel>
-                                                <efLogging:LogLevel>None</efLogging:LogLevel>
-                                        </ComboBox.Items>                                        
+                                            <efLogging:LogLevel>Trace</efLogging:LogLevel>
+                                            <efLogging:LogLevel>Debug</efLogging:LogLevel>
+                                            <efLogging:LogLevel>Information</efLogging:LogLevel>
+                                            <efLogging:LogLevel>Warning</efLogging:LogLevel>
+                                            <efLogging:LogLevel>Error</efLogging:LogLevel>
+                                            <efLogging:LogLevel>Critical</efLogging:LogLevel>
+                                            <efLogging:LogLevel>None</efLogging:LogLevel>
+                                        </ComboBox.Items>
                                     </ComboBox>                                    
 
                                     <Button Style="{StaticResource UserControlButton}" Margin="5 0" VerticalAlignment="Center">

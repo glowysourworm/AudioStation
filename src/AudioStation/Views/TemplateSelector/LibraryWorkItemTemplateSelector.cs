@@ -1,6 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 
+using AudioStation.Core.Component;
 using AudioStation.ViewModels;
 
 namespace AudioStation.Views.TemplateSelector
@@ -15,20 +16,18 @@ namespace AudioStation.Views.TemplateSelector
             if (viewModel == null || presenter == null)
                 throw new NullReferenceException("Improper handling of LibraryWorkItemTemplateSelector");
 
-            if (!viewModel.Completed)
-                return presenter.FindResource("LibraryWorkItemDataTemplateNormal") as DataTemplate;
-
-            //else if (!viewModel.Error && !viewModel.Completed)
-            //    return presenter.FindResource("LibraryWorkItemDataTemplateNormal") as DataTemplate;
-
-            else if (viewModel.Error)
-                return presenter.FindResource("LibraryWorkItemDataTemplateError") as DataTemplate;
-
-            else if (!viewModel.Error)
-                return presenter.FindResource("LibraryWorkItemDataTemplateSuccess") as DataTemplate;
-
-            else
-                throw new Exception("Unknown Data Template (LibraryWorkItemTemplateSelector)");
+            switch (viewModel.LoadState)
+            {
+                case LibraryWorkItemState.Pending:
+                case LibraryWorkItemState.Processing:
+                    return presenter.FindResource("LibraryWorkItemDataTemplateNormal") as DataTemplate;
+                case LibraryWorkItemState.CompleteSuccessful:
+                    return presenter.FindResource("LibraryWorkItemDataTemplateSuccess") as DataTemplate;
+                case LibraryWorkItemState.CompleteError:
+                    return presenter.FindResource("LibraryWorkItemDataTemplateError") as DataTemplate;
+                default:
+                    throw new Exception("Unknown Data Template (LibraryWorkItemTemplateSelector)");
+            }
         }
     }
 }
