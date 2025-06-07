@@ -25,9 +25,10 @@ namespace AudioStation
             var resourceUri4 = new Uri("pack://application:,,,/AudioStation;Component/Resources/MenuControlStyles.xaml");
             var resourceUri5 = new Uri("pack://application:,,,/AudioStation;Component/Resources/TabControlStyles.xaml");
             var resourceUri6 = new Uri("pack://application:,,,/AudioStation;Component/Resources/TextBoxStyles.xaml");
-            var resourceUri7 = new Uri("pack://application:,,,/AudioStation;Component/Resources/LibraryWorkItemDataTemplates.xaml");
-            var resourceUri8 = new Uri("pack://application:,,,/AudioStation;Component/Resources/LogDataTemplates.xaml");
-            var resourceUri9 = new Uri("pack://application:,,,/AudioStation;Component/Resources/MainThemeStyles.xaml");
+            var resourceUri7 = new Uri("pack://application:,,,/AudioStation;Component/Resources/ComboBoxStyles.xaml");
+            var resourceUri8 = new Uri("pack://application:,,,/AudioStation;Component/Resources/LibraryWorkItemDataTemplates.xaml");
+            var resourceUri9 = new Uri("pack://application:,,,/AudioStation;Component/Resources/LogDataTemplates.xaml");
+            var resourceUri10 = new Uri("pack://application:,,,/AudioStation;Component/Resources/MainThemeStyles.xaml");
 
             var resourceDictionary0 = new ResourceDictionary();
             var resourceDictionary1 = new ResourceDictionary();
@@ -39,6 +40,7 @@ namespace AudioStation
             var resourceDictionary7 = new ResourceDictionary();
             var resourceDictionary8 = new ResourceDictionary();
             var resourceDictionary9 = new ResourceDictionary();
+            var resourceDictionary10 = new ResourceDictionary();
 
             resourceDictionary0.Source = resourceUri0;
             resourceDictionary1.Source = resourceUri1;
@@ -50,6 +52,7 @@ namespace AudioStation
             resourceDictionary7.Source = resourceUri7;
             resourceDictionary8.Source = resourceUri8;
             resourceDictionary9.Source = resourceUri9;
+            resourceDictionary10.Source = resourceUri10;
 
             this.Resources.MergedDictionaries.Add(resourceDictionary0);
             this.Resources.MergedDictionaries.Add(resourceDictionary1);
@@ -61,6 +64,7 @@ namespace AudioStation
             this.Resources.MergedDictionaries.Add(resourceDictionary7);
             this.Resources.MergedDictionaries.Add(resourceDictionary8);
             this.Resources.MergedDictionaries.Add(resourceDictionary9);
+            this.Resources.MergedDictionaries.Add(resourceDictionary10);
         }
 
         protected override void OnStartup(StartupEventArgs e)

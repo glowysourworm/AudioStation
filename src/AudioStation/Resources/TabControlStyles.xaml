@@ -143,79 +143,40 @@
                                         </RadioButton>
                                     </StackPanel>
 
-                                    <StackPanel Orientation="Horizontal" Margin="5 0"
-                                                Visibility="{Binding SelectedLogType, Converter={StaticResource ParameterVisibilityCollapsedConverter}, ConverterParameter={x:Static model:LogMessageType.General}, Mode=TwoWay}">
-                                        <RadioButton Style="{StaticResource ControlPanelRadioButtonLeft}"
-                                                     GroupName="LogTypeGeneral"
-                                                     ToolTip="General Log Level:  (None)"
-                                                     IsChecked="{Binding GeneralLogLevel, Converter={StaticResource ParameterEqualityBoolConverter}, ConverterParameter={x:Static model:LogMessageSeverity.None}}">
-                                            <fa5:SvgAwesome Icon="Solid_MinusCircle" Style="{StaticResource FontAwesomeIconControlPanelButton}" />
-                                        </RadioButton>
-                                        <RadioButton Style="{StaticResource ControlPanelRadioButtonMiddle}"
-                                                     ToolTip="General Log Level:  (Info)"
-                                                     GroupName="LogTypeGeneral"
-                                                     IsChecked="{Binding GeneralLogLevel, Converter={StaticResource ParameterEqualityBoolConverter}, ConverterParameter={x:Static model:LogMessageSeverity.Info}}">
-                                            <fa5:SvgAwesome Icon="Solid_InfoCircle" Style="{StaticResource FontAwesomeIconControlPanelButton}" />
-                                        </RadioButton>
-                                        <RadioButton Style="{StaticResource ControlPanelRadioButtonMiddle}"
-                                                     GroupName="LogTypeGeneral"
-                                                     ToolTip="General Log Level:  (Warning)"
-                                                     IsChecked="{Binding GeneralLogLevel, Converter={StaticResource ParameterEqualityBoolConverter}, ConverterParameter={x:Static model:LogMessageSeverity.Warning}}">
-                                            <fa5:SvgAwesome Icon="Solid_ExclamationTriangle" Style="{StaticResource FontAwesomeIconControlPanelButton}" />
-                                        </RadioButton>
-                                        <RadioButton Style="{StaticResource ControlPanelRadioButtonRight}"
-                                                     GroupName="LogTypeGeneral"
-                                                     ToolTip="General Log Level:  (Error)"
-                                                     IsChecked="{Binding GeneralLogLevel, Converter={StaticResource ParameterEqualityBoolConverter}, ConverterParameter={x:Static model:LogMessageSeverity.Error}}">
-                                            <fa5:SvgAwesome Icon="Solid_Ad" Style="{StaticResource FontAwesomeIconControlPanelButton}" />
-                                        </RadioButton>                                        
-                                    </StackPanel>
-
-                                    <StackPanel Orientation="Horizontal" Margin="5 0"
-                                                Visibility="{Binding SelectedLogType, Converter={StaticResource ParameterVisibilityCollapsedConverter}, ConverterParameter={x:Static model:LogMessageType.Database}, Mode=TwoWay}">
-                                        <RadioButton Style="{StaticResource ControlPanelRadioButtonLeft}"
-                                                     GroupName="LogTypeDatabase"
-                                                     ToolTip="Database Log Level:  (None)"
-                                                     IsChecked="{Binding DatabaseLogLevel, Converter={StaticResource ParameterEqualityBoolConverter}, ConverterParameter={x:Static efLogging:LogLevel.None}}">
-                                            <fa5:SvgAwesome Icon="Solid_MinusCircle" Style="{StaticResource FontAwesomeIconControlPanelButton}" />
-                                        </RadioButton>
-                                        <RadioButton Style="{StaticResource ControlPanelRadioButtonMiddle}" 
-                                                     GroupName="LogTypeDatabase"
-                                                     ToolTip="Database Log Level:  (Information)"
-                                                     IsChecked="{Binding DatabaseLogLevel, Converter={StaticResource ParameterEqualityBoolConverter}, ConverterParameter={x:Static efLogging:LogLevel.Information}}">
-                                            <fa5:SvgAwesome Icon="Solid_InfoCircle" Style="{StaticResource FontAwesomeIconControlPanelButton}" />
-                                        </RadioButton>
-                                        <RadioButton Style="{StaticResource ControlPanelRadioButtonMiddle}"
-                                                     GroupName="LogTypeDatabase"
-                                                     ToolTip="Database Log Level:  (Warning)"
-                                                     IsChecked="{Binding DatabaseLogLevel, Converter={StaticResource ParameterEqualityBoolConverter}, ConverterParameter={x:Static efLogging:LogLevel.Warning}}">
-                                            <fa5:SvgAwesome Icon="Solid_ExclamationTriangle" Style="{StaticResource FontAwesomeIconControlPanelButton}" />
-                                        </RadioButton>
-                                        <RadioButton Style="{StaticResource ControlPanelRadioButtonMiddle}"
-                                                     GroupName="LogTypeDatabase"
-                                                     ToolTip="Database Log Level:  (Error)"
-                                                     IsChecked="{Binding DatabaseLogLevel, Converter={StaticResource ParameterEqualityBoolConverter}, ConverterParameter={x:Static efLogging:LogLevel.Error}}">
-                                            <fa5:SvgAwesome Icon="Solid_Ad" Style="{StaticResource FontAwesomeIconControlPanelButton}" />
-                                        </RadioButton>
-                                        <RadioButton Style="{StaticResource ControlPanelRadioButtonMiddle}"
-                                                     GroupName="LogTypeDatabase"
-                                                     ToolTip="Database Log Level:  (Debug)"
-                                                     IsChecked="{Binding DatabaseLogLevel, Converter={StaticResource ParameterEqualityBoolConverter}, ConverterParameter={x:Static efLogging:LogLevel.Debug}}">
-                                            <fa5:SvgAwesome Icon="Solid_Bug" Style="{StaticResource FontAwesomeIconControlPanelButton}" />
-                                        </RadioButton>
-                                        <RadioButton Style="{StaticResource ControlPanelRadioButtonMiddle}"
-                                                     GroupName="LogTypeDatabase"
-                                                     ToolTip="Database Log Level:  (Trace)"
-                                                     IsChecked="{Binding DatabaseLogLevel, Converter={StaticResource ParameterEqualityBoolConverter}, ConverterParameter={x:Static efLogging:LogLevel.Trace}}">
-                                            <fa5:SvgAwesome Icon="Solid_Tractor" Style="{StaticResource FontAwesomeIconControlPanelButton}" />
-                                        </RadioButton>
-                                        <RadioButton Style="{StaticResource ControlPanelRadioButtonRight}"
-                                                     GroupName="LogTypeDatabase"
-                                                     ToolTip="Database Log Level:  (Critical)"
-                                                     IsChecked="{Binding DatabaseLogLevel, Converter={StaticResource ParameterEqualityBoolConverter}, ConverterParameter={x:Static efLogging:LogLevel.Critical}}">
-                                            <fa5:SvgAwesome Icon="Solid_Atom" Style="{StaticResource FontAwesomeIconControlPanelButton}" />
-                                        </RadioButton>
-                                    </StackPanel>
+                                    <ComboBox Margin="5 0"
+                                              VerticalAlignment="Center"
+                                              Height="30"
+                                              Width="160"
+                                              VerticalContentAlignment="Center"
+                                              FontSize="14"                                              
+                                              SelectedValue="{Binding GeneralLogLevel}"
+                                              Visibility="{Binding SelectedLogType, Converter={StaticResource ParameterVisibilityCollapsedConverter}, ConverterParameter={x:Static model:LogMessageType.General}}">
+                                        <ComboBox.Items>
+                                                <model:LogMessageSeverity>Info</model:LogMessageSeverity>
+                                                <model:LogMessageSeverity>Warning</model:LogMessageSeverity>
+                                                <model:LogMessageSeverity>Error</model:LogMessageSeverity>
+                                                <model:LogMessageSeverity>None</model:LogMessageSeverity>
+                                        </ComboBox.Items>
+                                    </ComboBox>
+                                    
+                                    <ComboBox Margin="5 0"
+                                              SelectedValue="{Binding DatabaseLogLevel}"
+                                              VerticalAlignment="Center"
+                                              VerticalContentAlignment="Center"
+                                              FontSize="14"
+                                              Height="30"                                     
+                                              Width="160"
+                                              Visibility="{Binding SelectedLogType, Converter={StaticResource ParameterVisibilityCollapsedConverter}, ConverterParameter={x:Static model:LogMessageType.Database}}">
+                                        <ComboBox.Items>
+                                                <efLogging:LogLevel>Information</efLogging:LogLevel>
+                                                <efLogging:LogLevel>Warning</efLogging:LogLevel>
+                                                <efLogging:LogLevel>Error</efLogging:LogLevel>
+                                                <efLogging:LogLevel>Debug</efLogging:LogLevel>
+                                                <efLogging:LogLevel>Trace</efLogging:LogLevel>
+                                                <efLogging:LogLevel>Critical</efLogging:LogLevel>
+                                                <efLogging:LogLevel>None</efLogging:LogLevel>
+                                        </ComboBox.Items>                                        
+                                    </ComboBox>                                    
 
                                     <Button Style="{StaticResource UserControlButton}" Margin="5 0" VerticalAlignment="Center">
                                         <StackPanel Orientation="Horizontal" Margin="5">
