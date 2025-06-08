@@ -64,7 +64,16 @@
                     <local:ConfigurationView x:Name="ConfigurationView" />
                 </TabItem>
 
-                <TabItem Header="Library Loader" Style="{StaticResource MainTabItemControlStyle}">
+                <TabItem Style="{StaticResource MainTabItemControlStyle}">
+                    <TabItem.Header>
+                        <StackPanel>
+                            <TextBlock Text="Library Loader" Style="{StaticResource LabelTextBlock}" />
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="{Binding LibraryWorkItemCountPending, StringFormat={}Pending ({0})}" Style="{StaticResource LabelDetailTextBlock}" Foreground="White" />
+                            </StackPanel>
+                            
+                        </StackPanel>
+                    </TabItem.Header>
                     <local:LibraryLoaderView x:Name="LibraryLoaderView" />
                 </TabItem>
 

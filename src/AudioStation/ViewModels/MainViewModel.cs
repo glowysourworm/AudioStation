@@ -48,14 +48,17 @@ public partial class MainViewModel : ViewModelBase, IDisposable
     bool _loadedFromConfiguration;
     float _volume;
 
-    //PlayStopPause _libraryLoaderState;
-
     LogMessageType _selectedLogType;
     LogLevel _databaseLogLevel;
     LogLevel _generalLogLevel;
     LibraryWorkItemState _selectedLibraryWorkItemState;
 
     INowPlayingViewModel _nowPlayingViewModel;
+
+    int _libraryWorkItemCountPending;
+    int _libraryWorkItemCountProcessing;
+    int _libraryWorkItemCountSuccess;
+    int _libraryWorkItemCountError;
 
     ObservableCollection<LogMessageViewModel> _outputMessages;
     ObservableCollection<LibraryWorkItemViewModel> _libraryCoreWorkItems;
@@ -157,6 +160,27 @@ public partial class MainViewModel : ViewModelBase, IDisposable
         get { return _generalLogLevel; }
         set { this.RaiseAndSetIfChanged(ref _generalLogLevel, value); OnLogLevelChanged(LogMessageType.General); }
     }
+    public int LibraryWorkItemCountPending
+    {
+        get { return _libraryWorkItemCountPending; }
+        set { this.RaiseAndSetIfChanged(ref _libraryWorkItemCountPending, value); }
+    }
+    public int LibraryWorkItemCountProcessing
+    {
+        get { return _libraryWorkItemCountProcessing; }
+        set { this.RaiseAndSetIfChanged(ref _libraryWorkItemCountProcessing, value); }
+    }
+    public int LibraryWorkItemCountSuccess
+    {
+        get { return _libraryWorkItemCountSuccess; }
+        set { this.RaiseAndSetIfChanged(ref _libraryWorkItemCountSuccess, value); }
+    }
+    public int LibraryWorkItemCountError
+    {
+        get { return _libraryWorkItemCountError; }
+        set { this.RaiseAndSetIfChanged(ref _libraryWorkItemCountError, value); }
+    }
+
     public LibraryWorkItemState SelectedLibraryWorkItemState
     {
         get { return _selectedLibraryWorkItemState; }
@@ -283,6 +307,8 @@ public partial class MainViewModel : ViewModelBase, IDisposable
 
             else if (item.LoadState == this.SelectedLibraryWorkItemState && !contains)
                 this.LibraryCoreWorkItems.Add(item);
+
+            UpdateLibraryWorkItemCounts();
         }
     }
     private void OnWorkItemsRemoved(LibraryLoaderWorkItem[] workItems)
@@ -303,6 +329,8 @@ public partial class MainViewModel : ViewModelBase, IDisposable
                         this.LibraryCoreWorkItems.Remove(item);
                 }
             }
+
+            UpdateLibraryWorkItemCounts();
         }
     }
     private void OnWorkItemsAdded(LibraryLoaderWorkItem[] workItems)
@@ -328,6 +356,8 @@ public partial class MainViewModel : ViewModelBase, IDisposable
                 if (item.LoadState == this.SelectedLibraryWorkItemState)
                     this.LibraryCoreWorkItems.Add(item);
             }
+
+            UpdateLibraryWorkItemCounts();
         }
     }
 
@@ -350,15 +380,11 @@ public partial class MainViewModel : ViewModelBase, IDisposable
     private void OnLibraryProcessingChanged(PlayStopPause oldState, PlayStopPause newState)
     {
         if (Application.Current.Dispatcher.Thread.ManagedThreadId != Thread.CurrentThread.ManagedThreadId)
-        {
             Application.Current.Dispatcher.BeginInvoke(OnLibraryProcessingChanged, DispatcherPriority.ApplicationIdle, oldState, newState);
-            return;
-        }
 
-        // Just update our field. The setter will call the code to modify the loader state OnLibraryLoaderStateRequest
-        //_libraryLoaderState = newState;
-
-        OnPropertyChanged("LibraryLoaderState");
+        // Notify listeners. The getter draws from the library loader
+        else
+            OnPropertyChanged("LibraryLoaderState");
     }
     private void OnLibraryProcessingComplete()
     {
@@ -459,6 +485,13 @@ public partial class MainViewModel : ViewModelBase, IDisposable
         }
     }
     
+    private void UpdateLibraryWorkItemCounts()
+    {
+        this.LibraryWorkItemCountError = _libraryCoreWorkItemsUnfiltered.Count(x => x.LoadState == LibraryWorkItemState.CompleteError);
+        this.LibraryWorkItemCountSuccess = _libraryCoreWorkItemsUnfiltered.Count(x => x.LoadState == LibraryWorkItemState.CompleteSuccessful);
+        this.LibraryWorkItemCountPending = _libraryCoreWorkItemsUnfiltered.Count(x => x.LoadState == LibraryWorkItemState.Pending);
+        this.LibraryWorkItemCountProcessing = _libraryCoreWorkItemsUnfiltered.Count(x => x.LoadState == LibraryWorkItemState.Processing);
+    }
     private void SetLibraryCoreWorkItemsFilter()
     {
         if (Application.Current.Dispatcher.Thread.ManagedThreadId != Thread.CurrentThread.ManagedThreadId)
@@ -474,7 +507,6 @@ public partial class MainViewModel : ViewModelBase, IDisposable
             }
         }
     }
-
     private void OnLibraryLoaderStateRequest(PlayStopPause state)
     {
         switch (state)
