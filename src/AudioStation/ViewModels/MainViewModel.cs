@@ -48,7 +48,7 @@ public partial class MainViewModel : ViewModelBase, IDisposable
     bool _loadedFromConfiguration;
     float _volume;
 
-    PlayStopPause _libraryLoaderState;
+    //PlayStopPause _libraryLoaderState;
 
     LogMessageType _selectedLogType;
     LogLevel _databaseLogLevel;
@@ -138,8 +138,9 @@ public partial class MainViewModel : ViewModelBase, IDisposable
     }
     public PlayStopPause LibraryLoaderState
     {
-        get { return _libraryLoaderState; }
-        set { this.RaiseAndSetIfChanged(ref _libraryLoaderState, value); OnLibraryLoaderStateRequest(); }
+        // These forward / receive state requests to/from the library loader
+        get { return _libraryLoader.GetState(); }
+        set { OnLibraryLoaderStateRequest(value); }
     }
     public LogMessageType SelectedLogType
     {
@@ -287,7 +288,7 @@ public partial class MainViewModel : ViewModelBase, IDisposable
     private void OnWorkItemsRemoved(LibraryLoaderWorkItem[] workItems)
     {
         if (Application.Current.Dispatcher.Thread.ManagedThreadId != Thread.CurrentThread.ManagedThreadId)
-            Application.Current.Dispatcher.Invoke(OnWorkItemsRemoved, DispatcherPriority.ApplicationIdle, workItems);
+            Application.Current.Dispatcher.BeginInvoke(OnWorkItemsRemoved, DispatcherPriority.ApplicationIdle, workItems);
         else
         {
             foreach (var workItem in workItems)
@@ -307,7 +308,7 @@ public partial class MainViewModel : ViewModelBase, IDisposable
     private void OnWorkItemsAdded(LibraryLoaderWorkItem[] workItems)
     {
         if (Application.Current.Dispatcher.Thread.ManagedThreadId != Thread.CurrentThread.ManagedThreadId)
-            Application.Current.Dispatcher.Invoke(OnWorkItemsAdded, DispatcherPriority.ApplicationIdle, workItems);
+            Application.Current.Dispatcher.BeginInvoke(OnWorkItemsAdded, DispatcherPriority.ApplicationIdle, workItems);
         else
         {
             foreach (var workItem in workItems)
@@ -333,7 +334,7 @@ public partial class MainViewModel : ViewModelBase, IDisposable
     private void OnWorkItemCompleted(LibraryLoaderWorkItem workItem)
     {
         if (Application.Current.Dispatcher.Thread.ManagedThreadId != Thread.CurrentThread.ManagedThreadId)
-            Application.Current.Dispatcher.Invoke(OnWorkItemCompleted, DispatcherPriority.ApplicationIdle, workItem);
+            Application.Current.Dispatcher.BeginInvoke(OnWorkItemCompleted, DispatcherPriority.ApplicationIdle, workItem);
         else
         {
             var item = _libraryCoreWorkItemsUnfiltered.FirstOrDefault(x => x.FileName == workItem.FileName);
@@ -355,7 +356,7 @@ public partial class MainViewModel : ViewModelBase, IDisposable
         }
 
         // Just update our field. The setter will call the code to modify the loader state OnLibraryLoaderStateRequest
-        _libraryLoaderState = newState;
+        //_libraryLoaderState = newState;
 
         OnPropertyChanged("LibraryLoaderState");
     }
@@ -366,7 +367,7 @@ public partial class MainViewModel : ViewModelBase, IDisposable
     private void OnRadioEntryLoaded(RadioEntry radioEntry)
     {
         if (Application.Current.Dispatcher.Thread.ManagedThreadId != Thread.CurrentThread.ManagedThreadId)
-            Application.Current.Dispatcher.Invoke(OnWorkItemCompleted, DispatcherPriority.ApplicationIdle, radioEntry);
+            Application.Current.Dispatcher.BeginInvoke(OnWorkItemCompleted, DispatcherPriority.ApplicationIdle, radioEntry);
         else
         {
             if (!this.RadioStations.Any(item => item.Name == radioEntry.Name))
@@ -398,7 +399,7 @@ public partial class MainViewModel : ViewModelBase, IDisposable
     private void OnLibraryEntryLoaded(LibraryEntry entry)
     {
         if (Application.Current.Dispatcher.Thread.ManagedThreadId != Thread.CurrentThread.ManagedThreadId)
-            Application.Current.Dispatcher.Invoke(OnLibraryEntryLoaded, DispatcherPriority.ApplicationIdle, entry);
+            Application.Current.Dispatcher.BeginInvoke(OnLibraryEntryLoaded, DispatcherPriority.ApplicationIdle, entry);
         else
         {
             if (!this.LibraryEntries.Any(item => item.FileName == entry.FileName))
@@ -461,7 +462,7 @@ public partial class MainViewModel : ViewModelBase, IDisposable
     private void SetLibraryCoreWorkItemsFilter()
     {
         if (Application.Current.Dispatcher.Thread.ManagedThreadId != Thread.CurrentThread.ManagedThreadId)
-            Application.Current.Dispatcher.Invoke(SetLibraryCoreWorkItemsFilter, DispatcherPriority.ApplicationIdle);
+            Application.Current.Dispatcher.BeginInvoke(SetLibraryCoreWorkItemsFilter, DispatcherPriority.ApplicationIdle);
         else
         {
             this.LibraryCoreWorkItems.Clear();
@@ -474,9 +475,9 @@ public partial class MainViewModel : ViewModelBase, IDisposable
         }
     }
 
-    private void OnLibraryLoaderStateRequest()
+    private void OnLibraryLoaderStateRequest(PlayStopPause state)
     {
-        switch (this.LibraryLoaderState)
+        switch (state)
         {
             case PlayStopPause.Play:
                 _libraryLoader.Start();

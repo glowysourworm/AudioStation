@@ -219,7 +219,6 @@ namespace AudioStation.Core.Component
         {
             lock(_workThreadLock)
             {
-                _userRunLast = _userRun;
                 _userRun = PlayStopPause.Stop;
             }
         }
@@ -228,7 +227,6 @@ namespace AudioStation.Core.Component
         {
             lock (_workThreadLock)
             {
-                _userRunLast = _userRun;
                 _userRun = PlayStopPause.Play;
             }
         }
@@ -237,7 +235,6 @@ namespace AudioStation.Core.Component
         {
             lock (_workThreadLock)
             {
-                _userRunLast = _userRun;
                 _userRun = PlayStopPause.Stop;
 
                 var workItems = _workQueue;
@@ -264,7 +261,6 @@ namespace AudioStation.Core.Component
 
                     // Check for queue work (user has control over this portion from the front end)
                     if (workItem != null &&
-                        !workItem.Equals(default(LibraryLoaderWorkItem)) &&
                         _workQueue.Count > 0 &&
                         _userRun == PlayStopPause.Play)
                     {
@@ -369,7 +365,7 @@ namespace AudioStation.Core.Component
 
                 // Lets allow the main thread to catch up so we can see what's going on
                 else
-                    Thread.Sleep(10);
+                    Thread.Sleep(1);
             }
         }
 
