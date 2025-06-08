@@ -2,14 +2,17 @@
 
 using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Database;
+using AudioStation.Core.Event;
 using AudioStation.Core.Model;
 using AudioStation.Model;
 
 using m3uParser.Model;
 
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.Logging;
 
 using SimpleWpf.IocFramework.Application.Attribute;
+using SimpleWpf.IocFramework.EventAggregation;
 
 using TagLib;
 
@@ -20,15 +23,34 @@ namespace AudioStation.Controller
     {
         private readonly IConfigurationManager _configurationManager;
         private readonly IOutputController _outputController;
+        private readonly IIocEventAggregator _eventAggregator;
 
         public Library Library { get; private set; }
         public Radio Radio { get; private set; }
 
+        LogLevel _currentLogLevel;
+        bool _currentLogVerbosity;
+
         [IocImportingConstructor]
-        public ModelController(IConfigurationManager configurationManager, IOutputController outputController)
+        public ModelController(IConfigurationManager configurationManager, 
+                               IOutputController outputController,
+                               IIocEventAggregator eventAggregator)
         {
             _configurationManager = configurationManager;
             _outputController = outputController;
+            _eventAggregator = eventAggregator;
+            _currentLogLevel = LogLevel.Trace;
+            _currentLogVerbosity = true;
+
+            // Update log output configuration
+            _eventAggregator.GetEvent<LogConfigurationChangedEvent>().Subscribe(payload =>
+            {
+                if (payload.Type == LogMessageType.Database)
+                {
+                    _currentLogLevel = payload.Level;
+                    _currentLogVerbosity = payload.Verbose;
+                }
+            });
         }
 
         public void Initialize()
@@ -49,25 +71,27 @@ namespace AudioStation.Controller
                     // the view loads the Album, Artist, or Entry (views). So, don't discard the 
                     // data. Flag the Library (local entites) that they have been read / not-read.
 
-                    var fileRefs = context.Mp3FileReferences.Select(x => new LibraryEntry()
+                    var fileRefs = context.Mp3FileReferences.ToList().Select(x => new LibraryEntry()
                     {
-                        Album = x.Album.Name,
+                        Album = x.Album?.Name ?? string.Empty,
                         FileName = x.FileName,
-                        PrimaryArtist = x.PrimaryArtist.Name,
-                        Title = x.Title,
-                        Track = (uint)x.Track,
-                        Disc = (uint)x.Album.DiscNumber,
-                        PrimaryGenre = context.Mp3FileReferenceGenreMaps.First(z => z.Mp3FileReferenceId == x.Id).Mp3FileReferenceGenre.Name,
+                        PrimaryArtist = x.PrimaryArtist?.Name ?? string.Empty,
+                        Title = x.Title ?? string.Empty,
+                        Track = (uint)(x.Track ?? 0),
+                        Disc = (uint)(x.Album?.DiscNumber ?? 0),
+                        PrimaryGenre = context.Mp3FileReferenceGenreMaps.FirstOrDefault(z => z.Mp3FileReferenceId == x.Id)?.Mp3FileReferenceGenre?.Name ?? string.Empty,
                         Id = x.Id
 
                     }).ToList();
                     var albums = context.Mp3FileReferenceAlbums.Select(x => new Album()
                     {
+                        Id = x.Id,
                         Name = x.Name
 
                     }).ToList();
                     var artists = context.Mp3FileReferenceArtists.Select(x => new Artist()
                     {
+                        Id = x.Id,
                         Name = x.Name,
 
                     }).ToList();
@@ -87,7 +111,7 @@ namespace AudioStation.Controller
                     this.Library.Albums = albums;
                     this.Library.Artists = artists;
                     this.Library.Genres = genres;
-                    this.Library.Titles = fileRefs;
+                    this.Library.Entries = fileRefs;
                 }
             }
             catch (Exception ex)
@@ -303,13 +327,9 @@ namespace AudioStation.Controller
         {
             var configuration = _configurationManager.GetConfiguration();
 
-            var connectionString = "Host={0};Database={1};Username={2};Password={3}";
+            var context = new AudioStationDbContext(configuration, _outputController, _currentLogLevel, _currentLogVerbosity);
 
-            return new AudioStationDbContext(string.Format(connectionString,
-                                                            configuration.DatabaseHost,
-                                                            configuration.DatabaseName,
-                                                            configuration.DatabaseUser,
-                                                            configuration.DatabasePassword), _outputController);
+            return context;
         }
 
         public void Dispose()

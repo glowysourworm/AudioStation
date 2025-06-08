@@ -1,31 +1,30 @@
 ﻿using System.Collections.ObjectModel;
 
-using SimpleWpf.Extensions;
+using AudioStation.ViewModels.LibraryViewModels;
+using AudioStation.ViewModels.LibraryViewModels.Comparer;
 
-namespace AudioStation.ViewModel.LibraryViewModel
+using SimpleWpf.Extensions;
+using SimpleWpf.Extensions.ObservableCollection;
+
+namespace AudioStation.ViewModel.LibraryViewModels
 {
     /// <summary>
     /// Component used to view album details in the application (for valid library entries)
     /// </summary>
     public class AlbumViewModel : ViewModelBase
     {
-        string _fileName;
+        int _id;
         string _album;
         string _primaryArtist;
         uint _year;
         TimeSpan _duration;
-        ObservableCollection<TitleViewModel> _tracks;
+        SortedObservableCollection<LibraryEntryViewModel> _tracks;
 
-        /// <summary>
-        /// Reference to the Mp3 file. The album art is too large to pre-load. So, loading will have
-        /// to be accomplished on the fly.
-        /// </summary>
-        public string FileName
+        public int Id
         {
-            get { return _fileName; }
-            set { this.RaiseAndSetIfChanged(ref _fileName, value); }
+            get { return _id; }
+            set { this.RaiseAndSetIfChanged(ref _id, value); }
         }
-
         public string Album
         {
             get { return _album; }
@@ -46,7 +45,7 @@ namespace AudioStation.ViewModel.LibraryViewModel
             get { return _duration; }
             set { this.RaiseAndSetIfChanged(ref _duration, value); }
         }
-        public ObservableCollection<TitleViewModel> Tracks
+        public SortedObservableCollection<LibraryEntryViewModel> Tracks
         {
             get { return _tracks; }
             set { this.RaiseAndSetIfChanged(ref _tracks, value); }
@@ -54,10 +53,9 @@ namespace AudioStation.ViewModel.LibraryViewModel
 
         public AlbumViewModel()
         {
-            this.Tracks = new ObservableCollection<TitleViewModel>();
+            this.Tracks = new SortedObservableCollection<LibraryEntryViewModel>(new PropertyComparer<uint, LibraryEntryViewModel>(x => x.Track));
             this.Duration = TimeSpan.Zero;
             this.Album = string.Empty;
-            this.FileName = string.Empty;
             this.PrimaryArtist = string.Empty;
             this.Year = 0;
         }

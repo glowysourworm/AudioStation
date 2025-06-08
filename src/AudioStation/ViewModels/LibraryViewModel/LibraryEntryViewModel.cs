@@ -1,6 +1,6 @@
 ﻿using SimpleWpf.Extensions;
 
-namespace AudioStation.ViewModels.LibraryViewModel
+namespace AudioStation.ViewModels.LibraryViewModels
 {
     public class LibraryEntryViewModel : ViewModelBase
     {

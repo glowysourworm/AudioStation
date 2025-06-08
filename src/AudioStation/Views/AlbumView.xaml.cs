@@ -2,13 +2,13 @@
 using System.Windows.Controls;
 using System.Windows.Input;
 
-using AudioStation.ViewModel.LibraryViewModel;
+using AudioStation.ViewModels.LibraryViewModels;
 
 namespace AudioStation.Views
 {
     public partial class AlbumView : UserControl
     {
-        public event EventHandler<TitleViewModel> TrackSelected;
+        public event EventHandler<LibraryEntryViewModel> TrackSelected;
 
         public AlbumView()
         {
@@ -17,7 +17,7 @@ namespace AudioStation.Views
 
         private void OnTracksDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            foreach (var item in this.TracksLB.Items.Cast<TitleViewModel>())
+            foreach (var item in this.TracksLB.Items.Cast<LibraryEntryViewModel>())
             {
                 if (item == (e.OriginalSource as FrameworkElement).DataContext)
                 {

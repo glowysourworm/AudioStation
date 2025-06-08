@@ -11,10 +11,8 @@ using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Event;
 using AudioStation.Core.Model;
 using AudioStation.Model;
-using AudioStation.ViewModel.LibraryViewModel;
 using AudioStation.ViewModels.Interface;
-using AudioStation.ViewModels.LibraryViewModel;
-using AudioStation.ViewModels.LibraryViewModel.Comparer;
+using AudioStation.ViewModels.LibraryViewModels.Comparer;
 using AudioStation.ViewModels.RadioViewModel;
 
 using Microsoft.Extensions.Logging;
@@ -36,6 +34,7 @@ public partial class MainViewModel : ViewModelBase, IDisposable
     private readonly IModelController _modelController;
     private readonly ILibraryLoader _libraryLoader;
     private readonly IOutputController _outputController;
+    private readonly IIocEventAggregator _eventAggregator;
 
     const int MAX_LOG_COUNT = 300;
 
@@ -53,6 +52,7 @@ public partial class MainViewModel : ViewModelBase, IDisposable
     LogLevel _generalLogLevel;
     LibraryWorkItemState _selectedLibraryWorkItemState;
 
+    LibraryViewModel _library;
     INowPlayingViewModel _nowPlayingViewModel;
 
     int _libraryWorkItemCountPending;
@@ -66,11 +66,6 @@ public partial class MainViewModel : ViewModelBase, IDisposable
 
     // Our Primary Library Collections
     SortedObservableCollection<RadioEntryViewModel> _radioEntries;
-    SortedObservableCollection<LibraryEntryViewModel> _libraryEntries;
-
-    SortedObservableCollection<AlbumViewModel> _albums;
-    SortedObservableCollection<ArtistViewModel> _artists;
-    SortedObservableCollection<TitleViewModel> _titles;
 
     SimpleCommand<string> _searchRadioBrowserCommand;
     SimpleCommand _openLibraryFolderCommand;
@@ -99,26 +94,6 @@ public partial class MainViewModel : ViewModelBase, IDisposable
         get { return _radioEntries; }
         set { this.RaiseAndSetIfChanged(ref _radioEntries, value); }
     }
-    public SortedObservableCollection<LibraryEntryViewModel> LibraryEntries
-    {
-        get { return _libraryEntries; }
-        set { this.RaiseAndSetIfChanged(ref _libraryEntries, value); }
-    }
-    public SortedObservableCollection<AlbumViewModel> Albums
-    {
-        get { return _albums; }
-        set { this.RaiseAndSetIfChanged(ref _albums, value); }
-    }
-    public SortedObservableCollection<ArtistViewModel> Artists
-    {
-        get { return _artists; }
-        set { this.RaiseAndSetIfChanged(ref _artists, value); }
-    }
-    public SortedObservableCollection<TitleViewModel> Titles
-    {
-        get { return _titles; }
-        set { this.RaiseAndSetIfChanged(ref _titles, value); }
-    }
     public string StatusMessage
     {
         get { return _statusMessage; }
@@ -138,6 +113,11 @@ public partial class MainViewModel : ViewModelBase, IDisposable
     {
         get { return _volume; }
         set { this.RaiseAndSetIfChanged(ref _volume, value); }
+    }
+    public LibraryViewModel Library
+    {
+        get { return _library; }
+        set { this.RaiseAndSetIfChanged(ref _library, value); }
     }
     public PlayStopPause LibraryLoaderState
     {
@@ -227,31 +207,30 @@ public partial class MainViewModel : ViewModelBase, IDisposable
         _modelController = modelController;
         _libraryLoader = libraryLoader;
         _outputController = outputController;
+        _eventAggregator = eventAggregator;
 
         this.Configuration = configurationManager.GetConfiguration();
         this.ShowOutputMessages = false;
         this.OutputMessages = new ObservableCollection<LogMessageViewModel>();
         this.LibraryCoreWorkItems = new NotifyingObservableCollection<LibraryWorkItemViewModel>();
         this.RadioStations = new SortedObservableCollection<RadioEntryViewModel>(new PropertyComparer<string, RadioEntryViewModel>(x => x.Name));
-        this.LibraryEntries = new SortedObservableCollection<LibraryEntryViewModel>(new PropertyComparer<string, LibraryEntryViewModel>(x => x.FileName));
-        this.Albums = new SortedObservableCollection<AlbumViewModel>(new PropertyComparer<string, AlbumViewModel>(x => x.Album));
-        this.Artists = new SortedObservableCollection<ArtistViewModel>(new PropertyComparer<string, ArtistViewModel>(x => x.Artist));
-        this.Titles = new SortedObservableCollection<TitleViewModel>(new PropertyComparer<string, TitleViewModel>(x => x.Title));
         this.NowPlayingViewModel = null;
+
+        // Initialize Model
+        //foreach (var libraryEntry in _modelController.Library)
 
         // Filtering of the library loader work items
         _selectedLibraryWorkItemState = LibraryWorkItemState.Pending;
         _libraryCoreWorkItemsUnfiltered = new List<LibraryWorkItemViewModel>();
 
         this.LibraryLoaderState = libraryLoader.GetState();
-        this.DatabaseLogLevel = LogLevel.None;
-        this.GeneralLogLevel = LogLevel.None;
+        this.DatabaseLogLevel = LogLevel.Trace;
+        this.GeneralLogLevel = LogLevel.Trace;
         this.SelectedLogType = LogMessageType.General;
 
         // Log Message (model) -> OnLogImpl (view-model)
         eventAggregator.GetEvent<LogEvent>().Subscribe(OnLog);
 
-        libraryLoader.LibraryEntryLoaded += OnLibraryEntryLoaded;
         libraryLoader.RadioEntryLoaded += OnRadioEntryLoaded;
         libraryLoader.WorkItemCompleted += OnWorkItemCompleted;
         libraryLoader.WorkItemsAdded += OnWorkItemsAdded;
@@ -422,36 +401,6 @@ public partial class MainViewModel : ViewModelBase, IDisposable
             }
         }
     }
-    private void OnLibraryEntryLoaded(LibraryEntry entry)
-    {
-        if (Application.Current.Dispatcher.Thread.ManagedThreadId != Thread.CurrentThread.ManagedThreadId)
-            Application.Current.Dispatcher.BeginInvoke(OnLibraryEntryLoaded, DispatcherPriority.ApplicationIdle, entry);
-        else
-        {
-            if (!this.LibraryEntries.Any(item => item.FileName == entry.FileName))
-            {
-                var newEntry = new LibraryEntryViewModel()
-                {
-                    Album = entry.Album,
-                    Disc = entry.Disc,
-                    FileName = entry.FileName,
-                    Id = entry.Id,
-                    LoadError = entry.FileError,
-                    LoadErrorMessage = entry.FileErrorMessage,
-                    PrimaryArtist = entry.PrimaryArtist,
-                    PrimaryGenre = entry.PrimaryGenre,
-                    Title = entry.Title,
-                    Track = entry.Track
-                };
-
-                this.LibraryEntries.Add(newEntry);
-            }
-            else
-            {
-                _outputController.AddLog("Library Entry already exists! {0}", LogMessageType.General, LogLevel.Error, entry.FileName);
-            }
-        }
-    }
     #endregion
 
     public async void SearchRadioBrowser(string search)
@@ -484,7 +433,7 @@ public partial class MainViewModel : ViewModelBase, IDisposable
             //OnLog("Error querying Radio Browser:  {0}", LogMessageType.General, LogMessageSeverity.Error, ex.Message);
         }
     }
-    
+
     private void UpdateLibraryWorkItemCounts()
     {
         this.LibraryWorkItemCountError = _libraryCoreWorkItemsUnfiltered.Count(x => x.LoadState == LibraryWorkItemState.CompleteError);
@@ -580,6 +529,15 @@ public partial class MainViewModel : ViewModelBase, IDisposable
                                                           Message = log.Message,
                                                           Type = log.Type,
                                                       }));
+
+        // Send event out for new log configuration
+        // Update log output configuration
+        _eventAggregator.GetEvent<LogConfigurationChangedEvent>().Publish(new LogConfigurationData()
+        {
+            Level = logLevel,
+            Verbose = false,
+            Type = this.SelectedLogType
+        });
     }
 
     public void Dispose()
@@ -599,10 +557,6 @@ public partial class MainViewModel : ViewModelBase, IDisposable
             this.OutputMessages.Clear();
             this.LibraryCoreWorkItems.Clear();
             this.RadioStations.Clear();
-            this.LibraryEntries.Clear();
-            this.Albums.Clear();
-            this.Artists.Clear();
-            this.Titles.Clear();
             this.NowPlayingViewModel = null;
         }
     }

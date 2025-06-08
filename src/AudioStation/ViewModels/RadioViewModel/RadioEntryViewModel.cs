@@ -1,4 +1,4 @@
-﻿using AudioStation.ViewModels.LibraryViewModel.Comparer;
+﻿using AudioStation.ViewModels.LibraryViewModels.Comparer;
 
 using SimpleWpf.Extensions;
 using SimpleWpf.Extensions.ObservableCollection;

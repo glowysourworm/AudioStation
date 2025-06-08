@@ -1,4 +1,4 @@
-﻿namespace AudioStation.ViewModels.LibraryViewModel.Comparer
+﻿namespace AudioStation.ViewModels.LibraryViewModels.Comparer
 {
     public class PropertyComparer<K, T> : Comparer<T> where K : IComparable
     {

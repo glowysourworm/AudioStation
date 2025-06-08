@@ -1,17 +1,25 @@
 ﻿
+using System.Configuration;
+
 using AudioStation.Core.Component.Interface;
 using AudioStation.Model;
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 using Microsoft.Extensions.Logging;
+
+using Npgsql;
 
 namespace AudioStation.Core.Database
 {
     public class AudioStationDbContext : DbContext, IDisposable
     {
+        private readonly Configuration _configuration;
         private readonly IOutputController _outputController;
         private readonly string _connectionString;
+        private readonly LogLevel _currentLogLevel;
+        private readonly bool _logVerbose;
 
         public DbSet<M3UInfo> M3UInfos { get; set; }
         public DbSet<M3UInfoAttributes> M3UInfoAttributes { get; set; }
@@ -25,21 +33,67 @@ namespace AudioStation.Core.Database
         public DbSet<Mp3FileReferenceGenreMap> Mp3FileReferenceGenreMaps { get; set; }
         public DbSet<RadioBrowserStation> RadioBrowserStations { get; set; }
 
-        public AudioStationDbContext(string connectionString, IOutputController outputController)
+        public AudioStationDbContext(Configuration configuration, 
+                                     IOutputController outputController, 
+                                     LogLevel currentLogLevel,
+                                     bool logVerbose)
 
         {
-            _connectionString = connectionString;
+            _configuration = configuration;
             _outputController = outputController;
+            _currentLogLevel = currentLogLevel;
+            _logVerbose = logVerbose;
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseNpgsql(_connectionString, builder =>
+            var connectionStringFormat = "Host={0};Database={1};Username={2};Password={3};";
+
+            var connectionString = string.Format(connectionStringFormat,
+                                                 _configuration.DatabaseHost,
+                                                 _configuration.DatabaseName,
+                                                 _configuration.DatabaseUser,
+                                                 _configuration.DatabasePassword);
+
+            // Must apply ADO.NET Connection String rules
+            var builder = new NpgsqlConnectionStringBuilder(/*connectionString*/);
+
+            // Connection / User Credentials
+            builder.Host = _configuration.DatabaseHost;
+            builder.Database = _configuration.DatabaseName;            
+            builder.Username = _configuration.DatabaseUser;
+            builder.Password = _configuration.DatabasePassword;
+
+            // Transactions (don't assume ambient transaction scope) (we're pooling; but not using transactions)
+            builder.Enlist = false;
+
+            // Logging
+            builder.IncludeErrorDetail = _logVerbose;
+
+            // Prepared Statements:  https://www.roji.org/prepared-statements-in-npgsql-3-2
+            //                       https://www.npgsql.org/doc/performance.html
+            //                       https://learn.microsoft.com/en-us/dotnet/framework/data/adonet/retrieving-binary-data?redirectedfrom=MSDN
+            //
+            builder.MaxAutoPrepare = 0;
+            builder.AutoPrepareMinUsages = 1;
+            builder.NoResetOnClose = true;
+            builder.Pooling = true;
+
+            // Read Buffering (row-level internal buffer)
+            builder.WriteBufferSize = 18000;
+            builder.ReadBufferSize = 18000;                 // Suggested 18K buffer (per table row, essentially)
+            builder.SocketReceiveBufferSize = 18000;        // Not sure about this one... (assuming it's sending it; and there's 
+            builder.SocketSendBufferSize = 18000;           //                             performance lag receiving it..?)
+            builder.WriteCoalescingBufferThresholdBytes = 18000;
+
+            optionsBuilder.UseNpgsql(builder.ToString(), builder =>
             {
+                
             });
             optionsBuilder.EnableDetailedErrors(true);
             optionsBuilder.EnableSensitiveDataLogging(true);
             optionsBuilder.LogTo(FilterLogging, Log);
+            optionsBuilder.EnableThreadSafetyChecks(true);
 
             base.OnConfiguring(optionsBuilder);
         }
@@ -49,10 +103,12 @@ namespace AudioStation.Core.Database
         /// </summary>
         private bool FilterLogging(EventId eventId, LogLevel level)
         {
-            if (level >= LogLevel.Information)
-                return true;
+            //if (level >= LogLevel.Information)
+            //    return true;
 
-            return false;
+            // Information level includes ALL select, and other DB statements (apparently), so we're going to allow
+            // them all through; and do some selective output in the "Log" function
+            return true;
         }
 
         /// <summary>
@@ -60,12 +116,22 @@ namespace AudioStation.Core.Database
         /// </summary>
         private void Log(EventData eventData)
         {
-            _outputController.AddLog(new LogMessage()
+            // TODO:  We could add configuration options for logging to remove / add developer information (select statements).
+            //        For now, lets just include the event codes and say they're part of the 
+
+            if (eventData.LogLevel <= _currentLogLevel)
             {
-                 Message = eventData.ToString(),
-                 Level = eventData.LogLevel,
-                 Type = LogMessageType.Database
-            });
+                _outputController.AddLog(new LogMessage()
+                {
+                    Message = _logVerbose ? eventData.ToString() :  string.Format("Npgsql Event: Level={0} Id={1} Code={2} Name={3}", 
+                                                                                   Enum.GetName(eventData.LogLevel),
+                                                                                   eventData.EventId.Id, 
+                                                                                   eventData.EventIdCode, 
+                                                                                   eventData.EventId.Name),
+                    Level = eventData.LogLevel,
+                    Type = LogMessageType.Database
+                });
+            }
         }
 
         public override void Dispose()

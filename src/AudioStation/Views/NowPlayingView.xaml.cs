@@ -2,8 +2,9 @@
 using System.Windows.Controls;
 
 using AudioStation.Core.Model;
-using AudioStation.ViewModel.LibraryViewModel;
+using AudioStation.ViewModel.LibraryViewModels;
 using AudioStation.ViewModels;
+using AudioStation.ViewModels.LibraryViewModels;
 
 namespace AudioStation.Views
 {
@@ -42,7 +43,7 @@ namespace AudioStation.Views
 
         private void OnPlaylistDoubleClick(object? sender, RoutedEventArgs e)
         {
-            var selectedTrack = (e.Source as Control).DataContext as TitleViewModel;
+            var selectedTrack = (e.Source as Control).DataContext as LibraryEntryViewModel;
             var albums = this.ArtistDetailLB.ItemsSource as IEnumerable<AlbumViewModel>;
 
             if (selectedTrack != null && albums != null)
@@ -54,7 +55,7 @@ namespace AudioStation.Views
             }
         }
 
-        private void AlbumViewItem_TrackSelected(object sender, TitleViewModel selectedTrack)
+        private void AlbumViewItem_TrackSelected(object sender, LibraryEntryViewModel selectedTrack)
         {
             var viewModel = this.DataContext as MainViewModel;
             var album = (sender as AlbumView).DataContext as AlbumViewModel;
@@ -72,7 +73,7 @@ namespace AudioStation.Views
             }
         }
 
-        private void LoadPlaylist(TitleViewModel selectedTitle, AlbumViewModel selectedAlbum)
+        private void LoadPlaylist(LibraryEntryViewModel selectedTitle, AlbumViewModel selectedAlbum)
         {
             var playlist = new Playlist();
             playlist.Name = selectedAlbum.PrimaryArtist + " / " + selectedAlbum.Album;
