@@ -68,10 +68,10 @@
                     <TabItem.Header>
                         <StackPanel>
                             <TextBlock Text="Library Loader" Style="{StaticResource LabelTextBlock}" />
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="{Binding LibraryWorkItemCountPending, StringFormat={}Pending ({0})}" Style="{StaticResource LabelDetailTextBlock}" Foreground="White" />
-                            </StackPanel>
-                            
+                            <TextBlock Text="{Binding LibraryWorkItemCountPending, StringFormat={}Pending ({0})}" Style="{StaticResource LabelDetailTextBlock}" Foreground="White" />
+                            <TextBlock Text="{Binding LibraryWorkItemCountProcessing, StringFormat={}Processing ({0})}" Style="{StaticResource LabelDetailTextBlock}" Foreground="White" />
+                            <TextBlock Text="{Binding LibraryWorkItemCountSuccess, StringFormat={}Success ({0})}" Style="{StaticResource LabelDetailTextBlock}" Foreground="#FF88FF00" />
+                            <TextBlock Text="{Binding LibraryWorkItemCountError, StringFormat={}Error ({0})}" Style="{StaticResource LabelDetailTextBlock}" Foreground="#FFFF0000" />
                         </StackPanel>
                     </TabItem.Header>
                     <local:LibraryLoaderView x:Name="LibraryLoaderView" />
