@@ -13,6 +13,8 @@ namespace AudioStation.Core.Component
     [IocExport(typeof(IOutputController))]
     public class OutputController : IOutputController
     {
+        public const int MAX_LOG_SIZE = 1000;
+
         private readonly IIocEventAggregator _eventAggregator;
 
         List<LogMessage> _generalLog;
@@ -33,9 +35,15 @@ namespace AudioStation.Core.Component
             {
                 case LogMessageType.General:
                     _generalLog.Insert(0, message);
+
+                    if (_generalLog.Count > MAX_LOG_SIZE)
+                        _generalLog.RemoveAt(_generalLog.Count - 1);
                     break;
                 case LogMessageType.Database:
                     _databaseLog.Insert(0, message);
+
+                    if (_databaseLog.Count > MAX_LOG_SIZE)
+                        _databaseLog.RemoveAt(_generalLog.Count - 1);
                     break;
                 default:
                     break;
@@ -48,16 +56,12 @@ namespace AudioStation.Core.Component
             var logMessage = new LogMessage(message, type);
 
             this.AddLog(logMessage);
-
-            _eventAggregator.GetEvent<LogEvent>().Publish(logMessage);
         }
         public void AddLog(string message, LogMessageType type, LogLevel severity, params object[] parameters)
         {
             var logMessage = new LogMessage(string.Format(message, parameters), type, severity);
 
             this.AddLog(logMessage);
-
-            _eventAggregator.GetEvent<LogEvent>().Publish(logMessage);
         }
 
         public IEnumerable<LogMessage> GetLatestLogs(LogMessageType type, LogLevel level, int count)

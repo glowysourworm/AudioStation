@@ -36,7 +36,7 @@ public partial class MainViewModel : ViewModelBase, IDisposable
     private readonly ILibraryLoader _libraryLoader;
     private readonly IOutputController _outputController;
 
-    const int MAX_LOG_COUNT = 1000;
+    const int MAX_LOG_COUNT = 300;
 
     bool _disposed = false;
 
@@ -58,6 +58,7 @@ public partial class MainViewModel : ViewModelBase, IDisposable
 
     ObservableCollection<LogMessageViewModel> _outputMessages;
     ObservableCollection<LibraryWorkItemViewModel> _libraryCoreWorkItems;
+    List<LibraryWorkItemViewModel> _libraryCoreWorkItemsUnfiltered;
 
     // Our Primary Library Collections
     SortedObservableCollection<RadioEntryViewModel> _radioEntries;
@@ -157,7 +158,7 @@ public partial class MainViewModel : ViewModelBase, IDisposable
     public LibraryWorkItemState SelectedLibraryWorkItemState
     {
         get { return _selectedLibraryWorkItemState; }
-        set { this.RaiseAndSetIfChanged(ref _selectedLibraryWorkItemState, value); }
+        set { this.RaiseAndSetIfChanged(ref _selectedLibraryWorkItemState, value); SetLibraryCoreWorkItemsFilter(); }
     }
     public INowPlayingViewModel NowPlayingViewModel
     {
@@ -212,6 +213,11 @@ public partial class MainViewModel : ViewModelBase, IDisposable
         this.Titles = new SortedObservableCollection<TitleViewModel>(new PropertyComparer<string, TitleViewModel>(x => x.Title));
         this.NowPlayingViewModel = null;
 
+        // Filtering of the library loader work items
+        _selectedLibraryWorkItemState = LibraryWorkItemState.Pending;
+        _libraryCoreWorkItemsUnfiltered = new List<LibraryWorkItemViewModel>();
+
+        this.LibraryLoaderState = libraryLoader.GetState();
         this.DatabaseLogLevel = LogLevel.None;
         this.GeneralLogLevel = LogLevel.None;
         this.SelectedLogType = LogMessageType.General;
@@ -264,52 +270,77 @@ public partial class MainViewModel : ViewModelBase, IDisposable
     private void OnWorkItemsRemoved(LibraryLoaderWorkItem[] workItems)
     {
         if (Application.Current.Dispatcher.Thread.ManagedThreadId != Thread.CurrentThread.ManagedThreadId)
-            Application.Current.Dispatcher.Invoke(OnWorkItemsRemoved);
+            Application.Current.Dispatcher.Invoke(OnWorkItemsRemoved, DispatcherPriority.ApplicationIdle, workItems);
         else
         {
             foreach (var workItem in workItems)
             {
-                this.LibraryCoreWorkItems.Remove(item => item.FileName == workItem.FileName);
+                var removedItems = _libraryCoreWorkItemsUnfiltered.Remove(item => item.FileName == workItem.FileName);
+
+                foreach (var item in removedItems)
+                {
+                    if (this.LibraryCoreWorkItems.Contains(item))
+                        this.LibraryCoreWorkItems.Remove(item);
+                }
             }
         }
     }
     private void OnWorkItemsAdded(LibraryLoaderWorkItem[] workItems)
     {
         if (Application.Current.Dispatcher.Thread.ManagedThreadId != Thread.CurrentThread.ManagedThreadId)
-            Application.Current.Dispatcher.Invoke(OnWorkItemsAdded);
+            Application.Current.Dispatcher.Invoke(OnWorkItemsAdded, DispatcherPriority.ApplicationIdle, workItems);
         else
         {
             foreach (var workItem in workItems)
             {
-                this.LibraryCoreWorkItems.Add(new LibraryWorkItemViewModel()
+                var item = new LibraryWorkItemViewModel()
                 {
-                    FileName = workItem.FileName,                    
+                    FileName = workItem.FileName,
                     LoadType = workItem.LoadType,
                     ErrorMessage = workItem.ErrorMessage,
                     LoadState = workItem.LoadState
-                });
+                };
+
+                _libraryCoreWorkItemsUnfiltered.Add(item);
+
+                if (item.LoadState == this.SelectedLibraryWorkItemState)
+                    this.LibraryCoreWorkItems.Add(item);
             }
         }
     }
     private void OnWorkItemCompleted(LibraryLoaderWorkItem workItem)
     {
         if (Application.Current.Dispatcher.Thread.ManagedThreadId != Thread.CurrentThread.ManagedThreadId)
-            Application.Current.Dispatcher.Invoke(OnWorkItemCompleted);
+            Application.Current.Dispatcher.Invoke(OnWorkItemCompleted, DispatcherPriority.ApplicationIdle, workItem);
         else
         {
-            var item = this.LibraryCoreWorkItems.FirstOrDefault(x => x.FileName == workItem.FileName);
+            var item = _libraryCoreWorkItemsUnfiltered.FirstOrDefault(x => x.FileName == workItem.FileName);
 
             if (item != null)
+            {
                 item.LoadState = workItem.LoadState;
+
+                if (item.LoadState == this.SelectedLibraryWorkItemState &&
+                   !this.LibraryCoreWorkItems.Contains(item))
+                    this.LibraryCoreWorkItems.Add(item);
+            }
 
             else
                 _outputController.AddLog("Cannot find work item in local cache:  {0}", LogMessageType.General, LogLevel.Error, workItem.FileName);
         }
     }
-    private void OnLibraryProcessingChanged(PlayStopPause sender)
+    private void OnLibraryProcessingChanged(PlayStopPause oldState, PlayStopPause newState)
     {
-        // Two-way:  This sets from the component
-        this.LibraryLoaderState = sender;
+        if (Application.Current.Dispatcher.Thread.ManagedThreadId != Thread.CurrentThread.ManagedThreadId)
+        {
+            Application.Current.Dispatcher.BeginInvoke(OnLibraryProcessingChanged, DispatcherPriority.ApplicationIdle, oldState, newState);
+            return;
+        }
+
+        // Just update our field. The setter will call the code to modify the loader state OnLibraryLoaderStateRequest
+        _libraryLoaderState = newState;
+
+        OnPropertyChanged("LibraryLoaderState");
     }
     private void OnLibraryProcessingComplete()
     {
@@ -318,7 +349,7 @@ public partial class MainViewModel : ViewModelBase, IDisposable
     private void OnRadioEntryLoaded(RadioEntry radioEntry)
     {
         if (Application.Current.Dispatcher.Thread.ManagedThreadId != Thread.CurrentThread.ManagedThreadId)
-            Application.Current.Dispatcher.Invoke(OnWorkItemCompleted);
+            Application.Current.Dispatcher.Invoke(OnWorkItemCompleted, DispatcherPriority.ApplicationIdle, radioEntry);
         else
         {
             if (!this.RadioStations.Any(item => item.Name == radioEntry.Name))
@@ -350,7 +381,7 @@ public partial class MainViewModel : ViewModelBase, IDisposable
     private void OnLibraryEntryLoaded(LibraryEntry entry)
     {
         if (Application.Current.Dispatcher.Thread.ManagedThreadId != Thread.CurrentThread.ManagedThreadId)
-            Application.Current.Dispatcher.Invoke(OnLibraryEntryLoaded);
+            Application.Current.Dispatcher.Invoke(OnLibraryEntryLoaded, DispatcherPriority.ApplicationIdle, entry);
         else
         {
             if (!this.LibraryEntries.Any(item => item.FileName == entry.FileName))
@@ -410,6 +441,22 @@ public partial class MainViewModel : ViewModelBase, IDisposable
         }
     }
     
+    private void SetLibraryCoreWorkItemsFilter()
+    {
+        if (Application.Current.Dispatcher.Thread.ManagedThreadId != Thread.CurrentThread.ManagedThreadId)
+            Application.Current.Dispatcher.Invoke(SetLibraryCoreWorkItemsFilter, DispatcherPriority.ApplicationIdle);
+        else
+        {
+            this.LibraryCoreWorkItems.Clear();
+
+            foreach (var item in _libraryCoreWorkItemsUnfiltered)
+            {
+                if (item.LoadState == this.SelectedLibraryWorkItemState)
+                    this.LibraryCoreWorkItems.Add(item);
+            }
+        }
+    }
+
     private void OnLibraryLoaderStateRequest()
     {
         switch (this.LibraryLoaderState)
@@ -441,7 +488,7 @@ public partial class MainViewModel : ViewModelBase, IDisposable
             {
                 OnLogImpl(message);
 
-            }, DispatcherPriority.Background);
+            }, DispatcherPriority.ApplicationIdle);
         }
         else
             OnLogImpl(message);
@@ -451,20 +498,25 @@ public partial class MainViewModel : ViewModelBase, IDisposable
         if (Thread.CurrentThread.ManagedThreadId != Application.Current.Dispatcher.Thread.ManagedThreadId)
             throw new Exception("Trying to access MainViewModel on non-dispatcher thread");
 
-        this.OutputMessages.Insert(0, new LogMessageViewModel()
-        {
-            Message = message.Message,
-            Type = message.Type,
-            Level = message.Level
-        });
+        var logLevel = this.SelectedLogType == LogMessageType.General ? this.GeneralLogLevel : this.DatabaseLogLevel;
 
-        if (this.OutputMessages.Count > MAX_LOG_COUNT)
+        if (message.Type == this.SelectedLogType && message.Level >= logLevel)
         {
-            this.OutputMessages.RemoveAt(this.OutputMessages.Count - 1);
+            this.OutputMessages.Insert(0, new LogMessageViewModel()
+            {
+                Message = message.Message,
+                Type = message.Type,
+                Level = message.Level
+            });
+
+            if (this.OutputMessages.Count > MAX_LOG_COUNT)
+            {
+                this.OutputMessages.RemoveAt(this.OutputMessages.Count - 1);
+            }
+
+            // Status Message (for now, last log message)
+            this.StatusMessage = message.Message;
         }
-
-        // Status Message (for now, last log message)
-        this.StatusMessage = message.Message;
     }
     private void ResetOutputMessages()
     {

@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging;
 
 namespace AudioStation.Core.Database
 {
-    public class AudioStationDbContext : DbContext
+    public class AudioStationDbContext : DbContext, IDisposable
     {
         private readonly IOutputController _outputController;
         private readonly string _connectionString;
@@ -21,6 +21,9 @@ namespace AudioStation.Core.Database
         public DbSet<Mp3FileReferenceAlbum> Mp3FileReferenceAlbums { get; set; }
         public DbSet<Mp3FileReferenceArtist> Mp3FileReferenceArtists { get; set; }
         public DbSet<Mp3FileReferenceGenre> Mp3FileReferenceGenres { get; set; }
+        public DbSet<Mp3FileReferenceArtistMap> Mp3FileReferenceArtistMaps { get; set; }
+        public DbSet<Mp3FileReferenceGenreMap> Mp3FileReferenceGenreMaps { get; set; }
+        public DbSet<RadioBrowserStation> RadioBrowserStations { get; set; }
 
         public AudioStationDbContext(string connectionString, IOutputController outputController)
 
@@ -46,7 +49,10 @@ namespace AudioStation.Core.Database
         /// </summary>
         private bool FilterLogging(EventId eventId, LogLevel level)
         {
-            return true;
+            if (level >= LogLevel.Information)
+                return true;
+
+            return false;
         }
 
         /// <summary>
@@ -60,6 +66,11 @@ namespace AudioStation.Core.Database
                  Level = eventData.LogLevel,
                  Type = LogMessageType.Database
             });
+        }
+
+        public override void Dispose()
+        {
+            base.Dispose();
         }
     }
 }

@@ -1,8 +1,19 @@
 ﻿<UserControl x:Class="AudioStation.Views.LibraryLoaderView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:sys="clr-namespace:System;assembly=System.Runtime"
              xmlns:fa5="http://schemas.fontawesome.com/icons/"
              xmlns:component="clr-namespace:AudioStation.Core.Component;assembly=AudioStation.Core">
+
+    <!--UserControl.Resources>
+        <CollectionViewSource x:Key="LoaderViewSource" 
+                              x:Name="LoaderViewSource"
+                              Source="{Binding LibraryCoreWorkItems}" 
+                              IsLiveFilteringRequested="True"
+                              Filter="CollectionViewSource_Filter">
+        </CollectionViewSource>
+    </UserControl.Resources-->
+    
     <Grid>
 
         <Grid.RowDefinitions>
@@ -20,28 +31,31 @@
                 HorizontalAlignment="Right">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
 
-                <TextBlock Text="Log Output" 
-                                               Style="{StaticResource LargeInputLabelTextBlock}" 
-                                               VerticalAlignment="Center" 
-                                               Margin="5" />
+                <TextBlock Text="Library Loader Controls" 
+                            Style="{StaticResource LargeInputLabelTextBlock}" 
+                            VerticalAlignment="Center" 
+                            Margin="5" />
 
                 <StackPanel Orientation="Horizontal" Margin="5 0">
-                    <RadioButton Style="{StaticResource ControlPanelRadioButtonLeft}"
-                                                        GroupName="LibraryLoaderState"
-                                                        ToolTip="Pause Library Loader:  Preserves pending work items"
-                                                        IsChecked="{Binding LibraryLoaderUserRun, Converter={StaticResource ParameterEqualityBoolConverter}}">
+                    <RadioButton x:Name="PauseRB"
+                                 Click="PauseRB_Click"
+                                 Style="{StaticResource ControlPanelRadioButtonLeft}"
+                                 GroupName="LibraryLoaderState"
+                                 ToolTip="Pause Library Loader:  Preserves pending work items">
                         <fa5:SvgAwesome Icon="Solid_Pause" Style="{StaticResource FontAwesomeIconControlPanelButton}" />
                     </RadioButton>
-                    <RadioButton Style="{StaticResource ControlPanelRadioButtonMiddle}"
-                                                        GroupName="LibraryLoaderState"
-                                                        ToolTip="Stop Library Loader:  Also, cancels current library work items"
-                                                        IsChecked="{Binding LibraryLoaderUserRun, Converter={StaticResource ParameterEqualityBoolConverter}}">
+                    <RadioButton x:Name="StopRB"
+                                 Click="StopRB_Click"
+                                 Style="{StaticResource ControlPanelRadioButtonMiddle}"
+                                 GroupName="LibraryLoaderState"
+                                 ToolTip="Stop Library Loader:  Also, cancels current library work items">
                         <fa5:SvgAwesome Icon="Solid_Stop" Style="{StaticResource FontAwesomeIconControlPanelButton}" />
-                    </RadioButton>                    
-                    <RadioButton Style="{StaticResource ControlPanelRadioButtonRight}"
-                                                        GroupName="LibraryLoaderState"
-                                                        ToolTip="Start / Resume Library Loader:  Resumes or startes execution of library work items"
-                                                        IsChecked="{Binding LibraryLoaderUserRun, Converter={StaticResource ParameterEqualityBoolConverter}}">
+                    </RadioButton>
+                    <RadioButton x:Name="PlayRB"
+                                 Click="PlayRB_Click"
+                                 Style="{StaticResource ControlPanelRadioButtonRight}"
+                                 GroupName="LibraryLoaderState"
+                                 ToolTip="Start / Resume Library Loader:  Resumes or startes execution of library work items">
                         <fa5:SvgAwesome Icon="Solid_Play" Style="{StaticResource FontAwesomeIconControlPanelButton}" />
                     </RadioButton>
                 </StackPanel>
@@ -63,7 +77,7 @@
 
                 <Button Style="{StaticResource UserControlButton}" Margin="5 0" VerticalAlignment="Center">
                     <StackPanel Orientation="Horizontal" Margin="5">
-                        <TextBlock Text="Clear" Style="{StaticResource LabelTextBlock}" Margin="5 0" />
+                        <TextBlock Text="Clear Completed" Style="{StaticResource LabelTextBlock}" Margin="5 0" />
                         <fa5:SvgAwesome Icon="Solid_Recycle" Style="{StaticResource FontAwesomeIconDefault}" />
                     </StackPanel>
                 </Button>
@@ -73,12 +87,12 @@
 
         <ListBox x:Name="LibraryQueueLB" 
                  Grid.Row="1"
-                HorizontalContentAlignment="Stretch"
-                VirtualizingPanel.CacheLength="3"
-                VirtualizingPanel.IsVirtualizing="True"
-                VirtualizingPanel.VirtualizationMode="Recycling"
-                ItemTemplateSelector="{StaticResource LibraryWorkItemTemplateSelector}"
-                ItemsSource="{Binding LibraryCoreWorkItems}">
+                 HorizontalContentAlignment="Stretch"
+                 VirtualizingPanel.CacheLength="3"
+                 VirtualizingPanel.IsVirtualizing="True"
+                 VirtualizingPanel.VirtualizationMode="Recycling"
+                 ItemTemplateSelector="{StaticResource LibraryWorkItemTemplateSelector}"
+                 ItemsSource="{Binding LibraryCoreWorkItems}">
             <ListBox.ItemsPanel>
                 <ItemsPanelTemplate>
                     <VirtualizingStackPanel IsItemsHost="True" />

@@ -11,9 +11,12 @@ namespace AudioStation.Core.Database
     public class M3UInfoWarning
     {
         public int Id { get; set; }
+
+        [ForeignKey("M3UInfo")]
         public int M3UInfoId { get; set; }
         public string Warning { get; set; }
 
+        // Relationship properties
         public M3UInfo? M3UInfo { get; set; }
 
         public M3UInfoWarning() { }

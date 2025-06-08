@@ -1,5 +1,7 @@
 ﻿using AudioStation.Core.Model;
 
+using m3uParser.Model;
+
 using SimpleWpf.Extensions.Event;
 
 namespace AudioStation.Core.Component.Interface
@@ -14,7 +16,7 @@ namespace AudioStation.Core.Component.Interface
         public event SimpleEventHandler<LibraryLoaderWorkItem> WorkItemCompleted;
         public event SimpleEventHandler<LibraryEntry> LibraryEntryLoaded;
         public event SimpleEventHandler<RadioEntry> RadioEntryLoaded;
-        public event SimpleEventHandler<PlayStopPause> ProcessingChanged;
+        public event SimpleEventHandler<PlayStopPause, PlayStopPause> ProcessingChanged;
         public event SimpleEventHandler ProcessingComplete;
 
         PlayStopPause GetState();
@@ -55,11 +57,11 @@ namespace AudioStation.Core.Component.Interface
         /// <summary>
         /// Loads a LibraryEntry from the provided mp3 file.
         /// </summary>
-        LibraryEntry LoadLibraryEntry(string fileName);
+        LibraryEntry LoadLibraryEntry(string fileName, out TagLib.File fileRef);
 
         /// <summary>
         /// Loads a RadioEntry from an m3u file.
         /// </summary>
-        RadioEntry LoadRadioEntry(string fileName);
+        RadioEntry LoadRadioEntry(string fileName, out Extm3u m3uData);
     }
 }

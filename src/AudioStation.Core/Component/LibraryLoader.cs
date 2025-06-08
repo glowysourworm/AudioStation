@@ -1,11 +1,14 @@
-﻿using System.IO;
+﻿using System.Diagnostics;
+using System.IO;
 using System.Windows;
+using System.Windows.Threading;
 
 using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Model;
 using AudioStation.Model;
 
 using m3uParser;
+using m3uParser.Model;
 
 using Microsoft.Extensions.Logging;
 
@@ -21,6 +24,7 @@ namespace AudioStation.Core.Component
     public class LibraryLoader : ILibraryLoader
     {
         private readonly IOutputController _outputController;
+        private readonly IModelController _modelController;
 
         const string UNKNOWN = "Unknown";
         const int WORKER_SLEEP_PERIOD = 500;                   // 1 second between queue checks
@@ -31,24 +35,28 @@ namespace AudioStation.Core.Component
         public event SimpleEventHandler<LibraryLoaderWorkItem[]> WorkItemsAdded;
         public event SimpleEventHandler<LibraryLoaderWorkItem[]> WorkItemsRemoved;
         public event SimpleEventHandler ProcessingComplete;
-        public event SimpleEventHandler<PlayStopPause> ProcessingChanged;
+        public event SimpleEventHandler<PlayStopPause, PlayStopPause> ProcessingChanged;
 
         private List<LibraryLoaderWorkItem> _workQueue;
         private Thread _workThread;
         private object _workThreadLock;
         private bool _workerRun;
-        private bool _userRun;              // This is the flag to allow user to stop the queue
+        private PlayStopPause _userRun;              // This is the flag to allow user to stop the queue
+        private PlayStopPause _userRunLast;          
 
         [IocImportingConstructor]
-        public LibraryLoader(IOutputController outputController)
+        public LibraryLoader(IModelController modelController, IOutputController outputController)
         {
+            _modelController = modelController;
             _outputController = outputController;
 
             _workQueue = new List<LibraryLoaderWorkItem>();
             _workThread = new Thread(WorkFunction);
+            _workThread.Priority = ThreadPriority.Lowest;
             _workThreadLock = new object();
             _workerRun = true;
-            _userRun = false;               // Queue must be started by user code
+            _userRun = PlayStopPause.Stop;               // Queue must be started by user code
+            _userRunLast = PlayStopPause.Stop;
             _workThread.Start();
         }
 
@@ -96,27 +104,28 @@ namespace AudioStation.Core.Component
                 this.WorkItemsAdded(workItems);
         }
 
-        public LibraryEntry LoadLibraryEntry(string file)
+        public LibraryEntry LoadLibraryEntry(string file, out TagLib.File fileRef)
         {
             if (string.IsNullOrEmpty(file))
                 throw new ArgumentException("Invalid media file name");
 
+            fileRef = null;
+
             try
             {
-
-                var fileRef = TagLib.File.Create(file);
+                fileRef = TagLib.File.Create(file);
 
                 var entry = new LibraryEntry()
                 {
                     FileName = file,
-                    PrimaryArtist = fileRef.Tag.FirstAlbumArtist,
-                    PrimaryGenre = fileRef.Tag.FirstGenre,
+                    PrimaryArtist = Format(fileRef.Tag.FirstAlbumArtist),
+                    PrimaryGenre = Format(fileRef.Tag.FirstGenre),
 
                     //AlbumArt = new SortedObservableCollection<SerializableBitmap>(fileRef.Tag.Pictures.Select(x => SerializableBitmap.ReadIPicture(x))),
                     Album = Format(fileRef.Tag.Album),
                     Disc = fileRef.Tag.Disc,
                     FileError = fileRef.PossiblyCorrupt,
-                    FileErrorMessage = fileRef.CorruptionReasons.Join(",", x => x),
+                    FileErrorMessage = fileRef.CorruptionReasons?.Join(",", x => x) ?? string.Empty,
                     Title = Format(fileRef.Tag.Title),
                     Track = fileRef.Tag.Track
                 };
@@ -140,18 +149,20 @@ namespace AudioStation.Core.Component
             }
         }
 
-        public RadioEntry LoadRadioEntry(string fileName)
+        public RadioEntry LoadRadioEntry(string fileName, out Extm3u m3uData)
         {
+            m3uData = null;
+
             try
             {
                 // Adding a nested try / catch for these files
                 var fileContents = File.ReadAllText(fileName);
-                var m3uFile = M3U.Parse(fileContents);
+                m3uData = M3U.Parse(fileContents);
 
                 var entry = new RadioEntry()
                 {
-                    Name = m3uFile.Attributes.TvgName,
-                    Streams = m3uFile.Medias.Select(media => new RadioEntryStreamInfo()
+                    Name = m3uData.Attributes.TvgName,                    
+                    Streams = m3uData.Medias.Select(media => new RadioEntryStreamInfo()
                     {
                         Name = media.Title.RawTitle,
                         Homepage = media.Attributes.UrlTvg,
@@ -170,7 +181,7 @@ namespace AudioStation.Core.Component
                 {
                     FileName = fileName,
                     FileError = true,
-                    FileErrorMessage = ex.Message,
+                    FileErrorMessage= ex.Message,
                 };
 
                 OnLog(string.Format("Radio M3U file load error:  {0}", fileName), true);
@@ -181,7 +192,7 @@ namespace AudioStation.Core.Component
 
         private string Format(string tagField)
         {
-            return string.IsNullOrWhiteSpace(tagField) ? UNKNOWN : tagField;
+            return string.IsNullOrWhiteSpace(tagField) ? string.Empty: tagField.Trim();
         }
 
         private void OnLog(string message, bool error)
@@ -189,7 +200,7 @@ namespace AudioStation.Core.Component
             // Shared between Dispatcher / our Worker Thread
             if (Application.Current.Dispatcher.Thread.ManagedThreadId != _workThread.ManagedThreadId)
             {
-                Application.Current.Dispatcher.BeginInvoke(OnLog);
+                Application.Current.Dispatcher.BeginInvoke(OnLog, DispatcherPriority.ApplicationIdle, message, error);
                 return;
             }
 
@@ -200,23 +211,16 @@ namespace AudioStation.Core.Component
         {
             lock(_workThreadLock)
             {
-                if (_userRun && _workQueue.Count > 0)
-                    return PlayStopPause.Play;
-
-                else if (_workQueue.Count > 0)
-                    return PlayStopPause.Pause;
-
-                else
-                    return PlayStopPause.Stop;
+                return _userRun;
             }
-            
         }
 
         public void Stop()
         {
             lock(_workThreadLock)
             {
-                _userRun = false;
+                _userRunLast = _userRun;
+                _userRun = PlayStopPause.Stop;
             }
         }
 
@@ -224,7 +228,8 @@ namespace AudioStation.Core.Component
         {
             lock (_workThreadLock)
             {
-                _userRun = true;
+                _userRunLast = _userRun;
+                _userRun = PlayStopPause.Play;
             }
         }
 
@@ -232,7 +237,8 @@ namespace AudioStation.Core.Component
         {
             lock (_workThreadLock)
             {
-                _userRun = false;
+                _userRunLast = _userRun;
+                _userRun = PlayStopPause.Stop;
 
                 var workItems = _workQueue;
 
@@ -250,90 +256,120 @@ namespace AudioStation.Core.Component
             while (_workerRun)
             {
                 var workToProcess = false;
-                var previousState = GetState();      // ENTERS LOCK
 
                 lock (_workThreadLock)
                 {
-                    // Check for queue work (user has control over this portion from the front end)
-                    if (_workQueue.Count > 0 && _userRun)
-                    {
-                        var workItem = _workQueue.FirstOrDefault(item => item.LoadState == LibraryWorkItemState.Pending);
+                    // Query for first work item
+                    var workItem = _workQueue.FirstOrDefault(item => item.LoadState == LibraryWorkItemState.Pending);
 
+                    // Check for queue work (user has control over this portion from the front end)
+                    if (workItem != null &&
+                        !workItem.Equals(default(LibraryLoaderWorkItem)) &&
+                        _workQueue.Count > 0 &&
+                        _userRun == PlayStopPause.Play)
+                    {
                         // This state will not be needed unless we have processing that allows for transmission of 
                         // this to the main thread. Also, the processing will be done right here in a simple pass.
                         //
                         workItem.LoadState = LibraryWorkItemState.Processing;
 
-                        // DONE!
-                        if (workItem.Equals(default(LibraryLoaderWorkItem)))
+                        // Set this flag for sleep loop
+                        workToProcess = true;
+
+                        switch (workItem.LoadType)
                         {
-                            workToProcess = true;
-
-                            switch (workItem.LoadType)
+                            case LibraryLoadType.Mp3File:
                             {
-                                case LibraryLoadType.Mp3File:
+                                TagLib.File tagRef = null;
+
+                                var entry = LoadLibraryEntry(workItem.FileName, out tagRef);
+
+                                // Set Work Item
+                                if (entry.FileError)
                                 {
-                                    var entry = LoadLibraryEntry(workItem.FileName);
-
-                                    // Set Work Item
-                                    if (entry.FileError)
-                                    {
-                                        workItem.LoadState = LibraryWorkItemState.CompleteError;
-                                        workItem.ErrorMessage = entry.FileErrorMessage;
-                                    }
-                                    else
-                                    {
-                                        workItem.LoadState = LibraryWorkItemState.CompleteSuccessful;
-                                    }
-
-                                    if (this.LibraryEntryLoaded != null)
-                                        this.LibraryEntryLoaded(entry);
+                                    workItem.LoadState = LibraryWorkItemState.CompleteError;
+                                    workItem.ErrorMessage = entry.FileErrorMessage;
                                 }
-                                break;
-                                case LibraryLoadType.M3UFile:
+                                else
                                 {
-                                    var entry = LoadRadioEntry(workItem.FileName);
+                                    // Add to database
+                                    _modelController.AddUpdateLibraryEntry(workItem.FileName, tagRef);
 
-                                    // Set Work Item
-                                    if (entry.FileError)
-                                    {
-                                        workItem.LoadState = LibraryWorkItemState.CompleteError;
-                                        workItem.ErrorMessage = entry.FileErrorMessage;
-                                    }
-                                    else
-                                    {
-                                        workItem.LoadState = LibraryWorkItemState.CompleteSuccessful;
-                                    }
-
-                                    if (this.RadioEntryLoaded != null)
-                                        this.RadioEntryLoaded(entry);
+                                    workItem.LoadState = LibraryWorkItemState.CompleteSuccessful;
                                 }
-                                break;
-                                default:
-                                    throw new Exception("Worker load type not handled:  LibraryLoader.cs");
+
+                                if (this.LibraryEntryLoaded != null)
+                                    this.LibraryEntryLoaded(entry);
+                            }
+                            break;
+                            case LibraryLoadType.M3UFile:
+                            {
+                                Extm3u m3uFile = null;
+
+                                var entry = LoadRadioEntry(workItem.FileName, out m3uFile);
+
+                                // Set Work Item
+                                if (entry == null)
+                                {
+                                    workItem.LoadState = LibraryWorkItemState.CompleteError;
+                                    workItem.ErrorMessage = "Error loading .m3u file:  " + workItem.FileName;
+                                }
+                                else
+                                {
+                                    // Add to database
+                                    _modelController.AddRadioEntry(m3uFile);
+
+                                    workItem.LoadState = LibraryWorkItemState.CompleteSuccessful;
+                                }
+
+                                if (this.RadioEntryLoaded != null)
+                                    this.RadioEntryLoaded(entry);
+                            }
+                            break;
+                            default:
+                                throw new Exception("Worker load type not handled:  LibraryLoader.cs");
+                        }
+
+                        // Notify listeners (work item completed)
+                        if (this.WorkItemCompleted != null)
+                            this.WorkItemCompleted(workItem);
+                    }
+
+                    // Auto-switch to turn off "Play" when processing is finished
+                    switch (_userRun)
+                    {
+                        case PlayStopPause.Play:
+                        {
+                            // No work item -> Stop
+                            if (!workToProcess)
+                            {
+                                _userRunLast = _userRun;
+                                _userRun = PlayStopPause.Stop;
                             }
                         }
+                        break;
+                        case PlayStopPause.Pause:
+                        case PlayStopPause.Stop:
+                        break;
+                        default:
+                            throw new Exception("Unhandled loader state:  LibraryLoader.cs");
                     }
 
-                    // Go ahead and report that we're done with the queue (needs event)
-                    else if (_workQueue.Count == 0)
+                    if (_userRun != _userRunLast && this.ProcessingChanged != null)
                     {
-                        _userRun = false;
+                        this.ProcessingChanged(_userRunLast, _userRun);
+                        _userRunLast = _userRun;
                     }
-                }
-
-                var currentState = GetState();       // ENTERS LOCK
-
-                if (previousState != currentState)
-                {
-                    if (this.ProcessingChanged != null)
-                        this.ProcessingChanged(currentState);
                 }
 
                 if (!workToProcess)
                 {
                     Thread.Sleep(WORKER_SLEEP_PERIOD);
                 }
+
+                // Lets allow the main thread to catch up so we can see what's going on
+                else
+                    Thread.Sleep(10);
             }
         }
 

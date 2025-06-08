@@ -1,5 +1,7 @@
 ﻿using AudioStation.Core.Model;
 
+using m3uParser.Model;
+
 namespace AudioStation.Core.Component.Interface
 {
     public interface IModelController : IDisposable
@@ -20,6 +22,16 @@ namespace AudioStation.Core.Component.Interface
         /// </summary>
         Radio Radio { get; }
 
+        /// <summary>
+        /// Adds LibraryEntry to database. Does NOT update any existing, similar, entry. The tag data
+        /// is also used to initialize the LibraryEntry, adding supporting data to the database.
+        /// </summary>
+        void AddUpdateLibraryEntry(string fileName, TagLib.File tagRef);
+
+        /// <summary>
+        /// Adds RadioEntry to database. Does NOT update any existing, similar, entry.
+        /// </summary>
+        void AddRadioEntry(Extm3u entry);
 
         /// <summary>
         /// Loads tag data from file. This data does NOT get added to the library.

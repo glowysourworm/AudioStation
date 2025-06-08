@@ -16,7 +16,7 @@ namespace AudioStation.Core.Component
         CompleteSuccessful = 2,
         CompleteError = 3
     }
-    public struct LibraryLoaderWorkItem
+    public class LibraryLoaderWorkItem
     {
         public string FileName { get; set; }
         public string ErrorMessage { get; set; }
