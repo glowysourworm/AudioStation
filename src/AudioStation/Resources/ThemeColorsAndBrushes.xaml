@@ -2,6 +2,17 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
     <SolidColorBrush x:Key="DefaultLabelBrush">#FFAAAAAA</SolidColorBrush>
+
+    <SolidColorBrush x:Key="LabelForeground">Gray</SolidColorBrush>
+    <SolidColorBrush x:Key="LabelForegroundDetail">#FFCCCCCC</SolidColorBrush>
+    <SolidColorBrush x:Key="LabelForegroundSuccess">Gray</SolidColorBrush>
+    <SolidColorBrush x:Key="LabelForegroundWarning">Gray</SolidColorBrush>
+    <SolidColorBrush x:Key="LabelForegroundError">Gray</SolidColorBrush>
+
+    <SolidColorBrush x:Key="LabelBackgroundSuccess">#5F88FF00</SolidColorBrush>
+    <SolidColorBrush x:Key="LabelBackgroundWarning">#5FFFFF00</SolidColorBrush>
+    <SolidColorBrush x:Key="LabelBackgroundError">#5FFF0000</SolidColorBrush>
+    
     
     <SolidColorBrush x:Key="MainTabItemHoverSelectBackground">#FFAAAAAA</SolidColorBrush>
 

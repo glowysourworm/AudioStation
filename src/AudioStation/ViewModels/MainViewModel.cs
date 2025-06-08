@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Windows;
 using System.Windows.Threading;
 
@@ -205,7 +206,7 @@ public partial class MainViewModel : ViewModelBase, IDisposable
         this.Configuration = configurationManager.GetConfiguration();
         this.ShowOutputMessages = false;
         this.OutputMessages = new ObservableCollection<LogMessageViewModel>();
-        this.LibraryCoreWorkItems = new ObservableCollection<LibraryWorkItemViewModel>();
+        this.LibraryCoreWorkItems = new NotifyingObservableCollection<LibraryWorkItemViewModel>();
         this.RadioStations = new SortedObservableCollection<RadioEntryViewModel>(new PropertyComparer<string, RadioEntryViewModel>(x => x.Name));
         this.LibraryEntries = new SortedObservableCollection<LibraryEntryViewModel>(new PropertyComparer<string, LibraryEntryViewModel>(x => x.FileName));
         this.Albums = new SortedObservableCollection<AlbumViewModel>(new PropertyComparer<string, AlbumViewModel>(x => x.Album));
@@ -267,6 +268,22 @@ public partial class MainViewModel : ViewModelBase, IDisposable
     }
 
     #region ILibraryLoader Events (some of these events are from the worker thread)
+    private void OnLibraryLoaderWorkItemPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        // These items our our view model items
+        var item = sender as LibraryWorkItemViewModel;
+
+        if (item != null && e.PropertyName == "LoadState")
+        {
+            var contains = this.LibraryCoreWorkItems.Contains(item);
+
+            if (item.LoadState != this.SelectedLibraryWorkItemState && contains)
+                this.LibraryCoreWorkItems.Remove(item);
+
+            else if (item.LoadState == this.SelectedLibraryWorkItemState && !contains)
+                this.LibraryCoreWorkItems.Add(item);
+        }
+    }
     private void OnWorkItemsRemoved(LibraryLoaderWorkItem[] workItems)
     {
         if (Application.Current.Dispatcher.Thread.ManagedThreadId != Thread.CurrentThread.ManagedThreadId)
@@ -279,6 +296,8 @@ public partial class MainViewModel : ViewModelBase, IDisposable
 
                 foreach (var item in removedItems)
                 {
+                    item.PropertyChanged -= OnLibraryLoaderWorkItemPropertyChanged;
+
                     if (this.LibraryCoreWorkItems.Contains(item))
                         this.LibraryCoreWorkItems.Remove(item);
                 }
@@ -301,6 +320,8 @@ public partial class MainViewModel : ViewModelBase, IDisposable
                     LoadState = workItem.LoadState
                 };
 
+                item.PropertyChanged += OnLibraryLoaderWorkItemPropertyChanged;
+
                 _libraryCoreWorkItemsUnfiltered.Add(item);
 
                 if (item.LoadState == this.SelectedLibraryWorkItemState)
@@ -308,6 +329,7 @@ public partial class MainViewModel : ViewModelBase, IDisposable
             }
         }
     }
+
     private void OnWorkItemCompleted(LibraryLoaderWorkItem workItem)
     {
         if (Application.Current.Dispatcher.Thread.ManagedThreadId != Thread.CurrentThread.ManagedThreadId)
@@ -316,14 +338,9 @@ public partial class MainViewModel : ViewModelBase, IDisposable
         {
             var item = _libraryCoreWorkItemsUnfiltered.FirstOrDefault(x => x.FileName == workItem.FileName);
 
+            // -> Property Changed (sets the filtering)
             if (item != null)
-            {
                 item.LoadState = workItem.LoadState;
-
-                if (item.LoadState == this.SelectedLibraryWorkItemState &&
-                   !this.LibraryCoreWorkItems.Contains(item))
-                    this.LibraryCoreWorkItems.Add(item);
-            }
 
             else
                 _outputController.AddLog("Cannot find work item in local cache:  {0}", LogMessageType.General, LogLevel.Error, workItem.FileName);

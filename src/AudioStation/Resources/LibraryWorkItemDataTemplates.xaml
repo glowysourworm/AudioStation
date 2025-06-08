@@ -3,9 +3,40 @@
                     xmlns:viewModel="clr-namespace:AudioStation.ViewModels">
 
     <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="/Resources/ThemeColorsAndBrushes.xaml" />
         <ResourceDictionary Source="/Resources/TextBlockStyles.xaml" />
     </ResourceDictionary.MergedDictionaries>
-    
+
+    <Style x:Key="LibraryWorkItemContainerStyleNormal" TargetType="ListBoxItem">
+        <Setter Property="Background" Value="White" />
+        <Setter Property="Foreground" Value="{StaticResource LabelForeground}" />
+
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="{StaticResource HoverSelectBackgroundHover}" />
+            </Trigger>
+            <Trigger Property="IsSelected" Value="True">
+                <Setter Property="Background" Value="{StaticResource HoverSelectBackgroundSelect}" />
+            </Trigger>            
+        </Style.Triggers>
+    </Style>
+
+    <Style x:Key="LibraryWorkItemContainerStylePending" TargetType="ListBoxItem" BasedOn="{StaticResource LibraryWorkItemContainerStyleNormal}">
+        <Setter Property="Background" Value="White" />
+        <Setter Property="Foreground" Value="{StaticResource LabelForeground}" />
+        <Setter Property="FontStyle" Value="Italic" />
+    </Style>
+
+    <Style x:Key="LibraryWorkItemContainerStyleSuccess" TargetType="ListBoxItem" BasedOn="{StaticResource LibraryWorkItemContainerStyleNormal}">
+        <Setter Property="Background" Value="{StaticResource LabelBackgroundSuccess}" />
+        <Setter Property="Foreground" Value="{StaticResource LabelForeground}" />
+    </Style>
+
+    <Style x:Key="LibraryWorkItemContainerStyleError" TargetType="ListBoxItem" BasedOn="{StaticResource LibraryWorkItemContainerStyleNormal}">
+        <Setter Property="Background" Value="{StaticResource LabelBackgroundError}" />
+        <Setter Property="Foreground" Value="{StaticResource LabelForeground}" />
+    </Style>
+
     <DataTemplate x:Key="LibraryWorkItemDataTemplateNormal" DataType="{x:Type viewModel:LibraryWorkItemViewModel}">
         <Border Padding="3">
             <Grid>
@@ -14,7 +45,7 @@
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
                 <TextBlock Text="{Binding FileName}" Style="{StaticResource LabelTextBlock}" HorizontalAlignment="Left" />
-                <TextBlock Text="Complete" Grid.Column="1" Style="{StaticResource LabelTextBlock}" HorizontalAlignment="Right" />
+                <TextBlock Text="Processing..." Grid.Column="1" Style="{StaticResource LabelTextBlock}" HorizontalAlignment="Right" />
             </Grid>
         </Border>
     </DataTemplate>

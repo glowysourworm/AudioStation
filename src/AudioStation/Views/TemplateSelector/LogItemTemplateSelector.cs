@@ -18,18 +18,25 @@ namespace AudioStation.Views.TemplateSelector
             if (viewModel == null || presenter == null)
                 throw new NullReferenceException("Improper handling of LogItemTemplateSelector");
 
-            if (viewModel.Level <= LogLevel.Information)
-                return presenter.FindResource("LogDataTemplateInfo") as DataTemplate;
-
-            else if (viewModel.Level <= LogLevel.Warning)
-                return presenter.FindResource("LogDataTemplateWarning") as DataTemplate;
-
-            // ALL ERRORS
-            else if (viewModel.Level <= LogLevel.None)
-                return presenter.FindResource("LogDataTemplateError") as DataTemplate;
-
-            else
-                throw new Exception("Unknown Data Template (LogItemTemplateSelector)");
+            switch (viewModel.Level)
+            {
+                case LogLevel.Trace:
+                    return presenter.FindResource("LogDataTemplateTrace") as DataTemplate;
+                case LogLevel.Debug:
+                    return presenter.FindResource("LogDataTemplateDebug") as DataTemplate;
+                case LogLevel.Information:
+                    return presenter.FindResource("LogDataTemplateInfo") as DataTemplate;
+                case LogLevel.Warning:
+                    return presenter.FindResource("LogDataTemplateWarning") as DataTemplate;
+                case LogLevel.Error:
+                    return presenter.FindResource("LogDataTemplateError") as DataTemplate;
+                case LogLevel.Critical:
+                    return presenter.FindResource("LogDataTemplateCritical") as DataTemplate;
+                case LogLevel.None:
+                    return presenter.FindResource("LogDataTemplate") as DataTemplate;
+                default:
+                    throw new Exception("Unhandled log level:  LogItemTemplateSelector.cs");
+            }
         }
     }
 }

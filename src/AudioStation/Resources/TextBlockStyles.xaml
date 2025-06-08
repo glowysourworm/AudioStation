@@ -1,47 +1,48 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="/Resources/ThemeColorsAndBrushes.xaml" />
+    </ResourceDictionary.MergedDictionaries>
+    
     <Style TargetType="TextBlock" x:Key="LabelTextBlock">
-        <Setter Property="Foreground" Value="Gray" />
+        <Setter Property="Foreground" Value="{StaticResource LabelForeground}" />
         <Setter Property="FontSize" Value="14" />
     </Style>
         
     <Style TargetType="TextBlock" x:Key="LabelDetailTextBlock">
-        <Setter Property="Foreground" Value="LightGray" />
+        <Setter Property="Foreground" Value="{StaticResource LabelForegroundDetail}" />
         <Setter Property="FontSize" Value="12" />
     </Style>
 
     <Style TargetType="TextBlock" x:Key="LabelPendingTextBlock">
-        <Setter Property="Foreground" Value="LightGray" />
+        <Setter Property="Foreground" Value="{StaticResource LabelForegroundDetail}" />
         <Setter Property="FontStyle" Value="Italic" />
         <Setter Property="FontSize" Value="14" />
     </Style>
 
     <Style TargetType="TextBlock" x:Key="LabelErrorTextBlock">
-        <Setter Property="Foreground" Value="Gray" />
-        <Setter Property="Background" Value="#5FFF0000" />
+        <Setter Property="Foreground" Value="{StaticResource LabelForegroundError}" />
         <Setter Property="FontSize" Value="14" />
     </Style>
 
     <Style TargetType="TextBlock" x:Key="LabelWarningTextBlock">
-        <Setter Property="Foreground" Value="Gray" />
-        <Setter Property="Background" Value="#5FFFFF00" />
+        <Setter Property="Foreground" Value="{StaticResource LabelForegroundWarning}" />
         <Setter Property="FontSize" Value="14" />
     </Style>
 
     <Style TargetType="TextBlock" x:Key="LabelSuccessTextBlock">
-        <Setter Property="Foreground" Value="Gray" />
-        <Setter Property="Background" Value="#5F88FF00" />
+        <Setter Property="Foreground" Value="{StaticResource LabelForegroundSuccess}" />
         <Setter Property="FontSize" Value="14" />
     </Style>
 
     <Style TargetType="TextBlock" x:Key="PlayerControlTextBlock">
-        <Setter Property="Foreground" Value="Gray" />
+        <Setter Property="Foreground" Value="{StaticResource LabelForeground}" />
         <Setter Property="FontSize" Value="16" />
     </Style>
 
     <Style TargetType="TextBlock" x:Key="LargeInputLabelTextBlock">
-        <Setter Property="Foreground" Value="Gray" />
+        <Setter Property="Foreground" Value="{StaticResource LabelForeground}" />
         <Setter Property="FontSize" Value="16" />
         <Setter Property="Padding" Value="5" />
     </Style>

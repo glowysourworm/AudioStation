@@ -48,6 +48,10 @@ namespace AudioStation.Views
                     {
                         SetLoaderControlButtons();
                     }
+                    if (e.PropertyName == "SelectedLibraryWorkItemState")
+                    {
+                        //CollectionViewSource.GetDefaultView(viewModel.LibraryCoreWorkItems).Refresh();
+                    }
                 };
             }
         }

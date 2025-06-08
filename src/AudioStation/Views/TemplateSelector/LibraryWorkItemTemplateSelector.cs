@@ -19,6 +19,7 @@ namespace AudioStation.Views.TemplateSelector
             switch (viewModel.LoadState)
             {
                 case LibraryWorkItemState.Pending:
+                    return presenter.FindResource("LibraryWorkItemDataTemplatePending") as DataTemplate;
                 case LibraryWorkItemState.Processing:
                     return presenter.FindResource("LibraryWorkItemDataTemplateNormal") as DataTemplate;
                 case LibraryWorkItemState.CompleteSuccessful:

@@ -120,7 +120,8 @@
                              HorizontalContentAlignment="Stretch"
                              VirtualizingPanel.CacheLength="3"
                              VirtualizingPanel.IsVirtualizing="True"
-                             VirtualizingPanel.VirtualizationMode="Recycling"                             
+                             VirtualizingPanel.VirtualizationMode="Recycling"          
+                             ItemContainerStyleSelector="{StaticResource LogItemContainerStyleSelector}"
                              ItemTemplateSelector="{StaticResource LogItemTemplateSelector}"
                              ItemsSource="{Binding OutputMessages}">
                         <ListBox.ItemsPanel>

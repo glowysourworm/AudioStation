@@ -6,6 +6,68 @@
         <ResourceDictionary Source="/Resources/TextBlockStyles.xaml" />
     </ResourceDictionary.MergedDictionaries>
 
+    <Style x:Key="LogItemContainerStyle" TargetType="ListBoxItem">
+        <Setter Property="Background" Value="White" />
+        <Setter Property="Foreground" Value="{StaticResource LabelForeground}" />
+
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="{StaticResource HoverSelectBackgroundHover}" />
+            </Trigger>
+            <Trigger Property="IsSelected" Value="True">
+                <Setter Property="Background" Value="{StaticResource HoverSelectBackgroundSelect}" />
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <Style x:Key="LogItemContainerStyleTrace" TargetType="ListBoxItem" BasedOn="{StaticResource LogItemContainerStyle}">
+        <Setter Property="Background" Value="White" />
+        <Setter Property="Foreground" Value="{StaticResource LabelForeground}" />
+    </Style>
+
+    <Style x:Key="LogItemContainerStyleDebug" TargetType="ListBoxItem" BasedOn="{StaticResource LogItemContainerStyle}">
+        <Setter Property="Background" Value="White" />
+        <Setter Property="Foreground" Value="{StaticResource LabelForeground}" />
+    </Style>
+
+    <Style x:Key="LogItemContainerStyleInfo" TargetType="ListBoxItem" BasedOn="{StaticResource LogItemContainerStyle}">
+        <Setter Property="Background" Value="White" />
+        <Setter Property="Foreground" Value="{StaticResource LabelForeground}" />
+    </Style>
+
+    <Style x:Key="LogItemContainerStyleWarning" TargetType="ListBoxItem" BasedOn="{StaticResource LogItemContainerStyle}">
+        <Setter Property="Background" Value="{StaticResource LabelBackgroundWarning}" />
+        <Setter Property="Foreground" Value="{StaticResource LabelForegroundWarning}" />
+    </Style>
+
+    <Style x:Key="LogItemContainerStyleError" TargetType="ListBoxItem" BasedOn="{StaticResource LogItemContainerStyle}">
+        <Setter Property="Background" Value="{StaticResource LabelBackgroundError}" />
+        <Setter Property="Foreground" Value="{StaticResource LabelForegroundError}" />
+    </Style>
+
+    <Style x:Key="LogItemContainerStyleCritical" TargetType="ListBoxItem" BasedOn="{StaticResource LogItemContainerStyle}">
+        <Setter Property="Background" Value="{StaticResource LabelBackgroundError}" />
+        <Setter Property="Foreground" Value="{StaticResource LabelForegroundError}" />
+    </Style>
+
+    <DataTemplate x:Key="LogDataTemplate" DataType="{x:Type viewModel:LogMessageViewModel}">
+        <Border Padding="3">
+            <TextBlock Text="{Binding Message}" Style="{StaticResource LabelTextBlock}" />
+        </Border>
+    </DataTemplate>    
+    
+    <DataTemplate x:Key="LogDataTemplateTrace" DataType="{x:Type viewModel:LogMessageViewModel}">
+        <Border Padding="3">
+            <TextBlock Text="{Binding Message}" Style="{StaticResource LabelTextBlock}" />
+        </Border>
+    </DataTemplate>
+
+    <DataTemplate x:Key="LogDataTemplateDebug" DataType="{x:Type viewModel:LogMessageViewModel}">
+        <Border Padding="3">
+            <TextBlock Text="{Binding Message}" Style="{StaticResource LabelTextBlock}" />
+        </Border>
+    </DataTemplate>
+
     <DataTemplate x:Key="LogDataTemplateInfo" DataType="{x:Type viewModel:LogMessageViewModel}">
         <Border Padding="3">
             <TextBlock Text="{Binding Message}" Style="{StaticResource LabelTextBlock}" />
@@ -19,6 +81,12 @@
     </DataTemplate>
 
     <DataTemplate x:Key="LogDataTemplateError" DataType="{x:Type viewModel:LogMessageViewModel}">
+        <Border Padding="3">
+            <TextBlock Text="{Binding Message}" Style="{StaticResource LabelErrorTextBlock}" />
+        </Border>
+    </DataTemplate>
+
+    <DataTemplate x:Key="LogDataTemplateCritical" DataType="{x:Type viewModel:LogMessageViewModel}">
         <Border Padding="3">
             <TextBlock Text="{Binding Message}" Style="{StaticResource LabelErrorTextBlock}" />
         </Border>

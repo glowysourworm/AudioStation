@@ -5,15 +5,6 @@
              xmlns:fa5="http://schemas.fontawesome.com/icons/"
              xmlns:component="clr-namespace:AudioStation.Core.Component;assembly=AudioStation.Core">
 
-    <!--UserControl.Resources>
-        <CollectionViewSource x:Key="LoaderViewSource" 
-                              x:Name="LoaderViewSource"
-                              Source="{Binding LibraryCoreWorkItems}" 
-                              IsLiveFilteringRequested="True"
-                              Filter="CollectionViewSource_Filter">
-        </CollectionViewSource>
-    </UserControl.Resources-->
-    
     <Grid>
 
         <Grid.RowDefinitions>
@@ -91,6 +82,7 @@
                  VirtualizingPanel.CacheLength="3"
                  VirtualizingPanel.IsVirtualizing="True"
                  VirtualizingPanel.VirtualizationMode="Recycling"
+                 ItemContainerStyleSelector="{StaticResource LibraryWorkItemContainerStyleSelector}"                 
                  ItemTemplateSelector="{StaticResource LibraryWorkItemTemplateSelector}"
                  ItemsSource="{Binding LibraryCoreWorkItems}">
             <ListBox.ItemsPanel>
