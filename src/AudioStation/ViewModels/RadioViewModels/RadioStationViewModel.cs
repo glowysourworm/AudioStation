@@ -1,6 +1,6 @@
 ﻿using SimpleWpf.Extensions;
 
-namespace AudioStation.ViewModels.RadioViewModel
+namespace AudioStation.ViewModels.RadioViewModels
 {
     public class RadioStationViewModel : ViewModelBase
     {

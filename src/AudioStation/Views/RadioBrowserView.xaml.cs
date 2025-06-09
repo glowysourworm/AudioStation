@@ -2,18 +2,30 @@
 using System.Windows.Controls;
 using System.Windows.Input;
 
-using AudioStation.ViewModels.RadioViewModel;
+using AudioStation.Controller.Interface;
+using AudioStation.Core.Model;
+using AudioStation.ViewModels;
+using AudioStation.ViewModels.RadioViewModels;
 
-using SimpleWpf.Extensions.Event;
+using SimpleWpf.IocFramework.Application.Attribute;
 
 namespace AudioStation.Views
 {
+    [IocExportDefault]
     public partial class RadioBrowserView : UserControl
     {
-        public event SimpleEventHandler<RadioStationViewModel> StartStationEvent;
+        private readonly IAudioController _audioController;
 
         public RadioBrowserView()
         {
+            InitializeComponent();
+        }
+
+        [IocImportingConstructor]
+        public RadioBrowserView(IAudioController audioController)
+        {
+            _audioController = audioController;
+
             InitializeComponent();
         }
 
@@ -23,8 +35,14 @@ namespace AudioStation.Views
 
             if (viewModel != null)
             {
-                if (this.StartStationEvent != null)
-                    this.StartStationEvent(viewModel);
+                _audioController.Play(new NowPlayingViewModel()
+                {
+                    Bitrate = viewModel.Bitrate,
+                    Codec = viewModel.Codec,
+                    Source = viewModel.Endpoint,
+                    SourceType = StreamSourceType.Network,
+                    Title = viewModel.Name,
+                });
             }
         }
     }

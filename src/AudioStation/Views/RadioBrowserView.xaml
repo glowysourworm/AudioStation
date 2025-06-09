@@ -46,7 +46,7 @@
                  VirtualizingStackPanel.CacheLength="2"
                  VirtualizingStackPanel.IsVirtualizing="True"
                  VirtualizingStackPanel.VirtualizationMode="Recycling"                       
-                 ItemsSource="{Binding Radio.RadioStations}">
+                 ItemsSource="{Binding RadioBrowserSearchResults}">
 
             <ListBox.ItemsPanel>
                 <ItemsPanelTemplate>
@@ -68,6 +68,7 @@
                         <StackPanel Grid.Column="1" Margin="5">
                             <TextBlock Text="{Binding Name}" Grid.Column="1" Style="{StaticResource LabelTextBlock}" />
                             <TextBlock Text="{Binding Endpoint}" Grid.Column="1" Style="{StaticResource LabelDetailTextBlock}" />
+                            <TextBlock Text="{Binding Homepage}" Grid.Column="1" Style="{StaticResource LabelDetailTextBlock}" />
                         </StackPanel>
                         
                     </Grid>

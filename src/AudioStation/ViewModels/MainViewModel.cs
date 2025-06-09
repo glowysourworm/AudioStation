@@ -11,7 +11,7 @@ using AudioStation.Core.Model;
 using AudioStation.Model;
 using AudioStation.ViewModels.Interface;
 using AudioStation.ViewModels.LibraryViewModels.Comparer;
-using AudioStation.ViewModels.RadioViewModel;
+using AudioStation.ViewModels.RadioViewModels;
 
 using Microsoft.Extensions.Logging;
 
@@ -50,15 +50,12 @@ public partial class MainViewModel : ViewModelBase, IDisposable
     LogLevel _generalLogLevel;
 
     LibraryViewModel _library;
+    RadioViewModel _radio;
     LibraryLoaderViewModel _libraryLoaderViewModel;
     INowPlayingViewModel _nowPlayingViewModel;
 
     ObservableCollection<LogMessageViewModel> _outputMessages;
 
-    // Our Primary Library Collections
-    SortedObservableCollection<RadioEntryViewModel> _radioEntries;
-
-    SimpleCommand<string> _searchRadioBrowserCommand;
     SimpleCommand _openLibraryFolderCommand;
     SimpleCommand _saveConfigurationCommand;
     #endregion
@@ -73,11 +70,6 @@ public partial class MainViewModel : ViewModelBase, IDisposable
     {
         get { return _outputMessages; }
         set { this.RaiseAndSetIfChanged(ref _outputMessages, value); }
-    }
-    public SortedObservableCollection<RadioEntryViewModel> RadioStations
-    {
-        get { return _radioEntries; }
-        set { this.RaiseAndSetIfChanged(ref _radioEntries, value); }
     }
     public string StatusMessage
     {
@@ -104,6 +96,11 @@ public partial class MainViewModel : ViewModelBase, IDisposable
         get { return _library; }
         set { this.RaiseAndSetIfChanged(ref _library, value); }
     }
+    public RadioViewModel Radio
+    {
+        get { return _radio; }
+        set { this.RaiseAndSetIfChanged(ref _radio, value); }
+    }
     public LibraryLoaderViewModel LibraryLoader
     {
         get { return _libraryLoaderViewModel; }
@@ -129,11 +126,6 @@ public partial class MainViewModel : ViewModelBase, IDisposable
         get { return _nowPlayingViewModel; }
         set { this.RaiseAndSetIfChanged(ref _nowPlayingViewModel, value); }
     }
-    public SimpleCommand<string> SearchRadioBrowserCommand
-    {
-        get { return _searchRadioBrowserCommand; }
-        set { this.RaiseAndSetIfChanged(ref _searchRadioBrowserCommand, value); }
-    }
     public SimpleCommand OpenLibraryFolderCommand
     {
         get { return _openLibraryFolderCommand; }
@@ -157,6 +149,7 @@ public partial class MainViewModel : ViewModelBase, IDisposable
 
                          // View Models
                          LibraryViewModel libraryViewModel,
+                         RadioViewModel radioViewModel,
                          LibraryLoaderViewModel libraryLoaderViewModel)
     {
         _dialogController = dialogController;
@@ -169,11 +162,11 @@ public partial class MainViewModel : ViewModelBase, IDisposable
         this.Configuration = configurationManager.GetConfiguration();
         this.ShowOutputMessages = false;
         this.OutputMessages = new ObservableCollection<LogMessageViewModel>();
-        this.RadioStations = new SortedObservableCollection<RadioEntryViewModel>(new PropertyComparer<string, RadioEntryViewModel>(x => x.Name));
 
         // Child View Models
         this.NowPlayingViewModel = null;
         this.Library = libraryViewModel;
+        this.Radio = radioViewModel;
         this.LibraryLoader = libraryLoaderViewModel;
 
         // Initialize Model
@@ -186,15 +179,9 @@ public partial class MainViewModel : ViewModelBase, IDisposable
         // Event Aggregator
         eventAggregator.GetEvent<LogEvent>().Subscribe(OnLog);
 
-        libraryLoader.RadioEntryLoaded += OnRadioEntryLoaded;
-
         audioController.PlaybackStartedEvent += OnAudioControllerPlaybackStarted;
         audioController.PlaybackStoppedEvent += OnAudioControllerPlaybackStopped;
 
-        this.SearchRadioBrowserCommand = new SimpleCommand<string>((search) =>
-        {
-            SearchRadioBrowser(search);
-        });
         this.SaveConfigurationCommand = new SimpleCommand(() =>
         {
             configurationManager.SaveConfiguration();
@@ -214,72 +201,6 @@ public partial class MainViewModel : ViewModelBase, IDisposable
     private void OnAudioControllerPlaybackStarted(INowPlayingViewModel nowPlaying)
     {
         this.NowPlayingViewModel = nowPlaying;  // Primary settings for the view (binding)
-    }
-
-    #region ILibraryLoader Events (some of these events are from the worker thread)
-    private void OnRadioEntryLoaded(RadioEntry radioEntry)
-    {
-        if (Application.Current.Dispatcher.Thread.ManagedThreadId != Thread.CurrentThread.ManagedThreadId)
-            Application.Current.Dispatcher.BeginInvoke(OnRadioEntryLoaded, DispatcherPriority.ApplicationIdle, radioEntry);
-        else
-        {
-            if (!this.RadioStations.Any(item => item.Name == radioEntry.Name))
-            {
-                var entry = new RadioEntryViewModel()
-                {
-                    Name = radioEntry.Name,
-                };
-
-                entry.Stations.AddRange(radioEntry.Streams.Select(x => new RadioStationViewModel()
-                {
-                    Bitrate = x.Bitrate,
-                    Codec = x.Codec,
-                    Name = x.Name,
-                    Endpoint = x.Endpoint,
-                    Homepage = x.Homepage,
-                    LogoEndpoint = x.LogoEndpoint
-
-                }));
-
-                this.RadioStations.Add(entry);
-            }
-            else
-            {
-                _outputController.AddLog("Radio Station already exists! {0}", LogMessageType.General, LogLevel.Error, radioEntry.Name);
-            }
-        }
-    }
-    #endregion
-
-    public async void SearchRadioBrowser(string search)
-    {
-        try
-        {
-            var streams = await RadioBrowserSearchComponent.SearchStation(search);
-            //var streams = await RadioBrowserSearchComponent.GetTopStations(10);
-
-            if (streams.Count == 0)
-                return;
-
-            //this.Radio.RadioStations.Clear();
-            //this.Radio.RadioStations.AddRange(streams.Where(stream => stream != null && stream.Bitrate > 0 && !string.IsNullOrEmpty(stream.Codec))
-            //                                         .Select(stream =>
-            //{
-            //    return new RadioStationViewModel()
-            //    {
-            //        Bitrate = stream.Bitrate,
-            //        Codec = stream.Codec,
-            //        Name = stream.Name,
-            //        Homepage = stream.Homepage.ToString(),
-            //        Endpoint = stream.Url.ToString(),
-            //        LogoEndpoint = stream.Favicon.ToString()
-            //    };
-            //}));
-        }
-        catch (Exception ex)
-        {
-            //OnLog("Error querying Radio Browser:  {0}", LogMessageType.General, LogMessageSeverity.Error, ex.Message);
-        }
     }
 
     private void OnLogTypeChanged()
@@ -366,7 +287,6 @@ public partial class MainViewModel : ViewModelBase, IDisposable
             this.Configuration = null;
             this.ShowOutputMessages = false;
             this.OutputMessages.Clear();
-            this.RadioStations.Clear();
             this.NowPlayingViewModel = null;
         }
     }

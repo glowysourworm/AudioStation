@@ -3,7 +3,7 @@
 using SimpleWpf.Extensions;
 using SimpleWpf.Extensions.ObservableCollection;
 
-namespace AudioStation.ViewModels.RadioViewModel
+namespace AudioStation.ViewModels.RadioViewModels
 {
     /// <summary>
     /// Represents a grouping of RadioStationViewModel(s). Most of these will come from the m3u file collection - so

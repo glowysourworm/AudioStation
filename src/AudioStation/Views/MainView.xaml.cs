@@ -17,7 +17,7 @@ namespace AudioStation.Views
             (this.DataContext as MainViewModel).ShowOutputMessages = !(this.DataContext as MainViewModel).ShowOutputMessages;
         }
 
-        private void RadioBrowserView_StartStationEvent(ViewModels.RadioViewModel.RadioStationViewModel sender)
+        private void RadioBrowserView_StartStationEvent(ViewModels.RadioViewModels.RadioStationViewModel sender)
         {
             var nowPlaying = new NowPlayingViewModel()
             {
