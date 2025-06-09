@@ -16,7 +16,7 @@
         
         <!-- Artist List -->
         <ListBox x:Name="ArtistLB" 
-                 ItemsSource="{Binding Library.ValidArtists}"
+                 ItemsSource="{Binding Artists}"
                  VirtualizingPanel.IsVirtualizing="True"
                  VirtualizingPanel.VirtualizationMode="Recycling"
                  VirtualizingPanel.IsContainerVirtualizable="True"

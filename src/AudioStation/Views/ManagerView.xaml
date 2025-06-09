@@ -15,10 +15,14 @@
         </Grid.ColumnDefinitions>
 
         <!-- Library Entries -->
-        <ListBox x:Name="LibraryLB" ItemsSource="{Binding AllTitles}" SelectionChanged="ListBox_SelectionChanged">
+        <ListBox x:Name="LibraryLB" 
+                 VirtualizingPanel.IsVirtualizing="True"
+                 VirtualizingPanel.CacheLength="3"
+                 VirtualizingPanel.VirtualizationMode="Recycling"
+                 ItemsSource="{Binding LibraryEntries}" SelectionChanged="ListBox_SelectionChanged">
             <ListBox.ItemsPanel>
                 <ItemsPanelTemplate>
-                    <VirtualizingStackPanel />
+                    <VirtualizingStackPanel IsItemsHost="True" />
                 </ItemsPanelTemplate>
             </ListBox.ItemsPanel>
             <ListBox.ItemTemplate>

@@ -35,7 +35,7 @@
                     </Grid.RowDefinitions>
                     
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="{Binding Artist}" HorizontalAlignment="Left" FontSize="16" Foreground="#555555" Margin="5" />
+                        <TextBlock Text="{Binding PrimaryArtist}" HorizontalAlignment="Left" FontSize="16" Foreground="#555555" Margin="5" />
                         <fa5:SvgAwesome Icon="Solid_Circle" Width="3" Height="3" Foreground="#555555" Margin="10" VerticalAlignment="Center" />
                         <TextBlock Text="{Binding Album}" HorizontalAlignment="Left" FontSize="16" Foreground="#555555" Margin="5" />
                     </StackPanel>
@@ -49,13 +49,13 @@
             </Border>
 
             <controls:NoScrollListBox x:Name="TracksLB"
-                                        ItemsSource="{Binding Tracks}"
+                                      ItemsSource="{Binding Tracks}"
                                       ItemContainerStyle="{StaticResource HoverSelectItemContainerStyleWithAlternation_Playlist}"
-                                        AlternationCount="2"
-                                        MouseDoubleClick="OnTracksDoubleClick"
-                                        Grid.Column="1" Grid.Row="1" Margin="0"
-                                        ScrollViewer.CanContentScroll="False"
-                                        Background="White">
+                                      AlternationCount="2"
+                                      MouseDoubleClick="OnTracksDoubleClick"
+                                      Grid.Column="1" Grid.Row="1" Margin="0"
+                                      ScrollViewer.CanContentScroll="False"
+                                      Background="White">
 
                 <controls:NoScrollListBox.ItemsPanel>
                     <ItemsPanelTemplate>
@@ -74,7 +74,7 @@
                                 </Grid.ColumnDefinitions>
 
                                 <TextBlock Text="{Binding Track}" Grid.Column="0" FontSize="12" Foreground="Gray" Margin="5" />
-                                <TextBlock Text="{Binding Name}" Grid.Column="1" FontSize="12" Foreground="Gray" Margin="5" />
+                                <TextBlock Text="{Binding Title}" Grid.Column="1" FontSize="12" Foreground="Gray" Margin="5" />
                                 <TextBlock Text="{Binding Duration, StringFormat={}{0:hh}:{0:mm}:{0:ss}}" Grid.Column="2" FontSize="12" Foreground="Gray" Margin="5" />
                             </Grid>
                         </Border>

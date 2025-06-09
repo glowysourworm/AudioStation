@@ -1,26 +1,40 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 
+using AudioStation.Controller.Interface;
 using AudioStation.Core.Model;
 using AudioStation.ViewModel.LibraryViewModels;
 using AudioStation.ViewModels;
 using AudioStation.ViewModels.LibraryViewModels;
 
+using SimpleWpf.IocFramework.Application.Attribute;
+using SimpleWpf.IocFramework.EventAggregation;
+
 namespace AudioStation.Views
 {
-    /// <summary>
-    /// Interaction logic for NowPlayingView.xaml
-    /// </summary>
+    [IocExportDefault]
     public partial class NowPlayingView : UserControl
     {
+        private readonly IAudioController _audioController;
+        private readonly IIocEventAggregator _eventAggregator;
+
         public NowPlayingView()
         {
             InitializeComponent();
         }
 
+        [IocImportingConstructor]
+        public NowPlayingView(IAudioController audioController, IIocEventAggregator eventAggregator)
+        {
+            _audioController = audioController;
+            _eventAggregator = eventAggregator;
+
+            InitializeComponent();
+        }
+
         private void OnArtistSelectionChanged(object? sender, SelectionChangedEventArgs e)
         {
-            var viewModel = this.DataContext as MainViewModel;
+            var viewModel = this.DataContext as LibraryViewModel;
 
             if (e.AddedItems.Count > 0 && viewModel != null)
             {
@@ -57,7 +71,7 @@ namespace AudioStation.Views
 
         private void AlbumViewItem_TrackSelected(object sender, LibraryEntryViewModel selectedTrack)
         {
-            var viewModel = this.DataContext as MainViewModel;
+            var viewModel = this.DataContext as LibraryViewModel;
             var album = (sender as AlbumView).DataContext as AlbumViewModel;
 
             if (viewModel != null && album != null)
@@ -75,14 +89,23 @@ namespace AudioStation.Views
 
         private void LoadPlaylist(LibraryEntryViewModel selectedTitle, AlbumViewModel selectedAlbum)
         {
-            var playlist = new Playlist();
-            playlist.Name = selectedAlbum.PrimaryArtist + " / " + selectedAlbum.Album;
+            _audioController.Play(new NowPlayingViewModel()
+            {
+                Album = selectedTitle.Album,
+                Artist = selectedTitle.PrimaryArtist,
+                Source = selectedTitle.FileName,
+                SourceType = StreamSourceType.File,
+                Title = selectedTitle.Title
+            });
+
+            //var playlist = new Playlist();
+            //playlist.Name = selectedAlbum.PrimaryArtist + " / " + selectedAlbum.Album;
 
             // Load tracks for playback
-            foreach (var track in selectedAlbum.Tracks)
-            {
-                //playlist.Tracks.Add(track);
-            }
+            //foreach (var track in selectedAlbum.Tracks)
+            // {
+            //playlist.Tracks.Add(track);
+            //}
 
             // Setup playback (needs revision; but this works with the IAudioController)
             //playlist.LoadPlayback(selectedTitle);

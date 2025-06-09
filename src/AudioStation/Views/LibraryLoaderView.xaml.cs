@@ -1,16 +1,12 @@
 ﻿using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
 
 using AudioStation.Core.Component;
 using AudioStation.ViewModels;
 
 namespace AudioStation.Views
 {
-    /// <summary>
-    /// Interaction logic for LibraryLoaderView.xaml
-    /// </summary>
     public partial class LibraryLoaderView : UserControl
     {
         public LibraryLoaderView()
@@ -26,8 +22,8 @@ namespace AudioStation.Views
 
         private void LibraryLoaderView_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
-            var oldViewModel = e.OldValue as MainViewModel;
-            var newViewModel = e.NewValue as MainViewModel;
+            var oldViewModel = e.OldValue as LibraryLoaderViewModel;
+            var newViewModel = e.NewValue as LibraryLoaderViewModel;
 
             if (oldViewModel != null)
                 oldViewModel.PropertyChanged -= OnMainViewModelPropertyChanged;
@@ -38,7 +34,7 @@ namespace AudioStation.Views
 
         private void OnMainViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
-            var viewModel = this.DataContext as MainViewModel;
+            var viewModel = this.DataContext as LibraryLoaderViewModel;
 
             if (viewModel != null)
             {
@@ -48,17 +44,13 @@ namespace AudioStation.Views
                     {
                         SetLoaderControlButtons();
                     }
-                    if (e.PropertyName == "SelectedLibraryWorkItemState")
-                    {
-                        //CollectionViewSource.GetDefaultView(viewModel.LibraryCoreWorkItems).Refresh();
-                    }
                 };
             }
         }
 
         private void SetLoaderControlButtons()
         {
-            var viewModel = this.DataContext as MainViewModel;
+            var viewModel = this.DataContext as LibraryLoaderViewModel;
 
             if (viewModel != null)
             {
@@ -81,7 +73,7 @@ namespace AudioStation.Views
 
         private void PauseRB_Click(object sender, RoutedEventArgs e)
         {
-            var viewModel = this.DataContext as MainViewModel;
+            var viewModel = this.DataContext as LibraryLoaderViewModel;
 
             if (viewModel != null)
             {
@@ -91,7 +83,7 @@ namespace AudioStation.Views
 
         private void StopRB_Click(object sender, RoutedEventArgs e)
         {
-            var viewModel = this.DataContext as MainViewModel;
+            var viewModel = this.DataContext as LibraryLoaderViewModel;
 
             if (viewModel != null)
             {
@@ -101,30 +93,12 @@ namespace AudioStation.Views
 
         private void PlayRB_Click(object sender, RoutedEventArgs e)
         {
-            var viewModel = this.DataContext as MainViewModel;
+            var viewModel = this.DataContext as LibraryLoaderViewModel;
 
             if (viewModel != null)
             {
                 viewModel.LibraryLoaderState = PlayStopPause.Play;
             }
-        }
-
-        // This is the filter for library loader work items
-        private void CollectionViewSource_Filter(object sender, FilterEventArgs e)
-        {
-            var viewModel = this.DataContext as MainViewModel;
-            var item = e.Item as LibraryWorkItemViewModel;
-
-            if (viewModel != null && item != null)
-            {
-                if (item.LoadState == viewModel.SelectedLibraryWorkItemState)
-                {
-                    e.Accepted = true;
-                    return;
-                }
-            }
-
-            e.Accepted = false;
         }
     }
 }

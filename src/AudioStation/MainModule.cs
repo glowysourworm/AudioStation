@@ -8,9 +8,12 @@ namespace AudioStation
     [IocExportDefault]
     public class MainModule : ModuleBase
     {
+        private readonly IIocRegionManager _regionManager;
+
         [IocImportingConstructor]
         public MainModule(IIocRegionManager regionManager, IIocEventAggregator eventAggregator) : base(regionManager, eventAggregator)
         {
+            _regionManager = regionManager;
         }
 
         public override void Initialize()
