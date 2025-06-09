@@ -47,28 +47,43 @@ namespace AudioStation.Core.Database
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
+            var connectionString = GetConnectionString(_configuration, _logVerbose);
+
+            optionsBuilder.UseNpgsql(connectionString, builder =>
+            {                
+            });
+            optionsBuilder.EnableDetailedErrors(true);
+            optionsBuilder.EnableSensitiveDataLogging(true);
+            optionsBuilder.LogTo(FilterLogging, Log);
+            optionsBuilder.EnableThreadSafetyChecks(true);
+
+            base.OnConfiguring(optionsBuilder);
+        }
+
+        public static string GetConnectionString(Configuration configuration, bool logVerbose)
+        {
             var connectionStringFormat = "Host={0};Database={1};Username={2};Password={3};";
 
             var connectionString = string.Format(connectionStringFormat,
-                                                 _configuration.DatabaseHost,
-                                                 _configuration.DatabaseName,
-                                                 _configuration.DatabaseUser,
-                                                 _configuration.DatabasePassword);
+                                                 configuration.DatabaseHost,
+                                                 configuration.DatabaseName,
+                                                 configuration.DatabaseUser,
+                                                 configuration.DatabasePassword);
 
             // Must apply ADO.NET Connection String rules
             var builder = new NpgsqlConnectionStringBuilder(/*connectionString*/);
 
             // Connection / User Credentials
-            builder.Host = _configuration.DatabaseHost;
-            builder.Database = _configuration.DatabaseName;            
-            builder.Username = _configuration.DatabaseUser;
-            builder.Password = _configuration.DatabasePassword;
+            builder.Host = configuration.DatabaseHost;
+            builder.Database = configuration.DatabaseName;
+            builder.Username = configuration.DatabaseUser;
+            builder.Password = configuration.DatabasePassword;
 
             // Transactions (don't assume ambient transaction scope) (we're pooling; but not using transactions)
             builder.Enlist = false;
 
             // Logging
-            builder.IncludeErrorDetail = _logVerbose;
+            builder.IncludeErrorDetail = logVerbose;
 
             // Prepared Statements:  https://www.roji.org/prepared-statements-in-npgsql-3-2
             //                       https://www.npgsql.org/doc/performance.html
@@ -86,16 +101,7 @@ namespace AudioStation.Core.Database
             builder.SocketSendBufferSize = 18000;           //                             performance lag receiving it..?)
             builder.WriteCoalescingBufferThresholdBytes = 18000;
 
-            optionsBuilder.UseNpgsql(builder.ToString(), builder =>
-            {
-                
-            });
-            optionsBuilder.EnableDetailedErrors(true);
-            optionsBuilder.EnableSensitiveDataLogging(true);
-            optionsBuilder.LogTo(FilterLogging, Log);
-            optionsBuilder.EnableThreadSafetyChecks(true);
-
-            base.OnConfiguring(optionsBuilder);
+            return builder.ToString();
         }
 
         /// <summary>

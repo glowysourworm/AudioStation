@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+using Microsoft.EntityFrameworkCore;
 
 namespace AudioStation.Core.Database
 {
+    [PrimaryKey("Id")]
     [Table("M3UInfoWarning", Schema = "public")]
     public class M3UInfoWarning
     {

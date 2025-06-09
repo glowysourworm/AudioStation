@@ -1,7 +1,10 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 
+using Microsoft.EntityFrameworkCore;
+
 namespace AudioStation.Core.Database
 {
+    [PrimaryKey("Id")]
     [Table("M3UInfoAttributes", Schema = "public")]
     public class M3UInfoAttributes
     {

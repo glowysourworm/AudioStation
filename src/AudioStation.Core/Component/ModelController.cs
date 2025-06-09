@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Data;
 
 using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Database;
@@ -8,8 +9,11 @@ using AudioStation.Model;
 
 using m3uParser.Model;
 
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.Logging;
+
+using Npgsql;
 
 using SimpleWpf.IocFramework.Application.Attribute;
 using SimpleWpf.IocFramework.EventAggregation;
@@ -64,6 +68,18 @@ namespace AudioStation.Controller
 
             try
             {
+                var fileRefsDict = new Dictionary<int, Mp3FileReference>();
+                var albumRefsDict = new Dictionary<int, Mp3FileReferenceAlbum>();
+                var artistRefsDict = new Dictionary<int, Mp3FileReferenceArtist>();
+                //var genreMapRefsDict = new Dictionary<int, Mp3FileReferenceGenreMap>();
+
+                Dictionary<int, Mp3FileReferenceGenre> primaryGenreDict;
+                Dictionary<int, Mp3FileReferenceGenre> genreDict;
+
+                // Npgsql / EF:  Frontloading database entities. The NpgsqlCommand (tried) didn't save
+                //               much time on loading. I was expecting a lot of extra lag from EF. So,
+                //               the library seems tuned well to "normal MSFT guys". :)
+                //
                 using (var context = CreateContext())
                 {
                     // Load data from the database that will be used to group / view entries. The
@@ -71,7 +87,31 @@ namespace AudioStation.Controller
                     // the view loads the Album, Artist, or Entry (views). So, don't discard the 
                     // data. Flag the Library (local entites) that they have been read / not-read.
 
-                    var fileRefs = context.Mp3FileReferences.ToList().Select(x => new LibraryEntry()
+                    fileRefsDict = context.Mp3FileReferences.ToDictionary(x => x.Id);
+                    albumRefsDict = context.Mp3FileReferenceAlbums.ToDictionary(x => x.Id);
+                    artistRefsDict = context.Mp3FileReferenceArtists.ToDictionary(x => x.Id);
+
+                    primaryGenreDict = context.Mp3FileReferenceGenreMaps
+                                           .ToList()
+                                           .GroupBy(x => x.Mp3FileReferenceId)
+                                           .First()
+                                           .ToDictionary(pair => pair.Mp3FileReferenceId, pair => pair.Mp3FileReferenceGenre);
+
+                    genreDict = context.Mp3FileReferenceGenres.ToDictionary(x => x.Id);
+                }
+
+                var fileRefsByPrimaryArtist = new Dictionary<int, List<LibraryEntry>>();
+                var fileRefsByAlbum = new Dictionary<int, List<LibraryEntry>>();
+                var primaryArtistIdEntryDict = new Dictionary<int, int>();
+
+                var fileRefs = fileRefsDict.Values.Select(x =>
+                {
+                    // Careful with context:  Performance issues happen when the framework doesn't know what to do
+                    //                        with your Linq query!
+                    //
+                    var genre = primaryGenreDict.ContainsKey(x.Id) ? primaryGenreDict[x.Id] : null;
+
+                    var entry = new LibraryEntry()
                     {
                         Album = x.Album?.Name ?? string.Empty,
                         FileName = x.FileName,
@@ -79,40 +119,85 @@ namespace AudioStation.Controller
                         Title = x.Title ?? string.Empty,
                         Track = (uint)(x.Track ?? 0),
                         Disc = (uint)(x.Album?.DiscNumber ?? 0),
-                        PrimaryGenre = context.Mp3FileReferenceGenreMaps.FirstOrDefault(z => z.Mp3FileReferenceId == x.Id)?.Mp3FileReferenceGenre?.Name ?? string.Empty,
+                        PrimaryGenre = genre?.Name ?? string.Empty,
                         Id = x.Id
+                    };
 
-                    }).ToList();
-                    var albums = context.Mp3FileReferenceAlbums.Select(x => new Album()
+                    if (!primaryArtistIdEntryDict.ContainsKey(entry.Id))
+                        primaryArtistIdEntryDict.Add(entry.Id, x.PrimaryArtistId ?? -1);
+
+                    // Group by PrimaryArtistId
+                    if (x.PrimaryArtistId != null)
                     {
-                        Id = x.Id,
-                        Name = x.Name
+                        if (!fileRefsByPrimaryArtist.ContainsKey(x.PrimaryArtistId.Value))
+                            fileRefsByPrimaryArtist.Add(x.PrimaryArtistId.Value, new List<LibraryEntry>() { entry });
 
-                    }).ToList();
-                    var artists = context.Mp3FileReferenceArtists.Select(x => new Artist()
-                    {
-                        Id = x.Id,
-                        Name = x.Name,
-
-                    }).ToList();
-
-                    var genres = context.Mp3FileReferenceGenres.Select(x => x.Name).ToList();
-
-                    // Aggregated data
-                    foreach (var album in albums)
-                    {
-                        album.Tracks = fileRefs.Where(x => x.Album == album.Name).ToList();
-                    }
-                    foreach (var artist in artists)
-                    {
-                        artist.Albums = albums.Where(album => album.Tracks.All(track => track.PrimaryArtist == artist.Name)).ToList();
+                        else
+                            fileRefsByPrimaryArtist[x.PrimaryArtistId.Value].Add(entry);
                     }
 
-                    this.Library.Albums = albums;
-                    this.Library.Artists = artists;
-                    this.Library.Genres = genres;
-                    this.Library.Entries = fileRefs;
+                    // Group by AlbumId
+                    if (x.AlbumId != null)
+                    {
+                        if (!fileRefsByAlbum.ContainsKey(x.AlbumId.Value))
+                            fileRefsByAlbum.Add(x.AlbumId.Value, new List<LibraryEntry>() { entry });
+
+                        else
+                            fileRefsByAlbum[x.AlbumId.Value].Add(entry);
+                    }
+
+                    return entry;
+
+                }).ToList();
+                var albums = albumRefsDict.Values.Select(x => new Album()
+                {
+                    Id = x.Id,
+                    Name = x.Name
+
+                }).ToList();
+                var artists = artistRefsDict.Values.Select(x => new Artist()
+                {
+                    Id = x.Id,
+                    Name = x.Name,
+
+                }).ToList();
+
+                var artistAlbums = new Dictionary<int, List<Album>>();      // Albums belonging to primary artist "X"
+
+                // Aggregated data
+                foreach (var album in albums)
+                {
+                    album.Tracks = fileRefsByAlbum[album.Id];
+
+                    var entryId = album.Tracks.FirstOrDefault()?.Id ?? -1;
+                    var primaryArtistId = entryId >= 0 ? primaryArtistIdEntryDict[entryId] : -1;
+
+                    if (primaryArtistId != -1)
+                    {
+                        if (!artistAlbums.ContainsKey(primaryArtistId))
+                            artistAlbums.Add(primaryArtistId, new List<Album> { album });
+
+                        else
+                            artistAlbums[primaryArtistId].Add(album);
+                    }
                 }
+                foreach (var artist in artists)
+                {
+                    if (artistAlbums.ContainsKey(artist.Id))
+                        artist.Albums = artistAlbums[artist.Id];
+                    
+                    else
+                        artist.Albums = new List<Album>();
+                }
+
+                this.Library.Albums = albums;
+                this.Library.Artists = artists;
+                this.Library.Genres = genreDict.Values.Select(x => new Genre()
+                {
+                    Id = x.Id,
+                    Name = x.Name,
+                }).ToList();
+                this.Library.Entries = fileRefs;
             }
             catch (Exception ex)
             {

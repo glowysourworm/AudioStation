@@ -1,7 +1,10 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 
+using Microsoft.EntityFrameworkCore;
+
 namespace AudioStation.Core.Database
 {
+    [PrimaryKey("Id")]
     [Table("Mp3FileReferenceGenre", Schema = "public")]
     public class Mp3FileReferenceGenre
     {

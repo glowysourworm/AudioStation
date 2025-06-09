@@ -32,7 +32,7 @@ namespace AudioStation.ViewModels
 
         SortedObservableCollection<AlbumViewModel> _albums;
         SortedObservableCollection<ArtistViewModel> _artists;
-        SortedObservableCollection<string> _genres;
+        SortedObservableCollection<GenreViewModel> _genres;
 
         public SortedObservableCollection<LibraryEntryViewModel> LibraryEntries
         {
@@ -49,7 +49,7 @@ namespace AudioStation.ViewModels
             get { return _artists; }
             set { this.RaiseAndSetIfChanged(ref _artists, value); }
         }
-        public SortedObservableCollection<string> Genres
+        public SortedObservableCollection<GenreViewModel> Genres
         {
             get { return _genres; }
             set { this.RaiseAndSetIfChanged(ref _genres, value); }
@@ -66,7 +66,7 @@ namespace AudioStation.ViewModels
             this.LibraryEntries = new SortedObservableCollection<LibraryEntryViewModel>(new PropertyComparer<string, LibraryEntryViewModel>(x => x.FileName));
             this.Albums = new SortedObservableCollection<AlbumViewModel>(new PropertyComparer<string, AlbumViewModel>(x => x.Album));
             this.Artists = new SortedObservableCollection<ArtistViewModel>(new PropertyComparer<string, ArtistViewModel>(x => x.Artist));
-            this.Genres = new SortedObservableCollection<string>(Comparer<string>.Default);
+            this.Genres = new SortedObservableCollection<GenreViewModel>(new PropertyComparer<string, GenreViewModel>(x => x.Name));
 
             // Library Loader
             libraryLoader.LibraryEntryLoaded += OnLibraryEntryLoaded;
@@ -86,7 +86,12 @@ namespace AudioStation.ViewModels
             }
             foreach (var entry in modelController.Library.Genres)
             {
-                this.Genres.Add(entry);
+                this.Genres.Add(new GenreViewModel()
+                {
+                    Id = entry.Id,
+                    Name = entry.Name
+                });
+
             }
         }
 
