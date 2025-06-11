@@ -15,7 +15,7 @@
                  VirtualizingStackPanel.CacheLength="2"
                  VirtualizingStackPanel.IsVirtualizing="True"
                  VirtualizingStackPanel.VirtualizationMode="Recycling"                 
-                 ItemsSource="{Binding Radio.RadioStreams}">
+                 ItemsSource="{Binding RadioStreams}">
 
             <ListBox.ItemsPanel>
                 <ItemsPanelTemplate>

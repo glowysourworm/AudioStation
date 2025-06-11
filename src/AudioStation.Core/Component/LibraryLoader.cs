@@ -1,14 +1,11 @@
-﻿using System.Diagnostics;
-using System.IO;
+﻿using System.IO;
 using System.Windows;
 using System.Windows.Threading;
 
 using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Model;
+using AudioStation.Core.Model.M3U;
 using AudioStation.Model;
-
-using m3uParser;
-using m3uParser.Model;
 
 using Microsoft.Extensions.Logging;
 
@@ -29,8 +26,6 @@ namespace AudioStation.Core.Component
         const string UNKNOWN = "Unknown";
         const int WORKER_SLEEP_PERIOD = 500;                   // 1 second between queue checks
 
-        public event SimpleEventHandler<LibraryEntry> LibraryEntryLoaded;
-        public event SimpleEventHandler<RadioEntry> RadioEntryLoaded;
         public event SimpleEventHandler<LibraryLoaderWorkItem> WorkItemCompleted;
         public event SimpleEventHandler<LibraryLoaderWorkItem[]> WorkItemsAdded;
         public event SimpleEventHandler<LibraryLoaderWorkItem[]> WorkItemsRemoved;
@@ -39,10 +34,10 @@ namespace AudioStation.Core.Component
 
         private List<LibraryLoaderWorkItem> _workQueue;
         private Thread _workThread;
-        private object _workThreadLock;
+        private object _workerLock;
         private bool _workerRun;
         private PlayStopPause _userRun;              // This is the flag to allow user to stop the queue
-        private PlayStopPause _userRunLast;          
+        private PlayStopPause _userRunLast;
 
         [IocImportingConstructor]
         public LibraryLoader(IModelController modelController, IOutputController outputController)
@@ -52,8 +47,8 @@ namespace AudioStation.Core.Component
 
             _workQueue = new List<LibraryLoaderWorkItem>();
             _workThread = new Thread(WorkFunction);
-            _workThread.Priority = ThreadPriority.Lowest;
-            _workThreadLock = new object();
+            _workThread.Priority = ThreadPriority.Normal;
+            _workerLock = new object();
             _workerRun = true;
             _userRun = PlayStopPause.Stop;               // Queue must be started by user code
             _userRunLast = PlayStopPause.Stop;
@@ -93,7 +88,7 @@ namespace AudioStation.Core.Component
                 workItems[index++] = new LibraryLoaderWorkItem(file.Path, loadType);
             }
 
-            lock (_workThreadLock)
+            lock (_workerLock)
             {
                 // COPY THESE - we're sending the rest to the main thread
                 _workQueue.AddRange(workItems.Select(item => new LibraryLoaderWorkItem(item)));
@@ -104,76 +99,55 @@ namespace AudioStation.Core.Component
                 this.WorkItemsAdded(workItems);
         }
 
-        public LibraryEntry LoadLibraryEntry(string file, out TagLib.File fileRef)
+        public TagLib.File LoadLibraryEntry(string file)
         {
             if (string.IsNullOrEmpty(file))
                 throw new ArgumentException("Invalid media file name");
 
-            fileRef = null;
+            TagLib.File fileRef = null;
 
             try
             {
                 fileRef = TagLib.File.Create(file);
 
-                var entry = new LibraryEntry()
-                {
-                    FileName = file,
-                    PrimaryArtist = Format(fileRef.Tag.FirstAlbumArtist),
-                    PrimaryGenre = Format(fileRef.Tag.FirstGenre),
+                OnLog(string.Format("Music file loaded:  {0}", file), LogLevel.Information);
 
-                    //AlbumArt = new SortedObservableCollection<SerializableBitmap>(fileRef.Tag.Pictures.Select(x => SerializableBitmap.ReadIPicture(x))),
-                    Album = Format(fileRef.Tag.Album),
-                    Disc = fileRef.Tag.Disc,
-                    FileError = fileRef.PossiblyCorrupt,
-                    FileErrorMessage = fileRef.CorruptionReasons?.Join(",", x => x) ?? string.Empty,
-                    Title = Format(fileRef.Tag.Title),
-                    Track = fileRef.Tag.Track
-                };
-
-                OnLog(string.Format("Music file loaded:  {0}", file), false);
-
-                return entry;
+                return fileRef;
             }
             catch (Exception ex)
             {
-                var entry = new LibraryEntry()
-                {
-                    FileName = file,
-                    FileError = true,
-                    FileErrorMessage = ex.Message,        // Should be handled based on exception (user friendly message)
-                };
-
-                OnLog(string.Format("Music file load error:  {0}", file), true);
-
-                return entry;
+                OnLog(string.Format("Music file load error:  {0}", file), LogLevel.Error);
             }
+
+            return null;
         }
 
-        public RadioEntry LoadRadioEntry(string fileName, out Extm3u m3uData)
+        public List<M3UStream> LoadRadioEntry(string fileName)
         {
-            m3uData = null;
+            List<M3UStream> m3uData = null;
 
             try
             {
                 // Adding a nested try / catch for these files
-                var fileContents = File.ReadAllText(fileName);
-                m3uData = M3U.Parse(fileContents);
+                m3uData = M3UParser.Parse(fileName, (no, op) => { } );
 
-                var entry = new RadioEntry()
-                {
-                    Name = m3uData.Attributes.TvgName,                    
-                    Streams = m3uData.Medias.Select(media => new RadioEntryStreamInfo()
-                    {
-                        Name = media.Title.RawTitle,
-                        Homepage = media.Attributes.UrlTvg,
-                        Endpoint = media.MediaFile,
-                        LogoEndpoint = media.Attributes.TvgLogo
-                    }).ToList()
-                };
+                // RadioEntry:  According to the M3U standard, a stream source must have a 
+                //              duration setting of 0, or -1. We then should have a single
+                //              media info. We can also add multiple with the same name; but
+                //              there's really no reason to do this.
+                //
+                // Stream:      A streaming source will have at least one M3UMediaInfo entry;
+                //              and this will have a duration of 0, or -1.
+                //
 
-                OnLog(string.Format("Radio M3U file loaded:  {0}", fileName), false);
+                var validMedia = m3uData.Where(x => !string.IsNullOrEmpty(x.StreamSource) && 
+                                                    !string.IsNullOrEmpty(x.Title))
+                                        .DistinctBy(x => x.Title);
 
-                return entry;
+                if (validMedia.Any())
+                    OnLog(string.Format("Radio M3U file loaded:  {0}", fileName), LogLevel.Information);
+
+                return validMedia.ToList();
             }
             catch (Exception ex)
             {
@@ -181,35 +155,35 @@ namespace AudioStation.Core.Component
                 {
                     FileName = fileName,
                     FileError = true,
-                    FileErrorMessage= ex.Message,
+                    FileErrorMessage = ex.Message,
                 };
 
-                OnLog(string.Format("Radio M3U file load error:  {0}", fileName), true);
-
-                return entry;
+                OnLog(string.Format("Radio M3U file load error:  {0}", fileName), LogLevel.Error);
             }
+
+            return null;
         }
 
         private string Format(string tagField)
         {
-            return string.IsNullOrWhiteSpace(tagField) ? string.Empty: tagField.Trim();
+            return string.IsNullOrWhiteSpace(tagField) ? string.Empty : tagField.Trim();
         }
 
-        private void OnLog(string message, bool error)
+        private void OnLog(string message, LogLevel level)
         {
             // Shared between Dispatcher / our Worker Thread
-            if (Application.Current.Dispatcher.Thread.ManagedThreadId != _workThread.ManagedThreadId)
+            if (Application.Current.Dispatcher.Thread.ManagedThreadId != Thread.CurrentThread.ManagedThreadId)
             {
-                Application.Current.Dispatcher.BeginInvoke(OnLog, DispatcherPriority.ApplicationIdle, message, error);
+                Application.Current.Dispatcher.BeginInvoke(OnLog, DispatcherPriority.ApplicationIdle, message, level);
                 return;
             }
 
-            _outputController.AddLog(message, LogMessageType.General, error ? LogLevel.Error : LogLevel.Information);
+            _outputController.AddLog(message, LogMessageType.General, level);
         }
 
         public PlayStopPause GetState()
         {
-            lock(_workThreadLock)
+            lock (_workerLock)
             {
                 return _userRun;
             }
@@ -217,7 +191,7 @@ namespace AudioStation.Core.Component
 
         public void Stop()
         {
-            lock(_workThreadLock)
+            lock (_workerLock)
             {
                 _userRun = PlayStopPause.Stop;
             }
@@ -225,7 +199,7 @@ namespace AudioStation.Core.Component
 
         public void Start()
         {
-            lock (_workThreadLock)
+            lock (_workerLock)
             {
                 _userRun = PlayStopPause.Play;
             }
@@ -233,7 +207,7 @@ namespace AudioStation.Core.Component
 
         public void Clear()
         {
-            lock (_workThreadLock)
+            lock (_workerLock)
             {
                 _userRun = PlayStopPause.Stop;
 
@@ -254,7 +228,7 @@ namespace AudioStation.Core.Component
             {
                 var workToProcess = false;
 
-                lock (_workThreadLock)
+                lock (_workerLock)
                 {
                     // Query for first work item
                     var workItem = _workQueue.FirstOrDefault(item => item.LoadState == LibraryWorkItemState.Pending);
@@ -276,36 +250,29 @@ namespace AudioStation.Core.Component
                         {
                             case LibraryLoadType.Mp3File:
                             {
-                                TagLib.File tagRef = null;
-
-                                var entry = LoadLibraryEntry(workItem.FileName, out tagRef);
+                                var entry = LoadLibraryEntry(workItem.FileName);
 
                                 // Set Work Item
-                                if (entry.FileError)
+                                if (entry == null || entry.PossiblyCorrupt)
                                 {
                                     workItem.LoadState = LibraryWorkItemState.CompleteError;
-                                    workItem.ErrorMessage = entry.FileErrorMessage;
+                                    workItem.ErrorMessage = entry?.CorruptionReasons?.Join(",", x => x) ?? "Unknown Error";
                                 }
                                 else
                                 {
                                     // Add to database
-                                    _modelController.AddUpdateLibraryEntry(workItem.FileName, tagRef);
+                                    _modelController.AddUpdateLibraryEntry(workItem.FileName, entry);
 
                                     workItem.LoadState = LibraryWorkItemState.CompleteSuccessful;
                                 }
-
-                                if (this.LibraryEntryLoaded != null)
-                                    this.LibraryEntryLoaded(entry);
                             }
                             break;
                             case LibraryLoadType.M3UFile:
                             {
-                                Extm3u m3uFile = null;
-
-                                var entry = LoadRadioEntry(workItem.FileName, out m3uFile);
+                                var streams = LoadRadioEntry(workItem.FileName);
 
                                 // Set Work Item
-                                if (entry == null)
+                                if (streams == null || streams.Count == 0)
                                 {
                                     workItem.LoadState = LibraryWorkItemState.CompleteError;
                                     workItem.ErrorMessage = "Error loading .m3u file:  " + workItem.FileName;
@@ -313,13 +280,10 @@ namespace AudioStation.Core.Component
                                 else
                                 {
                                     // Add to database
-                                    _modelController.AddRadioEntry(m3uFile);
+                                    _modelController.AddRadioEntries(streams);
 
                                     workItem.LoadState = LibraryWorkItemState.CompleteSuccessful;
                                 }
-
-                                if (this.RadioEntryLoaded != null)
-                                    this.RadioEntryLoaded(entry);
                             }
                             break;
                             default:
@@ -346,11 +310,15 @@ namespace AudioStation.Core.Component
                         break;
                         case PlayStopPause.Pause:
                         case PlayStopPause.Stop:
-                        break;
+                            break;
                         default:
                             throw new Exception("Unhandled loader state:  LibraryLoader.cs");
                     }
 
+                    // EVENTS:  These would be safer to use outside the lock. We're contending other threads on
+                    //          most private variables. The dispatcher invokes come back to wait on the next lock;
+                    //          and may deadlock if they're not off the call stack (BeginInvoke)
+                    //
                     if (_userRun != _userRunLast && this.ProcessingChanged != null)
                     {
                         this.ProcessingChanged(_userRunLast, _userRun);
@@ -375,11 +343,11 @@ namespace AudioStation.Core.Component
             {
                 // May have to finish a final iteration (only a problem is there is work running)
                 //
-                lock(_workThreadLock)
+                lock (_workerLock)
                 {
                     _workerRun = false;
                 }
-                
+
                 _workThread.Join(WORKER_SLEEP_PERIOD * 3);
                 _workThread = null;
             }

@@ -5,19 +5,6 @@
     <ResourceDictionary.MergedDictionaries>
         <ResourceDictionary Source="/Resources/ThemeColorsAndBrushes.xaml" />
     </ResourceDictionary.MergedDictionaries>
-    
-    <!-- Font Awesome Icon Styles -->
-    <Style TargetType="{x:Type fa5:SvgAwesome}" x:Key="FontAwesomeIconDefault">
-        <Setter Property="Width" Value="16" />
-        <Setter Property="Height" Value="16" />
-        <Setter Property="Foreground" Value="Gray" />
-    </Style>
-    <Style TargetType="{x:Type fa5:SvgAwesome}" x:Key="FontAwesomeIconControlPanelButton">
-        <Setter Property="Width" Value="16" />
-        <Setter Property="Height" Value="16" />
-        <Setter Property="Foreground" Value="Gray" />
-    </Style>    
-    <!-- ************************ -->
 
     <Style x:Key="UserControlButton" TargetType="Button">
         <Setter Property="Padding" Value="2" />
@@ -146,6 +133,47 @@
                         <Trigger Property="IsPressed" Value="True">
                             <Setter Property="Background" Value="{StaticResource SmallButtonBackgroundPressed}" />
                         </Trigger>
+                    </ControlTemplate.Triggers>
+
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="SmallControlToggleButton" TargetType="ToggleButton">
+        <Setter Property="Width" Value="24" />
+        <Setter Property="Height" Value="24" />
+        <Setter Property="Padding" Value="2" />
+        <Setter Property="Foreground" Value="{StaticResource DefaultLabelBrush}" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="Background" Value="{StaticResource SmallButtonBackground}" />
+        <Setter Property="BorderBrush" Value="{StaticResource SmallButtonBorder}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ToggleButton">
+                    <Border VerticalAlignment="{TemplateBinding VerticalAlignment}"
+                            HorizontalAlignment="{TemplateBinding HorizontalAlignment}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            Background="{TemplateBinding Background}"
+                            CornerRadius="5">
+                        <Grid>
+                            <ContentPresenter VerticalAlignment="Center"
+                                              HorizontalAlignment="Center" />
+                        </Grid>
+                    </Border>
+
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Background" Value="{StaticResource SmallButtonBackgroundHover}" />
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter Property="Background" Value="{StaticResource SmallButtonBackgroundPressed}" />
+                        </Trigger>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter Property="Background" Value="{StaticResource SmallToggleButtonBackgroundChecked}" />
+                        </Trigger>                        
                     </ControlTemplate.Triggers>
 
                 </ControlTemplate>

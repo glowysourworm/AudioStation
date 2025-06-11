@@ -17,14 +17,10 @@ namespace AudioStation.Core.Database
     {
         private readonly Configuration _configuration;
         private readonly IOutputController _outputController;
-        private readonly string _connectionString;
         private readonly LogLevel _currentLogLevel;
         private readonly bool _logVerbose;
 
-        public DbSet<M3UInfo> M3UInfos { get; set; }
-        public DbSet<M3UInfoAttributes> M3UInfoAttributes { get; set; }
-        public DbSet<M3UInfoWarning> M3UInfoWarnings { get; set; }
-        public DbSet<M3UMedia> M3UMedias { get; set; }
+        public DbSet<M3UStream> M3UStreams { get; set; }
         public DbSet<Mp3FileReference> Mp3FileReferences { get; set; }
         public DbSet<Mp3FileReferenceAlbum> Mp3FileReferenceAlbums { get; set; }
         public DbSet<Mp3FileReferenceArtist> Mp3FileReferenceArtists { get; set; }
@@ -45,12 +41,21 @@ namespace AudioStation.Core.Database
             _logVerbose = logVerbose;
         }
 
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<M3UStream>()
+                        .HasIndex("Name");
+        }
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             var connectionString = GetConnectionString(_configuration, _logVerbose);
 
             optionsBuilder.UseNpgsql(connectionString, builder =>
             {                
+                
             });
             optionsBuilder.EnableDetailedErrors(true);
             optionsBuilder.EnableSensitiveDataLogging(true);

@@ -28,12 +28,6 @@ namespace AudioStation.Core.Model
             this.Track = tagRef.Tag.Track;
             this.Disc = tagRef.Tag.Disc;
 
-            // Could've been exceptions thrown during loading. These are more important than the 
-            // taglib errors.
-            //
-            this.FileError = this.FileError || tagRef.PossiblyCorrupt;
-            this.FileErrorMessage = this.FileErrorMessage ?? tagRef.CorruptionReasons.Join(",", x => x);
-
             _fileRead = true;
         }
 
@@ -49,9 +43,6 @@ namespace AudioStation.Core.Model
         public uint Track { get; set; }
         public uint Disc { get; set; }
 
-        public bool FileError { get; set; }
-        public string FileErrorMessage { get; set; }
-
         public LibraryEntry()
         {
             this.FileName = string.Empty;
@@ -59,7 +50,6 @@ namespace AudioStation.Core.Model
             this.PrimaryArtist = string.Empty;
             this.Title = string.Empty;
             this.Album = string.Empty;
-            this.FileErrorMessage = string.Empty;
         }
     }
 }

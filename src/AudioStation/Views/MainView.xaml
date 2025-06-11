@@ -28,7 +28,19 @@
         </controls:LibraryImageControl>
 
         <!-- Toolbar -->
-        <Menu HorizontalAlignment="Left" Background="Transparent">
+        <Border HorizontalAlignment="Stretch" Background="#1F000000">
+            <StackPanel HorizontalAlignment="Left" Orientation="Horizontal" Margin="3">
+                <TextBlock Style="{StaticResource LargeInputLabelTextBlock}" Text="Control Panel" />
+                <ToggleButton Style="{StaticResource SmallControlToggleButton}" ToolTip="Show Output" Click="OnShowOutputMessagesClick" Margin="3">
+                    <fa5:SvgAwesome Icon="Solid_List" Style="{StaticResource FontAwesomeIconDefault}" />
+                </ToggleButton>
+                <Button Style="{StaticResource SmallControlButton}" Command="{Binding Radio.ImportM3UCommand}" ToolTip="Import M3U Directory" Margin="3">
+                    <fa5:SvgAwesome Icon="Solid_Hashtag" Style="{StaticResource FontAwesomeIconDefault}" />
+                </Button>
+            </StackPanel>
+        </Border>
+        
+        <!--Menu HorizontalAlignment="Left" Background="Transparent">
             <MenuItem Header="_File" Style="{StaticResource MainMenuItemStyle}">
                 <MenuItem Header="_Open Library" Style="{StaticResource MainMenuSubItemStyle}" />
                 <MenuItem Header="_Save Library" Style="{StaticResource MainMenuSubItemStyle}" />
@@ -48,7 +60,7 @@
                 </MenuItem>
             </MenuItem>
             
-        </Menu>
+        </Menu-->
 
         <!-- Primary Tab Views -->
         <Grid Grid.Row="1">

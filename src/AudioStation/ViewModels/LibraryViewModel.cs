@@ -68,9 +68,6 @@ namespace AudioStation.ViewModels
             this.Artists = new SortedObservableCollection<ArtistViewModel>(new PropertyComparer<string, ArtistViewModel>(x => x.Artist));
             this.Genres = new SortedObservableCollection<GenreViewModel>(new PropertyComparer<string, GenreViewModel>(x => x.Name));
 
-            // Library Loader
-            libraryLoader.LibraryEntryLoaded += OnLibraryEntryLoaded;
-
             // Model Controller (load the primary view model) (pre-initialized)
             foreach (var entry in modelController.Library.Entries)
             {
@@ -158,8 +155,6 @@ namespace AudioStation.ViewModels
                 Disc = entry.Disc,
                 FileName = entry.FileName,
                 Id = entry.Id,
-                LoadError = entry.FileError,
-                LoadErrorMessage = entry.FileErrorMessage,
                 PrimaryArtist = entry.PrimaryArtist,
                 PrimaryGenre = entry.PrimaryGenre,
                 Title = entry.Title,

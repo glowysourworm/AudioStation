@@ -10,6 +10,7 @@
         <ResourceDictionary Source="/Resources/ThemeColorsAndBrushes.xaml" />
         <ResourceDictionary Source="/Resources/ButtonStyles.xaml" />
         <ResourceDictionary Source="/Resources/TextBlockStyles.xaml" />
+        <ResourceDictionary Source="/Resources/MainThemeStyles.xaml" />
     </ResourceDictionary.MergedDictionaries>
 
     <converter:ParameterVisibilityCollapsedConverter x:Key="ParameterVisibilityCollapsedConverter" />

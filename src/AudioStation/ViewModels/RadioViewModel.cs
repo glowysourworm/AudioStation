@@ -2,6 +2,7 @@
 using System.Windows.Threading;
 
 using AudioStation.Component;
+using AudioStation.Controller.Interface;
 using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Model;
 using AudioStation.Model;
@@ -26,6 +27,7 @@ namespace AudioStation.ViewModels
         SortedObservableCollection<RadioEntryViewModel> _radioEntries;
         SortedObservableCollection<RadioStationViewModel> _radioBrowserSearchResults;
 
+        SimpleCommand _importM3UCommand;
         SimpleCommand<string> _searchRadioBrowserCommand;
 
         public SortedObservableCollection<RadioEntryViewModel> RadioEntries
@@ -43,20 +45,34 @@ namespace AudioStation.ViewModels
             get { return _searchRadioBrowserCommand; }
             set { this.RaiseAndSetIfChanged(ref _searchRadioBrowserCommand, value); }
         }
+        public SimpleCommand ImportM3UCommand
+        {
+            get { return _importM3UCommand; }
+            set { this.RaiseAndSetIfChanged(ref _importM3UCommand, value); }
+        }
 
         [IocImportingConstructor]
-        public RadioViewModel(ILibraryLoader libraryLoader, IOutputController outputController)
+        public RadioViewModel(ILibraryLoader libraryLoader, 
+                              IOutputController outputController,
+                              IDialogController dialogController)
         {
             _outputController = outputController;
 
             this.RadioEntries = new SortedObservableCollection<RadioEntryViewModel>(new PropertyComparer<string, RadioEntryViewModel>(x => x.Name));
             this.RadioBrowserSearchResults = new SortedObservableCollection<RadioStationViewModel>(new PropertyComparer<string, RadioStationViewModel>(x => x.Name));
 
-            // Library Loader
-            libraryLoader.RadioEntryLoaded += OnRadioEntryLoaded;
-
             // Radio Browser (service) Search
             this.SearchRadioBrowserCommand = new SimpleCommand<string>(SearchRadioBrowser);
+            this.ImportM3UCommand = new SimpleCommand(() =>
+            {
+                var directory = dialogController.ShowSelectFolder();
+
+                if (!string.IsNullOrWhiteSpace(directory))
+                {
+                    libraryLoader.LoadRadioAsync(directory);
+                    libraryLoader.Start();
+                }
+            });
         }
 
         public async void SearchRadioBrowser(string search)
@@ -100,9 +116,12 @@ namespace AudioStation.ViewModels
                 Application.Current.Dispatcher.BeginInvoke(OnRadioEntryLoaded, DispatcherPriority.ApplicationIdle, radioEntry);
             else
             {
-                if (!this.RadioEntries.Any(item => item.Name == radioEntry.Name))
+                var entry = this.RadioEntries.FirstOrDefault(item => item.Name == radioEntry.Name);
+
+                // Add
+                if (entry == null)
                 {
-                    var entry = new RadioEntryViewModel()
+                    entry = new RadioEntryViewModel()
                     {
                         Name = radioEntry.Name,
                     };
@@ -120,9 +139,34 @@ namespace AudioStation.ViewModels
 
                     this.RadioEntries.Add(entry);
                 }
+
+                // Update
                 else
                 {
-                    _outputController.AddLog("Radio Station already exists! {0}", LogMessageType.General, LogLevel.Error, radioEntry.Name);
+                    foreach (var station in radioEntry.Streams)
+                    {
+                        var radioStation = entry.Stations.FirstOrDefault(x => x.Name == station.Name);
+
+                        if (radioStation == null)
+                        {
+                            radioStation = new RadioStationViewModel()
+                            {
+                                Bitrate = station.Bitrate,
+                                Codec = station.Codec,
+                                Name = station.Name,
+                                Endpoint = station.Endpoint,
+                                Homepage = station.Homepage,
+                                LogoEndpoint = station.LogoEndpoint
+                            };
+
+                            entry.Stations.Add(radioStation);
+                        }
+                        else
+                        {
+                            radioStation.Homepage = string.IsNullOrEmpty(radioStation.Homepage) ? station.Homepage : radioStation.Homepage;
+                            radioStation.LogoEndpoint = string.IsNullOrEmpty(radioStation.LogoEndpoint) ? station.LogoEndpoint : radioStation.LogoEndpoint;
+                        }
+                    }
                 }
             }
         }

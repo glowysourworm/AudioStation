@@ -12,8 +12,6 @@ namespace AudioStation.ViewModels.LibraryViewModels
         string _title;
         uint _track;
         uint _disc;
-        bool _loadError;
-        string _loadErrorMessage;
 
         /// <summary>
         /// Database id for the entry
@@ -62,16 +60,6 @@ namespace AudioStation.ViewModels.LibraryViewModels
             get { return _disc; }
             set { this.RaiseAndSetIfChanged(ref _disc, value); }
         }
-        public bool LoadError
-        {
-            get { return _loadError; }
-            set { this.RaiseAndSetIfChanged(ref _loadError, value); }
-        }
-        public string LoadErrorMessage
-        {
-            get { return _loadErrorMessage; }
-            set { this.RaiseAndSetIfChanged(ref _loadErrorMessage, value); }
-        }
 
         public LibraryEntryViewModel()
         {
@@ -80,8 +68,6 @@ namespace AudioStation.ViewModels.LibraryViewModels
             this.Album = string.Empty;
             this.PrimaryArtist = string.Empty;
             this.PrimaryGenre = string.Empty;
-            this.LoadError = false;
-            this.LoadErrorMessage = string.Empty;
         }
     }
 }

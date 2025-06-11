@@ -1,5 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.Data;
+﻿using System.Data;
 
 using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Database;
@@ -7,13 +6,7 @@ using AudioStation.Core.Event;
 using AudioStation.Core.Model;
 using AudioStation.Model;
 
-using m3uParser.Model;
-
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.Logging;
-
-using Npgsql;
 
 using SimpleWpf.IocFramework.Application.Attribute;
 using SimpleWpf.IocFramework.EventAggregation;
@@ -36,7 +29,7 @@ namespace AudioStation.Controller
         bool _currentLogVerbosity;
 
         [IocImportingConstructor]
-        public ModelController(IConfigurationManager configurationManager, 
+        public ModelController(IConfigurationManager configurationManager,
                                IOutputController outputController,
                                IIocEventAggregator eventAggregator)
         {
@@ -185,7 +178,7 @@ namespace AudioStation.Controller
                 {
                     if (artistAlbums.ContainsKey(artist.Id))
                         artist.Albums = artistAlbums[artist.Id];
-                    
+
                     else
                         artist.Albums = new List<Album>();
                 }
@@ -321,7 +314,7 @@ namespace AudioStation.Controller
                             map = new Mp3FileReferenceGenreMap()
                             {
                                 Mp3FileReference = lastEntity,
-                                Mp3FileReferenceGenre = genreEntity                                
+                                Mp3FileReferenceGenre = genreEntity
                             };
                             context.Mp3FileReferenceGenreMaps.Add(map);
                         }
@@ -337,57 +330,81 @@ namespace AudioStation.Controller
             }
         }
 
-        public void AddRadioEntry(Extm3u entry)
+        public void AddUpdateRadioEntry(Core.Model.M3U.M3UStream entry)
         {
+            if (string.IsNullOrEmpty(entry.StreamSource) ||
+                string.IsNullOrEmpty(entry.Title))
+                throw new ArgumentException("M3UStream must have a stream source and a title");
+
             try
             {
                 using (var context = CreateContext())
                 {
-                    var entity = new M3UInfo()
-                    {
-                        MediaSequence = entry.MediaSequence,
-                        PlaylistType = entry.PlayListType,
-                        TargetDurationMilliseconds = entry.TargetDuration,
-                        Version = entry.Version,
-                        UserExcluded = false,
+                    var newEntry = false;
+                    var mediaEntity = context.M3UStreams
+                                             .Where(x => x.Name == entry.Title)
+                                             .FirstOrDefault();
 
-                    };
-                    var entityAttributes = new M3UInfoAttributes()
+                    if (mediaEntity == null)
                     {
-                        AspectRatio = entry.Attributes.AspectRatio,
-                        AudioTrack = entry.Attributes.AudioTrack,
-                        Cache = entry.Attributes.Cache,
-                        ChannelNumber = entry.Attributes.ChannelNumber,
-                        Deinterlace = entry.Attributes.Deinterlace,
-                        GroupTitle = entry.Attributes.GroupTitle,
-                        M3UAutoLoad = entry.Attributes.M3UAutoLoad,
-                        M3UInfo = entity,
-                        Refresh = entry.Attributes.Refresh,
-                        TvgId = entry.Attributes.TvgId,
-                        TvgLogo = entry.Attributes.TvgLogo,
-                        TvgName = entry.Attributes.TvgName, 
-                        TvgShift = entry.Attributes.TvgShift,
-                        UrlTvg = entry.Attributes.UrlTvg    
-                    };
-                    var entityWarnings = entry.Warnings.Select(warning => new M3UInfoWarning()
-                    {
-                        M3UInfo = entity,
-                        Warning = warning                        
-                    });
-                    var entityMedia = entry.Medias.Select(media => new M3UMedia()
-                    {
-                        DurationMilliseconds = decimal.ToInt32(media.Duration),
-                        InnerTitle = media.Title.InnerTitle,
-                        MediaFile = media.MediaFile,
-                        RawTitle = media.Title.RawTitle,
-                        UserExcluded = false
-                    });
+                        mediaEntity = new Core.Database.M3UStream();
+                        newEntry = true;
+                    }
 
-                    context.M3UMedias.AddRange(entityMedia);
-                    context.M3UInfoWarnings.AddRange(entityWarnings);
-                    context.M3UInfoAttributes.Add(entityAttributes);
-                    context.M3UInfos.Add(entity);
+                    mediaEntity.Duration = entry.DurationSeconds;
+                    mediaEntity.GroupName = entry.GroupName;
+                    mediaEntity.HomepageUrl = entry.TvgHomepage;
+                    mediaEntity.LogoUrl = entry.TvgLogo;
+                    mediaEntity.Name = entry.Title;
+                    mediaEntity.StreamSourceUrl = entry.StreamSource;
+                    mediaEntity.UserExcluded = false || mediaEntity.UserExcluded;
 
+                    if (newEntry)
+                        context.M3UStreams.Add(mediaEntity);
+
+                    context.SaveChanges();
+                }
+            }
+            catch (Exception ex)
+            {
+                _outputController.AddLog("Error in IModelController (AddLibraryEntry):  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
+                throw ex;
+            }
+        }
+
+        public void AddRadioEntries(IEnumerable<Core.Model.M3U.M3UStream> entries)
+        {
+            // Batch Add:  Assume there are no conflicting records. There may be
+            //             batches that get thrown out; but the database index
+            //             won't be of use for a large table like this one.
+
+            try
+            {
+                using (var context = CreateContext())
+                {
+                    // We may need to get rid of the DTO and just use the EF model to help
+                    // save time.
+
+                    foreach (var entry in entries)
+                    {
+                        // Index: [Name]
+                        var entity = context.M3UStreams
+                                            .Where(x => x.Name == entry.Title)
+                                            .FirstOrDefault();
+
+                        if (entity == null)
+                        {
+                            context.M3UStreams.Add(new M3UStream()
+                            {
+                                Duration = entry.DurationSeconds,
+                                GroupName = entry.GroupName,
+                                HomepageUrl = entry.TvgHomepage,
+                                LogoUrl = entry.TvgLogo,
+                                Name = entry.Title,
+                                StreamSourceUrl = entry.StreamSource
+                            });
+                        }
+                    }
                     context.SaveChanges();
                 }
             }

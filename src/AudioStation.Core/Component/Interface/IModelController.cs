@@ -1,6 +1,5 @@
 ﻿using AudioStation.Core.Model;
-
-using m3uParser.Model;
+using AudioStation.Core.Model.M3U;
 
 namespace AudioStation.Core.Component.Interface
 {
@@ -29,9 +28,14 @@ namespace AudioStation.Core.Component.Interface
         void AddUpdateLibraryEntry(string fileName, TagLib.File tagRef);
 
         /// <summary>
-        /// Adds RadioEntry to database. Does NOT update any existing, similar, entry.
+        /// Add / Update M3UStream based on unique Id, and Name
         /// </summary>
-        void AddRadioEntry(Extm3u entry);
+        void AddUpdateRadioEntry(M3UStream entry);
+
+        /// <summary>
+        /// (Batch) Adds M3UStreams to database based on unique Id, and Name
+        /// </summary>
+        void AddRadioEntries(IEnumerable<M3UStream> entries);
 
         /// <summary>
         /// Loads tag data from file. This data does NOT get added to the library.
