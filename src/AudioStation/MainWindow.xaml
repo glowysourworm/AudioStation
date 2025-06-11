@@ -3,6 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="clr-namespace:AudioStation"
         xmlns:views="clr-namespace:AudioStation.Views"
+        Style="{StaticResource MainWindowStyle}"
         Title="Audio Station" Height="700" Width="1200">
     <Grid>
         <views:MainView />
