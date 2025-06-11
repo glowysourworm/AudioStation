@@ -27,7 +27,7 @@
         <Setter Property="BorderThickness" Value="1" />
     </Style>
 
-    <!-- ***** Custom Window Styles ***** -->
+    <!-- ***** Custom Window Style ***** -->
     
     <Style TargetType="{x:Type Button}" x:Key="WindowButtonStyle">
         <Setter Property="Background" Value="{StaticResource HeaderBarButtonBackground}"/>
@@ -146,8 +146,8 @@
 
         <!-- This window style doesn't quite get rid of the top portion (including the title bar) -->
         <!--Setter Property="WindowStyle" Value="None" /-->
-        
-        <!-- This will get the border the way you'd like ideally; and get rid of the title bar -->
+
+        <!-- This will get the border the way you'd like ideally; and get rid of the title bar; but the maximized margins aren't accurate -->
         <Setter Property="WindowChrome.WindowChrome">
             <Setter.Value>
                 <WindowChrome GlassFrameThickness="5" 

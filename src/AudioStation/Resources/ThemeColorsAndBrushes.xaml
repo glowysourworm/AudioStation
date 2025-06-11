@@ -19,9 +19,23 @@
     <SolidColorBrush x:Key="LabelBackgroundSuccess">#5F88FF00</SolidColorBrush>
     <SolidColorBrush x:Key="LabelBackgroundWarning">#5FFFFF00</SolidColorBrush>
     <SolidColorBrush x:Key="LabelBackgroundError">#5FFF0000</SolidColorBrush>
+
+    <SolidColorBrush x:Key="OutputTabControlBackground">White</SolidColorBrush>
+    <SolidColorBrush x:Key="OutputTabControlBorder">LightGray</SolidColorBrush>
     
-    
-    <SolidColorBrush x:Key="MainTabItemHoverSelectBackground">#FFAAAAAA</SolidColorBrush>
+    <SolidColorBrush x:Key="MainTabItemBackground">White</SolidColorBrush>
+    <SolidColorBrush x:Key="MainTabItemBackgroundHover">#0D000000</SolidColorBrush>
+    <SolidColorBrush x:Key="MainTabItemBackgroundPressed">#0F000000</SolidColorBrush>
+    <SolidColorBrush x:Key="MainTabItemBackgroundSelected">#0D000000</SolidColorBrush>
+    <SolidColorBrush x:Key="MainTabItemForeground">Gray</SolidColorBrush>
+    <SolidColorBrush x:Key="MainTabItemBorder">LightGray</SolidColorBrush>
+
+    <SolidColorBrush x:Key="OutputTabItemBackground">White</SolidColorBrush>
+    <SolidColorBrush x:Key="OutputTabItemBackgroundHover">#0F88CCFF</SolidColorBrush>
+    <SolidColorBrush x:Key="OutputTabItemBackgroundPressed">#5F88CCFF</SolidColorBrush>
+    <SolidColorBrush x:Key="OutputTabItemBackgroundSelected">#0F88CCFF</SolidColorBrush>
+    <SolidColorBrush x:Key="OutputTabItemForeground">Gray</SolidColorBrush>
+    <SolidColorBrush x:Key="OutputTabItemBorder">LightGray</SolidColorBrush>
 
     <SolidColorBrush x:Key="SmallButtonBackground">White</SolidColorBrush>
     <SolidColorBrush x:Key="SmallButtonBackgroundHover">#8F33AAFF</SolidColorBrush>
