@@ -187,27 +187,42 @@
                                             <ColumnDefinition Width="*" />
                                         </Grid.ColumnDefinitions>
 
-                                        <Popup x:Name="UserMenuPopup"
+                                        <Popup x:Name="UserMenuPopup"                                               
                                                IsOpen="{Binding IsChecked, ElementName=UserMenuOpenerButton}"                                                     
                                                PlacementTarget="{Binding ElementName=UserMenuOpenerButton}"
                                                VerticalOffset="{Binding RenderSize.Height, ElementName=UserMenuOpenerButton}"        
                                                Placement="Relative" 
                                                AllowsTransparency="True"
                                                Panel.ZIndex="1">
-                                            <Border Width="200" 
-                                                    CornerRadius="10"
+                                            <Border CornerRadius="10"
                                                     BorderBrush="Gray"
-                                                    BorderThickness="1"
+                                                    BorderThickness="3"
                                                     Background="White">
                                                 <StackPanel>
-                                                    <Button Style="{StaticResource UserMenuButtonStyle}" Content="Player Mode">
+                                                    <Button x:Name="PlayerModeButton" Style="{StaticResource UserMenuButtonStyle}" Content="Player Mode">
                                                         <Button.Tag>
                                                             <CornerRadius TopLeft="10" TopRight="10" />
                                                         </Button.Tag>
                                                     </Button>
-                                                    <Button Style="{StaticResource UserMenuButtonStyle}" Content="Management Mode" />
-                                                    <Button Style="{StaticResource UserMenuButtonStyle}" Content="Show Output" />
-                                                    <Button Style="{StaticResource UserMenuButtonStyle}" Content="Close">
+                                                    <Button x:Name="ManagementModeButton" Style="{StaticResource UserMenuButtonStyle}" Content="Management Mode" />
+                                                    <Button x:Name="ShowOutputButton" Style="{StaticResource UserMenuButtonStyle}" HorizontalContentAlignment="Stretch">
+                                                        <Grid>
+                                                            <Grid.ColumnDefinitions>
+                                                                <ColumnDefinition Width="*" />
+                                                                <ColumnDefinition Width="32" />
+                                                            </Grid.ColumnDefinitions>
+                                                            <TextBlock Text="Show Output" />
+                                                            <fa5:SvgAwesome Grid.Column="1"
+                                                                            Icon="Solid_Check" 
+                                                                            Visibility="{Binding ShowOutputMessages, Converter={StaticResource BoolVisibilityCollapseConverter}}"
+                                                                            Style="{StaticResource FontAwesomeIconDefault}" />
+                                                        </Grid>
+                                                    </Button>
+                                                    <Button x:Name="ExitButton" 
+                                                            Style="{StaticResource UserMenuButtonStyle}" 
+                                                            BorderBrush="Gray"
+                                                            BorderThickness="0 1 0 0"
+                                                            Content="Close">
                                                         <Button.Tag>
                                                             <CornerRadius BottomLeft="10" BottomRight="10" />
                                                         </Button.Tag>

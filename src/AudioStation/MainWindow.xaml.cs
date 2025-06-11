@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 
 using AudioStation.ViewModels;
@@ -23,9 +24,16 @@ namespace AudioStation
         public Button RestoreButton { get; private set; }
         public Button CloseButton { get; private set; }
         public Grid HeaderBar { get; private set; }
+        public Popup UserMenuPopup { get; private set; }
+        public Button PlayerModeButton { get; private set; }
+        public Button ManagementModeButton { get; private set; }
+        public Button ShowOutputButton { get; private set; }
+        public Button ExitButton { get; private set; }
 
         protected bool IsHeaderMouseDown { get; private set; }
         protected Point HeaderMouseDownPosition { get;private set; }
+
+        private readonly MainViewModel _mainViewModel;
 
         // Needed by the framework
         public MainWindow()
@@ -36,6 +44,8 @@ namespace AudioStation
         [IocImportingConstructor]
         public MainWindow(MainViewModel mainViewModel)
         {
+            _mainViewModel = mainViewModel;
+
             InitializeComponent();
 
             this.DataContext = mainViewModel;
@@ -55,6 +65,11 @@ namespace AudioStation
             this.RestoreButton = this.GetRequiredTemplateChild<Button>("RestoreButton");
             this.CloseButton = this.GetRequiredTemplateChild<Button>("CloseButton");
             this.HeaderBar = this.GetRequiredTemplateChild<Grid>("PART_HeaderBar");
+            this.UserMenuPopup = this.GetRequiredTemplateChild<Popup>("UserMenuPopup");
+            this.PlayerModeButton = this.GetRequiredTemplateChild<Button>("PlayerModeButton");
+            this.ManagementModeButton = this.GetRequiredTemplateChild<Button>("ManagementModeButton");
+            this.ShowOutputButton = this.GetRequiredTemplateChild<Button>("ShowOutputButton");
+            this.ExitButton = this.GetRequiredTemplateChild<Button>("ExitButton");
 
             if (this.CloseButton != null)
             {
@@ -79,6 +94,46 @@ namespace AudioStation
             if (this.HeaderBar != null)
             {
                 this.HeaderBar.AddHandler(Grid.MouseLeftButtonDownEvent, new MouseButtonEventHandler(this.OnHeaderBarMouseLeftButtonDown));
+            }
+
+            // User Menu
+            if (this.UserMenuPopup != null)
+            {
+                this.UserMenuPopup.MouseLeave += (sender, e) =>
+                {
+                    this.UserMenuPopup.IsOpen = false;
+                };
+            }
+            if (this.PlayerModeButton != null)
+            {
+                this.PlayerModeButton.Click += (sender, e) =>
+                {
+                    this.UserMenuPopup.IsOpen = false;
+                };
+            }
+            if (this.ManagementModeButton != null)
+            {
+                this.ManagementModeButton.Click += (sender, e) =>
+                {
+                    this.UserMenuPopup.IsOpen = false;
+                };
+            }
+            if (this.ShowOutputButton != null)
+            {
+                this.ShowOutputButton.Click += (sender, e) =>
+                {
+                    this.UserMenuPopup.IsOpen = false;
+
+                    _mainViewModel.ShowOutputMessages = !_mainViewModel.ShowOutputMessages;
+                };
+            }
+            if (this.ExitButton != null)
+            {
+                this.ExitButton.Click += (sender, e) =>
+                {
+                    this.UserMenuPopup.IsOpen = false;
+                    this.Close();
+                };
             }
 
             base.OnApplyTemplate();
