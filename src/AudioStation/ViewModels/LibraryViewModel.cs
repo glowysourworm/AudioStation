@@ -1,165 +1,171 @@
-﻿using System.Windows;
-using System.Windows.Threading;
-
-using AudioStation.Controller.Interface;
-using AudioStation.Core.Component.Interface;
+﻿using AudioStation.Core.Database;
 using AudioStation.Core.Model;
-using AudioStation.Model;
 using AudioStation.ViewModel.LibraryViewModels;
 using AudioStation.ViewModels.LibraryViewModels;
-using AudioStation.ViewModels.LibraryViewModels.Comparer;
-
-using Microsoft.Extensions.Logging;
 
 using SimpleWpf.Extensions;
 using SimpleWpf.Extensions.ObservableCollection;
 using SimpleWpf.IocFramework.Application.Attribute;
-using SimpleWpf.IocFramework.EventAggregation;
 
 namespace AudioStation.ViewModels
 {
     [IocExportDefault]
     public class LibraryViewModel : ViewModelBase
     {
-        private readonly IDialogController _dialogController;
-        private readonly IAudioController _audioController;
-        private readonly IModelController _modelController;
-        private readonly ILibraryLoader _libraryLoader;
-        private readonly IOutputController _outputController;
-        private readonly IIocEventAggregator _eventAggregator;
+        PagedObservableCollection<LibraryEntryViewModel> _libraryEntries;
+        PagedObservableCollection<AlbumViewModel> _albums;
+        PagedObservableCollection<ArtistViewModel> _artists;
+        PagedObservableCollection<GenreViewModel> _genres;
 
-        SortedObservableCollection<LibraryEntryViewModel> _libraryEntries;
+        int _totalArtistCount;
+        int _totalAlbumCount;
+        int _totalLibraryEntriesCount;
+        int _totalGenresCount;
 
-        SortedObservableCollection<AlbumViewModel> _albums;
-        SortedObservableCollection<ArtistViewModel> _artists;
-        SortedObservableCollection<GenreViewModel> _genres;
+        int _totalArtistFilteredCount;
+        int _totalAlbumFilteredCount;
+        int _totalLibraryEntriesFilteredCount;
+        int _totalGenresFilteredCount;
 
-        public SortedObservableCollection<LibraryEntryViewModel> LibraryEntries
+        string _artistSearch;
+
+        public PagedObservableCollection<LibraryEntryViewModel> LibraryEntries
         {
             get { return _libraryEntries; }
             set { this.RaiseAndSetIfChanged(ref _libraryEntries, value); }
         }
-        public SortedObservableCollection<AlbumViewModel> Albums
+        public PagedObservableCollection<AlbumViewModel> Albums
         {
             get { return _albums; }
             set { this.RaiseAndSetIfChanged(ref _albums, value); }
         }
-        public SortedObservableCollection<ArtistViewModel> Artists
+        public PagedObservableCollection<ArtistViewModel> Artists
         {
             get { return _artists; }
             set { this.RaiseAndSetIfChanged(ref _artists, value); }
         }
-        public SortedObservableCollection<GenreViewModel> Genres
+        public PagedObservableCollection<GenreViewModel> Genres
         {
             get { return _genres; }
             set { this.RaiseAndSetIfChanged(ref _genres, value); }
         }
 
+        public int TotalArtistCount
+        {
+            get { return _totalArtistCount; }
+            set { this.RaiseAndSetIfChanged(ref _totalArtistCount, value); }
+        }
+        public int TotalAlbumCount
+        {
+            get { return _totalAlbumCount; }
+            set { this.RaiseAndSetIfChanged(ref _totalAlbumCount, value); }
+        }
+        public int TotalLibraryEntriesCount
+        {
+            get { return _totalLibraryEntriesCount; }
+            set { this.RaiseAndSetIfChanged(ref _totalLibraryEntriesCount, value); }
+        }
+        public int TotalGenresCount
+        {
+            get { return _totalGenresCount; }
+            set { this.RaiseAndSetIfChanged(ref _totalGenresCount, value); }
+        }
+        public int TotalArtistFilteredCount
+        {
+            get { return _totalArtistFilteredCount; }
+            set { this.RaiseAndSetIfChanged(ref _totalArtistFilteredCount, value); }
+        }
+        public int TotalAlbumFilteredCount
+        {
+            get { return _totalAlbumFilteredCount; }
+            set { this.RaiseAndSetIfChanged(ref _totalAlbumFilteredCount, value); }
+        }
+        public int TotalLibraryEntriesFilteredCount
+        {
+            get { return _totalLibraryEntriesFilteredCount; }
+            set { this.RaiseAndSetIfChanged(ref _totalLibraryEntriesFilteredCount, value); }
+        }
+        public int TotalGenresFilteredCount
+        {
+            get { return _totalGenresFilteredCount; }
+            set { this.RaiseAndSetIfChanged(ref _totalGenresFilteredCount, value); }
+        }
+
+        public string ArtistSearch
+        {
+            get { return _artistSearch; }
+            set { this.RaiseAndSetIfChanged(ref _artistSearch, value); }
+        }
+
         [IocImportingConstructor]
-        public LibraryViewModel(ILibraryLoader libraryLoader,
-                                IModelController modelController,
-                                IIocEventAggregator eventAggregator,
-                                IOutputController outputController)
+        public LibraryViewModel()
         {
-            _outputController = outputController;
-
-            this.LibraryEntries = new SortedObservableCollection<LibraryEntryViewModel>(new PropertyComparer<string, LibraryEntryViewModel>(x => x.FileName));
-            this.Albums = new SortedObservableCollection<AlbumViewModel>(new PropertyComparer<string, AlbumViewModel>(x => x.Album));
-            this.Artists = new SortedObservableCollection<ArtistViewModel>(new PropertyComparer<string, ArtistViewModel>(x => x.Artist));
-            this.Genres = new SortedObservableCollection<GenreViewModel>(new PropertyComparer<string, GenreViewModel>(x => x.Name));
-
-            // Model Controller (load the primary view model) (pre-initialized)
-            foreach (var entry in modelController.Library.Entries)
-            {
-                this.LibraryEntries.Add(MapEntry(entry));
-            }
-            foreach (var entry in modelController.Library.Albums)
-            {
-                this.Albums.Add(MapAlbum(entry));
-            }
-            foreach (var entry in modelController.Library.Artists)
-            {
-                this.Artists.Add(MapArtist(entry));
-            }
-            foreach (var entry in modelController.Library.Genres)
-            {
-                this.Genres.Add(new GenreViewModel()
-                {
-                    Id = entry.Id,
-                    Name = entry.Name
-                });
-
-            }
+            this.LibraryEntries = new PagedObservableCollection<LibraryEntryViewModel>(100);
+            this.Albums = new PagedObservableCollection<AlbumViewModel>(100);
+            this.Artists = new PagedObservableCollection<ArtistViewModel>(100);
+            this.Genres = new PagedObservableCollection<GenreViewModel>(100);
         }
 
-        private void OnLibraryEntryLoaded(LibraryEntry entry)
+        public void LoadArtists(PageResult<Mp3FileReferenceArtist> result, bool reset)
         {
-            if (Application.Current.Dispatcher.Thread.ManagedThreadId != Thread.CurrentThread.ManagedThreadId)
-                Application.Current.Dispatcher.BeginInvoke(OnLibraryEntryLoaded, DispatcherPriority.ApplicationIdle, entry);
-            else
-            {
-                if (!this.LibraryEntries.Any(item => item.FileName == entry.FileName))
-                {
-                    this.LibraryEntries.Add(MapEntry(entry));
-                }
-                else
-                {
-                    _outputController.AddLog("Library Entry already exists! {0}", LogMessageType.General, LogLevel.Error, entry.FileName);
-                }
-            }
-        }
+            if (reset)
+                this.Artists.Clear();
 
-        private AlbumViewModel MapAlbum(Album album)
-        {
-            var result = new AlbumViewModel()
+            this.Artists.AddRange(result.Results.Select(artist => new ArtistViewModel()
             {
-                Id = album.Id,
+                Artist = artist.Name,
+                Id = artist.Id
+            }));
+
+            this.TotalArtistCount = result.TotalRecordCount;
+            this.TotalArtistFilteredCount = result.TotalRecordCountFiltered;
+        }
+        public void LoadAlbums(PageResult<Mp3FileReferenceAlbum> result, bool reset)
+        {
+            if (reset)
+                this.Albums.Clear();
+
+            this.Albums.AddRange(result.Results.Select(album => new AlbumViewModel()
+            {
                 Album = album.Name,
-                Duration = TimeSpan.Zero,       // TODO
-                PrimaryArtist = album.Tracks.FirstOrDefault()?.PrimaryArtist ?? string.Empty,
-                Year = album.Year
-            };
+                Id = album.Id
+            }));
 
-            result.Tracks.AddRange(album.Tracks.Select(x => GetMappedEntry(x)));
-
-            return result;
+            this.TotalAlbumCount = result.TotalRecordCount;
+            this.TotalAlbumFilteredCount = result.TotalRecordCountFiltered;
         }
-
-        private ArtistViewModel MapArtist(Artist artist)
+        public void LoadGenres(PageResult<Mp3FileReferenceGenre> result, bool reset)
         {
-            var result = new ArtistViewModel()
+            if (reset)
+                this.Genres.Clear();
+
+            this.Genres.AddRange(result.Results.Select(genre => new GenreViewModel()
             {
-                Id = artist.Id,
-                Artist = artist.Name
-            };
+                Id = genre.Id,
+                Name = genre.Name
+            }));
 
-            result.Albums.AddRange(artist.Albums.Select(x => GetMappedAlbum(x)));
-
-            return result;
+            this.TotalGenresCount = result.TotalRecordCount;
+            this.TotalGenresFilteredCount = result.TotalRecordCountFiltered;
         }
+        public void LoadEntryPage(PageResult<Mp3FileReference> result, bool reset)
+        {
+            if (reset)
+                this.LibraryEntries.Clear();
 
-        private AlbumViewModel GetMappedAlbum(Album album)
-        {
-            return this.Albums.First(x => x.Id == album.Id);
-        }
-        private LibraryEntryViewModel GetMappedEntry(LibraryEntry entry)
-        {
-            return this.LibraryEntries.First(x => x.Id == entry.Id);
-        }
-
-        private LibraryEntryViewModel MapEntry(LibraryEntry entry)
-        {
-            return new LibraryEntryViewModel()
+            this.LibraryEntries.AddRange(result.Results.Select(entry => new LibraryEntryViewModel()
             {
-                Album = entry.Album,
-                Disc = entry.Disc,
-                FileName = entry.FileName,
+                Album = entry.Album?.Name ?? "Unknown",
                 Id = entry.Id,
-                PrimaryArtist = entry.PrimaryArtist,
-                PrimaryGenre = entry.PrimaryGenre,
-                Title = entry.Title,
-                Track = entry.Track
-            };
+                Disc = 0,
+                FileName = entry.FileName,
+                PrimaryArtist = entry.PrimaryArtist?.Name ?? "Unknown",
+                Title = entry.Title ?? "Unknown",
+                Track = (uint)(entry.Track ?? 0)
+            }));
+
+            this.TotalLibraryEntriesCount = result.TotalRecordCount;
+            this.TotalLibraryEntriesFilteredCount = result.TotalRecordCountFiltered;
         }
     }
 }

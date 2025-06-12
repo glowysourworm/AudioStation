@@ -1,4 +1,5 @@
 ﻿using System.Data;
+using System.Linq;
 
 using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Database;
@@ -6,12 +7,12 @@ using AudioStation.Core.Event;
 using AudioStation.Core.Model;
 using AudioStation.Model;
 
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.Extensions.Logging;
 
+using SimpleWpf.Extensions.Collection;
 using SimpleWpf.IocFramework.Application.Attribute;
 using SimpleWpf.IocFramework.EventAggregation;
-
-using TagLib;
 
 namespace AudioStation.Controller
 {
@@ -21,9 +22,6 @@ namespace AudioStation.Controller
         private readonly IConfigurationManager _configurationManager;
         private readonly IOutputController _outputController;
         private readonly IIocEventAggregator _eventAggregator;
-
-        public Library Library { get; private set; }
-        public Radio Radio { get; private set; }
 
         LogLevel _currentLogLevel;
         bool _currentLogVerbosity;
@@ -52,6 +50,7 @@ namespace AudioStation.Controller
 
         public void Initialize()
         {
+            /*
             // Procedure: The Library and Radio components are loaded from
             //            any database data that exists. At runtime, the rest
             //            of the data may be queried from this controller.
@@ -197,6 +196,7 @@ namespace AudioStation.Controller
                 _outputController.AddLog("Error initializing IModelController:  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
                 throw ex;
             }
+            */
         }
 
         public void AddUpdateLibraryEntry(string fileName, TagLib.File tagRef)
@@ -415,14 +415,104 @@ namespace AudioStation.Controller
             }
         }
 
-        //public MusicBrainzRecordViewModel LoadFromMusicBrainz(string musicBrainzId)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        public File LoadTag(string fileName)
+        public PageResult<TEntity> GetPage<TEntity, TOrder>(PageRequest<TEntity, TOrder> request) where TEntity : class
         {
-            throw new NotImplementedException();
+            try
+            {
+                using (var context = CreateContext())
+                {
+                    IEnumerable<TEntity> collection;
+                    int totalRecords = 0;
+                    int totalFilteredRecords = 0;
+
+                    // Flat entities may be queried
+                    if (typeof(TEntity) == typeof(M3UStream))
+                    {
+                        collection = (IEnumerable<TEntity>)context.M3UStreams;
+                        totalRecords = context.M3UStreams.Count();
+
+                        if (request.WhereCallback != null)
+                            totalFilteredRecords = context.M3UStreams.Where(x => request.WhereCallback(x as TEntity)).Count();
+                        else
+                            totalFilteredRecords = totalRecords;
+                    }
+                    else if (typeof(TEntity) == typeof(Mp3FileReference))
+                    {
+                        collection = (IEnumerable<TEntity>)context.Mp3FileReferences;
+                        totalRecords = context.Mp3FileReferences.Count();
+
+                        if (request.WhereCallback != null)
+                            totalFilteredRecords = context.Mp3FileReferences.AsEnumerable().Where(x => request.WhereCallback(x as TEntity)).Count();
+                        else
+                            totalFilteredRecords = totalRecords;
+                    }
+                    else if (typeof(TEntity) == typeof(Mp3FileReferenceArtist))
+                    {
+                        collection = (IEnumerable<TEntity>)context.Mp3FileReferenceArtists;
+                        totalRecords = context.Mp3FileReferenceArtists.Count();
+
+                        if (request.WhereCallback != null)
+                            totalFilteredRecords = context.Mp3FileReferenceArtists.AsEnumerable().Where(x => request.WhereCallback(x as TEntity)).Count();
+                        else
+                            totalFilteredRecords = totalRecords;
+                    }
+                    else if (typeof(TEntity) == typeof(Mp3FileReferenceGenre))
+                    {
+                        collection = (IEnumerable<TEntity>)context.Mp3FileReferenceGenres;
+                        totalRecords = context.Mp3FileReferenceGenres.Count();
+
+                        if (request.WhereCallback != null)
+                            totalFilteredRecords = context.Mp3FileReferenceGenres.AsEnumerable().Where(x => request.WhereCallback(x as TEntity)).Count();
+                        else
+                            totalFilteredRecords = totalRecords;
+                    }
+                    else if (typeof(TEntity) == typeof(RadioBrowserStation))
+                    {
+                        collection = (IEnumerable<TEntity>)context.RadioBrowserStations;
+                        totalRecords = context.RadioBrowserStations.Count();
+
+                        if (request.WhereCallback != null)
+                            totalFilteredRecords = context.RadioBrowserStations.AsEnumerable().Where(x => request.WhereCallback(x as TEntity)).Count();
+                        else
+                            totalFilteredRecords = totalRecords;
+                    }
+                    else
+                    {
+                        throw new Exception("IModelController.GetPage only supports flat entity types");
+                    }
+
+                    // Order By
+                    if (request.OrderByCallback != null)
+                    {
+                        collection = collection.OrderBy(x => request.OrderByCallback(x));
+                    }
+
+                    // Where
+                    if (request.WhereCallback != null)
+                    {
+                        collection = collection.AsEnumerable().Where(x => request.WhereCallback(x));
+                    }
+
+                    // Finish Linq Statements (PageStart is a non-index integer)
+                    collection = collection.Skip((request.PageNumber - 1) * request.PageSize).Take(request.PageSize);
+
+                    return new PageResult<TEntity>()
+                    {
+                        Results = collection.ToList(),
+                        TotalRecordCount = totalRecords,
+                        TotalRecordCountFiltered = totalFilteredRecords,
+                        PageCount = (int)Math.Ceiling(totalRecords / (double)request.PageSize),
+                        PageNumber = request.PageNumber,
+                        PageSize = Math.Min(request.PageSize, collection.Count())
+                    };
+                }
+            }
+            catch (Exception ex)
+            {
+                _outputController.AddLog("Error retrieving data page:  " + ex.Message, LogMessageType.General, LogLevel.Error);
+            }
+
+            return PageResult<TEntity>.GetDefault();
         }
 
         private AudioStationDbContext CreateContext()

@@ -33,7 +33,7 @@ namespace AudioStation
             configurationManager.Initialize();
 
             // Apply configuration
-            modelController.Initialize();
+            //modelController.Initialize();
 
             // This will only call initialize on the module(s). Any other pieces will wait
             // on their injector until they're called from the container. So, the main view

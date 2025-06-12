@@ -8,18 +8,18 @@ namespace AudioStation.Core.Component.Interface
         /// <summary>
         /// Method to initialize the controller. This must be called prior to usage.
         /// </summary>
-        void Initialize();
+        //void Initialize();
 
         /// <summary>
         /// Collection of primary library of mp3 file references. The rest of the mp3 data may be
         /// loaded using the IModelController.
         /// </summary>
-        Library Library { get; }
+        //Library Library { get; }
 
         /// <summary>
         /// Collection of radio stream data. Additional data my be loaded using online data services.
         /// </summary>
-        Radio Radio { get; }
+        //Radio Radio { get; }
 
         /// <summary>
         /// Adds LibraryEntry to database. Does NOT update any existing, similar, entry. The tag data
@@ -38,16 +38,9 @@ namespace AudioStation.Core.Component.Interface
         void AddRadioEntries(IEnumerable<M3UStream> entries);
 
         /// <summary>
-        /// Loads tag data from file. This data does NOT get added to the library.
+        /// Requests a page of data from the database
         /// </summary>
-        TagLib.File LoadTag(string fileName);
-
-        /// <summary>
-        /// Loads music brainz record. The ID for this sometimes is stored inside the Mp3 tag data. If
-        /// it is not there, you can load it using their web-service, or other tools. Modify your tag
-        /// data to include the music brainz ID - then you may load the rest of their data at runtime
-        /// using this method.
-        /// </summary>
-        //MusicBrainzRecordViewModel LoadFromMusicBrainz(string musicBrainzId);
+        /// <typeparam name="TEntity">The specific entity type</typeparam>
+        PageResult<TEntity> GetPage<TEntity, TOrder>(PageRequest<TEntity, TOrder> request) where TEntity : class;
     }
 }

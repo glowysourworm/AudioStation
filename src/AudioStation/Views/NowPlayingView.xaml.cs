@@ -1,7 +1,10 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
 
 using AudioStation.Controller.Interface;
+using AudioStation.Core.Component.Interface;
+using AudioStation.Core.Database;
 using AudioStation.Core.Model;
 using AudioStation.ViewModel.LibraryViewModels;
 using AudioStation.ViewModels;
@@ -10,13 +13,19 @@ using AudioStation.ViewModels.LibraryViewModels;
 using SimpleWpf.IocFramework.Application.Attribute;
 using SimpleWpf.IocFramework.EventAggregation;
 
+using EMA.ExtendedWPFVisualTreeHelper;
+
 namespace AudioStation.Views
 {
     [IocExportDefault]
     public partial class NowPlayingView : UserControl
     {
+        private readonly IModelController _modelController;
         private readonly IAudioController _audioController;
         private readonly IIocEventAggregator _eventAggregator;
+
+        private int _pageNumber;
+        private int _pageSize;
 
         public NowPlayingView()
         {
@@ -24,12 +33,61 @@ namespace AudioStation.Views
         }
 
         [IocImportingConstructor]
-        public NowPlayingView(IAudioController audioController, IIocEventAggregator eventAggregator)
+        public NowPlayingView(IModelController modelController, IAudioController audioController, IIocEventAggregator eventAggregator)
         {
+            _modelController = modelController;
             _audioController = audioController;
             _eventAggregator = eventAggregator;
 
             InitializeComponent();
+
+            this.DataContextChanged += NowPlayingView_DataContextChanged;
+        }
+
+        private void NowPlayingView_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            var viewModel = this.DataContext as LibraryViewModel;
+
+            if (viewModel != null)
+            {
+                _pageSize = viewModel.LibraryEntries.PageSize;
+
+                if (viewModel.Artists.Count == 0)
+                    LoadArtistPage(1, true);
+            }
+        }
+
+        private void LoadArtistPage(int pageNumber, bool reset)
+        {
+            _pageNumber = pageNumber;
+
+            var viewModel = this.DataContext as LibraryViewModel;
+            
+            if (viewModel != null)
+            {
+                var result = _modelController.GetPage(new PageRequest<Mp3FileReferenceArtist, string>()
+                {
+                    PageNumber = pageNumber,
+                    PageSize = _pageSize,
+                    OrderByCallback = (entity) => entity.Name,
+                    WhereCallback = !string.IsNullOrWhiteSpace(viewModel.ArtistSearch) ? this.ArtistContainsCallback : null
+                });
+
+                if (result.Results.Any())
+                {
+                    viewModel.LoadArtists(result, reset);
+                }
+            }
+        }
+
+        private bool ArtistContainsCallback(Mp3FileReferenceArtist artist)
+        {
+            var viewModel = this.DataContext as LibraryViewModel;
+
+            if (string.IsNullOrWhiteSpace(viewModel?.ArtistSearch))
+                return true;
+
+            return artist.Name.Contains(viewModel?.ArtistSearch, StringComparison.OrdinalIgnoreCase);
         }
 
         private void OnArtistSelectionChanged(object? sender, SelectionChangedEventArgs e)
@@ -131,6 +189,24 @@ namespace AudioStation.Views
         private void ArtistDetailLB_PreviewMouseWheel(object sender, System.Windows.Input.MouseWheelEventArgs e)
         {
 
+        }
+
+        private void ArtistLB_ScrollChanged(object sender, ScrollChangedEventArgs e)
+        {
+            var scrollViewer = WpfVisualFinders.FindChild<ScrollViewer>(sender as DependencyObject);
+
+            if (scrollViewer != null)
+            {
+                if (scrollViewer.VerticalOffset >= (0.8 * scrollViewer.ScrollableHeight))
+                {
+                    LoadArtistPage(_pageNumber + 1, false);
+                }
+            }
+        }
+
+        private void OnArtistSearchChanged(object sender, TextChangedEventArgs e)
+        {
+            LoadArtistPage(1, true);
         }
     }
 }
