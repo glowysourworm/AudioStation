@@ -112,10 +112,9 @@ namespace AudioStation.ViewModels
             if (reset)
                 this.Artists.Clear();
 
-            this.Artists.AddRange(result.Results.Select(artist => new ArtistViewModel()
+            this.Artists.AddRange(result.Results.Select(artist => new ArtistViewModel(artist.Id)
             {
-                Artist = artist.Name,
-                Id = artist.Id
+                Artist = artist.Name
             }));
 
             this.TotalArtistCount = result.TotalRecordCount;
@@ -126,10 +125,9 @@ namespace AudioStation.ViewModels
             if (reset)
                 this.Albums.Clear();
 
-            this.Albums.AddRange(result.Results.Select(album => new AlbumViewModel()
+            this.Albums.AddRange(result.Results.Select(album => new AlbumViewModel(album.Id)
             {
-                Album = album.Name,
-                Id = album.Id
+                Album = album.Name
             }));
 
             this.TotalAlbumCount = result.TotalRecordCount;

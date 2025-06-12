@@ -9,13 +9,19 @@ using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 
 using AudioStation.Component;
+using AudioStation.Controller.Interface;
+using AudioStation.Controller.Model;
+
+using SimpleWpf.IocFramework.Application;
+
+using TagLib;
 
 namespace AudioStation.Controls
 {
     public class WebImageControl : Image
     {
         public static readonly DependencyProperty ImageEndpointProperty =
-            DependencyProperty.Register("ImageEndpoint", typeof(string), typeof(WebImageControl), new PropertyMetadata(string.Empty, OnImageEndpointChanged));
+            DependencyProperty.Register("ImageEndpoint", typeof(string), typeof(WebImageControl), new PropertyMetadata(string.Empty));
 
         public string ImageEndpoint
         {
@@ -23,14 +29,25 @@ namespace AudioStation.Controls
             set { SetValue(ImageEndpointProperty, value); }
         }
 
-        protected string LastImageEndpoint { get; private set; }
+        /// <summary>
+        /// Sets the (static) image size based on an enumeration. (see ImageCacheType / ImageSize for sizes)
+        /// </summary>
+        public ImageCacheType ImageSize { get; private set; }
+
+        private readonly PictureType _cacheType;
+        private readonly IImageCacheController _cacheController;
 
         public WebImageControl()
         {
+            _cacheController = IocContainer.Get<IImageCacheController>();
+
+            // This may help to detail web images for some services that deal with mp3 tags
+            _cacheType = PictureType.Artist;
+
             this.Unloaded += WebImageControl_Unloaded;
+            this.Loaded += WebImageControl_Loaded;
             this.IsVisibleChanged += WebImageControl_IsVisibleChanged;
         }
-
         ~WebImageControl()
         {
             // DESTRUCTOR CALED FROM NON-DISPATCHER ?!?
@@ -42,6 +59,11 @@ namespace AudioStation.Controls
             }, DispatcherPriority.ApplicationIdle);
         }
 
+        private void WebImageControl_Loaded(object sender, RoutedEventArgs e)
+        {
+            Reload();
+        }
+
         private void WebImageControl_Unloaded(object sender, RoutedEventArgs e)
         {
             this.Source = null;
@@ -49,47 +71,36 @@ namespace AudioStation.Controls
 
         private void WebImageControl_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
-            if (this.IsVisible &&
-                !string.IsNullOrEmpty(this.ImageEndpoint) && 
-                this.Source == null)
-            {
-                LoadImageAsync();
-            }
+            Reload();
         }
 
-        private void LoadImageAsync()
+        private async void Reload()
         {
-            if (this.ImageEndpoint == this.LastImageEndpoint)
-                return;
+            // Don't await the BeginInvoke
+            if (Thread.CurrentThread.ManagedThreadId != Application.Current.Dispatcher.Thread.ManagedThreadId)
+                Application.Current.Dispatcher.BeginInvoke(Reload, DispatcherPriority.Background);
 
-            Application.Current.Dispatcher.BeginInvoke(async () =>
+            else
             {
-                // This can happen during virtual scrolling
-                if (this.ImageEndpoint == this.LastImageEndpoint)
+                // Go ahead and dump the source data until we've been reloaded by the container
+                this.Source = null;
+
+                if (double.IsNaN(this.Width) ||
+                    double.IsNaN(this.Height))
                     return;
 
-                var client = new HttpClient();
-                var buffer = await client.GetByteArrayAsync(this.ImageEndpoint);
+                if (string.IsNullOrEmpty(this.ImageEndpoint) ||
+                   !this.IsVisible)
+                    return;
 
-                this.Source = BitmapConverter.BitmapDataToBitmapSource(buffer, (int)this.Width, (int)this.Height);
-                this.LastImageEndpoint = this.ImageEndpoint;
-
-                client.Dispose();
-                client = null;
-
-                InvalidateVisual();
-
-            }, DispatcherPriority.ApplicationIdle);
-        }
-
-        private static void OnImageEndpointChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            var control = d as WebImageControl;
-            var imageFile = e.NewValue as string;
-
-            if (control != null && !string.IsNullOrEmpty(imageFile) && imageFile != control.LastImageEndpoint)
-            {
-                control.LoadImageAsync();
+                switch (_cacheType)
+                {
+                    case PictureType.FrontCover:
+                        this.Source = await _cacheController.GetFromEndpoint(this.ImageEndpoint, _cacheType, this.ImageSize);
+                        break;
+                    default:
+                        throw new Exception("Unhandled Picture Type:  WebImageControl.cs");
+                }
             }
         }
     }

@@ -6,6 +6,7 @@
 			 xmlns:fa5="http://schemas.fontawesome.com/icons/"    
              xmlns:local="clr-namespace:AudioStation.Views"
              xmlns:controls="clr-namespace:AudioStation.Controls"
+             xmlns:cacheModel="clr-namespace:AudioStation.Controller.Model"
              xmlns:controlAnimation="clr-namespace:AudioStation.Controls.Animation">
     <Border Padding="10">
         <Grid>
@@ -20,10 +21,9 @@
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
 
-            <controls:LibraryImageControl ImageFile="{Binding FileNameRef}"
-				                                  Height="200" Width="200" Grid.RowSpan="2"
-				                                  VerticalAlignment="Top">
-            </controls:LibraryImageControl>
+            <controls:LibraryImageControl DataContext="{Binding}" 
+                                          ImageSize="{x:Static cacheModel:ImageCacheType.Medium}"  
+                                          Height="200" Width="200" Grid.RowSpan="2" VerticalAlignment="Top" />
 
             <!-- Album Banner -->
             <Border Background="AliceBlue" Grid.Column="1">

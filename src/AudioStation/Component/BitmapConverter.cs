@@ -4,28 +4,47 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Windows.Media.Imaging;
 
+using AudioStation.Component.Interface;
+using AudioStation.Controller.Model;
+using AudioStation.Core.Component.Interface;
+using AudioStation.Model;
+
+using Microsoft.Extensions.Logging;
+
+using SimpleWpf.IocFramework.Application.Attribute;
+
 namespace AudioStation.Component
 {
-    public static class BitmapConverter
+    [IocExport(typeof(IBitmapConverter))]
+    public class BitmapConverter : IBitmapConverter
     {
-        public static BitmapSource BitmapDataToBitmapSource(byte[] buffer, int desiredWidth, int desiredHeight)
+        private readonly IOutputController _outputController;
+
+        [IocImportingConstructor]
+        public BitmapConverter(IOutputController outputController)
+        {
+            _outputController = outputController;
+        }
+
+        public BitmapSource BitmapDataToBitmapSource(byte[] buffer, ImageSize imageSize)
         {
             try
             {
                 using (var memoryStream = new MemoryStream(buffer))
                 {
                     var bitmap = new Bitmap(memoryStream, false);
-                    return BitmapToBitmapSource(bitmap, desiredWidth, desiredHeight);
+                    return BitmapToBitmapSource(bitmap, imageSize);
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _outputController.AddLog("Error Converting Bitmap:  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
                 return null;
             }
         }
 
         /// https://stackoverflow.com/a/30729291
-        public static BitmapSource BitmapToBitmapSource(Bitmap bitmap, int width, int height)
+        public BitmapSource BitmapToBitmapSource(Bitmap bitmap, ImageSize imageSize)
         {
             try
             {
@@ -33,32 +52,15 @@ namespace AudioStation.Component
                 //
                 // https://learn.microsoft.com/en-us/dotnet/desktop/winforms/advanced/how-to-use-interpolation-mode-to-control-image-quality-during-scaling
                 //
-                // Procedure:
-                //
-                // 1) Create empty image with the desired size
-                // 2) Load graphics from the current bitmap
-                // 3) Apply interpolation
-                // 4) Draw scaled image to the result
-                //
-                var resultBitmap = new Bitmap(width, height, bitmap.PixelFormat);                
-                var graphics = Graphics.FromImage(resultBitmap);
 
-                graphics.InterpolationMode = InterpolationMode.HighQualityBilinear;
-                graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
-                graphics.DrawImage(bitmap, 
-                                   new Rectangle(0, 0, width, height),
-                                   new Rectangle(0,0,bitmap.Width, bitmap.Height), 
-                                   GraphicsUnit.Pixel);
-                graphics.Flush();
-                graphics.Dispose();
-                graphics = null;
-
+                // Scale bitmap to result size (this accounts for memory)
+                var resultBitmap = ScaleBitmap(bitmap, imageSize);
 
                 var bitmapData = resultBitmap.LockBits(
                        new Rectangle(0, 0, resultBitmap.Width, resultBitmap.Height),
                        ImageLockMode.ReadOnly, resultBitmap.PixelFormat);
 
-                // TODO: Handle Pixel Formats
+                // TODO: Handle Pixel Formats (see output message log to find errors)
                 var bitmapSource = BitmapSource.Create(
                     bitmapData.Width, bitmapData.Height,
                     resultBitmap.HorizontalResolution, resultBitmap.VerticalResolution,
@@ -69,13 +71,44 @@ namespace AudioStation.Component
 
                 return bitmapSource;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _outputController.AddLog("Error Converting Bitmap:  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
                 return null;
             }
         }
 
-        private static System.Windows.Media.PixelFormat GetWpfPixelFormat(System.Drawing.Imaging.PixelFormat format)
+        private Bitmap ScaleBitmap(Bitmap bitmap, ImageSize imageSize)
+        {
+            // Leave full sized bitmaps as is
+            if (imageSize.IsFullSized())
+                return bitmap;
+
+            // Procedure:
+            //
+            // 1) Create empty image with the desired size
+            // 2) Load graphics from the current bitmap
+            // 3) Apply interpolation
+            // 4) Draw scaled image to the result
+            //
+
+            var resultBitmap = new Bitmap(imageSize.Width, imageSize.Height, bitmap.PixelFormat);
+            var graphics = Graphics.FromImage(resultBitmap);
+
+            graphics.InterpolationMode = InterpolationMode.HighQualityBilinear;
+            graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
+            graphics.DrawImage(bitmap,
+                               new Rectangle(0, 0, imageSize.Width, imageSize.Height),
+                               new Rectangle(0, 0, bitmap.Width, bitmap.Height),
+                               GraphicsUnit.Pixel);
+            graphics.Flush();
+            graphics.Dispose();
+            graphics = null;
+
+            return resultBitmap;
+        }
+
+        private System.Windows.Media.PixelFormat GetWpfPixelFormat(System.Drawing.Imaging.PixelFormat format)
         {
             switch (format)
             {
@@ -94,7 +127,7 @@ namespace AudioStation.Component
                 case System.Drawing.Imaging.PixelFormat.Format48bppRgb:
                     return System.Windows.Media.PixelFormats.Rgb48;
                 default:
-                    throw new Exception("Unhandled pixel format transfer (GDI -> WPF):  LibraryImageCache");
+                    throw new Exception("Unhandled pixel format transfer (GDI -> WPF):  " + format.ToString());
             }
         }
     }

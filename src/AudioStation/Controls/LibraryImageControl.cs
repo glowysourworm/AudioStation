@@ -2,30 +2,34 @@
 using System.Windows.Controls;
 using System.Windows.Threading;
 
-using AudioStation.Component;
+using AudioStation.Controller.Interface;
+using AudioStation.Controller.Model;
+using AudioStation.ViewModel.LibraryViewModels;
+using AudioStation.ViewModels;
+
+using SimpleWpf.IocFramework.Application;
 
 namespace AudioStation.Controls
 {
-    /// <summary>
-    /// Image that supports lazy loading from a file
-    /// </summary>
     public class LibraryImageControl : Image
     {
-        public static readonly DependencyProperty ImageFileProperty =
-            DependencyProperty.Register("ImageFile", typeof(string), typeof(LibraryImageControl), new PropertyMetadata(string.Empty, OnImageFileChanged));
+        private readonly IImageCacheController _cacheController;
 
-        public string ImageFile
-        {
-            get { return (string)GetValue(ImageFileProperty); }
-            set { SetValue(ImageFileProperty, value); }
-        }
-
-        protected string LastImageFile { get; private set; }
+        /// <summary>
+        /// Sets the (static) image size based on an enumeration. (see ImageCacheType / ImageSize for sizes)
+        /// </summary>
+        public ImageCacheType ImageSize { get; set; }
+        protected EntityViewModel ViewModel { get; private set; }
 
         public LibraryImageControl()
         {
+            // IocRegion doesn't have support for templates (easily)
+            _cacheController = IocContainer.Get<IImageCacheController>();
+
             this.Unloaded += LibraryImageControl_Unloaded;
+            this.Loaded += LibraryArtistImage_Loaded;
             this.IsVisibleChanged += LibraryImageControl_IsVisibleChanged;
+            this.DataContextChanged += LibraryArtistImage_DataContextChanged;
         }
 
         ~LibraryImageControl()
@@ -35,50 +39,62 @@ namespace AudioStation.Controls
             {
                 this.Unloaded -= LibraryImageControl_Unloaded;
                 this.IsVisibleChanged -= LibraryImageControl_IsVisibleChanged;
+                this.DataContextChanged -= LibraryArtistImage_DataContextChanged;
 
             }, DispatcherPriority.ApplicationIdle);
         }
+        private void LibraryArtistImage_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            this.ViewModel = e.NewValue as ArtistViewModel;
 
+            Reload();
+        }
+        private void LibraryArtistImage_Loaded(object sender, RoutedEventArgs e)
+        {
+            Reload();
+        }
         private void LibraryImageControl_Unloaded(object sender, RoutedEventArgs e)
         {
             this.Source = null;
         }
         private void LibraryImageControl_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
-            if (this.IsVisible &&
-                !string.IsNullOrEmpty(this.ImageFile) &&
-                this.Source == null)
-            {
-                LoadImageAsync();
-            }
+            Reload();
         }
 
-        private void LoadImageAsync()
+        protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)
         {
-            // CHECK LAST SETTING
-            if (this.ImageFile == this.LastImageFile)
-                return;
+            base.OnRenderSizeChanged(sizeInfo);
 
-            Application.Current.Dispatcher.BeginInvoke(() =>
+            Reload();
+        }
+
+        private void Reload()
+        {
+            if (Thread.CurrentThread.ManagedThreadId != Application.Current.Dispatcher.Thread.ManagedThreadId)
+                Application.Current.Dispatcher.BeginInvoke(Reload, DispatcherPriority.Background);
+            else
             {
-                // This can happen during virtual scrolling
-                if (this.ImageFile == this.LastImageFile)
+                // Go ahead and dump the source data until we've been reloaded by the container
+                this.Source = null;
+
+                if (this.ViewModel == null ||
+                   !this.IsVisible)
                     return;
 
-                this.Source = LibraryImageCache.Get(this.ImageFile, (int)this.Width, (int)this.Height).FirstOrDefault();
-                this.LastImageFile = this.ImageFile;
-
-            }, DispatcherPriority.ApplicationIdle);
-        }
-
-        private static void OnImageFileChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            var control = d as LibraryImageControl;
-            var imageFile = e.NewValue as string;
-
-            if (control != null && !string.IsNullOrEmpty(imageFile) && imageFile != control.LastImageFile)
-            {
-                control.LoadImageAsync();
+                switch (this.ViewModel.Type)
+                {
+                    case Core.Model.LibraryEntityType.Album:
+                        this.Source = _cacheController.GetForAlbum(this.ViewModel.Id, this.ImageSize);
+                        break;
+                    case Core.Model.LibraryEntityType.Artist:
+                        this.Source = _cacheController.GetForArtist(this.ViewModel.Id, this.ImageSize);
+                        break;
+                    case Core.Model.LibraryEntityType.Track:
+                    case Core.Model.LibraryEntityType.Genre:
+                    default:
+                        throw new Exception("Unhandled LibraryEntityType:  LibraryImageControl.cs");
+                }                
             }
         }
     }

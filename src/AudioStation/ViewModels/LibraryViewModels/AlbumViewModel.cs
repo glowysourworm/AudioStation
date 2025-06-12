@@ -1,5 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 
+using AudioStation.Core.Model;
+using AudioStation.ViewModels;
 using AudioStation.ViewModels.LibraryViewModels;
 using AudioStation.ViewModels.LibraryViewModels.Comparer;
 
@@ -11,20 +13,14 @@ namespace AudioStation.ViewModel.LibraryViewModels
     /// <summary>
     /// Component used to view album details in the application (for valid library entries)
     /// </summary>
-    public class AlbumViewModel : ViewModelBase
+    public class AlbumViewModel : EntityViewModel
     {
-        int _id;
         string _album;
         string _primaryArtist;
         uint _year;
         TimeSpan _duration;
         SortedObservableCollection<LibraryEntryViewModel> _tracks;
 
-        public int Id
-        {
-            get { return _id; }
-            set { this.RaiseAndSetIfChanged(ref _id, value); }
-        }
         public string Album
         {
             get { return _album; }
@@ -51,7 +47,7 @@ namespace AudioStation.ViewModel.LibraryViewModels
             set { this.RaiseAndSetIfChanged(ref _tracks, value); }
         }
 
-        public AlbumViewModel()
+        public AlbumViewModel(int id) : base(id, LibraryEntityType.Album)
         {
             this.Tracks = new SortedObservableCollection<LibraryEntryViewModel>(new PropertyComparer<uint, LibraryEntryViewModel>(x => x.Track));
             this.Duration = TimeSpan.Zero;

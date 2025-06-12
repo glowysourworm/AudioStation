@@ -1,6 +1,7 @@
-﻿using AudioStation.ViewModels.LibraryViewModels.Comparer;
+﻿using AudioStation.Core.Model;
+using AudioStation.ViewModels;
+using AudioStation.ViewModels.LibraryViewModels.Comparer;
 
-using SimpleWpf.Extensions;
 using SimpleWpf.Extensions.ObservableCollection;
 
 namespace AudioStation.ViewModel.LibraryViewModels
@@ -8,17 +9,11 @@ namespace AudioStation.ViewModel.LibraryViewModels
     /// <summary>
     /// View model for viewing LibraryEntry data by artist
     /// </summary>
-    public class ArtistViewModel : ViewModelBase
+    public class ArtistViewModel : EntityViewModel
     {
-        int _id;
         string _artist;
         SortedObservableCollection<AlbumViewModel> _albums;
 
-        public int Id
-        {
-            get { return _id; }
-            set { this.RaiseAndSetIfChanged(ref _id, value); }
-        }
         public string Artist
         {
             get { return _artist; }
@@ -30,7 +25,7 @@ namespace AudioStation.ViewModel.LibraryViewModels
             set { this.RaiseAndSetIfChanged(ref _albums, value); }
         }
 
-        public ArtistViewModel()
+        public ArtistViewModel(int id) : base(id, LibraryEntityType.Artist)
         {
             this.Artist = string.Empty;
             this.Albums = new SortedObservableCollection<AlbumViewModel>(new PropertyComparer<uint, AlbumViewModel>(x => x.Year));

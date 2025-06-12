@@ -5,6 +5,7 @@
 			 xmlns:fa5="http://schemas.fontawesome.com/icons/"
 			 xmlns:local="clr-namespace:AudioStation.Views"
 			 xmlns:controls="clr-namespace:AudioStation.Controls"
+             xmlns:cacheModel="clr-namespace:AudioStation.Controller.Model"
              xmlns:region="clr-namespace:SimpleWpf.IocFramework.RegionManagement;assembly=SimpleWpf.IocFramework">
     <Grid>
 
@@ -16,8 +17,8 @@
 
         <!-- Now Playing Background -->
         <controls:LibraryImageControl DataContext="{Binding Playlist.NowPlaying}"
-                                        Visibility="{Binding DataContext, RelativeSource={RelativeSource Mode=Self}, Converter={StaticResource NonNullVisibilityConverter}}"
-                                        ImageFile="{Binding FileName}" 
+                                      ImageSize="{x:Static cacheModel:ImageCacheType.FullSize}"
+                                        Visibility="{Binding DataContext, RelativeSource={RelativeSource Mode=Self}, Converter={StaticResource NonNullVisibilityConverter}}"                                        
                                         Grid.RowSpan="5"
                                         HorizontalAlignment="Stretch" 
                                         VerticalAlignment="Stretch">
