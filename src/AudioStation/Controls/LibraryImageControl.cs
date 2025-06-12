@@ -45,7 +45,7 @@ namespace AudioStation.Controls
         }
         private void LibraryArtistImage_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
-            this.ViewModel = e.NewValue as ArtistViewModel;
+            this.ViewModel = e.NewValue as EntityViewModel;
 
             Reload();
         }
@@ -94,7 +94,9 @@ namespace AudioStation.Controls
                     case Core.Model.LibraryEntityType.Genre:
                     default:
                         throw new Exception("Unhandled LibraryEntityType:  LibraryImageControl.cs");
-                }                
+                }
+
+                InvalidateVisual();
             }
         }
     }

@@ -47,6 +47,16 @@ namespace AudioStation.Core.Component.Interface
         IEnumerable<Mp3FileReference> GetArtistFiles(int artistId);
 
         /// <summary>
+        /// Returns all albums associated with this artist
+        /// </summary>
+        IEnumerable<Mp3FileReferenceAlbum> GetArtistAlbums(int artistId, bool isPrimaryArtist);
+
+        /// <summary>
+        /// Returns tracks associated with an album
+        /// </summary>
+        IEnumerable<Mp3FileReference> GetAlbumTracks(int albumId);
+
+        /// <summary>
         /// Requests a page of data from the database
         /// </summary>
         /// <typeparam name="TEntity">The specific entity type</typeparam>

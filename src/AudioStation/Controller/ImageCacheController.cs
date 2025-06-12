@@ -1,9 +1,6 @@
-﻿using System;
-using System.Drawing;
-using System.Net.Http;
+﻿using System.Net.Http;
 using System.Windows.Media;
 
-using AudioStation.Component;
 using AudioStation.Component.Interface;
 using AudioStation.Controller.Interface;
 using AudioStation.Controller.Model;
@@ -13,7 +10,6 @@ using AudioStation.Model;
 using Microsoft.Extensions.Logging;
 
 using SimpleWpf.IocFramework.Application.Attribute;
-using SimpleWpf.SimpleCollections.Collection;
 
 using TagLib;
 
@@ -27,14 +23,16 @@ namespace AudioStation.Controller
         readonly IOutputController _outputController;
 
         private const int FULL_CACHE_MAX_ENTRIES = 30;
+        private const int MEDIUM_CACHE_MAX_ENTRIES = 100;
+        private const int SMALL_CACHE_MAX_ENTRIES = 5000;
+        private const int THUMBNAIL_CACHE_MAX_ENTRIES = 20000;
 
-        protected SimpleDictionary<ImageCacheKey, ImageCacheItem> CacheByArtist { get; private set; }
-        protected SimpleDictionary<ImageCacheKey, ImageCacheItem> CacheByAlbum { get; private set; }
+        private const int WEB_CACHE_MAX_ENTRIES = 300;              // Currently, one virtual scroller
 
-        protected SimpleDictionary<int, ImageCacheItem> ArtistThumbnails { get; private set; }
-        protected SimpleDictionary<int, ImageCacheItem> AlbumThumbnails { get; private set; }
+        protected ImageCacheSet<ImageCacheType, ImageCacheKey, ImageCacheItem> ArtistCacheSet;
+        protected ImageCacheSet<ImageCacheType, ImageCacheKey, ImageCacheItem> AlbumCacheSet;
 
-        protected SimpleDictionary<string, ImageSource> WebImageCache { get; private set;}
+        protected ImageCacheSet<ImageCacheType, string, ImageCacheItem> WebImageCacheSet;
 
         private object _bitmapConverterLock = new object();
 
@@ -47,13 +45,27 @@ namespace AudioStation.Controller
             _bitmapConverter = bitmapConverter;
             _outputController = outputController;
 
-            this.CacheByAlbum = new SimpleDictionary<ImageCacheKey, ImageCacheItem>();
-            this.CacheByArtist = new SimpleDictionary<ImageCacheKey, ImageCacheItem>();
-            this.ArtistThumbnails = new SimpleDictionary<int, ImageCacheItem>();
-            this.AlbumThumbnails = new SimpleDictionary<int, ImageCacheItem>();
+            this.ArtistCacheSet = new ImageCacheSet<ImageCacheType, ImageCacheKey, ImageCacheItem>();
+            this.AlbumCacheSet = new ImageCacheSet<ImageCacheType, ImageCacheKey, ImageCacheItem>();
 
             // TASK THREAD ONLY!
-            this.WebImageCache = new SimpleDictionary<string, ImageSource>();
+            this.WebImageCacheSet = new ImageCacheSet<ImageCacheType, string, ImageCacheItem>();
+
+            // Add Caches
+            this.ArtistCacheSet.AddCache(ImageCacheType.Thumbnail, new ImageCache<ImageCacheKey, ImageCacheItem>(THUMBNAIL_CACHE_MAX_ENTRIES));
+            this.ArtistCacheSet.AddCache(ImageCacheType.Small, new ImageCache<ImageCacheKey, ImageCacheItem>(SMALL_CACHE_MAX_ENTRIES));
+            this.ArtistCacheSet.AddCache(ImageCacheType.Medium, new ImageCache<ImageCacheKey, ImageCacheItem>(MEDIUM_CACHE_MAX_ENTRIES));
+            this.ArtistCacheSet.AddCache(ImageCacheType.FullSize, new ImageCache<ImageCacheKey, ImageCacheItem>(FULL_CACHE_MAX_ENTRIES));
+
+            this.AlbumCacheSet.AddCache(ImageCacheType.Thumbnail, new ImageCache<ImageCacheKey, ImageCacheItem>(THUMBNAIL_CACHE_MAX_ENTRIES));
+            this.AlbumCacheSet.AddCache(ImageCacheType.Small, new ImageCache<ImageCacheKey, ImageCacheItem>(SMALL_CACHE_MAX_ENTRIES));
+            this.AlbumCacheSet.AddCache(ImageCacheType.Medium, new ImageCache<ImageCacheKey, ImageCacheItem>(MEDIUM_CACHE_MAX_ENTRIES));
+            this.AlbumCacheSet.AddCache(ImageCacheType.FullSize, new ImageCache<ImageCacheKey, ImageCacheItem>(FULL_CACHE_MAX_ENTRIES));
+
+            this.WebImageCacheSet.AddCache(ImageCacheType.Thumbnail, new ImageCache<string, ImageCacheItem>(THUMBNAIL_CACHE_MAX_ENTRIES));
+            this.WebImageCacheSet.AddCache(ImageCacheType.Small, new ImageCache<string, ImageCacheItem>(SMALL_CACHE_MAX_ENTRIES));
+            this.WebImageCacheSet.AddCache(ImageCacheType.Medium, new ImageCache<string, ImageCacheItem>(MEDIUM_CACHE_MAX_ENTRIES));
+            this.WebImageCacheSet.AddCache(ImageCacheType.FullSize, new ImageCache<string, ImageCacheItem>(FULL_CACHE_MAX_ENTRIES));
         }
 
         public ImageSource GetForArtist(int artistId, ImageCacheType cacheAsType)
@@ -91,8 +103,8 @@ namespace AudioStation.Controller
                 return Task.Run<ImageSource>(async () =>
                 {
                     // TASK THREAD ONLY!
-                    if (this.WebImageCache.ContainsKey(endpoint))
-                        return this.WebImageCache[endpoint];
+                    if (this.WebImageCacheSet.GetCache(cacheAsType).Contains(endpoint))
+                        return this.WebImageCacheSet.GetCache(cacheAsType).Get(endpoint).GetFirstImage();
 
                     var data = await GetWebImage(endpoint);
 
@@ -101,12 +113,12 @@ namespace AudioStation.Controller
 
                     ImageSource imageSource = null;
 
-                    lock(_bitmapConverterLock)
+                    lock (_bitmapConverterLock)
                     {
                         imageSource = _bitmapConverter.BitmapDataToBitmapSource(data, new ImageSize(cacheAsType));
                     }
 
-                    this.WebImageCache.Add(endpoint, imageSource);
+                    this.WebImageCacheSet.GetCache(cacheAsType).Add(endpoint, new ImageCacheItem(cacheType, imageSource));
 
                     return imageSource;
                 });
@@ -142,11 +154,19 @@ namespace AudioStation.Controller
         {
             var cacheKey = CreateKey(entityId, cacheAsType);
 
-            if (this.CacheByArtist.ContainsKey(cacheKey))
-                return this.CacheByArtist[cacheKey].GetArtistImage();
+            if (forArtist)
+            {
+                if (this.ArtistCacheSet.GetCache(cacheAsType).Contains(cacheKey))
+                    return this.ArtistCacheSet.GetCache(cacheAsType).Get(cacheKey).GetArtistImage();
+            }
+            else
+            {
+                if (this.AlbumCacheSet.GetCache(cacheAsType).Contains(cacheKey))
+                    return this.AlbumCacheSet.GetCache(cacheAsType).Get(cacheKey).GetAlbumImage();
+            }
 
             // Fetch the mp3 files for this artist
-            var files = forArtist ? _modelController.GetArtistFiles(entityId) : null;
+            var files = forArtist ? _modelController.GetArtistFiles(entityId) : _modelController.GetAlbumTracks(entityId);
 
             // Take all the artwork - consolidating the images
             var images = files.Select(entity => TagLib.File.Create(entity.FileName))
@@ -158,7 +178,7 @@ namespace AudioStation.Controller
             Dictionary<PictureType, ImageSource> imageSources;
 
             // Contention for web image loading (Task)
-            lock(_bitmapConverterLock)
+            lock (_bitmapConverterLock)
             {
                 imageSources = images.ToDictionary(picture => picture.Type,
                                                    picture => (ImageSource)_bitmapConverter.BitmapDataToBitmapSource(picture.Data.Data, new ImageSize(cacheAsType)));
@@ -168,9 +188,9 @@ namespace AudioStation.Controller
 
             // Cache the result
             if (forArtist)
-                this.CacheByArtist.Add(cacheKey, cacheItem);
+                this.ArtistCacheSet.GetCache(cacheAsType).Add(cacheKey, cacheItem);
             else
-                this.CacheByAlbum.Add(cacheKey, cacheItem);
+                this.AlbumCacheSet.GetCache(cacheAsType).Add(cacheKey, cacheItem);
 
             return forArtist ? cacheItem.GetArtistImage() : cacheItem.GetAlbumImage();
         }

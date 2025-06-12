@@ -1,0 +1,86 @@
+﻿using AudioStation.Component.Interface;
+using AudioStation.Core.Component.Interface;
+using AudioStation.Core.Database;
+using AudioStation.Core.Model;
+using AudioStation.ViewModel.LibraryViewModels;
+using AudioStation.ViewModels.LibraryViewModels;
+
+using SimpleWpf.IocFramework.Application.Attribute;
+
+namespace AudioStation.Component
+{
+    [IocExport(typeof(IViewModelLoader))]
+    public class ViewModelLoader : IViewModelLoader
+    {
+        readonly IModelController _modelController;
+
+        [IocImportingConstructor]
+        public ViewModelLoader(IModelController modelController)
+        {
+            _modelController = modelController;
+        }
+
+        public PageResult<ArtistViewModel> LoadArtistPage(PageRequest<Mp3FileReferenceArtist, string> request)
+        {
+            var result = new PageResult<ArtistViewModel>();
+            var resultCollection = new List<ArtistViewModel>();
+
+            // Database:  Load the artist entities
+            var artistPage = _modelController.GetPage(request);
+
+            result.PageNumber = request.PageNumber;
+            result.PageSize = request.PageSize;
+            result.TotalRecordCountFiltered = artistPage.TotalRecordCountFiltered;
+            result.TotalRecordCount = artistPage.TotalRecordCount;
+
+            // Load the album collection
+            foreach (var artist in artistPage.Results)
+            {
+                // Database:  Load the album entities
+                var albums = _modelController.GetArtistAlbums(artist.Id, true);
+
+                // Create Artist Result
+                var artistViewModel = new ArtistViewModel(artist.Id)
+                {
+                    Artist = artist.Name
+                };
+
+                // Add Album - Query Tracks
+                foreach (var album in albums)
+                {
+                    var albumViewModel = new AlbumViewModel(album.Id)
+                    {
+                        Album = album.Name,
+                        PrimaryArtist = artist.Name
+                    };
+
+                    // Database:  Load the track entities
+                    var tracks = _modelController.GetAlbumTracks(album.Id);
+
+                    // Create tracks for the album
+                    albumViewModel.Tracks.AddRange(tracks.Select(track =>
+                    {
+                        return new LibraryEntryViewModel()
+                        {
+                            Album = album.Name,
+                            Disc = (uint)album.DiscNumber,
+                            FileName = track.FileName,
+                            PrimaryArtist = artist.Name,
+                            Title = track.Title ?? "Unknown",
+                            Track = (uint)(track.Track ?? 0)
+                        };
+                    }));
+
+                    artistViewModel.Albums.Add(albumViewModel);
+                }
+
+                // Add Artist to result page
+                resultCollection.Add(artistViewModel);
+            }
+
+            result.Results = resultCollection;
+
+            return result;
+        }
+    }
+}

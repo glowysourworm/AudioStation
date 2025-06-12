@@ -1,31 +1,29 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Media;
 
+using AudioStation.Component.Interface;
 using AudioStation.Controller.Interface;
-using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Database;
 using AudioStation.Core.Model;
 using AudioStation.ViewModel.LibraryViewModels;
 using AudioStation.ViewModels;
 using AudioStation.ViewModels.LibraryViewModels;
 
+using EMA.ExtendedWPFVisualTreeHelper;
+
 using SimpleWpf.IocFramework.Application.Attribute;
 using SimpleWpf.IocFramework.EventAggregation;
-
-using EMA.ExtendedWPFVisualTreeHelper;
 
 namespace AudioStation.Views
 {
     [IocExportDefault]
     public partial class NowPlayingView : UserControl
     {
-        private readonly IModelController _modelController;
+        private readonly IViewModelLoader _viewModelLoader;
         private readonly IAudioController _audioController;
         private readonly IIocEventAggregator _eventAggregator;
 
-        private int _pageNumber;
-        private int _pageSize;
+        private int _pageNumber = 0;
 
         public NowPlayingView()
         {
@@ -33,9 +31,9 @@ namespace AudioStation.Views
         }
 
         [IocImportingConstructor]
-        public NowPlayingView(IModelController modelController, IAudioController audioController, IIocEventAggregator eventAggregator)
+        public NowPlayingView(IViewModelLoader viewModelLoader, IAudioController audioController, IIocEventAggregator eventAggregator)
         {
-            _modelController = modelController;
+            _viewModelLoader = viewModelLoader;
             _audioController = audioController;
             _eventAggregator = eventAggregator;
 
@@ -50,8 +48,6 @@ namespace AudioStation.Views
 
             if (viewModel != null)
             {
-                _pageSize = viewModel.LibraryEntries.PageSize;
-
                 if (viewModel.Artists.Count == 0)
                     LoadArtistPage(1, true);
             }
@@ -62,13 +58,13 @@ namespace AudioStation.Views
             _pageNumber = pageNumber;
 
             var viewModel = this.DataContext as LibraryViewModel;
-            
+
             if (viewModel != null)
             {
-                var result = _modelController.GetPage(new PageRequest<Mp3FileReferenceArtist, string>()
+                var result = _viewModelLoader.LoadArtistPage(new PageRequest<Mp3FileReferenceArtist, string>()
                 {
                     PageNumber = pageNumber,
-                    PageSize = _pageSize,
+                    PageSize = 30,                              // TODO: Observable collections don't work w/ the view
                     OrderByCallback = (entity) => entity.Name,
                     WhereCallback = !string.IsNullOrWhiteSpace(viewModel.ArtistSearch) ? this.ArtistContainsCallback : null
                 });
@@ -97,7 +93,7 @@ namespace AudioStation.Views
             if (e.AddedItems.Count > 0 && viewModel != null)
             {
                 // View Artist Detail
-                this.ArtistDetailLB.ItemsSource = (e.AddedItems[0] as ArtistViewModel).Albums;
+                //this.ArtistDetailLB.ItemsSource = (e.AddedItems[0] as ArtistViewModel).Albums;
             }
         }
 
@@ -194,12 +190,17 @@ namespace AudioStation.Views
         private void ArtistLB_ScrollChanged(object sender, ScrollChangedEventArgs e)
         {
             var scrollViewer = WpfVisualFinders.FindChild<ScrollViewer>(sender as DependencyObject);
+            var viewModel = this.DataContext as LibraryViewModel;
 
-            if (scrollViewer != null)
+            if (scrollViewer != null && viewModel != null)
             {
                 if (scrollViewer.VerticalOffset >= (0.8 * scrollViewer.ScrollableHeight))
                 {
                     LoadArtistPage(_pageNumber + 1, false);
+
+                    //ListBox s = new ListBox();
+
+                    //s.SetValue(CollectionViewSource.ViewProperty, null);
                 }
             }
         }

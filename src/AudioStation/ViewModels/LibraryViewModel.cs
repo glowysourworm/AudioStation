@@ -1,4 +1,6 @@
-﻿using AudioStation.Core.Component.Interface;
+﻿using System.Collections.ObjectModel;
+
+using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Database;
 using AudioStation.Core.Model;
 using AudioStation.ViewModel.LibraryViewModels;
@@ -13,10 +15,10 @@ namespace AudioStation.ViewModels
     [IocExportDefault]
     public class LibraryViewModel : ViewModelBase
     {
-        PagedObservableCollection<LibraryEntryViewModel> _libraryEntries;
-        PagedObservableCollection<AlbumViewModel> _albums;
-        PagedObservableCollection<ArtistViewModel> _artists;
-        PagedObservableCollection<GenreViewModel> _genres;
+        ObservableCollection<LibraryEntryViewModel> _libraryEntries;
+        ObservableCollection<AlbumViewModel> _albums;
+        ObservableCollection<ArtistViewModel> _artists;
+        ObservableCollection<GenreViewModel> _genres;
 
         int _totalArtistCount;
         int _totalAlbumCount;
@@ -30,22 +32,22 @@ namespace AudioStation.ViewModels
 
         string _artistSearch;
 
-        public PagedObservableCollection<LibraryEntryViewModel> LibraryEntries
+        public ObservableCollection<LibraryEntryViewModel> LibraryEntries
         {
             get { return _libraryEntries; }
             set { this.RaiseAndSetIfChanged(ref _libraryEntries, value); }
         }
-        public PagedObservableCollection<AlbumViewModel> Albums
+        public ObservableCollection<AlbumViewModel> Albums
         {
             get { return _albums; }
             set { this.RaiseAndSetIfChanged(ref _albums, value); }
         }
-        public PagedObservableCollection<ArtistViewModel> Artists
+        public ObservableCollection<ArtistViewModel> Artists
         {
             get { return _artists; }
             set { this.RaiseAndSetIfChanged(ref _artists, value); }
         }
-        public PagedObservableCollection<GenreViewModel> Genres
+        public ObservableCollection<GenreViewModel> Genres
         {
             get { return _genres; }
             set { this.RaiseAndSetIfChanged(ref _genres, value); }
@@ -101,21 +103,18 @@ namespace AudioStation.ViewModels
         [IocImportingConstructor]
         public LibraryViewModel(IModelController modelController)
         {
-            this.LibraryEntries = new PagedObservableCollection<LibraryEntryViewModel>(100);
-            this.Albums = new PagedObservableCollection<AlbumViewModel>(100);
-            this.Artists = new PagedObservableCollection<ArtistViewModel>(100);
-            this.Genres = new PagedObservableCollection<GenreViewModel>(100);
+            this.LibraryEntries = new ObservableCollection<LibraryEntryViewModel>();
+            this.Albums = new ObservableCollection<AlbumViewModel>();
+            this.Artists = new ObservableCollection<ArtistViewModel>();
+            this.Genres = new ObservableCollection<GenreViewModel>();
         }
 
-        public void LoadArtists(PageResult<Mp3FileReferenceArtist> result, bool reset)
+        public void LoadArtists(PageResult<ArtistViewModel> result, bool reset)
         {
             if (reset)
                 this.Artists.Clear();
 
-            this.Artists.AddRange(result.Results.Select(artist => new ArtistViewModel(artist.Id)
-            {
-                Artist = artist.Name
-            }));
+            this.Artists.AddRange(result.Results);
 
             this.TotalArtistCount = result.TotalRecordCount;
             this.TotalArtistFilteredCount = result.TotalRecordCountFiltered;

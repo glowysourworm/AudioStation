@@ -1,14 +1,7 @@
-﻿using System.IO;
-using System.Net;
-using System.Net.Http;
-using System.Runtime.CompilerServices;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 
-using AudioStation.Component;
 using AudioStation.Controller.Interface;
 using AudioStation.Controller.Model;
 
@@ -42,7 +35,7 @@ namespace AudioStation.Controls
             _cacheController = IocContainer.Get<IImageCacheController>();
 
             // This may help to detail web images for some services that deal with mp3 tags
-            _cacheType = PictureType.Artist;
+            _cacheType = PictureType.FrontCover;
 
             this.Unloaded += WebImageControl_Unloaded;
             this.Loaded += WebImageControl_Loaded;

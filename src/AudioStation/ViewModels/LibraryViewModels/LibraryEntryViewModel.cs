@@ -12,6 +12,7 @@ namespace AudioStation.ViewModels.LibraryViewModels
         string _title;
         uint _track;
         uint _disc;
+        TimeSpan _duration;
 
         /// <summary>
         /// Database id for the entry
@@ -60,6 +61,11 @@ namespace AudioStation.ViewModels.LibraryViewModels
             get { return _disc; }
             set { this.RaiseAndSetIfChanged(ref _disc, value); }
         }
+        public TimeSpan Duration
+        {
+            get { return _duration; }
+            set { this.RaiseAndSetIfChanged(ref _duration, value); }
+        }
 
         public LibraryEntryViewModel()
         {
@@ -68,6 +74,7 @@ namespace AudioStation.ViewModels.LibraryViewModels
             this.Album = string.Empty;
             this.PrimaryArtist = string.Empty;
             this.PrimaryGenre = string.Empty;
+            this.Duration = TimeSpan.Zero;
         }
     }
 }

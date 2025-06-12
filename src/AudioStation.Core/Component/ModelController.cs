@@ -429,6 +429,49 @@ namespace AudioStation.Controller
             return Enumerable.Empty<Mp3FileReference>();
         }
 
+        public IEnumerable<Mp3FileReferenceAlbum> GetArtistAlbums(int artistId, bool isPrimaryArtist)
+        {
+            try
+            {
+                using (var context = CreateContext())
+                {
+                    var albumIds = context.Mp3FileReferenceArtistMaps
+                                          .Where(x => x.Mp3FileReferenceArtistId == artistId)
+                                          .Select(x => x.Mp3FileReference.AlbumId)
+                                          .ToList();
+
+                    return context.Mp3FileReferenceAlbums
+                                  .Where(x => albumIds.Contains(x.Id))
+                                  .ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                _outputController.AddLog("Error in IModelController (AddLibraryEntry):  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
+            }
+
+            return Enumerable.Empty<Mp3FileReferenceAlbum>();
+        }
+
+        public IEnumerable<Mp3FileReference> GetAlbumTracks(int albumId)
+        {
+            try
+            {
+                using (var context = CreateContext())
+                {
+                    return context.Mp3FileReferences
+                                  .Where(x => x.AlbumId == albumId)
+                                  .ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                _outputController.AddLog("Error in IModelController (AddLibraryEntry):  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
+            }
+
+            return Enumerable.Empty<Mp3FileReference>();
+        }
+
         public PageResult<TEntity> GetPage<TEntity, TOrder>(PageRequest<TEntity, TOrder> request) where TEntity : class
         {
             try

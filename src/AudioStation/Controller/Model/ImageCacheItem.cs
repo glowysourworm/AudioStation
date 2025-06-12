@@ -21,9 +21,18 @@ namespace AudioStation.Controller.Model
                    this.Images.GetValue(PictureType.FrontCover) ?? null;
         }
 
+        public ImageSource GetFirstImage()
+        {
+            return this.Images.GetFirstValue();
+        }
+
         public ImageSource GetAlbumImage()
         {
             return this.Images.GetValue(PictureType.FrontCover) ?? null;
+        }
+        public ImageCacheItem(PictureType type, ImageSource image)
+        {
+            this.Images = new SimpleDictionary<PictureType, ImageSource>() { { type, image } };
         }
         public ImageCacheItem(IDictionary<PictureType, ImageSource> images)
         {

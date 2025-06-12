@@ -6,6 +6,7 @@
              xmlns:controls="clr-namespace:AudioStation.Controls"
              xmlns:controlAnimation="clr-namespace:AudioStation.Controls.Animation"             
              xmlns:views="clr-namespace:AudioStation.Views"
+             xmlns:viewModel="clr-namespace:AudioStation.ViewModel.LibraryViewModels"
              xmlns:cacheModel="clr-namespace:AudioStation.Controller.Model"
              xmlns:region="clr-namespace:SimpleWpf.IocFramework.RegionManagement;assembly=SimpleWpf.IocFramework">
     <Grid>
@@ -73,7 +74,10 @@
 
                 <ListBox.ItemsPanel>
                     <ItemsPanelTemplate>
-                        <VirtualizingStackPanel IsItemsHost="True" />
+                        <VirtualizingStackPanel IsItemsHost="True" 
+                                                VirtualizingPanel.IsVirtualizing="True" 
+                                                VirtualizingPanel.IsContainerVirtualizable="True"
+                                                VirtualizingPanel.VirtualizationMode="Recycling" />
                     </ItemsPanelTemplate>
                 </ListBox.ItemsPanel>
 
@@ -110,6 +114,7 @@
                  VirtualizingPanel.ScrollUnit="Pixel"
                  HorizontalContentAlignment="Stretch"
                  PreviewMouseWheel="ArtistDetailLB_PreviewMouseWheel"
+                 ItemsSource="{Binding SelectedItem.Albums, ElementName=ArtistLB}"
                  ItemContainerStyle="{StaticResource TransparentItemContainerStyle}"
 				 BorderBrush="LightGray" BorderThickness="0,1,1,1">
 
