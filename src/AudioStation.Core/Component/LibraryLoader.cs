@@ -23,7 +23,6 @@ namespace AudioStation.Core.Component
         private readonly IOutputController _outputController;
         private readonly IModelController _modelController;
 
-        const string UNKNOWN = "Unknown";
         const int WORKER_SLEEP_PERIOD = 500;                   // 1 second between queue checks
 
         public event SimpleEventHandler<LibraryLoaderWorkItem> WorkItemCompleted;

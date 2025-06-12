@@ -1,8 +1,6 @@
-﻿using System.Drawing;
-using System.Drawing.Imaging;
-using System.IO;
+﻿using System.IO;
+using System.Windows;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
 
 using SimpleWpf.SimpleCollections.Collection;
 
@@ -35,19 +33,19 @@ namespace AudioStation.Component
             FullCache = new SimpleDictionary<string, ImageCache>();
         }
 
-        public static IEnumerable<ImageSource> Get(string fileName)
+        public static IEnumerable<ImageSource> Get(string fileName, int desiredWidth, int desiredHeight)
         {
             if (FullCache.ContainsKey(fileName))
             {
                 return FullCache[fileName].Images;
             }
 
-            Load(fileName);
+            Load(fileName, desiredWidth, desiredHeight);
 
             return FullCache[fileName].Images;
         }
 
-        private static IEnumerable<ImageSource> Load(string fileName)
+        private static IEnumerable<ImageSource> Load(string fileName, int desiredWidth, int desiredHeight)
         {
             // TagLib:  Will open the mp3 file and load all of the artwork
             var fileRef = TagLib.File.Create(fileName);
@@ -57,7 +55,7 @@ namespace AudioStation.Component
             {
                 using (var stream = new MemoryStream(picture.Data.Data))
                 {
-                    var bitmapSource = BitmapConverter.BitmapDataToBitmapSource(picture.Data.Data);
+                    var bitmapSource = BitmapConverter.BitmapDataToBitmapSource(picture.Data.Data, desiredWidth, desiredHeight);
 
                     if (bitmapSource != null)
                     {

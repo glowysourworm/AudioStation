@@ -1,4 +1,5 @@
-﻿using AudioStation.Core.Database;
+﻿using AudioStation.Core.Component.Interface;
+using AudioStation.Core.Database;
 using AudioStation.Core.Model;
 using AudioStation.ViewModel.LibraryViewModels;
 using AudioStation.ViewModels.LibraryViewModels;
@@ -98,7 +99,7 @@ namespace AudioStation.ViewModels
         }
 
         [IocImportingConstructor]
-        public LibraryViewModel()
+        public LibraryViewModel(IModelController modelController)
         {
             this.LibraryEntries = new PagedObservableCollection<LibraryEntryViewModel>(100);
             this.Albums = new PagedObservableCollection<AlbumViewModel>(100);

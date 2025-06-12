@@ -1,5 +1,8 @@
-﻿using AudioStation.Core.Model;
+﻿using AudioStation.Core.Database;
+using AudioStation.Core.Model;
 using AudioStation.Core.Model.M3U;
+
+using M3UStream = AudioStation.Core.Model.M3U.M3UStream;
 
 namespace AudioStation.Core.Component.Interface
 {
@@ -36,6 +39,12 @@ namespace AudioStation.Core.Component.Interface
         /// (Batch) Adds M3UStreams to database based on unique Id, and Name
         /// </summary>
         void AddRadioEntries(IEnumerable<M3UStream> entries);
+
+        /// <summary>
+        /// Returns all files associated with the artist
+        /// </summary>
+        /// <param name="artistId">Database id of the artist</param>
+        IEnumerable<Mp3FileReference> GetArtistFiles(int artistId);
 
         /// <summary>
         /// Requests a page of data from the database

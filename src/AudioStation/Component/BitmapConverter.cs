@@ -1,4 +1,5 @@
 ﻿using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Windows.Media.Imaging;
@@ -7,14 +8,14 @@ namespace AudioStation.Component
 {
     public static class BitmapConverter
     {
-        public static BitmapSource BitmapDataToBitmapSource(byte[] buffer)
+        public static BitmapSource BitmapDataToBitmapSource(byte[] buffer, int desiredWidth, int desiredHeight)
         {
             try
             {
                 using (var memoryStream = new MemoryStream(buffer))
                 {
                     var bitmap = new Bitmap(memoryStream, false);
-                    return BitmapToBitmapSource(bitmap);
+                    return BitmapToBitmapSource(bitmap, desiredWidth, desiredHeight);
                 }
             }
             catch (Exception)
@@ -24,22 +25,47 @@ namespace AudioStation.Component
         }
 
         /// https://stackoverflow.com/a/30729291
-        public static BitmapSource BitmapToBitmapSource(Bitmap bmp)
+        public static BitmapSource BitmapToBitmapSource(Bitmap bitmap, int width, int height)
         {
             try
             {
-                var bitmapData = bmp.LockBits(
-                       new Rectangle(0, 0, bmp.Width, bmp.Height),
-                       ImageLockMode.ReadOnly, bmp.PixelFormat);
+                // GDI Graphics:  Apply image interpolation
+                //
+                // https://learn.microsoft.com/en-us/dotnet/desktop/winforms/advanced/how-to-use-interpolation-mode-to-control-image-quality-during-scaling
+                //
+                // Procedure:
+                //
+                // 1) Create empty image with the desired size
+                // 2) Load graphics from the current bitmap
+                // 3) Apply interpolation
+                // 4) Draw scaled image to the result
+                //
+                var resultBitmap = new Bitmap(width, height, bitmap.PixelFormat);                
+                var graphics = Graphics.FromImage(resultBitmap);
+
+                graphics.InterpolationMode = InterpolationMode.HighQualityBilinear;
+                graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
+                graphics.DrawImage(bitmap, 
+                                   new Rectangle(0, 0, width, height),
+                                   new Rectangle(0,0,bitmap.Width, bitmap.Height), 
+                                   GraphicsUnit.Pixel);
+                graphics.Flush();
+                graphics.Dispose();
+                graphics = null;
+
+
+                var bitmapData = resultBitmap.LockBits(
+                       new Rectangle(0, 0, resultBitmap.Width, resultBitmap.Height),
+                       ImageLockMode.ReadOnly, resultBitmap.PixelFormat);
 
                 // TODO: Handle Pixel Formats
                 var bitmapSource = BitmapSource.Create(
                     bitmapData.Width, bitmapData.Height,
-                    bmp.HorizontalResolution, bmp.VerticalResolution,
-                    GetWpfPixelFormat(bmp.PixelFormat), null,
+                    resultBitmap.HorizontalResolution, resultBitmap.VerticalResolution,
+                    GetWpfPixelFormat(resultBitmap.PixelFormat), null,
                     bitmapData.Scan0, bitmapData.Stride * bitmapData.Height, bitmapData.Stride);
 
-                bmp.UnlockBits(bitmapData);
+                resultBitmap.UnlockBits(bitmapData);
 
                 return bitmapSource;
             }

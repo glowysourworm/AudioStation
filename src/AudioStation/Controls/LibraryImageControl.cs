@@ -1,5 +1,4 @@
-﻿using System.Runtime.CompilerServices;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Threading;
 
@@ -37,7 +36,7 @@ namespace AudioStation.Controls
                 this.Unloaded -= LibraryImageControl_Unloaded;
                 this.IsVisibleChanged -= LibraryImageControl_IsVisibleChanged;
 
-            }, DispatcherPriority.ApplicationIdle);            
+            }, DispatcherPriority.ApplicationIdle);
         }
 
         private void LibraryImageControl_Unloaded(object sender, RoutedEventArgs e)
@@ -66,7 +65,7 @@ namespace AudioStation.Controls
                 if (this.ImageFile == this.LastImageFile)
                     return;
 
-                this.Source = LibraryImageCache.Get(this.ImageFile).FirstOrDefault();
+                this.Source = LibraryImageCache.Get(this.ImageFile, (int)this.Width, (int)this.Height).FirstOrDefault();
                 this.LastImageFile = this.ImageFile;
 
             }, DispatcherPriority.ApplicationIdle);

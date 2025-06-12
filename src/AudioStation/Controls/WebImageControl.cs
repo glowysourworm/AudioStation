@@ -71,7 +71,7 @@ namespace AudioStation.Controls
                 var client = new HttpClient();
                 var buffer = await client.GetByteArrayAsync(this.ImageEndpoint);
 
-                this.Source = BitmapConverter.BitmapDataToBitmapSource(buffer);
+                this.Source = BitmapConverter.BitmapDataToBitmapSource(buffer, (int)this.Width, (int)this.Height);
                 this.LastImageEndpoint = this.ImageEndpoint;
 
                 client.Dispose();

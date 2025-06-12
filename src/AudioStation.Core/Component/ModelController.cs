@@ -1,5 +1,4 @@
 ﻿using System.Data;
-using System.Linq;
 
 using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Database;
@@ -7,7 +6,6 @@ using AudioStation.Core.Event;
 using AudioStation.Core.Model;
 using AudioStation.Model;
 
-using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.Extensions.Logging;
 
 using SimpleWpf.Extensions.Collection;
@@ -411,8 +409,24 @@ namespace AudioStation.Controller
             catch (Exception ex)
             {
                 _outputController.AddLog("Error in IModelController (AddLibraryEntry):  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
-                throw ex;
             }
+        }
+
+        public IEnumerable<Mp3FileReference> GetArtistFiles(int artistId)
+        {
+            try
+            {
+                using (var context = CreateContext())
+                {
+                    return context.Mp3FileReferences.Where(x => x.PrimaryArtistId == artistId).ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                _outputController.AddLog("Error in IModelController (AddLibraryEntry):  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
+            }
+
+            return Enumerable.Empty<Mp3FileReference>();
         }
 
         public PageResult<TEntity> GetPage<TEntity, TOrder>(PageRequest<TEntity, TOrder> request) where TEntity : class

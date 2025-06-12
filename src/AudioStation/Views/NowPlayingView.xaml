@@ -5,7 +5,8 @@
              xmlns:local="clr-namespace:AudioStation.Views"
              xmlns:controls="clr-namespace:AudioStation.Controls"
              xmlns:controlAnimation="clr-namespace:AudioStation.Controls.Animation"             
-             xmlns:views="clr-namespace:AudioStation.Views">
+             xmlns:views="clr-namespace:AudioStation.Views"
+             xmlns:region="clr-namespace:SimpleWpf.IocFramework.RegionManagement;assembly=SimpleWpf.IocFramework">
     <Grid>
 
         <Grid.ColumnDefinitions>
@@ -80,10 +81,9 @@
                         <Border>
                             <StackPanel Orientation="Horizontal">
 
-                                <controls:LibraryImageControl ImageFile="{Binding FileName}"
-                                                                  Height="50" Width="50" 
-                                                                  VerticalAlignment="Top" Margin="5">
-                                </controls:LibraryImageControl>
+                                <controls:LibraryArtistImage Height="50" Width="50" 
+                                                             VerticalAlignment="Top" Margin="5">
+                                </controls:LibraryArtistImage>
 
                                 <StackPanel>
                                     <TextBlock Text="{Binding Artist}" FontSize="14" Margin="5" />
