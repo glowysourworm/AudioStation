@@ -16,6 +16,8 @@
     <SolidColorBrush x:Key="LabelForegroundWarning">Gray</SolidColorBrush>
     <SolidColorBrush x:Key="LabelForegroundError">Gray</SolidColorBrush>
 
+    <SolidColorBrush x:Key="LabelForegroundInvert">White</SolidColorBrush>
+
     <SolidColorBrush x:Key="LabelBackgroundSuccess">#5F88FF00</SolidColorBrush>
     <SolidColorBrush x:Key="LabelBackgroundWarning">#5FFFFF00</SolidColorBrush>
     <SolidColorBrush x:Key="LabelBackgroundError">#5FFF0000</SolidColorBrush>
@@ -70,5 +72,11 @@
     <SolidColorBrush x:Key="ManagerDataGridRowHoverBackground" Color="#AFEEEEEE" />
     <SolidColorBrush x:Key="ManagerDataGridRowSelectedBackground" Color="#FFEEEEEE" />
     <SolidColorBrush x:Key="ManagerDataGridRowSelectedForeground" Color="Gray" />
+    <SolidColorBrush x:Key="ManagedDataGridFooterBackground" Color="#FFAAAAAA" />
+
+    <SolidColorBrush x:Key="ManagerViewPagerButtonBackground" Color="White" />
+    <SolidColorBrush x:Key="ManagerViewPagerButtonHoverBackground" Color="LightGray" />
+    <SolidColorBrush x:Key="ManagerViewPagerButtonPressedBackground" Color="#FFEEEEEE" />
+    <SolidColorBrush x:Key="ManagerViewPagerButtonForeground" Color="LightGray" />
 
 </ResourceDictionary>

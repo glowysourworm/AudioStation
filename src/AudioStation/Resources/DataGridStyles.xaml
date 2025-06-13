@@ -6,6 +6,19 @@
         <ResourceDictionary Source="/Resources/ThemeColorsAndBrushes.xaml" />
     </ResourceDictionary.MergedDictionaries>
 
+    <Style x:Key="ManagerDataGridHeaderTextStyle" TargetType="TextBlock">
+        <Setter Property="Foreground" Value="{StaticResource LabelForeground}" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="FontSize" Value="14" />
+    </Style>
+
+    <Style x:Key="ManagerDataGridColumnHeaderStyle" TargetType="DataGridColumnHeader">
+        <Setter Property="Background" Value="#FFEEEEEE" />
+        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+        <Setter Property="VerticalContentAlignment" Value="Top" />
+        <Setter Property="BorderBrush" Value="Gray" />
+    </Style>
+
     <Style x:Key="ManagerDataGridCellStyle" TargetType="DataGridCell">
         <Setter Property="BorderBrush" Value="Transparent" />
         <Setter Property="BorderThickness" Value="0" />
@@ -45,7 +58,7 @@
             </Trigger>
         </Style.Triggers>
     </Style>
-    
+
     <DataTemplate x:Key="ManagerDataGridTrackDetailTemplate" DataType="{x:Type viewModel:LibraryEntryViewModel}">
         <Grid>
             <Grid.ColumnDefinitions>

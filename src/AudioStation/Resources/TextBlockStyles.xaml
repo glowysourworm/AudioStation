@@ -9,7 +9,12 @@
         <Setter Property="Foreground" Value="{StaticResource LabelForeground}" />
         <Setter Property="FontSize" Value="14" />
     </Style>
-        
+
+    <Style TargetType="TextBlock" x:Key="LabelTextBlockInvert">
+        <Setter Property="Foreground" Value="{StaticResource LabelForegroundInvert}" />
+        <Setter Property="FontSize" Value="14" />
+    </Style>
+
     <Style TargetType="TextBlock" x:Key="LabelDetailTextBlock">
         <Setter Property="Foreground" Value="{StaticResource LabelForegroundDetail}" />
         <Setter Property="FontSize" Value="12" />
