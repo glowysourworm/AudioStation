@@ -1,7 +1,10 @@
-﻿using AudioStation.Controller.Interface;
+﻿using System.Windows;
+
+using AudioStation.Controller.Interface;
 
 using Microsoft.Win32;
 
+using SimpleWpf.Extensions.Collection;
 using SimpleWpf.IocFramework.Application.Attribute;
 
 namespace AudioStation.Controller
@@ -58,6 +61,13 @@ namespace AudioStation.Controller
         public void Dispose()
         {
             // TODO
+        }
+
+        public bool ShowConfirmation(string caption, params string[] messageLines)
+        {
+            var message = messageLines.Join("\n", x => x);
+
+            return MessageBox.Show(message, caption, MessageBoxButton.YesNoCancel) == MessageBoxResult.Yes;
         }
     }
 }

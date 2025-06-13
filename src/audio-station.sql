@@ -5,7 +5,7 @@
 -- Dumped from database version 17.4
 -- Dumped by pg_dump version 17.4
 
--- Started on 2025-06-05 23:30:42
+-- Started on 2025-06-12 22:52:52
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -25,99 +25,30 @@ SET default_table_access_method = heap;
 
 --
 -- TOC entry 218 (class 1259 OID 16769)
--- Name: M3UInfo; Type: TABLE; Schema: public; Owner: postgres
+-- Name: M3UStream; Type: TABLE; Schema: public; Owner: postgres
 --
 
-CREATE TABLE public."M3UInfo" (
+CREATE TABLE public."M3UStream" (
     "Id" integer NOT NULL,
-    "PlaylistType" character varying NOT NULL,
-    "TargetDurationMilliseconds" integer,
-    "Version" integer,
-    "MediaSequence" integer,
-    "UserExcluded" bit(1) NOT NULL
+    "Duration" integer NOT NULL,
+    "Name" character varying NOT NULL,
+    "GroupName" character varying,
+    "LogoUrl" character varying,
+    "HomepageUrl" character varying,
+    "StreamSourceUrl" character varying NOT NULL,
+    "UserExcluded" boolean NOT NULL
 );
 
 
-ALTER TABLE public."M3UInfo" OWNER TO postgres;
+ALTER TABLE public."M3UStream" OWNER TO postgres;
 
 --
--- TOC entry 4955 (class 0 OID 0)
+-- TOC entry 4950 (class 0 OID 0)
 -- Dependencies: 218
--- Name: TABLE "M3UInfo"; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: TABLE "M3UStream"; Type: COMMENT; Schema: public; Owner: postgres
 --
 
-COMMENT ON TABLE public."M3UInfo" IS 'Details of an M3U file. This example is taken from the m3uParser .NET library fields.';
-
-
---
--- TOC entry 220 (class 1259 OID 16777)
--- Name: M3UInfoAttributes; Type: TABLE; Schema: public; Owner: postgres
---
-
-CREATE TABLE public."M3UInfoAttributes" (
-    "Id" integer NOT NULL,
-    "M3UInfoId" integer,
-    "GroupTitle" character varying NOT NULL,
-    "TvgShift" character varying NOT NULL,
-    "TvgName" character varying NOT NULL,
-    "TvgLogo" character varying NOT NULL,
-    "AudioTrack" character varying NOT NULL,
-    "AspectRatio" character varying NOT NULL,
-    "TvgId" character varying NOT NULL,
-    "UrlTvg" character varying NOT NULL,
-    "M3UAutoLoad" integer,
-    "Cache" integer,
-    "Deinterlace" integer,
-    "Refresh" integer,
-    "ChannelNumber" integer,
-    "M3UMediaId" integer
-);
-
-
-ALTER TABLE public."M3UInfoAttributes" OWNER TO postgres;
-
---
--- TOC entry 219 (class 1259 OID 16776)
--- Name: M3UInfoAttributes_Id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
---
-
-ALTER TABLE public."M3UInfoAttributes" ALTER COLUMN "Id" ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME public."M3UInfoAttributes_Id_seq"
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1
-);
-
-
---
--- TOC entry 224 (class 1259 OID 16803)
--- Name: M3UInfoWarning; Type: TABLE; Schema: public; Owner: postgres
---
-
-CREATE TABLE public."M3UInfoWarning" (
-    "Id" integer NOT NULL,
-    "M3UInfoId" integer NOT NULL,
-    "Warning" character varying NOT NULL
-);
-
-
-ALTER TABLE public."M3UInfoWarning" OWNER TO postgres;
-
---
--- TOC entry 223 (class 1259 OID 16802)
--- Name: M3UInfoWarning_Id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
---
-
-ALTER TABLE public."M3UInfoWarning" ALTER COLUMN "Id" ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME public."M3UInfoWarning_Id_seq"
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1
-);
+COMMENT ON TABLE public."M3UStream" IS 'Details of an M3U file. This example is taken from the m3uParser .NET library fields.';
 
 
 --
@@ -125,7 +56,7 @@ ALTER TABLE public."M3UInfoWarning" ALTER COLUMN "Id" ADD GENERATED ALWAYS AS ID
 -- Name: M3UInfo_Id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
-ALTER TABLE public."M3UInfo" ALTER COLUMN "Id" ADD GENERATED ALWAYS AS IDENTITY (
+ALTER TABLE public."M3UStream" ALTER COLUMN "Id" ADD GENERATED ALWAYS AS IDENTITY (
     SEQUENCE NAME public."M3UInfo_Id_seq"
     START WITH 1
     INCREMENT BY 1
@@ -136,57 +67,27 @@ ALTER TABLE public."M3UInfo" ALTER COLUMN "Id" ADD GENERATED ALWAYS AS IDENTITY 
 
 
 --
--- TOC entry 222 (class 1259 OID 16785)
--- Name: M3UMedia; Type: TABLE; Schema: public; Owner: postgres
---
-
-CREATE TABLE public."M3UMedia" (
-    "Id" integer NOT NULL,
-    "DurationMilliseconds" integer NOT NULL,
-    "RawTitle" character varying NOT NULL,
-    "InnerTitle" character varying NOT NULL,
-    "MediaFile" character varying NOT NULL,
-    "UserExcluded" bit(1) NOT NULL
-);
-
-
-ALTER TABLE public."M3UMedia" OWNER TO postgres;
-
---
--- TOC entry 221 (class 1259 OID 16784)
--- Name: M3UMedia_Id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
---
-
-ALTER TABLE public."M3UMedia" ALTER COLUMN "Id" ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME public."M3UMedia_Id_seq"
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1
-);
-
-
---
--- TOC entry 227 (class 1259 OID 16823)
+-- TOC entry 221 (class 1259 OID 16823)
 -- Name: Mp3FileReference; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."Mp3FileReference" (
     "Id" integer NOT NULL,
     "FileName" character varying NOT NULL,
-    "Title" character varying NOT NULL,
-    "Album" character varying NOT NULL,
-    "PrimaryArtist" character varying NOT NULL,
-    "Track" integer NOT NULL
+    "Title" character varying,
+    "Track" integer,
+    "AlbumId" integer,
+    "PrimaryArtistId" integer,
+    "DurationMilliseconds" integer,
+    "PrimaryGenreId" integer
 );
 
 
 ALTER TABLE public."Mp3FileReference" OWNER TO postgres;
 
 --
--- TOC entry 4956 (class 0 OID 0)
--- Dependencies: 227
+-- TOC entry 4951 (class 0 OID 0)
+-- Dependencies: 221
 -- Name: TABLE "Mp3FileReference"; Type: COMMENT; Schema: public; Owner: postgres
 --
 
@@ -194,23 +95,23 @@ COMMENT ON TABLE public."Mp3FileReference" IS 'Portion of an mp3 file''s data us
 
 
 --
--- TOC entry 231 (class 1259 OID 16844)
+-- TOC entry 225 (class 1259 OID 16844)
 -- Name: Mp3FileReferenceAlbum; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."Mp3FileReferenceAlbum" (
     "Id" integer NOT NULL,
-    "Mp3FileReferenceId" integer NOT NULL,
     "Name" character varying NOT NULL,
-    "DiscNumber" integer NOT NULL,
-    "DiscCount" integer NOT NULL
+    "DiscNumber" integer,
+    "DiscCount" integer,
+    "Year" integer
 );
 
 
 ALTER TABLE public."Mp3FileReferenceAlbum" OWNER TO postgres;
 
 --
--- TOC entry 230 (class 1259 OID 16843)
+-- TOC entry 224 (class 1259 OID 16843)
 -- Name: Mp3FileReferenceAlbum_Id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
@@ -225,13 +126,12 @@ ALTER TABLE public."Mp3FileReferenceAlbum" ALTER COLUMN "Id" ADD GENERATED ALWAY
 
 
 --
--- TOC entry 229 (class 1259 OID 16831)
+-- TOC entry 223 (class 1259 OID 16831)
 -- Name: Mp3FileReferenceArtist; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."Mp3FileReferenceArtist" (
     "Id" integer NOT NULL,
-    "Mp3FileReferenceId" integer NOT NULL,
     "Name" character varying NOT NULL
 );
 
@@ -239,7 +139,37 @@ CREATE TABLE public."Mp3FileReferenceArtist" (
 ALTER TABLE public."Mp3FileReferenceArtist" OWNER TO postgres;
 
 --
--- TOC entry 228 (class 1259 OID 16830)
+-- TOC entry 229 (class 1259 OID 16875)
+-- Name: Mp3FileReferenceArtistMap; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public."Mp3FileReferenceArtistMap" (
+    "Id" integer NOT NULL,
+    "Mp3FileReferenceId" integer NOT NULL,
+    "Mp3FileReferenceArtistId" integer NOT NULL,
+    "IsPrimaryArtist" boolean NOT NULL
+);
+
+
+ALTER TABLE public."Mp3FileReferenceArtistMap" OWNER TO postgres;
+
+--
+-- TOC entry 228 (class 1259 OID 16874)
+-- Name: Mp3FileReferenceArtistMap_Id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+ALTER TABLE public."Mp3FileReferenceArtistMap" ALTER COLUMN "Id" ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public."Mp3FileReferenceArtistMap_Id_seq"
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- TOC entry 222 (class 1259 OID 16830)
 -- Name: Mp3FileReferenceArtist_Id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
@@ -254,13 +184,12 @@ ALTER TABLE public."Mp3FileReferenceArtist" ALTER COLUMN "Id" ADD GENERATED ALWA
 
 
 --
--- TOC entry 233 (class 1259 OID 16857)
+-- TOC entry 227 (class 1259 OID 16857)
 -- Name: Mp3FileReferenceGenre; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."Mp3FileReferenceGenre" (
     "Id" integer NOT NULL,
-    "Mp3FileReferenceId" integer NOT NULL,
     "Name" character varying NOT NULL
 );
 
@@ -268,7 +197,37 @@ CREATE TABLE public."Mp3FileReferenceGenre" (
 ALTER TABLE public."Mp3FileReferenceGenre" OWNER TO postgres;
 
 --
--- TOC entry 232 (class 1259 OID 16856)
+-- TOC entry 231 (class 1259 OID 16896)
+-- Name: Mp3FileReferenceGenreMap; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public."Mp3FileReferenceGenreMap" (
+    "Id" integer NOT NULL,
+    "Mp3FileReferenceId" integer NOT NULL,
+    "Mp3FileReferenceGenreId" integer NOT NULL,
+    "IsPrimaryGenre" boolean NOT NULL
+);
+
+
+ALTER TABLE public."Mp3FileReferenceGenreMap" OWNER TO postgres;
+
+--
+-- TOC entry 230 (class 1259 OID 16895)
+-- Name: Mp3FileReferenceGenreMap_Id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+ALTER TABLE public."Mp3FileReferenceGenreMap" ALTER COLUMN "Id" ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public."Mp3FileReferenceGenreMap_Id_seq"
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- TOC entry 226 (class 1259 OID 16856)
 -- Name: Mp3FileReferenceGenre_Id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
@@ -283,7 +242,7 @@ ALTER TABLE public."Mp3FileReferenceGenre" ALTER COLUMN "Id" ADD GENERATED ALWAY
 
 
 --
--- TOC entry 226 (class 1259 OID 16822)
+-- TOC entry 220 (class 1259 OID 16822)
 -- Name: Mp3FileReference_Id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
@@ -298,7 +257,7 @@ ALTER TABLE public."Mp3FileReference" ALTER COLUMN "Id" ADD GENERATED ALWAYS AS 
 
 
 --
--- TOC entry 225 (class 1259 OID 16815)
+-- TOC entry 219 (class 1259 OID 16815)
 -- Name: RadioBrowserStation; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -326,43 +285,16 @@ CREATE TABLE public."RadioBrowserStation" (
 ALTER TABLE public."RadioBrowserStation" OWNER TO postgres;
 
 --
--- TOC entry 4784 (class 2606 OID 16783)
--- Name: M3UInfoAttributes M3UInfoAttributes_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+-- TOC entry 4777 (class 2606 OID 16775)
+-- Name: M3UStream M3UInfo_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
-ALTER TABLE ONLY public."M3UInfoAttributes"
-    ADD CONSTRAINT "M3UInfoAttributes_pkey" PRIMARY KEY ("Id");
-
-
---
--- TOC entry 4788 (class 2606 OID 16809)
--- Name: M3UInfoWarning M3UInfoWarning_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public."M3UInfoWarning"
-    ADD CONSTRAINT "M3UInfoWarning_pkey" PRIMARY KEY ("Id");
-
-
---
--- TOC entry 4782 (class 2606 OID 16775)
--- Name: M3UInfo M3UInfo_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public."M3UInfo"
+ALTER TABLE ONLY public."M3UStream"
     ADD CONSTRAINT "M3UInfo_pkey" PRIMARY KEY ("Id");
 
 
 --
--- TOC entry 4786 (class 2606 OID 16791)
--- Name: M3UMedia M3UMedia_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public."M3UMedia"
-    ADD CONSTRAINT "M3UMedia_pkey" PRIMARY KEY ("Id");
-
-
---
--- TOC entry 4796 (class 2606 OID 16850)
+-- TOC entry 4786 (class 2606 OID 16850)
 -- Name: Mp3FileReferenceAlbum Mp3FileReferenceAlbum_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -371,7 +303,16 @@ ALTER TABLE ONLY public."Mp3FileReferenceAlbum"
 
 
 --
--- TOC entry 4794 (class 2606 OID 16837)
+-- TOC entry 4790 (class 2606 OID 16879)
+-- Name: Mp3FileReferenceArtistMap Mp3FileReferenceArtistMap_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Mp3FileReferenceArtistMap"
+    ADD CONSTRAINT "Mp3FileReferenceArtistMap_pkey" PRIMARY KEY ("Id");
+
+
+--
+-- TOC entry 4784 (class 2606 OID 16837)
 -- Name: Mp3FileReferenceArtist Mp3FileReferenceArtist_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -380,7 +321,16 @@ ALTER TABLE ONLY public."Mp3FileReferenceArtist"
 
 
 --
--- TOC entry 4798 (class 2606 OID 16863)
+-- TOC entry 4792 (class 2606 OID 16900)
+-- Name: Mp3FileReferenceGenreMap Mp3FileReferenceGenreMap_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Mp3FileReferenceGenreMap"
+    ADD CONSTRAINT "Mp3FileReferenceGenreMap_pkey" PRIMARY KEY ("Id");
+
+
+--
+-- TOC entry 4788 (class 2606 OID 16863)
 -- Name: Mp3FileReferenceGenre Mp3FileReferenceGenre_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -389,7 +339,7 @@ ALTER TABLE ONLY public."Mp3FileReferenceGenre"
 
 
 --
--- TOC entry 4792 (class 2606 OID 16829)
+-- TOC entry 4782 (class 2606 OID 16829)
 -- Name: Mp3FileReference Mp3FileReference_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -398,7 +348,7 @@ ALTER TABLE ONLY public."Mp3FileReference"
 
 
 --
--- TOC entry 4790 (class 2606 OID 16821)
+-- TOC entry 4780 (class 2606 OID 16821)
 -- Name: RadioBrowserStation RadioBrowserStation_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -407,60 +357,77 @@ ALTER TABLE ONLY public."RadioBrowserStation"
 
 
 --
--- TOC entry 4799 (class 2606 OID 16797)
--- Name: M3UInfoAttributes M3UInfo_ForeignKey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- TOC entry 4778 (class 1259 OID 17220)
+-- Name: NameIndex; Type: INDEX; Schema: public; Owner: postgres
 --
 
-ALTER TABLE ONLY public."M3UInfoAttributes"
-    ADD CONSTRAINT "M3UInfo_ForeignKey" FOREIGN KEY ("M3UInfoId") REFERENCES public."M3UInfo"("Id");
-
-
---
--- TOC entry 4801 (class 2606 OID 16810)
--- Name: M3UInfoWarning M3UInfo_ForeignKey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public."M3UInfoWarning"
-    ADD CONSTRAINT "M3UInfo_ForeignKey" FOREIGN KEY ("M3UInfoId") REFERENCES public."M3UInfo"("Id");
+CREATE INDEX "NameIndex" ON public."M3UStream" USING btree ("Name") WITH (deduplicate_items='true');
 
 
 --
--- TOC entry 4800 (class 2606 OID 16792)
--- Name: M3UInfoAttributes M3UMedia_ForeignKey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- TOC entry 4793 (class 2606 OID 16869)
+-- Name: Mp3FileReference Mp3FileReferenceAlbum_ForeignKey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
-ALTER TABLE ONLY public."M3UInfoAttributes"
-    ADD CONSTRAINT "M3UMedia_ForeignKey" FOREIGN KEY ("M3UMediaId") REFERENCES public."M3UMedia"("Id");
+ALTER TABLE ONLY public."Mp3FileReference"
+    ADD CONSTRAINT "Mp3FileReferenceAlbum_ForeignKey" FOREIGN KEY ("AlbumId") REFERENCES public."Mp3FileReferenceAlbum"("Id");
 
 
 --
--- TOC entry 4802 (class 2606 OID 16838)
--- Name: Mp3FileReferenceArtist Mp3FileReference_ForeignKey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- TOC entry 4796 (class 2606 OID 16885)
+-- Name: Mp3FileReferenceArtistMap Mp3FileReferenceArtist_ForeignKey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
-ALTER TABLE ONLY public."Mp3FileReferenceArtist"
+ALTER TABLE ONLY public."Mp3FileReferenceArtistMap"
+    ADD CONSTRAINT "Mp3FileReferenceArtist_ForeignKey" FOREIGN KEY ("Mp3FileReferenceArtistId") REFERENCES public."Mp3FileReferenceArtist"("Id");
+
+
+--
+-- TOC entry 4794 (class 2606 OID 16890)
+-- Name: Mp3FileReference Mp3FileReferenceArtist_ForeignKey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Mp3FileReference"
+    ADD CONSTRAINT "Mp3FileReferenceArtist_ForeignKey" FOREIGN KEY ("PrimaryArtistId") REFERENCES public."Mp3FileReferenceArtist"("Id") NOT VALID;
+
+
+--
+-- TOC entry 4798 (class 2606 OID 16906)
+-- Name: Mp3FileReferenceGenreMap Mp3FileReferenceGenre_ForeignKey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Mp3FileReferenceGenreMap"
+    ADD CONSTRAINT "Mp3FileReferenceGenre_ForeignKey" FOREIGN KEY ("Mp3FileReferenceGenreId") REFERENCES public."Mp3FileReferenceGenre"("Id");
+
+
+--
+-- TOC entry 4795 (class 2606 OID 17237)
+-- Name: Mp3FileReference Mp3FileReferenceGenre_ForeignKey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Mp3FileReference"
+    ADD CONSTRAINT "Mp3FileReferenceGenre_ForeignKey" FOREIGN KEY ("PrimaryGenreId") REFERENCES public."Mp3FileReferenceGenre"("Id") NOT VALID;
+
+
+--
+-- TOC entry 4797 (class 2606 OID 16880)
+-- Name: Mp3FileReferenceArtistMap Mp3FileReference_ForeignKey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Mp3FileReferenceArtistMap"
     ADD CONSTRAINT "Mp3FileReference_ForeignKey" FOREIGN KEY ("Mp3FileReferenceId") REFERENCES public."Mp3FileReference"("Id");
 
 
 --
--- TOC entry 4803 (class 2606 OID 16851)
--- Name: Mp3FileReferenceAlbum Mp3FileReference_ForeignKey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- TOC entry 4799 (class 2606 OID 16901)
+-- Name: Mp3FileReferenceGenreMap Mp3FileReference_ForeignKey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
-ALTER TABLE ONLY public."Mp3FileReferenceAlbum"
+ALTER TABLE ONLY public."Mp3FileReferenceGenreMap"
     ADD CONSTRAINT "Mp3FileReference_ForeignKey" FOREIGN KEY ("Mp3FileReferenceId") REFERENCES public."Mp3FileReference"("Id");
 
 
---
--- TOC entry 4804 (class 2606 OID 16864)
--- Name: Mp3FileReferenceGenre Mp3FileReference_ForeignKey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public."Mp3FileReferenceGenre"
-    ADD CONSTRAINT "Mp3FileReference_ForeignKey" FOREIGN KEY ("Mp3FileReferenceId") REFERENCES public."Mp3FileReference"("Id");
-
-
--- Completed on 2025-06-05 23:30:42
+-- Completed on 2025-06-12 22:52:52
 
 --
 -- PostgreSQL database dump complete

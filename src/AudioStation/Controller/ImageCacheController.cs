@@ -23,7 +23,7 @@ namespace AudioStation.Controller
         readonly IOutputController _outputController;
 
         private const int FULL_CACHE_MAX_ENTRIES = 30;
-        private const int MEDIUM_CACHE_MAX_ENTRIES = 100;
+        private const int MEDIUM_CACHE_MAX_ENTRIES = 50;
         private const int SMALL_CACHE_MAX_ENTRIES = 5000;
         private const int THUMBNAIL_CACHE_MAX_ENTRIES = 20000;
 

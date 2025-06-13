@@ -15,14 +15,18 @@ namespace AudioStation.Core.Database
 
         [ForeignKey("PrimaryArtist")]
         public int? PrimaryArtistId { get; set; }
+
+        [ForeignKey("PrimaryGenre")]
+        public int? PrimaryGenreId { get; set; }
         public string FileName { get; set; }
         public string? Title { get; set; }
         public int? Track { get; set; }
+        public int? DurationMilliseconds { get; set; }
 
         // Relationship properties
-
         public Mp3FileReferenceAlbum? Album { get; set; }
         public Mp3FileReferenceArtist? PrimaryArtist { get; set; }
+        public Mp3FileReferenceGenre? PrimaryGenre { get; set; }
 
         public Mp3FileReference() { }
     }

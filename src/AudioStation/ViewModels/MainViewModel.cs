@@ -58,6 +58,7 @@ public partial class MainViewModel : ViewModelBase, IDisposable
 
     SimpleCommand _openLibraryFolderCommand;
     SimpleCommand _saveConfigurationCommand;
+    SimpleCommand _loadLibraryCommand;
     #endregion
 
     #region Properties
@@ -136,6 +137,11 @@ public partial class MainViewModel : ViewModelBase, IDisposable
         get { return _saveConfigurationCommand; }
         set { this.RaiseAndSetIfChanged(ref _saveConfigurationCommand, value); }
     }
+    public SimpleCommand LoadLibraryCommand
+    {
+        get { return _loadLibraryCommand; }
+        set { this.RaiseAndSetIfChanged(ref _loadLibraryCommand, value); }
+    }
     #endregion
 
     [IocImportingConstructor]
@@ -189,6 +195,18 @@ public partial class MainViewModel : ViewModelBase, IDisposable
         this.OpenLibraryFolderCommand = new SimpleCommand(() =>
         {
             this.Configuration.DirectoryBase = dialogController.ShowSelectFolder();
+        });
+        this.LoadLibraryCommand = new SimpleCommand(() =>
+        {
+            if (dialogController.ShowConfirmation("Library Database Initialization", 
+                                                  "This will delete your existing library data and reload it from:",
+                                                  "", this.Configuration.DirectoryBase, "", 
+                                                  "Your audio file(s) will not be otherwise disturbed.",
+                                                  "Are you sure you want to do this?"))
+            {
+                libraryLoader.LoadLibraryAsync(this.Configuration.DirectoryBase);
+                libraryLoader.Start();
+            }
         });
 
         outputController.AddLog("Welcome to Audio Station!", LogMessageType.General);

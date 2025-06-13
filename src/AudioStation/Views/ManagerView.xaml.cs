@@ -16,9 +16,6 @@ namespace AudioStation.Views
             if (e.AddedItems.Count > 0)
             {
                 var item = e.AddedItems[0] as LibraryEntry;
-
-                this.LocalEntryItemView.DataContext = item;
-                this.MusicBrainzItemView.DataContext = item;
             }
         }
     }

@@ -12,6 +12,7 @@ namespace AudioStation.Core.Database
         public string Name { get; set; }
         public int DiscNumber { get; set; }
         public int DiscCount { get; set; }
+        public int Year { get; set; }
 
         public Mp3FileReferenceAlbum() { }
         public Mp3FileReferenceAlbum(int Id_, string Name_, int DiscNumber_, int DiscCount_)

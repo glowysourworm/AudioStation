@@ -12,9 +12,8 @@
     <Grid>
 
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="600" />
-            <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="350" />
+            <ColumnDefinition MinWidth="300" MaxWidth="500" Width="*" />
+            <ColumnDefinition Width="3*" />
         </Grid.ColumnDefinitions>
         
         <!-- Artist List -->
@@ -43,13 +42,13 @@
                     <TextBlock Text="Artist" Style="{StaticResource LargeInputLabelTextBlock}" />
                     <TextBox Text="{Binding ArtistSearch, UpdateSourceTrigger=PropertyChanged}" TextChanged="OnArtistSearchChanged" Grid.Column="1" Style="{StaticResource LargeInputLabelTextBox}" />
                     
-                    <!-- Artist Page Information -->
-                    <TextBlock Text="Search Results" Style="{StaticResource LabelDetailTextBlock}" Grid.Row="1" Margin="5" />
-                    <TextBlock HorizontalAlignment="Right" Style="{StaticResource LabelDetailTextBlock}" Grid.Row="1" Grid.Column="1" Margin="5">
+                    <!-- Artist Page Information -->                    
+                    <TextBlock HorizontalAlignment="Right" Style="{StaticResource LabelDetailTextBlock}" Grid.Row="1" Grid.Column="1">
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="{Binding TotalArtistFilteredCount}" Style="{StaticResource LabelDetailTextBlock}" />
-                            <TextBlock Text=" of " Style="{StaticResource LabelDetailTextBlock}" />
-                            <TextBlock Text="{Binding TotalArtistCount}" Style="{StaticResource LabelDetailTextBlock}" />
+                            <TextBlock Text="Search Results" Style="{StaticResource LabelDetailTextBlock}" Margin="3" />
+                            <TextBlock Text="{Binding TotalArtistFilteredCount}" Style="{StaticResource LabelDetailTextBlock}" Margin="3"/>
+                            <TextBlock Text=" of " Style="{StaticResource LabelDetailTextBlock}" Margin="3" />
+                            <TextBlock Text="{Binding TotalArtistCount}" Style="{StaticResource LabelDetailTextBlock}" Margin="3"/>
                         </StackPanel>
                     </TextBlock>
                 </Grid>
@@ -63,7 +62,7 @@
                      VirtualizingPanel.VirtualizationMode="Recycling"
                      VirtualizingPanel.IsContainerVirtualizable="True"
                      VirtualizingPanel.CacheLength="1"
-                     VirtualizingPanel.ScrollUnit="Pixel"
+                     VirtualizingPanel.ScrollUnit="Item"
                      ScrollViewer.ScrollChanged="ArtistLB_ScrollChanged"
                      ItemContainerStyle="{StaticResource HoverSelectItemContainerStyleWithAlternation}"
                      AlternationCount="2"
@@ -129,7 +128,7 @@
         </ListBox>
 
         <!-- Now Playing:  Playlist -->
-        <Border x:Name="PlaylistContainer" Grid.Column="2" DataContext="{Binding Playlist}">
+        <!--Border x:Name="PlaylistContainer" Grid.Column="2" DataContext="{Binding Playlist}">
             <Grid>
 
                 <Grid.RowDefinitions>
@@ -137,10 +136,8 @@
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
 
-                <!-- Album Detail (brief)-->
                 <TextBlock Text="{Binding Name}" />
 
-                <!-- Playlist -->
                 <ListBox x:Name="PlaylistLB"
 						 ItemsSource="{Binding Tracks}"
 						 MouseDoubleClick="OnPlaylistDoubleClick"
@@ -172,7 +169,7 @@
                 </ListBox>
 
             </Grid>
-        </Border>
+        </Border-->
 
     </Grid>
 </UserControl>

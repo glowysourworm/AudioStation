@@ -31,8 +31,8 @@
                     this.Height = 50;
                     break;
                 case ImageCacheType.Medium:
-                    this.Width = 200;
-                    this.Height = 200;
+                    this.Width = 300;
+                    this.Height = 300;
                     break;
                 case ImageCacheType.FullSize:
                     this.Width = -1;

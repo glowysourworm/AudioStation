@@ -5,5 +5,6 @@
         string ShowSelectFile();
         string ShowSelectFolder();
         string ShowSaveFile();
+        bool ShowConfirmation(string caption, params string[] messageLines);
     }
 }

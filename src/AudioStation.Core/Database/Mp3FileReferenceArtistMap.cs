@@ -18,6 +18,7 @@ namespace AudioStation.Core.Database
 
         public Mp3FileReference Mp3FileReference { get; set; }
         public Mp3FileReferenceArtist Mp3FileReferenceArtist { get; set; }
+        public bool IsPrimaryArtist { get; set; }
 
         public Mp3FileReferenceArtistMap()
         {

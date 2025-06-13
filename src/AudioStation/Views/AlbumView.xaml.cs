@@ -15,6 +15,11 @@ namespace AudioStation.Views
             InitializeComponent();
         }
 
+        protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)
+        {
+            base.OnRenderSizeChanged(sizeInfo);
+        }
+
         private void OnTracksDoubleClick(object sender, MouseButtonEventArgs e)
         {
             foreach (var item in this.TracksLB.Items.Cast<LibraryEntryViewModel>())

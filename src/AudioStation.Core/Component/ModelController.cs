@@ -212,14 +212,16 @@ namespace AudioStation.Controller
                         {
                             FileName = fileName,
                             Title = tagRef.Tag.Title?.Trim() ?? string.Empty,
-                            Track = (int)tagRef.Tag.Track,
+                            Track = (int)tagRef.Tag.Track,                            
+                            DurationMilliseconds = (int)tagRef.Properties.Duration.TotalMilliseconds                            
                         };
                         newEntity = true;
                     }
 
                     // There could be Null / Empty / or Unknown data. Assume there is.
-                    var existingAlbum = context.Mp3FileReferenceAlbums.FirstOrDefault(x => x.Name == tagRef.Tag.Album);
-                    var existingArtist = context.Mp3FileReferenceArtists.FirstOrDefault(x => x.Name == tagRef.Tag.FirstAlbumArtist);
+                    var existingAlbum = tagRef.Tag.Album == null ? null : context.Mp3FileReferenceAlbums.FirstOrDefault(x => x.Name == tagRef.Tag.Album);
+                    var existingArtist = tagRef.Tag.FirstAlbumArtist == null ? null : context.Mp3FileReferenceArtists.FirstOrDefault(x => x.Name == tagRef.Tag.FirstAlbumArtist.Trim());
+                    var existingGenre = tagRef.Tag.FirstGenre == null ? null : context.Mp3FileReferenceGenres.FirstOrDefault(x => x.Name == tagRef.Tag.FirstGenre.Trim());
 
                     // Just check for null or white space
                     if (existingAlbum == null && !string.IsNullOrWhiteSpace(tagRef.Tag.Album))
@@ -228,6 +230,7 @@ namespace AudioStation.Controller
                         {
                             DiscCount = (int)tagRef.Tag.DiscCount,
                             DiscNumber = (int)tagRef.Tag.Disc,
+                            Year = (int)tagRef.Tag.Year,
                             Name = tagRef.Tag.Album.Trim()
                         };
 
@@ -242,9 +245,19 @@ namespace AudioStation.Controller
 
                         context.Mp3FileReferenceArtists.Add(existingArtist);
                     }
+                    if (existingGenre == null && !string.IsNullOrWhiteSpace(tagRef.Tag.FirstGenre))
+                    {
+                        existingGenre = new Mp3FileReferenceGenre()
+                        {
+                            Name = tagRef.Tag.FirstGenre.Trim()
+                        };
+
+                        context.Mp3FileReferenceGenres.Add(existingGenre);
+                    }
 
                     entity.PrimaryArtist = existingArtist;
                     entity.Album = existingAlbum;
+                    entity.PrimaryGenre = existingGenre;
 
                     if (newEntity)
                         context.Add(entity);
@@ -257,7 +270,7 @@ namespace AudioStation.Controller
                     var lastEntity = context.Mp3FileReferences.First(x => x.FileName == fileName);
 
                     // Artist Map(s)
-                    foreach (var artist in tagRef.Tag.AlbumArtists.Where(x => !string.IsNullOrWhiteSpace(x)))
+                    foreach (var artist in tagRef.Tag.AlbumArtists.Where(x => !string.IsNullOrWhiteSpace(x)).Select(x => x.Trim()))
                     {
                         var artistEntity = context.Mp3FileReferenceArtists
                                                   .FirstOrDefault(x => x.Name == artist);
@@ -281,14 +294,15 @@ namespace AudioStation.Controller
                             map = new Mp3FileReferenceArtistMap()
                             {
                                 Mp3FileReference = lastEntity,
-                                Mp3FileReferenceArtist = artistEntity
+                                Mp3FileReferenceArtist = artistEntity,
+                                IsPrimaryArtist = (existingArtist != null) && (artist == existingArtist.Name)
                             };
                             context.Mp3FileReferenceArtistMaps.Add(map);
                         }
                     }
 
                     // Genre Map(s)
-                    foreach (var genre in tagRef.Tag.Genres.Where(x => !string.IsNullOrWhiteSpace(x)))
+                    foreach (var genre in tagRef.Tag.Genres.Where(x => !string.IsNullOrWhiteSpace(x)).Select(x => x.Trim()))
                     {
                         var genreEntity = context.Mp3FileReferenceGenres
                                                  .FirstOrDefault(x => x.Name == genre);
@@ -312,7 +326,8 @@ namespace AudioStation.Controller
                             map = new Mp3FileReferenceGenreMap()
                             {
                                 Mp3FileReference = lastEntity,
-                                Mp3FileReferenceGenre = genreEntity
+                                Mp3FileReferenceGenre = genreEntity,
+                                IsPrimaryGenre = (existingGenre != null) && (existingGenre.Name == genre)
                             };
                             context.Mp3FileReferenceGenreMaps.Add(map);
                         }
@@ -323,7 +338,7 @@ namespace AudioStation.Controller
             }
             catch (Exception ex)
             {
-                _outputController.AddLog("Error in IModelController (AddLibraryEntry):  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
+                _outputController.AddLog("Error in IModelController (AddLibraryEntry):  {0}", LogMessageType.Database, LogLevel.Error, ex.Message);
                 throw ex;
             }
         }
@@ -365,7 +380,7 @@ namespace AudioStation.Controller
             }
             catch (Exception ex)
             {
-                _outputController.AddLog("Error in IModelController (AddLibraryEntry):  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
+                _outputController.AddLog("Error in IModelController (AddLibraryEntry):  {0}", LogMessageType.Database, LogLevel.Error, ex.Message);
                 throw ex;
             }
         }
@@ -408,7 +423,7 @@ namespace AudioStation.Controller
             }
             catch (Exception ex)
             {
-                _outputController.AddLog("Error in IModelController (AddLibraryEntry):  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
+                _outputController.AddLog("Error in IModelController (AddLibraryEntry):  {0}", LogMessageType.Database, LogLevel.Error, ex.Message);
             }
         }
 
@@ -423,7 +438,7 @@ namespace AudioStation.Controller
             }
             catch (Exception ex)
             {
-                _outputController.AddLog("Error in IModelController (AddLibraryEntry):  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
+                _outputController.AddLog("Error in IModelController (AddLibraryEntry):  {0}", LogMessageType.Database, LogLevel.Error, ex.Message);
             }
 
             return Enumerable.Empty<Mp3FileReference>();
@@ -447,7 +462,7 @@ namespace AudioStation.Controller
             }
             catch (Exception ex)
             {
-                _outputController.AddLog("Error in IModelController (AddLibraryEntry):  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
+                _outputController.AddLog("Error in IModelController (AddLibraryEntry):  {0}", LogMessageType.Database, LogLevel.Error, ex.Message);
             }
 
             return Enumerable.Empty<Mp3FileReferenceAlbum>();
@@ -466,7 +481,7 @@ namespace AudioStation.Controller
             }
             catch (Exception ex)
             {
-                _outputController.AddLog("Error in IModelController (AddLibraryEntry):  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
+                _outputController.AddLog("Error in IModelController (AddLibraryEntry):  {0}", LogMessageType.Database, LogLevel.Error, ex.Message);
             }
 
             return Enumerable.Empty<Mp3FileReference>();
@@ -566,7 +581,7 @@ namespace AudioStation.Controller
             }
             catch (Exception ex)
             {
-                _outputController.AddLog("Error retrieving data page:  " + ex.Message, LogMessageType.General, LogLevel.Error);
+                _outputController.AddLog("Error retrieving data page:  " + ex.Message, LogMessageType.Database, LogLevel.Error);
             }
 
             return PageResult<TEntity>.GetDefault();
