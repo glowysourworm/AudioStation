@@ -45,8 +45,17 @@ namespace AudioStation.Core.Database
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<M3UStream>()
-                        .HasIndex("Name");
+            modelBuilder.Entity<M3UStream>().HasIndex("Name");
+
+            modelBuilder.Entity<Mp3FileReference>().Navigation(x => x.PrimaryArtist).AutoInclude(true);
+            modelBuilder.Entity<Mp3FileReference>().Navigation(x => x.Album).AutoInclude(true);
+            modelBuilder.Entity<Mp3FileReference>().Navigation(x => x.PrimaryGenre).AutoInclude(true);
+
+            modelBuilder.Entity<Mp3FileReferenceArtistMap>().Navigation(x => x.Mp3FileReferenceArtist).AutoInclude(true);
+            modelBuilder.Entity<Mp3FileReferenceArtistMap>().Navigation(x => x.Mp3FileReference).AutoInclude(true);
+
+            modelBuilder.Entity<Mp3FileReferenceGenreMap>().Navigation(x => x.Mp3FileReferenceGenre).AutoInclude(true);
+            modelBuilder.Entity<Mp3FileReferenceGenreMap>().Navigation(x => x.Mp3FileReference).AutoInclude(true);
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -55,7 +64,7 @@ namespace AudioStation.Core.Database
 
             optionsBuilder.UseNpgsql(connectionString, builder =>
             {                
-                
+
             });
             optionsBuilder.EnableDetailedErrors(true);
             optionsBuilder.EnableSensitiveDataLogging(true);

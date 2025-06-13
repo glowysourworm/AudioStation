@@ -22,7 +22,6 @@
         <Setter Property="Foreground" Value="{StaticResource MainTabItemForeground}" />
         <Setter Property="BorderBrush" Value="{StaticResource MainTabItemBorder}" />
         <Setter Property="BorderThickness" Value="1 1 0 1" />
-        <Setter Property="Cursor" Value="Hand" />
         <Setter Property="Padding" Value="0" />
 
         <Setter Property="Template">

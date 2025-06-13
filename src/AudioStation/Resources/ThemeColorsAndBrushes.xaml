@@ -67,4 +67,8 @@
     <SolidColorBrush x:Key="PlayerControlTimelineBrush" Color="#FF888888" />
     <SolidColorBrush x:Key="PlayerControlHandleBrush" Color="#FF888888" />
 
+    <SolidColorBrush x:Key="ManagerDataGridRowHoverBackground" Color="#AFEEEEEE" />
+    <SolidColorBrush x:Key="ManagerDataGridRowSelectedBackground" Color="#FFEEEEEE" />
+    <SolidColorBrush x:Key="ManagerDataGridRowSelectedForeground" Color="Gray" />
+
 </ResourceDictionary>

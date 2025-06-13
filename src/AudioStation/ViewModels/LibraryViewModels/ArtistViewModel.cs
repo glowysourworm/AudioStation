@@ -1,10 +1,9 @@
 ﻿using AudioStation.Core.Model;
-using AudioStation.ViewModels;
 using AudioStation.ViewModels.LibraryViewModels.Comparer;
 
 using SimpleWpf.Extensions.ObservableCollection;
 
-namespace AudioStation.ViewModel.LibraryViewModels
+namespace AudioStation.ViewModels.LibraryViewModels
 {
     /// <summary>
     /// View model for viewing LibraryEntry data by artist

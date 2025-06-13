@@ -3,7 +3,6 @@
 using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Database;
 using AudioStation.Core.Model;
-using AudioStation.ViewModel.LibraryViewModels;
 using AudioStation.ViewModels.LibraryViewModels;
 
 using SimpleWpf.Extensions;
@@ -146,21 +145,12 @@ namespace AudioStation.ViewModels
             this.TotalGenresCount = result.TotalRecordCount;
             this.TotalGenresFilteredCount = result.TotalRecordCountFiltered;
         }
-        public void LoadEntryPage(PageResult<Mp3FileReference> result, bool reset)
+        public void LoadEntryPage(PageResult<LibraryEntryViewModel> result, bool reset)
         {
             if (reset)
                 this.LibraryEntries.Clear();
 
-            this.LibraryEntries.AddRange(result.Results.Select(entry => new LibraryEntryViewModel()
-            {
-                Album = entry.Album?.Name ?? "Unknown",
-                Id = entry.Id,
-                Disc = 0,
-                FileName = entry.FileName,
-                PrimaryArtist = entry.PrimaryArtist?.Name ?? "Unknown",
-                Title = entry.Title ?? "Unknown",
-                Track = (uint)(entry.Track ?? 0)
-            }));
+            this.LibraryEntries.AddRange(result.Results);
 
             this.TotalLibraryEntriesCount = result.TotalRecordCount;
             this.TotalLibraryEntriesFilteredCount = result.TotalRecordCountFiltered;

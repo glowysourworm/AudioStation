@@ -1,49 +1,72 @@
-﻿<UserControl x:Class="AudioStation.Views.ManagerView"
+﻿<UserControl x:Name="TheManagerView"
+             x:Class="AudioStation.Views.ManagerView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <Grid>
 
-        
-        
-        <!-- Library Entries -->
-        <ListBox x:Name="LibraryLB" 
-                 VirtualizingPanel.IsVirtualizing="True"
-                 VirtualizingPanel.CacheLength="3"
-                 VirtualizingPanel.VirtualizationMode="Recycling"
-                 ItemsSource="{Binding LibraryEntries}" 
-                 SelectionChanged="ListBox_SelectionChanged">
-            <ListBox.ItemsPanel>
+        <DataGrid x:Name="LibraryEntryGrid"
+                  ItemsSource="{Binding LibraryEntries}"
+                  IsReadOnly="True"
+                  ScrollViewer.ScrollChanged="LibraryEntryGrid_ScrollChanged"
+                  AutoGenerateColumns="False"
+                  BorderBrush="Transparent"
+                  BorderThickness="0"
+                  GridLinesVisibility="All"
+                  HorizontalGridLinesBrush="LightGray"
+                  VerticalGridLinesBrush="#8FEEEEEE"
+                  RowHeaderWidth="0"
+                  ColumnWidth="*"
+                  CanUserAddRows="False"
+                  CanUserDeleteRows="False"
+                  CanUserReorderColumns="False"
+                  CanUserResizeColumns="False"
+                  CanUserSortColumns="False"
+                  EnableRowVirtualization="True"
+                  EnableColumnVirtualization="False"
+                  CellStyle="{StaticResource ManagerDataGridCellStyle}"
+                  RowStyle="{StaticResource ManagerDataGridRowStyle}"
+                  SelectionMode="Single"
+                  SelectionUnit="FullRow"                  
+                  VirtualizingPanel.CacheLength="3"
+                  VirtualizingPanel.IsVirtualizing="True"
+                  VirtualizingPanel.VirtualizationMode="Recycling">
+            
+            <DataGrid.ItemsPanel>
                 <ItemsPanelTemplate>
                     <VirtualizingStackPanel IsItemsHost="True" />
                 </ItemsPanelTemplate>
-            </ListBox.ItemsPanel>
-            <ListBox.ItemTemplate>
-                <DataTemplate>
-                    <Border>
-                        <Grid>
+            </DataGrid.ItemsPanel>
 
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="Auto" />
-                            </Grid.ColumnDefinitions>
-                            
-                            <TextBlock Text="{Binding FileName}" FontSize="14" VerticalAlignment="Center" />
-                            <Border Grid.Column="1" CornerRadius="3">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="(Music Brainz)" VerticalAlignment="Center" Margin="3" Foreground="Gray" />
-
-                                    <Button Command="{Binding QueryMusicBrainzCommand}" 
-                                            Style="{StaticResource SmallControlButton}"
-                                            HorizontalAlignment="Right" Margin="3">
-                                        <!--iconPacks:PackIconFontAwesome Kind="AlignJustifySolid" Height="12" Width="12" /-->
-                                    </Button>
-                                </StackPanel>
-                            </Border>
-                        </Grid>
-                    </Border>
-                </DataTemplate>
-            </ListBox.ItemTemplate>
-        </ListBox>
-
+            <DataGrid.Columns>
+                <DataGridTextColumn Binding="{Binding Id}" Header="Id" SortMemberPath="Id" Width="SizeToCells"
+                                    CellStyle="{StaticResource ManagerDataGridCellStyle}"  />
+                
+                <DataGridTemplateColumn Header="Track" Width="SizeToCells" 
+                                        CellStyle="{StaticResource ManagerDataGridCellStyle}" 
+                                        CellTemplate="{StaticResource ManagerDataGridTrackDetailTemplate}" />
+                
+                <DataGridTextColumn Binding="{Binding PrimaryArtist}" 
+                                    CellStyle="{StaticResource ManagerDataGridCellStyle}"  
+                                    Header="Artist" SortMemberPath="PrimaryArtist" Width="SizeToCells" />
+                
+                <DataGridTextColumn Binding="{Binding Album}" 
+                                    CellStyle="{StaticResource ManagerDataGridCellStyle}"          
+                                    Header="Album" SortMemberPath="Album" Width="SizeToCells" />
+                
+                <DataGridTextColumn Binding="{Binding Title}" 
+                                    CellStyle="{StaticResource ManagerDataGridCellStyle}"          
+                                    Header="Title" SortMemberPath="Title" Width="SizeToCells" />
+                
+                <DataGridTextColumn Binding="{Binding PrimaryGenre}" 
+                                    CellStyle="{StaticResource ManagerDataGridCellStyle}"   
+                                    Header="Genre" SortMemberPath="PrimaryGenre" Width="SizeToCells" />
+                
+                <DataGridTextColumn Binding="{Binding FileName}" 
+                                    CellStyle="{StaticResource ManagerDataGridCellStyle}"       
+                                    Header="File" SortMemberPath="FileName" Width="SizeToCells" />
+            </DataGrid.Columns>
+            
+        </DataGrid>
+       
     </Grid>
 </UserControl>

@@ -1,14 +1,9 @@
-﻿using System.Collections.ObjectModel;
-
-using AudioStation.Core.Model;
-using AudioStation.ViewModels;
-using AudioStation.ViewModels.LibraryViewModels;
+﻿using AudioStation.Core.Model;
 using AudioStation.ViewModels.LibraryViewModels.Comparer;
 
-using SimpleWpf.Extensions;
 using SimpleWpf.Extensions.ObservableCollection;
 
-namespace AudioStation.ViewModel.LibraryViewModels
+namespace AudioStation.ViewModels.LibraryViewModels
 {
     /// <summary>
     /// Component used to view album details in the application (for valid library entries)

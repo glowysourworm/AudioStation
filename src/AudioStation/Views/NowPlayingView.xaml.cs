@@ -5,7 +5,6 @@ using AudioStation.Component.Interface;
 using AudioStation.Controller.Interface;
 using AudioStation.Core.Database;
 using AudioStation.Core.Model;
-using AudioStation.ViewModel.LibraryViewModels;
 using AudioStation.ViewModels;
 using AudioStation.ViewModels.LibraryViewModels;
 
@@ -197,10 +196,6 @@ namespace AudioStation.Views
                 if (scrollViewer.VerticalOffset >= (0.8 * scrollViewer.ScrollableHeight))
                 {
                     LoadArtistPage(_pageNumber + 1, false);
-
-                    //ListBox s = new ListBox();
-
-                    //s.SetValue(CollectionViewSource.ViewProperty, null);
                 }
             }
         }

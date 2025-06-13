@@ -55,7 +55,10 @@
                 </controls:TabItemPressable>
 
                 <controls:TabItemPressable FontSize="14" Margin="0" Header="Library Manager" Style="{StaticResource MainTabItemControlStyle}">
-                    <local:ManagerView x:Name="ManagerView" DataContext="{Binding Library}" />
+                    <region:IocRegion region:IocRegionManager.RegionName="ManagerView"
+                                      region:IocRegionManager.DefaultViewType="{x:Type local:ManagerView}"
+                                      DataContext="{Binding Library}">
+                    </region:IocRegion>                    
                 </controls:TabItemPressable>
 
                 <controls:TabItemPressable FontSize="14" Margin="0" Header="Now Playing" Style="{StaticResource MainTabItemControlStyle}">

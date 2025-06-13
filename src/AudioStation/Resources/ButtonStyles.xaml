@@ -9,7 +9,6 @@
     <Style x:Key="UserControlButton" TargetType="Button">
         <Setter Property="Padding" Value="2" />
         <Setter Property="Foreground" Value="{StaticResource DefaultLabelBrush}" />
-        <Setter Property="Cursor" Value="Hand" />
         <Setter Property="Background" Value="{StaticResource SmallButtonBackground}" />
         <Setter Property="BorderBrush" Value="{StaticResource SmallButtonBorder}" />
         <Setter Property="BorderThickness" Value="1" />
@@ -47,7 +46,6 @@
         <Setter Property="Height" Value="30" />
         <Setter Property="Padding" Value="2" />
         <Setter Property="Foreground" Value="{StaticResource DefaultLabelBrush}" />
-        <Setter Property="Cursor" Value="Hand" />
         <Setter Property="Background" Value="{StaticResource SmallButtonBackground}" />
         <Setter Property="BorderBrush" Value="{StaticResource SmallButtonBorder}" />
         <Setter Property="BorderThickness" Value="1" />
@@ -107,7 +105,6 @@
         <Setter Property="Height" Value="24" />
         <Setter Property="Padding" Value="2" />
         <Setter Property="Foreground" Value="{StaticResource DefaultLabelBrush}" />
-        <Setter Property="Cursor" Value="Hand" />
         <Setter Property="Background" Value="{StaticResource SmallButtonBackground}" />
         <Setter Property="BorderBrush" Value="{StaticResource SmallButtonBorder}" />
         <Setter Property="BorderThickness" Value="1" />
@@ -145,7 +142,6 @@
         <Setter Property="Height" Value="24" />
         <Setter Property="Padding" Value="2" />
         <Setter Property="Foreground" Value="{StaticResource DefaultLabelBrush}" />
-        <Setter Property="Cursor" Value="Hand" />
         <Setter Property="Background" Value="{StaticResource SmallButtonBackground}" />
         <Setter Property="BorderBrush" Value="{StaticResource SmallButtonBorder}" />
         <Setter Property="BorderThickness" Value="1" />
@@ -186,7 +182,6 @@
         <Setter Property="Height" Value="32" />
         <Setter Property="Padding" Value="3" />
         <Setter Property="Foreground" Value="{StaticResource DefaultLabelBrush}" />
-        <Setter Property="Cursor" Value="Hand" />
         <Setter Property="Background" Value="{StaticResource LargeInputButtonBackground}" />
         <Setter Property="BorderBrush" Value="{StaticResource LargeInputButtonBorder}" />
         <Setter Property="BorderThickness" Value="1" />
@@ -224,7 +219,6 @@
         <Setter Property="Height" Value="32" />
         <Setter Property="Padding" Value="3" />
         <Setter Property="Foreground" Value="{StaticResource DefaultLabelBrush}" />
-        <Setter Property="Cursor" Value="Hand" />
         <Setter Property="Background" Value="{StaticResource LargeInputButtonBackground}" />
         <Setter Property="BorderBrush" Value="{StaticResource LargeInputButtonBorder}" />
         <Setter Property="BorderThickness" Value="1" />        
@@ -259,7 +253,6 @@
 
     <Style x:Key="PlayerControlButton" TargetType="Button">
 
-        <Setter Property="Cursor" Value="Hand" />
         <Setter Property="Background" Value="{StaticResource PlayerControlButtonBackground}" />
 
         <Setter Property="Template">

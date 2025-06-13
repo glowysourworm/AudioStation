@@ -4,7 +4,6 @@ using System.Windows.Threading;
 
 using AudioStation.Controller.Interface;
 using AudioStation.Controller.Model;
-using AudioStation.ViewModel.LibraryViewModels;
 using AudioStation.ViewModels;
 
 using SimpleWpf.IocFramework.Application;

@@ -2,7 +2,6 @@
 using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Database;
 using AudioStation.Core.Model;
-using AudioStation.ViewModel.LibraryViewModels;
 using AudioStation.ViewModels.LibraryViewModels;
 
 using SimpleWpf.IocFramework.Application.Attribute;
@@ -79,6 +78,33 @@ namespace AudioStation.Component
             }
 
             result.Results = resultCollection;
+
+            return result;
+        }
+
+        public PageResult<LibraryEntryViewModel> LoadEntryPage(PageRequest<Mp3FileReference, int> request)
+        {
+            var result = new PageResult<LibraryEntryViewModel>();
+
+            // Database:  Load the file (entry) entities
+            var entryPage = _modelController.GetPage(request);
+
+            result.PageNumber = request.PageNumber;
+            result.PageSize = request.PageSize;
+            result.TotalRecordCountFiltered = entryPage.TotalRecordCountFiltered;
+            result.TotalRecordCount = entryPage.TotalRecordCount;
+            result.Results = entryPage.Results.Select(entry => new LibraryEntryViewModel()
+            {
+                Album = entry.Album?.Name ?? "Unknown",
+                Disc = (uint)(entry.Album?.DiscNumber ?? 0),
+                Duration = TimeSpan.FromMilliseconds(entry.DurationMilliseconds ?? 0),
+                FileName = entry.FileName,
+                Id = entry.Id,
+                PrimaryArtist = entry.PrimaryArtist?.Name ?? "Unknown",
+                PrimaryGenre = entry.PrimaryGenre?.Name ?? "Unknown",
+                Title = entry.Title ?? "Unknown",
+                Track = (uint)(entry.Track ?? 0)
+            }).ToList();
 
             return result;
         }

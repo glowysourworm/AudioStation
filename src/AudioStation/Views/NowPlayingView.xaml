@@ -6,7 +6,7 @@
              xmlns:controls="clr-namespace:AudioStation.Controls"
              xmlns:controlAnimation="clr-namespace:AudioStation.Controls.Animation"             
              xmlns:views="clr-namespace:AudioStation.Views"
-             xmlns:viewModel="clr-namespace:AudioStation.ViewModel.LibraryViewModels"
+             xmlns:viewModel="clr-namespace:AudioStation.ViewModels.LibraryViewModels"
              xmlns:cacheModel="clr-namespace:AudioStation.Controller.Model"
              xmlns:region="clr-namespace:SimpleWpf.IocFramework.RegionManagement;assembly=SimpleWpf.IocFramework">
     <Grid>

@@ -6,6 +6,7 @@ using AudioStation.Core.Event;
 using AudioStation.Core.Model;
 using AudioStation.Model;
 
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 using SimpleWpf.Extensions.Collection;
@@ -433,7 +434,9 @@ namespace AudioStation.Controller
             {
                 using (var context = CreateContext())
                 {
-                    return context.Mp3FileReferences.Where(x => x.PrimaryArtistId == artistId).ToList();
+                    return context.Mp3FileReferences
+                                  .Where(x => x.PrimaryArtistId == artistId)
+                                  .ToList();
                 }
             }
             catch (Exception ex)
