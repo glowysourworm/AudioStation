@@ -37,11 +37,12 @@ namespace AudioStation.Component.Bandcamp
 
                 var album = await downloader.GetAlbumInfoAsync(endpoint);
 
-                if (album == null || 
-                    album.TrackInfo == null || 
+                if (album == null ||
+                    album.TrackInfo == null ||
+                    album.TrackInfo.Any(x => x.Data == null || x.Data.Length == 0) ||
                     string.IsNullOrEmpty(album.Artist) ||
                     string.IsNullOrEmpty(album.Title?.Title))
-                    return;
+                    throw new Exception("Error reading data from Bandcamp API. Invalid or incomplete data set.");
 
                 var baseFolder = Path.Combine(_configurationManager.GetConfiguration().DownloadFolder, "Bandcamp");
                 var artistFolder = Path.Combine(baseFolder, album.Artist);
@@ -64,9 +65,6 @@ namespace AudioStation.Component.Bandcamp
 
                 foreach (var track in album.TrackInfo)
                 {
-                    if (track.Data == null)
-                        continue;
-
                     var fileFormat = "{0}-{1}-{2}.{3}";
 
                     var mp3Path = Path.Combine(albumFolder, string.Format(fileFormat, track.Artist, album.Title?.Title, track.Title, ".mp3"));

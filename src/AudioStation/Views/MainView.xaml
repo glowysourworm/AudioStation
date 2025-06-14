@@ -4,6 +4,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 			 xmlns:fa5="http://schemas.fontawesome.com/icons/"
 			 xmlns:local="clr-namespace:AudioStation.Views"
+             xmlns:viewsManager="clr-namespace:AudioStation.Views.LibraryManager"
 			 xmlns:controls="clr-namespace:AudioStation.Controls"
              xmlns:cacheModel="clr-namespace:AudioStation.Controller.Model"
              xmlns:region="clr-namespace:SimpleWpf.IocFramework.RegionManagement;assembly=SimpleWpf.IocFramework">
@@ -56,7 +57,7 @@
 
                 <controls:TabItemPressable FontSize="14" Margin="0" Header="Library Manager" Style="{StaticResource MainTabItemControlStyle}">
                     <region:IocRegion region:IocRegionManager.RegionName="ManagerView"
-                                      region:IocRegionManager.DefaultViewType="{x:Type local:ManagerView}"
+                                      region:IocRegionManager.DefaultViewType="{x:Type viewsManager:ManagerView}"
                                       DataContext="{Binding Library}">
                     </region:IocRegion>                    
                 </controls:TabItemPressable>

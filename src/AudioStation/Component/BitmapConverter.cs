@@ -124,6 +124,10 @@ namespace AudioStation.Component
                     return System.Windows.Media.PixelFormats.Gray16;
                 case System.Drawing.Imaging.PixelFormat.Format24bppRgb:
                     return System.Windows.Media.PixelFormats.Bgr24;             // THIS WAS BACKWARDS!!!! CHECK FOR YOURSELF! (RGB != BGR)
+                case System.Drawing.Imaging.PixelFormat.Format32bppArgb:
+                    return System.Windows.Media.PixelFormats.Bgra32;
+                case System.Drawing.Imaging.PixelFormat.Format32bppPArgb:
+                    return System.Windows.Media.PixelFormats.Pbgra32;
                 case System.Drawing.Imaging.PixelFormat.Format48bppRgb:
                     return System.Windows.Media.PixelFormats.Rgb48;
                 default:

@@ -62,7 +62,7 @@
                      VirtualizingPanel.VirtualizationMode="Recycling"
                      VirtualizingPanel.IsContainerVirtualizable="True"
                      VirtualizingPanel.CacheLength="1"
-                     VirtualizingPanel.ScrollUnit="Item"
+                     VirtualizingPanel.ScrollUnit="Item"                     
                      ScrollViewer.ScrollChanged="ArtistLB_ScrollChanged"
                      ItemContainerStyle="{StaticResource HoverSelectItemContainerStyleWithAlternation}"
                      AlternationCount="2"
@@ -74,6 +74,7 @@
                 <ListBox.ItemsPanel>
                     <ItemsPanelTemplate>
                         <VirtualizingStackPanel IsItemsHost="True" 
+                                                VirtualizingPanel.ScrollUnit="Item"
                                                 VirtualizingPanel.IsVirtualizing="True" 
                                                 VirtualizingPanel.IsContainerVirtualizable="True"
                                                 VirtualizingPanel.VirtualizationMode="Recycling" />

@@ -1,18 +1,12 @@
-﻿<UserControl x:Name="TheManagerView"
-             x:Class="AudioStation.Views.ManagerView"
+﻿<UserControl x:Class="AudioStation.Views.LibraryManager.ManagerDataGrid"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:fa5="http://schemas.fontawesome.com/icons/"
-             xmlns:xceed="http://schemas.xceed.com/wpf/xaml/toolkit"
-             xmlns:system="clr-namespace:System;assembly=System.Runtime"
-             xmlns:simpleUI="clr-namespace:SimpleWpf.UI.Controls;assembly=SimpleWpf.UI"
-             xmlns:controls="clr-namespace:AudioStation.Controls"
-             xmlns:viewModel="clr-namespace:AudioStation.ViewModels"
-             xmlns:region="clr-namespace:SimpleWpf.IocFramework.RegionManagement;assembly=SimpleWpf.IocFramework"
-             xmlns:libraryViewModel="clr-namespace:AudioStation.ViewModels.LibraryViewModels">
-
+             xmlns:xceed="http://schemas.xceed.com/wpf/xaml/toolkit"             
+             xmlns:viewModel="clr-namespace:AudioStation.ViewModels"             
+             xmlns:system="clr-namespace:System;assembly=System.Runtime"             
+             xmlns:simpleUI="clr-namespace:SimpleWpf.UI.Controls;assembly=SimpleWpf.UI">
     <Grid>
-
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
@@ -29,7 +23,7 @@
 
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                     <TextBlock Text="Library Manager Filter" Style="{StaticResource LabelTextBlockInvert}" Margin="5" VerticalAlignment="Center" />
-                    
+
                     <simpleUI:EnumComboBox EnumType="{x:Type viewModel:LibraryManagerErrorFilterType}"
                                            EnumValue="{Binding LibraryManagerFilterType, Mode=TwoWay}"
                                            EnumValueChanged="OnLibraryManagerFilterChanged"
@@ -39,34 +33,33 @@
             </Grid>
         </Border>
 
-        <!-- Library Entries -->
         <DataGrid x:Name="LibraryEntryGrid"
-                  Grid.Row="1"
-                  ItemsSource="{Binding LibraryEntries}"
-                  IsReadOnly="True"
-                  AutoGenerateColumns="False"
-                  BorderBrush="Transparent"
-                  BorderThickness="0"
-                  GridLinesVisibility="All"
-                  HorizontalGridLinesBrush="LightGray"
-                  VerticalGridLinesBrush="#8FEEEEEE"
-                  ColumnHeaderStyle="{StaticResource ManagerDataGridColumnHeaderStyle}"
-                  RowHeaderWidth="0"
-                  ColumnWidth="*"
-                  CanUserAddRows="False"
-                  CanUserDeleteRows="False"
-                  CanUserReorderColumns="False"
-                  CanUserResizeColumns="False"
-                  CanUserSortColumns="False"
-                  EnableRowVirtualization="True"
-                  EnableColumnVirtualization="False"
-                  CellStyle="{StaticResource ManagerDataGridCellStyle}"
-                  RowStyle="{StaticResource ManagerDataGridRowStyle}"
-                  SelectionMode="Single"
-                  SelectionUnit="FullRow"                  
-                  VirtualizingPanel.CacheLength="3"
-                  VirtualizingPanel.IsVirtualizing="True"
-                  VirtualizingPanel.VirtualizationMode="Recycling">
+                Grid.Row="1"
+                ItemsSource="{Binding LibraryEntries}"
+                IsReadOnly="True"
+                AutoGenerateColumns="False"
+                BorderBrush="Transparent"
+                BorderThickness="0"
+                GridLinesVisibility="All"
+                HorizontalGridLinesBrush="LightGray"
+                VerticalGridLinesBrush="#8FEEEEEE"
+                ColumnHeaderStyle="{StaticResource ManagerDataGridColumnHeaderStyle}"
+                RowHeaderWidth="0"
+                ColumnWidth="*"
+                CanUserAddRows="False"
+                CanUserDeleteRows="False"
+                CanUserReorderColumns="False"
+                CanUserResizeColumns="False"
+                CanUserSortColumns="False"
+                EnableRowVirtualization="True"
+                EnableColumnVirtualization="False"
+                CellStyle="{StaticResource ManagerDataGridCellStyle}"
+                RowStyle="{StaticResource ManagerDataGridRowStyle}"
+                SelectionMode="Single"
+                SelectionUnit="FullRow"                  
+                VirtualizingPanel.CacheLength="3"
+                VirtualizingPanel.IsVirtualizing="True"
+                VirtualizingPanel.VirtualizationMode="Recycling">
 
             <DataGrid.ItemsPanel>
                 <ItemsPanelTemplate>
@@ -124,12 +117,6 @@
             </DataGrid.Columns>
 
         </DataGrid>
-        
-        <!-- File Tree (from base directory) -->
-        <!--region:IocRegion Grid.Column="1" Grid.Row="1"
-                          region:IocRegionManager.RegionName="ManagerViewFileTreeViewRegion"
-                          DataContext="{Binding Configuration, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}">
-        </region:IocRegion-->
 
         <!-- Footer -->
         <Border Background="{StaticResource ManagedDataGridFooterBackground}" Grid.Row="2" Padding="5" Grid.ColumnSpan="2">
@@ -187,7 +174,7 @@
                         </StackPanel>
                     </Button>
                 </StackPanel>
-                
+
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0 0 10 0">
                     <TextBlock Text="Displaying Library Entries " Style="{StaticResource LabelTextBlockInvert}" />
                     <TextBlock Text="{Binding LibraryEntriesPageBeginEntryNumber}" Style="{StaticResource LabelTextBlockInvert}" />
@@ -200,6 +187,5 @@
                 </StackPanel>
             </Grid>
         </Border>
-        
     </Grid>
 </UserControl>

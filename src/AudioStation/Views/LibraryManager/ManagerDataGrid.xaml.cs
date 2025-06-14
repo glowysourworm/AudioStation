@@ -2,30 +2,20 @@
 using System.Windows.Controls;
 using System.Windows.Data;
 
-using AudioStation.Component.Interface;
 using AudioStation.ViewModels;
 
-using SimpleWpf.IocFramework.Application.Attribute;
-
-namespace AudioStation.Views
+namespace AudioStation.Views.LibraryManager
 {
-    [IocExportDefault]
-    public partial class ManagerView : UserControl
+    public partial class ManagerDataGrid : UserControl
     {
-        [IocImportingConstructor]
-        public ManagerView()
+        public ManagerDataGrid()
         {
             InitializeComponent();
 
-            this.DataContextChanged += ManagerView_DataContextChanged;
+            this.DataContextChanged += ManagerDataGrid_DataContextChanged;
         }
 
-        protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)
-        {
-            base.OnRenderSizeChanged(sizeInfo);
-        }
-
-        private void ManagerView_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
+        private void ManagerDataGrid_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
             // Set header bindings
             foreach (var column in this.LibraryEntryGrid.Columns)
@@ -39,8 +29,6 @@ namespace AudioStation.Views
                     Source = this.DataContext
                 });
             }
-
-            ExecuteSearch();
         }
 
         private void OnLibraryManagerFilterChanged(object sender, RoutedEventArgs e)
