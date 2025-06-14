@@ -1,8 +1,10 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
+using System.Windows.Input;
 
 using AudioStation.ViewModels;
+using AudioStation.ViewModels.LibraryViewModels;
 
 namespace AudioStation.Views.LibraryManager
 {
@@ -46,6 +48,16 @@ namespace AudioStation.Views.LibraryManager
                 viewModel.LibraryEntryRequestPage = 1;
                 viewModel.LibraryEntryPageRequestCommand.Execute(1);
             }
+        }
+
+        // Row Double Click -> Add File Tab Item
+        private void LibraryEntryGrid_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            var viewModel = this.DataContext as LibraryViewModel;
+            var selectedItem = this.LibraryEntryGrid.SelectedItem as LibraryEntryViewModel;
+
+            if (selectedItem != null && viewModel != null)
+                viewModel.AddLibraryEntryTabCommand.Execute(selectedItem);
         }
     }
 }

@@ -242,41 +242,58 @@
         </Style.Triggers>
     </Style>
 
+    <Style x:Key="ManagerTabControlStyle" TargetType="TabControl">
+        <Setter Property="Background" Value="#1F000000" />
+    </Style>
+    
     <Style x:Key="ManagerTabItemStyle" TargetType="{x:Type controls:TabItemPressable}">
         
-        <Setter Property="Background" Value="{StaticResource OutputTabItemBackground}" />
-        <Setter Property="Foreground" Value="{StaticResource OutputTabItemForeground}" />
-        <Setter Property="BorderBrush" Value="{StaticResource OutputTabItemBorder}" />
-        <Setter Property="BorderThickness" Value="2 2 2 0" />
+        <Setter Property="Background" Value="{StaticResource ManagerTabItemBackground}" />
+        <Setter Property="Foreground" Value="{StaticResource ManagerTabItemForeground}" />
+        <Setter Property="BorderBrush" Value="{StaticResource ManagerTabItemBorder}" />
+        <Setter Property="BorderThickness" Value="1 1 1 0" />
         <Setter Property="Padding" Value="0" />
         <Setter Property="FontSize" Value="14" />
-        <Setter Property="Margin" Value="5 0" />
 
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type controls:TabItemPressable}">
 
-                    <!-- Tab Control Items Panel:  Has extra room for the RHS controls. So, there's a static height here -->
                     <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="*" />
-                            <RowDefinition Height="Auto" />
-                        </Grid.RowDefinitions>
 
-                        <!-- Tab Control Items Panel:  Has extra room for the RHS controls. So, there's a static height here -->
                         <Border x:Name="ContentBorder"
-                                Grid.Row="1"
-                                CornerRadius="5 5 0 0"
+                                Grid.Column="0"
+                                CornerRadius="3 3 0 0"
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}"
                                 Background="{TemplateBinding Background}"                              
-                                Height="36"
+                                Height="{TemplateBinding Height}"
                                 Width="{TemplateBinding Width}"
                                 Padding="{TemplateBinding Padding}">
                             <Grid>
+
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+
                                 <ContentPresenter ContentSource="Header"
                                                   VerticalAlignment="Center"
-                                                  HorizontalAlignment="Center" Margin="10 5 10 5" />
+                                                  HorizontalAlignment="Center" Margin="10" />
+
+                                <!-- Close Button -->
+                                <Button Style="{StaticResource ManagerTabItemCloseButton}" Grid.Column="1"
+                                        Command="{Binding CloseCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type controls:TabItemPressable}}}"
+                                        Visibility="{Binding CloseCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type controls:TabItemPressable}}, Converter={StaticResource NonNullVisibilityConverter}}"
+                                        Height="14"
+                                        Width="14"
+                                        Cursor="Hand"
+                                        Margin="0 0 10 0"
+                                        VerticalAlignment="Center"
+                                        HorizontalAlignment="Center"
+                                        Background="Gray"
+                                        BorderBrush="LightGray"
+                                        />
                             </Grid>
                         </Border>
 
@@ -288,13 +305,13 @@
 
         <Style.Triggers>
             <Trigger Property="IsMouseOver" Value="True">
-                <Setter Property="Background" Value="{StaticResource OutputTabItemBackgroundHover}" />
+                <Setter Property="Background" Value="{StaticResource ManagerTabItemBackgroundHover}" />
             </Trigger>
             <Trigger Property="IsPressed" Value="True">
-                <Setter Property="Background" Value="{StaticResource OutputTabItemBackgroundPressed}" />
+                <Setter Property="Background" Value="{StaticResource ManagerTabItemBackgroundPressed}" />
             </Trigger>
             <Trigger Property="IsSelected" Value="True">
-                <Setter Property="Background" Value="{StaticResource OutputTabItemBackgroundSelected}" />
+                <Setter Property="Background" Value="{StaticResource ManagerTabItemBackgroundSelected}" />
             </Trigger>
         </Style.Triggers>
     </Style>

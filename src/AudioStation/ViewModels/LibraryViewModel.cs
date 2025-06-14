@@ -25,6 +25,7 @@ namespace AudioStation.ViewModels
         private readonly int _libraryEntryPageSize = 100;
 
         ObservableCollection<LibraryEntryViewModel> _libraryEntries;
+        ObservableCollection<LibraryEntryViewModel> _libraryEntryTabItems;
         ObservableCollection<AlbumViewModel> _albums;
         ObservableCollection<ArtistViewModel> _artists;
         ObservableCollection<GenreViewModel> _genres;
@@ -51,11 +52,18 @@ namespace AudioStation.ViewModels
         SimpleCommand _libraryEntryPageRequestCommand;
         SimpleCommand<int> _libraryEntryPageRequestBackCommand;
         SimpleCommand<int> _libraryEntryPageRequestForwardCommand;
+        SimpleCommand<LibraryEntryViewModel> _addLibraryEntryTabCommand;
+        SimpleCommand<LibraryEntryViewModel> _removeLibraryEntryTabCommand;
 
         public ObservableCollection<LibraryEntryViewModel> LibraryEntries
         {
             get { return _libraryEntries; }
             set { this.RaiseAndSetIfChanged(ref _libraryEntries, value); }
+        }
+        public ObservableCollection<LibraryEntryViewModel> LibraryEntryTabItems
+        {
+            get { return _libraryEntryTabItems; }
+            set { this.RaiseAndSetIfChanged(ref _libraryEntryTabItems, value); }
         }
         public ObservableCollection<AlbumViewModel> Albums
         {
@@ -166,6 +174,16 @@ namespace AudioStation.ViewModels
             get { return _libraryEntryPageRequestForwardCommand; }
             set { this.RaiseAndSetIfChanged(ref _libraryEntryPageRequestForwardCommand, value); }
         }
+        public SimpleCommand<LibraryEntryViewModel> AddLibraryEntryTabCommand
+        {
+            get { return _addLibraryEntryTabCommand; }
+            set { this.RaiseAndSetIfChanged(ref _addLibraryEntryTabCommand, value); }
+        }
+        public SimpleCommand<LibraryEntryViewModel> RemoveLibraryEntryTabCommand
+        {
+            get { return _removeLibraryEntryTabCommand; }
+            set { this.RaiseAndSetIfChanged(ref _removeLibraryEntryTabCommand, value); }
+        }
 
         [IocImportingConstructor]
         public LibraryViewModel(IViewModelLoader viewModelLoader)
@@ -173,12 +191,24 @@ namespace AudioStation.ViewModels
             _viewModelLoader = viewModelLoader;
 
             this.LibraryEntries = new ObservableCollection<LibraryEntryViewModel>();
+            this.LibraryEntryTabItems = new ObservableCollection<LibraryEntryViewModel>();
             this.Albums = new ObservableCollection<AlbumViewModel>();
             this.Artists = new ObservableCollection<ArtistViewModel>();
             this.Genres = new ObservableCollection<GenreViewModel>();
 
             this.LibraryEntrySearch = new LibraryEntryViewModel();
 
+            // Library Entry Tabs (closeable / ManagerView)
+            this.AddLibraryEntryTabCommand = new SimpleCommand<LibraryEntryViewModel>(viewModel =>
+            {
+                this.LibraryEntryTabItems.Add(viewModel);
+            });
+            this.RemoveLibraryEntryTabCommand = new SimpleCommand<LibraryEntryViewModel>(viewModel =>
+            {
+                this.LibraryEntryTabItems.Remove(viewModel);
+            });
+
+            // Manager Grid (pager)
             this.LibraryEntryPageRequestCommand = new SimpleCommand(() =>
             {
                 ExecuteSearch(this.LibraryEntryRequestPage);
@@ -199,7 +229,9 @@ namespace AudioStation.ViewModels
             // Listen to property changes for executing searches on the data grid
             this.LibraryEntrySearch.PropertyChanged += (sender, args) =>
             {
-                ExecuteSearch(this.LibraryEntryRequestPage);
+                this.LibraryEntryRequestPage = 1;
+
+                ExecuteSearch(1);
             };
         }
         public void LoadArtists(PageResult<ArtistViewModel> result, bool reset)

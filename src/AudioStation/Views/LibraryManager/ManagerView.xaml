@@ -10,26 +10,27 @@
              xmlns:region="clr-namespace:SimpleWpf.IocFramework.RegionManagement;assembly=SimpleWpf.IocFramework"
              xmlns:libraryViewModel="clr-namespace:AudioStation.ViewModels.LibraryViewModels">
 
-    <Grid>
+    <!-- Going to use this for creating the base tabs (proxy is simpler) -->
+    <UserControl.Resources>
+        
+        <!-- Library Entries (Database) -->
+        <controls:TabItemPressable x:Key="LibraryDatabaseTab" Style="{StaticResource ManagerTabItemStyle}" Header="Library (Database)">
+            <local:ManagerDataGrid Grid.Row="1" />
+        </controls:TabItemPressable>
 
-        <TabControl>
-
-            <!-- Library Entries (Database) -->
-            <TabItem>
-                <local:ManagerDataGrid Grid.Row="1" />
-            </TabItem>
-            
-            <!-- Library Entries (File) -->
-            <TabItem>
-                <!--region:IocRegion Grid.Column="1" Grid.Row="1"
+        <!-- Library Entries (File) -->
+        <controls:TabItemPressable x:Key="LibraryFileTab" Style="{StaticResource ManagerTabItemStyle}" Header="Library (File)">
+            <!--region:IocRegion Grid.Column="1" Grid.Row="1"
                           region:IocRegionManager.RegionName="ManagerViewFileTreeViewRegion"
                           DataContext="{Binding Configuration, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}">
                 </region:IocRegion-->
-            </TabItem>
-            
-        </TabControl>
+        </controls:TabItemPressable>
+    </UserControl.Resources>
 
+    <Grid Background="{StaticResource ManagerBackground}">
 
+        <!-- Bound to item source in code behind -->
+        <TabControl x:Name="ManagerTabControl" Style="{StaticResource ManagerTabControlStyle}" />
 
     </Grid>
 </UserControl>

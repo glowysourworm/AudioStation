@@ -41,6 +41,34 @@
         </Setter>
     </Style>
 
+    <Style x:Key="ManagerTabItemCloseButton" TargetType="Button">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Ellipse x:Name="ButtonEllipse"
+                             Height="{TemplateBinding Height}"
+                             Width="{TemplateBinding Width}"
+                             StrokeThickness="1"
+                             Fill="{TemplateBinding Background}"
+                             Stroke="{TemplateBinding BorderBrush}"
+                             HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                             VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Fill" Value="Red" TargetName="ButtonEllipse" />
+                            <Setter Property="Stroke" Value="White" TargetName="ButtonEllipse" />
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter Property="Fill" Value="#8FFFFFFF" TargetName="ButtonEllipse" />
+                            <Setter Property="Stroke" Value="White" TargetName="ButtonEllipse" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
     <Style x:Key="ManagerViewPagerButton" TargetType="Button">
         <Setter Property="Padding" Value="3" />
         <Setter Property="Margin" Value="3" />

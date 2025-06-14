@@ -36,6 +36,7 @@
         <DataGrid x:Name="LibraryEntryGrid"
                 Grid.Row="1"
                 ItemsSource="{Binding LibraryEntries}"
+                MouseDoubleClick="LibraryEntryGrid_MouseDoubleClick"
                 IsReadOnly="True"
                 AutoGenerateColumns="False"
                 BorderBrush="Transparent"

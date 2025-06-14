@@ -69,6 +69,8 @@
     <SolidColorBrush x:Key="PlayerControlTimelineBrush" Color="#FF888888" />
     <SolidColorBrush x:Key="PlayerControlHandleBrush" Color="#FF888888" />
 
+    <SolidColorBrush x:Key="ManagerBackground" Color="LightGray" />
+
     <SolidColorBrush x:Key="ManagedDataGridHeaderBackground" Color="#FFAAAAAA" />
     <SolidColorBrush x:Key="ManagerDataGridRowBackground_Error" Color="#0FFF0000" />
     <SolidColorBrush x:Key="ManagerDataGridRowHoverBackground_Error" Color="#3FFF0000" />
@@ -82,5 +84,12 @@
     <SolidColorBrush x:Key="ManagerViewPagerButtonHoverBackground" Color="LightGray" />
     <SolidColorBrush x:Key="ManagerViewPagerButtonPressedBackground" Color="#FFEEEEEE" />
     <SolidColorBrush x:Key="ManagerViewPagerButtonForeground" Color="LightGray" />
+
+    <SolidColorBrush x:Key="ManagerTabItemBackground">#3F000000</SolidColorBrush>
+    <SolidColorBrush x:Key="ManagerTabItemBackgroundHover">#5F000000</SolidColorBrush>
+    <SolidColorBrush x:Key="ManagerTabItemBackgroundPressed">#8F000000</SolidColorBrush>
+    <SolidColorBrush x:Key="ManagerTabItemBackgroundSelected">#8F000000</SolidColorBrush>
+    <SolidColorBrush x:Key="ManagerTabItemForeground">White</SolidColorBrush>
+    <SolidColorBrush x:Key="ManagerTabItemBorder">Gray</SolidColorBrush>
 
 </ResourceDictionary>
