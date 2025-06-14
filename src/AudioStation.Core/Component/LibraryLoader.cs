@@ -24,8 +24,11 @@ namespace AudioStation.Core.Component
         private readonly IOutputController _outputController;
         private readonly IModelController _modelController;
 
+        // Cannot use multi threading on the database until we have proper 
+        // table locking, or transactions!
+
         const int WORKER_SLEEP_PERIOD = 500;                   // 1 second between queue checks
-        const int WORKER_THREAD_MAX = 4;                       // This is actually per type because the work item is not classed out
+        const int WORKER_THREAD_MAX = 1;                       // This is actually per type because the work item is not classed out
 
         public event SimpleEventHandler<LibraryLoaderWorkItem> WorkItemCompleted;
         public event SimpleEventHandler<LibraryLoaderWorkItem> WorkItemUpdate;

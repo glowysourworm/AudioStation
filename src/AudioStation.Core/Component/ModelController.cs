@@ -227,7 +227,7 @@ namespace AudioStation.Controller
                     }
 
                     // There could be Null / Empty / or Unknown data. Assume there is.
-                    var existingAlbum = tagRef.Tag.Album == null ? null : context.Mp3FileReferenceAlbums.FirstOrDefault(x => x.Name == tagRef.Tag.Album);
+                    var existingAlbum = tagRef.Tag.Album == null ? null : context.Mp3FileReferenceAlbums.FirstOrDefault(x => x.Name == tagRef.Tag.Album.Trim());
                     var existingArtist = tagRef.Tag.FirstAlbumArtist == null ? null : context.Mp3FileReferenceArtists.FirstOrDefault(x => x.Name == tagRef.Tag.FirstAlbumArtist.Trim());
                     var existingGenre = tagRef.Tag.FirstGenre == null ? null : context.Mp3FileReferenceGenres.FirstOrDefault(x => x.Name == tagRef.Tag.FirstGenre.Trim());
 
@@ -460,14 +460,11 @@ namespace AudioStation.Controller
             {
                 using (var context = CreateContext())
                 {
-                    var albumIds = context.Mp3FileReferenceArtistMaps
-                                          .Where(x => x.Mp3FileReferenceArtistId == artistId)
-                                          .Select(x => x.Mp3FileReference.AlbumId)
+                    return context.Mp3FileReferenceArtistMaps
+                                          .Where(x => x.Mp3FileReferenceArtistId == artistId && isPrimaryArtist == x.IsPrimaryArtist)
+                                          .Select(x => x.Mp3FileReference.Album)
+                                          .Distinct()
                                           .ToList();
-
-                    return context.Mp3FileReferenceAlbums
-                                  .Where(x => albumIds.Contains(x.Id))
-                                  .ToList();
                 }
             }
             catch (Exception ex)

@@ -6,7 +6,9 @@
              xmlns:xceed="http://schemas.xceed.com/wpf/xaml/toolkit"
              xmlns:system="clr-namespace:System;assembly=System.Runtime"
              xmlns:simpleUI="clr-namespace:SimpleWpf.UI.Controls;assembly=SimpleWpf.UI"
+             xmlns:controls="clr-namespace:AudioStation.Controls"
              xmlns:viewModel="clr-namespace:AudioStation.ViewModels"
+             xmlns:region="clr-namespace:SimpleWpf.IocFramework.RegionManagement;assembly=SimpleWpf.IocFramework"
              xmlns:libraryViewModel="clr-namespace:AudioStation.ViewModels.LibraryViewModels">
 
     <Grid>
@@ -18,7 +20,7 @@
         </Grid.RowDefinitions>
 
         <!-- Header -->
-        <Border Background="{StaticResource ManagedDataGridHeaderBackground}" Padding="5">
+        <Border Background="{StaticResource ManagedDataGridHeaderBackground}" Padding="5" Grid.ColumnSpan="2">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
@@ -65,7 +67,7 @@
                   VirtualizingPanel.CacheLength="3"
                   VirtualizingPanel.IsVirtualizing="True"
                   VirtualizingPanel.VirtualizationMode="Recycling">
-            
+
             <DataGrid.ItemsPanel>
                 <ItemsPanelTemplate>
                     <VirtualizingStackPanel IsItemsHost="True" />
@@ -120,11 +122,17 @@
                                     SortMemberPath="FileName" Width="SizeToCells">
                 </DataGridTextColumn>
             </DataGrid.Columns>
-            
+
         </DataGrid>
+        
+        <!-- File Tree (from base directory) -->
+        <!--region:IocRegion Grid.Column="1" Grid.Row="1"
+                          region:IocRegionManager.RegionName="ManagerViewFileTreeViewRegion"
+                          DataContext="{Binding Configuration, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}">
+        </region:IocRegion-->
 
         <!-- Footer -->
-        <Border Background="{StaticResource ManagedDataGridFooterBackground}" Grid.Row="2" Padding="5">
+        <Border Background="{StaticResource ManagedDataGridFooterBackground}" Grid.Row="2" Padding="5" Grid.ColumnSpan="2">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />

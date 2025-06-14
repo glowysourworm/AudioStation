@@ -41,7 +41,7 @@ namespace AudioStation.Component
                 // Create Artist Result
                 var artistViewModel = new ArtistViewModel(artist.Id)
                 {
-                    Artist = artist.Name
+                    Artist = artist.Name                    
                 };
 
                 // Add Album - Query Tracks
@@ -50,7 +50,8 @@ namespace AudioStation.Component
                     var albumViewModel = new AlbumViewModel(album.Id)
                     {
                         Album = album.Name,
-                        PrimaryArtist = artist.Name
+                        PrimaryArtist = artist.Name,
+                        Year = (uint)album.Year
                     };
 
                     // Database:  Load the track entities
@@ -77,6 +78,9 @@ namespace AudioStation.Component
                             PrimaryGenre = track.PrimaryGenre?.Name ?? "Unknown"
                         };
                     }));
+
+                    // Calculate the album duration
+                    albumViewModel.Duration = TimeSpan.FromMilliseconds(albumViewModel.Tracks.Sum(track => track.Duration.TotalMilliseconds));
 
                     artistViewModel.Albums.Add(albumViewModel);
                 }

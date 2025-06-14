@@ -24,6 +24,6 @@ namespace AudioStation.Controller.Interface
         /// Returns a web image with the desired size. The cache is kept based on your cache type input; and no
         /// other media web types are considered for separate caching.
         /// </summary>
-        Task<ImageSource> GetFromEndpoint(string endpoint, PictureType cacheType, ImageCacheType cacheAsType);
+        ImageSource GetFromEndpoint(string endpoint, PictureType cacheType, ImageCacheType cacheAsType);
     }
 }

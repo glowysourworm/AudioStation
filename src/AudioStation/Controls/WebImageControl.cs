@@ -25,7 +25,7 @@ namespace AudioStation.Controls
         /// <summary>
         /// Sets the (static) image size based on an enumeration. (see ImageCacheType / ImageSize for sizes)
         /// </summary>
-        public ImageCacheType ImageSize { get; private set; }
+        public ImageCacheType ImageSize { get; set; }
 
         private readonly PictureType _cacheType;
         private readonly IImageCacheController _cacheController;
@@ -89,7 +89,7 @@ namespace AudioStation.Controls
                 switch (_cacheType)
                 {
                     case PictureType.FrontCover:
-                        this.Source = await _cacheController.GetFromEndpoint(this.ImageEndpoint, _cacheType, this.ImageSize);
+                        this.Source = _cacheController.GetFromEndpoint(this.ImageEndpoint, _cacheType, this.ImageSize);
                         break;
                     default:
                         throw new Exception("Unhandled Picture Type:  WebImageControl.cs");

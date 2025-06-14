@@ -10,6 +10,7 @@
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
+        <!-- Search Bar -->
         <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
@@ -17,7 +18,7 @@
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
 
-            <TextBlock Text="Radio Browser (API)" Style="{StaticResource LargeInputLabelTextBlock}" Margin="3" />
+            <TextBlock Text="Radio Browser" Style="{StaticResource LargeInputLabelTextBlock}" Margin="3" />
 
             <TextBox x:Name="SearchTB" Grid.Column="1" Style="{StaticResource LargeInputLabelTextBox}" Margin="3">
                 <TextBox.InputBindings>
@@ -37,7 +38,8 @@
             </Button>
             
         </Grid>
-
+        
+        <!-- Search Results -->
         <ListBox x:Name="RadioStationLB" 
                  Grid.Row="1"
                  AlternationCount="2"
@@ -58,14 +60,14 @@
                 <DataTemplate DataType="RadioStationViewModel">
                     <Grid ToolTip="{Binding Endpoint}">
                         
-                        <Grid.ColumnDefinitions>
+                        <!--Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
+                        </Grid.ColumnDefinitions-->
 
-                        <controls:WebImageControl ImageEndpoint="{Binding LogoEndpoint}" Width="36" Height="36" Margin="5" />
+                        <!--controls:WebImageControl ImageEndpoint="{Binding LogoEndpoint}" ImageSize="Small"  Width="36" Height="36" Margin="5" /-->
 
-                        <StackPanel Grid.Column="1" Margin="5">
+                        <StackPanel Margin="5">
                             <TextBlock Text="{Binding Name}" Grid.Column="1" Style="{StaticResource LabelTextBlock}" />
                             <TextBlock Text="{Binding Endpoint}" Grid.Column="1" Style="{StaticResource LabelDetailTextBlock}" />
                             <TextBlock Text="{Binding Homepage}" Grid.Column="1" Style="{StaticResource LabelDetailTextBlock}" />

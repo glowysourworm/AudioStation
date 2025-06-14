@@ -45,7 +45,7 @@
             
             <ListBox.ItemTemplate>
                 <DataTemplate DataType="RadioEntryStreamInfo">
-                    <Grid ToolTip="{Binding Endpoint}">
+                    <!--Grid ToolTip="{Binding Endpoint}">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="*" />
@@ -53,7 +53,8 @@
 
                         <controls:WebImageControl ImageEndpoint="{Binding LogoEndpoint}" Width="36" Height="36" />
                         <TextBlock Text="{Binding Title}" Grid.Column="1" />
-                    </Grid>
+                    </Grid-->
+                    <TextBlock Text="{Binding Title}" />
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>

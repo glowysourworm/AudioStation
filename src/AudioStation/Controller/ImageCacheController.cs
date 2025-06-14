@@ -34,8 +34,6 @@ namespace AudioStation.Controller
 
         protected ImageCacheSet<ImageCacheType, string, ImageCacheItem> WebImageCacheSet;
 
-        private object _bitmapConverterLock = new object();
-
         [IocImportingConstructor]
         public ImageCacheController(IModelController modelController,
                                     IBitmapConverter bitmapConverter,
@@ -96,32 +94,24 @@ namespace AudioStation.Controller
             return null;
         }
 
-        public Task<ImageSource> GetFromEndpoint(string endpoint, PictureType cacheType, ImageCacheType cacheAsType)
+        public ImageSource GetFromEndpoint(string endpoint, PictureType cacheType, ImageCacheType cacheAsType)
         {
             try
             {
-                return Task.Run<ImageSource>(async () =>
-                {
-                    // TASK THREAD ONLY!
+                // TASK THREAD ONLY!
                     if (this.WebImageCacheSet.GetCache(cacheAsType).Contains(endpoint))
                         return this.WebImageCacheSet.GetCache(cacheAsType).Get(endpoint).GetFirstImage();
 
-                    var data = await GetWebImage(endpoint);
+                var data = GetWebImage(endpoint);
 
-                    if (data == null)
-                        return null;
+                if (data == null)
+                    return null;
 
-                    ImageSource imageSource = null;
+                var imageSource = _bitmapConverter.BitmapDataToBitmapSource(data, new ImageSize(cacheAsType));
+                
+                this.WebImageCacheSet.GetCache(cacheAsType).Add(endpoint, new ImageCacheItem(cacheType, imageSource));
 
-                    lock (_bitmapConverterLock)
-                    {
-                        imageSource = _bitmapConverter.BitmapDataToBitmapSource(data, new ImageSize(cacheAsType));
-                    }
-
-                    this.WebImageCacheSet.GetCache(cacheAsType).Add(endpoint, new ImageCacheItem(cacheType, imageSource));
-
-                    return imageSource;
-                });
+                return imageSource;
             }
             catch (Exception ex)
             {
@@ -131,15 +121,16 @@ namespace AudioStation.Controller
             return null;
         }
 
-        private async Task<byte[]?> GetWebImage(string endpoint)
+        private byte[]? GetWebImage(string endpoint)
         {
             try
             {
-                var client = new HttpClient();
-                var result = await client.GetByteArrayAsync(endpoint);
+                using (var client = new HttpClient())
+                {
+                    var result = client.GetByteArrayAsync(endpoint).ConfigureAwait(false).GetAwaiter();
 
-                client.Dispose();
-                client = null;
+                    return result.GetResult();
+                }
             }
             catch (Exception ex)
             {
@@ -178,11 +169,8 @@ namespace AudioStation.Controller
             Dictionary<PictureType, ImageSource> imageSources;
 
             // Contention for web image loading (Task)
-            lock (_bitmapConverterLock)
-            {
-                imageSources = images.ToDictionary(picture => picture.Type,
-                                                   picture => (ImageSource)_bitmapConverter.BitmapDataToBitmapSource(picture.Data.Data, new ImageSize(cacheAsType)));
-            }
+            imageSources = images.ToDictionary(picture => picture.Type,
+                                                picture => (ImageSource)_bitmapConverter.BitmapDataToBitmapSource(picture.Data.Data, new ImageSize(cacheAsType)));
 
             var cacheItem = new ImageCacheItem(imageSources);
 

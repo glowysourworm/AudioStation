@@ -99,7 +99,7 @@ namespace AudioStation.ViewModels
                         Name = stream.Name,
                         Homepage = stream.Homepage.ToString(),
                         Endpoint = stream.Url.ToString(),
-                        LogoEndpoint = stream.Favicon.ToString()
+                        LogoEndpoint = stream.Favicon
                     });
                 }
             }
