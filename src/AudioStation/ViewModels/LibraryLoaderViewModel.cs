@@ -1,9 +1,11 @@
-﻿using System.ComponentModel;
+﻿using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Windows;
 using System.Windows.Threading;
 
 using AudioStation.Core.Component;
 using AudioStation.Core.Component.Interface;
+using AudioStation.Core.Component.LibraryLoaderComponent;
 using AudioStation.Model;
 
 using Microsoft.Extensions.Logging;
@@ -23,40 +25,19 @@ namespace AudioStation.ViewModels
         private readonly ILibraryLoader _libraryLoader;
 
         #region Backing Fields (private)
-        NotifyingObservableCollection<LibraryWorkItemViewModel> _libraryCoreWorkItems;
-        List<LibraryWorkItemViewModel> _libraryCoreWorkItemsUnfiltered;
+        KeyedObservableCollection<int, LibraryWorkItemViewModel> _libraryWorkItemsPending;
+        KeyedObservableCollection<int, LibraryWorkItemViewModel> _libraryWorkItemsProcessing;
+        KeyedObservableCollection<int, LibraryWorkItemViewModel> _libraryWorkItemsSuccess;
+        KeyedObservableCollection<int, LibraryWorkItemViewModel> _libraryWorkItemsError;
+
+        ObservableCollection<LibraryWorkItemViewModel> _libraryWorkItemsSelected;
 
         LibraryWorkItemState _selectedLibraryWorkItemState;
-
-        int _libraryWorkItemCountPending;
-        int _libraryWorkItemCountProcessing;
-        int _libraryWorkItemCountSuccess;
-        int _libraryWorkItemCountError;
 
         SimpleCommand _loadLibraryCommand;
         #endregion
 
         #region Properties (public)
-        public int LibraryWorkItemCountPending
-        {
-            get { return _libraryWorkItemCountPending; }
-            set { this.RaiseAndSetIfChanged(ref _libraryWorkItemCountPending, value); }
-        }
-        public int LibraryWorkItemCountProcessing
-        {
-            get { return _libraryWorkItemCountProcessing; }
-            set { this.RaiseAndSetIfChanged(ref _libraryWorkItemCountProcessing, value); }
-        }
-        public int LibraryWorkItemCountSuccess
-        {
-            get { return _libraryWorkItemCountSuccess; }
-            set { this.RaiseAndSetIfChanged(ref _libraryWorkItemCountSuccess, value); }
-        }
-        public int LibraryWorkItemCountError
-        {
-            get { return _libraryWorkItemCountError; }
-            set { this.RaiseAndSetIfChanged(ref _libraryWorkItemCountError, value); }
-        }
         public PlayStopPause LibraryLoaderState
         {
             // These forward / receive state requests to/from the library loader
@@ -66,12 +47,32 @@ namespace AudioStation.ViewModels
         public LibraryWorkItemState SelectedLibraryWorkItemState
         {
             get { return _selectedLibraryWorkItemState; }
-            set { this.RaiseAndSetIfChanged(ref _selectedLibraryWorkItemState, value); SetLibraryCoreWorkItemsFilter(); }
+            set { this.RaiseAndSetIfChanged(ref _selectedLibraryWorkItemState, value); SetSelectedWorkItemCollection(); }
         }
-        public NotifyingObservableCollection<LibraryWorkItemViewModel> LibraryCoreWorkItems
+        public KeyedObservableCollection<int, LibraryWorkItemViewModel> LibraryWorkItemsPending
         {
-            get { return _libraryCoreWorkItems; }
-            set { this.RaiseAndSetIfChanged(ref _libraryCoreWorkItems, value); }
+            get { return _libraryWorkItemsPending; }
+            set { this.RaiseAndSetIfChanged(ref _libraryWorkItemsPending, value); }
+        }
+        public KeyedObservableCollection<int, LibraryWorkItemViewModel> LibraryWorkItemsProcessing
+        {
+            get { return _libraryWorkItemsProcessing; }
+            set { this.RaiseAndSetIfChanged(ref _libraryWorkItemsProcessing, value); }
+        }
+        public KeyedObservableCollection<int, LibraryWorkItemViewModel> LibraryWorkItemsSuccess
+        {
+            get { return _libraryWorkItemsSuccess; }
+            set { this.RaiseAndSetIfChanged(ref _libraryWorkItemsSuccess, value); }
+        }
+        public KeyedObservableCollection<int, LibraryWorkItemViewModel> LibraryWorkItemsError
+        {
+            get { return _libraryWorkItemsError; }
+            set { this.RaiseAndSetIfChanged(ref _libraryWorkItemsError, value); }
+        }
+        public ObservableCollection<LibraryWorkItemViewModel> LibraryWorkItemsSelected
+        {
+            get { return _libraryWorkItemsSelected; }
+            set { this.RaiseAndSetIfChanged(ref _libraryWorkItemsSelected, value); }
         }
         public SimpleCommand LoadLibraryCommand
         {
@@ -90,11 +91,17 @@ namespace AudioStation.ViewModels
 
             // Filtering of the library loader work items
             _selectedLibraryWorkItemState = LibraryWorkItemState.Pending;
-            _libraryCoreWorkItemsUnfiltered = new List<LibraryWorkItemViewModel>();
 
-            this.LibraryCoreWorkItems = new NotifyingObservableCollection<LibraryWorkItemViewModel>();
+            this.LibraryWorkItemsPending = new KeyedObservableCollection<int, LibraryWorkItemViewModel>(x => x.Id);
+            this.LibraryWorkItemsProcessing = new KeyedObservableCollection<int, LibraryWorkItemViewModel>(x => x.Id);
+            this.LibraryWorkItemsSuccess = new KeyedObservableCollection<int, LibraryWorkItemViewModel>(x => x.Id);
+            this.LibraryWorkItemsError = new KeyedObservableCollection<int, LibraryWorkItemViewModel>(x => x.Id);
+
+            this.LibraryWorkItemsSelected = this.LibraryWorkItemsPending;
+
             this.LibraryLoaderState = libraryLoader.GetState();
 
+            libraryLoader.WorkItemUpdate += OnWorkItemUpdate;
             libraryLoader.WorkItemCompleted += OnWorkItemCompleted;
             libraryLoader.WorkItemsAdded += OnWorkItemsAdded;
             libraryLoader.WorkItemsRemoved += OnWorkItemsRemoved;
@@ -108,104 +115,192 @@ namespace AudioStation.ViewModels
             });
         }
 
-        #region ILibraryLoader Events (some of these events are from the worker thread)
-        private void OnLibraryLoaderWorkItemPropertyChanged(object? sender, PropertyChangedEventArgs e)
-        {
-            // These items our our view model items
-            var item = sender as LibraryWorkItemViewModel;
-
-            if (item != null && e.PropertyName == "LoadState")
-            {
-                var contains = this.LibraryCoreWorkItems.Contains(item);
-
-                if (item.LoadState != this.SelectedLibraryWorkItemState && contains)
-                    this.LibraryCoreWorkItems.Remove(item);
-
-                else if (item.LoadState == this.SelectedLibraryWorkItemState && !contains)
-                    this.LibraryCoreWorkItems.Add(item);
-
-                UpdateLibraryWorkItemCounts();
-            }
-        }
+        #region ILibraryLoader Events (these are all on the Dispatcher)
         private void OnWorkItemsRemoved(LibraryLoaderWorkItem[] workItems)
         {
-            if (Application.Current.Dispatcher.Thread.ManagedThreadId != Thread.CurrentThread.ManagedThreadId)
-                Application.Current.Dispatcher.BeginInvoke(OnWorkItemsRemoved, DispatcherPriority.ApplicationIdle, workItems);
-            else
+            foreach (var workItem in workItems)
             {
-                foreach (var workItem in workItems)
-                {
-                    var removedItems = _libraryCoreWorkItemsUnfiltered.Remove(item => item.FileName == workItem.FileName);
+                if (this.LibraryWorkItemsPending.ContainsKey(workItem.Id))
+                    this.LibraryWorkItemsPending.RemoveByKey(workItem.Id);
 
-                    foreach (var item in removedItems)
-                    {
-                        item.PropertyChanged -= OnLibraryLoaderWorkItemPropertyChanged;
+                if (this.LibraryWorkItemsProcessing.ContainsKey(workItem.Id))
+                    this.LibraryWorkItemsProcessing.RemoveByKey(workItem.Id);
 
-                        if (this.LibraryCoreWorkItems.Contains(item))
-                            this.LibraryCoreWorkItems.Remove(item);
-                    }
-                }
+                if (this.LibraryWorkItemsSuccess.ContainsKey(workItem.Id))
+                    this.LibraryWorkItemsSuccess.RemoveByKey(workItem.Id);
 
-                UpdateLibraryWorkItemCounts();
+                if (this.LibraryWorkItemsError.ContainsKey(workItem.Id))
+                    this.LibraryWorkItemsError.RemoveByKey(workItem.Id);
             }
         }
         private void OnWorkItemsAdded(LibraryLoaderWorkItem[] workItems)
         {
-            if (Application.Current.Dispatcher.Thread.ManagedThreadId != Thread.CurrentThread.ManagedThreadId)
-                Application.Current.Dispatcher.BeginInvoke(OnWorkItemsAdded, DispatcherPriority.ApplicationIdle, workItems);
-            else
+            foreach (var workItem in workItems)
             {
-                foreach (var workItem in workItems)
+                var item = new LibraryWorkItemViewModel()
                 {
-                    var item = new LibraryWorkItemViewModel()
-                    {
-                        FileName = workItem.FileName,
-                        LoadType = workItem.LoadType,
-                        ErrorMessage = workItem.ErrorMessage,
-                        LoadState = workItem.LoadState
-                    };
+                    Id = workItem.Id,
+                    FileName = workItem.FileName,
+                    LoadType = workItem.LoadType,
+                    ErrorMessage = workItem.ErrorMessage,
+                    LoadState = workItem.LoadState
+                };
 
-                    item.PropertyChanged += OnLibraryLoaderWorkItemPropertyChanged;
+                if (workItem.LoadState == LibraryWorkItemState.Pending)
+                    this.LibraryWorkItemsPending.Add(item);
 
-                    _libraryCoreWorkItemsUnfiltered.Add(item);
+                if (workItem.LoadState == LibraryWorkItemState.Processing)
+                    this.LibraryWorkItemsProcessing.Add(item);
 
-                    if (item.LoadState == this.SelectedLibraryWorkItemState)
-                        this.LibraryCoreWorkItems.Add(item);
-                }
+                if (workItem.LoadState == LibraryWorkItemState.CompleteSuccessful)
+                    this.LibraryWorkItemsSuccess.Add(item);
 
-                UpdateLibraryWorkItemCounts();
+                if (workItem.LoadState == LibraryWorkItemState.CompleteError)
+                    this.LibraryWorkItemsError.Add(item);
             }
+        }
+        private void OnWorkItemUpdate(LibraryLoaderWorkItem item)
+        {
+            // TRANSFER TO PROPER COLLECTION
+
+            // Pending
+            if (this.LibraryWorkItemsPending.ContainsKey(item.Id))
+            {
+                var workItem = this.LibraryWorkItemsPending[item.Id];
+
+                // Remove
+                if (workItem.LoadState != item.LoadState)
+                    this.LibraryWorkItemsPending.Remove(workItem);
+
+                workItem.LoadState = item.LoadState;
+                workItem.ErrorMessage = item.ErrorMessage;
+
+                // -> Processing
+                if (workItem.LoadState == LibraryWorkItemState.Processing)
+                    this.LibraryWorkItemsProcessing.Add(workItem);
+
+                // -> Success
+                else if (workItem.LoadState == LibraryWorkItemState.CompleteSuccessful)
+                    this.LibraryWorkItemsSuccess.Add(workItem);
+
+                // -> Error
+                else if (workItem.LoadState == LibraryWorkItemState.CompleteError)
+                    this.LibraryWorkItemsError.Add(workItem);
+            }
+
+            // Processing
+            else if (this.LibraryWorkItemsProcessing.ContainsKey(item.Id))
+            {
+                var workItem = this.LibraryWorkItemsProcessing[item.Id];
+
+                // Remove
+                if (workItem.LoadState != item.LoadState)
+                    this.LibraryWorkItemsProcessing.Remove(workItem);
+
+                workItem.LoadState = item.LoadState;
+                workItem.ErrorMessage = item.ErrorMessage;
+
+                // -> Pending
+                if (workItem.LoadState == LibraryWorkItemState.Pending)
+                    this.LibraryWorkItemsPending.Add(workItem);
+
+                // -> Success
+                else if (workItem.LoadState == LibraryWorkItemState.CompleteSuccessful)
+                    this.LibraryWorkItemsSuccess.Add(workItem);
+
+                // -> Error
+                else if (workItem.LoadState == LibraryWorkItemState.CompleteError)
+                    this.LibraryWorkItemsError.Add(workItem);
+            }
+
+            // Success
+            else if (this.LibraryWorkItemsSuccess.ContainsKey(item.Id))
+            {
+                var workItem = this.LibraryWorkItemsSuccess[item.Id];
+
+                // Remove
+                if (workItem.LoadState != item.LoadState)
+                    this.LibraryWorkItemsSuccess.Remove(workItem);
+
+                workItem.LoadState = item.LoadState;
+                workItem.ErrorMessage = item.ErrorMessage;
+
+                // -> Pending
+                if (workItem.LoadState == LibraryWorkItemState.Pending)
+                    this.LibraryWorkItemsPending.Add(workItem);
+
+                // -> Processing
+                else if (workItem.LoadState == LibraryWorkItemState.Processing)
+                    this.LibraryWorkItemsProcessing.Add(workItem);
+
+                // -> Error
+                else if (workItem.LoadState == LibraryWorkItemState.CompleteError)
+                    this.LibraryWorkItemsError.Add(workItem);
+            }
+
+            // Error
+            else if (this.LibraryWorkItemsError.ContainsKey(item.Id))
+            {
+                var workItem = this.LibraryWorkItemsError[item.Id];
+
+                // Remove
+                if (workItem.LoadState != item.LoadState)
+                    this.LibraryWorkItemsError.Remove(workItem);
+
+                workItem.LoadState = item.LoadState;
+                workItem.ErrorMessage = item.ErrorMessage;
+
+                // -> Pending
+                if (workItem.LoadState == LibraryWorkItemState.Pending)
+                    this.LibraryWorkItemsPending.Add(workItem);
+
+                // -> Processing
+                else if (workItem.LoadState == LibraryWorkItemState.Processing)
+                    this.LibraryWorkItemsProcessing.Add(workItem);
+
+                // -> Success
+                else if (workItem.LoadState == LibraryWorkItemState.CompleteSuccessful)
+                    this.LibraryWorkItemsSuccess.Add(workItem);
+            }
+            else
+                throw new Exception("Work item not contained in proper collection:  LibraryLoaderViewModel.cs");
         }
         private void OnWorkItemCompleted(LibraryLoaderWorkItem workItem)
         {
-            if (Application.Current.Dispatcher.Thread.ManagedThreadId != Thread.CurrentThread.ManagedThreadId)
-                Application.Current.Dispatcher.BeginInvoke(OnWorkItemCompleted, DispatcherPriority.ApplicationIdle, workItem);
-            else
-            {
-                var item = _libraryCoreWorkItemsUnfiltered.FirstOrDefault(x => x.FileName == workItem.FileName);
-
-                // -> Property Changed (sets the filtering)
-                if (item != null)
-                    item.LoadState = workItem.LoadState;
-
-                else
-                    _outputController.AddLog("Cannot find work item in local cache:  {0}", LogMessageType.General, LogLevel.Error, workItem.FileName);
-            }
+            // Handles status changes
+            OnWorkItemUpdate(workItem);
         }
-        private void OnLibraryProcessingChanged(PlayStopPause oldState, PlayStopPause newState)
+        private void OnLibraryProcessingChanged()
         {
-            if (Application.Current.Dispatcher.Thread.ManagedThreadId != Thread.CurrentThread.ManagedThreadId)
-                Application.Current.Dispatcher.BeginInvoke(OnLibraryProcessingChanged, DispatcherPriority.ApplicationIdle, oldState, newState);
-
             // Notify listeners. The getter draws from the library loader
-            else
-                OnPropertyChanged("LibraryLoaderState");
+            OnPropertyChanged("LibraryLoaderState");
         }
         private void OnLibraryProcessingComplete()
         {
             _outputController.AddLog("Library Loader processing complete", LogMessageType.General);
         }
         #endregion
+
+        private void SetSelectedWorkItemCollection()
+        {
+            switch (this.SelectedLibraryWorkItemState)
+            {
+                case LibraryWorkItemState.Pending:
+                    this.LibraryWorkItemsSelected = this.LibraryWorkItemsPending;
+                    break;
+                case LibraryWorkItemState.Processing:
+                    this.LibraryWorkItemsSelected = this.LibraryWorkItemsProcessing;
+                    break;
+                case LibraryWorkItemState.CompleteSuccessful:
+                    this.LibraryWorkItemsSelected = this.LibraryWorkItemsSuccess;
+                    break;
+                case LibraryWorkItemState.CompleteError:
+                    this.LibraryWorkItemsSelected = this.LibraryWorkItemsError;
+                    break;
+                default:
+                    throw new Exception("Unhandled LibraryWorkItemState:  LibraryLoaderViewModel.cs");
+            }
+        }
 
         private void OnLibraryLoaderStateRequest(PlayStopPause state)
         {
@@ -221,28 +316,6 @@ namespace AudioStation.ViewModels
                 default:
                     throw new Exception("Unhandled play / stop / pause state:  MainViewModel.cs");
             }
-        }
-        private void SetLibraryCoreWorkItemsFilter()
-        {
-            if (Application.Current.Dispatcher.Thread.ManagedThreadId != Thread.CurrentThread.ManagedThreadId)
-                Application.Current.Dispatcher.BeginInvoke(SetLibraryCoreWorkItemsFilter, DispatcherPriority.ApplicationIdle);
-            else
-            {
-                this.LibraryCoreWorkItems.Clear();
-
-                foreach (var item in _libraryCoreWorkItemsUnfiltered)
-                {
-                    if (item.LoadState == this.SelectedLibraryWorkItemState)
-                        this.LibraryCoreWorkItems.Add(item);
-                }
-            }
-        }
-        private void UpdateLibraryWorkItemCounts()
-        {
-            this.LibraryWorkItemCountError = _libraryCoreWorkItemsUnfiltered.Count(x => x.LoadState == LibraryWorkItemState.CompleteError);
-            this.LibraryWorkItemCountSuccess = _libraryCoreWorkItemsUnfiltered.Count(x => x.LoadState == LibraryWorkItemState.CompleteSuccessful);
-            this.LibraryWorkItemCountPending = _libraryCoreWorkItemsUnfiltered.Count(x => x.LoadState == LibraryWorkItemState.Pending);
-            this.LibraryWorkItemCountProcessing = _libraryCoreWorkItemsUnfiltered.Count(x => x.LoadState == LibraryWorkItemState.Processing);
         }
 
         public void Dispose()

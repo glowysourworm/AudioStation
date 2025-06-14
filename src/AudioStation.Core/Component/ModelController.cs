@@ -1,4 +1,6 @@
 ﻿using System.Data;
+using System.Windows;
+using System.Windows.Threading;
 
 using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Database;
@@ -198,7 +200,7 @@ namespace AudioStation.Controller
             */
         }
 
-        public void AddUpdateLibraryEntry(string fileName, TagLib.File tagRef)
+        public void AddUpdateLibraryEntry(string fileName, bool fileAvailable, bool fileLoadError, string fileLoadErrorMessage, TagLib.File tagRef)
         {
             try
             {
@@ -214,7 +216,12 @@ namespace AudioStation.Controller
                             FileName = fileName,
                             Title = tagRef.Tag.Title?.Trim() ?? string.Empty,
                             Track = (int)tagRef.Tag.Track,                            
-                            DurationMilliseconds = (int)tagRef.Properties.Duration.TotalMilliseconds                            
+                            DurationMilliseconds = (int)tagRef.Properties.Duration.TotalMilliseconds,
+                            FileCorruptMessage = tagRef.CorruptionReasons?.Join(",", x => x) ?? string.Empty,
+                            FileErrorMessage = fileLoadErrorMessage,
+                            IsFileCorrupt = tagRef.PossiblyCorrupt,
+                            IsFileAvailable = fileAvailable,
+                            IsFileLoadError = fileLoadError
                         };
                         newEntity = true;
                     }
@@ -339,7 +346,7 @@ namespace AudioStation.Controller
             }
             catch (Exception ex)
             {
-                _outputController.AddLog("Error in IModelController (AddLibraryEntry):  {0}", LogMessageType.Database, LogLevel.Error, ex.Message);
+                RaiseLog("Error in IModelController (AddLibraryEntry):  {0}", LogMessageType.Database, LogLevel.Error, ex.Message);
                 throw ex;
             }
         }
@@ -381,7 +388,7 @@ namespace AudioStation.Controller
             }
             catch (Exception ex)
             {
-                _outputController.AddLog("Error in IModelController (AddLibraryEntry):  {0}", LogMessageType.Database, LogLevel.Error, ex.Message);
+                RaiseLog("Error in IModelController (AddLibraryEntry):  {0}", LogMessageType.Database, LogLevel.Error, ex.Message);
                 throw ex;
             }
         }
@@ -424,7 +431,7 @@ namespace AudioStation.Controller
             }
             catch (Exception ex)
             {
-                _outputController.AddLog("Error in IModelController (AddLibraryEntry):  {0}", LogMessageType.Database, LogLevel.Error, ex.Message);
+                RaiseLog("Error in IModelController (AddLibraryEntry):  {0}", LogMessageType.Database, LogLevel.Error, ex.Message);
             }
         }
 
@@ -441,7 +448,7 @@ namespace AudioStation.Controller
             }
             catch (Exception ex)
             {
-                _outputController.AddLog("Error in IModelController (AddLibraryEntry):  {0}", LogMessageType.Database, LogLevel.Error, ex.Message);
+                RaiseLog("Error in IModelController (AddLibraryEntry):  {0}", LogMessageType.Database, LogLevel.Error, ex.Message);
             }
 
             return Enumerable.Empty<Mp3FileReference>();
@@ -465,7 +472,7 @@ namespace AudioStation.Controller
             }
             catch (Exception ex)
             {
-                _outputController.AddLog("Error in IModelController (AddLibraryEntry):  {0}", LogMessageType.Database, LogLevel.Error, ex.Message);
+                RaiseLog("Error in IModelController (AddLibraryEntry):  {0}", LogMessageType.Database, LogLevel.Error, ex.Message);
             }
 
             return Enumerable.Empty<Mp3FileReferenceAlbum>();
@@ -484,7 +491,7 @@ namespace AudioStation.Controller
             }
             catch (Exception ex)
             {
-                _outputController.AddLog("Error in IModelController (AddLibraryEntry):  {0}", LogMessageType.Database, LogLevel.Error, ex.Message);
+                RaiseLog("Error in IModelController (AddLibraryEntry):  {0}", LogMessageType.Database, LogLevel.Error, ex.Message);
             }
 
             return Enumerable.Empty<Mp3FileReference>();
@@ -584,10 +591,22 @@ namespace AudioStation.Controller
             }
             catch (Exception ex)
             {
-                _outputController.AddLog("Error retrieving data page:  " + ex.Message, LogMessageType.Database, LogLevel.Error);
+                RaiseLog("Error retrieving data page:  " + ex.Message, LogMessageType.Database, LogLevel.Error);
             }
 
             return PageResult<TEntity>.GetDefault();
+        }
+
+        /// <summary>
+        /// Invokes logger on the application dispatcher thread
+        /// </summary>
+        protected void RaiseLog(string message, LogMessageType type, LogLevel level, params object[] parameters)
+        {
+            if (Thread.CurrentThread.ManagedThreadId != Application.Current.Dispatcher.Thread.ManagedThreadId)
+                Application.Current.Dispatcher.BeginInvoke(RaiseLog, DispatcherPriority.Background, message, type, level, parameters);
+
+            else
+                _outputController.AddLog(message, type, level, parameters);
         }
 
         private AudioStationDbContext CreateContext()

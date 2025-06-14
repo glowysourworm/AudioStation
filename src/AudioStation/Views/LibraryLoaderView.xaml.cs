@@ -1,6 +1,8 @@
 ﻿using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Threading;
 
 using AudioStation.Core.Component;
 using AudioStation.ViewModels;
@@ -99,6 +101,24 @@ namespace AudioStation.Views
             {
                 viewModel.LibraryLoaderState = PlayStopPause.Play;
             }
+        }
+
+        private void OnLibraryCollectionViewSourceFilter(object sender, FilterEventArgs e)
+        {
+            var viewModel = this.DataContext as LibraryLoaderViewModel;
+
+            if (viewModel != null )
+            {
+                var workItem = e.Item as LibraryWorkItemViewModel;
+
+                if (workItem != null)
+                {
+                    e.Accepted = workItem.LoadState == viewModel.SelectedLibraryWorkItemState;
+                    return;
+                }
+            }
+
+            e.Accepted = false;
         }
     }
 }

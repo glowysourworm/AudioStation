@@ -23,6 +23,12 @@ namespace AudioStation.Core.Database
         public int? Track { get; set; }
         public int? DurationMilliseconds { get; set; }
 
+        public bool IsFileAvailable { get; set; }
+        public bool IsFileCorrupt { get; set; }
+        public bool IsFileLoadError { get; set; }
+        public string? FileErrorMessage { get; set; }
+        public string? FileCorruptMessage { get; set; }
+
         // Relationship properties
         public Mp3FileReferenceAlbum? Album { get; set; }
         public Mp3FileReferenceArtist? PrimaryArtist { get; set; }

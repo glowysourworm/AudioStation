@@ -45,10 +45,10 @@
                     <controls:TabItemPressable.Header>
                         <StackPanel>
                             <TextBlock Text="Library Loader" Style="{StaticResource LabelTextBlock}" />
-                            <TextBlock Text="{Binding LibraryWorkItemCountPending, StringFormat={}Pending ({0})}" Style="{StaticResource LabelDetailTextBlock}" Foreground="Gray" />
-                            <TextBlock Text="{Binding LibraryWorkItemCountProcessing, StringFormat={}Processing ({0})}" Style="{StaticResource LabelDetailTextBlock}" Foreground="Gray" />
-                            <TextBlock Text="{Binding LibraryWorkItemCountSuccess, StringFormat={}Success ({0})}" Style="{StaticResource LabelDetailTextBlock}" Foreground="#FF88FF00" />
-                            <TextBlock Text="{Binding LibraryWorkItemCountError, StringFormat={}Error ({0})}" Style="{StaticResource LabelDetailTextBlock}" Foreground="#FFFF0000" />
+                            <TextBlock Text="{Binding LibraryWorkItemsPending.Count, StringFormat={}Pending ({0})}" Style="{StaticResource LabelDetailTextBlock}" Foreground="Gray" />
+                            <TextBlock Text="{Binding LibraryWorkItemsProcessing.Count, StringFormat={}Processing ({0})}" Style="{StaticResource LabelDetailTextBlock}" Foreground="Gray" />
+                            <TextBlock Text="{Binding LibraryWorkItemsSuccess.Count, StringFormat={}Success ({0})}" Style="{StaticResource LabelDetailTextBlock}" Foreground="#FF88FF00" />
+                            <TextBlock Text="{Binding LibraryWorkItemsError.Count, StringFormat={}Error ({0})}" Style="{StaticResource LabelDetailTextBlock}" Foreground="#FFFF0000" />
                         </StackPanel>
                     </controls:TabItemPressable.Header>
                     <local:LibraryLoaderView x:Name="LibraryLoaderView" />

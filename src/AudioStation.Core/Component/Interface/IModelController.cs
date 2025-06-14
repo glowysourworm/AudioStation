@@ -6,6 +6,10 @@ using M3UStream = AudioStation.Core.Model.M3U.M3UStream;
 
 namespace AudioStation.Core.Component.Interface
 {
+    /// <summary>
+    /// Multi-thread safe component that handles database communications. The logging is sent to the
+    /// dispatcher from this component - on this component's code. 
+    /// </summary>
     public interface IModelController : IDisposable
     {
         /// <summary>
@@ -28,7 +32,7 @@ namespace AudioStation.Core.Component.Interface
         /// Adds LibraryEntry to database. Does NOT update any existing, similar, entry. The tag data
         /// is also used to initialize the LibraryEntry, adding supporting data to the database.
         /// </summary>
-        void AddUpdateLibraryEntry(string fileName, TagLib.File tagRef);
+        void AddUpdateLibraryEntry(string fileName, bool fileAvailable, bool fileLoadError, string fileLoadErrorMessage, TagLib.File tagRef);
 
         /// <summary>
         /// Add / Update M3UStream based on unique Id, and Name

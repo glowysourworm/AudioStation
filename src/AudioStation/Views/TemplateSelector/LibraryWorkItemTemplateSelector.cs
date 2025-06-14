@@ -1,7 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 
-using AudioStation.Core.Component;
+using AudioStation.Core.Component.LibraryLoaderComponent;
 using AudioStation.ViewModels;
 
 namespace AudioStation.Views.TemplateSelector

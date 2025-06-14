@@ -1,4 +1,4 @@
-﻿using AudioStation.Core.Component;
+﻿using AudioStation.Core.Component.LibraryLoaderComponent;
 
 using SimpleWpf.Extensions;
 
@@ -6,6 +6,7 @@ namespace AudioStation.ViewModels
 {
     public class LibraryWorkItemViewModel : ViewModelBase
     {
+        int _id;
         string _fileName;
         LibraryLoadType _loadType;
         LibraryWorkItemState _loadState;
@@ -30,6 +31,11 @@ namespace AudioStation.ViewModels
         {
             get { return _errorMessage; }
             set { this.RaiseAndSetIfChanged(ref _errorMessage, value); }
+        }
+        public int Id
+        {
+            get { return _id; }
+            set { this.RaiseAndSetIfChanged(ref _id, value); }
         }
 
         public LibraryWorkItemViewModel()

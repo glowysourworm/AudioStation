@@ -1,4 +1,5 @@
-﻿using AudioStation.Core.Model;
+﻿using AudioStation.Core.Component.LibraryLoaderComponent;
+using AudioStation.Core.Model;
 using AudioStation.Core.Model.M3U;
 
 using SimpleWpf.Extensions.Event;
@@ -13,7 +14,8 @@ namespace AudioStation.Core.Component.Interface
         public event SimpleEventHandler<LibraryLoaderWorkItem[]> WorkItemsRemoved;
         public event SimpleEventHandler<LibraryLoaderWorkItem[]> WorkItemsAdded;
         public event SimpleEventHandler<LibraryLoaderWorkItem> WorkItemCompleted;
-        public event SimpleEventHandler<PlayStopPause, PlayStopPause> ProcessingChanged;
+        public event SimpleEventHandler<LibraryLoaderWorkItem> WorkItemUpdate;
+        public event SimpleEventHandler ProcessingChanged;
         public event SimpleEventHandler ProcessingComplete;
 
         PlayStopPause GetState();
@@ -50,15 +52,5 @@ namespace AudioStation.Core.Component.Interface
         /// <param name="baseDirectory">Base directory. *.m3u / recursive lookup is assumed.</param>
         /// <returns>Loaded M3U file data</returns>
         void LoadRadioAsync(string baseDirectory);
-
-        /// <summary>
-        /// Loads a LibraryEntry from the provided mp3 file into the database.
-        /// </summary>
-        TagLib.File LoadLibraryEntry(string fileName);
-
-        /// <summary>
-        /// Loads a RadioEntry from an m3u file into the database
-        /// </summary>
-        List<M3UStream> LoadRadioEntry(string fileName);
     }
 }

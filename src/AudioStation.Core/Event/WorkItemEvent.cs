@@ -1,4 +1,4 @@
-﻿using AudioStation.Core.Component;
+﻿using AudioStation.Core.Component.LibraryLoaderComponent;
 
 using SimpleWpf.IocFramework.EventAggregation;
 

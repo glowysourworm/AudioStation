@@ -3,8 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:sys="clr-namespace:System;assembly=System.Runtime"
              xmlns:fa5="http://schemas.fontawesome.com/icons/"
-             xmlns:component="clr-namespace:AudioStation.Core.Component;assembly=AudioStation.Core">
-
+             xmlns:libraryWork="clr-namespace:AudioStation.Core.Component.LibraryLoaderComponent;assembly=AudioStation.Core">
     <Grid>
 
         <Grid.RowDefinitions>
@@ -59,10 +58,10 @@
                             FontSize="14"                                              
                             SelectedValue="{Binding SelectedLibraryWorkItemState}">
                     <ComboBox.Items>
-                        <component:LibraryWorkItemState>Pending</component:LibraryWorkItemState>
-                        <component:LibraryWorkItemState>Processing</component:LibraryWorkItemState>
-                        <component:LibraryWorkItemState>CompleteSuccessful</component:LibraryWorkItemState>
-                        <component:LibraryWorkItemState>CompleteError</component:LibraryWorkItemState>
+                        <libraryWork:LibraryWorkItemState>Pending</libraryWork:LibraryWorkItemState>
+                        <libraryWork:LibraryWorkItemState>Processing</libraryWork:LibraryWorkItemState>
+                        <libraryWork:LibraryWorkItemState>CompleteSuccessful</libraryWork:LibraryWorkItemState>
+                        <libraryWork:LibraryWorkItemState>CompleteError</libraryWork:LibraryWorkItemState>
                     </ComboBox.Items>
                 </ComboBox>
 
@@ -84,7 +83,7 @@
                  VirtualizingPanel.VirtualizationMode="Recycling"
                  ItemContainerStyleSelector="{StaticResource LibraryWorkItemContainerStyleSelector}"                 
                  ItemTemplateSelector="{StaticResource LibraryWorkItemTemplateSelector}"
-                 ItemsSource="{Binding LibraryCoreWorkItems}">
+                 ItemsSource="{Binding LibraryWorkItemsSelected}">
             <ListBox.ItemsPanel>
                 <ItemsPanelTemplate>
                     <VirtualizingStackPanel IsItemsHost="True" />
