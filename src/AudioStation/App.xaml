@@ -18,6 +18,8 @@
         <simpleConverter:NonNullVisibilityConverter x:Key="NonNullVisibilityConverter" />
         <simpleConverter:ParameterEqualityBoolConverter x:Key="ParameterEqualityBoolConverter" />
         <simpleConverter:ParameterProviderBoolConverter x:Key="ParameterProviderBoolConverter" />
+        <simpleConverter:ParameterVisibilityCollapsedConverter x:Key="ParameterVisibilityCollapsedConverter" />
+        <simpleConverter:ParameterVisibilityCollapsedInverseConverter x:Key="ParameterVisibilityCollapsedInverseConverter" />
 
         <!-- Template Selectors -->
         <templateSelector:LibraryWorkItemTemplateSelector x:Key="LibraryWorkItemTemplateSelector" />

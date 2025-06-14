@@ -12,15 +12,24 @@
 
     <Grid>
 
+        <TabControl>
 
-        <!-- Library Entries -->
-        <local:ManagerDataGrid Grid.Row="1" />
-
-        <!-- File Tree (from base directory) -->
-        <!--region:IocRegion Grid.Column="1" Grid.Row="1"
+            <!-- Library Entries (Database) -->
+            <TabItem>
+                <local:ManagerDataGrid Grid.Row="1" />
+            </TabItem>
+            
+            <!-- Library Entries (File) -->
+            <TabItem>
+                <!--region:IocRegion Grid.Column="1" Grid.Row="1"
                           region:IocRegionManager.RegionName="ManagerViewFileTreeViewRegion"
                           DataContext="{Binding Configuration, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}">
-        </region:IocRegion-->
-        
+                </region:IocRegion-->
+            </TabItem>
+            
+        </TabControl>
+
+
+
     </Grid>
 </UserControl>

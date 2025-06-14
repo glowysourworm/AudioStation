@@ -3,8 +3,13 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
+using System.Windows.Interop;
+using System.Windows.Threading;
 
 using AudioStation.ViewModels;
+
+using Microsoft.Win32;
+using Microsoft.Windows.Shell;
 
 using SimpleWpf.IocFramework.Application.Attribute;
 
@@ -14,7 +19,7 @@ namespace AudioStation
     /// IDisposable pattern implemented by Application object OnExit(..)
     /// </summary>
     [IocExportDefault]
-    public partial class MainWindow : Window
+    public partial class MainWindow : Window, INotifyPropertyChanged
     {
         // Custom control template
         public Grid WindowRoot { get; private set; }
@@ -30,10 +35,25 @@ namespace AudioStation
         public Button ShowOutputButton { get; private set; }
         public Button ExitButton { get; private set; }
 
+        public WindowState WindowStateOverride { get { return _windowStateOverride; } }
+
         protected bool IsHeaderMouseDown { get; private set; }
         protected Point HeaderMouseDownPosition { get;private set; }
 
         private readonly MainViewModel _mainViewModel;
+
+        // This may need to be calculated
+        Thickness _DPIMargin = new Thickness(7);
+
+        // Custom Maximize / Minimize (override)
+        Point _positionNormal;
+        Size _sizeNormal;
+        bool _stateChangingOverride;
+        bool _stateChanging;
+        WindowState _windowStateOverride;
+        WindowState _windowStateRequest;            // Handles main request method -> (BeginInvoke) -> State Override
+
+        public event PropertyChangedEventHandler? PropertyChanged;
 
         // Needed by the framework
         public MainWindow()
@@ -49,9 +69,93 @@ namespace AudioStation
             InitializeComponent();
 
             this.DataContext = mainViewModel;
+            
+            // Track position / size of "Normal" window state
+            _positionNormal = new Point(this.Left, this.Top);
+            _sizeNormal = new Size(this.RenderSize.Width, this.RenderSize.Height);
+            _stateChangingOverride = false;
+            _windowStateOverride = this.WindowState;
         }
 
-        public T GetRequiredTemplateChild<T>(string childName) where T : DependencyObject
+        protected override void OnStateChanged(EventArgs e)
+        {
+            // WindowState = Requested State
+            //
+            _stateChanging = true;              // Event Blocker
+
+            // Prevent Window State (base)
+            _windowStateRequest = this.WindowState;
+
+            Application.Current.Dispatcher.BeginInvoke(() =>
+            {
+                _windowStateOverride = _windowStateRequest;
+
+                WindowStateChangeOverride();
+
+                _stateChanging = false;
+            });
+        }
+
+        private void WindowStateChangeOverride()
+        {
+            _stateChangingOverride = true;                  // Event Blocker
+
+            if (_windowStateOverride == WindowState.Maximized)
+            {
+                this.Height = SystemParameters.MaximizedPrimaryScreenHeight - _DPIMargin.Top - _DPIMargin.Bottom;
+                this.Width = SystemParameters.MaximizedPrimaryScreenWidth - _DPIMargin.Left - _DPIMargin.Right;
+
+                this.Left = 0;
+                this.Top = 0;
+            }
+            else if (_windowStateOverride == WindowState.Normal)
+            {
+                this.Height = _sizeNormal.Height;
+                this.Width = _sizeNormal.Width;
+                this.Left = _positionNormal.X;
+                this.Top = _positionNormal.Y;
+            }
+            else if (_windowStateOverride == WindowState.Minimized)
+            {
+                // This should be handled by the base control behavior
+            }
+
+            _stateChangingOverride = false;
+
+            OnWindowOverridesChanged();
+        }
+
+        protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)
+        {
+            base.OnRenderSizeChanged(sizeInfo);
+
+            TrackWindowPositionAndSize();
+        }
+
+        protected override void OnMouseMove(MouseEventArgs e)
+        {
+            base.OnMouseMove(e);
+
+            if (this.IsHeaderMouseDown)
+            {
+                TrackWindowPositionAndSize();
+            }
+        }
+
+        private void TrackWindowPositionAndSize()
+        {
+            if (_windowStateOverride == WindowState.Normal && 
+                !_stateChangingOverride &&
+                !_stateChanging)
+            {
+                _positionNormal.X = this.Left;
+                _positionNormal.Y = this.Top;
+                _sizeNormal.Width = this.RenderSize.Width;
+                _sizeNormal.Height = this.RenderSize.Height;
+            }
+        }
+
+        protected T GetRequiredTemplateChild<T>(string childName) where T : DependencyObject
         {
             return (T)base.GetTemplateChild(childName);
         }
@@ -94,6 +198,8 @@ namespace AudioStation
             if (this.HeaderBar != null)
             {
                 this.HeaderBar.AddHandler(Grid.MouseLeftButtonDownEvent, new MouseButtonEventHandler(this.OnHeaderBarMouseLeftButtonDown));
+                this.HeaderBar.AddHandler(Grid.MouseLeftButtonUpEvent, new MouseButtonEventHandler(this.OnHeaderBarMouseLeftButtonUp));
+                this.HeaderBar.AddHandler(Grid.MouseLeaveEvent, new MouseEventHandler(this.OnHeaderBarMouseLeave));
             }
 
             // User Menu
@@ -145,14 +251,17 @@ namespace AudioStation
             // Double click maximize / minimize
             if (e.ClickCount == 2 && base.ResizeMode == ResizeMode.CanResize)
             {
-                this.ToggleWindowState();
+                // Set Window State (override)
+                _windowStateOverride = _windowStateOverride == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
+                WindowStateChangeOverride();
+
                 return;
             }
 
             this.IsHeaderMouseDown = true;
             this.HeaderMouseDownPosition = e.GetPosition(this);
 
-            if (this.WindowState != WindowState.Maximized)
+            if (_windowStateOverride != WindowState.Maximized)
             {
                 try
                 {
@@ -166,37 +275,47 @@ namespace AudioStation
                 }
             }
         }
-
-        protected void ToggleWindowState()
+        private void OnHeaderBarMouseLeave(object sender, MouseEventArgs e)
         {
-            if (base.WindowState != WindowState.Maximized)
-            {
-                base.WindowState = WindowState.Maximized;
-            }
-            else
-            {
-                base.WindowState = WindowState.Normal;
-            }
+            this.IsHeaderMouseDown = false;
+        }
+
+        private void OnHeaderBarMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            this.IsHeaderMouseDown = false;
         }
 
         private void MaximizeButton_Click(object sender, RoutedEventArgs e)
         {
-            this.ToggleWindowState();
+            _windowStateOverride = WindowState.Maximized;
+
+            WindowStateChangeOverride();
         }
 
         private void RestoreButton_Click(object sender, RoutedEventArgs e)
         {
-            this.ToggleWindowState();
+            _windowStateOverride = WindowState.Normal;
+
+            WindowStateChangeOverride();
         }
 
         private void MinimizeButton_Click(object sender, RoutedEventArgs e)
         {
+            // -> (BeginInvoke) -> (override)
             this.WindowState = WindowState.Minimized;
+
+            WindowStateChangeOverride();
         }
 
         private void CloseButton_Click(object sender, RoutedEventArgs e)
         {
             this.Close();
+        }
+
+        private void OnWindowOverridesChanged()
+        {
+            if (this.PropertyChanged != null)
+                this.PropertyChanged(this, new PropertyChangedEventArgs("WindowStateOverride"));
         }
 
         protected override void OnClosing(CancelEventArgs e)

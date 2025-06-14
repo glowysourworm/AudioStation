@@ -292,11 +292,18 @@
                                     </Button>
                                     <Button x:Name="MaximizeButton" Style="{StaticResource WindowButtonStyle}" 
                                             fa5:Awesome.Content="Solid_WindowMaximize" FontSize="14" 
+                                            Visibility="{Binding WindowStateOverride, 
+                                                                 RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, 
+                                                                 Converter={StaticResource ParameterVisibilityCollapsedConverter},
+                                                                 ConverterParameter={x:Static WindowState.Normal}}"
                                             Grid.Column="1"/>
 
                                     <Button x:Name="RestoreButton" Style="{StaticResource WindowButtonStyle}" 
                                             fa5:Awesome.Content="Solid_WindowRestore" 
-                                            Visibility="Collapsed"
+                                            Visibility="{Binding WindowStateOverride, 
+                                                                 RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, 
+                                                                 Converter={StaticResource ParameterVisibilityCollapsedConverter},
+                                                                 ConverterParameter={x:Static WindowState.Maximized}}"
                                             Grid.Column="1"/>
 
                                     <Button x:Name="CloseButton" Style="{StaticResource WindowButtonStyle}" 
