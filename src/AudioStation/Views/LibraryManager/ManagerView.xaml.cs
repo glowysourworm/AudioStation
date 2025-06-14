@@ -1,14 +1,14 @@
 ﻿using System.Collections.ObjectModel;
 using System.Collections.Specialized;
-using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Forms.VisualStyles;
 
+using AudioStation.Component;
 using AudioStation.Controls;
 using AudioStation.ViewModels;
 using AudioStation.ViewModels.LibraryViewModels;
+using AudioStation.Views.LibraryEntryViews;
+using AudioStation.Views.VendorEntryViews;
 
 using SimpleWpf.Extensions.Command;
 using SimpleWpf.IocFramework.Application.Attribute;
@@ -52,7 +52,7 @@ namespace AudioStation.Views.LibraryManager
 
             // Tab Item Header:  Set the header here because it's used to reference the view model
             //
-            if (viewModel != null) 
+            if (viewModel != null)
             {
                 // Removed Tab(s)
                 for (int index = _tabItems.Count - 1; index >= 2 /* Skipping Non-Closeable Tabs */; index--)
@@ -71,7 +71,7 @@ namespace AudioStation.Views.LibraryManager
                     if (tabItem == null)
                         _tabItems.Add(CreateLibraryEntryFileTab(tabViewModel));
                 }
-            }           
+            }
         }
 
         // Gets a consistent readable tab item header / name
@@ -100,16 +100,15 @@ namespace AudioStation.Views.LibraryManager
             var tabItem = new TabItemPressable();
             tabItem.Style = App.Current.Resources["ManagerTabItemStyle"] as Style;
             tabItem.Header = GetFileTabName(viewModel);
+            tabItem.Content = new EntryView();
+            tabItem.DataContext = viewModel;
 
             // TODO: Can't bind because of command parameter.
             tabItem.CloseCommand = new SimpleCommand(() =>
             {
                 var libraryViewModel = this.DataContext as LibraryViewModel;
 
-                if (libraryViewModel != null)
-                {
-                    libraryViewModel.RemoveLibraryEntryTabCommand.Execute(viewModel);
-                }
+                libraryViewModel?.RemoveLibraryEntryTabCommand.Execute(viewModel);
             });
             return tabItem;
         }

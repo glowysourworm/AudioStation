@@ -1,0 +1,23 @@
+﻿<UserControl x:Class="AudioStation.Views.LibraryEntryViews.EntryView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:AudioStation.Views.LibraryEntryViews"
+             xmlns:vendorView="clr-namespace:AudioStation.Views.VendorEntryViews"
+             xmlns:controls="clr-namespace:AudioStation.Controls">
+    <TabControl>
+
+        <TabItem Header="Local (Database)">
+            <local:LocalEntryView />
+        </TabItem>        
+        
+        <TabItem Header="File (Id3v1)">
+            <vendorView:Id3v1TagView />
+        </TabItem>
+
+        <TabItem Header="File (Id3v2)">
+            <vendorView:Id3v2TagView />
+        </TabItem>
+
+    </TabControl>
+    
+</UserControl>

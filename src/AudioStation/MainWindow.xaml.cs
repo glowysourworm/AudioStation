@@ -43,7 +43,7 @@ namespace AudioStation
         private readonly MainViewModel _mainViewModel;
 
         // This may need to be calculated
-        Thickness _DPIMargin = new Thickness(7);
+        Thickness _DPIMargin = new Thickness(8);
 
         // Custom Maximize / Minimize (override)
         Point _positionNormal;

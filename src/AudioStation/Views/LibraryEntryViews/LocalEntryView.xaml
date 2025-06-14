@@ -1,0 +1,60 @@
+﻿<UserControl x:Class="AudioStation.Views.LibraryEntryViews.LocalEntryView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:AudioStation.Views.LibraryEntryViews" 
+             xmlns:controls="clr-namespace:AudioStation.Controls">
+    <Grid>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <TextBlock Text="Library Entry" FontSize="16" Padding="7 5" HorizontalAlignment="Stretch" TextAlignment="Left" Background="AliceBlue" />
+
+        <!-- Title -->
+        <controls:PropertyStringControl Grid.Row="1" Margin="3" LabelText="Title" LabelColumnWidth="200" LabelForeground="Gray" Value="{Binding Title}" IsReadOnly="True" />
+
+        <!-- Artist(s) -->
+        <controls:PropertyStringControl Grid.Row="2" Margin="3" LabelText="Artist(s)" LabelColumnWidth="200" LabelForeground="Gray" Value="{Binding AlbumArtists, Converter={StaticResource StringArrayConverter}}" IsReadOnly="True" />
+
+        <!-- Album -->
+        <controls:PropertyStringControl Grid.Row="3" Margin="3" LabelText="Album" LabelColumnWidth="200" LabelForeground="Gray" Value="{Binding Album}" IsReadOnly="True" />
+
+        <!-- Year -->
+        <controls:PropertyStringControl Grid.Row="4" Margin="3" LabelText="Year" LabelColumnWidth="200" LabelForeground="Gray" Value="{Binding Year}" IsReadOnly="True" />
+
+        <!-- Genre(s) -->
+        <controls:PropertyStringControl Grid.Row="5" Margin="3" LabelText="Genre(s)" LabelColumnWidth="200" LabelForeground="Gray" Value="{Binding Genres, Converter={StaticResource StringArrayConverter}}" IsReadOnly="True" />
+
+        <!-- Disc -->
+        <controls:PropertyStringControl Grid.Row="6" Margin="3" LabelText="Disc #" LabelColumnWidth="200" LabelForeground="Gray" Value="{Binding Disc}" IsReadOnly="True" />
+
+        <!-- Disc -->
+        <controls:PropertyStringControl Grid.Row="7" Margin="3" LabelText="Disc Count" LabelColumnWidth="200" LabelForeground="Gray" Value="{Binding DiscCount}" IsReadOnly="True" />
+
+        <!-- Track -->
+        <controls:PropertyStringControl Grid.Row="8" Margin="3" LabelText="Track" LabelColumnWidth="200" LabelForeground="Gray" Value="{Binding Track}" IsReadOnly="True" />
+
+        <!-- Album Artwork -->
+        <Border Background="Transparent"
+				Grid.Row="9"
+				BorderBrush="LightGray"
+				BorderThickness="0.5"
+				HorizontalAlignment="Center"
+				VerticalAlignment="Top"
+				Margin="0, 10, 0, 0"
+				Width="180"
+				Height="180" >
+            <Image Source="{Binding FileName, Converter={StaticResource ArtworkFileConverter}}" />
+        </Border>
+    </Grid>
+</UserControl>

@@ -3,7 +3,7 @@
 using AudioStation.Core.Model;
 using AudioStation.ViewModels.Vendor;
 
-namespace AudioStation.Views
+namespace AudioStation.Views.VendorEntryViews
 {
     public partial class MusicBrainzRecordView : UserControl
     {

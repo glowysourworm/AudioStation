@@ -13,14 +13,14 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace AudioStation.Views
+namespace AudioStation.Views.VendorEntryViews
 {
     /// <summary>
-    /// Interaction logic for LocalEntryView.xaml
+    /// Interaction logic for Id3v2TagView.xaml
     /// </summary>
-    public partial class LocalEntryView : UserControl
+    public partial class Id3v2TagView : UserControl
     {
-        public LocalEntryView()
+        public Id3v2TagView()
         {
             InitializeComponent();
         }
