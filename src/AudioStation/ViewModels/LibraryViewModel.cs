@@ -1,5 +1,8 @@
 ﻿using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 
+using AudioStation.Component;
 using AudioStation.Component.Interface;
 using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Database;
@@ -13,9 +16,12 @@ using SimpleWpf.IocFramework.Application.Attribute;
 
 namespace AudioStation.ViewModels
 {
+
+
     [IocExportDefault]
     public class LibraryViewModel : ViewModelBase
     {
+        private readonly IViewModelLoader _viewModelLoader;
         private readonly int _libraryEntryPageSize = 100;
 
         ObservableCollection<LibraryEntryViewModel> _libraryEntries;
@@ -35,6 +41,7 @@ namespace AudioStation.ViewModels
 
         string _artistSearch;
         LibraryEntryViewModel _libraryEntrySearch;
+        LibraryManagerErrorFilterType _libraryManagerFilterType;
 
         int _libraryEntriesPageBeginEntryNumber;
         int _libraryEntriesPageEndEntryNumber;
@@ -117,6 +124,11 @@ namespace AudioStation.ViewModels
             get { return _libraryEntrySearch; }
             set { this.RaiseAndSetIfChanged(ref _libraryEntrySearch, value); }
         }
+        public LibraryManagerErrorFilterType LibraryManagerFilterType
+        {
+            get { return _libraryManagerFilterType; }
+            set { this.RaiseAndSetIfChanged(ref _libraryManagerFilterType, value); }
+        }
 
         public int LibraryEntriesPageBeginEntryNumber
         {
@@ -158,6 +170,8 @@ namespace AudioStation.ViewModels
         [IocImportingConstructor]
         public LibraryViewModel(IViewModelLoader viewModelLoader)
         {
+            _viewModelLoader = viewModelLoader;
+
             this.LibraryEntries = new ObservableCollection<LibraryEntryViewModel>();
             this.Albums = new ObservableCollection<AlbumViewModel>();
             this.Artists = new ObservableCollection<ArtistViewModel>();
@@ -167,40 +181,27 @@ namespace AudioStation.ViewModels
 
             this.LibraryEntryPageRequestCommand = new SimpleCommand(() =>
             {
-                var result = viewModelLoader.LoadEntryPage(new PageRequest<Mp3FileReference, int>()
-                {
-                    PageNumber = this.LibraryEntryRequestPage,
-                    PageSize = _libraryEntryPageSize
-                });
-
-                this.LoadEntryPage(result, true);
+                ExecuteSearch(this.LibraryEntryRequestPage);
             });
             this.LibraryEntryPageRequestForwardCommand = new SimpleCommand<int>((pageCount) =>
             {
                 var pageNumber = Math.Max(1, this.LibraryEntryPage + pageCount);
 
-                var result = viewModelLoader.LoadEntryPage(new PageRequest<Mp3FileReference, int>()
-                {
-                    PageNumber = pageNumber,
-                    PageSize = _libraryEntryPageSize
-                });
-
-                this.LoadEntryPage(result, true);
+                ExecuteSearch(pageNumber);
             });
             this.LibraryEntryPageRequestBackCommand = new SimpleCommand<int>((pageCount) =>
             {
                 var pageNumber = Math.Max(1, this.LibraryEntryPage - pageCount);
 
-                var result = viewModelLoader.LoadEntryPage(new PageRequest<Mp3FileReference, int>()
-                {
-                    PageNumber = pageNumber,
-                    PageSize = _libraryEntryPageSize
-                });
-
-                this.LoadEntryPage(result, true);
+                ExecuteSearch(pageNumber);
             });
-        }
 
+            // Listen to property changes for executing searches on the data grid
+            this.LibraryEntrySearch.PropertyChanged += (sender, args) =>
+            {
+                ExecuteSearch(this.LibraryEntryRequestPage);
+            };
+        }
         public void LoadArtists(PageResult<ArtistViewModel> result, bool reset)
         {
             if (reset)
@@ -251,6 +252,89 @@ namespace AudioStation.ViewModels
             this.LibraryEntriesPageEndEntryNumber = (result.PageNumber) * result.PageSize;
             this.TotalLibraryEntriesCount = result.TotalRecordCount;
             this.TotalLibraryEntriesFilteredCount = result.TotalRecordCountFiltered;
+        }
+
+        private void ExecuteSearch(int pageNumber)
+        {
+            PageResult<LibraryEntryViewModel> result;
+
+            if (this.LibraryManagerFilterType == LibraryManagerErrorFilterType.None)
+            {
+                result = _viewModelLoader.LoadEntryPage(new PageRequest<Mp3FileReference, int>()
+                {
+                    PageNumber = Math.Max(pageNumber, 0),
+                    PageSize = _libraryEntryPageSize,
+                    WhereCallback = (entity) => { return FilterEntityFields(entity); } 
+                });
+            }
+            else
+            {
+                result = _viewModelLoader.LoadEntryPage(new PageRequest<Mp3FileReference, int>()
+                {
+                    PageNumber = Math.Max(pageNumber, 0),
+                    PageSize = _libraryEntryPageSize,
+                    WhereCallback = (entity) => { return FilterEntityFields(entity) && FilterFileErrors(entity); }
+                });
+            }
+            
+            this.LoadEntryPage(result, true);
+        }
+
+        private bool FilterFileErrors(Mp3FileReference entity)
+        {
+            switch (this.LibraryManagerFilterType)
+            {
+                case LibraryManagerErrorFilterType.None:
+                    return true;
+                case LibraryManagerErrorFilterType.FileLoadError:
+                    return entity.IsFileLoadError;
+                case LibraryManagerErrorFilterType.FileUnavailable:
+                    return !entity.IsFileAvailable;
+                case LibraryManagerErrorFilterType.FilePossiblyCorrupt:
+                    return entity.IsFileCorrupt;
+                default:
+                    throw new Exception("Unhandled LibraryManagerErrorFilterType:  LibraryViewModel.cs");
+            }
+        }
+
+        // Not likely to get any optimization for this call from postgres / EF
+        private bool FilterEntityFields(Mp3FileReference entity)
+        {
+            var result = true;
+
+            // If there are search settings, then demand that they're honored
+            //
+            if (this.LibraryEntrySearch.Album != string.Empty)
+                result &= entity.Album?.Name?.Contains(this.LibraryEntrySearch.Album, StringComparison.OrdinalIgnoreCase) ?? false;
+
+            if (result && this.LibraryEntrySearch.Disc > 0)
+                result &= entity.Album?.DiscNumber == this.LibraryEntrySearch.Disc;
+
+            if (result && this.LibraryEntrySearch.FileCorruptMessage != string.Empty)
+                result &= entity.FileCorruptMessage?.Contains(this.LibraryEntrySearch.FileCorruptMessage, StringComparison.OrdinalIgnoreCase) ?? false;
+
+            if (result && this.LibraryEntrySearch.FileLoadErrorMessage != string.Empty)
+                result &= entity.FileErrorMessage?.Contains(this.LibraryEntrySearch.FileLoadErrorMessage, StringComparison.OrdinalIgnoreCase) ?? false;
+
+            if (result && this.LibraryEntrySearch.FileName != string.Empty)
+                result &= entity.FileName?.Contains(this.LibraryEntrySearch.FileName) ?? false;
+
+            if (result && this.LibraryEntrySearch.Id > 0)
+                result &= entity.Id.ToString().Contains(this.LibraryEntrySearch.Id.ToString());
+
+            if (result && this.LibraryEntrySearch.PrimaryArtist != string.Empty)
+                result &= entity.PrimaryArtist?.Name?.Contains(this.LibraryEntrySearch.PrimaryArtist, StringComparison.OrdinalIgnoreCase) ?? false;
+
+            if (result && this.LibraryEntrySearch.PrimaryGenre != string.Empty)
+                result &= entity.PrimaryGenre?.Name?.Contains(this.LibraryEntrySearch.PrimaryGenre, StringComparison.OrdinalIgnoreCase) ?? false;
+
+            if (result && this.LibraryEntrySearch.Title != string.Empty)
+                result &= entity.Title?.Contains(this.LibraryEntrySearch.Title, StringComparison.OrdinalIgnoreCase) ?? false;
+
+            if (result && this.LibraryEntrySearch.Track > 0)
+                result &= entity.Track == this.LibraryEntrySearch.Track;
+
+            return result;
         }
     }
 }

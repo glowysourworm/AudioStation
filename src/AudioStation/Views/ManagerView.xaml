@@ -4,15 +4,42 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:fa5="http://schemas.fontawesome.com/icons/"
              xmlns:xceed="http://schemas.xceed.com/wpf/xaml/toolkit"
-             xmlns:system="clr-namespace:System;assembly=System.Runtime">
+             xmlns:system="clr-namespace:System;assembly=System.Runtime"
+             xmlns:simpleUI="clr-namespace:SimpleWpf.UI.Controls;assembly=SimpleWpf.UI"
+             xmlns:viewModel="clr-namespace:AudioStation.ViewModels"
+             xmlns:libraryViewModel="clr-namespace:AudioStation.ViewModels.LibraryViewModels">
+
     <Grid>
 
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
+        <!-- Header -->
+        <Border Background="{StaticResource ManagedDataGridHeaderBackground}" Padding="5">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <TextBlock Text="Library Manager Filter" Style="{StaticResource LabelTextBlockInvert}" Margin="5" VerticalAlignment="Center" />
+                    
+                    <simpleUI:EnumComboBox EnumType="{x:Type viewModel:LibraryManagerErrorFilterType}"
+                                           EnumValue="{Binding LibraryManagerFilterType, Mode=TwoWay}"
+                                           EnumValueChanged="OnLibraryManagerFilterChanged"
+                                           VerticalAlignment="Center"
+                                           Width="200" Margin="5" />
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Library Entries -->
         <DataGrid x:Name="LibraryEntryGrid"
+                  Grid.Row="1"
                   ItemsSource="{Binding LibraryEntries}"
                   IsReadOnly="True"
                   AutoGenerateColumns="False"
@@ -46,141 +73,58 @@
             </DataGrid.ItemsPanel>
 
             <DataGrid.Columns>
+
                 <DataGridTextColumn Binding="{Binding Id}" 
-                                    SortMemberPath="Id" 
+                                    HeaderTemplate="{StaticResource ManagerDataGridHeaderTemplate_Id}"
                                     Width="SizeToCells"
                                     CellStyle="{StaticResource ManagerDataGridCellStyle}">
-                    <DataGridTextColumn.Header>
-                        <Border>
-                            <Grid Margin="5">
-                                <Grid.RowDefinitions>
-                                    <RowDefinition />
-                                    <RowDefinition />
-                                </Grid.RowDefinitions>
-                                <TextBlock Text="Id" Style="{StaticResource ManagerDataGridHeaderTextStyle}" Margin="0 0 0 5" />
-                                <TextBox Text="{Binding LibraryEntrySearch.Id}" 
-                                         Style="{StaticResource UserInputTextBox}" 
-                                         HorizontalAlignment="Stretch"
-                                         Grid.Row="1" />
-                            </Grid>
-                        </Border>
-                    </DataGridTextColumn.Header>
                 </DataGridTextColumn>
 
                 <DataGridTemplateColumn Width="SizeToCells" 
                                         CellStyle="{StaticResource ManagerDataGridCellStyle}" 
-                                        CellTemplate="{StaticResource ManagerDataGridTrackDetailTemplate}">
+                                        CellTemplate="{StaticResource ManagerDataGridFileIssuesTemplate}">
                     <DataGridTemplateColumn.Header>
                         <Border>
-                            <TextBlock Text="Track" Style="{StaticResource ManagerDataGridHeaderTextStyle}" Margin="5" />
+                            <TextBlock Text="File Issue(s)" Style="{StaticResource ManagerDataGridHeaderTextStyle}" Margin="5" />
                         </Border>
                     </DataGridTemplateColumn.Header>
                 </DataGridTemplateColumn>
 
                 <DataGridTextColumn Binding="{Binding PrimaryArtist}" 
+                                    HeaderTemplate="{StaticResource ManagerDataGridHeaderTemplate_PrimaryArtist}"                                    
                                     CellStyle="{StaticResource ManagerDataGridCellStyle}"  
                                     SortMemberPath="PrimaryArtist" Width="SizeToCells">
-                    <DataGridTextColumn.Header>
-                        <Border>
-                            <Grid Margin="5">
-                                <Grid.RowDefinitions>
-                                    <RowDefinition />
-                                    <RowDefinition />
-                                </Grid.RowDefinitions>
-                                <TextBlock Text="Artist" Style="{StaticResource ManagerDataGridHeaderTextStyle}" Margin="0 0 0 5" />
-                                <TextBox Text="{Binding LibraryEntrySearch.PrimaryArtist}" 
-                                         Style="{StaticResource UserInputTextBox}" 
-                                         HorizontalAlignment="Stretch"
-                                         Grid.Row="1" />
-                            </Grid>
-                        </Border>
-                    </DataGridTextColumn.Header>                    
                 </DataGridTextColumn>
 
                 <DataGridTextColumn Binding="{Binding Album}" 
+                                    HeaderTemplate="{StaticResource ManagerDataGridHeaderTemplate_Album}"
                                     CellStyle="{StaticResource ManagerDataGridCellStyle}"          
                                     SortMemberPath="Album" Width="SizeToCells">
-                    <DataGridTextColumn.Header>
-                        <Border>
-                            <Grid Margin="5">
-                                <Grid.RowDefinitions>
-                                    <RowDefinition />
-                                    <RowDefinition />
-                                </Grid.RowDefinitions>
-                                <TextBlock Text="Album" Style="{StaticResource ManagerDataGridHeaderTextStyle}" Margin="0 0 0 5" />
-                                <TextBox Text="{Binding LibraryEntrySearch.Album}" 
-                                         Style="{StaticResource UserInputTextBox}" 
-                                         HorizontalAlignment="Stretch"
-                                         Grid.Row="1" />
-                            </Grid>
-                        </Border>
-                    </DataGridTextColumn.Header>
                 </DataGridTextColumn>
 
                 <DataGridTextColumn Binding="{Binding Title}" 
+                                    HeaderTemplate="{StaticResource ManagerDataGridHeaderTemplate_Title}"
                                     CellStyle="{StaticResource ManagerDataGridCellStyle}"          
                                     SortMemberPath="Title" Width="SizeToCells">
-                    <DataGridTextColumn.Header>
-                        <Border>
-                            <Grid Margin="5">
-                                <Grid.RowDefinitions>
-                                    <RowDefinition />
-                                    <RowDefinition />
-                                </Grid.RowDefinitions>
-                                <TextBlock Text="Title" Style="{StaticResource ManagerDataGridHeaderTextStyle}" Margin="0 0 0 5" />
-                                <TextBox Text="{Binding LibraryEntrySearch.Title}" 
-                                         Style="{StaticResource UserInputTextBox}" 
-                                         HorizontalAlignment="Stretch"
-                                         Grid.Row="1" />
-                            </Grid>
-                        </Border>
-                    </DataGridTextColumn.Header>                    
                 </DataGridTextColumn>
 
                 <DataGridTextColumn Binding="{Binding PrimaryGenre}" 
+                                    HeaderTemplate="{StaticResource ManagerDataGridHeaderTemplate_PrimaryGenre}"
                                     CellStyle="{StaticResource ManagerDataGridCellStyle}"   
                                     SortMemberPath="PrimaryGenre" Width="SizeToCells">
-                    <DataGridTextColumn.Header>
-                        <Border>
-                            <Grid Margin="5">
-                                <Grid.RowDefinitions>
-                                    <RowDefinition />
-                                    <RowDefinition />
-                                </Grid.RowDefinitions>
-                                <TextBlock Text="Genre" Style="{StaticResource ManagerDataGridHeaderTextStyle}" Margin="0 0 0 5" />
-                                <TextBox Text="{Binding LibraryEntrySearch.PrimaryGenre}" 
-                                         Style="{StaticResource UserInputTextBox}" 
-                                         HorizontalAlignment="Stretch"
-                                         Grid.Row="1" />
-                            </Grid>
-                        </Border>
-                    </DataGridTextColumn.Header>
                 </DataGridTextColumn>
 
                 <DataGridTextColumn Binding="{Binding FileName}" 
+                                    HeaderTemplate="{StaticResource ManagerDataGridHeaderTemplate_FileName}"  
                                     CellStyle="{StaticResource ManagerDataGridCellStyle}"       
                                     SortMemberPath="FileName" Width="SizeToCells">
-                    <DataGridTextColumn.Header>
-                        <Border>
-                            <Grid Margin="5">
-                                <Grid.RowDefinitions>
-                                    <RowDefinition />
-                                    <RowDefinition />
-                                </Grid.RowDefinitions>
-                                <TextBlock Text="File" Style="{StaticResource ManagerDataGridHeaderTextStyle}" Margin="0 0 0 5" />
-                                <TextBox Text="{Binding LibraryEntrySearch.FileName}" 
-                                         Style="{StaticResource UserInputTextBox}" 
-                                         HorizontalAlignment="Stretch"
-                                         Grid.Row="1" />
-                            </Grid>
-                        </Border>
-                    </DataGridTextColumn.Header>
                 </DataGridTextColumn>
             </DataGrid.Columns>
             
         </DataGrid>
 
-        <Border Background="{StaticResource ManagedDataGridFooterBackground}" Grid.Row="1" Padding="5">
+        <!-- Footer -->
+        <Border Background="{StaticResource ManagedDataGridFooterBackground}" Grid.Row="2" Padding="5">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />

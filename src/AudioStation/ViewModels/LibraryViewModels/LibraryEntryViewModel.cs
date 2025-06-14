@@ -14,6 +14,12 @@ namespace AudioStation.ViewModels.LibraryViewModels
         uint _disc;
         TimeSpan _duration;
 
+        bool _isFileAvailable;
+        bool _isFileCorrupt;
+        bool _isFileLoadError;
+        string _fileLoadErrorMessage;
+        string _fileCorruptMessage;
+
         /// <summary>
         /// Database id for the entry
         /// </summary>
@@ -66,6 +72,31 @@ namespace AudioStation.ViewModels.LibraryViewModels
             get { return _duration; }
             set { this.RaiseAndSetIfChanged(ref _duration, value); }
         }
+        public bool IsFileAvailable
+        {
+            get { return _isFileAvailable; }
+            set { this.RaiseAndSetIfChanged(ref _isFileAvailable, value); }
+        }
+        public bool IsFileCorrupt
+        {
+            get { return _isFileCorrupt; }
+            set { this.RaiseAndSetIfChanged(ref _isFileCorrupt, value); }
+        }
+        public bool IsFileLoadError
+        {
+            get { return _isFileLoadError; }
+            set { this.RaiseAndSetIfChanged(ref _isFileLoadError, value); }
+        }
+        public string FileLoadErrorMessage
+        {
+            get { return _fileLoadErrorMessage; }
+            set { this.RaiseAndSetIfChanged(ref _fileLoadErrorMessage, value); }
+        }
+        public string FileCorruptMessage
+        {
+            get { return _fileCorruptMessage; }
+            set { this.RaiseAndSetIfChanged(ref _fileCorruptMessage, value); }
+        }
 
         public LibraryEntryViewModel()
         {
@@ -75,6 +106,8 @@ namespace AudioStation.ViewModels.LibraryViewModels
             this.PrimaryArtist = string.Empty;
             this.PrimaryGenre = string.Empty;
             this.Duration = TimeSpan.Zero;
+            this.FileLoadErrorMessage = string.Empty;
+            this.FileCorruptMessage = string.Empty;
         }
     }
 }

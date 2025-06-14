@@ -1,5 +1,6 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 
 using AudioStation.Component.Interface;
 using AudioStation.ViewModels;
@@ -11,19 +12,9 @@ namespace AudioStation.Views
     [IocExportDefault]
     public partial class ManagerView : UserControl
     {
-        private readonly IViewModelLoader _viewModelLoader;
-
-        // Designer only
+        [IocImportingConstructor]
         public ManagerView()
         {
-            InitializeComponent();
-        }
-
-        [IocImportingConstructor]
-        public ManagerView(IViewModelLoader viewModelLoader)
-        {
-            _viewModelLoader = viewModelLoader;
-
             InitializeComponent();
 
             this.DataContextChanged += ManagerView_DataContextChanged;
@@ -36,16 +27,36 @@ namespace AudioStation.Views
 
         private void ManagerView_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
+            // Set header bindings
+            foreach (var column in this.LibraryEntryGrid.Columns)
+            {
+                if (column.GetType() != typeof(DataGridTextColumn))
+                    continue;
+
+                // Bind each column to the LibraryEntrySearch of the data context
+                BindingOperations.SetBinding(column, DataGridColumn.HeaderProperty, new Binding("LibraryEntrySearch")
+                {
+                    Source = this.DataContext
+                });
+            }
+
+            ExecuteSearch();
+        }
+
+        private void OnLibraryManagerFilterChanged(object sender, RoutedEventArgs e)
+        {
+            ExecuteSearch();
+        }
+
+        private void ExecuteSearch()
+        {
             var viewModel = this.DataContext as LibraryViewModel;
 
             if (viewModel != null)
             {
                 // Invoke main pager request
-                if (viewModel.LibraryEntries.Count == 0)
-                {
-                    viewModel.LibraryEntryRequestPage = 1;
-                    viewModel.LibraryEntryPageRequestCommand.Execute(1);
-                }
+                viewModel.LibraryEntryRequestPage = 1;
+                viewModel.LibraryEntryPageRequestCommand.Execute(1);
             }
         }
     }

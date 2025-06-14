@@ -66,7 +66,15 @@ namespace AudioStation.Component
                             FileName = track.FileName,
                             PrimaryArtist = artist.Name,
                             Title = track.Title ?? "Unknown",
-                            Track = (uint)(track.Track ?? 0)
+                            Track = (uint)(track.Track ?? 0),
+                            Duration = TimeSpan.FromMilliseconds(track.DurationMilliseconds ?? 0),
+                            FileCorruptMessage = track.FileCorruptMessage ?? "",
+                            FileLoadErrorMessage = track.FileErrorMessage ?? "",
+                            Id = track.Id,
+                            IsFileAvailable = track.IsFileAvailable,
+                            IsFileCorrupt = track.IsFileCorrupt,
+                            IsFileLoadError = track.IsFileLoadError,
+                            PrimaryGenre = track.PrimaryGenre?.Name ?? "Unknown"
                         };
                     }));
 
@@ -103,7 +111,12 @@ namespace AudioStation.Component
                 PrimaryArtist = entry.PrimaryArtist?.Name ?? "Unknown",
                 PrimaryGenre = entry.PrimaryGenre?.Name ?? "Unknown",
                 Title = entry.Title ?? "Unknown",
-                Track = (uint)(entry.Track ?? 0)
+                Track = (uint)(entry.Track ?? 0),
+                FileCorruptMessage = entry.FileCorruptMessage ?? "",
+                FileLoadErrorMessage = entry.FileErrorMessage ?? "",
+                IsFileAvailable = entry.IsFileAvailable,
+                IsFileLoadError = entry.IsFileLoadError,
+                IsFileCorrupt = entry.IsFileCorrupt
             }).ToList();
 
             return result;

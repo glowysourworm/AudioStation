@@ -14,6 +14,7 @@
 
         <!-- SimpleWpf.UI Converters -->
         <simpleConverter:BoolVisibilityCollapseConverter x:Key="BoolVisibilityCollapseConverter" />
+        <simpleConverter:BoolInverseVisibilityCollapseConverter x:Key="BoolInverseVisibilityCollapseConverter" />
         <simpleConverter:NonNullVisibilityConverter x:Key="NonNullVisibilityConverter" />
         <simpleConverter:ParameterEqualityBoolConverter x:Key="ParameterEqualityBoolConverter" />
         <simpleConverter:ParameterProviderBoolConverter x:Key="ParameterProviderBoolConverter" />
