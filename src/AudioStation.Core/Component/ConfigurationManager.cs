@@ -78,7 +78,8 @@ namespace AudioStation.Core.Component
                     DatabaseName = "AudioStation",
                     DatabaseUser = "postgres",
                     DatabasePassword = "!ngndol234",
-                    DirectoryBase = "C:\\Backup\\audio-library"
+                    DirectoryBase = "C:\\Backup\\audio-library",
+                    DownloadFolder = "C:\\Users\\ryand\\Downloads"
                 };
             }
         }

@@ -16,6 +16,11 @@ namespace AudioStation.Controller.Model
             return _cache[type];
         }
 
+        public bool Contains(TType type, TKey key)
+        {
+            return _cache[type].Contains(key);
+        }
+
         public void AddCache(TType type, ImageCache<TKey, TValue> cache)
         {
             _cache.Add(type, cache);

@@ -1,5 +1,7 @@
 ﻿using System.Net.Http;
+using System.Windows;
 using System.Windows.Media;
+using System.Windows.Threading;
 
 using AudioStation.Component.Interface;
 using AudioStation.Controller.Interface;
@@ -31,8 +33,13 @@ namespace AudioStation.Controller
 
         protected ImageCacheSet<ImageCacheType, ImageCacheKey, ImageCacheItem> ArtistCacheSet;
         protected ImageCacheSet<ImageCacheType, ImageCacheKey, ImageCacheItem> AlbumCacheSet;
-
         protected ImageCacheSet<ImageCacheType, string, ImageCacheItem> WebImageCacheSet;
+
+        private object _artistLock = new object();
+        private object _albumLock = new object();
+        private object _webLock = new object();
+
+        private HttpClient _httpClient;
 
         [IocImportingConstructor]
         public ImageCacheController(IModelController modelController,
@@ -64,96 +71,109 @@ namespace AudioStation.Controller
             this.WebImageCacheSet.AddCache(ImageCacheType.Small, new ImageCache<string, ImageCacheItem>(SMALL_CACHE_MAX_ENTRIES));
             this.WebImageCacheSet.AddCache(ImageCacheType.Medium, new ImageCache<string, ImageCacheItem>(MEDIUM_CACHE_MAX_ENTRIES));
             this.WebImageCacheSet.AddCache(ImageCacheType.FullSize, new ImageCache<string, ImageCacheItem>(FULL_CACHE_MAX_ENTRIES));
+
+            _httpClient = new HttpClient();
         }
 
-        public ImageSource GetForArtist(int artistId, ImageCacheType cacheAsType)
+        public async Task<ImageSource> GetForArtist(int artistId, ImageCacheType cacheAsType)
         {
             try
             {
-                return Get(artistId, cacheAsType, true);
+                return await Get(artistId, cacheAsType, true);
             }
             catch (Exception ex)
             {
-                _outputController.AddLog("Error loading bitmaps for artist:  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
+                RaiseLog("Error loading bitmaps for artist:  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
             }
 
             return null;
         }
 
-        public ImageSource GetForAlbum(int albumId, ImageCacheType cacheAsType)
+        public async Task<ImageSource> GetForAlbum(int albumId, ImageCacheType cacheAsType)
         {
             try
             {
-                return Get(albumId, cacheAsType, false);
+                return await Get(albumId, cacheAsType, false);
             }
             catch (Exception ex)
             {
-                _outputController.AddLog("Error loading bitmaps for album:  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
+                RaiseLog("Error loading bitmaps for album:  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
             }
 
             return null;
         }
 
-        public ImageSource GetFromEndpoint(string endpoint, PictureType cacheType, ImageCacheType cacheAsType)
+        public async Task<ImageSource> GetFromEndpoint(string endpoint, PictureType cacheType, ImageCacheType cacheAsType)
         {
             try
             {
                 // TASK THREAD ONLY!
+                lock(_webLock)
+                {
                     if (this.WebImageCacheSet.GetCache(cacheAsType).Contains(endpoint))
                         return this.WebImageCacheSet.GetCache(cacheAsType).Get(endpoint).GetFirstImage();
+                }
 
-                var data = GetWebImage(endpoint);
+                var data = await GetWebImage(endpoint);
 
                 if (data == null)
                     return null;
 
                 var imageSource = _bitmapConverter.BitmapDataToBitmapSource(data, new ImageSize(cacheAsType));
                 
-                this.WebImageCacheSet.GetCache(cacheAsType).Add(endpoint, new ImageCacheItem(cacheType, imageSource));
+                // Two threads may have entered the critical section before this point
+                //
+                lock(_webLock)
+                {
+                    if (!this.WebImageCacheSet.GetCache(cacheAsType).Contains(endpoint))
+                        this.WebImageCacheSet.GetCache(cacheAsType).Add(endpoint, new ImageCacheItem(cacheType, imageSource));
+                }
+                
 
                 return imageSource;
             }
             catch (Exception ex)
             {
-                _outputController.AddLog("Error loading web image:  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
+                RaiseLog("Error loading web image:  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
             }
 
             return null;
         }
 
-        private byte[]? GetWebImage(string endpoint)
+        private async Task<byte[]?> GetWebImage(string endpoint)
         {
             try
             {
-                using (var client = new HttpClient())
-                {
-                    var result = client.GetByteArrayAsync(endpoint).ConfigureAwait(false).GetAwaiter();
-
-                    return result.GetResult();
-                }
+                return await _httpClient.GetByteArrayAsync(endpoint);
             }
             catch (Exception ex)
             {
-                _outputController.AddLog("Error connecting to web image:  {0}", LogMessageType.General, LogLevel.Error, endpoint);
-                _outputController.AddLog("Error trying to get web image:  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
+                RaiseLog("Error connecting to web image:  {0}", LogMessageType.General, LogLevel.Error, endpoint);
+                RaiseLog("Error trying to get web image:  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
             }
 
             return null;
         }
 
-        private ImageSource Get(int entityId, ImageCacheType cacheAsType, bool forArtist)
+        private async Task<ImageSource> Get(int entityId, ImageCacheType cacheAsType, bool forArtist)
         {
             var cacheKey = CreateKey(entityId, cacheAsType);
 
             if (forArtist)
             {
-                if (this.ArtistCacheSet.GetCache(cacheAsType).Contains(cacheKey))
-                    return this.ArtistCacheSet.GetCache(cacheAsType).Get(cacheKey).GetArtistImage();
+                lock(_artistLock)
+                {
+                    if (this.ArtistCacheSet.GetCache(cacheAsType).Contains(cacheKey))
+                        return this.ArtistCacheSet.GetCache(cacheAsType).Get(cacheKey).GetArtistImage();
+                }
             }
             else
             {
-                if (this.AlbumCacheSet.GetCache(cacheAsType).Contains(cacheKey))
-                    return this.AlbumCacheSet.GetCache(cacheAsType).Get(cacheKey).GetAlbumImage();
+                lock(_albumLock)
+                {
+                    if (this.AlbumCacheSet.GetCache(cacheAsType).Contains(cacheKey))
+                        return this.AlbumCacheSet.GetCache(cacheAsType).Get(cacheKey).GetAlbumImage();
+                }
             }
 
             // Fetch the mp3 files for this artist
@@ -176,9 +196,21 @@ namespace AudioStation.Controller
 
             // Cache the result
             if (forArtist)
-                this.ArtistCacheSet.GetCache(cacheAsType).Add(cacheKey, cacheItem);
+            {
+                lock(_artistLock)
+                {
+                    if (!this.ArtistCacheSet.GetCache(cacheAsType).Contains(cacheKey))
+                        this.ArtistCacheSet.GetCache(cacheAsType).Add(cacheKey, cacheItem);
+                }
+            }
             else
-                this.AlbumCacheSet.GetCache(cacheAsType).Add(cacheKey, cacheItem);
+            {
+                lock(_albumLock)
+                {
+                    if (!this.AlbumCacheSet.GetCache(cacheAsType).Contains(cacheKey))
+                        this.AlbumCacheSet.GetCache(cacheAsType).Add(cacheKey, cacheItem);
+                }                
+            }
 
             return forArtist ? cacheItem.GetArtistImage() : cacheItem.GetAlbumImage();
         }
@@ -186,6 +218,16 @@ namespace AudioStation.Controller
         private ImageCacheKey CreateKey(int entityId, ImageCacheType cacheAsType)
         {
             return new ImageCacheKey(entityId, new ImageSize(cacheAsType));
+        }
+
+        private void RaiseLog(string message, LogMessageType type, LogLevel level, params object[] parameters)
+        {
+            if (Thread.CurrentThread.ManagedThreadId != Application.Current.Dispatcher.Thread.ManagedThreadId)
+                Application.Current.Dispatcher.BeginInvoke(RaiseLog, DispatcherPriority.Background, message, type, level, parameters);
+            else
+            {
+                _outputController.AddLog(message, type, level, parameters);
+            }
         }
     }
 }

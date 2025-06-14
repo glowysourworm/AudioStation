@@ -12,6 +12,7 @@
             <RowDefinition Height="36" />
             <RowDefinition Height="36" />
             <RowDefinition Height="36" />
+            <RowDefinition Height="36" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
@@ -23,30 +24,35 @@
         
         <!-- Label Column -->
         <TextBlock Text="Directory" VerticalAlignment="Center" Margin="10, 0, 10, 0" />
-        <TextBlock Text="Database Host" VerticalAlignment="Center" Margin="10, 0, 10, 0" Grid.Row="1" />
-        <TextBlock Text="Database Name" VerticalAlignment="Center" Margin="10, 0, 10, 0" Grid.Row="2" />
-        <TextBlock Text="Database User" VerticalAlignment="Center" Margin="10, 0, 10, 0" Grid.Row="3" />
-        <TextBlock Text="Database Password" VerticalAlignment="Center" Margin="10, 0, 10, 0" Grid.Row="4" />
+        <TextBlock Text="Download Folder" VerticalAlignment="Center" Margin="10, 0, 10, 0" Grid.Row="1" />
+        <TextBlock Text="Database Host" VerticalAlignment="Center" Margin="10, 0, 10, 0" Grid.Row="2" />
+        <TextBlock Text="Database Name" VerticalAlignment="Center" Margin="10, 0, 10, 0" Grid.Row="3" />
+        <TextBlock Text="Database User" VerticalAlignment="Center" Margin="10, 0, 10, 0" Grid.Row="4" />
+        <TextBlock Text="Database Password" VerticalAlignment="Center" Margin="10, 0, 10, 0" Grid.Row="5" />
 
         <!-- Input Column -->
         <TextBox Text="{Binding Configuration.DirectoryBase}" Style="{StaticResource UserInputTextBoxReadonly}" Grid.Column="1" Margin="0,5" />
-        <TextBox Text="{Binding Configuration.DatabaseHost}" Style="{StaticResource UserInputTextBox}" Width="300" HorizontalAlignment="Right" Grid.Column="1" Grid.Row="1" Margin="0,5" />
-        <TextBox Text="{Binding Configuration.DatabaseName}" Style="{StaticResource UserInputTextBox}" Width="300" HorizontalAlignment="Right" Grid.Column="1" Grid.Row="2" Margin="0,5" />
-        <TextBox Text="{Binding Configuration.DatabaseUser}" Style="{StaticResource UserInputTextBox}" Width="300" HorizontalAlignment="Right" Grid.Column="1" Grid.Row="3" Margin="0,5" />
-        <PasswordBox x:Name="PasswordTB" PasswordChanged="PasswordTB_PasswordChanged" Style="{StaticResource UserInputPasswordBox}" Width="300" HorizontalAlignment="Right" Grid.Column="1" Grid.Row="4" Margin="0,5" />
+        <TextBox Text="{Binding Configuration.DownloadFolder}" Style="{StaticResource UserInputTextBoxReadonly}" Grid.Column="1" Grid.Row="1" Margin="0,5" />
+        <TextBox Text="{Binding Configuration.DatabaseHost}" Style="{StaticResource UserInputTextBox}" Width="300" HorizontalAlignment="Right" Grid.Column="1" Grid.Row="2" Margin="0,5" />
+        <TextBox Text="{Binding Configuration.DatabaseName}" Style="{StaticResource UserInputTextBox}" Width="300" HorizontalAlignment="Right" Grid.Column="1" Grid.Row="3" Margin="0,5" />
+        <TextBox Text="{Binding Configuration.DatabaseUser}" Style="{StaticResource UserInputTextBox}" Width="300" HorizontalAlignment="Right" Grid.Column="1" Grid.Row="4" Margin="0,5" />
+        <PasswordBox x:Name="PasswordTB" PasswordChanged="PasswordTB_PasswordChanged" Style="{StaticResource UserInputPasswordBox}" Width="300" HorizontalAlignment="Right" Grid.Column="1" Grid.Row="5" Margin="0,5" />
         
 
         <!-- Button Column -->
         <Button Grid.Column="2" Command="{Binding OpenLibraryFolderCommand}" Margin="10,5" Style="{StaticResource SmallControlButton}">
             <fa5:SvgAwesome Icon="Regular_FolderOpen" Height="16" Width="16" />
         </Button>
+        <Button Grid.Column="2" Grid.Row="1" Command="{Binding OpenDownloadFolderCommand}" Margin="10,5" Style="{StaticResource SmallControlButton}">
+            <fa5:SvgAwesome Icon="Regular_FolderOpen" Height="16" Width="16" />
+        </Button>        
         
         <!--Button Grid.Column="2" Grid.Row="1" Command="{Binding SelectLibraryDatabaseFileCommand}" Cursor="Hand" Margin="10,5">
 			<iconPacks:PackIconFontAwesome Kind="FolderOpenRegular" Height="16" Width="16" />
 		</Button-->
 
         <!-- Action Buttons -->
-        <StackPanel Orientation="Horizontal" Grid.Column="1" Grid.Row="5" VerticalAlignment="Top" HorizontalAlignment="Right">
+        <StackPanel Orientation="Horizontal" Grid.Column="1" Grid.Row="6" VerticalAlignment="Top" HorizontalAlignment="Right">
             <Button Command="{Binding SaveConfigurationCommand}" Margin="0 5 5 5" Style="{StaticResource UserControlButton}">
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="Save" Style="{StaticResource LabelTextBlock}" Margin="5" />

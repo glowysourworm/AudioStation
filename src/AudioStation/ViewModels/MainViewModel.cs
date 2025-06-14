@@ -51,12 +51,14 @@ public partial class MainViewModel : ViewModelBase, IDisposable
 
     LibraryViewModel _library;
     RadioViewModel _radio;
+    BandcampViewModel _bandcamp;
     LibraryLoaderViewModel _libraryLoaderViewModel;
     INowPlayingViewModel _nowPlayingViewModel;
 
     ObservableCollection<LogMessageViewModel> _outputMessages;
 
     SimpleCommand _openLibraryFolderCommand;
+    SimpleCommand _openDownloadFolderCommand;
     SimpleCommand _saveConfigurationCommand;
     SimpleCommand _loadLibraryCommand;
     #endregion
@@ -102,6 +104,11 @@ public partial class MainViewModel : ViewModelBase, IDisposable
         get { return _radio; }
         set { this.RaiseAndSetIfChanged(ref _radio, value); }
     }
+    public BandcampViewModel Bandcamp
+    {
+        get { return _bandcamp; }
+        set { this.RaiseAndSetIfChanged(ref _bandcamp, value); }
+    }
     public LibraryLoaderViewModel LibraryLoader
     {
         get { return _libraryLoaderViewModel; }
@@ -132,6 +139,11 @@ public partial class MainViewModel : ViewModelBase, IDisposable
         get { return _openLibraryFolderCommand; }
         set { this.RaiseAndSetIfChanged(ref _openLibraryFolderCommand, value); }
     }
+    public SimpleCommand OpenDownloadFolderCommand
+    {
+        get { return _openDownloadFolderCommand; }
+        set { this.RaiseAndSetIfChanged(ref _openDownloadFolderCommand, value); }
+    }
     public SimpleCommand SaveConfigurationCommand
     {
         get { return _saveConfigurationCommand; }
@@ -156,7 +168,8 @@ public partial class MainViewModel : ViewModelBase, IDisposable
                          // View Models
                          LibraryViewModel libraryViewModel,
                          RadioViewModel radioViewModel,
-                         LibraryLoaderViewModel libraryLoaderViewModel)
+                         LibraryLoaderViewModel libraryLoaderViewModel,
+                         BandcampViewModel bandcampViewModel)
     {
         _dialogController = dialogController;
         _audioController = audioController;
@@ -174,6 +187,7 @@ public partial class MainViewModel : ViewModelBase, IDisposable
         this.Library = libraryViewModel;
         this.Radio = radioViewModel;
         this.LibraryLoader = libraryLoaderViewModel;
+        this.Bandcamp = bandcampViewModel;
 
         // Initialize Model
         //foreach (var libraryEntry in _modelController.Library)
@@ -206,6 +220,15 @@ public partial class MainViewModel : ViewModelBase, IDisposable
             {
                 libraryLoader.LoadLibraryAsync(this.Configuration.DirectoryBase);
                 libraryLoader.Start();
+            }
+        });
+        this.OpenDownloadFolderCommand = new SimpleCommand(() =>
+        {
+            var folder = dialogController.ShowSelectFolder();
+
+            if (!string.IsNullOrEmpty(folder))
+            {
+                this.Configuration.DownloadFolder = folder;
             }
         });
 

@@ -79,6 +79,13 @@
                     </region:IocRegion>
                 </controls:TabItemPressable>
 
+                <controls:TabItemPressable FontSize="14" Margin="0" Header="Bandcamp" Style="{StaticResource MainTabItemControlStyle}">
+                    <region:IocRegion region:IocRegionManager.RegionName="BandcampView"
+                                      region:IocRegionManager.DefaultViewType="{x:Type local:BandcampView}"
+                                      DataContext="{Binding Bandcamp}">
+                    </region:IocRegion>
+                </controls:TabItemPressable>
+
 
             </TabControl>
 

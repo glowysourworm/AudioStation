@@ -10,6 +10,11 @@ namespace AudioStation.Core
         string _databaseUser;
         string _databasePassword;
 
+        string _downloadFolder;
+
+        string _bandcampEmail;
+        string _bandcampAPIKey;
+
         public string DirectoryBase
         {
             get { return _directoryBase; }
@@ -35,6 +40,21 @@ namespace AudioStation.Core
             get { return _databasePassword; }
             set { RaiseAndSetIfChanged(ref _databasePassword, value); }
         }
+        public string BandcampEmail
+        {
+            get { return _bandcampEmail; }
+            set { this.RaiseAndSetIfChanged(ref _bandcampEmail, value); }
+        }
+        public string BandcampAPIKey
+        {
+            get { return _bandcampAPIKey; }
+            set { this.RaiseAndSetIfChanged(ref _bandcampAPIKey, value); }
+        }
+        public string DownloadFolder
+        {
+            get { return _downloadFolder; }
+            set { this.RaiseAndSetIfChanged(ref _downloadFolder, value); }
+        }
 
         public Configuration()
         {
@@ -43,6 +63,9 @@ namespace AudioStation.Core
             this.DatabaseName = string.Empty;
             this.DatabaseUser = string.Empty;
             this.DatabasePassword = string.Empty;
+            this.BandcampEmail = string.Empty;
+            this.BandcampAPIKey = string.Empty;
+            this.DownloadFolder = string.Empty;
         }
     }
 }

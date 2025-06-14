@@ -67,7 +67,7 @@ namespace AudioStation.Controls
             Reload();
         }
 
-        private async void Reload()
+        private async Task Reload()
         {
             // Don't await the BeginInvoke
             if (Thread.CurrentThread.ManagedThreadId != Application.Current.Dispatcher.Thread.ManagedThreadId)
@@ -82,14 +82,13 @@ namespace AudioStation.Controls
                     double.IsNaN(this.Height))
                     return;
 
-                if (string.IsNullOrEmpty(this.ImageEndpoint) ||
-                   !this.IsVisible)
+                if (string.IsNullOrEmpty(this.ImageEndpoint) /*|| !this.IsVisible*/)
                     return;
 
                 switch (_cacheType)
                 {
                     case PictureType.FrontCover:
-                        this.Source = _cacheController.GetFromEndpoint(this.ImageEndpoint, _cacheType, this.ImageSize);
+                        this.Source = await _cacheController.GetFromEndpoint(this.ImageEndpoint, _cacheType, this.ImageSize);
                         break;
                     default:
                         throw new Exception("Unhandled Picture Type:  WebImageControl.cs");

@@ -68,7 +68,7 @@ namespace AudioStation.Controls
             Reload();
         }
 
-        private void Reload()
+        private async Task Reload()
         {
             if (Thread.CurrentThread.ManagedThreadId != Application.Current.Dispatcher.Thread.ManagedThreadId)
                 Application.Current.Dispatcher.BeginInvoke(Reload, DispatcherPriority.Background);
@@ -84,10 +84,10 @@ namespace AudioStation.Controls
                 switch (this.ViewModel.Type)
                 {
                     case Core.Model.LibraryEntityType.Album:
-                        this.Source = _cacheController.GetForAlbum(this.ViewModel.Id, this.ImageSize);
+                        this.Source = await _cacheController.GetForAlbum(this.ViewModel.Id, this.ImageSize);
                         break;
                     case Core.Model.LibraryEntityType.Artist:
-                        this.Source = _cacheController.GetForArtist(this.ViewModel.Id, this.ImageSize);
+                        this.Source = await _cacheController.GetForArtist(this.ViewModel.Id, this.ImageSize);
                         break;
                     case Core.Model.LibraryEntityType.Track:
                     case Core.Model.LibraryEntityType.Genre:
