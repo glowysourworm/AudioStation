@@ -10,7 +10,7 @@
         <TabControl>
 
             <TabItem Header="Combined Tag">
-                <local:CombinedTagView />
+                <local:TagFileView />
             </TabItem>            
             
             <TabItem Header="Id3v1">

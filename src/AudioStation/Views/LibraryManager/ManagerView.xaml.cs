@@ -14,7 +14,8 @@ using AudioStation.Views.VendorEntryViews;
 using SimpleWpf.Extensions.Command;
 using SimpleWpf.IocFramework.Application.Attribute;
 
-using static TagLib.File;
+using AudioStation.ViewModels.Vendor.TagLibViewModel;
+using TagLib;
 
 namespace AudioStation.Views.LibraryManager
 {
@@ -109,16 +110,14 @@ namespace AudioStation.Views.LibraryManager
             var view = new EntryView();
 
             // Replicate TagLib's tag into our data structure
-            TagViewModel tagViewModel = new TagViewModel();
             var tagFile = TagLib.File.Create(viewModel.FileName);
             var tag = tagFile.Tag;
-
-            tag.CopyTo(tagViewModel, true);
+            var tagFileViewModel = new FileViewModel(tagFile);
 
             // Hand off the tag data to the view
-            view.CombinedTagView.DataContext= tagViewModel;
-            view.Id3v1TagView.DataContext= tagViewModel;
-            view.Id3v2TagView.DataContext= tagViewModel;
+            view.TagFileView.DataContext= tagFileViewModel;                                 // Entire File (combined tag)
+            view.Id3v1TagView.DataContext= new TagViewModel(tagFile.GetTag(TagTypes.Id3v1));    // Tag piece (will have to sync data)
+            view.Id3v2TagView.DataContext= new TagViewModel(tagFile.GetTag(TagTypes.Id3v2));    // Tag piece (will have to sync data)
 
             tabItem.Content = view;
 

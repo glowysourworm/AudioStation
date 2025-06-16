@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:fa5="http://schemas.fontawesome.com/icons/"
              xmlns:controls="clr-namespace:AudioStation.Controls"
+             xmlns:propertyGrid="clr-namespace:AudioStation.Controls.PropertyGrid"
              xmlns:local="clr-namespace:AudioStation.Views">
     <!-- Music Brainz Fields -->
     <StackPanel>
@@ -60,34 +61,34 @@
         </Grid>
 
         <!-- Id -->
-        <controls:PropertyStringControl Margin="3" LabelText="Music Brainz Id" LabelColumnWidth="200" LabelForeground="Gray" Value="{Binding MusicBrainzRecord.Id}" IsReadOnly="True" />
+        <propertyGrid:PropertyStringControl Margin="3" LabelText="Music Brainz Id" LabelColumnWidth="200" LabelForeground="Gray" Value="{Binding MusicBrainzRecord.Id}" IsReadOnly="True" />
 
         <!-- Score -->
-        <controls:PropertyStringControl Margin="3" LabelText="Music Brainz Id" LabelColumnWidth="200" LabelForeground="Gray" Value="{Binding MusicBrainzRecord.Score}" IsReadOnly="True" />
+        <propertyGrid:PropertyStringControl Margin="3" LabelText="Music Brainz Id" LabelColumnWidth="200" LabelForeground="Gray" Value="{Binding MusicBrainzRecord.Score}" IsReadOnly="True" />
 
         <!-- Title -->
-        <controls:PropertyStringControl Margin="3" LabelText="Title" LabelColumnWidth="200" LabelForeground="Gray" Value="{Binding MusicBrainzRecord.Title}" IsReadOnly="True" />
+        <propertyGrid:PropertyStringControl Margin="3" LabelText="Title" LabelColumnWidth="200" LabelForeground="Gray" Value="{Binding MusicBrainzRecord.Title}" IsReadOnly="True" />
 
         <!-- Artist(s) -->
-        <controls:PropertyStringControl Margin="3" LabelText="Artist(s)" LabelColumnWidth="200" LabelForeground="Gray" Value="{Binding MusicBrainzRecord.AlbumArtists, Converter={StaticResource StringArrayConverter}}" IsReadOnly="True" />
+        <propertyGrid:PropertyStringControl Margin="3" LabelText="Artist(s)" LabelColumnWidth="200" LabelForeground="Gray" Value="{Binding MusicBrainzRecord.AlbumArtists, Converter={StaticResource StringArrayConverter}}" IsReadOnly="True" />
 
         <!-- Album -->
-        <controls:PropertyStringControl Margin="3" LabelText="Album" LabelColumnWidth="200" LabelForeground="Gray" Value="{Binding MusicBrainzRecord.Album}" IsReadOnly="True" />
+        <propertyGrid:PropertyStringControl Margin="3" LabelText="Album" LabelColumnWidth="200" LabelForeground="Gray" Value="{Binding MusicBrainzRecord.Album}" IsReadOnly="True" />
 
         <!-- Year -->
-        <controls:PropertyStringControl Margin="3" LabelText="Year" LabelColumnWidth="200" LabelForeground="Gray" Value="{Binding MusicBrainzRecord.Year}" IsReadOnly="True" />
+        <propertyGrid:PropertyStringControl Margin="3" LabelText="Year" LabelColumnWidth="200" LabelForeground="Gray" Value="{Binding MusicBrainzRecord.Year}" IsReadOnly="True" />
 
         <!-- Genre(s) -->
-        <controls:PropertyStringControl Margin="3" LabelText="Genre(s)" LabelColumnWidth="200" LabelForeground="Gray" Value="{Binding MusicBrainzRecord.Genres, Converter={StaticResource StringArrayConverter}}" IsReadOnly="True" />
+        <propertyGrid:PropertyStringControl Margin="3" LabelText="Genre(s)" LabelColumnWidth="200" LabelForeground="Gray" Value="{Binding MusicBrainzRecord.Genres, Converter={StaticResource StringArrayConverter}}" IsReadOnly="True" />
 
         <!-- Disc -->
-        <controls:PropertyStringControl Margin="3" LabelText="Disc #" LabelColumnWidth="200" LabelForeground="Gray" Value="{Binding MusicBrainzRecord.Disc}" IsReadOnly="True" />
+        <propertyGrid:PropertyStringControl Margin="3" LabelText="Disc #" LabelColumnWidth="200" LabelForeground="Gray" Value="{Binding MusicBrainzRecord.Disc}" IsReadOnly="True" />
 
         <!-- Disc -->
-        <controls:PropertyStringControl Margin="3" LabelText="Disc Count" LabelColumnWidth="200" LabelForeground="Gray" Value="{Binding MusicBrainzRecord.DiscCount}" IsReadOnly="True" />
+        <propertyGrid:PropertyStringControl Margin="3" LabelText="Disc Count" LabelColumnWidth="200" LabelForeground="Gray" Value="{Binding MusicBrainzRecord.DiscCount}" IsReadOnly="True" />
 
         <!-- Track -->
-        <controls:PropertyStringControl Margin="3" LabelText="Track" LabelColumnWidth="200" LabelForeground="Gray" Value="{Binding MusicBrainzRecord.Track}" IsReadOnly="True" />
+        <propertyGrid:PropertyStringControl Margin="3" LabelText="Track" LabelColumnWidth="200" LabelForeground="Gray" Value="{Binding MusicBrainzRecord.Track}" IsReadOnly="True" />
 
     </StackPanel>
 

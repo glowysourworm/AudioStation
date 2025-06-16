@@ -1,8 +1,12 @@
 ﻿using System.ComponentModel;
 
+using AutoMapper;
+
+using SimpleWpf.ObjectMapping;
+
 using TagLib;
 
-namespace AudioStation.ViewModels.Vendor
+namespace AudioStation.ViewModels.Vendor.TagLibViewModel
 {
     /// <summary>
     /// TagLib (shared) view model:  It appears that the Tag (abstract) base class is a shared
@@ -527,7 +531,15 @@ namespace AudioStation.ViewModels.Vendor
 
         public TagViewModel()
         {
-            
+        }
+        public TagViewModel(TagLib.Tag tag)
+        {
+            var config = new MapperConfiguration(cfg => cfg.CreateMap<TagLib.Tag, TagViewModel>(MemberList.Destination));
+            var mapper = config.CreateMapper();
+
+            mapper.Map(tag, this, typeof(TagLib.Tag), typeof(TagViewModel));
+
+            _tagTypes = tag.TagTypes;
         }
     }
 }

@@ -13,13 +13,17 @@
         <converter:MetaEntryConverter x:Key="MetaEntryConverter" />
 
         <!-- SimpleWpf.UI Converters -->
+        <simpleConverter:BoolInverseConverter x:Key="BoolInverseConverter" />
         <simpleConverter:BoolVisibilityCollapseConverter x:Key="BoolVisibilityCollapseConverter" />
         <simpleConverter:BoolInverseVisibilityCollapseConverter x:Key="BoolInverseVisibilityCollapseConverter" />
+        <simpleConverter:EnumObservableCollectionConverter x:Key="EnumObservableCollectionConverter" />
         <simpleConverter:NonNullVisibilityConverter x:Key="NonNullVisibilityConverter" />
         <simpleConverter:ParameterEqualityBoolConverter x:Key="ParameterEqualityBoolConverter" />
         <simpleConverter:ParameterProviderBoolConverter x:Key="ParameterProviderBoolConverter" />
         <simpleConverter:ParameterVisibilityCollapsedConverter x:Key="ParameterVisibilityCollapsedConverter" />
         <simpleConverter:ParameterVisibilityCollapsedInverseConverter x:Key="ParameterVisibilityCollapsedInverseConverter" />
+
+        <simpleConverter:BoolORParameterMultiConverter x:Key="BoolORParameterMultiConverter" />
 
         <!-- Template Selectors -->
         <templateSelector:LibraryWorkItemTemplateSelector x:Key="LibraryWorkItemTemplateSelector" />

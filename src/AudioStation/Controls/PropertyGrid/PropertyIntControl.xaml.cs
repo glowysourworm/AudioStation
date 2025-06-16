@@ -2,24 +2,24 @@
 using System.Windows.Controls;
 using System.Windows.Media;
 
-namespace AudioStation.Controls
+namespace AudioStation.Controls.PropertyGrid
 {
-    public partial class PropertyStringControl : UserControl
+    public partial class PropertyIntControl : UserControl
     {
         public static readonly DependencyProperty LabelTextProperty =
-            DependencyProperty.Register("LabelText", typeof(string), typeof(PropertyStringControl));
+            DependencyProperty.Register("LabelText", typeof(string), typeof(PropertyIntControl));
 
         public static readonly DependencyProperty LabelColumnWidthProperty =
-            DependencyProperty.Register("LabelColumnWidth", typeof(double), typeof(PropertyStringControl), new PropertyMetadata(150.0D));
+            DependencyProperty.Register("LabelColumnWidth", typeof(double), typeof(PropertyIntControl), new PropertyMetadata(150.0D));
 
         public static readonly DependencyProperty LabelForegroundProperty =
-            DependencyProperty.Register("LabelForeground", typeof(Brush), typeof(PropertyStringControl), new PropertyMetadata(Brushes.Black));
+            DependencyProperty.Register("LabelForeground", typeof(Brush), typeof(PropertyIntControl), new PropertyMetadata(Brushes.Black));
 
         public static readonly DependencyProperty ValueProperty =
-            DependencyProperty.Register("Value", typeof(string), typeof(PropertyStringControl));
+            DependencyProperty.Register("Value", typeof(int), typeof(PropertyIntControl));
 
         public static readonly DependencyProperty IsReadOnlyProperty =
-            DependencyProperty.Register("IsReadOnly", typeof(bool), typeof(PropertyStringControl));
+            DependencyProperty.Register("IsReadOnly", typeof(bool), typeof(PropertyIntControl));
 
         public string LabelText
         {
@@ -36,9 +36,9 @@ namespace AudioStation.Controls
             get { return (Brush)GetValue(LabelForegroundProperty); }
             set { SetValue(LabelForegroundProperty, value); }
         }
-        public string Value
+        public int Value
         {
-            get { return (string)GetValue(ValueProperty); }
+            get { return (int)GetValue(ValueProperty); }
             set { SetValue(ValueProperty, value); }
         }
         public bool IsReadOnly
@@ -47,7 +47,7 @@ namespace AudioStation.Controls
             set { SetValue(IsReadOnlyProperty, value); }
         }
 
-        public PropertyStringControl()
+        public PropertyIntControl()
         {
             InitializeComponent();
         }
