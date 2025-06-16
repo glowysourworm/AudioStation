@@ -9,6 +9,10 @@
     <Grid>
         <TabControl>
 
+            <TabItem Header="Combined Tag">
+                <local:CombinedTagView />
+            </TabItem>            
+            
             <TabItem Header="Id3v1">
                 <local:Id3v1TagView />
             </TabItem>

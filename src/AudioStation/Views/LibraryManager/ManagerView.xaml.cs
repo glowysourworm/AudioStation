@@ -7,11 +7,14 @@ using AudioStation.Component;
 using AudioStation.Controls;
 using AudioStation.ViewModels;
 using AudioStation.ViewModels.LibraryViewModels;
+using AudioStation.ViewModels.Vendor;
 using AudioStation.Views.LibraryEntryViews;
 using AudioStation.Views.VendorEntryViews;
 
 using SimpleWpf.Extensions.Command;
 using SimpleWpf.IocFramework.Application.Attribute;
+
+using static TagLib.File;
 
 namespace AudioStation.Views.LibraryManager
 {
@@ -100,8 +103,24 @@ namespace AudioStation.Views.LibraryManager
             var tabItem = new TabItemPressable();
             tabItem.Style = App.Current.Resources["ManagerTabItemStyle"] as Style;
             tabItem.Header = GetFileTabName(viewModel);
-            tabItem.Content = new EntryView();
             tabItem.DataContext = viewModel;
+
+            // Entry View
+            var view = new EntryView();
+
+            // Replicate TagLib's tag into our data structure
+            TagViewModel tagViewModel = new TagViewModel();
+            var tagFile = TagLib.File.Create(viewModel.FileName);
+            var tag = tagFile.Tag;
+
+            tag.CopyTo(tagViewModel, true);
+
+            // Hand off the tag data to the view
+            view.CombinedTagView.DataContext= tagViewModel;
+            view.Id3v1TagView.DataContext= tagViewModel;
+            view.Id3v2TagView.DataContext= tagViewModel;
+
+            tabItem.Content = view;
 
             // TODO: Can't bind because of command parameter.
             tabItem.CloseCommand = new SimpleCommand(() =>

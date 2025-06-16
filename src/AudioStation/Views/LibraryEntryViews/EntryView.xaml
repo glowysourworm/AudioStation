@@ -8,14 +8,18 @@
 
         <TabItem Header="Local (Database)">
             <local:LocalEntryView />
-        </TabItem>        
-        
+        </TabItem>
+
+        <TabItem Header="File (Combined Tag)">
+            <vendorView:CombinedTagView x:Name="CombinedTagView" />
+        </TabItem>
+
         <TabItem Header="File (Id3v1)">
-            <vendorView:Id3v1TagView />
+            <vendorView:Id3v1TagView x:Name="Id3v1TagView" />
         </TabItem>
 
         <TabItem Header="File (Id3v2)">
-            <vendorView:Id3v2TagView />
+            <vendorView:Id3v2TagView x:Name="Id3v2TagView" />
         </TabItem>
 
     </TabControl>
