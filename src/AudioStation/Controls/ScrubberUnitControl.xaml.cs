@@ -7,19 +7,19 @@ namespace AudioStation.Controls
     public partial class ScrubberUnitControl : UserControl
     {
         public static readonly DependencyProperty CurrentOffsetProperty =
-            DependencyProperty.Register("CurrentOffset", typeof(float), typeof(ScrubberUnitControl));
+            DependencyProperty.Register("CurrentOffset", typeof(float), typeof(ScrubberUnitControl), new PropertyMetadata(0.0f));
 
         public static readonly DependencyProperty ScrubberHandleBrushProperty =
-            DependencyProperty.Register("ScrubberHandleBrush", typeof(Brush), typeof(ScrubberUnitControl));
+            DependencyProperty.Register("ScrubberHandleBrush", typeof(Brush), typeof(ScrubberUnitControl), new PropertyMetadata(Brushes.Black));
 
         public static readonly DependencyProperty ScrubberTimelineBrushProperty =
-            DependencyProperty.Register("ScrubberTimelineBrush", typeof(Brush), typeof(ScrubberUnitControl));
+            DependencyProperty.Register("ScrubberTimelineBrush", typeof(Brush), typeof(ScrubberUnitControl), new PropertyMetadata(Brushes.Black));
 
         public static readonly DependencyProperty ScrubberTimelineSizeProperty =
-            DependencyProperty.Register("ScrubberTimelineSize", typeof(int), typeof(ScrubberUnitControl));
+            DependencyProperty.Register("ScrubberTimelineSize", typeof(int), typeof(ScrubberUnitControl), new PropertyMetadata(5));
 
         public static readonly DependencyProperty ScrubberHandleSizeProperty =
-            DependencyProperty.Register("ScrubberHandleSize", typeof(int), typeof(ScrubberUnitControl));
+            DependencyProperty.Register("ScrubberHandleSize", typeof(int), typeof(ScrubberUnitControl), new PropertyMetadata(15));
 
         public float CurrentOffset
         {
@@ -57,7 +57,9 @@ namespace AudioStation.Controls
         {
             base.OnRenderSizeChanged(sizeInfo);
 
-            this.ScrubberCursor.Margin = new Thickness(sizeInfo.NewSize.Width * this.CurrentOffset, 0, 0, 0);
+            if (!double.IsNaN(sizeInfo.NewSize.Width) &&
+                !double.IsNaN(this.CurrentOffset))
+                this.ScrubberCursor.Margin = new Thickness(sizeInfo.NewSize.Width * this.CurrentOffset, 0, 0, 0);
         }
     }
 }

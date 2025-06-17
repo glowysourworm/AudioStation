@@ -1,6 +1,9 @@
-﻿using System.Windows;
+﻿using System.Collections.ObjectModel;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+
+using SimpleWpf.Extensions.ObservableCollection;
 
 namespace AudioStation.Controls.PropertyGrid
 {
@@ -16,7 +19,7 @@ namespace AudioStation.Controls.PropertyGrid
             DependencyProperty.Register("LabelForeground", typeof(Brush), typeof(PropertyStringEnumerableControl), new PropertyMetadata(Brushes.Black));
 
         public static readonly DependencyProperty ValueProperty =
-            DependencyProperty.Register("Value", typeof(IEnumerable<string>), typeof(PropertyStringEnumerableControl));
+            DependencyProperty.Register("Value", typeof(IEnumerable<string>), typeof(PropertyStringEnumerableControl), new PropertyMetadata(OnValueChanged));
 
         public static readonly DependencyProperty IsReadOnlyProperty =
             DependencyProperty.Register("IsReadOnly", typeof(bool), typeof(PropertyStringEnumerableControl));
@@ -50,6 +53,18 @@ namespace AudioStation.Controls.PropertyGrid
         public PropertyStringEnumerableControl()
         {
             InitializeComponent();
+        }
+
+        private static void OnValueChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            var control = (PropertyStringEnumerableControl)d;
+
+            if (control != null && 
+                e.NewValue != null &&
+                e.NewValue is IEnumerable<string>)
+            {
+
+            }
         }
     }
 }

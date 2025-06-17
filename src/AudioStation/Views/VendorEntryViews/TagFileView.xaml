@@ -1,103 +1,182 @@
 ﻿<UserControl x:Class="AudioStation.Views.VendorEntryViews.TagFileView"
+             x:Name="TheTagFileView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:AudioStation.Views.VendorEntryViews"
              xmlns:simpleUI="clr-namespace:SimpleWpf.UI.Controls;assembly=SimpleWpf.UI"
              xmlns:simpleUIModel="clr-namespace:SimpleWpf.UI.Controls.Model;assembly=SimpleWpf.UI"
              xmlns:propertyGrid="clr-namespace:AudioStation.Controls.PropertyGrid"
+             xmlns:controls="clr-namespace:AudioStation.Controls"
              xmlns:system="clr-namespace:System;assembly=System"
              xmlns:tagLib="clr-namespace:TagLib;assembly=taglib-sharp">
-    
+
     <!-- Represents the entire TagLib.File object (with combined tag) -->
-    <Grid>
+    <ScrollViewer HorizontalScrollBarVisibility="Auto"
+                  VerticalScrollBarVisibility="Auto"
+                  CanContentScroll="True">
+        <Border>
+            <Grid>
 
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto" />
-            <ColumnDefinition Width="Auto" />
-            <ColumnDefinition Width="Auto" />
-        </Grid.ColumnDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="200" />
+                    <ColumnDefinition Width="350" />
+                    <ColumnDefinition Width="350" />
+                    <ColumnDefinition Width="350" />
+                    <ColumnDefinition Width="350" />
+                    <ColumnDefinition Width="450" />
+                    <ColumnDefinition Width="350" />
+                    <ColumnDefinition Width="600" />
+                </Grid.ColumnDefinitions>
 
-        <!-- Properties -->
-        <GroupBox Header="Mp3 File Properties" Width="400">
-            <ItemsControl>
-                <!-- Read-Only File Properties -->
-                <propertyGrid:PropertyStringControl LabelText="Name" Value="{Binding Name}" IsReadOnly="True" />
-                <propertyGrid:PropertyStringControl LabelText="File Length" Value="{Binding Length}" IsReadOnly="True" />
-                <propertyGrid:PropertyStringControl LabelText="Mime Type" Value="{Binding MimeType}" IsReadOnly="True" />
-                <propertyGrid:PropertyBooleanControl LabelText="Possibly Corrupt" Value="{Binding PossiblyCorrupt}" IsReadOnly="True" />
-                <ItemsControl ItemsSource="{Binding CorruptReasons}" />
-
-                <!-- File Properties -->
-                <propertyGrid:PropertyStringControl LabelText="Media Types" Value="{Binding Properties.MediaTypes}" IsReadOnly="True" />
-                <propertyGrid:PropertyStringControl LabelText="Description" Value="{Binding Properties.Description}" IsReadOnly="False" />
-                <propertyGrid:PropertyStringControl LabelText="Duration" Value="{Binding Properties.Duration, StringFormat={}{0:hh}:{0:mm}:{0:ss}}" IsReadOnly="True" />
-
-                <propertyGrid:PropertyStringControl LabelText="Audio Bitrate" Value="{Binding Properties.AudioBitrate}" IsReadOnly="True" />
-                <propertyGrid:PropertyStringControl LabelText="Audio Sample Rate" Value="{Binding Properties.AudioSampleRate}" IsReadOnly="True" />
-                <propertyGrid:PropertyStringControl LabelText="Audio Channels" Value="{Binding Properties.AudioChannels}" IsReadOnly="True" />
-
-                <propertyGrid:PropertyStringControl LabelText="Video Height" Value="{Binding Properties.VideoHeight}" IsReadOnly="True" />
-                <propertyGrid:PropertyStringControl LabelText="Video Width" Value="{Binding Properties.VideoWidth}" IsReadOnly="True" />
-
-                <propertyGrid:PropertyStringControl LabelText="Photo Quality" Value="{Binding Properties.PhotoQuality}" IsReadOnly="True" />
-                <propertyGrid:PropertyStringControl LabelText="Photo Height" Value="{Binding Properties.PhotoHeight}" IsReadOnly="True" />
-                <propertyGrid:PropertyStringControl LabelText="Photo Width" Value="{Binding Properties.PhotoWidth}" IsReadOnly="True" />
-            </ItemsControl>
-        </GroupBox>
-
-        <!-- Tag Type(s) -->
-        <GroupBox Header="Tag Types on File" Grid.Column="1">
-            <ItemsControl ItemsSource="{Binding Tag.TagTypes, Converter={StaticResource EnumObservableCollectionConverter}}">
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate DataType="{x:Type simpleUIModel:EnumItem}">
-                        <Grid ToolTip="{Binding Description}">
-                            <Grid.Visibility>
-                                <MultiBinding Converter="{StaticResource BoolORParameterMultiConverter}"
+                <!-- Tag Type(s) -->
+                <GroupBox Header="Tag Types on File" Grid.Column="0">
+                    <ItemsControl ItemsSource="{Binding Tag.TagTypes, Converter={StaticResource EnumObservableCollectionConverter}}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate DataType="{x:Type simpleUIModel:EnumItem}">
+                                <Grid ToolTip="{Binding Description}">
+                                    <Grid.Visibility>
+                                        <MultiBinding Converter="{StaticResource BoolORParameterMultiConverter}"
                                               ConverterParameter="{x:Static Visibility.Collapsed}">
-                                    <Binding Path="Name" Converter="{StaticResource ParameterEqualityBoolConverter}" ConverterParameter="None" />
-                                    <Binding Path="Name" Converter="{StaticResource ParameterEqualityBoolConverter}" ConverterParameter="AllTags" />
-                                </MultiBinding>
-                            </Grid.Visibility>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="*" />
-                            </Grid.ColumnDefinitions>
-                            <CheckBox IsChecked="{Binding IsChecked, Mode=TwoWay}" IsEnabled="False" Margin="5" VerticalAlignment="Center" />
-                            <TextBlock Text="{Binding DisplayName}" Grid.Column="1" Margin="5" VerticalAlignment="Center" />
-                        </Grid>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-        </GroupBox>
-        
-        <!-- Tag Information (Combined) -->
-        <GroupBox Header="Mp3 Tag (Combined)" Grid.Column="2" Width="300">
-            <ItemsControl>
+                                            <Binding Path="Name" Converter="{StaticResource ParameterEqualityBoolConverter}" ConverterParameter="None" />
+                                            <Binding Path="Name" Converter="{StaticResource ParameterEqualityBoolConverter}" ConverterParameter="AllTags" />
+                                        </MultiBinding>
+                                    </Grid.Visibility>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <CheckBox IsChecked="{Binding IsChecked, Mode=TwoWay}" IsEnabled="False" Margin="5" VerticalAlignment="Center" />
+                                    <TextBlock Text="{Binding DisplayName}" Grid.Column="1" Margin="5" VerticalAlignment="Center" />
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </GroupBox>
+
+                <!-- Properties -->
+                <GroupBox Header="Properties" Grid.Column="1">
+                    <ItemsControl>
+
+                        <propertyGrid:PropertyStringControl LabelText="Name" Value="{Binding Name}" IsReadOnly="True" />
+                        <propertyGrid:PropertyStringControl LabelText="File Length" Value="{Binding Length}" IsReadOnly="True" />
+                        <propertyGrid:PropertyStringControl LabelText="Mime Type" Value="{Binding MimeType}" IsReadOnly="True" />
+                        <propertyGrid:PropertyBooleanControl LabelText="Possibly Corrupt" Value="{Binding PossiblyCorrupt}" IsReadOnly="False" />
+                        <propertyGrid:PropertyStringEnumerableControl LabelText="Corrupt Reasons" 
+                                                                  Value="{Binding CorruptReasons, Converter={StaticResource IEnumerableToObservableCollectionParameterConverter}, ConverterParameter={x:Type system:String}}" 
+                                                                  IsReadOnly="False" />
+
+                        <propertyGrid:PropertyStringControl LabelText="Media Types" Value="{Binding Properties.MediaTypes}" IsReadOnly="True" />
+                        <propertyGrid:PropertyStringControl LabelText="Description" Value="{Binding Properties.Description}" IsReadOnly="False" />
+                        <propertyGrid:PropertyStringControl LabelText="Duration" Value="{Binding Properties.Duration, StringFormat={}{0:hh}:{0:mm}:{0:ss}}" IsReadOnly="True" />
+
+                        <propertyGrid:PropertyStringControl LabelText="Audio Bitrate" Value="{Binding Properties.AudioBitrate}" IsReadOnly="True" />
+                        <propertyGrid:PropertyStringControl LabelText="Audio Sample Rate" Value="{Binding Properties.AudioSampleRate}" IsReadOnly="True" />
+                        <propertyGrid:PropertyStringControl LabelText="Audio Channels" Value="{Binding Properties.AudioChannels}" IsReadOnly="True" />
+
+                        <propertyGrid:PropertyStringControl LabelText="Video Height" Value="{Binding Properties.VideoHeight}" IsReadOnly="True" />
+                        <propertyGrid:PropertyStringControl LabelText="Video Width" Value="{Binding Properties.VideoWidth}" IsReadOnly="True" />
+
+                        <propertyGrid:PropertyStringControl LabelText="Photo Quality" Value="{Binding Properties.PhotoQuality}" IsReadOnly="True" />
+                        <propertyGrid:PropertyStringControl LabelText="Photo Height" Value="{Binding Properties.PhotoHeight}" IsReadOnly="True" />
+                        <propertyGrid:PropertyStringControl LabelText="Photo Width" Value="{Binding Properties.PhotoWidth}" IsReadOnly="True" />
+                    </ItemsControl>
+                </GroupBox>
+
+                <GroupBox Header="Primary Track Information" Grid.Column="2">
+                    <StackPanel>
+                        <propertyGrid:PropertyStringControl LabelText="Title" Value="{Binding Tag.Title}" IsReadOnly="False" />
+                        <propertyGrid:PropertyStringControl LabelText="Album" Value="{Binding Tag.Album}" IsReadOnly="False" />
+                        <propertyGrid:PropertyStringEnumerableControl LabelText="Artists" 
+                                                                  Value="{Binding Tag.Artists, Converter={StaticResource ArrayToObservableCollectionParameterConverter}, ConverterParameter={x:Type system:String}}" IsReadOnly="False" />
+
+                        <propertyGrid:PropertyStringEnumerableControl LabelText="Album Artists" 
+                                                                  Value="{Binding Tag.AlbumArtists, Converter={StaticResource ArrayToObservableCollectionParameterConverter}, ConverterParameter={x:Type system:String}}" IsReadOnly="False" />
+
+                        <propertyGrid:PropertyStringEnumerableControl LabelText="Performers" Value="{Binding Tag.Performers, Converter={StaticResource ArrayToObservableCollectionParameterConverter}, ConverterParameter={x:Type system:String}}" IsReadOnly="False" />
+                        <propertyGrid:PropertyStringEnumerableControl LabelText="Composers" Value="{Binding Tag.Composers, Converter={StaticResource ArrayToObservableCollectionParameterConverter}, ConverterParameter={x:Type system:String}}" IsReadOnly="False" />
+                        <propertyGrid:PropertyUIntControl LabelText="Beats Per Minute" Value="{Binding Tag.BeatsPerMinute}" IsReadOnly="False" />
+                        <propertyGrid:PropertyStringControl LabelText="Conductor" Value="{Binding Tag.Conductor}" IsReadOnly="False" />
+                        <propertyGrid:PropertyUIntControl LabelText="Year" Value="{Binding Tag.Year}" IsReadOnly="False" />
+                        <propertyGrid:PropertyUIntControl LabelText="Track" Value="{Binding Tag.Track}" IsReadOnly="False" />
+                        <propertyGrid:PropertyUIntControl LabelText="Track Count" Value="{Binding Tag.TrackCount}" IsReadOnly="False" />
+                        <propertyGrid:PropertyUIntControl LabelText="Disc" Value="{Binding Tag.Disc}" IsReadOnly="False" />
+                        <propertyGrid:PropertyUIntControl LabelText="Disc Count" Value="{Binding Tag.DiscCount}" IsReadOnly="False" />
+                        <propertyGrid:PropertyStringEnumerableControl LabelText="Genres" Value="{Binding Tag.Genres, Converter={StaticResource ArrayToObservableCollectionParameterConverter}, ConverterParameter={x:Type system:String}}" IsReadOnly="False" />
+                        <propertyGrid:PropertyStringControl LabelText="Grouping (Tags)" Value="{Binding Tag.Grouping}" IsReadOnly="False" />
+                        <propertyGrid:PropertyStringControl LabelText="Copyright" Value="{Binding Tag.Copyright}" IsReadOnly="False" />
+                    </StackPanel>
+                </GroupBox>
+
+                <GroupBox Header="Sorting" Grid.Column="3">
+                    <StackPanel>
+                        <propertyGrid:PropertyStringControl LabelText="Title (Sort)" Value="{Binding Tag.TitleSort}" IsReadOnly="False" />
+                        <propertyGrid:PropertyStringControl LabelText="Album (Sort)" Value="{Binding Tag.AlbumSort}" IsReadOnly="False" />
+                        <propertyGrid:PropertyStringEnumerableControl LabelText="Album Artists (Sort)" Value="{Binding Tag.AlbumArtistsSort, Converter={StaticResource ArrayToObservableCollectionParameterConverter}, ConverterParameter={x:Type system:String}}" IsReadOnly="False" />
+                        <propertyGrid:PropertyStringEnumerableControl LabelText="Performers (Sort)" Value="{Binding Tag.PerformersSort, Converter={StaticResource ArrayToObservableCollectionParameterConverter}, ConverterParameter={x:Type system:String}}" IsReadOnly="False" />
+                        <propertyGrid:PropertyStringEnumerableControl LabelText="Composers (Sort)" Value="{Binding Tag.ComposersSort, Converter={StaticResource ArrayToObservableCollectionParameterConverter}, ConverterParameter={x:Type system:String}}" IsReadOnly="False" />
+                        <propertyGrid:PropertyStringEnumerableControl LabelText="Genres (Sort)" Value="{Binding Tag.GenresSort, Converter={StaticResource ArrayToObservableCollectionParameterConverter}, ConverterParameter={x:Type system:String}}" IsReadOnly="False" />
+                    </StackPanel>
+                </GroupBox>
+
+                <GroupBox Header="Comments" Grid.Column="4">
+                    <controls:MultilineTextBox Value="{Binding Tag.Comment}" MaxLength="1000"  IsReadOnly="False" />
+                </GroupBox>
+
+                <GroupBox Header="Lyrics" Grid.Column="5" Height="{Binding Height, ElementName=TheTagFileView}">
+                    <controls:MultilineTextBox MaxLength="5000" 
+                                               Value="{Binding Tag.Lyrics}" 
+                                               IsReadOnly="False" />
+                </GroupBox>
+
+                <!-- Vendor Information -->
+                <GroupBox Header="3rd Party Information" Grid.Column="6">
+                    <StackPanel>
+
+                        <GroupBox Header="Amazon">
+                            <propertyGrid:PropertyStringControl LabelText="Amazon Id" Value="{Binding Tag.AmazonId}" IsReadOnly="False" />
+                        </GroupBox>
+
+                        <GroupBox Header="MusicIP">
+                            <propertyGrid:PropertyStringControl LabelText="MusicIP Id" Value="{Binding Tag.MusicIpId}" IsReadOnly="False" />
+                        </GroupBox>
+
+                        <GroupBox Header="Music Brainz">
+                            <StackPanel>
+                                <propertyGrid:PropertyStringControl LabelText="Track Id" Value="{Binding Tag.MusicBrainzTrackId}" IsReadOnly="False" />
+                                <propertyGrid:PropertyStringControl LabelText="Artist Id" Value="{Binding Tag.MusicBrainzArtistId}" IsReadOnly="False" />
+                                <propertyGrid:PropertyStringControl LabelText="Disc Id" Value="{Binding Tag.MusicBrainzDiscId}" IsReadOnly="False" />
+                                <propertyGrid:PropertyStringControl LabelText="Release Id" Value="{Binding Tag.MusicBrainzReleaseId}" IsReadOnly="False" />
+                                <propertyGrid:PropertyStringControl LabelText="Release Artist Id" Value="{Binding Tag.MusicBrainzReleaseArtistId}" IsReadOnly="False" />
+                                <propertyGrid:PropertyStringControl LabelText="Release Status" Value="{Binding Tag.MusicBrainzReleaseStatus}" IsReadOnly="False" />
+                                <propertyGrid:PropertyStringControl LabelText="Release Type" Value="{Binding Tag.MusicBrainzReleaseType}" IsReadOnly="False" />
+                                <propertyGrid:PropertyStringControl LabelText="Release Country" Value="{Binding Tag.MusicBrainzReleaseCountry}" IsReadOnly="False" />
+                            </StackPanel>
+                        </GroupBox>
+
+                        <GroupBox Header="ReplayGain">
+                            <StackPanel>
+                                <propertyGrid:PropertyDoubleSliderControl LabelText="Track Gain" Value="{Binding Tag.ReplayGainTrackGain}" IsReadOnly="False" />
+                                <propertyGrid:PropertyDoubleSliderControl LabelText="Track Peak" Value="{Binding Tag.ReplayGainTrackPeak}" IsReadOnly="False" />
+                                <propertyGrid:PropertyDoubleSliderControl LabelText="Album Gain" Value="{Binding Tag.ReplayGainAlbumGain}" IsReadOnly="False" />
+                                <propertyGrid:PropertyDoubleSliderControl LabelText="Album Peak" Value="{Binding Tag.ReplayGainAlbumPeak}" IsReadOnly="False" />
+                            </StackPanel>
+                        </GroupBox>
+
+                    </StackPanel>
+                </GroupBox>
                 
-                <propertyGrid:PropertyStringControl LabelText="Album" Value="{Binding Album}" IsReadOnly="False" />
-                <propertyGrid:PropertyStringControl LabelText="Album Artists" Value="{Binding AlbumArtists}" IsReadOnly="False" />
-                <propertyGrid:PropertyStringControl LabelText="Mime Type" Value="{Binding MimeType}" IsReadOnly="True" />
-                <propertyGrid:PropertyBooleanControl LabelText="Possibly Corrupt" Value="{Binding PossiblyCorrupt}" IsReadOnly="True" />
-                <ItemsControl ItemsSource="{Binding CorruptReasons}" />
+                <!-- Artwork -->
+                <GroupBox Header="Artwork">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        
+                    </Grid>
+                </GroupBox>
 
-                <!-- File Properties -->
-                <propertyGrid:PropertyStringControl LabelText="Media Types" Value="{Binding Properties.MediaTypes}" IsReadOnly="True" />
-                <propertyGrid:PropertyStringControl LabelText="Description" Value="{Binding Properties.Description}" IsReadOnly="False" />
-                <propertyGrid:PropertyStringControl LabelText="Duration" Value="{Binding Properties.Duration, StringFormat={}{0:hh}:{0:mm}:{0:ss}}" IsReadOnly="True" />
-
-                <propertyGrid:PropertyStringControl LabelText="Audio Bitrate" Value="{Binding Properties.AudioBitrate}" IsReadOnly="True" />
-                <propertyGrid:PropertyStringControl LabelText="Audio Sample Rate" Value="{Binding Properties.AudioSampleRate}" IsReadOnly="True" />
-                <propertyGrid:PropertyStringControl LabelText="Audio Channels" Value="{Binding Properties.AudioChannels}" IsReadOnly="True" />
-
-                <propertyGrid:PropertyStringControl LabelText="Video Height" Value="{Binding Properties.VideoHeight}" IsReadOnly="True" />
-                <propertyGrid:PropertyStringControl LabelText="Video Width" Value="{Binding Properties.VideoWidth}" IsReadOnly="True" />
-
-                <propertyGrid:PropertyStringControl LabelText="Photo Quality" Value="{Binding Properties.PhotoQuality}" IsReadOnly="True" />
-                <propertyGrid:PropertyStringControl LabelText="Photo Height" Value="{Binding Properties.PhotoHeight}" IsReadOnly="True" />
-                <propertyGrid:PropertyStringControl LabelText="Photo Width" Value="{Binding Properties.PhotoWidth}" IsReadOnly="True" />
-            </ItemsControl>
-        </GroupBox>
-
-
-    </Grid>
+            </Grid>
+        </Border>
+    </ScrollViewer>
 </UserControl>

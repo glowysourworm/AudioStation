@@ -24,6 +24,8 @@
         <simpleConverter:ParameterVisibilityCollapsedInverseConverter x:Key="ParameterVisibilityCollapsedInverseConverter" />
 
         <simpleConverter:BoolORParameterMultiConverter x:Key="BoolORParameterMultiConverter" />
+        <simpleConverter:ArrayToObservableCollectionParameterConverter x:Key="ArrayToObservableCollectionParameterConverter" />
+        <simpleConverter:IEnumerableToObservableCollectionParameterConverter x:Key="IEnumerableToObservableCollectionParameterConverter" />
 
         <!-- Template Selectors -->
         <templateSelector:LibraryWorkItemTemplateSelector x:Key="LibraryWorkItemTemplateSelector" />

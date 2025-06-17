@@ -41,6 +41,15 @@
     <Compile Update="Controls\PropertyGrid\PropertyBooleanControl.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Update="Controls\PropertyGrid\PropertyDoubleSliderControl.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="Controls\PropertyGrid\PropertyUIntControl.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="Controls\PropertyGrid\PropertyStringControlMultiline.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Update="Controls\PropertyGrid\PropertyStringEnumerableControl.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
