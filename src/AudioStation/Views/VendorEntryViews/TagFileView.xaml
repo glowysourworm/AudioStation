@@ -3,12 +3,15 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:AudioStation.Views.VendorEntryViews"
+             xmlns:fa5="http://schemas.fontawesome.com/icons/"
+             xmlns:simpleEnum="clr-namespace:SimpleWpf.Extensions.BindingExtension;assembly=SimpleWpf"
              xmlns:simpleUI="clr-namespace:SimpleWpf.UI.Controls;assembly=SimpleWpf.UI"
              xmlns:simpleUIModel="clr-namespace:SimpleWpf.UI.Controls.Model;assembly=SimpleWpf.UI"
              xmlns:propertyGrid="clr-namespace:AudioStation.Controls.PropertyGrid"
              xmlns:controls="clr-namespace:AudioStation.Controls"
              xmlns:system="clr-namespace:System;assembly=System"
-             xmlns:tagLib="clr-namespace:TagLib;assembly=taglib-sharp">
+             xmlns:tagLib="clr-namespace:TagLib;assembly=taglib-sharp"
+             xmlns:controllerModel="clr-namespace:AudioStation.Controller.Model">
 
     <!-- Represents the entire TagLib.File object (with combined tag) -->
     <ScrollViewer HorizontalScrollBarVisibility="Auto"
@@ -18,7 +21,7 @@
             <Grid>
 
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="200" />
+                    <ColumnDefinition Width="350" />
                     <ColumnDefinition Width="350" />
                     <ColumnDefinition Width="350" />
                     <ColumnDefinition Width="350" />
@@ -27,31 +30,46 @@
                     <ColumnDefinition Width="350" />
                     <ColumnDefinition Width="600" />
                 </Grid.ColumnDefinitions>
+                
+                <!-- Tag File Control (Changed / Save / Is Changed / Select Tag Type Filter) -->
+                <GroupBox Header="Tag Control">
+                    <StackPanel>
+                        <propertyGrid:PropertyEnumControl EnumType="{x:Type tagLib:TagTypes}"
+                                                          Value="{Binding TagTypeUserSelect}"
+                                                          LabelText="Selected Tag Type" />
 
-                <!-- Tag Type(s) -->
-                <GroupBox Header="Tag Types on File" Grid.Column="0">
-                    <ItemsControl ItemsSource="{Binding Tag.TagTypes, Converter={StaticResource EnumObservableCollectionConverter}}">
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate DataType="{x:Type simpleUIModel:EnumItem}">
-                                <Grid ToolTip="{Binding Description}">
-                                    <Grid.Visibility>
-                                        <MultiBinding Converter="{StaticResource BoolORParameterMultiConverter}"
-                                              ConverterParameter="{x:Static Visibility.Collapsed}">
-                                            <Binding Path="Name" Converter="{StaticResource ParameterEqualityBoolConverter}" ConverterParameter="None" />
-                                            <Binding Path="Name" Converter="{StaticResource ParameterEqualityBoolConverter}" ConverterParameter="AllTags" />
-                                        </MultiBinding>
-                                    </Grid.Visibility>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto" />
-                                        <ColumnDefinition Width="*" />
-                                    </Grid.ColumnDefinitions>
-                                    <CheckBox IsChecked="{Binding IsChecked, Mode=TwoWay}" IsEnabled="False" Margin="5" VerticalAlignment="Center" />
-                                    <TextBlock Text="{Binding DisplayName}" Grid.Column="1" Margin="5" VerticalAlignment="Center" />
-                                </Grid>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
+                        <propertyGrid:PropertyEnumListControl EnumType="{x:Type tagLib:TagTypes}"
+                                                              EnumValue="{Binding TagTypes}"
+                                                              LabelText="Tag Types (File)"
+                                                              ShowZeroEnum="False"
+                                                              ShowSetEnumValuesOnly="True">
+                            <propertyGrid:PropertyEnumListControl.EnumFilter>
+                                <tagLib:TagTypes>None,AllTags</tagLib:TagTypes>
+                            </propertyGrid:PropertyEnumListControl.EnumFilter>
+                        </propertyGrid:PropertyEnumListControl>
+
+                        <propertyGrid:PropertyEnumListControl EnumType="{x:Type tagLib:TagTypes}"
+                                                              EnumValue="{Binding TagTypesOnDisk}"
+                                                              LabelText="Tag Types (On Disk)"
+                                                              ShowZeroEnum="False"
+                                                              ShowSetEnumValuesOnly="True">
+                            <propertyGrid:PropertyEnumListControl.EnumFilter>
+                                <tagLib:TagTypes>None,AllTags</tagLib:TagTypes>
+                            </propertyGrid:PropertyEnumListControl.EnumFilter>
+                        </propertyGrid:PropertyEnumListControl>
+
+                        <propertyGrid:PropertyEnumListControl EnumType="{x:Type tagLib:TagTypes}"
+                                                              EnumValue="{Binding Tag.TagTypes}"
+                                                              LabelText="Tag Types (Loaded)"
+                                                              ShowZeroEnum="False"
+                                                              ShowSetEnumValuesOnly="True">
+                            <propertyGrid:PropertyEnumListControl.EnumFilter>
+                                <tagLib:TagTypes>None,AllTags</tagLib:TagTypes>
+                            </propertyGrid:PropertyEnumListControl.EnumFilter>
+                        </propertyGrid:PropertyEnumListControl>
+                    </StackPanel>
                 </GroupBox>
+
 
                 <!-- Properties -->
                 <GroupBox Header="Properties" Grid.Column="1">
@@ -166,13 +184,66 @@
                 </GroupBox>
                 
                 <!-- Artwork -->
-                <GroupBox Header="Artwork">
+                <GroupBox Header="Artwork" Grid.Column="7">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
+
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+
+                        <!-- Artwork List Header -->
+                        <Border>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                    
+                                <TextBlock Text="Artwork List" Margin="3" VerticalAlignment="Center" />
+                                <Button fa5:Awesome.Content="Solid_Plus" 
+                                        ToolTip="Add Artwork to Tag"
+                                        Grid.Column="1" 
+                                        Style="{StaticResource SmallControlButton}" />
+                            </Grid>
+                            
+                        </Border>
                         
+                        <!-- Artwork List -->
+                        <ListBox x:Name="PictureLB" ItemsSource="{Binding Tag.Pictures}" Grid.Row="1" Width="200">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Type}" />
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                        
+                        <!-- Selected IPicture -->
+                        <StackPanel Grid.Column="1" Grid.RowSpan="2">
+                            <propertyGrid:PropertyEnumControl LabelText="Artwork Type" 
+                                                              EnumType="{x:Type tagLib:PictureType}"                                                              
+                                                              Value="{Binding SelectedItem.Type, ElementName=PictureLB}" />
+                            
+                            <controls:ImageUserSelectControl Margin="150 0 0 0" 
+                                                             Width="250" Height="250" 
+                                                             Background="AliceBlue"
+                                                             BorderBrush="LightGray"
+                                                             BorderThickness="1"
+                                                             UserImageSource="{Binding SelectedItem, ElementName=PictureLB, Converter={StaticResource TagIPictureConverter}, ConverterParameter={x:Static controllerModel:ImageCacheType.Medium}}" />
+
+                            <propertyGrid:PropertyStringControl LabelText="Mime Type" 
+                                                                Value="{Binding SelectedItem.MimeType, ElementName=PictureLB}" 
+                                                                IsReadOnly="False" />                            
+                            
+                            <propertyGrid:PropertyStringControl LabelText="Description" 
+                                                                Value="{Binding SelectedItem.Description, ElementName=PictureLB}" 
+                                                                IsReadOnly="False" />
+                        </StackPanel>
+
                     </Grid>
                 </GroupBox>
 

@@ -10,6 +10,9 @@ namespace AudioStation.ViewModels.Vendor.TagLibViewModel
 {
     public class FileViewModel : ViewModelBase
     {
+        // User Control Parameters
+        TagTypes _tagTypeUserSelect;                // User selects filter
+
         string _name;
         TagTypes _tagTypesOnDisk;
         TagTypes _tagTypes;
@@ -19,6 +22,12 @@ namespace AudioStation.ViewModels.Vendor.TagLibViewModel
         IEnumerable<string> _corruptReasons;
         TagViewModel _tag;
         PropertiesViewModel _properties;
+
+        public TagTypes TagTypeUserSelect
+        {
+            get { return _tagTypeUserSelect; }
+            set { this.RaiseAndSetIfChanged(ref _tagTypeUserSelect, value); }
+        }
 
         public TagViewModel Tag
         {
@@ -68,7 +77,9 @@ namespace AudioStation.ViewModels.Vendor.TagLibViewModel
 
         public FileViewModel()
         {
-
+            this.TagTypeUserSelect = TagTypes.AllTags;
+            this.TagTypes = TagTypes.AllTags;
+            this.TagTypesOnDisk = TagTypes.AllTags;
         }
         public FileViewModel(TagLib.File tagLibFile)
         {
@@ -76,6 +87,7 @@ namespace AudioStation.ViewModels.Vendor.TagLibViewModel
             this.Properties = new PropertiesViewModel(tagLibFile.Properties);
 
             this.Name = tagLibFile.Name;
+            this.TagTypeUserSelect = TagTypes.AllTags;
             this.TagTypesOnDisk = tagLibFile.TagTypesOnDisk;
             this.TagTypes = tagLibFile.TagTypes;
             this.MimeType = tagLibFile.MimeType;
