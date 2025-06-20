@@ -14,6 +14,7 @@ namespace AudioStation.Component.Interface
         event SimpleEventHandler PlaybackStoppedEvent;
 
         void SetVolume(float volume);
+        float GetVolume();
         void Play(string source, StreamSourceType sourceType, int bitrate, string codec);
         void Pause();
         void Stop();

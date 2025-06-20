@@ -1,4 +1,7 @@
 ﻿using System.Diagnostics;
+using System.Windows;
+using System.Windows.Media;
+using System.Windows.Threading;
 
 using AudioStation.Component.Interface;
 using AudioStation.Core.Model;
@@ -14,124 +17,86 @@ namespace AudioStation.Component
     /// </summary>
     public class SimpleMp3Player : IAudioPlayer
     {
-        private IWavePlayer _wavePlayer;
-        private Timer _timer;
-        private Stopwatch _stopwatch;                               // Stopwatch will be shared on the timer thread
-        private object _lock = new object();
-        private const int TIMER_INTERVAL_MILLISECONDS = 1000;
-        private const int TIMER_SLEEP_INTERVAL = 100;
+        const int CURRENT_TIME_UPDATE_MILLISECONDS = 10;
+
+        Timer _timer;
+        MediaPlayer _player;
+        object _lock = new object();
 
         public event SimpleEventHandler<string> MessageEvent;
         public event SimpleEventHandler<TimeSpan> PlaybackTickEvent;
-
         public event SimpleEventHandler PlaybackStoppedEvent;
 
         public SimpleMp3Player()
         {
-            _wavePlayer = null;
-            _stopwatch = new Stopwatch();
-            _timer = new Timer(new TimerCallback(TimerThread), null, 0, TIMER_INTERVAL_MILLISECONDS);
-        }
-        ~SimpleMp3Player()
-        {
-            _timer.Dispose();
-            _stopwatch.Stop();
-            _wavePlayer.Dispose();
-            _wavePlayer = null;
-            _timer = null;
+            _player = new MediaPlayer();
+            _player.MediaOpened += OnMediaOpened;
+            _player.MediaEnded += OnMediaEnded;
+
+            _timer = new Timer(OnTimerTick);
+            _timer.Change(0, Timeout.Infinite);
         }
 
-        public void SetVolume(float volume)
-        {
-            _wavePlayer.Volume = Math.Clamp(volume, 0, 1);
-        }
-
-        public void Play(string fileName, StreamSourceType sourceType, int bitrate, string codec)
-        {
-            if (sourceType != StreamSourceType.File)
-                throw new ArgumentException("Improper use of StreamMp3Player. Expecting file stream type");
-
-            // Stopwatch is shared
-            lock (_lock)
-            {
-                if (_wavePlayer != null)
-                {
-                    _stopwatch.Restart();
-                    _stopwatch.Stop();
-                    _wavePlayer.PlaybackStopped -= OnPlaybackStopped;
-                    _wavePlayer.Stop();
-                    _wavePlayer.Dispose();
-                    _wavePlayer = null;
-                }
-
-                var audioFileReader = new AudioFileReader(fileName);
-                audioFileReader.Volume = 1;
-                _wavePlayer = new WasapiOut();
-                _wavePlayer.PlaybackStopped += OnPlaybackStopped;
-                _wavePlayer.Init(audioFileReader);
-                _wavePlayer.Play();
-                _stopwatch.Start();
-            }
-        }
-
-        public void Pause()
-        {
-            lock (_lock)
-            {
-                _wavePlayer.Pause();
-                _stopwatch.Stop();
-            }
-        }
-
-        public void Stop()
-        {
-            lock (_lock)
-            {
-                _wavePlayer.Stop();
-                _stopwatch.Stop();
-            }
-        }
-
-        private void TimerThread(object? state)
-        {
-            while (true)
-            {
-                lock (_lock)
-                {
-                    if (_stopwatch.IsRunning)
-                    {
-                        if (this.PlaybackTickEvent != null)
-                        {
-                            this.PlaybackTickEvent(_stopwatch.Elapsed);
-                        }
-                    }
-                }
-
-                Thread.Sleep(TIMER_SLEEP_INTERVAL);
-            }
-        }
-
-        public PlaybackState GetPlaybackState()
-        {
-            if (_wavePlayer == null)
-                return PlaybackState.Stopped;
-
-            return _wavePlayer.PlaybackState;
-        }
-
-        private void OnPlaybackStopped(object sender, StoppedEventArgs e)
+        private void OnMediaEnded(object? sender, EventArgs e)
         {
             if (this.PlaybackStoppedEvent != null)
                 this.PlaybackStoppedEvent();
         }
 
+        private void OnMediaOpened(object? sender, EventArgs e)
+        {
+            
+        }
+
+        private void OnTimerTick(object? state)
+        {
+            Application.Current.Dispatcher.BeginInvoke(() =>
+            {
+                if (this.PlaybackTickEvent != null)
+                    this.PlaybackTickEvent(_player.Position);
+
+            }, DispatcherPriority.Background);
+        }
+
+        public void SetVolume(float volume)
+        {
+            _player.Volume = Math.Clamp(volume, 0, 1);
+        }
+        public float GetVolume()
+        {
+            return (float)_player.Volume;
+        }
+        public void Play(string fileName, StreamSourceType sourceType, int bitrate, string codec)
+        {
+            if (sourceType != StreamSourceType.File)
+                throw new ArgumentException("Improper use of StreamMp3Player. Expecting file stream type");
+
+            _timer.Change(0, CURRENT_TIME_UPDATE_MILLISECONDS);
+            _player.Open(new Uri(fileName));
+            _player.Play();
+        }
+
+        public void Pause()
+        {
+            _timer.Change(0, Timeout.Infinite);
+            _player.Pause();
+        }
+
+        public void Stop()
+        {
+            _timer.Change(0, Timeout.Infinite);
+            _player.Stop();
+        }
+
+        public PlaybackState GetPlaybackState()
+        {
+            return PlaybackState.Playing;
+        }
+
         public void Dispose()
         {
-            if (_wavePlayer != null)
-            {
-                _wavePlayer.Dispose();
-                _wavePlayer = null;
-            }
+            _timer.Dispose();
+            _player.Stop();
         }
     }
 }

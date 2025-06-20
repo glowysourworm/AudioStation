@@ -8,6 +8,7 @@ using AudioStation.Core;
 using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Event;
 using AudioStation.Core.Model;
+using AudioStation.Event;
 using AudioStation.Model;
 using AudioStation.ViewModels.Interface;
 using AudioStation.ViewModels.LibraryViewModels.Comparer;
@@ -198,6 +199,8 @@ public partial class MainViewModel : ViewModelBase, IDisposable
 
         // Event Aggregator
         eventAggregator.GetEvent<LogEvent>().Subscribe(OnLog);
+        eventAggregator.GetEvent<StartPlaybackEvent>().Subscribe(OnStartPlayback);
+        eventAggregator.GetEvent<UpdateVolumeEvent>().Subscribe(OnUpdateVolume);
 
         audioController.PlaybackStartedEvent += OnAudioControllerPlaybackStarted;
         audioController.PlaybackStoppedEvent += OnAudioControllerPlaybackStopped;
@@ -233,6 +236,17 @@ public partial class MainViewModel : ViewModelBase, IDisposable
         });
 
         outputController.AddLog("Welcome to Audio Station!", LogMessageType.General);
+    }
+
+    private void OnStartPlayback(INowPlayingViewModel model)
+    {
+        this.NowPlayingViewModel = model;       // This event should take the place of the audio controller
+                                                // events. The event aggregator should probably take the 
+                                                // place of direct events for these components.
+    }
+    private void OnUpdateVolume(double volume)
+    {
+        this.Volume = (float)volume;
     }
 
     private void OnAudioControllerPlaybackStopped(INowPlayingViewModel nowPlaying)

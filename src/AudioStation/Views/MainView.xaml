@@ -98,7 +98,7 @@
                     BorderBrush="LightGray" 
                     BorderThickness="1">
                 <Grid>
-                    <local:PlayerControlView DataContext="{Binding NowPlayingViewModel}" />
+                    <local:PlayerControlView DataContext="{Binding NowPlayingViewModel, Mode=TwoWay, NotifyOnSourceUpdated=True}" />
                 </Grid>
             </Border>
 

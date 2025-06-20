@@ -5,12 +5,14 @@ using AudioStation.Component;
 using AudioStation.Component.Interface;
 using AudioStation.Controller.Interface;
 using AudioStation.Core.Model;
+using AudioStation.Event;
 using AudioStation.ViewModels.Interface;
 
 using NAudio.Wave;
 
 using SimpleWpf.Extensions.Event;
 using SimpleWpf.IocFramework.Application.Attribute;
+using SimpleWpf.IocFramework.EventAggregation;
 
 namespace AudioStation.Controller
 {
@@ -20,13 +22,20 @@ namespace AudioStation.Controller
         public event SimpleEventHandler<INowPlayingViewModel> PlaybackStartedEvent;
         public event SimpleEventHandler<INowPlayingViewModel> PlaybackStoppedEvent;
 
+        private readonly IIocEventAggregator _eventAggregator;
         private IAudioPlayer _player;
         private INowPlayingViewModel _nowPlaying;
 
         [IocImportingConstructor]
-        public AudioController()
+        public AudioController(IIocEventAggregator eventAggregator)
         {
             _player = null;
+            _eventAggregator = eventAggregator;
+
+            eventAggregator.GetEvent<StartPlaybackEvent>().Subscribe(nowPlaying =>
+            {
+                Play(nowPlaying);
+            });
         }
 
         ~AudioController()
@@ -92,8 +101,15 @@ namespace AudioStation.Controller
 
                 _nowPlaying.CurrentTime = TimeSpan.Zero;
 
+                // Hook Events
+                _player.PlaybackStoppedEvent += OnPlaybackStopped;
+                _player.PlaybackTickEvent += OnPlaybackTick;
+
                 // START
                 _player.Play(_nowPlaying.Source, _nowPlaying.SourceType, _nowPlaying.Bitrate, _nowPlaying.Codec);
+
+                // New Player -> get volume (device) setting
+                _eventAggregator.GetEvent<UpdateVolumeEvent>().Publish(_player.GetVolume());
 
                 if (this.PlaybackStartedEvent != null)
                     this.PlaybackStartedEvent(_nowPlaying);
@@ -116,20 +132,15 @@ namespace AudioStation.Controller
         }
         private void OnPlaybackTick(TimeSpan currentTime)
         {
-            // No real life-cycle control here.. View -> Controller -> Timer (dispose)
-            if (Application.Current == null)
-            {
-                return;
-            }
-
-            Application.Current.Dispatcher.Invoke(() =>
+            if (Thread.CurrentThread.ManagedThreadId != Application.Current.Dispatcher.Thread.ManagedThreadId)
+                Application.Current.Dispatcher.Invoke(OnPlaybackTick, DispatcherPriority.Background, currentTime);
+            else
             {
                 if (_nowPlaying == null)
                     return;
 
                 _nowPlaying.CurrentTime = currentTime;
-
-            }, DispatcherPriority.Background);
+            }
         }
 
         private void OnPlaybackStopped()

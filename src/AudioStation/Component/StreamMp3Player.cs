@@ -27,7 +27,10 @@ namespace AudioStation.Component
         {
             _player.Volume = volume;
         }
-
+        public float GetVolume()
+        {
+            return (float)_player.Volume;
+        }
         public void Play(string source, StreamSourceType type, int bitrate, string codec)
         {
             if (type != StreamSourceType.Network)

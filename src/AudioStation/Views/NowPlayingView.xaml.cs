@@ -5,6 +5,7 @@ using AudioStation.Component.Interface;
 using AudioStation.Controller.Interface;
 using AudioStation.Core.Database;
 using AudioStation.Core.Model;
+using AudioStation.Event;
 using AudioStation.ViewModels;
 using AudioStation.ViewModels.LibraryViewModels;
 
@@ -19,7 +20,6 @@ namespace AudioStation.Views
     public partial class NowPlayingView : UserControl
     {
         private readonly IViewModelLoader _viewModelLoader;
-        private readonly IAudioController _audioController;
         private readonly IIocEventAggregator _eventAggregator;
 
         private int _pageNumber = 0;
@@ -30,10 +30,9 @@ namespace AudioStation.Views
         }
 
         [IocImportingConstructor]
-        public NowPlayingView(IViewModelLoader viewModelLoader, IAudioController audioController, IIocEventAggregator eventAggregator)
+        public NowPlayingView(IViewModelLoader viewModelLoader, IIocEventAggregator eventAggregator)
         {
             _viewModelLoader = viewModelLoader;
-            _audioController = audioController;
             _eventAggregator = eventAggregator;
 
             InitializeComponent();
@@ -142,10 +141,12 @@ namespace AudioStation.Views
 
         private void LoadPlaylist(LibraryEntryViewModel selectedTitle, AlbumViewModel selectedAlbum)
         {
-            _audioController.Play(new NowPlayingViewModel()
+            _eventAggregator.GetEvent<StartPlaybackEvent>().Publish(new NowPlayingViewModel()
             {
                 Album = selectedTitle.Album,
                 Artist = selectedTitle.PrimaryArtist,
+                Duration = selectedTitle.Duration,
+                CurrentTime = TimeSpan.Zero,
                 Source = selectedTitle.FileName,
                 SourceType = StreamSourceType.File,
                 Title = selectedTitle.Title

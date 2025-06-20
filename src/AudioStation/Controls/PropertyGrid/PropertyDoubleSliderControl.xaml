@@ -12,8 +12,8 @@
         <TextBlock Text="{Binding LabelText, RelativeSource={RelativeSource AncestorType=UserControl}}" 
 				   Style="{StaticResource PropertyGridLabel}" />
 
-        <local:ScrubberUnitControl Grid.Column="1" 
-				                   CurrentOffset="{Binding Value, RelativeSource={RelativeSource AncestorType=UserControl}}" 
-				                   IsEnabled="{Binding IsReadOnly, RelativeSource={RelativeSource AncestorType=UserControl}}" />
+        <local:ScrubberControl Grid.Column="1" 
+				               ScrubbedRatio="{Binding Value, RelativeSource={RelativeSource AncestorType=UserControl}}" 
+				               IsEnabled="{Binding IsReadOnly, RelativeSource={RelativeSource AncestorType=UserControl}}" />
     </Grid>
 </UserControl>

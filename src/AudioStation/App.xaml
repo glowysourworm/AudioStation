@@ -26,6 +26,8 @@
         <simpleConverter:ParameterProviderBoolConverter x:Key="ParameterProviderBoolConverter" />
         <simpleConverter:ParameterVisibilityCollapsedConverter x:Key="ParameterVisibilityCollapsedConverter" />
         <simpleConverter:ParameterVisibilityCollapsedInverseConverter x:Key="ParameterVisibilityCollapsedInverseConverter" />
+        <simpleConverter:TimeSpanMillisecondsConverter x:Key="TimeSpanMillisecondsConverter" />
+        <simpleConverter:TimeSpanRatioParameterConverter x:Key="TimeSpanRatioParameterConverter" />
 
         <simpleConverter:BoolORMultiConverter x:Key="BoolORMultiConverter" />
         <simpleConverter:BoolANDMultiConverter x:Key="BoolANDMultiConverter" />

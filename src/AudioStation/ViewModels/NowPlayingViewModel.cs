@@ -16,6 +16,7 @@ namespace AudioStation.ViewModels
         string _source;
         int _bitrate;
         string _codec;
+        double _currentTimeRatio;
 
         public string Artist
         {
@@ -35,12 +36,17 @@ namespace AudioStation.ViewModels
         public TimeSpan CurrentTime
         {
             get { return _currentTime; }
-            set { this.RaiseAndSetIfChanged(ref _currentTime, value); }
+            set { this.RaiseAndSetIfChanged(ref _currentTime, value); SetCurrentTimeRatio(); }
         }
         public TimeSpan Duration
         {
             get { return _duration; }
-            set { this.RaiseAndSetIfChanged(ref _duration, value); }
+            set { this.RaiseAndSetIfChanged(ref _duration, value); SetCurrentTimeRatio(); }
+        }
+        public double CurrentTimeRatio
+        {
+            get { return _currentTimeRatio; }
+            set { this.RaiseAndSetIfChanged(ref _currentTimeRatio, value); }
         }
         public StreamSourceType SourceType
         {
@@ -64,6 +70,13 @@ namespace AudioStation.ViewModels
             set { this.RaiseAndSetIfChanged(ref _codec, value); }
         }
 
+        private void SetCurrentTimeRatio()
+        {
+            if (this.Duration.TotalMilliseconds <= 0)
+                this.CurrentTimeRatio = 0;
+            else
+                this.CurrentTimeRatio = this.CurrentTime.TotalMilliseconds / this.Duration.TotalMilliseconds;
+        }
 
         public NowPlayingViewModel()
         {

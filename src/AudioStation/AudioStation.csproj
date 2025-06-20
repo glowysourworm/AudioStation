@@ -35,10 +35,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Event\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Compile Update="Controls\PropertyGrid\PropertyBooleanControl.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
