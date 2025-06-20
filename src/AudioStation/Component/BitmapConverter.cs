@@ -2,6 +2,8 @@
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Security.Principal;
+using System.Windows.Forms;
 using System.Windows.Media.Imaging;
 
 using AudioStation.Component.Interface;
@@ -19,22 +21,104 @@ namespace AudioStation.Component
     public class BitmapConverter : IBitmapConverter
     {
         private readonly IOutputController _outputController;
+        private readonly Random _random;
 
         [IocImportingConstructor]
         public BitmapConverter(IOutputController outputController)
         {
             _outputController = outputController;
+            _random = new Random();
         }
 
-        public BitmapSource BitmapDataToBitmapSource(byte[] buffer, ImageSize imageSize)
+        public BitmapSource BitmapDataToBitmapSource(byte[] buffer, ImageSize imageSize, string mimeType)
         {
             try
             {
                 using (var memoryStream = new MemoryStream(buffer))
                 {
-                    var bitmap = new Bitmap(memoryStream, false);
-                    return BitmapToBitmapSource(bitmap, imageSize);
+                    if (mimeType == "image/bmp")
+                    {
+                        var bitmap = new Bitmap(memoryStream, false);
+                        return BitmapToBitmapSource(bitmap, imageSize);
+                    }
+                    else if (mimeType == "image/jpeg")
+                    {
+                        var decoder = JpegBitmapDecoder.Create(memoryStream, BitmapCreateOptions.PreservePixelFormat, BitmapCacheOption.OnLoad);
+                        var bitmap = BitmapFrameToBitmapSource(decoder.Frames[0], imageSize, mimeType);
+
+                        // MEMORY LEAK!
+                        decoder = null;
+
+                        return bitmap;
+                    } 
+                    else if (mimeType == "image/png")
+                    {
+                        var decoder = PngBitmapDecoder.Create(memoryStream, BitmapCreateOptions.PreservePixelFormat, BitmapCacheOption.OnLoad);
+                        var bitmap = BitmapFrameToBitmapSource(decoder.Frames[0], imageSize, mimeType);
+
+                        // MEMORY LEAK!
+                        decoder = null;
+
+                        return bitmap;
+                    }
+                    else // Default to Bitmap
+                    {
+                        if (!string.IsNullOrEmpty(mimeType))
+                            _outputController.AddLog("Unhandled Bitmap mime/type:  {0}", LogMessageType.General, LogLevel.Warning, mimeType);
+
+                        var bitmap = new Bitmap(memoryStream, false);
+                        return BitmapToBitmapSource(bitmap, imageSize);
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                _outputController.AddLog("Error Converting Bitmap:  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
+                return null;
+            }
+        }
+
+        public BitmapSource BitmapFrameToBitmapSource(BitmapFrame bitmapFrame, ImageSize imageSize, string mimeType)
+        {
+            try
+            {
+                BitmapSource source = null;
+
+                // Save to File / Re-open
+                using (var writeStream = new MemoryStream())
+                {
+                    BitmapEncoder encoder = null;
+
+                    if (mimeType == "image/bmp")
+                    {
+                        encoder = new BmpBitmapEncoder();
+                    }
+                    else if (mimeType == "image/jpeg")
+                    {
+                        encoder = new JpegBitmapEncoder();
+                    }
+                    else if (mimeType == "image/png")
+                    {
+                        encoder = new PngBitmapEncoder();
+                    }
+                    else
+                        throw new Exception("Unhandled mime type:  BitmapConverter.cs");
+                    
+                    encoder.Frames.Add(bitmapFrame);
+                    encoder.Save(writeStream);
+
+                    writeStream.Seek(0, SeekOrigin.Begin);
+
+                    var bitmap = new Bitmap(writeStream, false);
+                    source = BitmapToBitmapSource(bitmap, imageSize);
+
+                    encoder = null;
+
+                    writeStream.Flush();
+                    writeStream.Dispose();
+                }
+
+                return source;
             }
             catch (Exception ex)
             {

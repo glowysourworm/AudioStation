@@ -67,6 +67,13 @@
                                 <tagLib:TagTypes>None,AllTags</tagLib:TagTypes>
                             </propertyGrid:PropertyEnumListControl.EnumFilter>
                         </propertyGrid:PropertyEnumListControl>
+
+                        <Button x:Name="MusicBrainzButton"
+                                Click="MusicBrainzButton_Click"
+                                Content="Find on Music Brainz" 
+                                Style="{StaticResource UserControlButton}" 
+                                HorizontalAlignment="Right" />
+
                     </StackPanel>
                 </GroupBox>
 

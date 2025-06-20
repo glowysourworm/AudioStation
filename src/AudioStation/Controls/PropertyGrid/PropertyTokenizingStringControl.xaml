@@ -1,0 +1,49 @@
+﻿<UserControl x:Class="AudioStation.Controls.PropertyGrid.PropertyTokenizingStringControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:tokenizingTB="http://iterate.ch/controls"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:AudioStation.Controls"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="{Binding LabelColumnWidth, RelativeSource={RelativeSource AncestorType=UserControl}}" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <TextBlock Text="{Binding LabelText, RelativeSource={RelativeSource AncestorType=UserControl}}" 
+				   Foreground="{Binding LabelForeground, RelativeSource={RelativeSource AncestorType=UserControl}}" 
+                   ToolTip="{Binding LabelText, RelativeSource={RelativeSource AncestorType=UserControl}}"
+				   Margin="5 0" VerticalAlignment="Center" />
+
+        <ItemsControl Grid.Column="1" 
+                      ItemsSource="{Binding Value, RelativeSource={RelativeSource AncestorType=UserControl}}">
+            
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <WrapPanel Orientation="Horizontal" IsItemsHost="True" />
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+
+            <ItemsControl.ItemContainerStyle>
+                <Style TargetType="ContentPresenter">
+                    <Setter Property="Margin" Value="3" />
+                </Style>
+            </ItemsControl.ItemContainerStyle>
+
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Border Background="{StaticResource TagBackground}" CornerRadius="5">
+                        <TextBlock Text="{Binding}" 
+                                   Foreground="{StaticResource TagForeground}" 
+                                   Margin="5"
+                                   VerticalAlignment="Center" 
+                                   HorizontalAlignment="Center" />
+                    </Border>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+    </Grid>
+</UserControl>

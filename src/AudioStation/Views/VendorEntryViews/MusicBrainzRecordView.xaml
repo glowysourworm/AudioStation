@@ -5,91 +5,95 @@
              xmlns:controls="clr-namespace:AudioStation.Controls"
              xmlns:propertyGrid="clr-namespace:AudioStation.Controls.PropertyGrid"
              xmlns:local="clr-namespace:AudioStation.Views">
-    <!-- Music Brainz Fields -->
-    <StackPanel>
-
-        <Border x:Name="HeaderBorder">
-
+    
+    <!-- Music Brainz Combined Data -->
+    <ScrollViewer HorizontalScrollBarVisibility="Auto"
+                  VerticalScrollBarVisibility="Auto"
+                  CanContentScroll="True">
+        <Border>
             <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="Auto" />
-                </Grid.ColumnDefinitions>
-                <TextBlock Text="Music Brainz (Remote)"
-						   FontSize="16"
-						   Padding="7 5"
-						   HorizontalAlignment="Stretch"
-						   TextAlignment="Left" />
 
-                <Button Grid.Column="1" 
-                        Command="{Binding QueryMusicBrainzCommand}" 
-                        Style="{StaticResource SmallControlButton}">
-                    <fa5:SvgAwesome Icon="Solid_Flag" Width="16" Height="16" VerticalAlignment="Center" HorizontalAlignment="Center" />
-                </Button>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="300" />
+                    <ColumnDefinition Width="400" />
+                    <ColumnDefinition Width="400" />
+                    <ColumnDefinition Width="400" />
+                </Grid.ColumnDefinitions>
+
+                <!-- Id's / Control Group -->
+                <GroupBox Header="Music Brainz Id(s)">
+                    <StackPanel>
+                        <propertyGrid:PropertyStringControl LabelText="Artist Id" LabelColumnWidth="200" LabelForeground="Gray" Value="{Binding ArtistId}" IsReadOnly="True" />
+                        <propertyGrid:PropertyStringControl LabelText="Release Id" LabelColumnWidth="200" LabelForeground="Gray" Value="{Binding ReleaseId}" IsReadOnly="True" />
+                        <propertyGrid:PropertyStringControl LabelText="Track Id" LabelColumnWidth="200" LabelForeground="Gray" Value="{Binding TrackId}" IsReadOnly="True" />
+
+                        <propertyGrid:PropertyStringControl LabelText="Amazon Id (non-affiliated)" LabelColumnWidth="200" LabelForeground="Gray" Value="{Binding Asin}" IsReadOnly="True" />
+                        <propertyGrid:PropertyStringControl LabelText="Barcode (affiliated)" LabelColumnWidth="200" LabelForeground="Gray" Value="{Binding Barcode}" IsReadOnly="True" />
+                    </StackPanel>    
+                </GroupBox>
+
+                <!-- Main Track Information -->
+                <GroupBox Header="Main Track Information" Grid.Column="1">
+                    <StackPanel>
+                        <propertyGrid:PropertyStringControl LabelText="Artist (Credit)" LabelColumnWidth="200" LabelForeground="Gray" Value="{Binding ArtistCreditName}" IsReadOnly="True" />
+                        <propertyGrid:PropertyStringControl LabelText="Release Title" LabelColumnWidth="200" LabelForeground="Gray" Value="{Binding MediumTitle}" IsReadOnly="True" />
+                        <propertyGrid:PropertyStringControl LabelText="Track Title" LabelColumnWidth="200" LabelForeground="Gray" Value="{Binding Title}" IsReadOnly="True" />
+                        <propertyGrid:PropertyStringControl LabelText="Track Title (Disambiguation)" LabelColumnWidth="200" LabelForeground="Gray" Value="{Binding Title}" IsReadOnly="True" />
+
+                        <propertyGrid:PropertyStringControl LabelText="Track #" LabelColumnWidth="200" LabelForeground="Gray" Value="{Binding Track.Position}" IsReadOnly="True" />
+                        <propertyGrid:PropertyStringControl LabelText="Disc #" LabelColumnWidth="200" LabelForeground="Gray" Value="{Binding MediumDiscPosition}" IsReadOnly="True" />
+                        <propertyGrid:PropertyStringControl LabelText="Track Count" LabelColumnWidth="200" LabelForeground="Gray" Value="{Binding MediumTrackCount}" IsReadOnly="True" />
+                        <propertyGrid:PropertyStringControl LabelText="Disc Count" LabelColumnWidth="200" LabelForeground="Gray" Value="{Binding MediumDiscCount}" IsReadOnly="True" />
+                        <propertyGrid:PropertyStringControl LabelText="Track Annotation" LabelColumnWidth="200" LabelForeground="Gray" Value="{Binding MediumDiscCount}" IsReadOnly="True" />
+
+                        <propertyGrid:PropertyTokenizingStringControl LabelText="Tags" LabelColumnWidth="200" LabelForeground="Gray" Value="{Binding Tags}" />
+                        <propertyGrid:PropertyTokenizingStringControl LabelText="Genres" LabelColumnWidth="200" LabelForeground="Gray" Value="{Binding Genres}" />
+
+                    </StackPanel>
+                </GroupBox>
+                
+                <!-- Release Information -->
+                <GroupBox Header="Release Information" Grid.Column="2">
+                    <StackPanel>
+                        <propertyGrid:PropertyStringControl LabelText="Release Date" LabelColumnWidth="200" LabelForeground="Gray" Value="{Binding ReleaseDate}" IsReadOnly="True" />
+                        <propertyGrid:PropertyStringControl LabelText="Release Status" LabelColumnWidth="200" LabelForeground="Gray" Value="{Binding ReleaseStatus}" IsReadOnly="True" />
+                        <propertyGrid:PropertyStringControl LabelText="Release Quality" LabelColumnWidth="200" LabelForeground="Gray" Value="{Binding Quality}" IsReadOnly="True" />
+                        <propertyGrid:PropertyStringControl LabelText="Release Packaging" LabelColumnWidth="200" LabelForeground="Gray" Value="{Binding Packaging}" IsReadOnly="True" />
+
+                        <propertyGrid:PropertyStringControl LabelText="Label Name" LabelColumnWidth="200" LabelForeground="Gray" Value="{Binding LabelName}" IsReadOnly="True" />
+                        <propertyGrid:PropertyStringControl LabelText="Label Code" LabelColumnWidth="200" LabelForeground="Gray" Value="{Binding LabelCode}" IsReadOnly="True" />
+                        <propertyGrid:PropertyStringControl LabelText="Label Catalog #" LabelColumnWidth="200" LabelForeground="Gray" Value="{Binding LabelCatalogNumber}" IsReadOnly="True" />
+                        <propertyGrid:PropertyStringControl LabelText="Label Country" LabelColumnWidth="200" LabelForeground="Gray" Value="{Binding LabelCountry}" IsReadOnly="True" />
+                        
+                        <propertyGrid:PropertyImageControl LabelText="Front Cover" 
+                                                           LabelColumnWidth="200"
+                                                           LabelForeground="Gray"
+                                                           Value="{Binding FrontCover}" />
+
+                        <propertyGrid:PropertyImageControl LabelText="Back Cover" 
+                                                           LabelColumnWidth="200"
+                                                           LabelForeground="Gray"
+                                                           Value="{Binding BackCover}" />
+
+                    </StackPanel>
+                </GroupBox>
+
+                <GroupBox Header="Related Resources / Interested Parties" Grid.Column="3">
+                    <StackPanel>
+                        <propertyGrid:PropertyStringEnumerableControl LabelText="Label Ipis" 
+                                                                      LabelColumnWidth="200"
+                                                                      LabelForeground="Gray"
+                                                                      Value="{Binding LabelIpis}" />
+
+                        <propertyGrid:PropertyStringEnumerableControl LabelText="Related Links" 
+                                                                      LabelColumnWidth="200"
+                                                                      LabelForeground="Gray"
+                                                                      Value="{Binding AssociatedUrls}" />
+                    </StackPanel>
+                </GroupBox>
+
             </Grid>
         </Border>
-
-        <!-- Query Results -->
-        <Grid>
-
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="150" />
-                <ColumnDefinition Width="*" />
-            </Grid.ColumnDefinitions>
-            
-            <TextBlock Text="Music Brainz Result(s)" Margin="7,0,0,0" Foreground="Gray" VerticalAlignment="Center" />
-            <ComboBox x:Name="MusicBrainzResultsCB"
-					  Grid.Column="1"
-					  Margin="0, 5, 3, 5"
-					  ItemsSource="{Binding MusicBrainzResults}"
-					  SelectionChanged="OnMusicBrainzResultsChanged"
-					  HorizontalAlignment="Stretch"
-					  VerticalContentAlignment="Center">
-                <ComboBox.ItemTemplate>
-                    <DataTemplate>
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="{Binding Album}" />
-                            <TextBlock Text=" / " />
-                            <TextBlock Text="{Binding Title}" />
-                            <TextBlock Text=" / (Match score of " />
-                            <TextBlock Text="{Binding Score}" />
-                            <TextBlock Text=")" />
-                        </StackPanel>
-                    </DataTemplate>
-                </ComboBox.ItemTemplate>
-            </ComboBox>
-        </Grid>
-
-        <!-- Id -->
-        <propertyGrid:PropertyStringControl Margin="3" LabelText="Music Brainz Id" LabelColumnWidth="200" LabelForeground="Gray" Value="{Binding MusicBrainzRecord.Id}" IsReadOnly="True" />
-
-        <!-- Score -->
-        <propertyGrid:PropertyStringControl Margin="3" LabelText="Music Brainz Id" LabelColumnWidth="200" LabelForeground="Gray" Value="{Binding MusicBrainzRecord.Score}" IsReadOnly="True" />
-
-        <!-- Title -->
-        <propertyGrid:PropertyStringControl Margin="3" LabelText="Title" LabelColumnWidth="200" LabelForeground="Gray" Value="{Binding MusicBrainzRecord.Title}" IsReadOnly="True" />
-
-        <!-- Artist(s) -->
-        <propertyGrid:PropertyStringControl Margin="3" LabelText="Artist(s)" LabelColumnWidth="200" LabelForeground="Gray" Value="{Binding MusicBrainzRecord.AlbumArtists, Converter={StaticResource StringArrayConverter}}" IsReadOnly="True" />
-
-        <!-- Album -->
-        <propertyGrid:PropertyStringControl Margin="3" LabelText="Album" LabelColumnWidth="200" LabelForeground="Gray" Value="{Binding MusicBrainzRecord.Album}" IsReadOnly="True" />
-
-        <!-- Year -->
-        <propertyGrid:PropertyStringControl Margin="3" LabelText="Year" LabelColumnWidth="200" LabelForeground="Gray" Value="{Binding MusicBrainzRecord.Year}" IsReadOnly="True" />
-
-        <!-- Genre(s) -->
-        <propertyGrid:PropertyStringControl Margin="3" LabelText="Genre(s)" LabelColumnWidth="200" LabelForeground="Gray" Value="{Binding MusicBrainzRecord.Genres, Converter={StaticResource StringArrayConverter}}" IsReadOnly="True" />
-
-        <!-- Disc -->
-        <propertyGrid:PropertyStringControl Margin="3" LabelText="Disc #" LabelColumnWidth="200" LabelForeground="Gray" Value="{Binding MusicBrainzRecord.Disc}" IsReadOnly="True" />
-
-        <!-- Disc -->
-        <propertyGrid:PropertyStringControl Margin="3" LabelText="Disc Count" LabelColumnWidth="200" LabelForeground="Gray" Value="{Binding MusicBrainzRecord.DiscCount}" IsReadOnly="True" />
-
-        <!-- Track -->
-        <propertyGrid:PropertyStringControl Margin="3" LabelText="Track" LabelColumnWidth="200" LabelForeground="Gray" Value="{Binding MusicBrainzRecord.Track}" IsReadOnly="True" />
-
-    </StackPanel>
+    </ScrollViewer>
 
 </UserControl>

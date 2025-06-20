@@ -34,7 +34,7 @@ namespace AudioStation.Views.Converter
             if (picture == null)
                 return Binding.DoNothing;
 
-            return _bitmapConverter.BitmapDataToBitmapSource(picture.Data.Data, new ImageSize(cacheType));
+            return _bitmapConverter.BitmapDataToBitmapSource(picture.Data.Data, new ImageSize(cacheType), picture.MimeType);
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

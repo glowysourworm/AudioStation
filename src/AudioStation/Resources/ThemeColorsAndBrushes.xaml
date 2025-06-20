@@ -22,6 +22,9 @@
     <SolidColorBrush x:Key="LabelBackgroundWarning">#5FFFFF00</SolidColorBrush>
     <SolidColorBrush x:Key="LabelBackgroundError">#5FFF0000</SolidColorBrush>
 
+    <SolidColorBrush x:Key="TagBackground">#8F000000</SolidColorBrush>
+    <SolidColorBrush x:Key="TagForeground">White</SolidColorBrush>
+
     <SolidColorBrush x:Key="OutputTabControlBackground">White</SolidColorBrush>
     <SolidColorBrush x:Key="OutputTabControlBorder">LightGray</SolidColorBrush>
     

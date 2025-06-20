@@ -119,7 +119,7 @@ namespace AudioStation.Controller
                 if (data == null)
                     return null;
 
-                var imageSource = _bitmapConverter.BitmapDataToBitmapSource(data, new ImageSize(cacheAsType));
+                var imageSource = _bitmapConverter.BitmapDataToBitmapSource(data, new ImageSize(cacheAsType), null);
                 
                 // Two threads may have entered the critical section before this point
                 //
@@ -190,7 +190,7 @@ namespace AudioStation.Controller
 
             // Contention for web image loading (Task)
             imageSources = images.ToDictionary(picture => picture.Type,
-                                                picture => (ImageSource)_bitmapConverter.BitmapDataToBitmapSource(picture.Data.Data, new ImageSize(cacheAsType)));
+                                                picture => (ImageSource)_bitmapConverter.BitmapDataToBitmapSource(picture.Data.Data, new ImageSize(cacheAsType), picture.MimeType));
 
             var cacheItem = new ImageCacheItem(imageSources);
 

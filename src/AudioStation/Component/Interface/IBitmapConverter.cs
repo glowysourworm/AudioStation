@@ -17,7 +17,7 @@ namespace AudioStation.Component.Interface
     /// </summary>
     public interface IBitmapConverter
     {
-        BitmapSource BitmapDataToBitmapSource(byte[] buffer, ImageSize size);
+        BitmapSource BitmapDataToBitmapSource(byte[] buffer, ImageSize size, string mimeType);
 
         /// https://stackoverflow.com/a/30729291
         BitmapSource BitmapToBitmapSource(Bitmap bitmap, ImageSize size);

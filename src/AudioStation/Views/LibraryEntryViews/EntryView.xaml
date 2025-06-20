@@ -22,6 +22,10 @@
             <vendorView:Id3v2TagView x:Name="Id3v2TagView" />
         </TabItem>
 
+        <TabItem x:Name="MusicBrainzTab" Header="Music Brainz (Remote)" IsEnabled="False">
+            <vendorView:MusicBrainzRecordView x:Name="MusicBrainzView" />
+        </TabItem>
+
     </TabControl>
     
 </UserControl>

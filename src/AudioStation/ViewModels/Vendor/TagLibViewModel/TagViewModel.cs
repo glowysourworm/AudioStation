@@ -2,8 +2,6 @@
 
 using AutoMapper;
 
-using SimpleWpf.ObjectMapping;
-
 using TagLib;
 
 namespace AudioStation.ViewModels.Vendor.TagLibViewModel

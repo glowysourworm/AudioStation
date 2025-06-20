@@ -2,6 +2,7 @@
 using AutoMapper.Execution;
 
 using SimpleWpf.Extensions;
+using SimpleWpf.Extensions.Command;
 using SimpleWpf.ObjectMapping;
 
 using TagLib;

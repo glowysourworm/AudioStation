@@ -2,6 +2,7 @@
 
 using AudioStation.Core.Model;
 using AudioStation.ViewModels.Vendor;
+using AudioStation.ViewModels.Vendor.MusicBrainzViewModel;
 
 namespace AudioStation.Views.VendorEntryViews
 {
@@ -17,7 +18,7 @@ namespace AudioStation.Views.VendorEntryViews
             if (e.AddedItems.Count > 0)
             {
                 var entry = this.DataContext as LibraryEntry;
-                var record = e.AddedItems[0] as MusicBrainzRecordViewModel;
+                var record = e.AddedItems[0] as MusicBrainzRecordingViewModel;
 
                 // Set selected record in the primary LibraryEntry
                 //entry.MusicBrainzRecord = record;
