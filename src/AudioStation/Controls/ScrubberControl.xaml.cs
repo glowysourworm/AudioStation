@@ -74,13 +74,8 @@ namespace AudioStation.Controls
         {
             base.OnMouseMove(e);
 
-            var offset = (e.GetPosition(this).X / this.RenderSize.Width) * this.RenderSize.Width - (this.ScrubberHandleSize / 2.0);
-
-            if (offset > 0)
-                this.ScrubberPreviewCursor.Margin = new Thickness(offset, 0, 0, 0);
-
-            else
-                this.ScrubberPreviewCursor.Margin = new Thickness(0);
+            // Mouse position must be offset to center of scrubber (in X)
+            this.ScrubberPreviewCursor.Margin = new Thickness(CalculateScrubberOffset(e.GetPosition(this).X - (this.ScrubberHandleSize / 2.0)), 0, 0, 0);
         }
 
         protected override void OnMouseLeave(MouseEventArgs e)
@@ -103,16 +98,20 @@ namespace AudioStation.Controls
 
             SetScrubberOffset();
         }
+        private double CalculateScrubberOffset(double currentPosition)
+        {
+            var offset = (currentPosition / this.RenderSize.Width) * this.RenderSize.Width;
+            var offsetMin = 0;
+            var offsetMax = this.RenderSize.Width - this.ScrubberHandleSize - 2;        // Stroke Thickness
+
+            if (offset > 0)
+                return Math.Clamp(offset, offsetMin, offsetMax);
+
+            return offsetMin;
+        }
         private void SetScrubberOffset()
         {
-            if (this.ScrubbedRatio > 0)
-            {
-                this.ScrubberCursor.Margin = new Thickness(this.RenderSize.Width * this.ScrubbedRatio, 0, 0, 0);
-            }
-            else
-            {
-                this.ScrubberCursor.Margin = new Thickness(0);
-            }
+            this.ScrubberCursor.Margin = new Thickness(CalculateScrubberOffset(this.ScrubbedRatio * this.RenderSize.Width), 0, 0, 0);
 
             InvalidateVisual();
         }

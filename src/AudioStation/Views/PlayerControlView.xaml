@@ -88,22 +88,24 @@
                             <Popup IsOpen="{Binding IsChecked, ElementName=VolumeButton, Mode=OneWay}" 
                                    Placement="Relative" 
                                    PlacementTarget="{Binding ElementName=VolumeButton}">
-                                
-                                <controls:ScrubberControl x:Name="VolumeControl"
+
+                                <Border Padding="10" BorderThickness="1" BorderBrush="Gray" Background="White">
+                                    <Border.LayoutTransform>
+                                        <RotateTransform Angle="270" />
+                                    </Border.LayoutTransform>
+                                    <controls:ScrubberControl x:Name="VolumeControl"
                                                               MouseLeave="VolumeControl_MouseLeave"
-                                                              PreviewMouseDown="VolumeControl_PreviewMouseDown"
-                                                              Padding="9"
+                                                              BorderBrush="Transparent"
+                                                              PreviewMouseDown="VolumeControl_PreviewMouseDown"                                                            
                                                               ScrubberHandleSize="12"
                                                               ScrubberTimelineSize="3"
 												              ScrubbedRatio="{Binding DataContext.Volume, Mode=TwoWay, RelativeSource={RelativeSource AncestorType=Window}}"
 												              VerticalAlignment="Center"
                                                               HorizontalAlignment="Center"
 												              Width="250">
-                                    <controls:ScrubberControl.LayoutTransform>
-                                        <RotateTransform Angle="270" />
-                                    </controls:ScrubberControl.LayoutTransform>
-                                </controls:ScrubberControl>
-                                
+                                    </controls:ScrubberControl>
+                                </Border>
+
                             </Popup>
                         </StackPanel>
                         
