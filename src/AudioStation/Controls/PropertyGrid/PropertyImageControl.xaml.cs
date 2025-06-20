@@ -24,9 +24,6 @@ namespace AudioStation.Controls.PropertyGrid
         public static readonly DependencyProperty LabelColumnWidthProperty =
             DependencyProperty.Register("LabelColumnWidth", typeof(double), typeof(PropertyImageControl), new PropertyMetadata(150.0D));
 
-        public static readonly DependencyProperty LabelForegroundProperty =
-            DependencyProperty.Register("LabelForeground", typeof(Brush), typeof(PropertyImageControl), new PropertyMetadata(Brushes.Black));
-
         public static readonly DependencyProperty ValueProperty =
             DependencyProperty.Register("Value", typeof(ImageViewModel), typeof(PropertyImageControl), new PropertyMetadata(OnValueChanged));
 
@@ -40,11 +37,6 @@ namespace AudioStation.Controls.PropertyGrid
             get { return (double)GetValue(LabelColumnWidthProperty); }
             set { SetValue(LabelColumnWidthProperty, value); }
         }
-        public Brush LabelForeground
-        {
-            get { return (Brush)GetValue(LabelForegroundProperty); }
-            set { SetValue(LabelForegroundProperty, value); }
-        }
         public ImageViewModel Value
         {
             get { return (ImageViewModel)GetValue(ValueProperty); }
@@ -56,13 +48,6 @@ namespace AudioStation.Controls.PropertyGrid
             _bitmapConverter = IocContainer.Get<IBitmapConverter>();
 
             InitializeComponent();
-        }
-        ~PropertyImageControl()
-        {
-            Application.Current.Dispatcher.BeginInvoke(new Action(() =>
-            {
-                this.ImageControl.Source = null;
-            }));
         }
 
         private void SetImage()

@@ -34,6 +34,7 @@ namespace AudioStation.ViewModels.Vendor.MusicBrainzViewModel
         string _quality;
         DateTime _releaseDate;
         string _releaseStatus;
+        string _releaseTitle;
         string _annotation;
         IEnumerable<string> _associatedUrls;
         IEnumerable<string> _genres;
@@ -167,6 +168,11 @@ namespace AudioStation.ViewModels.Vendor.MusicBrainzViewModel
         {
             get { return _releaseStatus; }
             set { this.RaiseAndSetIfChanged(ref _releaseStatus, value); }
+        }
+        public string ReleaseTitle
+        {
+            get { return _releaseTitle; }
+            set { this.RaiseAndSetIfChanged(ref _releaseTitle, value); }
         }
         public string Annotation
         {

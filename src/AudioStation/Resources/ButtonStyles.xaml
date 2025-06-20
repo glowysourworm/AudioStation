@@ -8,9 +8,9 @@
 
     <Style x:Key="UserControlButton" TargetType="Button">
         <Setter Property="Padding" Value="2" />
-        <Setter Property="Foreground" Value="{StaticResource DefaultLabelBrush}" />
-        <Setter Property="Background" Value="{StaticResource SmallButtonBackground}" />
-        <Setter Property="BorderBrush" Value="{StaticResource SmallButtonBorder}" />
+        <Setter Property="Foreground" Value="{StaticResource UserControlButtonForeground}" />
+        <Setter Property="Background" Value="{StaticResource UserControlButtonBackground}" />
+        <Setter Property="BorderBrush" Value="{StaticResource UserControlButtonBorder}" />
         <Setter Property="BorderThickness" Value="1" />
         <Setter Property="Template">
             <Setter.Value>
@@ -23,16 +23,17 @@
                             CornerRadius="5">
                         <Grid>
                             <ContentPresenter VerticalAlignment="Center"
-                                              HorizontalAlignment="Center" />
+                                              HorizontalAlignment="Center"
+                                              Margin="{TemplateBinding Padding}"/>
                         </Grid>
                     </Border>
 
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter Property="Background" Value="{StaticResource SmallButtonBackgroundHover}" />
+                            <Setter Property="Background" Value="{StaticResource UserControlButtonBackgroundHover}" />
                         </Trigger>
                         <Trigger Property="IsPressed" Value="True">
-                            <Setter Property="Background" Value="{StaticResource SmallButtonBackgroundPressed}" />
+                            <Setter Property="Background" Value="{StaticResource UserControlButtonBackgroundPressed}" />
                         </Trigger>
                     </ControlTemplate.Triggers>
 

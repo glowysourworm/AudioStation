@@ -20,9 +20,6 @@ namespace AudioStation.Controls.PropertyGrid
         public static readonly DependencyProperty LabelColumnWidthProperty =
             DependencyProperty.Register("LabelColumnWidth", typeof(double), typeof(PropertyEnumListControl), new PropertyMetadata(150.0D));
 
-        public static readonly DependencyProperty LabelForegroundProperty =
-            DependencyProperty.Register("LabelForeground", typeof(Brush), typeof(PropertyEnumListControl), new PropertyMetadata(Brushes.Black));
-
         public static readonly DependencyProperty EnumTypeProperty =
             DependencyProperty.Register("EnumType", typeof(Type), typeof(PropertyEnumListControl), new PropertyMetadata(OnEnumChanged));
 
@@ -50,11 +47,6 @@ namespace AudioStation.Controls.PropertyGrid
         {
             get { return (double)GetValue(LabelColumnWidthProperty); }
             set { SetValue(LabelColumnWidthProperty, value); }
-        }
-        public Brush LabelForeground
-        {
-            get { return (Brush)GetValue(LabelForegroundProperty); }
-            set { SetValue(LabelForegroundProperty, value); }
         }
         public Type EnumType
         {

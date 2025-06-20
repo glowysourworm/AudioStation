@@ -69,28 +69,21 @@ namespace AudioStation.Component
                 var config = new MapperConfiguration(cfg => cfg.CreateMap<IArtist, MusicBrainzArtistViewModel>(MemberList.Destination));
                 var mapper = config.CreateMapper();
 
-                var include = Include.Releases |
-                              Include.Recordings |
-                              Include.Media |
-                              Include.RecordingRelationships |
-                              Include.Annotation |
-                              Include.LabelRelationships | 
-                              Include.Genres |
-                              Include.Tags |
-                              Include.UrlRelationships |
-                              Include.LabelRelationships |
-                              Include.EventRelationships;
-
-                var artist = await query.LookupArtistAsync(artistId, include);
-                var release = await GetReleaseById(releaseId);
+                var artist = await query.LookupArtistAsync(artistId);
+                var release = await query.LookupReleaseAsync(releaseId, Include.Labels | 
+                                                                        Include.Media | 
+                                                                        Include.UrlRelationships | 
+                                                                        Include.Genres | 
+                                                                        Include.Tags | 
+                                                                        Include.Recordings);
                 var media = release.Media?.FirstOrDefault(x => x.Tracks?.Any(z => z.Id == trackId || z.Title == trackName) ?? false);
-
+                
                 var coverArtClient = new CoverArt();
-                var frontArt = release.CoverArtArchive.Front ? coverArtClient.FetchFront(releaseId) : null;
-                var backArt = release.CoverArtArchive.Back ? coverArtClient.FetchBack(releaseId) : null;
+                var frontArt = release.CoverArtArchive?.Front ?? false ? coverArtClient.FetchFront(releaseId) : null;
+                var backArt = release.CoverArtArchive?.Back ?? false ? coverArtClient.FetchBack(releaseId) : null;
 
-                var frontViewModel = frontArt != null ? new ImageViewModel(frontArt.Data, frontArt.ContentType) : null;
-                var backViewModel = backArt != null ? new ImageViewModel(backArt.Data, backArt.ContentType) : null;
+                var frontViewModel = frontArt != null ? new ImageViewModel(frontArt.Data, frontArt.ContentType ?? string.Empty) : null;
+                var backViewModel = backArt != null ? new ImageViewModel(backArt.Data, backArt.ContentType ?? string.Empty) : null;
 
                 if (release == null || artist == null)
                 {
@@ -106,7 +99,7 @@ namespace AudioStation.Component
                     
                 // If the track id is out of date, try the track name
                 var track = media.Tracks?.FirstOrDefault(x => x.Id == trackId || x.Title == trackName);
-                var mediaIndex = release.Media.IndexOf(media);
+                var mediaIndex = release.Media?.IndexOf(media) ?? 0;
 
                 if (track == null)
                 {
@@ -117,38 +110,43 @@ namespace AudioStation.Component
                 var viewModel = new MusicBrainzCombinedViewModel()
                 {
                     ArtistId = artistId,
-                    Annotation = track.Recording.Annotation,
-                    ArtistCreditName = track.Recording.ArtistCredit?.FirstOrDefault()?.Name,
-                    Asin = release.Asin,
+                    Annotation = track.Recording?.Annotation ?? string.Empty,
+                    ArtistCreditName = track.Recording?.ArtistCredit?.FirstOrDefault()?.Name ?? artist.Name ?? string.Empty,
+                    Asin = release.Asin ?? string.Empty,
                     FrontCover = frontViewModel,
                     BackCover = backViewModel,
-                    AssociatedUrls = artist.Relationships?.Where(x => x.TargetType == EntityType.Url)?.Select(x => x.Url?.Resource?.AbsoluteUri ?? string.Empty)?.ToList(),
-                    Barcode = release.Barcode,
-                    Disambiguation = track.Recording.Disambiguation,
-                    Genres = track.Recording?.Genres?.Select(x => x.Name)?.ToList(),
-                    LabelCatalogNumber = release.LabelInfo?.FirstOrDefault()?.CatalogNumber,
+                    AssociatedUrls = release.Relationships?
+                                            .Where(x => x.TargetType == EntityType.Url)?
+                                            .Select(x => x.Url?.Resource?.AbsoluteUri ?? string.Empty)?
+                                            .ToList() ?? Enumerable.Empty<string>(),
+
+                    Barcode = release.Barcode ?? string.Empty,
+                    Disambiguation = track.Recording?.Disambiguation ?? string.Empty,
+                    Genres = track.Recording?.Genres?.Select(x => x.Name ?? string.Empty)?.ToList() ?? Enumerable.Empty<string>(),
+                    LabelCatalogNumber = release.LabelInfo?.FirstOrDefault()?.CatalogNumber ?? string.Empty,
                     LabelCode = release.LabelInfo?.FirstOrDefault()?.Label?.LabelCode ?? 0,
-                    LabelCountry = release.LabelInfo?.FirstOrDefault()?.Label?.Country,
-                    LabelIpis = release.LabelInfo?.FirstOrDefault()?.Label?.Ipis,
-                    LabelName = release.LabelInfo?.FirstOrDefault()?.Label?.Name,
+                    LabelCountry = release.LabelInfo?.FirstOrDefault()?.Label?.Country ?? string.Empty,
+                    LabelIpis = release.LabelInfo?.FirstOrDefault()?.Label?.Ipis ?? Enumerable.Empty<string>(),
+                    LabelName = release.LabelInfo?.FirstOrDefault()?.Label?.Name ?? string.Empty,
                     MediumDiscCount = media.Discs?.Count ?? 0,
-                    MediumFormat = media.Format,
-                    MediumTitle = media.Title,
+                    MediumFormat = media.Format ?? string.Empty,
+                    MediumTitle = media.Title ?? string.Empty,
                     MediumDiscPosition = mediaIndex + 1,
                     MediumTrackCount = media.TrackCount,
                     MediumTrackOffset = media.TrackOffset ?? 0,
-                    Packaging = release.Packaging,
-                    Quality = release.Quality,
-                    ReleaseCountry = release.Country,
+                    Packaging = release.Packaging ?? string.Empty,
+                    Quality = release.Quality ?? string.Empty,
+                    ReleaseCountry = release.Country ?? string.Empty,
                     ReleaseDate = release.Date?.NearestDate ?? DateTime.MinValue,
                     ReleaseId = release.Id,
-                    ReleaseStatus = release.Status,
-                    Tags = track.Recording?.Tags?.Select(x => x.Name)?.ToList(),
-                    Title = track.Title,
+                    ReleaseStatus = release.Status ?? string.Empty, 
+                    ReleaseTitle = release.Title ?? string.Empty,
+                    Tags = track.Recording?.Tags?.Select(x => x.Name)?.ToList() ?? Enumerable.Empty<string>(),
+                    Title = track.Title ?? string.Empty,
                     Track = track,
                     TrackId = track.Id,
-                    UserGenres = track.Recording?.UserGenres?.Select(x => x.Name)?.ToList(),
-                    UserTags = track.Recording?.UserTags?.Select(x => x.Name)?.ToList(),
+                    UserGenres = track.Recording?.UserGenres?.Select(x => x.Name ?? string.Empty)?.ToList() ?? Enumerable.Empty<string>(),
+                    UserTags = track.Recording?.UserTags?.Select(x => x.Name)?.ToList() ?? Enumerable.Empty<string>(),
                 };
 
                 if (frontArt != null)

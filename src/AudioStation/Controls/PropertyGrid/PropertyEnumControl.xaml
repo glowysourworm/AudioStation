@@ -1,7 +1,8 @@
 ﻿<UserControl x:Class="AudioStation.Controls.PropertyGrid.PropertyEnumControl"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:simpleUI="clr-namespace:SimpleWpf.UI.Controls;assembly=SimpleWpf.UI">
+             xmlns:simpleUI="clr-namespace:SimpleWpf.UI.Controls;assembly=SimpleWpf.UI"
+             Style="{StaticResource PropertyGridUserControl}">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="{Binding LabelColumnWidth, RelativeSource={RelativeSource AncestorType=UserControl}}" />
@@ -9,9 +10,7 @@
         </Grid.ColumnDefinitions>
 
         <TextBlock Text="{Binding LabelText, RelativeSource={RelativeSource AncestorType=UserControl}}" 
-				   Foreground="{Binding LabelForeground, RelativeSource={RelativeSource AncestorType=UserControl}}" 
-                   ToolTip="{Binding LabelText, RelativeSource={RelativeSource AncestorType=UserControl}}"
-				   Margin="5 0" VerticalAlignment="Center" />
+				   Style="{StaticResource PropertyGridLabel}" />
 
         <simpleUI:EnumComboBox Grid.Column="1" 
                                EnumType="{Binding EnumType, RelativeSource={RelativeSource AncestorType=UserControl}}"

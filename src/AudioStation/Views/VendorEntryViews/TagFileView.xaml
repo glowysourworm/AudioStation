@@ -68,9 +68,25 @@
                             </propertyGrid:PropertyEnumListControl.EnumFilter>
                         </propertyGrid:PropertyEnumListControl>
 
+                        <Button x:Name="EditButton"
+                                Content="Edit" 
+                                Padding="5"
+                                Margin="3"
+                                Style="{StaticResource UserControlButton}" 
+                                HorizontalAlignment="Right" />
+
+                        <Button x:Name="SaveButton"
+                                Content="Save" 
+                                Padding="5"
+                                Margin="3"
+                                Style="{StaticResource UserControlButton}" 
+                                HorizontalAlignment="Right" />
+
                         <Button x:Name="MusicBrainzButton"
                                 Click="MusicBrainzButton_Click"
                                 Content="Find on Music Brainz" 
+                                Padding="5"
+                                Margin="3"
                                 Style="{StaticResource UserControlButton}" 
                                 HorizontalAlignment="Right" />
 
@@ -80,15 +96,15 @@
 
                 <!-- Properties -->
                 <GroupBox Header="Properties" Grid.Column="1">
-                    <ItemsControl>
+                    <controls:NoScrollListBox Style="{StaticResource PropertyGridNoScrollListBox}">
 
                         <propertyGrid:PropertyStringControl LabelText="Name" Value="{Binding Name}" IsReadOnly="True" />
                         <propertyGrid:PropertyStringControl LabelText="File Length" Value="{Binding Length}" IsReadOnly="True" />
                         <propertyGrid:PropertyStringControl LabelText="Mime Type" Value="{Binding MimeType}" IsReadOnly="True" />
                         <propertyGrid:PropertyBooleanControl LabelText="Possibly Corrupt" Value="{Binding PossiblyCorrupt}" IsReadOnly="False" />
                         <propertyGrid:PropertyStringEnumerableControl LabelText="Corrupt Reasons" 
-                                                                  Value="{Binding CorruptReasons, Converter={StaticResource IEnumerableToObservableCollectionParameterConverter}, ConverterParameter={x:Type system:String}}" 
-                                                                  IsReadOnly="False" />
+                                                                      Value="{Binding CorruptReasons, Converter={StaticResource IEnumerableToObservableCollectionParameterConverter}, ConverterParameter={x:Type system:String}}" 
+                                                                      IsReadOnly="False" />
 
                         <propertyGrid:PropertyStringControl LabelText="Media Types" Value="{Binding Properties.MediaTypes}" IsReadOnly="True" />
                         <propertyGrid:PropertyStringControl LabelText="Description" Value="{Binding Properties.Description}" IsReadOnly="False" />
@@ -104,11 +120,12 @@
                         <propertyGrid:PropertyStringControl LabelText="Photo Quality" Value="{Binding Properties.PhotoQuality}" IsReadOnly="True" />
                         <propertyGrid:PropertyStringControl LabelText="Photo Height" Value="{Binding Properties.PhotoHeight}" IsReadOnly="True" />
                         <propertyGrid:PropertyStringControl LabelText="Photo Width" Value="{Binding Properties.PhotoWidth}" IsReadOnly="True" />
-                    </ItemsControl>
+                        
+                    </controls:NoScrollListBox>
                 </GroupBox>
 
                 <GroupBox Header="Primary Track Information" Grid.Column="2">
-                    <StackPanel>
+                    <controls:NoScrollListBox Style="{StaticResource PropertyGridNoScrollListBox}">
                         <propertyGrid:PropertyStringControl LabelText="Title" Value="{Binding Tag.Title}" IsReadOnly="False" />
                         <propertyGrid:PropertyStringControl LabelText="Album" Value="{Binding Tag.Album}" IsReadOnly="False" />
                         <propertyGrid:PropertyStringEnumerableControl LabelText="Artists" 
@@ -129,18 +146,18 @@
                         <propertyGrid:PropertyStringEnumerableControl LabelText="Genres" Value="{Binding Tag.Genres, Converter={StaticResource ArrayToObservableCollectionParameterConverter}, ConverterParameter={x:Type system:String}}" IsReadOnly="False" />
                         <propertyGrid:PropertyStringControl LabelText="Grouping (Tags)" Value="{Binding Tag.Grouping}" IsReadOnly="False" />
                         <propertyGrid:PropertyStringControl LabelText="Copyright" Value="{Binding Tag.Copyright}" IsReadOnly="False" />
-                    </StackPanel>
+                    </controls:NoScrollListBox>
                 </GroupBox>
 
                 <GroupBox Header="Sorting" Grid.Column="3">
-                    <StackPanel>
+                    <controls:NoScrollListBox Style="{StaticResource PropertyGridNoScrollListBox}">
                         <propertyGrid:PropertyStringControl LabelText="Title (Sort)" Value="{Binding Tag.TitleSort}" IsReadOnly="False" />
                         <propertyGrid:PropertyStringControl LabelText="Album (Sort)" Value="{Binding Tag.AlbumSort}" IsReadOnly="False" />
                         <propertyGrid:PropertyStringEnumerableControl LabelText="Album Artists (Sort)" Value="{Binding Tag.AlbumArtistsSort, Converter={StaticResource ArrayToObservableCollectionParameterConverter}, ConverterParameter={x:Type system:String}}" IsReadOnly="False" />
                         <propertyGrid:PropertyStringEnumerableControl LabelText="Performers (Sort)" Value="{Binding Tag.PerformersSort, Converter={StaticResource ArrayToObservableCollectionParameterConverter}, ConverterParameter={x:Type system:String}}" IsReadOnly="False" />
                         <propertyGrid:PropertyStringEnumerableControl LabelText="Composers (Sort)" Value="{Binding Tag.ComposersSort, Converter={StaticResource ArrayToObservableCollectionParameterConverter}, ConverterParameter={x:Type system:String}}" IsReadOnly="False" />
                         <propertyGrid:PropertyStringEnumerableControl LabelText="Genres (Sort)" Value="{Binding Tag.GenresSort, Converter={StaticResource ArrayToObservableCollectionParameterConverter}, ConverterParameter={x:Type system:String}}" IsReadOnly="False" />
-                    </StackPanel>
+                    </controls:NoScrollListBox>
                 </GroupBox>
 
                 <GroupBox Header="Comments" Grid.Column="4">
@@ -166,7 +183,7 @@
                         </GroupBox>
 
                         <GroupBox Header="Music Brainz">
-                            <StackPanel>
+                            <controls:NoScrollListBox Style="{StaticResource PropertyGridNoScrollListBox}">
                                 <propertyGrid:PropertyStringControl LabelText="Track Id" Value="{Binding Tag.MusicBrainzTrackId}" IsReadOnly="False" />
                                 <propertyGrid:PropertyStringControl LabelText="Artist Id" Value="{Binding Tag.MusicBrainzArtistId}" IsReadOnly="False" />
                                 <propertyGrid:PropertyStringControl LabelText="Disc Id" Value="{Binding Tag.MusicBrainzDiscId}" IsReadOnly="False" />
@@ -175,7 +192,7 @@
                                 <propertyGrid:PropertyStringControl LabelText="Release Status" Value="{Binding Tag.MusicBrainzReleaseStatus}" IsReadOnly="False" />
                                 <propertyGrid:PropertyStringControl LabelText="Release Type" Value="{Binding Tag.MusicBrainzReleaseType}" IsReadOnly="False" />
                                 <propertyGrid:PropertyStringControl LabelText="Release Country" Value="{Binding Tag.MusicBrainzReleaseCountry}" IsReadOnly="False" />
-                            </StackPanel>
+                            </controls:NoScrollListBox>
                         </GroupBox>
 
                         <GroupBox Header="ReplayGain">

@@ -22,28 +22,28 @@
         <TextBlock Text="Library Entry" FontSize="16" Padding="7 5" HorizontalAlignment="Stretch" TextAlignment="Left" Background="AliceBlue" />
 
         <!-- Title -->
-        <propertyGrid:PropertyStringControl Grid.Row="1" Margin="3" LabelText="Title" LabelColumnWidth="200" LabelForeground="Gray" Value="{Binding Title}" IsReadOnly="True" />
+        <propertyGrid:PropertyStringControl Grid.Row="1" Margin="3" LabelText="Title" LabelColumnWidth="200" Value="{Binding Title}" IsReadOnly="True" />
 
         <!-- Artist(s) -->
-        <propertyGrid:PropertyStringControl Grid.Row="2" Margin="3" LabelText="Artist(s)" LabelColumnWidth="200" LabelForeground="Gray" Value="{Binding AlbumArtists, Converter={StaticResource StringArrayConverter}}" IsReadOnly="True" />
+        <propertyGrid:PropertyStringControl Grid.Row="2" Margin="3" LabelText="Artist(s)" LabelColumnWidth="200" Value="{Binding AlbumArtists, Converter={StaticResource StringArrayConverter}}" IsReadOnly="True" />
 
         <!-- Album -->
-        <propertyGrid:PropertyStringControl Grid.Row="3" Margin="3" LabelText="Album" LabelColumnWidth="200" LabelForeground="Gray" Value="{Binding Album}" IsReadOnly="True" />
+        <propertyGrid:PropertyStringControl Grid.Row="3" Margin="3" LabelText="Album" LabelColumnWidth="200" Value="{Binding Album}" IsReadOnly="True" />
 
         <!-- Year -->
-        <propertyGrid:PropertyStringControl Grid.Row="4" Margin="3" LabelText="Year" LabelColumnWidth="200" LabelForeground="Gray" Value="{Binding Year}" IsReadOnly="True" />
+        <propertyGrid:PropertyStringControl Grid.Row="4" Margin="3" LabelText="Year" LabelColumnWidth="200" Value="{Binding Year}" IsReadOnly="True" />
 
         <!-- Genre(s) -->
-        <propertyGrid:PropertyStringControl Grid.Row="5" Margin="3" LabelText="Genre(s)" LabelColumnWidth="200" LabelForeground="Gray" Value="{Binding Genres, Converter={StaticResource StringArrayConverter}}" IsReadOnly="True" />
+        <propertyGrid:PropertyStringControl Grid.Row="5" Margin="3" LabelText="Genre(s)" LabelColumnWidth="200" Value="{Binding Genres, Converter={StaticResource StringArrayConverter}}" IsReadOnly="True" />
 
         <!-- Disc -->
-        <propertyGrid:PropertyStringControl Grid.Row="6" Margin="3" LabelText="Disc #" LabelColumnWidth="200" LabelForeground="Gray" Value="{Binding Disc}" IsReadOnly="True" />
+        <propertyGrid:PropertyStringControl Grid.Row="6" Margin="3" LabelText="Disc #" LabelColumnWidth="200" Value="{Binding Disc}" IsReadOnly="True" />
 
         <!-- Disc -->
-        <propertyGrid:PropertyStringControl Grid.Row="7" Margin="3" LabelText="Disc Count" LabelColumnWidth="200" LabelForeground="Gray" Value="{Binding DiscCount}" IsReadOnly="True" />
+        <propertyGrid:PropertyStringControl Grid.Row="7" Margin="3" LabelText="Disc Count" LabelColumnWidth="200" Value="{Binding DiscCount}" IsReadOnly="True" />
 
         <!-- Track -->
-        <propertyGrid:PropertyStringControl Grid.Row="8" Margin="3" LabelText="Track" LabelColumnWidth="200" LabelForeground="Gray" Value="{Binding Track}" IsReadOnly="True" />
+        <propertyGrid:PropertyStringControl Grid.Row="8" Margin="3" LabelText="Track" LabelColumnWidth="200" Value="{Binding Track}" IsReadOnly="True" />
 
         <!-- Album Artwork -->
         <Border Background="Transparent"

@@ -12,9 +12,6 @@ namespace AudioStation.Controls.PropertyGrid
         public static readonly DependencyProperty LabelColumnWidthProperty =
             DependencyProperty.Register("LabelColumnWidth", typeof(double), typeof(PropertyDoubleSliderControl), new PropertyMetadata(150.0D));
 
-        public static readonly DependencyProperty LabelForegroundProperty =
-            DependencyProperty.Register("LabelForeground", typeof(Brush), typeof(PropertyDoubleSliderControl), new PropertyMetadata(Brushes.Black));
-
         public static readonly DependencyProperty ValueProperty =
             DependencyProperty.Register("Value", typeof(double), typeof(PropertyDoubleSliderControl));
 
@@ -30,11 +27,6 @@ namespace AudioStation.Controls.PropertyGrid
         {
             get { return (double)GetValue(LabelColumnWidthProperty); }
             set { SetValue(LabelColumnWidthProperty, value); }
-        }
-        public Brush LabelForeground
-        {
-            get { return (Brush)GetValue(LabelForegroundProperty); }
-            set { SetValue(LabelForegroundProperty, value); }
         }
         public double Value
         {

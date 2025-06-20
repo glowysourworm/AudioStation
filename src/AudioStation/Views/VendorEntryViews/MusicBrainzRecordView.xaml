@@ -14,40 +14,41 @@
             <Grid>
 
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="300" />
                     <ColumnDefinition Width="400" />
                     <ColumnDefinition Width="400" />
-                    <ColumnDefinition Width="400" />
+                    <ColumnDefinition Width="600" />
+                    <ColumnDefinition Width="600" />
+                    <ColumnDefinition Width="600" />
                 </Grid.ColumnDefinitions>
 
                 <!-- Id's / Control Group -->
                 <GroupBox Header="Music Brainz Id(s)">
                     <StackPanel>
-                        <propertyGrid:PropertyStringControl LabelText="Artist Id" LabelColumnWidth="200" LabelForeground="Gray" Value="{Binding ArtistId}" IsReadOnly="True" />
-                        <propertyGrid:PropertyStringControl LabelText="Release Id" LabelColumnWidth="200" LabelForeground="Gray" Value="{Binding ReleaseId}" IsReadOnly="True" />
-                        <propertyGrid:PropertyStringControl LabelText="Track Id" LabelColumnWidth="200" LabelForeground="Gray" Value="{Binding TrackId}" IsReadOnly="True" />
+                        <propertyGrid:PropertyStringControl LabelText="Artist Id" LabelColumnWidth="200"  Value="{Binding ArtistId}" IsReadOnly="True" />
+                        <propertyGrid:PropertyStringControl LabelText="Release Id" LabelColumnWidth="200"  Value="{Binding ReleaseId}" IsReadOnly="True" />
+                        <propertyGrid:PropertyStringControl LabelText="Track Id" LabelColumnWidth="200"  Value="{Binding TrackId}" IsReadOnly="True" />
 
-                        <propertyGrid:PropertyStringControl LabelText="Amazon Id (non-affiliated)" LabelColumnWidth="200" LabelForeground="Gray" Value="{Binding Asin}" IsReadOnly="True" />
-                        <propertyGrid:PropertyStringControl LabelText="Barcode (affiliated)" LabelColumnWidth="200" LabelForeground="Gray" Value="{Binding Barcode}" IsReadOnly="True" />
+                        <propertyGrid:PropertyStringControl LabelText="Amazon Id" LabelColumnWidth="200"  Value="{Binding Asin}" IsReadOnly="True" />
+                        <propertyGrid:PropertyStringControl LabelText="Barcode" LabelColumnWidth="200"  Value="{Binding Barcode}" IsReadOnly="True" />
                     </StackPanel>    
                 </GroupBox>
 
                 <!-- Main Track Information -->
                 <GroupBox Header="Main Track Information" Grid.Column="1">
                     <StackPanel>
-                        <propertyGrid:PropertyStringControl LabelText="Artist (Credit)" LabelColumnWidth="200" LabelForeground="Gray" Value="{Binding ArtistCreditName}" IsReadOnly="True" />
-                        <propertyGrid:PropertyStringControl LabelText="Release Title" LabelColumnWidth="200" LabelForeground="Gray" Value="{Binding MediumTitle}" IsReadOnly="True" />
-                        <propertyGrid:PropertyStringControl LabelText="Track Title" LabelColumnWidth="200" LabelForeground="Gray" Value="{Binding Title}" IsReadOnly="True" />
-                        <propertyGrid:PropertyStringControl LabelText="Track Title (Disambiguation)" LabelColumnWidth="200" LabelForeground="Gray" Value="{Binding Title}" IsReadOnly="True" />
+                        <propertyGrid:PropertyStringControl LabelText="Artist (Credit)" LabelColumnWidth="200"  Value="{Binding ArtistCreditName}" IsReadOnly="True" />
+                        <propertyGrid:PropertyStringControl LabelText="Release Title" LabelColumnWidth="200"  Value="{Binding MediumTitle}" IsReadOnly="True" />
+                        <propertyGrid:PropertyStringControl LabelText="Track Title" LabelColumnWidth="200"  Value="{Binding Title}" IsReadOnly="True" />
+                        <propertyGrid:PropertyStringControl LabelText="Track Title (Disambiguation)" LabelColumnWidth="200"  Value="{Binding Title}" IsReadOnly="True" />
 
-                        <propertyGrid:PropertyStringControl LabelText="Track #" LabelColumnWidth="200" LabelForeground="Gray" Value="{Binding Track.Position}" IsReadOnly="True" />
-                        <propertyGrid:PropertyStringControl LabelText="Disc #" LabelColumnWidth="200" LabelForeground="Gray" Value="{Binding MediumDiscPosition}" IsReadOnly="True" />
-                        <propertyGrid:PropertyStringControl LabelText="Track Count" LabelColumnWidth="200" LabelForeground="Gray" Value="{Binding MediumTrackCount}" IsReadOnly="True" />
-                        <propertyGrid:PropertyStringControl LabelText="Disc Count" LabelColumnWidth="200" LabelForeground="Gray" Value="{Binding MediumDiscCount}" IsReadOnly="True" />
-                        <propertyGrid:PropertyStringControl LabelText="Track Annotation" LabelColumnWidth="200" LabelForeground="Gray" Value="{Binding MediumDiscCount}" IsReadOnly="True" />
+                        <propertyGrid:PropertyStringControl LabelText="Track #" LabelColumnWidth="200"  Value="{Binding Track.Position}" IsReadOnly="True" />
+                        <propertyGrid:PropertyStringControl LabelText="Disc #" LabelColumnWidth="200"  Value="{Binding MediumDiscPosition}" IsReadOnly="True" />
+                        <propertyGrid:PropertyStringControl LabelText="Track Count" LabelColumnWidth="200"  Value="{Binding MediumTrackCount}" IsReadOnly="True" />
+                        <propertyGrid:PropertyStringControl LabelText="Disc Count" LabelColumnWidth="200"  Value="{Binding MediumDiscCount}" IsReadOnly="True" />
+                        <propertyGrid:PropertyStringControl LabelText="Annotation" LabelColumnWidth="200"  Value="{Binding Annotation}" IsReadOnly="True" />
 
-                        <propertyGrid:PropertyTokenizingStringControl LabelText="Tags" LabelColumnWidth="200" LabelForeground="Gray" Value="{Binding Tags}" />
-                        <propertyGrid:PropertyTokenizingStringControl LabelText="Genres" LabelColumnWidth="200" LabelForeground="Gray" Value="{Binding Genres}" />
+                        <propertyGrid:PropertyTokenizingStringControl LabelText="Tags" LabelColumnWidth="200"  Value="{Binding Tags}" />
+                        <propertyGrid:PropertyTokenizingStringControl LabelText="Genres" LabelColumnWidth="200"  Value="{Binding Genres}" />
 
                     </StackPanel>
                 </GroupBox>
@@ -55,39 +56,46 @@
                 <!-- Release Information -->
                 <GroupBox Header="Release Information" Grid.Column="2">
                     <StackPanel>
-                        <propertyGrid:PropertyStringControl LabelText="Release Date" LabelColumnWidth="200" LabelForeground="Gray" Value="{Binding ReleaseDate}" IsReadOnly="True" />
-                        <propertyGrid:PropertyStringControl LabelText="Release Status" LabelColumnWidth="200" LabelForeground="Gray" Value="{Binding ReleaseStatus}" IsReadOnly="True" />
-                        <propertyGrid:PropertyStringControl LabelText="Release Quality" LabelColumnWidth="200" LabelForeground="Gray" Value="{Binding Quality}" IsReadOnly="True" />
-                        <propertyGrid:PropertyStringControl LabelText="Release Packaging" LabelColumnWidth="200" LabelForeground="Gray" Value="{Binding Packaging}" IsReadOnly="True" />
+                        <propertyGrid:PropertyStringControl LabelText="Release Title" LabelColumnWidth="200"  Value="{Binding ReleaseTitle}" IsReadOnly="True" />
+                        <propertyGrid:PropertyStringControl LabelText="Release Date" LabelColumnWidth="200"  Value="{Binding ReleaseDate}" IsReadOnly="True" />
+                        <propertyGrid:PropertyStringControl LabelText="Release Status" LabelColumnWidth="200"  Value="{Binding ReleaseStatus}" IsReadOnly="True" />
+                        <propertyGrid:PropertyStringControl LabelText="Release Quality" LabelColumnWidth="200"  Value="{Binding Quality}" IsReadOnly="True" />
+                        <propertyGrid:PropertyStringControl LabelText="Release Packaging" LabelColumnWidth="200"  Value="{Binding Packaging}" IsReadOnly="True" />
 
-                        <propertyGrid:PropertyStringControl LabelText="Label Name" LabelColumnWidth="200" LabelForeground="Gray" Value="{Binding LabelName}" IsReadOnly="True" />
-                        <propertyGrid:PropertyStringControl LabelText="Label Code" LabelColumnWidth="200" LabelForeground="Gray" Value="{Binding LabelCode}" IsReadOnly="True" />
-                        <propertyGrid:PropertyStringControl LabelText="Label Catalog #" LabelColumnWidth="200" LabelForeground="Gray" Value="{Binding LabelCatalogNumber}" IsReadOnly="True" />
-                        <propertyGrid:PropertyStringControl LabelText="Label Country" LabelColumnWidth="200" LabelForeground="Gray" Value="{Binding LabelCountry}" IsReadOnly="True" />
-                        
+                        <propertyGrid:PropertyStringControl LabelText="Label Name" LabelColumnWidth="200"  Value="{Binding LabelName}" IsReadOnly="True" />
+                        <propertyGrid:PropertyStringControl LabelText="Label Code" LabelColumnWidth="200"  Value="{Binding LabelCode}" IsReadOnly="True" />
+                        <propertyGrid:PropertyStringControl LabelText="Label Catalog #" LabelColumnWidth="200"  Value="{Binding LabelCatalogNumber}" IsReadOnly="True" />
+                        <propertyGrid:PropertyStringControl LabelText="Label Country" LabelColumnWidth="200"  Value="{Binding LabelCountry}" IsReadOnly="True" />
+                       
+                    </StackPanel>
+                </GroupBox>
+
+                <GroupBox Header="Album Artwork" Grid.Column="3">
+                    <StackPanel>
                         <propertyGrid:PropertyImageControl LabelText="Front Cover" 
                                                            LabelColumnWidth="200"
-                                                           LabelForeground="Gray"
+                                                           
                                                            Value="{Binding FrontCover}" />
 
                         <propertyGrid:PropertyImageControl LabelText="Back Cover" 
                                                            LabelColumnWidth="200"
-                                                           LabelForeground="Gray"
+                                                           
                                                            Value="{Binding BackCover}" />
-
                     </StackPanel>
                 </GroupBox>
 
-                <GroupBox Header="Related Resources / Interested Parties" Grid.Column="3">
+                <GroupBox Header="Related Resources / Interested Parties" Grid.Column="4">
                     <StackPanel>
-                        <propertyGrid:PropertyStringEnumerableControl LabelText="Label Ipis" 
+                        <propertyGrid:PropertyStringEnumerableControl LabelText="Label Interested Parties" 
                                                                       LabelColumnWidth="200"
-                                                                      LabelForeground="Gray"
+                                                                      
+                                                                      IsReadOnly="True"
                                                                       Value="{Binding LabelIpis}" />
 
                         <propertyGrid:PropertyStringEnumerableControl LabelText="Related Links" 
                                                                       LabelColumnWidth="200"
-                                                                      LabelForeground="Gray"
+                                                                      
+                                                                      IsReadOnly="True"
                                                                       Value="{Binding AssociatedUrls}" />
                     </StackPanel>
                 </GroupBox>

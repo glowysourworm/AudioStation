@@ -4,7 +4,8 @@
              xmlns:fa5="http://schemas.fontawesome.com/icons/"
              xmlns:system="clr-namespace:System;assembly=System"
              xmlns:xceed="http://schemas.xceed.com/wpf/xaml/toolkit"
-             xmlns:local="clr-namespace:AudioStation.Controls">
+             xmlns:local="clr-namespace:AudioStation.Controls"
+             Style="{StaticResource PropertyGridUserControl}">             
     <Grid>
 
         <Grid.RowDefinitions>
@@ -22,13 +23,14 @@
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
-            
-            <TextBlock Text="{Binding LabelText, RelativeSource={RelativeSource AncestorType=UserControl}}" 
-				       Foreground="{Binding LabelForeground, RelativeSource={RelativeSource AncestorType=UserControl}}" 
-                       ToolTip="{Binding LabelText, RelativeSource={RelativeSource AncestorType=UserControl}}"
-				       Margin="5 0" VerticalAlignment="Center" />
 
-            <Button fa5:Awesome.Content="Solid_Plus" Style="{StaticResource SmallControlButton}" Grid.Column="1" />
+            <TextBlock Text="{Binding LabelText, RelativeSource={RelativeSource AncestorType=UserControl}}" 
+				       Style="{StaticResource PropertyGridLabel}" />
+
+            <Button fa5:Awesome.Content="Solid_Plus" 
+                    Visibility="{Binding IsReadOnly, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BoolInverseVisibilityCollapseConverter}}"
+                    Style="{StaticResource SmallControlButton}" 
+                    Grid.Column="1" />
 
         </Grid>
 
@@ -42,11 +44,14 @@
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
 
-                            <xceed:WatermarkTextBox Text="{Binding Path=.}"
-                                                Watermark="{Binding LabelText, RelativeSource={RelativeSource AncestorType=UserControl}}" 
-                                                IsReadOnly="{Binding IsReadOnly, RelativeSource={RelativeSource AncestorType=UserControl}}" />
+                            <xceed:WatermarkTextBox Text="{Binding Path=.}" 
+                                                    Watermark="{Binding LabelText, RelativeSource={RelativeSource AncestorType=UserControl}}" 
+                                                    IsReadOnly="{Binding IsReadOnly, RelativeSource={RelativeSource AncestorType=UserControl}}" />
 
-                            <Button fa5:Awesome.Content="Solid_Minus" Style="{StaticResource SmallControlButton}" Grid.Column="1" />
+                            <Button fa5:Awesome.Content="Solid_Minus" 
+                                    Visibility="{Binding IsReadOnly, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BoolInverseVisibilityCollapseConverter}}"
+                                    Style="{StaticResource SmallControlButton}" 
+                                    Grid.Column="1" />
                         </Grid>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>

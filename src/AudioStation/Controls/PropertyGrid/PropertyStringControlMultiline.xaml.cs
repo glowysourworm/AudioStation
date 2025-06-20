@@ -12,9 +12,6 @@ namespace AudioStation.Controls.PropertyGrid
         public static readonly DependencyProperty LabelColumnWidthProperty =
             DependencyProperty.Register("LabelColumnWidth", typeof(double), typeof(PropertyStringControlMultiline), new PropertyMetadata(150.0D));
 
-        public static readonly DependencyProperty LabelForegroundProperty =
-            DependencyProperty.Register("LabelForeground", typeof(Brush), typeof(PropertyStringControlMultiline), new PropertyMetadata(Brushes.Black));
-
         public static readonly DependencyProperty MaxLinesProperty =
             DependencyProperty.Register("MaxLinesForeground", typeof(int), typeof(PropertyStringControlMultiline), new PropertyMetadata(5));
 
@@ -36,11 +33,6 @@ namespace AudioStation.Controls.PropertyGrid
         {
             get { return (double)GetValue(LabelColumnWidthProperty); }
             set { SetValue(LabelColumnWidthProperty, value); }
-        }
-        public Brush LabelForeground
-        {
-            get { return (Brush)GetValue(LabelForegroundProperty); }
-            set { SetValue(LabelForegroundProperty, value); }
         }
         public string Value
         {

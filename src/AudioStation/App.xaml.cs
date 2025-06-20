@@ -30,6 +30,7 @@ namespace AudioStation
             var resourceUri9 = new Uri("pack://application:,,,/AudioStation;Component/Resources/LogDataTemplates.xaml");
             var resourceUri10 = new Uri("pack://application:,,,/AudioStation;Component/Resources/DataGridStyles.xaml");
             var resourceUri11 = new Uri("pack://application:,,,/AudioStation;Component/Resources/MainThemeStyles.xaml");
+            var resourceUri12 = new Uri("pack://application:,,,/AudioStation;Component/Resources/PropertyGridStyles.xaml");
 
             var resourceDictionary0 = new ResourceDictionary();
             var resourceDictionary1 = new ResourceDictionary();
@@ -43,6 +44,7 @@ namespace AudioStation
             var resourceDictionary9 = new ResourceDictionary();
             var resourceDictionary10 = new ResourceDictionary();
             var resourceDictionary11 = new ResourceDictionary();
+            var resourceDictionary12 = new ResourceDictionary();
 
             resourceDictionary0.Source = resourceUri0;
             resourceDictionary1.Source = resourceUri1;
@@ -56,6 +58,7 @@ namespace AudioStation
             resourceDictionary9.Source = resourceUri9;
             resourceDictionary10.Source = resourceUri10;
             resourceDictionary11.Source = resourceUri11;
+            resourceDictionary12.Source = resourceUri12;
 
             this.Resources.MergedDictionaries.Add(resourceDictionary0);
             this.Resources.MergedDictionaries.Add(resourceDictionary1);
@@ -69,6 +72,7 @@ namespace AudioStation
             this.Resources.MergedDictionaries.Add(resourceDictionary9);
             this.Resources.MergedDictionaries.Add(resourceDictionary10);
             this.Resources.MergedDictionaries.Add(resourceDictionary11);
+            this.Resources.MergedDictionaries.Add(resourceDictionary12);
         }
 
         protected override void OnStartup(StartupEventArgs e)

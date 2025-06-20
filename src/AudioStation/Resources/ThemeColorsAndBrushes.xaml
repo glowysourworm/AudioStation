@@ -46,8 +46,14 @@
     <SolidColorBrush x:Key="SmallButtonBackgroundHover">#8F33AAFF</SolidColorBrush>
     <SolidColorBrush x:Key="SmallButtonBackgroundPressed">#AF33AAFF</SolidColorBrush>
     <SolidColorBrush x:Key="SmallToggleButtonBackgroundChecked">#8F33AAFF</SolidColorBrush>
-    <SolidColorBrush x:Key="SmallButtonBorder">#FFAAAAAA</SolidColorBrush>    
-    
+    <SolidColorBrush x:Key="SmallButtonBorder">#FFAAAAAA</SolidColorBrush>
+
+    <SolidColorBrush x:Key="UserControlButtonForeground">#FF555555</SolidColorBrush>
+    <SolidColorBrush x:Key="UserControlButtonBackground">White</SolidColorBrush>
+    <SolidColorBrush x:Key="UserControlButtonBackgroundHover">#8F33AAFF</SolidColorBrush>
+    <SolidColorBrush x:Key="UserControlButtonBackgroundPressed">#AF33AAFF</SolidColorBrush>
+    <SolidColorBrush x:Key="UserControlButtonBorder">#FF888888</SolidColorBrush>
+
     <SolidColorBrush x:Key="LargeInputButtonBackground">White</SolidColorBrush>
     <SolidColorBrush x:Key="LargeInputButtonBackgroundHover">#8F33AAFF</SolidColorBrush>
     <SolidColorBrush x:Key="LargeInputButtonBackgroundPressed">#AF33AAFF</SolidColorBrush>
@@ -94,5 +100,8 @@
     <SolidColorBrush x:Key="ManagerTabItemBackgroundSelected">#8F000000</SolidColorBrush>
     <SolidColorBrush x:Key="ManagerTabItemForeground">White</SolidColorBrush>
     <SolidColorBrush x:Key="ManagerTabItemBorder">Gray</SolidColorBrush>
+
+    <SolidColorBrush x:Key="PlaylistAlternationBackground">AliceBlue</SolidColorBrush>
+    <SolidColorBrush x:Key="PropertyGridAlternationBackground">AliceBlue</SolidColorBrush>
 
 </ResourceDictionary>
