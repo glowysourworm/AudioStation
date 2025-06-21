@@ -95,6 +95,9 @@ namespace AudioStation.Controls
                         throw new Exception("Unhandled LibraryEntityType:  LibraryImageControl.cs");
                 }
 
+                if (this.Source == null)
+                    this.Source = _cacheController.GetDefaultImage(this.ImageSize);
+
                 InvalidateVisual();
             }
         }

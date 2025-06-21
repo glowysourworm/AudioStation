@@ -6,7 +6,29 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
+    <PackageIcon>icon.png</PackageIcon>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="placeholder_FullSized.png" />
+    <None Remove="placeholder_Medium.png" />
+    <None Remove="placeholder_Small.png" />
+    <None Remove="placeholder_Thumbnail.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="placeholder_FullSized.png" />
+    <EmbeddedResource Include="placeholder_Medium.png" />
+    <EmbeddedResource Include="placeholder_Small.png" />
+    <EmbeddedResource Include="placeholder_Thumbnail.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\..\SimpleNotepad\SimpleNotepad\icon.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="AcoustID.NET" Version="1.3.3" />

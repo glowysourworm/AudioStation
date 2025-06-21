@@ -197,10 +197,10 @@
 
                         <GroupBox Header="ReplayGain">
                             <StackPanel>
-                                <propertyGrid:PropertyDoubleSliderControl LabelText="Track Gain" Value="{Binding Tag.ReplayGainTrackGain}" IsReadOnly="False" />
-                                <propertyGrid:PropertyDoubleSliderControl LabelText="Track Peak" Value="{Binding Tag.ReplayGainTrackPeak}" IsReadOnly="False" />
-                                <propertyGrid:PropertyDoubleSliderControl LabelText="Album Gain" Value="{Binding Tag.ReplayGainAlbumGain}" IsReadOnly="False" />
-                                <propertyGrid:PropertyDoubleSliderControl LabelText="Album Peak" Value="{Binding Tag.ReplayGainAlbumPeak}" IsReadOnly="False" />
+                                <propertyGrid:PropertyStringControl LabelText="Track Gain" Value="{Binding Tag.ReplayGainTrackGain}" IsReadOnly="False" />
+                                <propertyGrid:PropertyStringControl LabelText="Track Peak" Value="{Binding Tag.ReplayGainTrackPeak}" IsReadOnly="False" />
+                                <propertyGrid:PropertyStringControl LabelText="Album Gain" Value="{Binding Tag.ReplayGainAlbumGain}" IsReadOnly="False" />
+                                <propertyGrid:PropertyStringControl LabelText="Album Peak" Value="{Binding Tag.ReplayGainAlbumPeak}" IsReadOnly="False" />
                             </StackPanel>
                         </GroupBox>
 

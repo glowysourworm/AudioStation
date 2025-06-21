@@ -93,6 +93,9 @@ namespace AudioStation.Controls
                     default:
                         throw new Exception("Unhandled Picture Type:  WebImageControl.cs");
                 }
+
+                if (this.Source == null)
+                    this.Source = _cacheController.GetDefaultImage(this.ImageSize);
             }
         }
     }

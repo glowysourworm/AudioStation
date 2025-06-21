@@ -1,4 +1,6 @@
-﻿using System.Net.Http;
+﻿using System.IO;
+using System.Net.Http;
+using System.Reflection;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Threading;
@@ -12,6 +14,7 @@ using AudioStation.Model;
 using Microsoft.Extensions.Logging;
 
 using SimpleWpf.IocFramework.Application.Attribute;
+using SimpleWpf.SimpleCollections.Collection;
 
 using TagLib;
 
@@ -35,6 +38,8 @@ namespace AudioStation.Controller
         protected ImageCacheSet<ImageCacheType, ImageCacheKey, ImageCacheItem> AlbumCacheSet;
         protected ImageCacheSet<ImageCacheType, string, ImageCacheItem> WebImageCacheSet;
 
+        protected SimpleDictionary<ImageCacheType, ImageSource> DefaultImageCache { get; private set; }
+
         private object _artistLock = new object();
         private object _albumLock = new object();
         private object _webLock = new object();
@@ -56,6 +61,9 @@ namespace AudioStation.Controller
             // TASK THREAD ONLY!
             this.WebImageCacheSet = new ImageCacheSet<ImageCacheType, string, ImageCacheItem>();
 
+            // Default image
+            this.DefaultImageCache = new SimpleDictionary<ImageCacheType, ImageSource>();
+
             // Add Caches
             this.ArtistCacheSet.AddCache(ImageCacheType.Thumbnail, new ImageCache<ImageCacheKey, ImageCacheItem>(THUMBNAIL_CACHE_MAX_ENTRIES));
             this.ArtistCacheSet.AddCache(ImageCacheType.Small, new ImageCache<ImageCacheKey, ImageCacheItem>(SMALL_CACHE_MAX_ENTRIES));
@@ -73,6 +81,55 @@ namespace AudioStation.Controller
             this.WebImageCacheSet.AddCache(ImageCacheType.FullSize, new ImageCache<string, ImageCacheItem>(FULL_CACHE_MAX_ENTRIES));
 
             _httpClient = new HttpClient();
+
+            Initialize();
+        }
+
+        private void Initialize()
+        {
+            // Can't (yet) resize PNG image using GDI. So, these were bilinear resized before embedding them as resources. Let them get transformed
+            // as "FullSized"; but cache them as their destination size.
+            //
+            using (var stream = Assembly.GetAssembly(typeof(ImageCacheController)).GetManifestResourceStream("AudioStation.placeholder_FullSized.png"))
+            {
+                using (var memoryStream =  new MemoryStream())
+                {
+                    stream.CopyTo(memoryStream);
+                    memoryStream.Seek(0, SeekOrigin.Begin);
+
+                    this.DefaultImageCache.Add(ImageCacheType.FullSize, _bitmapConverter.BitmapDataToBitmapSource(memoryStream.GetBuffer(), new ImageSize(ImageCacheType.FullSize), "image/png"));
+                }
+            }
+            using (var stream = Assembly.GetAssembly(typeof(ImageCacheController)).GetManifestResourceStream("AudioStation.placeholder_Medium.png"))
+            {
+                using (var memoryStream = new MemoryStream())
+                {
+                    stream.CopyTo(memoryStream);
+                    memoryStream.Seek(0, SeekOrigin.Begin);
+
+                    this.DefaultImageCache.Add(ImageCacheType.Medium, _bitmapConverter.BitmapDataToBitmapSource(memoryStream.GetBuffer(), new ImageSize(ImageCacheType.FullSize), "image/png"));
+                }
+            }
+            using (var stream = Assembly.GetAssembly(typeof(ImageCacheController)).GetManifestResourceStream("AudioStation.placeholder_Small.png"))
+            {
+                using (var memoryStream = new MemoryStream())
+                {
+                    stream.CopyTo(memoryStream);
+                    memoryStream.Seek(0, SeekOrigin.Begin);
+
+                    this.DefaultImageCache.Add(ImageCacheType.Small, _bitmapConverter.BitmapDataToBitmapSource(memoryStream.GetBuffer(), new ImageSize(ImageCacheType.FullSize), "image/png"));
+                }
+            }
+            using (var stream = Assembly.GetAssembly(typeof(ImageCacheController)).GetManifestResourceStream("AudioStation.placeholder_Thumbnail.png"))
+            {
+                using (var memoryStream = new MemoryStream())
+                {
+                    stream.CopyTo(memoryStream);
+                    memoryStream.Seek(0, SeekOrigin.Begin);
+
+                    this.DefaultImageCache.Add(ImageCacheType.Thumbnail, _bitmapConverter.BitmapDataToBitmapSource(memoryStream.GetBuffer(), new ImageSize(ImageCacheType.FullSize), "image/png"));
+                }
+            }
         }
 
         public async Task<ImageSource> GetForArtist(int artistId, ImageCacheType cacheAsType)
@@ -86,7 +143,7 @@ namespace AudioStation.Controller
                 RaiseLog("Error loading bitmaps for artist:  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
             }
 
-            return null;
+            return this.DefaultImageCache[cacheAsType];
         }
 
         public async Task<ImageSource> GetForAlbum(int albumId, ImageCacheType cacheAsType)
@@ -100,7 +157,12 @@ namespace AudioStation.Controller
                 RaiseLog("Error loading bitmaps for album:  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
             }
 
-            return null;
+            return this.DefaultImageCache[cacheAsType];
+        }
+
+        public ImageSource GetDefaultImage(ImageCacheType cacheAsType)
+        {
+            return this.DefaultImageCache[cacheAsType];
         }
 
         public async Task<ImageSource> GetFromEndpoint(string endpoint, PictureType cacheType, ImageCacheType cacheAsType)
@@ -117,7 +179,7 @@ namespace AudioStation.Controller
                 var data = await GetWebImage(endpoint);
 
                 if (data == null)
-                    return null;
+                    return this.DefaultImageCache[cacheAsType];
 
                 var imageSource = _bitmapConverter.BitmapDataToBitmapSource(data, new ImageSize(cacheAsType), null);
                 
@@ -137,7 +199,7 @@ namespace AudioStation.Controller
                 RaiseLog("Error loading web image:  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
             }
 
-            return null;
+            return this.DefaultImageCache[cacheAsType];
         }
 
         private async Task<byte[]?> GetWebImage(string endpoint)

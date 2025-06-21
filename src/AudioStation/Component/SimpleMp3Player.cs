@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Media;
 using System.Windows.Threading;
 
@@ -27,8 +26,8 @@ namespace AudioStation.Component
         public event SimpleEventHandler<TimeSpan> PlaybackTickEvent;
         public event SimpleEventHandler PlaybackStoppedEvent;
 
-        public bool HasAudio 
-        { 
+        public bool HasAudio
+        {
             get { return _player?.HasAudio ?? false; }
         }
 
@@ -50,7 +49,7 @@ namespace AudioStation.Component
 
         private void OnMediaOpened(object? sender, EventArgs e)
         {
-            
+
         }
 
         private void OnTimerTick(object? state)

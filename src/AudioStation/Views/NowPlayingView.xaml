@@ -12,7 +12,7 @@
     <Grid>
 
         <Grid.ColumnDefinitions>
-            <ColumnDefinition MinWidth="300" MaxWidth="500" Width="*" />
+            <ColumnDefinition MinWidth="450" MaxWidth="550" Width="*" />
             <ColumnDefinition Width="3*" />
         </Grid.ColumnDefinitions>
         
@@ -62,8 +62,9 @@
                      VirtualizingPanel.VirtualizationMode="Recycling"
                      VirtualizingPanel.IsContainerVirtualizable="True"
                      VirtualizingPanel.CacheLength="1"
-                     VirtualizingPanel.ScrollUnit="Item"                     
+                     VirtualizingPanel.ScrollUnit="Pixel"                     
                      ScrollViewer.ScrollChanged="ArtistLB_ScrollChanged"
+                     HorizontalContentAlignment="Stretch"
                      ItemContainerStyle="{StaticResource HoverSelectItemContainerStyleWithAlternation}"
                      AlternationCount="2"
 				     SelectionChanged="OnArtistSelectionChanged"                  
@@ -83,38 +84,125 @@
 
                 <ListBox.ItemTemplate>
                     <DataTemplate>
-                        <Border>
-                            <StackPanel Orientation="Horizontal">
+                        <Grid>
 
-                                <controls:LibraryImageControl Height="50" Width="50" 
-                                                              ImageSize="{x:Static cacheModel:ImageCacheType.Small}"
-                                                             VerticalAlignment="Top" Margin="5">
-                                </controls:LibraryImageControl>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
 
-                                <StackPanel>
-                                    <TextBlock Text="{Binding Artist}" FontSize="14" Margin="5" />
+                            <!-- Albums (Preview) -->
+                            <!--fa5:SvgAwesome Icon="Solid_CompactDisc" Style="{StaticResource FontAwesomeIconDefault}" /-->
 
-                                    <StackPanel Orientation="Horizontal" Margin="0 5">
-                                        <TextBlock Text="{Binding Albums.Count}" Margin="5 0" FontSize="10" />
-                                        <TextBlock Text=" Album(s)" Margin="5 0" FontSize="10" />
-                                    </StackPanel>
+                            <!-- Artist -->
+                            <Border  Grid.Column="0">
+                                <TextBlock Text="{Binding Artist}"
+                                           Style="{StaticResource LabelTextBlock}" 
+                                           Margin="5">
+                                </TextBlock>
+                            </Border>
 
-                                </StackPanel>
+                            <!-- Album Count -->
+                            <TextBlock Style="{StaticResource LabelDetailTextBlock}" 
+                                       Grid.Column="1" 
+                                       VerticalAlignment="Center" 
+                                       HorizontalAlignment="Right"
+                                       Margin="5">
+                                <Run Text="{Binding Albums.Count, Mode=OneWay}" />
+                                <Run Text=" Albums" />
+                            </TextBlock>
 
-                            </StackPanel>
-                        </Border>
+
+                            <!-- Albums (Detail) -->
+                            <ListBox x:Name="AlbumsLB" 
+                                     MouseDoubleClick="AlbumsLB_MouseDoubleClick"
+                                     SelectionChanged="AlbumsLB_SelectionChanged"
+                                     Background="White"
+                                     BorderBrush="Transparent"
+                                     BorderThickness="0"
+                                     Margin="0"
+                                     ItemsSource="{Binding Albums}"                 
+                                     ItemContainerStyle="{StaticResource HoverSelectItemContainerStyleWithAlternation_AlbumList}"
+                                     HorizontalContentAlignment="Stretch"
+                                     AlternationCount="2"                                          
+                                     Grid.Row="1" Grid.ColumnSpan="2"
+                                     Visibility="{Binding IsSelected, RelativeSource={RelativeSource AncestorType=ListBoxItem}, Converter={StaticResource BoolVisibilityCollapseConverter}}">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid>
+
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition Width="*" />
+                                            </Grid.ColumnDefinitions>
+                                            
+                                            <!-- Album Artwork -->
+                                            <controls:LibraryImageControl Height="24" Width="24" 
+                                                                          ImageSize="{x:Static cacheModel:ImageCacheType.Thumbnail}"
+                                                                          VerticalAlignment="Top" Margin="5">
+                                            </controls:LibraryImageControl>
+
+                                            <!-- Album -->
+                                            <TextBlock Text="{Binding Album}" 
+                                                       Style="{StaticResource LabelTextBlock}" 
+                                                       TextWrapping="NoWrap"
+                                                       TextTrimming="CharacterEllipsis"
+                                                       Width="200"
+                                                       Grid.Column="1" 
+                                                       VerticalAlignment="Center" />
+
+                                            <!-- Album Details -->
+                                            <Grid Grid.Column="2" HorizontalAlignment="Right" VerticalAlignment="Center">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto" />
+                                                    <ColumnDefinition Width="Auto" />
+                                                    <ColumnDefinition Width="*" />
+                                                </Grid.ColumnDefinitions>
+
+                                                <!-- Tracks -->
+                                                <TextBlock Style="{StaticResource LabelDetailTextBlock}" Grid.Column="0" VerticalAlignment="Center">
+                                                    <Run Text="{Binding Tracks.Count, Mode=OneWay}" />
+                                                    <Run Text=" Tracks" />
+                                                </TextBlock>
+
+                                                <!-- Album Duration -->
+                                                <TextBlock Style="{StaticResource LabelDetailTextBlock}" Grid.Column="1" VerticalAlignment="Center" >
+                                                    <Run Text=" / " />
+                                                    <Run Text="{Binding Duration, StringFormat={}{0:hh}:{0:mm}:{0:ss}}" />
+                                                </TextBlock>
+
+                                                <!-- Year -->
+                                                <TextBlock Style="{StaticResource LabelDetailTextBlock}" Grid.Column="2" HorizontalAlignment="Right" VerticalAlignment="Center">
+                                                    <Run Text=" / " />
+                                                    <Run Text="{Binding Year}" />
+                                                </TextBlock>
+                                            </Grid>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+
+                        </Grid>
                     </DataTemplate>
                 </ListBox.ItemTemplate>
             </ListBox>
         </Grid>
 
         <!-- Artist Detail (List of Album Details) -->
-        <ListBox x:Name="ArtistDetailLB" Grid.Column="1" 
+        <Border BorderBrush="LightGray" BorderThickness="0 0 0 0"  Grid.Column="1" VerticalAlignment="Top">
+            <views:AlbumView x:Name="AlbumViewItem" TrackSelected="AlbumViewItem_TrackSelected" />
+        </Border>
+        
+        <!--ListBox x:Name="ArtistDetailLB" Grid.Column="1" 
                  VirtualizingPanel.IsVirtualizing="False"
                  VirtualizingPanel.ScrollUnit="Pixel"
                  HorizontalContentAlignment="Stretch"
                  PreviewMouseWheel="ArtistDetailLB_PreviewMouseWheel"
-                 ItemsSource="{Binding SelectedItem.Albums, ElementName=ArtistLB}"
                  ItemContainerStyle="{StaticResource TransparentItemContainerStyle}"
 				 BorderBrush="LightGray" BorderThickness="0,1,1,1">
 
@@ -126,7 +214,7 @@
                 </DataTemplate>
             </ListBox.ItemTemplate>
 
-        </ListBox>
+        </ListBox-->
 
         <!-- Now Playing:  Playlist -->
         <!--Border x:Name="PlaylistContainer" Grid.Column="2" DataContext="{Binding Playlist}">

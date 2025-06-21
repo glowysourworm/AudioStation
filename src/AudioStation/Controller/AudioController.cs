@@ -142,6 +142,7 @@ namespace AudioStation.Controller
                 _nowPlaying.CurrentTime = TimeSpan.Zero;
 
                 // Hook Events
+                _player.SetVolume(1);
                 _player.PlaybackStoppedEvent += OnPlaybackStopped;
                 _player.PlaybackTickEvent += OnPlaybackTick;
 

@@ -2,7 +2,6 @@
 using System.Windows.Controls;
 
 using AudioStation.Component.Interface;
-using AudioStation.Controller.Interface;
 using AudioStation.Core.Database;
 using AudioStation.Core.Model;
 using AudioStation.Event;
@@ -23,6 +22,8 @@ namespace AudioStation.Views
         private readonly IIocEventAggregator _eventAggregator;
 
         private int _pageNumber = 0;
+        private bool _resizing = false;
+        private bool _loading = false;
 
         public NowPlayingView()
         {
@@ -51,9 +52,23 @@ namespace AudioStation.Views
             }
         }
 
+        protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)
+        {
+            _resizing = true;
+
+            base.OnRenderSizeChanged(sizeInfo);
+
+            _resizing = false;
+        }
+
         private void LoadArtistPage(int pageNumber, bool reset)
         {
+            // Don't load during resize
+            if (_resizing)
+                return;
+
             _pageNumber = pageNumber;
+            _loading = true;
 
             var viewModel = this.DataContext as LibraryViewModel;
 
@@ -62,7 +77,7 @@ namespace AudioStation.Views
                 var result = _viewModelLoader.LoadArtistPage(new PageRequest<Mp3FileReferenceArtist, string>()
                 {
                     PageNumber = pageNumber,
-                    PageSize = 30,                              // TODO: Observable collections don't work w/ the view
+                    PageSize = 50,                              // TODO: Observable collections don't work w/ the view
                     OrderByCallback = (entity) => entity.Name,
                     WhereCallback = !string.IsNullOrWhiteSpace(viewModel.ArtistSearch) ? this.ArtistContainsCallback : null
                 });
@@ -72,6 +87,8 @@ namespace AudioStation.Views
                     viewModel.LoadArtists(result, reset);
                 }
             }
+
+            _loading = false;
         }
 
         private bool ArtistContainsCallback(Mp3FileReferenceArtist artist)
@@ -97,28 +114,28 @@ namespace AudioStation.Views
 
         private void OnArtistDetailDoubleClick(object? sender, RoutedEventArgs e)
         {
-            var albums = this.ArtistDetailLB.ItemsSource as IEnumerable<AlbumViewModel>;
+            //var albums = this.ArtistDetailLB.ItemsSource as IEnumerable<AlbumViewModel>;
 
-            if (albums != null)
-            {
-                var firstAlbum = albums.First();
+            //if (albums != null)
+            //{
+            //    var firstAlbum = albums.First();
 
-                LoadPlaylist(firstAlbum.Tracks.First(), firstAlbum);
-            }
+            //    LoadPlaylist(firstAlbum.Tracks.First(), firstAlbum);
+            //}
         }
 
         private void OnPlaylistDoubleClick(object? sender, RoutedEventArgs e)
         {
-            var selectedTrack = (e.Source as Control).DataContext as LibraryEntryViewModel;
-            var albums = this.ArtistDetailLB.ItemsSource as IEnumerable<AlbumViewModel>;
+            //var selectedTrack = (e.Source as Control).DataContext as LibraryEntryViewModel;
+            //var albums = this.ArtistDetailLB.ItemsSource as IEnumerable<AlbumViewModel>;
 
-            if (selectedTrack != null && albums != null)
-            {
-                // Contains (by reference) not yet hooked up for sorted observable collection
-                var selectedAlbum = albums.First(album => album.Tracks.Any(x => x.FileName == selectedTrack.FileName));
+            //if (selectedTrack != null && albums != null)
+            //{
+            //    // Contains (by reference) not yet hooked up for sorted observable collection
+            //    var selectedAlbum = albums.First(album => album.Tracks.Any(x => x.FileName == selectedTrack.FileName));
 
-                LoadPlaylist(selectedTrack, selectedAlbum);
-            }
+            //    LoadPlaylist(selectedTrack, selectedAlbum);
+            //}
         }
 
         private void AlbumViewItem_TrackSelected(object sender, LibraryEntryViewModel selectedTrack)
@@ -190,12 +207,15 @@ namespace AudioStation.Views
 
         private void ArtistLB_ScrollChanged(object sender, ScrollChangedEventArgs e)
         {
+            if (_resizing || _loading)
+                return;
+
             var scrollViewer = WpfVisualFinders.FindChild<ScrollViewer>(sender as DependencyObject);
             var viewModel = this.DataContext as LibraryViewModel;
 
             if (scrollViewer != null && viewModel != null)
             {
-                if (scrollViewer.VerticalOffset >= (0.8 * scrollViewer.ScrollableHeight))
+                if (scrollViewer.VerticalOffset >= (0.90 * scrollViewer.ScrollableHeight))
                 {
                     LoadArtistPage(_pageNumber + 1, false);
                 }
@@ -205,6 +225,26 @@ namespace AudioStation.Views
         private void OnArtistSearchChanged(object sender, TextChangedEventArgs e)
         {
             LoadArtistPage(1, true);
+        }
+
+        private void AlbumsLB_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            var albumViewModel = (e.OriginalSource as FrameworkElement).DataContext as AlbumViewModel;
+
+            if (albumViewModel != null)
+            {
+                this.AlbumViewItem.DataContext = albumViewModel;
+            }
+        }
+
+        private void AlbumsLB_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (e.AddedItems != null &&
+                e.AddedItems.Count > 0 &&
+                e.AddedItems[0] is AlbumViewModel)
+            {
+                this.AlbumViewItem.DataContext = e.AddedItems[0] as AlbumViewModel;
+            }
         }
     }
 }

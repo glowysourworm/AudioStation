@@ -25,5 +25,10 @@ namespace AudioStation.Controller.Interface
         /// other media web types are considered for separate caching.
         /// </summary>
         Task<ImageSource> GetFromEndpoint(string endpoint, PictureType cacheType, ImageCacheType cacheAsType);
+
+        /// <summary>
+        /// Returns default image source
+        /// </summary>
+        ImageSource GetDefaultImage(ImageCacheType cacheAsType);
     }
 }

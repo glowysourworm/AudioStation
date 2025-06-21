@@ -65,6 +65,12 @@
     <SolidColorBrush x:Key="HoverSelectBackgroundSelect">#EFEFEFEF</SolidColorBrush>
     <SolidColorBrush x:Key="HoverSelectForegroundSelect">#FF555555</SolidColorBrush>
 
+    <SolidColorBrush x:Key="HoverSelectBackground_AlbumList">White</SolidColorBrush>
+    <SolidColorBrush x:Key="HoverSelectBackgroundAlternation_AlbumList">White</SolidColorBrush>
+    <SolidColorBrush x:Key="HoverSelectBackgroundHover_AlbumList">#EFEFEFEF</SolidColorBrush>
+    <SolidColorBrush x:Key="HoverSelectBackgroundSelect_AlbumList">#EFEFEFEF</SolidColorBrush>
+    <SolidColorBrush x:Key="HoverSelectForegroundSelect_AlbumList">#FF555555</SolidColorBrush>    
+    
     <SolidColorBrush x:Key="HoverSelectBackground_Playlist">White</SolidColorBrush>
     <SolidColorBrush x:Key="HoverSelectBackgroundAlternation_Playlist">AliceBlue</SolidColorBrush>
     <SolidColorBrush x:Key="HoverSelectBackgroundHover_Playlist">#EFEFEFEF</SolidColorBrush>

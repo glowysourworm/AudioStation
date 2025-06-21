@@ -21,13 +21,11 @@ namespace AudioStation.Component
     public class BitmapConverter : IBitmapConverter
     {
         private readonly IOutputController _outputController;
-        private readonly Random _random;
 
         [IocImportingConstructor]
         public BitmapConverter(IOutputController outputController)
         {
             _outputController = outputController;
-            _random = new Random();
         }
 
         public BitmapSource BitmapDataToBitmapSource(byte[] buffer, ImageSize imageSize, string mimeType)
@@ -148,7 +146,7 @@ namespace AudioStation.Component
                 var bitmapSource = BitmapSource.Create(
                     bitmapData.Width, bitmapData.Height,
                     resultBitmap.HorizontalResolution, resultBitmap.VerticalResolution,
-                    GetWpfPixelFormat(resultBitmap.PixelFormat), null,
+                    GetWpfPixelFormat(resultBitmap.PixelFormat), GetWpfPalette(bitmap.Palette),
                     bitmapData.Scan0, bitmapData.Stride * bitmapData.Height, bitmapData.Stride);
 
                 resultBitmap.UnlockBits(bitmapData);
@@ -217,6 +215,17 @@ namespace AudioStation.Component
                 default:
                     throw new Exception("Unhandled pixel format transfer (GDI -> WPF):  " + format.ToString());
             }
+        }
+
+        private System.Windows.Media.Imaging.BitmapPalette GetWpfPalette(System.Drawing.Imaging.ColorPalette palette)
+        {
+            if (palette == null)
+                return null;
+
+            if (palette.Entries.Length <= 1)
+                return null;
+
+            return new BitmapPalette(palette.Entries.Select(x => System.Windows.Media.Color.FromArgb(x.A, x.R, x.G, x.B)).ToList());
         }
     }
 }
