@@ -198,6 +198,7 @@ public partial class MainViewModel : ViewModelBase, IDisposable
         this.Radio = radioViewModel;
         this.LibraryLoader = libraryLoaderViewModel;
         this.Bandcamp = bandcampViewModel;
+        this.Volume = 1.0f;
 
         this.DatabaseLogLevel = LogLevel.Trace;
         this.GeneralLogLevel = LogLevel.Trace;

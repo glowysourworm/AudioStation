@@ -132,6 +132,7 @@
                                 <RotateTransform Angle="270" />
                             </Border.LayoutTransform>
                             <controls:ScrubberControl x:Name="VolumeControl"
+                                                      ScrubbedRatio="{Binding DataContext.Volume, Mode=OneWay, NotifyOnSourceUpdated=True, RelativeSource={RelativeSource AncestorType=Window}}"
                                                       ScrubbedRatioChanged="VolumeControl_ScrubbedRatioChanged"
                                                       BorderBrush="Transparent"
                                                       ScrubberHandleSize="12"
@@ -151,7 +152,7 @@
         <!-- Scrubber (use margin of the ellipse to set the offset) -->
         <Border Grid.Row="1" Padding="10" CornerRadius="5">
             <Grid>
-                <controls:ScrubberControl ScrubbedRatio="{Binding CurrentTimeRatio}"
+                <controls:ScrubberControl ScrubbedRatio="{Binding CurrentTimeRatio, Mode=OneWay, NotifyOnSourceUpdated=True}"
                                           ScrubbedRatioChanged="ScrubberControl_ScrubbedRatioChanged"
                                           HorizontalContentAlignment="Stretch"                 
                                           BorderBrush="Transparent"

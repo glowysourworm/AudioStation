@@ -1,5 +1,4 @@
-﻿using System.IO;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Shapes;
@@ -53,24 +52,32 @@ namespace AudioStation.Controls
             _geometry = new RectangleGeometry(Rect.Empty);
         }
 
-        private void SetGeometry()
+        private void SetGeometry(Size size)
         {
-            _geometry = new RectangleGeometry(new Rect(this.RenderSize));
-
-            InvalidateVisual();
+            _geometry = new RectangleGeometry(new Rect(size));
         }
 
-        protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)
+        protected override Size MeasureOverride(Size constraint)
         {
-            base.OnRenderSizeChanged(sizeInfo);
+            SetGeometry(constraint);
 
-            SetGeometry();
+            return base.MeasureOverride(constraint);
+        }
+
+        protected override Size ArrangeOverride(Size finalSize)
+        {
+            return base.ArrangeOverride(finalSize);
         }
 
         private static void OnRatioChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             var control = d as ScrubberRectangle;
-            control?.SetGeometry();
+            if (control != null)
+            {
+                control.SetGeometry(control.RenderSize);
+                control.InvalidateMeasure();
+                control.InvalidateVisual();
+            }
         }
 
         protected override void OnRender(DrawingContext drawingContext)
@@ -87,7 +94,7 @@ namespace AudioStation.Controls
             else
             {
                 nonScrubbedRect = new Rect(0, 0, this.RenderSize.Width, this.RenderSize.Height * this.ScrubbedRatio);
-                scrubbedRect = new Rect(0, nonScrubbedRect.Height, this.RenderSize.Width, this.RenderSize.Height * (1 - this.ScrubbedRatio));                
+                scrubbedRect = new Rect(0, nonScrubbedRect.Height, this.RenderSize.Width, this.RenderSize.Height * (1 - this.ScrubbedRatio));
             }
 
             drawingContext.DrawRectangle(this.ScrubbedBrush, null, scrubbedRect);

@@ -9,6 +9,7 @@ namespace AudioStation.Controls
 {
     public partial class ScrubberControl : UserControl
     {
+        // NOTE:  This may only be used as a one-way binding. The event is used to complete the update circuit.
         public static readonly DependencyProperty ScrubbedRatioProperty = 
             DependencyProperty.Register("ScrubbedRatio", typeof(float), typeof(ScrubberControl), new PropertyMetadata(OnScrubberChanged));
 
@@ -78,14 +79,15 @@ namespace AudioStation.Controls
         {
             base.OnMouseMove(e);
 
-            var currentRatio = 0.0D;
+            var scrubbedRatio = 0.0f;
+            var offset = CalculateScrubberOffset(e.GetPosition(this).X, out scrubbedRatio);
 
             // Mouse position must be offset to center of scrubber (in X)
-            this.ScrubberPreviewCursor.Margin = new Thickness(CalculateScrubberOffset(e.GetPosition(this).X - (this.ScrubberHandleSize / 2.0), out currentRatio), 0, 0, 0);
+            this.ScrubberPreviewCursor.Margin = new Thickness(offset, 0, 0, 0);
 
             // -> SetScrubberOffset()
-            if (this.IsMouseCaptured)
-                this.ScrubbedRatio = (float)currentRatio;
+            if (this.IsMouseCaptured && this.ScrubbedRatioChanged != null && scrubbedRatio != this.ScrubbedRatio)
+                this.ScrubbedRatioChanged(scrubbedRatio);
         }
 
         protected override void OnMouseLeave(MouseEventArgs e)
@@ -120,38 +122,47 @@ namespace AudioStation.Controls
         {
             base.OnRenderSizeChanged(sizeInfo);
 
-            SetScrubberOffset();
+            SetScrubberOffset(true);
         }
-        private double CalculateScrubberOffset(double currentPosition, out double currentRatio)
+        private double CalculateScrubberOffset(double currentPosition, out float scrubbedRatio)
         {
-            currentRatio = Math.Clamp(currentPosition / this.RenderSize.Width, 0, 1);
+            // This is the usable UI with respect to the center of the scrubber handle
+            var widthHandle = this.ScrubberHandleSize + 2;                              // Stroke Thickness
 
-            var offset = (currentPosition / this.RenderSize.Width) * this.RenderSize.Width;
+            var offset = currentPosition - (widthHandle / 2.0f);
             var offsetMin = 0;
-            var offsetMax = this.RenderSize.Width - this.ScrubberHandleSize - 2;        // Stroke Thickness
+            var offsetMax = this.RenderSize.Width - widthHandle;
 
-            if (offset > 0)
-                return Math.Clamp(offset, offsetMin, offsetMax);
+            scrubbedRatio = (float)Math.Clamp(currentPosition / this.RenderSize.Width, 0, 1);
 
-            return offsetMin;
+            return Math.Clamp(offset, offsetMin, offsetMax);
         }
-        private void SetScrubberOffset()
+        private void SetScrubberOffset(bool fromSizeChange)
         {
             // Already Changed ScrubbedRatio
-            var currentRatio = 0.0D;
+            var scrubbedRatio = 0.0f;
+            var offset = CalculateScrubberOffset(this.ScrubbedRatio * this.RenderSize.Width, out scrubbedRatio);
 
-            this.ScrubberCursor.Margin = new Thickness(CalculateScrubberOffset(this.ScrubbedRatio * this.RenderSize.Width, out currentRatio), 0, 0, 0);
+            this.ScrubberCursor.Margin = new Thickness(offset, 0, 0, 0);
 
             // Raise Event (not all listeners will bind to the ratio)
-            if (this.ScrubbedRatioChanged != null)
-                this.ScrubbedRatioChanged(this.ScrubbedRatio);
+            if (this.ScrubbedRatioChanged != null && !fromSizeChange && scrubbedRatio != this.ScrubbedRatio)
+                this.ScrubbedRatioChanged(scrubbedRatio);
 
             InvalidateVisual();
         }
         private static void OnScrubberChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
+            // NOTE*** WE CAN ONLY SET THIS AS A ONE-WAY BINDING! Otherwise, the framework removes updates (haven't found out why yet)
+            //         So, we're using the event to fire back changes.
             var control = d as ScrubberControl;
-            control?.SetScrubberOffset();
+
+            if (control != null &&
+                control.IsVisible)
+            {
+                control.SetScrubberOffset(false);
+            }
+            
         }
 
         private void ScrubberLine_MouseEnter(object sender, System.Windows.Input.MouseEventArgs e)

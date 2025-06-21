@@ -87,9 +87,9 @@
         <GradientStop Color="#8F33AAFF" Offset="1" />
     </LinearGradientBrush>    
     <RadialGradientBrush x:Key="PlayerControlHandleBrush" Center="0.5, 0.5" GradientOrigin="0.5, 0.5">
-        <GradientStop Color="#FF333333" Offset="0" />
-        <GradientStop Color="#FFAAAAAA" Offset="0.9" />
-        <GradientStop Color="#FFAAAAAA" Offset="1" />
+        <GradientStop Color="#FF555555" Offset="0" />
+        <GradientStop Color="#FF555555" Offset="0.9" />
+        <GradientStop Color="#FF555555" Offset="1" />
     </RadialGradientBrush>
 
     <SolidColorBrush x:Key="ScrubberHandleDefaultBrush">#FF333333</SolidColorBrush>
