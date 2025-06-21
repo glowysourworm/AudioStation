@@ -7,7 +7,6 @@ using AudioStation.Controller.Interface;
 using AudioStation.Core.Component;
 using AudioStation.Core.Model;
 using AudioStation.Event;
-using AudioStation.ViewModels.Interface;
 
 using NAudio.Wave;
 
@@ -20,29 +19,34 @@ namespace AudioStation.Controller
     [IocExport(typeof(IAudioController))]
     public class AudioController : IAudioController
     {
+        public event SimpleEventHandler<TimeSpan> CurrentTimeUpdated;
+
         private readonly IIocEventAggregator _eventAggregator;
         private IAudioPlayer _player;
-        private INowPlayingViewModel _nowPlaying;
+        private string _streamSource;
+        private StreamSourceType _streamSourceType;
 
         [IocImportingConstructor]
         public AudioController(IIocEventAggregator eventAggregator)
         {
             _player = null;
             _eventAggregator = eventAggregator;
+            _streamSource = null;
+            _streamSourceType = StreamSourceType.Network;
 
-            eventAggregator.GetEvent<LoadPlaybackEvent>().Subscribe(nowPlaying =>
+            eventAggregator.GetEvent<LoadPlaybackEvent>().Subscribe(eventData =>
             {
                 Stop();
 
-                _nowPlaying = nowPlaying;
+                Load(eventData.Source, eventData.SourceType);
             });
             eventAggregator.GetEvent<StartPlaybackEvent>().Subscribe(() =>
             {
                 if (_player != null && _player.HasAudio)
                     Resume();
 
-                else if (_nowPlaying != null)
-                    Play(_nowPlaying);
+                else if (_streamSource != null)
+                    Play();
 
                 else
                     throw new Exception("Trying to start playback before loading media:  IAudioController");
@@ -59,24 +63,23 @@ namespace AudioStation.Controller
             });
             eventAggregator.GetEvent<UpdateVolumeEvent>().Subscribe(volume =>
             {
-                if (_player != null)
-                    _player.SetVolume((float)volume);
+                _player?.SetVolume((float)volume);
             });
             eventAggregator.GetEvent<PlaybackPositionChangedEvent>().Subscribe(position =>
             {
-                if (_player != null)
-                    _player.SetPosition(position);
+                _player?.SetPosition(position);
             });
         }
 
         ~AudioController()
         {
-            if(_player != null)
+            if (_player != null)
             {
                 _player.Dispose();
                 _player.PlaybackStoppedEvent -= OnPlaybackStopped;
                 _player.PlaybackTickEvent -= OnPlaybackTick;
                 _player = null;
+                _streamSource = null;
             }
         }
 
@@ -92,11 +95,15 @@ namespace AudioStation.Controller
             _eventAggregator.GetEvent<PlaybackStateChangedEvent>().Publish(PlayStopPause.Pause);
         }
 
-        public void Play(INowPlayingViewModel nowPlaying)
+        public void Load(string streamSource, StreamSourceType streamSourceType)
+        {
+            _streamSource = streamSource;
+            _streamSourceType = streamSourceType;
+        }
+
+        public void Play()
         {
             StopImpl();
-
-            _nowPlaying = nowPlaying;
 
             StartImpl();
         }
@@ -122,11 +129,11 @@ namespace AudioStation.Controller
                 return;
             }
 
-            if (!string.IsNullOrEmpty(_nowPlaying.Source))
+            if (!string.IsNullOrEmpty(_streamSource))
             {
                 if (_player == null)
                 {
-                    switch (_nowPlaying.SourceType)
+                    switch (_streamSourceType)
                     {
                         case StreamSourceType.File:
                             _player = new SimpleMp3Player();
@@ -139,7 +146,8 @@ namespace AudioStation.Controller
                     }
                 }
 
-                _nowPlaying.CurrentTime = TimeSpan.Zero;
+                // Zero-Time
+                OnPlaybackTick(TimeSpan.Zero);
 
                 // Hook Events
                 _player.SetVolume(1);
@@ -147,7 +155,7 @@ namespace AudioStation.Controller
                 _player.PlaybackTickEvent += OnPlaybackTick;
 
                 // START
-                _player.Play(_nowPlaying.Source, _nowPlaying.SourceType, _nowPlaying.Bitrate, _nowPlaying.Codec);
+                _player.Play(_streamSource, _streamSourceType);
 
                 // New Player -> get volume (device) setting
                 _eventAggregator.GetEvent<PlaybackVolumeUpdatedEvent>().Publish(_player.GetVolume());
@@ -169,16 +177,15 @@ namespace AudioStation.Controller
                 _player = null;
             }
         }
+
         private void OnPlaybackTick(TimeSpan currentTime)
         {
             if (Thread.CurrentThread.ManagedThreadId != Application.Current.Dispatcher.Thread.ManagedThreadId)
                 Application.Current.Dispatcher.Invoke(OnPlaybackTick, DispatcherPriority.Background, currentTime);
             else
             {
-                if (_nowPlaying == null)
-                    return;
-
-                _nowPlaying.CurrentTime = currentTime;
+                if (this.CurrentTimeUpdated != null)
+                    this.CurrentTimeUpdated(currentTime);
             }
         }
 
@@ -195,6 +202,8 @@ namespace AudioStation.Controller
                 _player.Dispose();
                 _player = null;
             }
+
+            _streamSource = null;
         }
     }
 }

@@ -60,7 +60,7 @@ namespace AudioStation.Component
                     // Create tracks for the album
                     albumViewModel.Tracks.AddRange(tracks.Select(track =>
                     {
-                        return new LibraryEntryViewModel()
+                        return new LibraryEntryViewModel(track.Id)
                         {
                             Album = album.Name,
                             Disc = (uint)album.DiscNumber,
@@ -71,7 +71,6 @@ namespace AudioStation.Component
                             Duration = TimeSpan.FromMilliseconds(track.DurationMilliseconds ?? 0),
                             FileCorruptMessage = track.FileCorruptMessage ?? "",
                             FileLoadErrorMessage = track.FileErrorMessage ?? "",
-                            Id = track.Id,
                             IsFileAvailable = track.IsFileAvailable,
                             IsFileCorrupt = track.IsFileCorrupt,
                             IsFileLoadError = track.IsFileLoadError,
@@ -105,13 +104,12 @@ namespace AudioStation.Component
             result.PageSize = request.PageSize;
             result.TotalRecordCountFiltered = entryPage.TotalRecordCountFiltered;
             result.TotalRecordCount = entryPage.TotalRecordCount;
-            result.Results = entryPage.Results.Select(entry => new LibraryEntryViewModel()
+            result.Results = entryPage.Results.Select(entry => new LibraryEntryViewModel(entry.Id)
             {
                 Album = entry.Album?.Name ?? "Unknown",
                 Disc = (uint)(entry.Album?.DiscNumber ?? 0),
                 Duration = TimeSpan.FromMilliseconds(entry.DurationMilliseconds ?? 0),
                 FileName = entry.FileName,
-                Id = entry.Id,
                 PrimaryArtist = entry.PrimaryArtist?.Name ?? "Unknown",
                 PrimaryGenre = entry.PrimaryGenre?.Name ?? "Unknown",
                 Title = entry.Title ?? "Unknown",

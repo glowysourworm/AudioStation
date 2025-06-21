@@ -74,7 +74,7 @@ namespace AudioStation.Component
         {
             _player.Position = position;
         }
-        public void Play(string fileName, StreamSourceType sourceType, int bitrate, string codec)
+        public void Play(string fileName, StreamSourceType sourceType)
         {
             if (sourceType != StreamSourceType.File)
                 throw new ArgumentException("Improper use of StreamMp3Player. Expecting file stream type");

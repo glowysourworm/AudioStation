@@ -196,7 +196,7 @@ namespace AudioStation.ViewModels
             this.Artists = new ObservableCollection<ArtistViewModel>();
             this.Genres = new ObservableCollection<GenreViewModel>();
 
-            this.LibraryEntrySearch = new LibraryEntryViewModel();
+            this.LibraryEntrySearch = new LibraryEntryViewModel(-1);
 
             // Library Entry Tabs (closeable / ManagerView)
             this.AddLibraryEntryTabCommand = new SimpleCommand<LibraryEntryViewModel>(viewModel =>
@@ -262,9 +262,8 @@ namespace AudioStation.ViewModels
             if (reset)
                 this.Genres.Clear();
 
-            this.Genres.AddRange(result.Results.Select(genre => new GenreViewModel()
+            this.Genres.AddRange(result.Results.Select(genre => new GenreViewModel(genre.Id)
             {
-                Id = genre.Id,
                 Name = genre.Name
             }));
 

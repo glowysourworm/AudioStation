@@ -1,10 +1,9 @@
-﻿using SimpleWpf.Extensions;
+﻿using AudioStation.Core.Model;
 
 namespace AudioStation.ViewModels.LibraryViewModels
 {
-    public class LibraryEntryViewModel : ViewModelBase
+    public class LibraryEntryViewModel : EntityViewModel
     {
-        int _id;
         string _fileName;
         string _primaryArtist;
         string _primaryGenre;
@@ -19,15 +18,6 @@ namespace AudioStation.ViewModels.LibraryViewModels
         bool _isFileLoadError;
         string _fileLoadErrorMessage;
         string _fileCorruptMessage;
-
-        /// <summary>
-        /// Database id for the entry
-        /// </summary>
-        public int Id
-        {
-            get { return _id; }
-            set { this.RaiseAndSetIfChanged(ref _id, value); }
-        }
 
         /// <summary>
         /// File on the system for the matching database entry
@@ -98,7 +88,7 @@ namespace AudioStation.ViewModels.LibraryViewModels
             set { this.RaiseAndSetIfChanged(ref _fileCorruptMessage, value); }
         }
 
-        public LibraryEntryViewModel()
+        public LibraryEntryViewModel(int id) : base(id, LibraryEntityType.Track)
         {
             this.FileName = string.Empty;
             this.Title = string.Empty;

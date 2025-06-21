@@ -7,6 +7,7 @@ using AudioStation.Core.Model;
 using AudioStation.Event;
 using AudioStation.ViewModels;
 using AudioStation.ViewModels.LibraryViewModels;
+using AudioStation.ViewModels.PlaylistViewModels;
 
 using EMA.ExtendedWPFVisualTreeHelper;
 
@@ -142,33 +143,38 @@ namespace AudioStation.Views
         {
             var viewModel = this.DataContext as LibraryViewModel;
             var album = (sender as AlbumView).DataContext as AlbumViewModel;
+            var artist = this.ArtistLB.SelectedItem as ArtistViewModel;
 
-            if (viewModel != null && album != null)
+            if (viewModel != null && album != null && artist != null)
             {
                 foreach (var track in album.Tracks)
                 {
                     if (track == selectedTrack)
                     {
-                        LoadPlaylist(selectedTrack, album);
+                        LoadPlaylist(selectedTrack, album, artist);
                         return;
                     }
                 }
             }
         }
 
-        private void LoadPlaylist(LibraryEntryViewModel selectedTitle, AlbumViewModel selectedAlbum)
+        private void LoadPlaylist(LibraryEntryViewModel selectedTitle, AlbumViewModel selectedAlbum, ArtistViewModel selectedArtist)
         {
-            _eventAggregator.GetEvent<LoadPlaybackEvent>().Publish(new NowPlayingViewModel()
+            var eventData = new LoadPlaylistEventData()
             {
-                Album = selectedTitle.Album,
-                Artist = selectedTitle.PrimaryArtist,
-                Duration = selectedTitle.Duration,
-                CurrentTime = TimeSpan.Zero,
-                Source = selectedTitle.FileName,
-                SourceType = StreamSourceType.File,
-                Title = selectedTitle.Title
+                PlaylistEntries = selectedAlbum.Tracks.Select(track =>
+                {
+                    return new PlaylistEntryViewModel(selectedArtist, selectedAlbum, track);
+                })
+            };
+            eventData.StartTrack = eventData.PlaylistEntries.First(x => x.Track.Id == selectedTitle.Id);
+
+            _eventAggregator.GetEvent<LoadPlaylistEvent>().Publish(eventData);
+            _eventAggregator.GetEvent<LoadPlaybackEvent>().Publish(new LoadPlaybackEventData()
+            {
+                Source = eventData.StartTrack.Track.FileName,
+                SourceType = StreamSourceType.File
             });
-            _eventAggregator.GetEvent<StartPlaybackEvent>().Publish();
 
             //var playlist = new Playlist();
             //playlist.Name = selectedAlbum.PrimaryArtist + " / " + selectedAlbum.Album;

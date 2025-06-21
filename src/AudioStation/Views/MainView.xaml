@@ -93,13 +93,13 @@
             <!-- Playlist Controller (Panel) (Bound to MainViewModel -> (Playlist)) -->
             <Border x:Name="PlaylistControllerPanel" 
                     Grid.Row="1"
-                    Visibility="{Binding NowPlayingViewModel, Converter={StaticResource NonNullVisibilityConverter}}"
+                    Visibility="{Binding Playlist, Converter={StaticResource NonNullVisibilityConverter}}"
                     Background="Transparent" 
                     BorderBrush="LightGray" 
                     BorderThickness="1">
                 <Grid>
                     <region:IocRegion region:IocRegionManager.DefaultViewType="{x:Type local:PlayerControlView}"
-                                      DataContext="{Binding NowPlayingViewModel, Mode=TwoWay, NotifyOnSourceUpdated=True}">
+                                      DataContext="{Binding Playlist, Mode=TwoWay, NotifyOnSourceUpdated=True}">
                     </region:IocRegion>
                 </Grid>
             </Border>

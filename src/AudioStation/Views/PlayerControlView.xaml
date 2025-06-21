@@ -27,19 +27,19 @@
 
                 <!-- Artist - Album - Title -->
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="5">
-                    <TextBlock Text="{Binding Artist}"                                
+                    <TextBlock Text="{Binding NowPlaying.Artist.Artist}"                                
                                Style="{StaticResource PlayerControlTextBlock}"
                                Margin="5" />
 
                     <fa5:SvgAwesome Icon="Solid_Circle" Height="4" Width="4" VerticalAlignment="Center" Margin="5 0" />
 
-                    <TextBlock Text="{Binding Album}" 
+                    <TextBlock Text="{Binding NowPlaying.Album.Album}" 
                                Style="{StaticResource PlayerControlTextBlock}"
                                Margin="5" />
 
                     <fa5:SvgAwesome Icon="Solid_Circle" Height="4" Width="4" VerticalAlignment="Center" Margin="5 0" />
 
-                    <TextBlock Text="{Binding Title}" 
+                    <TextBlock Text="{Binding NowPlaying.Track.Title}" 
                                Style="{StaticResource PlayerControlTextBlock}"
                                Margin="5" />
                 </StackPanel>
@@ -47,15 +47,15 @@
                 <!-- Time Data -->
                 <StackPanel Orientation="Horizontal" Grid.Column="1" VerticalAlignment="Center" Margin="5">
 
-                    <TextBlock Text="{Binding CurrentTime, StringFormat={}{0:hh}:{0:mm}:{0:ss}}" 
+                    <TextBlock Text="{Binding NowPlaying.CurrentTime, StringFormat={}{0:hh}:{0:mm}:{0:ss}}" 
                                Style="{StaticResource PlayerControlTextBlock}"
                                Margin="5 5" />
                     
                     <TextBlock Text=" / "
                                Style="{StaticResource PlayerControlTextBlock}"
                                Margin="5 5" />
-                    
-                    <TextBlock Text="{Binding Duration, StringFormat={}{0:hh}:{0:mm}:{0:ss}}" 
+
+                    <TextBlock Text="{Binding NowPlaying.Track.Duration, StringFormat={}{0:hh}:{0:mm}:{0:ss}}" 
                                Style="{StaticResource PlayerControlTextBlock}"
                                Margin="5 5" />
                 </StackPanel>
@@ -152,7 +152,7 @@
         <!-- Scrubber (use margin of the ellipse to set the offset) -->
         <Border Grid.Row="1" Padding="10" CornerRadius="5">
             <Grid>
-                <controls:ScrubberControl ScrubbedRatio="{Binding CurrentTimeRatio, Mode=OneWay, NotifyOnSourceUpdated=True}"
+                <controls:ScrubberControl ScrubbedRatio="{Binding NowPlaying.CurrentTimeRatio, Mode=OneWay, NotifyOnSourceUpdated=True}"
                                           ScrubbedRatioChanged="ScrubberControl_ScrubbedRatioChanged"
                                           HorizontalContentAlignment="Stretch"                 
                                           BorderBrush="Transparent"

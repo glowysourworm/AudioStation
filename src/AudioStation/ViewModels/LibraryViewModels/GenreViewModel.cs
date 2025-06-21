@@ -1,24 +1,20 @@
-﻿using SimpleWpf.Extensions;
+﻿using AudioStation.Core.Model;
+
+using SimpleWpf.Extensions;
 
 namespace AudioStation.ViewModels.LibraryViewModels
 {
-    public class GenreViewModel : ViewModelBase
+    public class GenreViewModel : EntityViewModel
     {
-        int _id;
         string _name;
 
-        public int Id
-        {
-            get { return _id; }
-            set { this.RaiseAndSetIfChanged(ref _id, value); }
-        }
         public string Name
         {
             get { return _name; }
             set { this.RaiseAndSetIfChanged(ref _name, value); }
         }
 
-        public GenreViewModel()
+        public GenreViewModel(int id) : base(id, LibraryEntityType.Genre)
         {
             this.Name = string.Empty;
         }

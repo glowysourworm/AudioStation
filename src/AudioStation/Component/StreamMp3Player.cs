@@ -40,7 +40,7 @@ namespace AudioStation.Component
         {
             _player.Position = position;
         }
-        public void Play(string source, StreamSourceType type, int bitrate, string codec)
+        public void Play(string source, StreamSourceType type)
         {
             if (type != StreamSourceType.Network)
                 throw new ArgumentException("Improper use of StreamMp3Player. Expecting network stream type");

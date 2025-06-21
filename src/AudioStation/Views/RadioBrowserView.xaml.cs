@@ -35,14 +35,14 @@ namespace AudioStation.Views
 
             if (viewModel != null)
             {
-                _audioController.Play(new NowPlayingViewModel()
-                {
-                    Bitrate = viewModel.Bitrate,
-                    Codec = viewModel.Codec,
-                    Source = viewModel.Endpoint,
-                    SourceType = StreamSourceType.Network,
-                    Title = viewModel.Name,
-                });
+                //_audioController.Play(new NowPlayingViewModel()
+                //{
+                //    Bitrate = viewModel.Bitrate,
+                //    Codec = viewModel.Codec,
+                //    Source = viewModel.Endpoint,
+                //    SourceType = StreamSourceType.Network,
+                //    Title = viewModel.Name,
+                //});
             }
         }
     }

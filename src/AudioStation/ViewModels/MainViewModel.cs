@@ -11,8 +11,8 @@ using AudioStation.Core.Event;
 using AudioStation.Core.Model;
 using AudioStation.Event;
 using AudioStation.Model;
-using AudioStation.ViewModels.Interface;
 using AudioStation.ViewModels.LibraryViewModels.Comparer;
+using AudioStation.ViewModels.PlaylistViewModels.Interface;
 using AudioStation.ViewModels.RadioViewModels;
 
 using Microsoft.Extensions.Logging;
@@ -53,10 +53,10 @@ public partial class MainViewModel : ViewModelBase, IDisposable
 
     LibraryViewModel _library;
     RadioViewModel _radio;
+    PlaylistViewModel _playlist;
     BandcampViewModel _bandcamp;
     LibraryLoaderViewModel _libraryLoaderViewModel;
-    INowPlayingViewModel _nowPlayingViewModel;
-
+    
     PlayStopPause _playState;
 
     ObservableCollection<LogMessageViewModel> _outputMessages;
@@ -133,10 +133,10 @@ public partial class MainViewModel : ViewModelBase, IDisposable
         get { return _generalLogLevel; }
         set { this.RaiseAndSetIfChanged(ref _generalLogLevel, value); OnLogLevelChanged(LogMessageType.General); }
     }
-    public INowPlayingViewModel NowPlayingViewModel
+    public PlaylistViewModel Playlist
     {
-        get { return _nowPlayingViewModel; }
-        set { this.RaiseAndSetIfChanged(ref _nowPlayingViewModel, value); }
+        get { return _playlist; }
+        set { this.RaiseAndSetIfChanged(ref _playlist, value); }
     }
     public PlayStopPause PlayState
     {
@@ -192,7 +192,7 @@ public partial class MainViewModel : ViewModelBase, IDisposable
         this.OutputMessages = new ObservableCollection<LogMessageViewModel>();
 
         // Child View Models
-        this.NowPlayingViewModel = null;
+        this.Playlist = new PlaylistViewModel();
         this.PlayState = PlayStopPause.Stop;
         this.Library = libraryViewModel;
         this.Radio = radioViewModel;
@@ -204,9 +204,12 @@ public partial class MainViewModel : ViewModelBase, IDisposable
         this.GeneralLogLevel = LogLevel.Trace;
         this.SelectedLogType = LogMessageType.General;
 
+        // IAudioController playback tick event
+        audioController.CurrentTimeUpdated += OnCurrentTimeUpdated;
+
         // Event Aggregator
         eventAggregator.GetEvent<LogEvent>().Subscribe(OnLog);
-        eventAggregator.GetEvent<LoadPlaybackEvent>().Subscribe(OnLoadPlayback);
+        eventAggregator.GetEvent<LoadPlaylistEvent>().Subscribe(OnLoadPlaylist);
         eventAggregator.GetEvent<PlaybackStateChangedEvent>().Subscribe(OnPlaybackStateChanged);      
         eventAggregator.GetEvent<UpdateVolumeEvent>().Subscribe(OnUpdateVolume);            
         eventAggregator.GetEvent<PlaybackVolumeUpdatedEvent>().Subscribe(OnVolumeUpdated);  
@@ -249,9 +252,11 @@ public partial class MainViewModel : ViewModelBase, IDisposable
         this.PlayState = state;
     }
 
-    private void OnLoadPlayback(INowPlayingViewModel model)
+    private void OnLoadPlaylist(LoadPlaylistEventData eventData)
     {
-        this.NowPlayingViewModel = model;       
+        this.Playlist.Entries.Clear();
+        this.Playlist.Entries.AddRange(eventData.PlaylistEntries);
+        this.Playlist.NowPlaying = eventData.StartTrack;
     }
     private void OnUpdateVolume(double volume)
     {
@@ -260,6 +265,11 @@ public partial class MainViewModel : ViewModelBase, IDisposable
     private void OnVolumeUpdated(double volume)
     {
         this.Volume = (float)volume;
+    }
+    private void OnCurrentTimeUpdated(TimeSpan currentTime)
+    {
+        if (this.Playlist.NowPlaying != null)
+            this.Playlist.NowPlaying.UpdateCurrentTime(currentTime);
     }
 
     private void OnLogTypeChanged()
@@ -346,7 +356,6 @@ public partial class MainViewModel : ViewModelBase, IDisposable
             this.Configuration = null;
             this.ShowOutputMessages = false;
             this.OutputMessages.Clear();
-            this.NowPlayingViewModel = null;
         }
     }
 }
