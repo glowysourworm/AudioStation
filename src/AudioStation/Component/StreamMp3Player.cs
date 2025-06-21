@@ -17,6 +17,11 @@ namespace AudioStation.Component
         public event SimpleEventHandler PlaybackStoppedEvent;
         public event SimpleEventHandler<TimeSpan> PlaybackTickEvent;        // Not going to use for streams
 
+        public bool HasAudio
+        {
+            get { return _player?.HasAudio ?? false; }
+        }
+
         public StreamMp3Player()
         {
             _player = new MediaPlayer();
@@ -31,6 +36,10 @@ namespace AudioStation.Component
         {
             return (float)_player.Volume;
         }
+        public void SetPosition(TimeSpan position)
+        {
+            _player.Position = position;
+        }
         public void Play(string source, StreamSourceType type, int bitrate, string codec)
         {
             if (type != StreamSourceType.Network)
@@ -44,7 +53,16 @@ namespace AudioStation.Component
             _player.Open(new Uri(source));
             _player.Play();
         }
+        public void Resume()
+        {
+            if (_player == null)
+                throw new Exception("Trying to resume stopped playback (must re-start IAudioPlayer):  StreamMp3Player");
 
+            if (!_player.HasAudio)
+                throw new Exception("Trying to resume stopped playback (must re-start IAudioPlayer):  StreamMp3Player");
+
+            _player.Play();
+        }
         public void Pause()
         {
             _player.Pause();

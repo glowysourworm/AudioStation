@@ -5,6 +5,7 @@ using System.Windows.Threading;
 using AudioStation.Component;
 using AudioStation.Controller.Interface;
 using AudioStation.Core;
+using AudioStation.Core.Component;
 using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Event;
 using AudioStation.Core.Model;
@@ -55,6 +56,8 @@ public partial class MainViewModel : ViewModelBase, IDisposable
     BandcampViewModel _bandcamp;
     LibraryLoaderViewModel _libraryLoaderViewModel;
     INowPlayingViewModel _nowPlayingViewModel;
+
+    PlayStopPause _playState;
 
     ObservableCollection<LogMessageViewModel> _outputMessages;
 
@@ -135,6 +138,11 @@ public partial class MainViewModel : ViewModelBase, IDisposable
         get { return _nowPlayingViewModel; }
         set { this.RaiseAndSetIfChanged(ref _nowPlayingViewModel, value); }
     }
+    public PlayStopPause PlayState
+    {
+        get { return _playState; }
+        set { this.RaiseAndSetIfChanged(ref _playState, value); }
+    }
     public SimpleCommand OpenLibraryFolderCommand
     {
         get { return _openLibraryFolderCommand; }
@@ -185,13 +193,11 @@ public partial class MainViewModel : ViewModelBase, IDisposable
 
         // Child View Models
         this.NowPlayingViewModel = null;
+        this.PlayState = PlayStopPause.Stop;
         this.Library = libraryViewModel;
         this.Radio = radioViewModel;
         this.LibraryLoader = libraryLoaderViewModel;
         this.Bandcamp = bandcampViewModel;
-
-        // Initialize Model
-        //foreach (var libraryEntry in _modelController.Library)
 
         this.DatabaseLogLevel = LogLevel.Trace;
         this.GeneralLogLevel = LogLevel.Trace;
@@ -199,11 +205,10 @@ public partial class MainViewModel : ViewModelBase, IDisposable
 
         // Event Aggregator
         eventAggregator.GetEvent<LogEvent>().Subscribe(OnLog);
-        eventAggregator.GetEvent<StartPlaybackEvent>().Subscribe(OnStartPlayback);
-        eventAggregator.GetEvent<UpdateVolumeEvent>().Subscribe(OnUpdateVolume);
-
-        audioController.PlaybackStartedEvent += OnAudioControllerPlaybackStarted;
-        audioController.PlaybackStoppedEvent += OnAudioControllerPlaybackStopped;
+        eventAggregator.GetEvent<LoadPlaybackEvent>().Subscribe(OnLoadPlayback);
+        eventAggregator.GetEvent<PlaybackStateChangedEvent>().Subscribe(OnPlaybackStateChanged);      
+        eventAggregator.GetEvent<UpdateVolumeEvent>().Subscribe(OnUpdateVolume);            
+        eventAggregator.GetEvent<PlaybackVolumeUpdatedEvent>().Subscribe(OnVolumeUpdated);  
 
         this.SaveConfigurationCommand = new SimpleCommand(() =>
         {
@@ -238,24 +243,22 @@ public partial class MainViewModel : ViewModelBase, IDisposable
         outputController.AddLog("Welcome to Audio Station!", LogMessageType.General);
     }
 
-    private void OnStartPlayback(INowPlayingViewModel model)
+    private void OnPlaybackStateChanged(PlayStopPause state)
     {
-        this.NowPlayingViewModel = model;       // This event should take the place of the audio controller
-                                                // events. The event aggregator should probably take the 
-                                                // place of direct events for these components.
+        this.PlayState = state;
+    }
+
+    private void OnLoadPlayback(INowPlayingViewModel model)
+    {
+        this.NowPlayingViewModel = model;       
     }
     private void OnUpdateVolume(double volume)
     {
         this.Volume = (float)volume;
     }
-
-    private void OnAudioControllerPlaybackStopped(INowPlayingViewModel nowPlaying)
+    private void OnVolumeUpdated(double volume)
     {
-        this.NowPlayingViewModel = null;        // Remove View Model (affects view binding to the player controls)
-    }
-    private void OnAudioControllerPlaybackStarted(INowPlayingViewModel nowPlaying)
-    {
-        this.NowPlayingViewModel = nowPlaying;  // Primary settings for the view (binding)
+        this.Volume = (float)volume;
     }
 
     private void OnLogTypeChanged()

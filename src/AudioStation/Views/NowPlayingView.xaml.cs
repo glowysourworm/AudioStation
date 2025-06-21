@@ -141,7 +141,7 @@ namespace AudioStation.Views
 
         private void LoadPlaylist(LibraryEntryViewModel selectedTitle, AlbumViewModel selectedAlbum)
         {
-            _eventAggregator.GetEvent<StartPlaybackEvent>().Publish(new NowPlayingViewModel()
+            _eventAggregator.GetEvent<LoadPlaybackEvent>().Publish(new NowPlayingViewModel()
             {
                 Album = selectedTitle.Album,
                 Artist = selectedTitle.PrimaryArtist,
@@ -151,6 +151,7 @@ namespace AudioStation.Views
                 SourceType = StreamSourceType.File,
                 Title = selectedTitle.Title
             });
+            _eventAggregator.GetEvent<StartPlaybackEvent>().Publish();
 
             //var playlist = new Playlist();
             //playlist.Name = selectedAlbum.PrimaryArtist + " / " + selectedAlbum.Album;

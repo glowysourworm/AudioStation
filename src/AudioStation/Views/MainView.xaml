@@ -98,7 +98,9 @@
                     BorderBrush="LightGray" 
                     BorderThickness="1">
                 <Grid>
-                    <local:PlayerControlView DataContext="{Binding NowPlayingViewModel, Mode=TwoWay, NotifyOnSourceUpdated=True}" />
+                    <region:IocRegion region:IocRegionManager.DefaultViewType="{x:Type local:PlayerControlView}"
+                                      DataContext="{Binding NowPlayingViewModel, Mode=TwoWay, NotifyOnSourceUpdated=True}">
+                    </region:IocRegion>
                 </Grid>
             </Border>
 

@@ -4,6 +4,7 @@ using System.Windows.Threading;
 using AudioStation.Component;
 using AudioStation.Component.Interface;
 using AudioStation.Controller.Interface;
+using AudioStation.Core.Component;
 using AudioStation.Core.Model;
 using AudioStation.Event;
 using AudioStation.ViewModels.Interface;
@@ -19,9 +20,6 @@ namespace AudioStation.Controller
     [IocExport(typeof(IAudioController))]
     public class AudioController : IAudioController
     {
-        public event SimpleEventHandler<INowPlayingViewModel> PlaybackStartedEvent;
-        public event SimpleEventHandler<INowPlayingViewModel> PlaybackStoppedEvent;
-
         private readonly IIocEventAggregator _eventAggregator;
         private IAudioPlayer _player;
         private INowPlayingViewModel _nowPlaying;
@@ -32,9 +30,42 @@ namespace AudioStation.Controller
             _player = null;
             _eventAggregator = eventAggregator;
 
-            eventAggregator.GetEvent<StartPlaybackEvent>().Subscribe(nowPlaying =>
+            eventAggregator.GetEvent<LoadPlaybackEvent>().Subscribe(nowPlaying =>
             {
-                Play(nowPlaying);
+                Stop();
+
+                _nowPlaying = nowPlaying;
+            });
+            eventAggregator.GetEvent<StartPlaybackEvent>().Subscribe(() =>
+            {
+                if (_player != null && _player.HasAudio)
+                    Resume();
+
+                else if (_nowPlaying != null)
+                    Play(_nowPlaying);
+
+                else
+                    throw new Exception("Trying to start playback before loading media:  IAudioController");
+            });
+            eventAggregator.GetEvent<StopPlaybackEvent>().Subscribe(() =>
+            {
+                if (_player != null)
+                    Stop();
+            });
+            eventAggregator.GetEvent<PausePlaybackEvent>().Subscribe(() =>
+            {
+                if (_player != null)
+                    Pause();
+            });
+            eventAggregator.GetEvent<UpdateVolumeEvent>().Subscribe(volume =>
+            {
+                if (_player != null)
+                    _player.SetVolume((float)volume);
+            });
+            eventAggregator.GetEvent<PlaybackPositionChangedEvent>().Subscribe(position =>
+            {
+                if (_player != null)
+                    _player.SetPosition(position);
             });
         }
 
@@ -57,6 +88,8 @@ namespace AudioStation.Controller
         public void Pause()
         {
             _player.Pause();
+
+            _eventAggregator.GetEvent<PlaybackStateChangedEvent>().Publish(PlayStopPause.Pause);
         }
 
         public void Play(INowPlayingViewModel nowPlaying)
@@ -66,6 +99,13 @@ namespace AudioStation.Controller
             _nowPlaying = nowPlaying;
 
             StartImpl();
+        }
+
+        private void Resume()
+        {
+            _player.Resume();
+
+            _eventAggregator.GetEvent<PlaybackStateChangedEvent>().Publish(PlayStopPause.Play);
         }
 
         public void Stop()
@@ -109,10 +149,8 @@ namespace AudioStation.Controller
                 _player.Play(_nowPlaying.Source, _nowPlaying.SourceType, _nowPlaying.Bitrate, _nowPlaying.Codec);
 
                 // New Player -> get volume (device) setting
-                _eventAggregator.GetEvent<UpdateVolumeEvent>().Publish(_player.GetVolume());
-
-                if (this.PlaybackStartedEvent != null)
-                    this.PlaybackStartedEvent(_nowPlaying);
+                _eventAggregator.GetEvent<PlaybackVolumeUpdatedEvent>().Publish(_player.GetVolume());
+                _eventAggregator.GetEvent<PlaybackStateChangedEvent>().Publish(PlayStopPause.Play);
             }
         }
         private void StopImpl()
@@ -145,8 +183,8 @@ namespace AudioStation.Controller
 
         private void OnPlaybackStopped()
         {
-            if (this.PlaybackStoppedEvent != null)
-                this.PlaybackStoppedEvent(_nowPlaying);
+            _eventAggregator.GetEvent<PlaybackStateChangedEvent>()
+                            .Publish(PlayStopPause.Stop);
         }
 
         public void Dispose()

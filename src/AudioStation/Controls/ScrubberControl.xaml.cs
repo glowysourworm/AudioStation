@@ -3,6 +3,8 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 
+using SimpleWpf.Extensions.Event;
+
 namespace AudioStation.Controls
 {
     public partial class ScrubberControl : UserControl
@@ -65,6 +67,8 @@ namespace AudioStation.Controls
             set { SetValue(ScrubbedRatioProperty, value); }
         }
 
+        public event SimpleEventHandler<float> ScrubbedRatioChanged;
+
         public ScrubberControl()
         {
             InitializeComponent();
@@ -74,8 +78,14 @@ namespace AudioStation.Controls
         {
             base.OnMouseMove(e);
 
+            var currentRatio = 0.0D;
+
             // Mouse position must be offset to center of scrubber (in X)
-            this.ScrubberPreviewCursor.Margin = new Thickness(CalculateScrubberOffset(e.GetPosition(this).X - (this.ScrubberHandleSize / 2.0)), 0, 0, 0);
+            this.ScrubberPreviewCursor.Margin = new Thickness(CalculateScrubberOffset(e.GetPosition(this).X - (this.ScrubberHandleSize / 2.0), out currentRatio), 0, 0, 0);
+
+            // -> SetScrubberOffset()
+            if (this.IsMouseCaptured)
+                this.ScrubbedRatio = (float)currentRatio;
         }
 
         protected override void OnMouseLeave(MouseEventArgs e)
@@ -92,14 +102,30 @@ namespace AudioStation.Controls
             this.ScrubberPreviewVisible = true;
         }
 
+        protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e)
+        {
+            base.OnMouseLeftButtonDown(e);
+
+            this.CaptureMouse();
+        }
+
+        protected override void OnPreviewMouseLeftButtonUp(MouseButtonEventArgs e)
+        {
+            base.OnPreviewMouseLeftButtonUp(e);
+
+            this.ReleaseMouseCapture();
+        }
+
         protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)
         {
             base.OnRenderSizeChanged(sizeInfo);
 
             SetScrubberOffset();
         }
-        private double CalculateScrubberOffset(double currentPosition)
+        private double CalculateScrubberOffset(double currentPosition, out double currentRatio)
         {
+            currentRatio = Math.Clamp(currentPosition / this.RenderSize.Width, 0, 1);
+
             var offset = (currentPosition / this.RenderSize.Width) * this.RenderSize.Width;
             var offsetMin = 0;
             var offsetMax = this.RenderSize.Width - this.ScrubberHandleSize - 2;        // Stroke Thickness
@@ -111,7 +137,14 @@ namespace AudioStation.Controls
         }
         private void SetScrubberOffset()
         {
-            this.ScrubberCursor.Margin = new Thickness(CalculateScrubberOffset(this.ScrubbedRatio * this.RenderSize.Width), 0, 0, 0);
+            // Already Changed ScrubbedRatio
+            var currentRatio = 0.0D;
+
+            this.ScrubberCursor.Margin = new Thickness(CalculateScrubberOffset(this.ScrubbedRatio * this.RenderSize.Width, out currentRatio), 0, 0, 0);
+
+            // Raise Event (not all listeners will bind to the ratio)
+            if (this.ScrubbedRatioChanged != null)
+                this.ScrubbedRatioChanged(this.ScrubbedRatio);
 
             InvalidateVisual();
         }

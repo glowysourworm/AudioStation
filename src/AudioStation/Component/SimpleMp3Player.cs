@@ -27,6 +27,11 @@ namespace AudioStation.Component
         public event SimpleEventHandler<TimeSpan> PlaybackTickEvent;
         public event SimpleEventHandler PlaybackStoppedEvent;
 
+        public bool HasAudio 
+        { 
+            get { return _player?.HasAudio ?? false; }
+        }
+
         public SimpleMp3Player()
         {
             _player = new MediaPlayer();
@@ -66,6 +71,10 @@ namespace AudioStation.Component
         {
             return (float)_player.Volume;
         }
+        public void SetPosition(TimeSpan position)
+        {
+            _player.Position = position;
+        }
         public void Play(string fileName, StreamSourceType sourceType, int bitrate, string codec)
         {
             if (sourceType != StreamSourceType.File)
@@ -75,7 +84,14 @@ namespace AudioStation.Component
             _player.Open(new Uri(fileName));
             _player.Play();
         }
+        public void Resume()
+        {
+            if (!_player.HasAudio)
+                throw new Exception("Trying to resume player in a stopped state:  SimpleMp3Player.cs");
 
+            _timer.Change(0, CURRENT_TIME_UPDATE_MILLISECONDS);
+            _player.Play();
+        }
         public void Pause()
         {
             _timer.Change(0, Timeout.Infinite);

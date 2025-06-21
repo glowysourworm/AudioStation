@@ -1,37 +1,93 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
+﻿using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+
+using AudioStation.Controller.Interface;
+using AudioStation.Event;
+using AudioStation.ViewModels;
+
+using SimpleWpf.IocFramework.Application.Attribute;
+using SimpleWpf.IocFramework.EventAggregation;
 
 namespace AudioStation.Views
 {
-    /// <summary>
-    /// Interaction logic for PlayerControlView.xaml
-    /// </summary>
+    [IocExportDefault]
     public partial class PlayerControlView : UserControl
     {
-        public PlayerControlView()
+        IIocEventAggregator _eventAggregator;
+
+        [IocImportingConstructor]
+        public PlayerControlView(IIocEventAggregator eventAggregator)
         {
+            _eventAggregator = eventAggregator;
+
             InitializeComponent();
         }
-        private void VolumeControl_MouseLeave(object sender, MouseEventArgs e)
+
+        private void VolumeButton_Click(object sender, System.Windows.RoutedEventArgs e)
         {
-            this.VolumeButton.IsChecked = false;
+            if (this.VolumePopup.IsOpen == true)
+            {
+                this.VolumeButton.IsChecked = false;
+                this.VolumePopup.IsOpen = false;
+            }
+            else
+            {
+                this.VolumeButton.IsChecked = true;
+                this.VolumePopup.IsOpen = true;
+            }
         }
 
-        private void VolumeControl_PreviewMouseDown(object sender, MouseButtonEventArgs e)
+        private void VolumePopup_PreviewMouseUp(object sender, MouseButtonEventArgs e)
         {
-            e.Handled = true;
+            var result = VisualTreeHelper.HitTest(this.VolumeControlContainer, e.GetPosition(this.VolumeControlContainer));
+
+            if (result == null)
+            {
+                this.VolumeButton.IsChecked = false;
+                this.VolumePopup.IsOpen = false;
+            }
+        }
+
+        private void VolumeControl_ScrubbedRatioChanged(float volume)
+        {
+            _eventAggregator.GetEvent<UpdateVolumeEvent>().Publish(volume);
+        }
+
+        private void ScrubberControl_ScrubbedRatioChanged(float sender)
+        {
+            var nowPlaying = this.DataContext as NowPlayingViewModel;
+
+            if (nowPlaying != null)
+            {
+                _eventAggregator.GetEvent<PlaybackPositionChangedEvent>()
+                                .Publish(TimeSpan.FromMilliseconds(sender * nowPlaying.Duration.TotalMilliseconds));
+            }            
+        }
+
+        private void BackButton_Click(object sender, System.Windows.RoutedEventArgs e)
+        {
+
+        }
+
+        private void PauseButton_Click(object sender, System.Windows.RoutedEventArgs e)
+        {
+            _eventAggregator.GetEvent<PausePlaybackEvent>().Publish();
+        }
+
+        private void PlayButton_Click(object sender, System.Windows.RoutedEventArgs e)
+        {
+            _eventAggregator.GetEvent<StartPlaybackEvent>().Publish();
+        }
+
+        private void StopButton_Click(object sender, System.Windows.RoutedEventArgs e)
+        {
+            _eventAggregator.GetEvent<StopPlaybackEvent>().Publish();
+        }
+
+        private void ForwardButton_Click(object sender, System.Windows.RoutedEventArgs e)
+        {
+
         }
     }
 }

@@ -4,6 +4,7 @@
              xmlns:local="clr-namespace:AudioStation.Views"
              xmlns:controls="clr-namespace:AudioStation.Controls"
              xmlns:fa5="http://schemas.fontawesome.com/icons/"
+             xmlns:coreComponent="clr-namespace:AudioStation.Core.Component;assembly=AudioStation.Core"
              Background="Transparent">
     
     <!-- Playlist Controller (Panel) (Bound to MainViewModel -> (Playlist)) -->
@@ -26,7 +27,7 @@
 
                 <!-- Artist - Album - Title -->
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="5">
-                    <TextBlock Text="{Binding Artist}" 
+                    <TextBlock Text="{Binding Artist}"                                
                                Style="{StaticResource PlayerControlTextBlock}"
                                Margin="5" />
 
@@ -62,54 +63,86 @@
                 <StackPanel Orientation="Horizontal" Grid.Column="2" VerticalAlignment="Center" Margin="10">
                     
                     <!-- Play / Stop / Pause -->
-                    <ToggleButton Style="{StaticResource LargeInputControlToggleButton}">
-                        <fa5:SvgAwesome Icon="Solid_StepBackward" Height="16" Width="16" VerticalAlignment="Center" />
+                    <ToggleButton x:Name="BackButton"
+                                  Style="{StaticResource LargeInputControlToggleButton}"
+                                  Click="BackButton_Click">
+                        <fa5:SvgAwesome Icon="Solid_StepBackward"                                         
+                                        Height="16" Width="16" VerticalAlignment="Center" />
                     </ToggleButton>
-                    <ToggleButton Style="{StaticResource LargeInputControlToggleButton}">
-                        <fa5:SvgAwesome Icon="Solid_Pause" Height="16" Width="16" VerticalAlignment="Center" />
+                    <ToggleButton x:Name="PauseButton"
+                                  Style="{StaticResource LargeInputControlToggleButton}"
+                                  Click="PauseButton_Click"
+                                  IsChecked="{Binding DataContext.PlayState, 
+                                                      Mode=TwoWay,
+                                                      RelativeSource={RelativeSource AncestorType=Window},
+                                                      Converter={StaticResource PlayStopPauseParameterBoolConverter}, 
+                                                      ConverterParameter={x:Static coreComponent:PlayStopPause.Pause}}">
+                        <fa5:SvgAwesome Icon="Solid_Pause" 
+                                        Height="16" Width="16" VerticalAlignment="Center" />
                     </ToggleButton>
-                    <ToggleButton Style="{StaticResource LargeInputControlToggleButton}">
-                        <fa5:SvgAwesome Icon="Solid_Play" Height="16" Width="16" VerticalAlignment="Center" />
+                    <ToggleButton x:Name="PlayButton"
+                                  Style="{StaticResource LargeInputControlToggleButton}"
+                                  Click="PlayButton_Click"
+                                  IsChecked="{Binding DataContext.PlayState, 
+                                                      Mode=TwoWay,    
+                                                      RelativeSource={RelativeSource AncestorType=Window},
+                                                      Converter={StaticResource PlayStopPauseParameterBoolConverter}, 
+                                                      ConverterParameter={x:Static coreComponent:PlayStopPause.Play}}">                                  
+                        <fa5:SvgAwesome Icon="Solid_Play" 
+                                        Height="16" Width="16" VerticalAlignment="Center" />
                     </ToggleButton>
-                    <ToggleButton Style="{StaticResource LargeInputControlToggleButton}">
-                        <fa5:SvgAwesome Icon="Solid_Stop" Height="16" Width="16" VerticalAlignment="Center" />
+                    <ToggleButton x:Name="StopButton"
+                                  Style="{StaticResource LargeInputControlToggleButton}"
+                                  Click="StopButton_Click"
+                                  IsChecked="{Binding DataContext.PlayState, 
+                                                      Mode=TwoWay,
+                                                      RelativeSource={RelativeSource AncestorType=Window},
+                                                      Converter={StaticResource PlayStopPauseParameterBoolConverter}, 
+                                                      ConverterParameter={x:Static coreComponent:PlayStopPause.Stop}}">                                  
+                        <fa5:SvgAwesome Icon="Solid_Stop" 
+                                        Height="16" Width="16" VerticalAlignment="Center" />
                     </ToggleButton>
-                    <ToggleButton Style="{StaticResource LargeInputControlToggleButton}">
+                    <ToggleButton x:Name="ForwardButton"
+                                  Click="ForwardButton_Click"
+                                  Style="{StaticResource LargeInputControlToggleButton}">
                         <fa5:SvgAwesome Icon="Solid_StepForward" Height="16" Width="16" VerticalAlignment="Center" />
                     </ToggleButton>
                     
                     <!-- Volume -->
-                    <ToggleButton x:Name="VolumeButton" Cursor="Hand" Style="{StaticResource LargeInputControlToggleButton}" Margin="10 0 0 0">
+                    <ToggleButton x:Name="VolumeButton" 
+                                  Click="VolumeButton_Click"
+                                  Cursor="Hand" 
+                                  Style="{StaticResource LargeInputControlToggleButton}" 
+                                  Margin="10 0 0 0">
                         <StackPanel>
-
                             <fa5:SvgAwesome Icon="Solid_VolumeUp" Height="16" Width="16" />
-                            
-
-                            <Popup IsOpen="{Binding IsChecked, ElementName=VolumeButton, Mode=OneWay}" 
-                                   Placement="Relative" 
-                                   PlacementTarget="{Binding ElementName=VolumeButton}">
-
-                                <Border Padding="10" BorderThickness="1" BorderBrush="Gray" Background="White">
-                                    <Border.LayoutTransform>
-                                        <RotateTransform Angle="270" />
-                                    </Border.LayoutTransform>
-                                    <controls:ScrubberControl x:Name="VolumeControl"
-                                                              MouseLeave="VolumeControl_MouseLeave"
-                                                              BorderBrush="Transparent"
-                                                              PreviewMouseDown="VolumeControl_PreviewMouseDown"                                                            
-                                                              ScrubberHandleSize="12"
-                                                              ScrubberTimelineSize="3"
-												              ScrubbedRatio="{Binding DataContext.Volume, Mode=TwoWay, RelativeSource={RelativeSource AncestorType=Window}}"
-												              VerticalAlignment="Center"
-                                                              HorizontalAlignment="Center"
-												              Width="250">
-                                    </controls:ScrubberControl>
-                                </Border>
-
-                            </Popup>
                         </StackPanel>
                         
                     </ToggleButton>
+
+                    <!-- Volume Popup -->
+                    <Popup x:Name="VolumePopup" 
+                            StaysOpen="True"
+                            PreviewMouseUp="VolumePopup_PreviewMouseUp"
+                            Placement="Relative" 
+                            PlacementTarget="{Binding ElementName=VolumeButton}">
+
+                        <Border x:Name="VolumeControlContainer" Padding="10" BorderThickness="1" BorderBrush="Gray" Background="White">
+                            <Border.LayoutTransform>
+                                <RotateTransform Angle="270" />
+                            </Border.LayoutTransform>
+                            <controls:ScrubberControl x:Name="VolumeControl"
+                                                      ScrubbedRatioChanged="VolumeControl_ScrubbedRatioChanged"
+                                                      BorderBrush="Transparent"
+                                                      ScrubberHandleSize="12"
+                                                      ScrubberTimelineSize="3"
+												      VerticalAlignment="Center"
+                                                      HorizontalAlignment="Center"
+												      Width="250">
+                            </controls:ScrubberControl>
+                        </Border>
+
+                    </Popup>
                 </StackPanel>
 
             </Grid>
@@ -119,6 +152,7 @@
         <Border Grid.Row="1" Padding="10" CornerRadius="5">
             <Grid>
                 <controls:ScrubberControl ScrubbedRatio="{Binding CurrentTimeRatio}"
+                                          ScrubbedRatioChanged="ScrubberControl_ScrubbedRatioChanged"
                                           HorizontalContentAlignment="Stretch"                 
                                           BorderBrush="Transparent"
                                           ScrubberHandleBrush="{StaticResource PlayerControlHandleBrush}"

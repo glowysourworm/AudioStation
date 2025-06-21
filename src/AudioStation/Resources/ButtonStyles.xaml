@@ -311,6 +311,9 @@
                         <Trigger Property="IsPressed" Value="True">
                             <Setter Property="Background" Value="{StaticResource LargeInputButtonBackgroundPressed}" />
                         </Trigger>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter Property="Background" Value="{StaticResource LargeInputButtonBackgroundPressed}" />
+                        </Trigger>                        
                     </ControlTemplate.Triggers>
 
                 </ControlTemplate>

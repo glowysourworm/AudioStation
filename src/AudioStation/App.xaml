@@ -13,6 +13,7 @@
         <converter:MusicBrainzConverter x:Key="MusicBrainzConverter" />
         <converter:MetaEntryConverter x:Key="MetaEntryConverter" />
         <converter:TagIPictureConverter x:Key="TagIPictureConverter" />
+        <converter:PlayStopPauseParameterBoolConverter x:Key="PlayStopPauseParameterBoolConverter" />
 
         <!-- SimpleWpf.UI Converters -->
         <simpleConverter:BoolInverseConverter x:Key="BoolInverseConverter" />
