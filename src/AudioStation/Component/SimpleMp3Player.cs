@@ -2,6 +2,7 @@
 using System.Windows.Media;
 using System.Windows.Threading;
 
+using AudioStation.Component.AudioProcessing;
 using AudioStation.Component.Interface;
 using AudioStation.Core.Model;
 
@@ -23,8 +24,9 @@ namespace AudioStation.Component
         object _lock = new object();
 
         public event SimpleEventHandler<string> MessageEvent;
-        public event SimpleEventHandler<TimeSpan, float[]> PlaybackTickEvent;
+        public event SimpleEventHandler<TimeSpan> PlaybackTickEvent;
         public event SimpleEventHandler PlaybackStoppedEvent;
+        public event SimpleEventHandler<EqualizerResultSet> EqualizerCalculated;
 
         public bool HasAudio
         {
@@ -57,7 +59,7 @@ namespace AudioStation.Component
             Application.Current.Dispatcher.BeginInvoke(() =>
             {
                 if (this.PlaybackTickEvent != null)
-                    this.PlaybackTickEvent(_player.Position, null);
+                    this.PlaybackTickEvent(_player.Position);
 
             }, DispatcherPriority.Background);
         }

@@ -1,4 +1,5 @@
-﻿using AudioStation.Core.Model;
+﻿using AudioStation.Component.AudioProcessing;
+using AudioStation.Core.Model;
 
 using NAudio.Wave;
 
@@ -9,7 +10,8 @@ namespace AudioStation.Component.Interface
     public interface IAudioPlayer : IDisposable
     {
         event SimpleEventHandler<string> MessageEvent;
-        event SimpleEventHandler<TimeSpan, float[]> PlaybackTickEvent;
+        event SimpleEventHandler<TimeSpan> PlaybackTickEvent;
+        event SimpleEventHandler<EqualizerResultSet> EqualizerCalculated;
         event SimpleEventHandler PlaybackStoppedEvent;
 
         void SetVolume(float volume);

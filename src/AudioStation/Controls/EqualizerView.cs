@@ -7,6 +7,8 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 
+using AudioStation.Component.AudioProcessing;
+
 namespace AudioStation.Controls
 {
     // This control must be statically sized
@@ -22,16 +24,18 @@ namespace AudioStation.Controls
         }
 
         List<Size> _barSizes;
+        StreamGeometry _outputGeometry;
 
         public EqualizerView()
         {
             _barSizes = new List<Size>();
+            _outputGeometry = new StreamGeometry();
         }
 
         // This method is provided because the observable collection is not updating with the dependency
         // property binding. Also, performance with binding was terrible.
         //
-        public void SetEqualizer(float[] values)
+        public void SetEqualizer(EqualizerResultSet resultSet)
         {
             if (double.IsNaN(this.RenderSize.Width) ||
                 double.IsNaN(this.RenderSize.Height) ||
@@ -39,23 +43,23 @@ namespace AudioStation.Controls
                 this.RenderSize.Height <= 0)
                 return;
 
-            if (_barSizes.Count != values.Length)
+            if (_barSizes.Count != resultSet.Result.Length)
                 _barSizes.Clear();
 
-            var maxRatio = values.Max();
+            var maxRatio = resultSet.Result.Max();
 
-            for (int index = 0; index < values.Length; index++)
+            for (int index = 0; index < resultSet.Result.Length; index++)
             {
-                var ratio = values[index];
-                var scaledRatio = (ratio / maxRatio) * 0.75;            // Setting the max bar height at 3/4's the height
+                var ratio = resultSet.Result[index];
+                var scaledRatio = (ratio / maxRatio);           // Normalizing the bar size
 
-                var width = (this.RenderSize.Width / values.Length) - this.BarPadding.Left - this.BarPadding.Right;
+                var width = (this.RenderSize.Width / resultSet.Result.Length) - this.BarPadding.Left - this.BarPadding.Right;
                 var height = (this.RenderSize.Height * scaledRatio) - this.BarPadding.Top - this.BarPadding.Bottom;
 
                 width = Math.Clamp(width, 0, this.RenderSize.Width);
                 height = Math.Clamp(height, 0, this.RenderSize.Height);
 
-                if (_barSizes.Count == values.Length)
+                if (_barSizes.Count == resultSet.Result.Length)
                     _barSizes[index] = new Size(width, height);
                 
                 else
@@ -75,15 +79,40 @@ namespace AudioStation.Controls
             var barWidth = (this.RenderSize.Width / _barSizes.Count);
             var barHeight = this.RenderSize.Height;
 
-            var point = new Point();
+            var pointTL = new Point();
+            var pointTR = new Point();
+            var pointBL = new Point();
+            var pointBR = new Point();
 
-            for (int index = 0; index < _barSizes.Count; index++)
+            _outputGeometry.Clear();
+
+            using (var stream = _outputGeometry.Open())
             {
-                point.X = barWidth * index;
-                point.Y = barHeight - _barSizes[index].Height;
+                for (int index = 0; index < _barSizes.Count; index++)
+                {
+                    pointTL.X = barWidth * index;
+                    pointTL.Y = barHeight - _barSizes[index].Height;
 
-                drawingContext.DrawRectangle(Brushes.Gray, new Pen(Brushes.White, this.BarPadding.Left), new Rect(point, _barSizes[index]));
+                    pointTR.X = pointTL.X + barWidth;
+                    pointTR.Y = pointTL.Y;
+
+                    pointBR.X = pointTL.X + barWidth;
+                    pointBR.Y = pointTL.Y + _barSizes[index].Height;
+
+                    pointBL.X = pointTL.X;
+                    pointBL.Y = pointBR.Y;
+
+                    stream.BeginFigure(pointTL, true, true);
+                    stream.LineTo(pointTR, true, true);
+                    stream.LineTo(pointBR, true, true);
+                    stream.LineTo(pointBL, true, true);
+                    stream.LineTo(pointTL, true, true);
+                }
             }
+
+            var brush = new SolidColorBrush(Color.FromArgb(0x0F, 0x00, 0x00, 0x00));
+
+            drawingContext.DrawGeometry(brush, new Pen(Brushes.White, 1), _outputGeometry);
         }
     }
 }

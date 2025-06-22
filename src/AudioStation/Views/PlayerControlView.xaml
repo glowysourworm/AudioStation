@@ -15,13 +15,15 @@
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
+        <!-- Equalizer (Set data manually from the control) -->
+        <controls:EqualizerView x:Name="EqualizerView" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" BarPadding="0" Margin="5" Grid.Row="0"/>
+
         <!-- Primary Label:  Equalizer / Artist - Album - Title / Time Data -->
         <Border Grid.Row="0">
             <Grid>
 
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
@@ -51,7 +53,7 @@
                     <TextBlock Text="{Binding NowPlaying.CurrentTime, StringFormat={}{0:hh}:{0:mm}:{0:ss}}" 
                                Style="{StaticResource PlayerControlTextBlock}"
                                Margin="5 5" />
-                    
+
                     <TextBlock Text=" / "
                                Style="{StaticResource PlayerControlTextBlock}"
                                Margin="5 5" />
@@ -61,10 +63,8 @@
                                Margin="5 5" />
                 </StackPanel>
 
-                <!-- Equalizer (Set data manually from the control) -->
-                <controls:EqualizerView x:Name="EqualizerView" Height="24" Width="48" VerticalAlignment="Center" BarPadding="1" Margin="5" Grid.Column="2" />
-
-                <StackPanel Orientation="Horizontal" Grid.Column="3" VerticalAlignment="Center" Margin="10">
+                <!-- Play / Stop / Pause / Volume -->
+                <StackPanel Orientation="Horizontal" Grid.Column="2" VerticalAlignment="Center" Margin="10">
                     
                     <!-- Play / Stop / Pause -->
                     <ToggleButton x:Name="BackButton"

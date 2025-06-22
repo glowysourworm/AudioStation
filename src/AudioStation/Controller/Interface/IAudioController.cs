@@ -1,4 +1,5 @@
-﻿using AudioStation.Core.Model;
+﻿using AudioStation.Component.AudioProcessing;
+using AudioStation.Core.Model;
 
 using NAudio.Wave;
 
@@ -16,7 +17,7 @@ namespace AudioStation.Controller.Interface
         /// <summary>
         /// Event occurs when the stream's equalizer levels update
         /// </summary>
-        public event SimpleEventHandler<float[]> CurrentBandLevelsUpdated;
+        public event SimpleEventHandler<EqualizerResultSet> CurrentBandLevelsUpdated;
 
         void Load(string streamSource, StreamSourceType streamSourceType);
         void Play();

@@ -3,6 +3,7 @@ using System.Windows;
 using System.Windows.Threading;
 
 using AudioStation.Component;
+using AudioStation.Component.AudioProcessing;
 using AudioStation.Controller.Interface;
 using AudioStation.Core;
 using AudioStation.Core.Component;
@@ -255,11 +256,8 @@ public partial class MainViewModel : ViewModelBase, IDisposable
         outputController.AddLog("Welcome to Audio Station!", LogMessageType.General);
     }
 
-    private void OnCurrentBandLevelsUpdated(float[] equalizerValues)
+    private void OnCurrentBandLevelsUpdated(EqualizerResultSet equalizerValues)
     {
-        this.EqualizerValues.Clear();
-        this.EqualizerValues.AddRange(equalizerValues);
-
         // There is a problem binding to this collection. So we may just publish things this way.
         _eventAggregator.GetEvent<PlaybackEqualizerUpdateEvent>().Publish(equalizerValues);
     }

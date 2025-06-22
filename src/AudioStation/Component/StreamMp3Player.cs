@@ -1,5 +1,6 @@
 ﻿using System.Windows.Media;
 
+using AudioStation.Component.AudioProcessing;
 using AudioStation.Component.Interface;
 using AudioStation.Core.Model;
 
@@ -15,7 +16,8 @@ namespace AudioStation.Component
 
         public event SimpleEventHandler<string> MessageEvent;
         public event SimpleEventHandler PlaybackStoppedEvent;
-        public event SimpleEventHandler<TimeSpan, float[]> PlaybackTickEvent;        // Not going to use for streams
+        public event SimpleEventHandler<TimeSpan> PlaybackTickEvent;        // Not going to use for streams
+        public event SimpleEventHandler<EqualizerResultSet> EqualizerCalculated;
 
         public bool HasAudio
         {

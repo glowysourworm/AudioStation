@@ -2,6 +2,7 @@
 using System.Windows.Threading;
 
 using AudioStation.Component;
+using AudioStation.Component.AudioProcessing;
 using AudioStation.Component.Interface;
 using AudioStation.Controller.Interface;
 using AudioStation.Core.Component;
@@ -20,7 +21,7 @@ namespace AudioStation.Controller
     public class AudioController : IAudioController
     {
         public event SimpleEventHandler<TimeSpan> CurrentTimeUpdated;
-        public event SimpleEventHandler<float[]> CurrentBandLevelsUpdated;
+        public event SimpleEventHandler<EqualizerResultSet> CurrentBandLevelsUpdated;
 
         private readonly IIocEventAggregator _eventAggregator;
         private IAudioPlayer _player;
@@ -79,6 +80,7 @@ namespace AudioStation.Controller
                 _player.Dispose();
                 _player.PlaybackStoppedEvent -= OnPlaybackStopped;
                 _player.PlaybackTickEvent -= OnPlaybackTick;
+                _player.EqualizerCalculated -= OnEqualizerCalculated;
                 _player = null;
                 _streamSource = null;
             }
@@ -148,12 +150,13 @@ namespace AudioStation.Controller
                 }
 
                 // Zero-Time
-                OnPlaybackTick(TimeSpan.Zero, null);
+                OnPlaybackTick(TimeSpan.Zero);
 
                 // Hook Events
                 _player.SetVolume(1);
                 _player.PlaybackStoppedEvent += OnPlaybackStopped;
                 _player.PlaybackTickEvent += OnPlaybackTick;
+                _player.EqualizerCalculated += OnEqualizerCalculated;
 
                 // START
                 _player.Play(_streamSource, _streamSourceType);
@@ -163,6 +166,7 @@ namespace AudioStation.Controller
                 _eventAggregator.GetEvent<PlaybackStateChangedEvent>().Publish(PlayStopPause.Play);
             }
         }
+
         private void StopImpl()
         {
             if (_player == null)
@@ -175,21 +179,30 @@ namespace AudioStation.Controller
                 _player.Dispose();
                 _player.PlaybackStoppedEvent -= OnPlaybackStopped;
                 _player.PlaybackTickEvent -= OnPlaybackTick;
+                _player.EqualizerCalculated -= OnEqualizerCalculated;
                 _player = null;
             }
         }
 
-        private void OnPlaybackTick(TimeSpan currentTime, float[] currentBandLevels)
+        private void OnPlaybackTick(TimeSpan currentTime)
         {
             if (Thread.CurrentThread.ManagedThreadId != Application.Current.Dispatcher.Thread.ManagedThreadId)
-                Application.Current.Dispatcher.Invoke(OnPlaybackTick, DispatcherPriority.Background, currentTime, currentBandLevels);
+                Application.Current.Dispatcher.Invoke(OnPlaybackTick, DispatcherPriority.Background, currentTime);
             else
             {
                 if (this.CurrentTimeUpdated != null)
                     this.CurrentTimeUpdated(currentTime);
+            }
+        }
 
-                if (this.CurrentBandLevelsUpdated != null && currentBandLevels != null)
-                    this.CurrentBandLevelsUpdated(currentBandLevels);
+        private void OnEqualizerCalculated(EqualizerResultSet resultSet)
+        {
+            if (Thread.CurrentThread.ManagedThreadId != Application.Current.Dispatcher.Thread.ManagedThreadId)
+                Application.Current.Dispatcher.Invoke(OnEqualizerCalculated, DispatcherPriority.Background, resultSet);
+            else
+            {
+                if (this.CurrentBandLevelsUpdated != null)
+                    this.CurrentBandLevelsUpdated(resultSet);
             }
         }
 

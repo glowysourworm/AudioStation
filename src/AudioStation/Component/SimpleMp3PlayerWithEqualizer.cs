@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Threading;
 
+using AudioStation.Component.AudioProcessing;
 using AudioStation.Component.Interface;
 using AudioStation.Core.Model;
 
@@ -22,21 +18,28 @@ namespace AudioStation.Component
         public bool HasAudio { get; }
 
         public event SimpleEventHandler<string> MessageEvent;
-        public event SimpleEventHandler<TimeSpan, float[]> PlaybackTickEvent;
+        public event SimpleEventHandler<TimeSpan> PlaybackTickEvent;
+        public event SimpleEventHandler<EqualizerResultSet> EqualizerCalculated;
         public event SimpleEventHandler PlaybackStoppedEvent;
 
         MediaFoundationReader _reader;
         IWavePlayer _outputDevice;
         MixingSampleProvider _mixer;
+        SampleAggregator _aggregator;
         Equalizer _equalizer;
         EqualizerBand[] _equalizerBands;
+
+        EqualizerResultSet _equalizerResult;
 
         public SimpleMp3PlayerWithEqualizer()
         {
             _reader = null;
             _outputDevice = null;
+            _aggregator = null;
             _mixer = null;
+            _equalizer = null;
             _equalizerBands = null;
+            _equalizerResult = null;
         }
 
         private void CreateDevice(string fileSource)
@@ -72,7 +75,11 @@ namespace AudioStation.Component
                 new EqualizerBand(9600, 1, 0.8f, _reader.WaveFormat.Channels)
             };
             _equalizer = new Equalizer(sampleProvider, _equalizerBands);
-            _outputDevice.Init(_equalizer);
+            _equalizerResult = new EqualizerResultSet((int)Math.Pow(2, 10), (int)Math.Pow(2, 7), 10, 10, 0.3f);
+            _aggregator = new SampleAggregator(_equalizer, _equalizerResult.ChannelsInput);                     // "Channels" is a misnomer. The FFT "buffer" has to be
+            _aggregator.PerformFFT = true;                                                                      // related to the frequency
+            _aggregator.FftCalculated += OnFFTCalculated;
+            _outputDevice.Init(_aggregator);
             _outputDevice.PlaybackTick += OnPlaybackTick;
             _outputDevice.PlaybackStopped += OnPlaybackStopped;
             _outputDevice.PlaybackTickInterval = 10;
@@ -83,10 +90,13 @@ namespace AudioStation.Component
         {
             if (_reader != null)
             {
+                _outputDevice.Stop();
                 _outputDevice.Dispose();
                 _reader.Dispose();
                 _outputDevice.PlaybackTick -= OnPlaybackTick;
                 _outputDevice.PlaybackStopped -= OnPlaybackStopped;
+                _aggregator.FftCalculated -= OnFFTCalculated;
+                _aggregator = null;
                 _equalizer = null;
                 _equalizerBands = null;
                 _reader = null;
@@ -111,25 +121,24 @@ namespace AudioStation.Component
                 Application.Current.Dispatcher.BeginInvoke(OnPlaybackTick, DispatcherPriority.Background, sender, currentTime);
             else
             {
-                // Thread contention will use simple locks on the EqualizerBand
-                var currentLevels = new float[_equalizerBands.Length];
-
-                // Be careful here not to call into the lock more than once. The other
-                // thread should only be updating sample data.
-                for (int index = 0; index < _equalizerBands.Length; index++)
-                {
-                    var level = 0.0f;
-
-                    for (int channelIndex = 0; channelIndex < _reader.WaveFormat.Channels; channelIndex++)
-                    {
-                        level += _equalizerBands[index].GetLevelRunningAverage(channelIndex);
-                    }
-
-                    currentLevels[index] = level / _reader.WaveFormat.Channels;
-                }
-
                 if (this.PlaybackTickEvent != null)
-                    this.PlaybackTickEvent(currentTime, currentLevels);
+                    this.PlaybackTickEvent(currentTime);
+            }
+        }
+
+        private void OnFFTCalculated(object? sender, FftEventArgs fftArgs)
+        {
+            if (Thread.CurrentThread.ManagedThreadId != Application.Current.Dispatcher.Thread.ManagedThreadId)
+                Application.Current.Dispatcher.BeginInvoke(OnFFTCalculated, DispatcherPriority.Background, sender, fftArgs);
+            else
+            {
+                var update = _equalizerResult.Update(fftArgs.Result);
+
+                if (update != EqualizerResultSet.UpdateType.None)
+                {
+                    if (this.EqualizerCalculated != null)
+                        this.EqualizerCalculated(_equalizerResult);
+                }
             }
         }
 
@@ -151,8 +160,7 @@ namespace AudioStation.Component
 
         public void Pause()
         {
-            if (_outputDevice != null)
-                _outputDevice.Pause();
+            _outputDevice?.Pause();
         }
 
         public void Play(string source, StreamSourceType sourceType)
