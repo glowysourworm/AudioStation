@@ -169,12 +169,15 @@ namespace AudioStation.Views
             };
             eventData.StartTrack = eventData.PlaylistEntries.First(x => x.Track.Id == selectedTitle.Id);
 
+            // Stop -> (...) -> Load Playlist -> Load Playback -> Start
+            _eventAggregator.GetEvent<StopPlaybackEvent>().Publish();
             _eventAggregator.GetEvent<LoadPlaylistEvent>().Publish(eventData);
             _eventAggregator.GetEvent<LoadPlaybackEvent>().Publish(new LoadPlaybackEventData()
             {
                 Source = eventData.StartTrack.Track.FileName,
                 SourceType = StreamSourceType.File
             });
+            _eventAggregator.GetEvent<StartPlaybackEvent>().Publish();
 
             //var playlist = new Playlist();
             //playlist.Name = selectedAlbum.PrimaryArtist + " / " + selectedAlbum.Album;

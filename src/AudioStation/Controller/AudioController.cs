@@ -20,6 +20,7 @@ namespace AudioStation.Controller
     public class AudioController : IAudioController
     {
         public event SimpleEventHandler<TimeSpan> CurrentTimeUpdated;
+        public event SimpleEventHandler<float[]> CurrentBandLevelsUpdated;
 
         private readonly IIocEventAggregator _eventAggregator;
         private IAudioPlayer _player;
@@ -136,7 +137,7 @@ namespace AudioStation.Controller
                     switch (_streamSourceType)
                     {
                         case StreamSourceType.File:
-                            _player = new SimpleMp3Player();
+                            _player = new SimpleMp3PlayerWithEqualizer();
                             break;
                         case StreamSourceType.Network:
                             _player = new StreamMp3Player();
@@ -147,7 +148,7 @@ namespace AudioStation.Controller
                 }
 
                 // Zero-Time
-                OnPlaybackTick(TimeSpan.Zero);
+                OnPlaybackTick(TimeSpan.Zero, null);
 
                 // Hook Events
                 _player.SetVolume(1);
@@ -178,14 +179,17 @@ namespace AudioStation.Controller
             }
         }
 
-        private void OnPlaybackTick(TimeSpan currentTime)
+        private void OnPlaybackTick(TimeSpan currentTime, float[] currentBandLevels)
         {
             if (Thread.CurrentThread.ManagedThreadId != Application.Current.Dispatcher.Thread.ManagedThreadId)
-                Application.Current.Dispatcher.Invoke(OnPlaybackTick, DispatcherPriority.Background, currentTime);
+                Application.Current.Dispatcher.Invoke(OnPlaybackTick, DispatcherPriority.Background, currentTime, currentBandLevels);
             else
             {
                 if (this.CurrentTimeUpdated != null)
                     this.CurrentTimeUpdated(currentTime);
+
+                if (this.CurrentBandLevelsUpdated != null && currentBandLevels != null)
+                    this.CurrentBandLevelsUpdated(currentBandLevels);
             }
         }
 

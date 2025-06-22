@@ -56,7 +56,8 @@ public partial class MainViewModel : ViewModelBase, IDisposable
     PlaylistViewModel _playlist;
     BandcampViewModel _bandcamp;
     LibraryLoaderViewModel _libraryLoaderViewModel;
-    
+
+    ObservableCollection<float> _equalizerValues;
     PlayStopPause _playState;
 
     ObservableCollection<LogMessageViewModel> _outputMessages;
@@ -138,6 +139,11 @@ public partial class MainViewModel : ViewModelBase, IDisposable
         get { return _playlist; }
         set { this.RaiseAndSetIfChanged(ref _playlist, value); }
     }
+    public ObservableCollection<float> EqualizerValues
+    {
+        get { return _equalizerValues; }
+        set { this.RaiseAndSetIfChanged(ref _equalizerValues, value); }
+    }
     public PlayStopPause PlayState
     {
         get { return _playState; }
@@ -190,6 +196,7 @@ public partial class MainViewModel : ViewModelBase, IDisposable
         this.Configuration = configurationManager.GetConfiguration();
         this.ShowOutputMessages = false;
         this.OutputMessages = new ObservableCollection<LogMessageViewModel>();
+        this.EqualizerValues = new ObservableCollection<float>();
 
         // Child View Models
         this.Playlist = new PlaylistViewModel();
@@ -206,6 +213,7 @@ public partial class MainViewModel : ViewModelBase, IDisposable
 
         // IAudioController playback tick event
         audioController.CurrentTimeUpdated += OnCurrentTimeUpdated;
+        audioController.CurrentBandLevelsUpdated += OnCurrentBandLevelsUpdated;
 
         // Event Aggregator
         eventAggregator.GetEvent<LogEvent>().Subscribe(OnLog);
@@ -245,6 +253,15 @@ public partial class MainViewModel : ViewModelBase, IDisposable
         });
 
         outputController.AddLog("Welcome to Audio Station!", LogMessageType.General);
+    }
+
+    private void OnCurrentBandLevelsUpdated(float[] equalizerValues)
+    {
+        this.EqualizerValues.Clear();
+        this.EqualizerValues.AddRange(equalizerValues);
+
+        // There is a problem binding to this collection. So we may just publish things this way.
+        _eventAggregator.GetEvent<PlaybackEqualizerUpdateEvent>().Publish(equalizerValues);
     }
 
     private void OnPlaybackStateChanged(PlayStopPause state)

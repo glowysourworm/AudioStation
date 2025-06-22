@@ -13,6 +13,11 @@ namespace AudioStation.Controller.Interface
         /// </summary>
         public event SimpleEventHandler<TimeSpan> CurrentTimeUpdated;
 
+        /// <summary>
+        /// Event occurs when the stream's equalizer levels update
+        /// </summary>
+        public event SimpleEventHandler<float[]> CurrentBandLevelsUpdated;
+
         void Load(string streamSource, StreamSourceType streamSourceType);
         void Play();
         void Stop();

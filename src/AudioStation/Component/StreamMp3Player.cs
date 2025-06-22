@@ -15,7 +15,7 @@ namespace AudioStation.Component
 
         public event SimpleEventHandler<string> MessageEvent;
         public event SimpleEventHandler PlaybackStoppedEvent;
-        public event SimpleEventHandler<TimeSpan> PlaybackTickEvent;        // Not going to use for streams
+        public event SimpleEventHandler<TimeSpan, float[]> PlaybackTickEvent;        // Not going to use for streams
 
         public bool HasAudio
         {

@@ -9,7 +9,7 @@ namespace AudioStation.Component.Interface
     public interface IAudioPlayer : IDisposable
     {
         event SimpleEventHandler<string> MessageEvent;
-        event SimpleEventHandler<TimeSpan> PlaybackTickEvent;
+        event SimpleEventHandler<TimeSpan, float[]> PlaybackTickEvent;
         event SimpleEventHandler PlaybackStoppedEvent;
 
         void SetVolume(float volume);

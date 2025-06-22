@@ -23,7 +23,7 @@ namespace AudioStation.Component
         object _lock = new object();
 
         public event SimpleEventHandler<string> MessageEvent;
-        public event SimpleEventHandler<TimeSpan> PlaybackTickEvent;
+        public event SimpleEventHandler<TimeSpan, float[]> PlaybackTickEvent;
         public event SimpleEventHandler PlaybackStoppedEvent;
 
         public bool HasAudio
@@ -57,7 +57,7 @@ namespace AudioStation.Component
             Application.Current.Dispatcher.BeginInvoke(() =>
             {
                 if (this.PlaybackTickEvent != null)
-                    this.PlaybackTickEvent(_player.Position);
+                    this.PlaybackTickEvent(_player.Position, null);
 
             }, DispatcherPriority.Background);
         }

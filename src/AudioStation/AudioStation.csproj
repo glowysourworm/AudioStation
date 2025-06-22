@@ -43,13 +43,14 @@
     <PackageReference Include="MetaBrainz.MusicBrainz.CoverArt" Version="6.0.0" />
     <PackageReference Include="MetaBrainz.MusicBrainz.DiscId" Version="4.0.0" />
     <PackageReference Include="NAudio" Version="2.2.1" />
+    <PackageReference Include="NAudio.Core" Version="2.2.1" />
+    <PackageReference Include="NAudio.Extras" Version="2.2.1" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4" />
     <PackageReference Include="RadioBrowser" Version="0.7.0" />
     <PackageReference Include="SimpleWpf" Version="0.0.1" />
     <PackageReference Include="SimpleWpf.IocFramework" Version="0.0.1" />
     <PackageReference Include="SimpleWpf.UI" Version="0.0.1" />
     <PackageReference Include="taglib-sharp-netstandard2.0" Version="2.1.0" />
-    <PackageReference Include="tokenizingtextbox" Version="2.1.2" />
   </ItemGroup>
 
   <ItemGroup>

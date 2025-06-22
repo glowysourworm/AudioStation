@@ -2,10 +2,8 @@
 using System.Windows.Input;
 using System.Windows.Media;
 
-using AudioStation.Controller.Interface;
 using AudioStation.Event;
 using AudioStation.ViewModels;
-using AudioStation.ViewModels.PlaylistViewModels;
 
 using SimpleWpf.IocFramework.Application.Attribute;
 using SimpleWpf.IocFramework.EventAggregation;
@@ -23,6 +21,13 @@ namespace AudioStation.Views
             _eventAggregator = eventAggregator;
 
             InitializeComponent();
+
+            // There are problems binding observable collections to dependency properties. So, these
+            // have to be set manually.
+            _eventAggregator.GetEvent<PlaybackEqualizerUpdateEvent>().Subscribe(equalizerValues =>
+            {
+                this.EqualizerView.SetEqualizer(equalizerValues);
+            });
         }
 
         private void VolumeButton_Click(object sender, System.Windows.RoutedEventArgs e)
@@ -63,7 +68,7 @@ namespace AudioStation.Views
             {
                 _eventAggregator.GetEvent<PlaybackPositionChangedEvent>()
                                 .Publish(TimeSpan.FromMilliseconds(sender * playlist.NowPlaying.Track.Duration.TotalMilliseconds));
-            }            
+            }
         }
 
         private void BackButton_Click(object sender, System.Windows.RoutedEventArgs e)
