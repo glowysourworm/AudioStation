@@ -4,9 +4,10 @@
         xmlns:local="clr-namespace:AudioStation"
         xmlns:views="clr-namespace:AudioStation.Views"
         xmlns:controls="clr-namespace:AudioStation.Controls"
+        xmlns:region="clr-namespace:SimpleWpf.IocFramework.RegionManagement;assembly=SimpleWpf.IocFramework"
         Style="{StaticResource MainWindowStyle}"
         Title="Audio Station" Height="700" Width="1200">
     <Grid>
-        <views:MainView />
+        <region:IocRegion region:IocRegionManager.DefaultViewType="{x:Type views:MainView}" />
     </Grid>
 </Window>

@@ -1,0 +1,70 @@
+﻿<UserControl x:Class="AudioStation.Views.AudioControlPanelView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="clr-namespace:AudioStation.Controls"
+             xmlns:region="clr-namespace:SimpleWpf.IocFramework.RegionManagement;assembly=SimpleWpf.IocFramework"
+             xmlns:local="clr-namespace:AudioStation.Views">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+
+        <Border x:Name="EqualizerControlContainer" 
+                Visibility="Collapsed"
+                Padding="10" 
+                BorderThickness="1" 
+                BorderBrush="Gray" 
+                Background="White">
+            <Border.LayoutTransform>
+                <RotateTransform Angle="270" />
+            </Border.LayoutTransform>
+            <region:IocRegion region:IocRegionManager.DefaultViewType="{x:Type local:PlayerEqualizerView}"
+                              DataContext="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType=Window}}"
+                              Width="200">
+            </region:IocRegion>
+        </Border>
+
+        <Border x:Name="VolumeControlContainer" 
+                Visibility="Collapsed"
+                Padding="10" 
+                BorderThickness="1" 
+                BorderBrush="Gray" 
+                Background="White" 
+                Grid.Column="1">
+            <Border.LayoutTransform>
+                <RotateTransform Angle="270" />
+            </Border.LayoutTransform>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="25" />
+                    <ColumnDefinition Width="170" />
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Text="100"  Style="{StaticResource PlayerControlDetailTextBlock}">
+                    <TextBlock.RenderTransform>
+                        <TransformGroup>
+                            <RotateTransform Angle="90" />
+                            <TranslateTransform X="18" Y="-2" />
+                        </TransformGroup>
+                    </TextBlock.RenderTransform>
+                </TextBlock>
+                
+                <controls:ScrubberControl x:Name="VolumeControl" Grid.Column="1"
+                                        ScrubbedRatio="{Binding DataContext.Volume, Mode=OneWay, NotifyOnSourceUpdated=True, RelativeSource={RelativeSource AncestorType=Window}}"
+                                        ScrubbedRatioChanged="VolumeControl_ScrubbedRatioChanged"
+                                        BorderThickness="0"
+                                        ScrubberHandleSize="18"
+                                        ScrubberHandleInnerSize="8"
+                                        ScrubberTimelineSize="8"
+                                        ScrubberTimelineBrushScrubbed="{StaticResource AudioControlTimelineBrushScrubbed}"
+                                        ShowTicks="True"
+									    VerticalAlignment="Center"
+                                        HorizontalAlignment="Center"
+									    Width="170">
+                </controls:ScrubberControl>
+            </Grid>
+        </Border>
+        
+    </Grid>
+</UserControl>

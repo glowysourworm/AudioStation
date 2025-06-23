@@ -31,56 +31,20 @@ namespace AudioStation.Views
             });
         }
 
-        private void VolumeButton_Click(object sender, System.Windows.RoutedEventArgs e)
+        private void SetAudioControls()
         {
-            if (this.VolumePopup.IsOpen == true)
-            {
-                this.VolumeButton.IsChecked = false;
-                this.VolumePopup.IsOpen = false;
-            }
-            else
-            {
-                this.VolumeButton.IsChecked = true;
-                this.VolumePopup.IsOpen = true;
-            }
-        }
-        private void EqualizerButton_Click(object sender, System.Windows.RoutedEventArgs e)
-        {
-            if (this.EqualizerPopup.IsOpen == true)
-            {
-                this.EqualizerButton.IsChecked = false;
-                this.EqualizerPopup.IsOpen = false;
-            }
-            else
-            {
-                this.EqualizerButton.IsChecked = true;
-                this.EqualizerPopup.IsOpen = true;
-            }
-        }
-        private void VolumePopup_PreviewMouseUp(object sender, MouseButtonEventArgs e)
-        {
-            var result = VisualTreeHelper.HitTest(this.VolumeControlContainer, e.GetPosition(this.VolumeControlContainer));
+            AudioControlPanelControl controls = AudioControlPanelControl.None;
 
-            if (result == null)
-            {
-                this.VolumeButton.IsChecked = false;
-                this.VolumePopup.IsOpen = false;
-            }
-        }
-        private void EqualizerPopup_PreviewMouseUp(object sender, MouseButtonEventArgs e)
-        {
-            var result = VisualTreeHelper.HitTest(this.EqualizerControlContainer, e.GetPosition(this.EqualizerControlContainer));
+            if (this.VolumeButton.IsChecked == true)
+                controls |= AudioControlPanelControl.Volume;
 
-            if (result == null)
-            {
-                this.EqualizerButton.IsChecked = false;
-                this.EqualizerPopup.IsOpen = false;
-            }
+            if (this.EqualizerButton.IsChecked == true)
+                controls |= AudioControlPanelControl.Equalizer;
+
+            _eventAggregator.GetEvent<NowPlayingShowAudioControlPanelEvent>()
+                            .Publish(controls);
         }
-        private void VolumeControl_ScrubbedRatioChanged(ScrubberControl sender, float volume)
-        {
-            _eventAggregator.GetEvent<UpdateVolumeEvent>().Publish(volume);
-        }
+
         private void ScrubberControl_ScrubbedRatioChanged(ScrubberControl sender, float current)
         {
             var playlist = this.DataContext as PlaylistViewModel;
@@ -115,6 +79,30 @@ namespace AudioStation.Views
         private void ForwardButton_Click(object sender, System.Windows.RoutedEventArgs e)
         {
 
+        }
+
+        private void ExpandedViewButton_Click(object sender, System.Windows.RoutedEventArgs e)
+        {
+            this.ListViewButton.IsChecked = false;
+
+            _eventAggregator.GetEvent<NowPlayingExpandedViewEvent>().Publish(true);
+        }
+
+        private void ListViewButton_Click(object sender, System.Windows.RoutedEventArgs e)
+        {
+            this.ExpandedViewButton.IsChecked = false;
+
+            _eventAggregator.GetEvent<NowPlayingExpandedViewEvent>().Publish(false);
+        }
+
+        private void VolumeButton_Checked(object sender, System.Windows.RoutedEventArgs e)
+        {
+            SetAudioControls();
+        }
+
+        private void EqualizerButton_Checked(object sender, System.Windows.RoutedEventArgs e)
+        {
+            SetAudioControls();
         }
     }
 }

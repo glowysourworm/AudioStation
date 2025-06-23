@@ -66,20 +66,19 @@
                                Margin="5 5" />
         </StackPanel>
 
-        <!-- Player Controls:  Play / Stop / Pause -->
+        <!-- Player Controls:  Play / Stop / Pause / View Change / Audio Controls -->
         <Border Grid.Row="0" Grid.Column="3" HorizontalAlignment="Right">
 
-            <!-- Play / Stop / Pause / Volume -->
             <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="10">
-                    
-                    <!-- Play / Stop / Pause -->
-                    <ToggleButton x:Name="BackButton"
+
+                <!-- Play / Stop / Pause -->
+                <ToggleButton x:Name="BackButton"
                                   Style="{StaticResource LargeInputControlToggleButton}"
                                   Click="BackButton_Click">
-                        <fa5:SvgAwesome Icon="Solid_StepBackward"                                         
+                    <fa5:SvgAwesome Icon="Solid_StepBackward"                                         
                                         Height="16" Width="16" VerticalAlignment="Center" />
-                    </ToggleButton>
-                    <ToggleButton x:Name="PauseButton"
+                </ToggleButton>
+                <ToggleButton x:Name="PauseButton"
                                   Style="{StaticResource LargeInputControlToggleButton}"
                                   Click="PauseButton_Click"
                                   IsChecked="{Binding DataContext.PlayState, 
@@ -87,108 +86,71 @@
                                                       RelativeSource={RelativeSource AncestorType=Window},
                                                       Converter={StaticResource PlayStopPauseParameterBoolConverter}, 
                                                       ConverterParameter={x:Static coreComponent:PlayStopPause.Pause}}">
-                        <fa5:SvgAwesome Icon="Solid_Pause" 
+                    <fa5:SvgAwesome Icon="Solid_Pause" 
                                         Height="16" Width="16" VerticalAlignment="Center" />
-                    </ToggleButton>
-                    <ToggleButton x:Name="PlayButton"
+                </ToggleButton>
+                <ToggleButton x:Name="PlayButton"
                                   Style="{StaticResource LargeInputControlToggleButton}"
                                   Click="PlayButton_Click"
                                   IsChecked="{Binding DataContext.PlayState, 
                                                       Mode=TwoWay,    
                                                       RelativeSource={RelativeSource AncestorType=Window},
                                                       Converter={StaticResource PlayStopPauseParameterBoolConverter}, 
-                                                      ConverterParameter={x:Static coreComponent:PlayStopPause.Play}}">                                  
-                        <fa5:SvgAwesome Icon="Solid_Play" 
+                                                      ConverterParameter={x:Static coreComponent:PlayStopPause.Play}}">
+                    <fa5:SvgAwesome Icon="Solid_Play" 
                                         Height="16" Width="16" VerticalAlignment="Center" />
-                    </ToggleButton>
-                    <ToggleButton x:Name="StopButton"
+                </ToggleButton>
+                <ToggleButton x:Name="StopButton"
                                   Style="{StaticResource LargeInputControlToggleButton}"
                                   Click="StopButton_Click"
                                   IsChecked="{Binding DataContext.PlayState, 
                                                       Mode=TwoWay,
                                                       RelativeSource={RelativeSource AncestorType=Window},
                                                       Converter={StaticResource PlayStopPauseParameterBoolConverter}, 
-                                                      ConverterParameter={x:Static coreComponent:PlayStopPause.Stop}}">                                  
-                        <fa5:SvgAwesome Icon="Solid_Stop" 
+                                                      ConverterParameter={x:Static coreComponent:PlayStopPause.Stop}}">
+                    <fa5:SvgAwesome Icon="Solid_Stop" 
                                         Height="16" Width="16" VerticalAlignment="Center" />
-                    </ToggleButton>
-                    <ToggleButton x:Name="ForwardButton"
+                </ToggleButton>
+                <ToggleButton x:Name="ForwardButton"
                                   Click="ForwardButton_Click"
                                   Style="{StaticResource LargeInputControlToggleButton}">
-                        <fa5:SvgAwesome Icon="Solid_StepForward" Height="16" Width="16" VerticalAlignment="Center" />
-                    </ToggleButton>
+                    <fa5:SvgAwesome Icon="Solid_StepForward" Height="16" Width="16" VerticalAlignment="Center" />
+                </ToggleButton>
+
+                <!-- Expanded View -->
+                <ToggleButton x:Name="ExpandedViewButton" 
+                                Click="ExpandedViewButton_Click"
+                                Style="{StaticResource LargeInputControlToggleButton}" 
+                                Margin="10 0 0 0">
+                        <fa5:SvgAwesome Icon="Solid_Expand" Height="16" Width="16" />
+                </ToggleButton>
                 
-                    <!-- Equalizer -->
-                    <ToggleButton x:Name="EqualizerButton" 
-                                  Click="EqualizerButton_Click"
-                                  Style="{StaticResource LargeInputControlToggleButton}" 
-                                  Margin="10 0 0 0">
-                        <StackPanel>
-                            <fa5:SvgAwesome Icon="Solid_Signal" Height="16" Width="16" />
-                        </StackPanel>
+                <!-- List View -->
+                <ToggleButton x:Name="ListViewButton" 
+                                Click="ListViewButton_Click"
+                                Style="{StaticResource LargeInputControlToggleButton}" 
+                                Margin="0">
+                        <fa5:SvgAwesome Icon="Solid_List" Height="16" Width="16" />
+                </ToggleButton>
 
-                    </ToggleButton>
-
+                <!-- Equalizer -->
+                <ToggleButton x:Name="EqualizerButton" 
+                              Checked="EqualizerButton_Checked"
+                              Unchecked="EqualizerButton_Checked"
+                              Style="{StaticResource LargeInputControlToggleButton}" 
+                              Margin="10 0 0 0">
+                    <fa5:SvgAwesome Icon="Solid_Signal" Height="16" Width="16" />
+                </ToggleButton>
 
                 <!-- Volume -->
-                    <ToggleButton x:Name="VolumeButton" 
-                                  Click="VolumeButton_Click"
-                                  Cursor="Hand" 
-                                  Style="{StaticResource LargeInputControlToggleButton}" 
-                                  Margin="10 0 0 0">
-                        <StackPanel>
-                            <fa5:SvgAwesome Icon="Solid_VolumeUp" Height="16" Width="16" />
-                        </StackPanel>
-                        
-                    </ToggleButton>
-
-                <!-- Equalizer Popup -->
-                <Popup x:Name="EqualizerPopup" 
-                        StaysOpen="True"
-                        PreviewMouseUp="EqualizerPopup_PreviewMouseUp"
-                        Placement="Relative"
-                        PlacementTarget="{Binding ElementName=EqualizerButton}">
-
-                    <Border x:Name="EqualizerControlContainer" Padding="10" BorderThickness="1" BorderBrush="Gray" Background="White">
-                        <Border.LayoutTransform>
-                            <RotateTransform Angle="270" />
-                        </Border.LayoutTransform>
-                        <region:IocRegion region:IocRegionManager.DefaultViewType="{x:Type local:PlayerEqualizerView}"
-                                          DataContext="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType=Window}}"
-                                          Width="200">
-                        </region:IocRegion>
-                    </Border>
-
-                </Popup>
-
-                <!-- Volume Popup -->
-                    <Popup x:Name="VolumePopup" 
-                            StaysOpen="True"
-                            PreviewMouseUp="VolumePopup_PreviewMouseUp"
-                            Placement="Relative" 
-                            PlacementTarget="{Binding ElementName=VolumeButton}">
-
-                        <Border x:Name="VolumeControlContainer" Padding="10" BorderThickness="1" BorderBrush="Gray" Background="White">
-                            <Border.LayoutTransform>
-                                <RotateTransform Angle="270" />
-                            </Border.LayoutTransform>
-                            <controls:ScrubberControl x:Name="VolumeControl"
-                                                      ScrubbedRatio="{Binding DataContext.Volume, Mode=OneWay, NotifyOnSourceUpdated=True, RelativeSource={RelativeSource AncestorType=Window}}"
-                                                      ScrubbedRatioChanged="VolumeControl_ScrubbedRatioChanged"
-                                                      BorderThickness="0"
-                                                      ScrubberHandleSize="18"
-                                                      ScrubberHandleInnerSize="8"
-                                                      ScrubberTimelineSize="8"
-                                                      ScrubberTimelineBrushScrubbed="{StaticResource AudioControlTimelineBrushScrubbed}"
-                                                      ShowTicks="True"
-												      VerticalAlignment="Center"
-                                                      HorizontalAlignment="Center"
-												      Width="170">
-                            </controls:ScrubberControl>
-                        </Border>
-
-                    </Popup>
-                </StackPanel>
+                <ToggleButton x:Name="VolumeButton" 
+                              Checked="VolumeButton_Checked"
+                              Unchecked="VolumeButton_Checked"
+                              Style="{StaticResource LargeInputControlToggleButton}" 
+                              Margin="10 0 0 0">
+                    <fa5:SvgAwesome Icon="Solid_VolumeUp" Height="16" Width="16" />
+                </ToggleButton>
+            </StackPanel>
         </Border>
 
         <!-- Scrubber (use margin of the ellipse to set the offset) -->
