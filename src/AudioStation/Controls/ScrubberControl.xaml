@@ -19,24 +19,40 @@
 								 VerticalAlignment="Center"
 								 />
 
-        <Ellipse x:Name="ScrubberCursor"
-				 Height="{Binding ScrubberHandleSize, ElementName=TheScrubber}" 
-                 Width="{Binding ScrubberHandleSize, ElementName=TheScrubber}"
-				 Fill="{Binding ScrubberHandleBrush, ElementName=TheScrubber}" 
-				 Stroke="{Binding ScrubberHandleBrush, ElementName=TheScrubber}"
-				 StrokeThickness="1" 
+        <Grid x:Name="ScrubberContainer"
 				 HorizontalAlignment="Left"
-				 VerticalAlignment="Center"/>
+				 VerticalAlignment="Center">
+            
+            <Ellipse Height="{Binding ScrubberHandleSize, ElementName=TheScrubber}" 
+                     Width="{Binding ScrubberHandleSize, ElementName=TheScrubber}"
+				     Fill="{Binding ScrubberHandleBrush, ElementName=TheScrubber}" 
+				     Stroke="{Binding ScrubberHandleBrush, ElementName=TheScrubber}"
+				     StrokeThickness="1" HorizontalAlignment="Center" VerticalAlignment="Center" />
 
-        <Ellipse x:Name="ScrubberPreviewCursor"
-                 Visibility="{Binding ScrubberPreviewVisible, ElementName=TheScrubber, Converter={StaticResource BoolVisibilityCollapseConverter}}"
-                 Opacity="0.8"
-				 Height="{Binding ScrubberHandleSize, ElementName=TheScrubber}" 
-                 Width="{Binding ScrubberHandleSize, ElementName=TheScrubber}"
-				 Fill="{Binding ScrubberHandleBrush, ElementName=TheScrubber}" 
-				 Stroke="{Binding ScrubberHandleBrush, ElementName=TheScrubber}"
-				 StrokeThickness="1" 
+            <Ellipse Height="{Binding ScrubberHandleInnerSize, ElementName=TheScrubber}" 
+                     Width="{Binding ScrubberHandleInnerSize, ElementName=TheScrubber}"
+				     Fill="{Binding ScrubberTimelineBrushScrubbed, ElementName=TheScrubber}" 
+				     StrokeThickness="0" HorizontalAlignment="Center" VerticalAlignment="Center" />
+        </Grid>
+
+        <Grid x:Name="ScrubberPreviewContainer"
 				 HorizontalAlignment="Left"
-				 VerticalAlignment="Center"/>
+				 VerticalAlignment="Center">
+
+            <Ellipse Visibility="{Binding ScrubberPreviewVisible, ElementName=TheScrubber, Converter={StaticResource BoolVisibilityCollapseConverter}}"
+                     Opacity="0.8"
+				     Height="{Binding ScrubberHandleSize, ElementName=TheScrubber}" 
+                     Width="{Binding ScrubberHandleSize, ElementName=TheScrubber}"
+				     Fill="{Binding ScrubberHandleBrush, ElementName=TheScrubber}" 
+				     Stroke="{Binding ScrubberHandleBrush, ElementName=TheScrubber}"
+				     StrokeThickness="1" />
+
+            <Ellipse Visibility="{Binding ScrubberPreviewVisible, ElementName=TheScrubber, Converter={StaticResource BoolVisibilityCollapseConverter}}"
+                     Opacity="0.8"
+				     Height="{Binding ScrubberHandleInnerSize, ElementName=TheScrubber}" 
+                     Width="{Binding ScrubberHandleInnerSize, ElementName=TheScrubber}"
+				     Fill="{Binding ScrubberTimelineBrushScrubbed, ElementName=TheScrubber}" 
+				     StrokeThickness="0" />
+        </Grid>
     </Grid>
 </UserControl>

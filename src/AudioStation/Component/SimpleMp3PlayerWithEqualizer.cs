@@ -63,16 +63,19 @@ namespace AudioStation.Component
             //_mixer.AddMixerInput(sampleProvider);
             //_mixer.AddMixerInput(_equalizer);
 
+            var bandWidth = 0.8f;
+            var gainDB = 0;
+
             _equalizerBands = new EqualizerBand[]
             {
-                new EqualizerBand(100, 1, 0.8f, _reader.WaveFormat.Channels),
-                new EqualizerBand(200, 1, 0.8f, _reader.WaveFormat.Channels),
-                new EqualizerBand(400, 1, 0.8f, _reader.WaveFormat.Channels),
-                new EqualizerBand(800, 1, 0.8f, _reader.WaveFormat.Channels),
-                new EqualizerBand(1200, 1, 0.8f, _reader.WaveFormat.Channels),
-                new EqualizerBand(2400, 1, 0.8f, _reader.WaveFormat.Channels),
-                new EqualizerBand(4800, 1, 0.8f, _reader.WaveFormat.Channels),
-                new EqualizerBand(9600, 1, 0.8f, _reader.WaveFormat.Channels)
+                new EqualizerBand(100, gainDB, bandWidth, _reader.WaveFormat.Channels),
+                new EqualizerBand(200, gainDB, bandWidth, _reader.WaveFormat.Channels),
+                new EqualizerBand(400, gainDB, bandWidth, _reader.WaveFormat.Channels),
+                new EqualizerBand(800, gainDB, bandWidth, _reader.WaveFormat.Channels),
+                new EqualizerBand(1200, gainDB, bandWidth, _reader.WaveFormat.Channels),
+                new EqualizerBand(2400, gainDB, bandWidth, _reader.WaveFormat.Channels),
+                new EqualizerBand(4800, gainDB, bandWidth, _reader.WaveFormat.Channels),
+                new EqualizerBand(9600, gainDB, bandWidth, _reader.WaveFormat.Channels)
             };
             _equalizer = new Equalizer(sampleProvider, _equalizerBands);
             _equalizerResult = new EqualizerResultSet((int)Math.Pow(2, 10), (int)Math.Pow(2, 7), 10, 10, 0.3f);
@@ -122,7 +125,7 @@ namespace AudioStation.Component
             else
             {
                 if (this.PlaybackTickEvent != null)
-                    this.PlaybackTickEvent(currentTime);
+                    this.PlaybackTickEvent(_reader.CurrentTime);
             }
         }
 
@@ -183,7 +186,10 @@ namespace AudioStation.Component
                 var unitPosition = position.TotalMilliseconds / (float)_reader.TotalTime.TotalMilliseconds;
                 var bytePosition = (long)(unitPosition * _reader.Length);
 
-                _reader.Position = bytePosition;
+                var byteDelta = bytePosition - _reader.Position;
+
+                _reader.Skip((int)(position.TotalSeconds - _reader.CurrentTime.TotalSeconds));
+                
             }
         }
 
@@ -191,6 +197,18 @@ namespace AudioStation.Component
         {
             if (_outputDevice != null)
                 _outputDevice.Volume = volume;
+        }
+
+        public void SetEqualizerGain(float frequency, float gain)
+        {
+            for (int index= 0; index < _equalizerBands.Length; index++)
+            {
+                // Set Gain in decibels (go ahead and use linear scale)
+                if (_equalizerBands[index].GetFrequency() == frequency)
+                    _equalizerBands[index].UpdateParameters(((gain * 2) - 1) * 20.0f); // Must add an offset (hearing threshold) to keep it off zero
+            }
+
+            _equalizer.Update();
         }
 
         public void Stop()

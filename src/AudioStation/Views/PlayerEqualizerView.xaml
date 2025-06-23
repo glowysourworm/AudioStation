@@ -1,0 +1,195 @@
+﻿<UserControl x:Class="AudioStation.Views.PlayerEqualizerView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:AudioStation.Views"
+             xmlns:controls="clr-namespace:AudioStation.Controls">
+    
+    <Border>
+
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="25" />
+                <ColumnDefinition Width="170" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="35" />
+                <RowDefinition Height="35" />
+                <RowDefinition Height="35" />
+                <RowDefinition Height="35" />
+                <RowDefinition Height="35" />
+                <RowDefinition Height="35" />
+                <RowDefinition Height="35" />
+                <RowDefinition Height="35" />
+            </Grid.RowDefinitions>
+
+            <TextBlock Text="{Binding EqualizerViewModel[0].Frequency, StringFormat={}{0:#}}" VerticalAlignment="Center" HorizontalAlignment="Center" Style="{StaticResource PlayerControlDetailTextBlock}">
+                <TextBlock.RenderTransform>
+                    <TransformGroup>
+                        <RotateTransform Angle="90" />
+                        <TranslateTransform X="15" Y="-3" />
+                    </TransformGroup>
+                </TextBlock.RenderTransform>
+            </TextBlock>
+
+            <TextBlock Grid.Row="1" Text="{Binding EqualizerViewModel[1].Frequency, StringFormat={}{0:#}}" VerticalAlignment="Center" HorizontalAlignment="Center" Style="{StaticResource PlayerControlDetailTextBlock}">
+                <TextBlock.RenderTransform>
+                    <TransformGroup>
+                        <RotateTransform Angle="90" />
+                        <TranslateTransform X="15" Y="-3" />
+                    </TransformGroup>
+                </TextBlock.RenderTransform>
+            </TextBlock>
+
+            <TextBlock Grid.Row="2" Text="{Binding EqualizerViewModel[2].Frequency, StringFormat={}{0:#}}" VerticalAlignment="Center" HorizontalAlignment="Center" Style="{StaticResource PlayerControlDetailTextBlock}">
+                <TextBlock.RenderTransform>
+                    <TransformGroup>
+                        <RotateTransform Angle="90" />
+                        <TranslateTransform X="15" Y="-3" />
+                    </TransformGroup>
+                </TextBlock.RenderTransform>
+            </TextBlock>
+
+            <TextBlock Grid.Row="3" Text="{Binding EqualizerViewModel[3].Frequency, StringFormat={}{0:#}}" VerticalAlignment="Center" HorizontalAlignment="Center" Style="{StaticResource PlayerControlDetailTextBlock}">
+                <TextBlock.RenderTransform>
+                    <TransformGroup>
+                        <RotateTransform Angle="90" />
+                        <TranslateTransform X="15" Y="-3" />
+                    </TransformGroup>
+                </TextBlock.RenderTransform>
+            </TextBlock>
+
+            <TextBlock Grid.Row="4" Text="{Binding EqualizerViewModel[4].Frequency, StringFormat={}{0:#}}" VerticalAlignment="Center" HorizontalAlignment="Center" Style="{StaticResource PlayerControlDetailTextBlock}">
+                <TextBlock.RenderTransform>
+                    <TransformGroup>
+                        <RotateTransform Angle="90" />
+                        <TranslateTransform X="18" Y="-5" />
+                    </TransformGroup>
+                </TextBlock.RenderTransform>
+            </TextBlock>
+
+            <TextBlock Grid.Row="5" Text="{Binding EqualizerViewModel[5].Frequency, StringFormat={}{0:#}}" VerticalAlignment="Center" HorizontalAlignment="Center" Style="{StaticResource PlayerControlDetailTextBlock}">
+                <TextBlock.RenderTransform>
+                    <TransformGroup>
+                        <RotateTransform Angle="90" />
+                        <TranslateTransform X="18" Y="-5" />
+                    </TransformGroup>
+                </TextBlock.RenderTransform>
+            </TextBlock>
+
+            <TextBlock Grid.Row="6" Text="{Binding EqualizerViewModel[6].Frequency, StringFormat={}{0:#}}" VerticalAlignment="Center" HorizontalAlignment="Center" Style="{StaticResource PlayerControlDetailTextBlock}">
+                <TextBlock.RenderTransform>
+                    <TransformGroup>
+                        <RotateTransform Angle="90" />
+                        <TranslateTransform X="18" Y="-5" />
+                    </TransformGroup>
+                </TextBlock.RenderTransform>
+            </TextBlock>
+
+            <TextBlock Grid.Row="7" Text="{Binding EqualizerViewModel[7].Frequency, StringFormat={}{0:#}}" VerticalAlignment="Center" HorizontalAlignment="Center" Style="{StaticResource PlayerControlDetailTextBlock}">
+                <TextBlock.RenderTransform>
+                    <TransformGroup>
+                        <RotateTransform Angle="90" />
+                        <TranslateTransform X="18" Y="-5" />
+                    </TransformGroup>
+                </TextBlock.RenderTransform>
+            </TextBlock>
+
+            <controls:ScrubberControl Grid.Column="1"
+                                      Grid.Row="0"
+                                      BorderThickness="0"
+                                      ScrubbedRatio="{Binding EqualizerViewModel[0].Gain, Mode=OneWay, NotifyOnSourceUpdated=True}"
+                                      ScrubbedRatioChanged="ScrubberControl_ScrubbedRatioChanged"
+                                      ScrubberHandleSize="18"
+                                      ScrubberHandleInnerSize="8"
+                                      ScrubberTimelineSize="8"
+                                      ScrubberTimelineBrushScrubbed="{StaticResource AudioControlTimelineBrushScrubbed}"
+                                      ShowTicks="True"
+                                      Tag="{Binding EqualizerViewModel[0].Frequency}" />
+
+            <controls:ScrubberControl Grid.Column="1"
+                                      Grid.Row="1"
+                                      BorderThickness="0"
+                                      ScrubbedRatio="{Binding EqualizerViewModel[1].Gain, Mode=OneWay, NotifyOnSourceUpdated=True}"
+                                      ScrubbedRatioChanged="ScrubberControl_ScrubbedRatioChanged"
+                                      ScrubberHandleSize="18"
+                                      ScrubberHandleInnerSize="8"
+                                      ScrubberTimelineSize="8"
+                                      ScrubberTimelineBrushScrubbed="{StaticResource AudioControlTimelineBrushScrubbed}"
+                                      ShowTicks="True"
+                                      Tag="{Binding EqualizerViewModel[1].Frequency}" />
+
+            <controls:ScrubberControl Grid.Column="1"
+                                      Grid.Row="2"
+                                      BorderThickness="0"
+                                      ScrubbedRatio="{Binding EqualizerViewModel[2].Gain, Mode=OneWay, NotifyOnSourceUpdated=True}"
+                                      ScrubbedRatioChanged="ScrubberControl_ScrubbedRatioChanged"
+                                      ScrubberHandleSize="18"
+                                      ScrubberHandleInnerSize="8"
+                                      ScrubberTimelineSize="8"
+                                      ScrubberTimelineBrushScrubbed="{StaticResource AudioControlTimelineBrushScrubbed}"
+                                      ShowTicks="True"
+                                      Tag="{Binding EqualizerViewModel[2].Frequency}" />
+
+            <controls:ScrubberControl Grid.Column="1"
+                                      Grid.Row="3"
+                                      BorderThickness="0"
+                                      ScrubbedRatio="{Binding EqualizerViewModel[3].Gain, Mode=OneWay, NotifyOnSourceUpdated=True}"
+                                      ScrubbedRatioChanged="ScrubberControl_ScrubbedRatioChanged"
+                                      ScrubberHandleSize="18"
+                                      ScrubberHandleInnerSize="8"
+                                      ScrubberTimelineSize="8"
+                                      ScrubberTimelineBrushScrubbed="{StaticResource AudioControlTimelineBrushScrubbed}"
+                                      ShowTicks="True"
+                                      Tag="{Binding EqualizerViewModel[3].Frequency}" />
+
+            <controls:ScrubberControl Grid.Column="1"
+                                      Grid.Row="4"
+                                      BorderThickness="0"
+                                      ScrubbedRatio="{Binding EqualizerViewModel[4].Gain, Mode=OneWay, NotifyOnSourceUpdated=True}"
+                                      ScrubbedRatioChanged="ScrubberControl_ScrubbedRatioChanged"
+                                      ScrubberHandleSize="18"
+                                      ScrubberHandleInnerSize="8"
+                                      ScrubberTimelineSize="8"
+                                      ScrubberTimelineBrushScrubbed="{StaticResource AudioControlTimelineBrushScrubbed}"
+                                      ShowTicks="True"
+                                      Tag="{Binding EqualizerViewModel[4].Frequency}" />
+
+            <controls:ScrubberControl Grid.Column="1"
+                                      Grid.Row="5"
+                                      BorderThickness="0"
+                                      ScrubbedRatio="{Binding EqualizerViewModel[5].Gain, Mode=OneWay, NotifyOnSourceUpdated=True}"
+                                      ScrubbedRatioChanged="ScrubberControl_ScrubbedRatioChanged"
+                                      ScrubberHandleSize="18"
+                                      ScrubberHandleInnerSize="8"
+                                      ScrubberTimelineSize="8"
+                                      ScrubberTimelineBrushScrubbed="{StaticResource AudioControlTimelineBrushScrubbed}"
+                                      ShowTicks="True"
+                                      Tag="{Binding EqualizerViewModel[5].Frequency}" />
+
+            <controls:ScrubberControl Grid.Column="1"
+                                      Grid.Row="6"
+                                      BorderThickness="0"
+                                      ScrubbedRatio="{Binding EqualizerViewModel[6].Gain, Mode=OneWay, NotifyOnSourceUpdated=True}"
+                                      ScrubbedRatioChanged="ScrubberControl_ScrubbedRatioChanged"
+                                      ScrubberHandleSize="18"
+                                      ScrubberHandleInnerSize="8"
+                                      ScrubberTimelineSize="8"
+                                      ScrubberTimelineBrushScrubbed="{StaticResource AudioControlTimelineBrushScrubbed}"
+                                      ShowTicks="True"
+                                      Tag="{Binding EqualizerViewModel[6].Frequency}" />
+
+            <controls:ScrubberControl Grid.Column="1"
+                                      Grid.Row="7"
+                                      BorderThickness="0"
+                                      ScrubbedRatio="{Binding EqualizerViewModel[7].Gain, Mode=OneWay, NotifyOnSourceUpdated=True}"
+                                      ScrubbedRatioChanged="ScrubberControl_ScrubbedRatioChanged"
+                                      ScrubberHandleSize="18"
+                                      ScrubberHandleInnerSize="8"
+                                      ScrubberTimelineSize="8"
+                                      ScrubberTimelineBrushScrubbed="{StaticResource AudioControlTimelineBrushScrubbed}"
+                                      ShowTicks="True"
+                                      Tag="{Binding EqualizerViewModel[7].Frequency}" />
+        </Grid>
+
+    </Border>
+</UserControl>

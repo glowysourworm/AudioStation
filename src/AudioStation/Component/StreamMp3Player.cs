@@ -34,6 +34,10 @@ namespace AudioStation.Component
         {
             _player.Volume = volume;
         }
+        public void SetEqualizerGain(float frequency, float gain)
+        {
+
+        }
         public float GetVolume()
         {
             return (float)_player.Volume;

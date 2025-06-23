@@ -146,7 +146,8 @@
     <Style x:Key="ScrubberControlDefaultStyle" TargetType="{x:Type controls:ScrubberControl}">
         <Setter Property="Background" Value="{StaticResource ScrubberBackgroundDefaultBrush}" />
         <Setter Property="BorderBrush" Value="{StaticResource ScrubberBorderDefaultBrush}" />
-        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Padding" Value="0" />
         <Setter Property="ScrubberHandleBrush" Value="{StaticResource ScrubberHandleDefaultBrush}" />
         <Setter Property="ScrubberTimelineBrush" Value="{StaticResource ScrubberTimelineDefaultBrush}" />
         <Setter Property="ScrubberTimelineBrushScrubbed" Value="{StaticResource ScrubberTimelinePlayedDefaultBrush}" />

@@ -52,4 +52,9 @@
         <Setter Property="Padding" Value="5" />
     </Style>
 
+    <Style TargetType="TextBlock" x:Key="PlayerControlDetailTextBlock">
+        <Setter Property="Foreground" Value="{StaticResource LabelForeground}" />
+        <Setter Property="FontSize" Value="12" />
+    </Style>
+
 </ResourceDictionary>

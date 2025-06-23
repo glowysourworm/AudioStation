@@ -12,6 +12,7 @@ using AudioStation.Core.Event;
 using AudioStation.Core.Model;
 using AudioStation.Event;
 using AudioStation.Model;
+using AudioStation.ViewModels.Controls;
 using AudioStation.ViewModels.LibraryViewModels.Comparer;
 using AudioStation.ViewModels.PlaylistViewModels.Interface;
 using AudioStation.ViewModels.RadioViewModels;
@@ -59,6 +60,7 @@ public partial class MainViewModel : ViewModelBase, IDisposable
     LibraryLoaderViewModel _libraryLoaderViewModel;
 
     ObservableCollection<float> _equalizerValues;
+    ObservableCollection<EqualizerBandViewModel> _equalizerViewModel;
     PlayStopPause _playState;
 
     ObservableCollection<LogMessageViewModel> _outputMessages;
@@ -145,6 +147,11 @@ public partial class MainViewModel : ViewModelBase, IDisposable
         get { return _equalizerValues; }
         set { this.RaiseAndSetIfChanged(ref _equalizerValues, value); }
     }
+    public ObservableCollection<EqualizerBandViewModel> EqualizerViewModel
+    {
+        get { return _equalizerViewModel; }
+        set { this.RaiseAndSetIfChanged(ref _equalizerViewModel, value); }
+    }
     public PlayStopPause PlayState
     {
         get { return _playState; }
@@ -198,6 +205,18 @@ public partial class MainViewModel : ViewModelBase, IDisposable
         this.ShowOutputMessages = false;
         this.OutputMessages = new ObservableCollection<LogMessageViewModel>();
         this.EqualizerValues = new ObservableCollection<float>();
+        this.EqualizerViewModel = new ObservableCollection<EqualizerBandViewModel>()
+        {
+            // See SimpleMp3PlayerWithEqualizer (channel number won't be input.. just keeping things in sync w/ NAudio)
+            new EqualizerBandViewModel(100, 0, 0.8f, 1),
+            new EqualizerBandViewModel(200, 0, 0.8f, 1),
+            new EqualizerBandViewModel(400, 0, 0.8f, 1),
+            new EqualizerBandViewModel(800, 0, 0.8f, 1),
+            new EqualizerBandViewModel(1200, 0, 0.8f, 1),
+            new EqualizerBandViewModel(2400, 0, 0.8f, 1),
+            new EqualizerBandViewModel(4800, 0, 0.8f, 1),
+            new EqualizerBandViewModel(9600, 0, 0.8f, 1)
+        };
 
         // Child View Models
         this.Playlist = new PlaylistViewModel();
@@ -220,7 +239,8 @@ public partial class MainViewModel : ViewModelBase, IDisposable
         eventAggregator.GetEvent<LogEvent>().Subscribe(OnLog);
         eventAggregator.GetEvent<LoadPlaylistEvent>().Subscribe(OnLoadPlaylist);
         eventAggregator.GetEvent<PlaybackStateChangedEvent>().Subscribe(OnPlaybackStateChanged);      
-        eventAggregator.GetEvent<UpdateVolumeEvent>().Subscribe(OnUpdateVolume);            
+        eventAggregator.GetEvent<UpdateVolumeEvent>().Subscribe(OnUpdateVolume);
+        eventAggregator.GetEvent<UpdateEqualizerGainEvent>().Subscribe(OnUpdateEqualizer);
         eventAggregator.GetEvent<PlaybackVolumeUpdatedEvent>().Subscribe(OnVolumeUpdated);  
 
         this.SaveConfigurationCommand = new SimpleCommand(() =>
@@ -280,6 +300,11 @@ public partial class MainViewModel : ViewModelBase, IDisposable
     private void OnVolumeUpdated(double volume)
     {
         this.Volume = (float)volume;
+    }
+    private void OnUpdateEqualizer(UpdateEqualizerGainEventData data)
+    {
+        this.EqualizerViewModel
+            .First(x => x.Frequency == data.Frequency).Gain = data.Gain;
     }
     private void OnCurrentTimeUpdated(TimeSpan currentTime)
     {

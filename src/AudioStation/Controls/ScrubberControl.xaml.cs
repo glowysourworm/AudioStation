@@ -28,8 +28,14 @@ namespace AudioStation.Controls
         public static readonly DependencyProperty ScrubberHandleSizeProperty =
             DependencyProperty.Register("ScrubberHandleSize", typeof(int), typeof(ScrubberControl));
 
+        public static readonly DependencyProperty ScrubberHandleInnerSizeProperty =
+            DependencyProperty.Register("ScrubberHandleInnerSize", typeof(int), typeof(ScrubberControl));
+
         public static readonly DependencyProperty ScrubberPreviewVisibleProperty =
             DependencyProperty.Register("ScrubberPreviewVisible", typeof(bool), typeof(ScrubberControl));
+
+        public static readonly DependencyProperty ShowTicksProperty =
+            DependencyProperty.Register("ShowTicks", typeof(bool), typeof(ScrubberControl));
 
 
         public Brush ScrubberHandleBrush
@@ -57,10 +63,20 @@ namespace AudioStation.Controls
             get { return (int)GetValue(ScrubberHandleSizeProperty); }
             set { SetValue(ScrubberHandleSizeProperty, value); }
         }
+        public int ScrubberHandleInnerSize
+        {
+            get { return (int)GetValue(ScrubberHandleInnerSizeProperty); }
+            set { SetValue(ScrubberHandleInnerSizeProperty, value); }
+        }
         public bool ScrubberPreviewVisible
         {
             get { return (bool)GetValue(ScrubberPreviewVisibleProperty); }
             set { SetValue(ScrubberPreviewVisibleProperty, value); }
+        }
+        public bool ShowTicks
+        {
+            get { return (bool)GetValue(ShowTicksProperty); }
+            set { SetValue(ShowTicksProperty, value); }
         }
         public float ScrubbedRatio
         {
@@ -68,7 +84,7 @@ namespace AudioStation.Controls
             set { SetValue(ScrubbedRatioProperty, value); }
         }
 
-        public event SimpleEventHandler<float> ScrubbedRatioChanged;
+        public event SimpleEventHandler<ScrubberControl, float> ScrubbedRatioChanged;
 
         public ScrubberControl()
         {
@@ -83,11 +99,11 @@ namespace AudioStation.Controls
             var offset = CalculateScrubberOffset(e.GetPosition(this).X, out scrubbedRatio);
 
             // Mouse position must be offset to center of scrubber (in X)
-            this.ScrubberPreviewCursor.Margin = new Thickness(offset, 0, 0, 0);
+            this.ScrubberPreviewContainer.Margin = new Thickness(offset, 0, 0, 0);
 
             // -> SetScrubberOffset()
             if (this.IsMouseCaptured && this.ScrubbedRatioChanged != null && scrubbedRatio != this.ScrubbedRatio)
-                this.ScrubbedRatioChanged(scrubbedRatio);
+                this.ScrubbedRatioChanged(this, scrubbedRatio);
         }
 
         protected override void OnMouseLeave(MouseEventArgs e)
@@ -127,7 +143,7 @@ namespace AudioStation.Controls
         private double CalculateScrubberOffset(double currentPosition, out float scrubbedRatio)
         {
             // This is the usable UI with respect to the center of the scrubber handle
-            var widthHandle = this.ScrubberHandleSize + 2;                              // Stroke Thickness
+            var widthHandle = this.ScrubberHandleSize;                              // Stroke Thickness
 
             var offset = currentPosition - (widthHandle / 2.0f);
             var offsetMin = 0;
@@ -143,11 +159,11 @@ namespace AudioStation.Controls
             var scrubbedRatio = 0.0f;
             var offset = CalculateScrubberOffset(this.ScrubbedRatio * this.RenderSize.Width, out scrubbedRatio);
 
-            this.ScrubberCursor.Margin = new Thickness(offset, 0, 0, 0);
+            this.ScrubberContainer.Margin = new Thickness(offset, 0, 0, 0);
 
             // Raise Event (not all listeners will bind to the ratio)
             if (this.ScrubbedRatioChanged != null && !fromSizeChange && scrubbedRatio != this.ScrubbedRatio)
-                this.ScrubbedRatioChanged(scrubbedRatio);
+                this.ScrubbedRatioChanged(this, scrubbedRatio);
 
             InvalidateVisual();
         }
@@ -177,6 +193,35 @@ namespace AudioStation.Controls
             this.ScrubberPreviewVisible = false;
 
             InvalidateVisual();
+        }
+
+        protected override void OnRender(DrawingContext drawingContext)
+        {
+            base.OnRender(drawingContext);
+
+            if (!this.ShowTicks)
+                return;
+
+            var numberTicks = 50;
+            var tickWidth = 1;
+            var tickHeightMajor = 25;
+            var tickHeight = 20;
+            var tickHeightMinor = 15;
+            var tickSeparation = (this.RenderSize.Width / numberTicks) - tickWidth;
+
+            for (int index = 0; index < numberTicks; index++)
+            {
+                var height = index % 25 == 0 ? tickHeightMajor :
+                             index % 10 == 0 ? tickHeight : tickHeightMinor;
+
+                var pointX = index == 0 ? 0 : index * (tickSeparation + tickWidth);
+                var pointY = (this.RenderSize.Height - height) / 2.0f;
+
+                drawingContext.DrawRectangle(Brushes.Gray, null, new Rect(pointX, pointY, tickWidth, height));
+            }
+
+            // Final Tick
+            drawingContext.DrawRectangle(Brushes.Gray, null, new Rect(this.RenderSize.Width - tickWidth, (this.RenderSize.Height - tickHeightMajor) / 2.0f, tickWidth, tickHeightMajor));
         }
     }
 }

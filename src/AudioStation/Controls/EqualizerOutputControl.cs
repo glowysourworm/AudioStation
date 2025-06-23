@@ -6,10 +6,10 @@ using AudioStation.Component.AudioProcessing;
 namespace AudioStation.Controls
 {
     // This control must be statically sized
-    public class EqualizerView : FrameworkElement
+    public class EqualizerOutputControl : FrameworkElement
     {
         public static readonly DependencyProperty BarPaddingProperty =
-            DependencyProperty.Register("BarPadding", typeof(Thickness), typeof(EqualizerView), new PropertyMetadata(new Thickness(0)));
+            DependencyProperty.Register("BarPadding", typeof(Thickness), typeof(EqualizerOutputControl), new PropertyMetadata(new Thickness(0)));
 
         public Thickness BarPadding
         {
@@ -20,7 +20,7 @@ namespace AudioStation.Controls
         List<Size> _barSizes;
         StreamGeometry _outputGeometry;
 
-        public EqualizerView()
+        public EqualizerOutputControl()
         {
             _barSizes = new List<Size>();
             _outputGeometry = new StreamGeometry();

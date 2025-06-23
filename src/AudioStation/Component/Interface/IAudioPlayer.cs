@@ -17,6 +17,7 @@ namespace AudioStation.Component.Interface
         void SetVolume(float volume);
         float GetVolume();
         void SetPosition(TimeSpan position);
+        void SetEqualizerGain(float frequency, float gain);
         void Play(string source, StreamSourceType sourceType);
         void Resume();
         void Pause();

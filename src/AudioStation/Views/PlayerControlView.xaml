@@ -5,7 +5,7 @@
              xmlns:controls="clr-namespace:AudioStation.Controls"
              xmlns:fa5="http://schemas.fontawesome.com/icons/"
              xmlns:coreComponent="clr-namespace:AudioStation.Core.Component;assembly=AudioStation.Core"
-             xmlns:wf="clr-namespace:System.Windows.Forms;assembly=System.Windows.Forms" 
+             xmlns:region="clr-namespace:SimpleWpf.IocFramework.RegionManagement;assembly=SimpleWpf.IocFramework"
              Background="Transparent">
     
     <!-- Playlist Controller (Panel) (Bound to MainViewModel -> (Playlist)) -->
@@ -23,10 +23,10 @@
         </Grid.ColumnDefinitions>
 
         <!-- Equalizer (Set data manually from the control) -->
-        <controls:EqualizerView x:Name="EqualizerView" 
-                                VerticalAlignment="Stretch" 
-                                HorizontalAlignment="Stretch" 
-                                BarPadding="0" Margin="5" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" />
+        <controls:EqualizerOutputControl x:Name="EqualizerOutputControl" 
+                                        VerticalAlignment="Stretch" 
+                                        HorizontalAlignment="Stretch" 
+                                        BarPadding="0" Margin="5" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" />
 
         <!-- Album Image -->
         <controls:LibraryImageControl Width="40" Height="40" Margin="10" HorizontalAlignment="Left" ImageSize="Small" DataContext="{Binding NowPlaying.Album}" />
@@ -117,8 +117,20 @@
                                   Style="{StaticResource LargeInputControlToggleButton}">
                         <fa5:SvgAwesome Icon="Solid_StepForward" Height="16" Width="16" VerticalAlignment="Center" />
                     </ToggleButton>
-                    
-                    <!-- Volume -->
+                
+                    <!-- Equalizer -->
+                    <ToggleButton x:Name="EqualizerButton" 
+                                  Click="EqualizerButton_Click"
+                                  Style="{StaticResource LargeInputControlToggleButton}" 
+                                  Margin="10 0 0 0">
+                        <StackPanel>
+                            <fa5:SvgAwesome Icon="Solid_Signal" Height="16" Width="16" />
+                        </StackPanel>
+
+                    </ToggleButton>
+
+
+                <!-- Volume -->
                     <ToggleButton x:Name="VolumeButton" 
                                   Click="VolumeButton_Click"
                                   Cursor="Hand" 
@@ -130,7 +142,26 @@
                         
                     </ToggleButton>
 
-                    <!-- Volume Popup -->
+                <!-- Equalizer Popup -->
+                <Popup x:Name="EqualizerPopup" 
+                        StaysOpen="True"
+                        PreviewMouseUp="EqualizerPopup_PreviewMouseUp"
+                        Placement="Relative"
+                        PlacementTarget="{Binding ElementName=EqualizerButton}">
+
+                    <Border x:Name="EqualizerControlContainer" Padding="10" BorderThickness="1" BorderBrush="Gray" Background="White">
+                        <Border.LayoutTransform>
+                            <RotateTransform Angle="270" />
+                        </Border.LayoutTransform>
+                        <region:IocRegion region:IocRegionManager.DefaultViewType="{x:Type local:PlayerEqualizerView}"
+                                          DataContext="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType=Window}}"
+                                          Width="200">
+                        </region:IocRegion>
+                    </Border>
+
+                </Popup>
+
+                <!-- Volume Popup -->
                     <Popup x:Name="VolumePopup" 
                             StaysOpen="True"
                             PreviewMouseUp="VolumePopup_PreviewMouseUp"
@@ -144,12 +175,15 @@
                             <controls:ScrubberControl x:Name="VolumeControl"
                                                       ScrubbedRatio="{Binding DataContext.Volume, Mode=OneWay, NotifyOnSourceUpdated=True, RelativeSource={RelativeSource AncestorType=Window}}"
                                                       ScrubbedRatioChanged="VolumeControl_ScrubbedRatioChanged"
-                                                      BorderBrush="Transparent"
-                                                      ScrubberHandleSize="12"
-                                                      ScrubberTimelineSize="3"
+                                                      BorderThickness="0"
+                                                      ScrubberHandleSize="18"
+                                                      ScrubberHandleInnerSize="8"
+                                                      ScrubberTimelineSize="8"
+                                                      ScrubberTimelineBrushScrubbed="{StaticResource AudioControlTimelineBrushScrubbed}"
+                                                      ShowTicks="True"
 												      VerticalAlignment="Center"
                                                       HorizontalAlignment="Center"
-												      Width="250">
+												      Width="170">
                             </controls:ScrubberControl>
                         </Border>
 
@@ -163,12 +197,10 @@
                 <controls:ScrubberControl ScrubbedRatio="{Binding NowPlaying.CurrentTimeRatio, Mode=OneWay, NotifyOnSourceUpdated=True}"
                                           ScrubbedRatioChanged="ScrubberControl_ScrubbedRatioChanged"
                                           HorizontalContentAlignment="Stretch"                 
-                                          BorderBrush="Transparent"
-                                          ScrubberHandleBrush="{StaticResource PlayerControlHandleBrush}"
-                                          ScrubberTimelineBrushScrubbed="{StaticResource PlayerControlTimelinePlayedBrush}"                                          
-                                          ScrubberTimelineBrush="{StaticResource PlayerControlTimelineBrush}"
-                                          ScrubberHandleSize="16"
-                                          ScrubberTimelineSize="4"
+                                          BorderThickness="0"
+                                          ScrubberHandleSize="18"
+                                          ScrubberHandleInnerSize="8"
+                                          ScrubberTimelineSize="8"
                                           />
             </Grid>
         </Border>

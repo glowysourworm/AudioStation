@@ -2,6 +2,7 @@
 using System.Windows.Input;
 using System.Windows.Media;
 
+using AudioStation.Controls;
 using AudioStation.Event;
 using AudioStation.ViewModels;
 
@@ -26,7 +27,7 @@ namespace AudioStation.Views
             // have to be set manually.
             _eventAggregator.GetEvent<PlaybackEqualizerUpdateEvent>().Subscribe(equalizerValues =>
             {
-                this.EqualizerView.SetEqualizer(equalizerValues);
+                this.EqualizerOutputControl.SetEqualizer(equalizerValues);
             });
         }
 
@@ -43,7 +44,19 @@ namespace AudioStation.Views
                 this.VolumePopup.IsOpen = true;
             }
         }
-
+        private void EqualizerButton_Click(object sender, System.Windows.RoutedEventArgs e)
+        {
+            if (this.EqualizerPopup.IsOpen == true)
+            {
+                this.EqualizerButton.IsChecked = false;
+                this.EqualizerPopup.IsOpen = false;
+            }
+            else
+            {
+                this.EqualizerButton.IsChecked = true;
+                this.EqualizerPopup.IsOpen = true;
+            }
+        }
         private void VolumePopup_PreviewMouseUp(object sender, MouseButtonEventArgs e)
         {
             var result = VisualTreeHelper.HitTest(this.VolumeControlContainer, e.GetPosition(this.VolumeControlContainer));
@@ -54,20 +67,28 @@ namespace AudioStation.Views
                 this.VolumePopup.IsOpen = false;
             }
         }
+        private void EqualizerPopup_PreviewMouseUp(object sender, MouseButtonEventArgs e)
+        {
+            var result = VisualTreeHelper.HitTest(this.EqualizerControlContainer, e.GetPosition(this.EqualizerControlContainer));
 
-        private void VolumeControl_ScrubbedRatioChanged(float volume)
+            if (result == null)
+            {
+                this.EqualizerButton.IsChecked = false;
+                this.EqualizerPopup.IsOpen = false;
+            }
+        }
+        private void VolumeControl_ScrubbedRatioChanged(ScrubberControl sender, float volume)
         {
             _eventAggregator.GetEvent<UpdateVolumeEvent>().Publish(volume);
         }
-
-        private void ScrubberControl_ScrubbedRatioChanged(float sender)
+        private void ScrubberControl_ScrubbedRatioChanged(ScrubberControl sender, float current)
         {
             var playlist = this.DataContext as PlaylistViewModel;
 
-            if (playlist != null)
+            if (playlist != null && playlist.NowPlaying != null)
             {
                 _eventAggregator.GetEvent<PlaybackPositionChangedEvent>()
-                                .Publish(TimeSpan.FromMilliseconds(sender * playlist.NowPlaying.Track.Duration.TotalMilliseconds));
+                                .Publish(TimeSpan.FromMilliseconds(current * playlist.NowPlaying.Track.Duration.TotalMilliseconds));
             }
         }
 

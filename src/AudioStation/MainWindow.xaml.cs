@@ -12,6 +12,7 @@ using Microsoft.Win32;
 using Microsoft.Windows.Shell;
 
 using SimpleWpf.IocFramework.Application.Attribute;
+using SimpleWpf.IocFramework.EventAggregation;
 
 namespace AudioStation
 {
@@ -41,6 +42,7 @@ namespace AudioStation
         protected Point HeaderMouseDownPosition { get;private set; }
 
         private readonly MainViewModel _mainViewModel;
+        private readonly IIocEventAggregator _eventAggregator;
 
         // This may need to be calculated
         Thickness _DPIMargin = new Thickness(8);
@@ -62,9 +64,10 @@ namespace AudioStation
         }
 
         [IocImportingConstructor]
-        public MainWindow(MainViewModel mainViewModel)
+        public MainWindow(IIocEventAggregator eventAggregator, MainViewModel mainViewModel)
         {
             _mainViewModel = mainViewModel;
+            _eventAggregator = eventAggregator;
 
             InitializeComponent();
 

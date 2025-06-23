@@ -68,6 +68,10 @@ namespace AudioStation.Component
         {
             _player.Volume = Math.Clamp(volume, 0, 1);
         }
+        public void SetEqualizerGain(float frequency, float gain)
+        {
+
+        }
         public float GetVolume()
         {
             return (float)_player.Volume;

@@ -67,6 +67,10 @@ namespace AudioStation.Controller
             {
                 _player?.SetVolume((float)volume);
             });
+            eventAggregator.GetEvent<UpdateEqualizerGainEvent>().Subscribe(eventData =>
+            {
+                _player?.SetEqualizerGain(eventData.Frequency, eventData.Gain);
+            });
             eventAggregator.GetEvent<PlaybackPositionChangedEvent>().Subscribe(position =>
             {
                 _player?.SetPosition(position);

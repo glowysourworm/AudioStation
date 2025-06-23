@@ -86,7 +86,6 @@
         <GradientStop Color="#FFAAAAAA" Offset="0.1" />
         <GradientStop Color="#FF333333" Offset="1" />
     </LinearGradientBrush>
-
     <LinearGradientBrush x:Key="PlayerControlTimelinePlayedBrush" StartPoint="0.5, 0" EndPoint="0.5, 1">
         <GradientStop Color="#FFAAAAAA" Offset="0" />
         <GradientStop Color="#FFAAAAAA" Offset="0.1" />
@@ -98,11 +97,20 @@
         <GradientStop Color="#FF555555" Offset="1" />
     </RadialGradientBrush>
 
-    <SolidColorBrush x:Key="ScrubberHandleDefaultBrush">#FF333333</SolidColorBrush>
-    <SolidColorBrush x:Key="ScrubberTimelineDefaultBrush">#FFAAAAAA</SolidColorBrush>
-    <SolidColorBrush x:Key="ScrubberTimelinePlayedDefaultBrush">#8F33AAFF</SolidColorBrush>
+    <SolidColorBrush x:Key="AudioControlTimelineBrushScrubbed">#FF33AAFF</SolidColorBrush>
+
+    <LinearGradientBrush x:Key="ScrubberHandleDefaultBrush" StartPoint="0.5,0" EndPoint="0.5,1">
+        <GradientStop Color="#FF888888" Offset="0" />
+        <GradientStop Color="#FF555555" Offset="1" />
+    </LinearGradientBrush>
+    
+    <LinearGradientBrush x:Key="ScrubberTimelineDefaultBrush" StartPoint="0.5,0" EndPoint="0.5,1">
+        <GradientStop Color="#FFAAAAAA" Offset="0" />
+        <GradientStop Color="#FF888888" Offset="1" />
+    </LinearGradientBrush>    
+    <SolidColorBrush x:Key="ScrubberTimelinePlayedDefaultBrush">#FF33AAFF</SolidColorBrush>
     <SolidColorBrush x:Key="ScrubberBorderDefaultBrush">#FF333333</SolidColorBrush>
-    <SolidColorBrush x:Key="ScrubberBackgroundDefaultBrush">White</SolidColorBrush>
+    <SolidColorBrush x:Key="ScrubberBackgroundDefaultBrush">Transparent</SolidColorBrush>
 
     <SolidColorBrush x:Key="ManagerBackground" Color="LightGray" />
 
