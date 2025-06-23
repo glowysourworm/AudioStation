@@ -16,11 +16,6 @@ namespace AudioStation.Views
         public MainView(IIocEventAggregator eventAggregator)
         {
             InitializeComponent();
-
-            eventAggregator.GetEvent<NowPlayingExpandedViewEvent>().Subscribe(expandedMode =>
-            {
-
-            });
         }
 
         private void OnShowOutputMessagesClick(object sender, System.Windows.RoutedEventArgs e)

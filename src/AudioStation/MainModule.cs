@@ -1,4 +1,6 @@
 ﻿using AudioStation.Controls;
+using AudioStation.Event;
+using AudioStation.Views;
 
 using SimpleWpf.IocFramework.Application;
 using SimpleWpf.IocFramework.Application.Attribute;
@@ -10,17 +12,28 @@ namespace AudioStation
     [IocExportDefault]
     public class MainModule : ModuleBase
     {
+        private const string MAIN_REGION = "MainRegion";
         private readonly IIocRegionManager _regionManager;
 
         [IocImportingConstructor]
         public MainModule(IIocRegionManager regionManager, IIocEventAggregator eventAggregator) : base(regionManager, eventAggregator)
         {
             _regionManager = regionManager;
+
+            eventAggregator.GetEvent<NowPlayingExpandedViewEvent>().Subscribe(showExpanded =>
+            {
+                if (!showExpanded)
+                    regionManager.LoadNamedInstance(MAIN_REGION, typeof(MainView));
+                else
+                    regionManager.LoadNamedInstance(MAIN_REGION, typeof(NowPlayingView));
+            });
         }
 
         public override void Initialize()
         {
             base.Initialize();
+
+            _regionManager.LoadNamedInstance(MAIN_REGION, typeof(MainView));
 
             // ManagerView -> FileTreeView (needs loading)
             //var treeView = _regionManager.LoadNamedInstance<FileTreeView>("ManagerViewFileTreeViewRegion", true);
