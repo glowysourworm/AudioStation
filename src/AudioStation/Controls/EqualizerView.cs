@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
+﻿using System.Windows;
 using System.Windows.Media;
 
 using AudioStation.Component.AudioProcessing;
@@ -51,7 +45,7 @@ namespace AudioStation.Controls
             for (int index = 0; index < resultSet.Result.Length; index++)
             {
                 var ratio = resultSet.Result[index];
-                var scaledRatio = (ratio / maxRatio);           // Normalizing the bar size
+                var scaledRatio = ratio / maxRatio;           // Normalizing the bar size
 
                 var width = (this.RenderSize.Width / resultSet.Result.Length) - this.BarPadding.Left - this.BarPadding.Right;
                 var height = (this.RenderSize.Height * scaledRatio) - this.BarPadding.Top - this.BarPadding.Bottom;
@@ -61,7 +55,7 @@ namespace AudioStation.Controls
 
                 if (_barSizes.Count == resultSet.Result.Length)
                     _barSizes[index] = new Size(width, height);
-                
+
                 else
                     _barSizes.Add(new Size(width, height));
             }
@@ -76,7 +70,7 @@ namespace AudioStation.Controls
             drawingContext.DrawRectangle(Brushes.White, null, new Rect(this.RenderSize));
 
             // Un-Padded
-            var barWidth = (this.RenderSize.Width / _barSizes.Count);
+            var barWidth = this.RenderSize.Width / _barSizes.Count;
             var barHeight = this.RenderSize.Height;
 
             var pointTL = new Point();

@@ -158,6 +158,7 @@ namespace AudioStation.Views
             }
         }
 
+        // Primary load method to send playlist to the main view model
         private void LoadPlaylist(LibraryEntryViewModel selectedTitle, AlbumViewModel selectedAlbum, ArtistViewModel selectedArtist)
         {
             var eventData = new LoadPlaylistEventData()
@@ -178,35 +179,6 @@ namespace AudioStation.Views
                 SourceType = StreamSourceType.File
             });
             _eventAggregator.GetEvent<StartPlaybackEvent>().Publish();
-
-            //var playlist = new Playlist();
-            //playlist.Name = selectedAlbum.PrimaryArtist + " / " + selectedAlbum.Album;
-
-            // Load tracks for playback
-            //foreach (var track in selectedAlbum.Tracks)
-            // {
-            //playlist.Tracks.Add(track);
-            //}
-
-            // Setup playback (needs revision; but this works with the IAudioController)
-            //playlist.LoadPlayback(selectedTitle);
-
-            // Set View Model
-            //(this.DataContext as MainViewModel).Playlist = playlist;
-
-            // Play Selected Track(s) (the audio controller <-> playlist handle the rest)
-            /*
-            MainViewModel.AudioController.Play(new NowPlayingViewModel()
-            {
-                Album = selectedAlbum.Album,
-                Artist = selectedAlbum.Artist,
-                CurrentTime = TimeSpan.Zero,
-                Duration = selectedTitle.Duration,
-                Source = selectedTitle.FileName,
-                SourceType = StreamSourceType.File,
-                Title = selectedTitle.Name
-            });
-            */
         }
 
         private void ArtistDetailLB_PreviewMouseWheel(object sender, System.Windows.Input.MouseWheelEventArgs e)
@@ -238,12 +210,7 @@ namespace AudioStation.Views
 
         private void AlbumsLB_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-            var albumViewModel = (e.OriginalSource as FrameworkElement).DataContext as AlbumViewModel;
-
-            if (albumViewModel != null)
-            {
-                this.AlbumViewItem.DataContext = albumViewModel;
-            }
+            // Load Playlist for the whole album
         }
 
         private void AlbumsLB_SelectionChanged(object sender, SelectionChangedEventArgs e)

@@ -70,7 +70,7 @@
 
             <DataGrid.Columns>
 
-                <DataGridTextColumn Binding="{Binding Id}" 
+                <DataGridTextColumn Binding="{Binding Id, Mode=OneWay}" 
                                     HeaderTemplate="{StaticResource ManagerDataGridHeaderTemplate_Id}"
                                     Width="SizeToCells"
                                     CellStyle="{StaticResource ManagerDataGridCellStyle}">

@@ -93,7 +93,7 @@
                     <RowDefinition />
                 </Grid.RowDefinitions>
                 <TextBlock Text="Id" Style="{StaticResource ManagerDataGridHeaderTextStyle}" Margin="0 0 0 5" />
-                <xceed:IntegerUpDown Value="{Binding Id}" Minimum="1" Increment="1" Grid.Row="1" />
+                <xceed:IntegerUpDown Value="{Binding Id, Mode=OneWay}" Minimum="1" Increment="1" Grid.Row="1" />
             </Grid>
         </Border>
     </DataTemplate>

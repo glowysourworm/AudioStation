@@ -5,6 +5,7 @@
              xmlns:controls="clr-namespace:AudioStation.Controls"
              xmlns:fa5="http://schemas.fontawesome.com/icons/"
              xmlns:coreComponent="clr-namespace:AudioStation.Core.Component;assembly=AudioStation.Core"
+             xmlns:wf="clr-namespace:System.Windows.Forms;assembly=System.Windows.Forms" 
              Background="Transparent">
     
     <!-- Playlist Controller (Panel) (Bound to MainViewModel -> (Playlist)) -->
@@ -14,57 +15,62 @@
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
 
         <!-- Equalizer (Set data manually from the control) -->
-        <controls:EqualizerView x:Name="EqualizerView" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" BarPadding="0" Margin="5" Grid.Row="0"/>
+        <controls:EqualizerView x:Name="EqualizerView" 
+                                VerticalAlignment="Stretch" 
+                                HorizontalAlignment="Stretch" 
+                                BarPadding="0" Margin="5" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" />
 
-        <!-- Primary Label:  Equalizer / Artist - Album - Title / Time Data -->
-        <Border Grid.Row="0">
-            <Grid>
+        <!-- Album Image -->
+        <controls:LibraryImageControl Width="40" Height="40" Margin="10" HorizontalAlignment="Left" ImageSize="Small" DataContext="{Binding NowPlaying.Album}" />
 
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="Auto" />
-                </Grid.ColumnDefinitions>
-
-                <!-- Artist - Album - Title -->
-                <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="5" Grid.Column="0">
-                    <TextBlock Text="{Binding NowPlaying.Artist.Artist}"                                
+        <!-- Artist - Album - Title -->
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5" Grid.Column="1">
+            <TextBlock Text="{Binding NowPlaying.Artist.Artist}"                                
                                Style="{StaticResource PlayerControlTextBlock}"
                                Margin="5" />
 
-                    <fa5:SvgAwesome Icon="Solid_Circle" Height="4" Width="4" VerticalAlignment="Center" Margin="5 0" />
+            <fa5:SvgAwesome Icon="Solid_Circle" Height="4" Width="4" VerticalAlignment="Center" Margin="5 0" />
 
-                    <TextBlock Text="{Binding NowPlaying.Album.Album}" 
+            <TextBlock Text="{Binding NowPlaying.Album.Album}" 
                                Style="{StaticResource PlayerControlTextBlock}"
                                Margin="5" />
 
-                    <fa5:SvgAwesome Icon="Solid_Circle" Height="4" Width="4" VerticalAlignment="Center" Margin="5 0" />
+            <fa5:SvgAwesome Icon="Solid_Circle" Height="4" Width="4" VerticalAlignment="Center" Margin="5 0" />
 
-                    <TextBlock Text="{Binding NowPlaying.Track.Title}" 
+            <TextBlock Text="{Binding NowPlaying.Track.Title}" 
                                Style="{StaticResource PlayerControlTextBlock}"
                                Margin="5" />
-                </StackPanel>
+        </StackPanel>
 
-                <!-- Time Data -->
-                <StackPanel Orientation="Horizontal" Grid.Column="1" VerticalAlignment="Center" Margin="5">
+        <!-- Time Data -->
+        <StackPanel Orientation="Horizontal" Grid.Column="2" VerticalAlignment="Center" Margin="5">
 
-                    <TextBlock Text="{Binding NowPlaying.CurrentTime, StringFormat={}{0:hh}:{0:mm}:{0:ss}}" 
+            <TextBlock Text="{Binding NowPlaying.CurrentTime, StringFormat={}{0:hh}:{0:mm}:{0:ss}}" 
                                Style="{StaticResource PlayerControlTextBlock}"
                                Margin="5 5" />
 
-                    <TextBlock Text=" / "
+            <TextBlock Text=" / "
                                Style="{StaticResource PlayerControlTextBlock}"
                                Margin="5 5" />
 
-                    <TextBlock Text="{Binding NowPlaying.Track.Duration, StringFormat={}{0:hh}:{0:mm}:{0:ss}}" 
+            <TextBlock Text="{Binding NowPlaying.Track.Duration, StringFormat={}{0:hh}:{0:mm}:{0:ss}}" 
                                Style="{StaticResource PlayerControlTextBlock}"
                                Margin="5 5" />
-                </StackPanel>
+        </StackPanel>
 
-                <!-- Play / Stop / Pause / Volume -->
-                <StackPanel Orientation="Horizontal" Grid.Column="2" VerticalAlignment="Center" Margin="10">
+        <!-- Player Controls:  Play / Stop / Pause -->
+        <Border Grid.Row="0" Grid.Column="3" HorizontalAlignment="Right">
+
+            <!-- Play / Stop / Pause / Volume -->
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="10">
                     
                     <!-- Play / Stop / Pause -->
                     <ToggleButton x:Name="BackButton"
@@ -149,12 +155,10 @@
 
                     </Popup>
                 </StackPanel>
-
-            </Grid>
         </Border>
 
         <!-- Scrubber (use margin of the ellipse to set the offset) -->
-        <Border Grid.Row="1" Padding="10" CornerRadius="5">
+        <Border Grid.Row="1" Grid.ColumnSpan="4" Padding="10" CornerRadius="5">
             <Grid>
                 <controls:ScrubberControl ScrubbedRatio="{Binding NowPlaying.CurrentTimeRatio, Mode=OneWay, NotifyOnSourceUpdated=True}"
                                           ScrubbedRatioChanged="ScrubberControl_ScrubbedRatioChanged"
@@ -166,27 +170,6 @@
                                           ScrubberHandleSize="16"
                                           ScrubberTimelineSize="4"
                                           />
-            </Grid>
-        </Border>
-
-        <!-- Player Controls -->
-        <Border Grid.Row="0" 
-                Margin="5"
-                VerticalAlignment="Center" 
-                HorizontalAlignment="Center">
-            <Grid>
-
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="*" />
-                    <RowDefinition Height="Auto" />
-                </Grid.RowDefinitions>
-
-                <!-- Play / Stop / Pause / Prev / Next -->
-                <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
-
-                </StackPanel>
-
-
             </Grid>
         </Border>
 
