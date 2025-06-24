@@ -1,75 +1,91 @@
-﻿using System.IO;
-using System.Net;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
+﻿using System.Collections.ObjectModel;
+using System.Windows;
+using System.Windows.Threading;
 
+using AudioStation.Component.Interface;
 using AudioStation.Constant;
-using AudioStation.Core.Model;
+using AudioStation.Core.Component.Interface;
+using AudioStation.Model;
+using AudioStation.ViewModels.Vendor.LastFmViewModel;
 
 using IF.Lastfm.Core.Api;
 using IF.Lastfm.Core.Api.Enums;
+using IF.Lastfm.Core.Objects;
+
+using Microsoft.Extensions.Logging;
+
+using SimpleWpf.IocFramework.Application.Attribute;
 
 namespace AudioStation.Component
 {
-    public static class LastFmClient
+    [IocExport(typeof(ILastFmClient))]
+    public class LastFmClient : ILastFmClient
     {
-        public static async Task<ImageSource> DownloadArtwork(LibraryEntry entry)
+        private readonly IOutputController _outputController;
+
+        [IocImportingConstructor]
+        public LastFmClient(IOutputController outputController)
         {
-            //if (entry.IsUnknown(x => x.Album) ||
-            //    entry.IsUnknown(x => x.AlbumArtists))
-            //    return await Task.FromResult<ImageSource>(null);
-
-            //else
-           // {
-                try
-                {
-                    // Last FM API
-                    var client = new LastfmClient(WebConfiguration.LastFmAPIKey, WebConfiguration.LastFmAPISecret);
-
-                    // Web Call ...
-                    var response = await client.Album.GetInfoAsync(entry.PrimaryArtist, entry.Album, false);
-
-                    // Status OK -> Create bitmap image from the url
-                    if (response.Status == LastResponseStatus.Successful &&
-                        response.Content.Images.Any())
-                        return await DownloadImage(response.Content.Images.ExtraLarge.AbsoluteUri);
-
-                    else
-                        return await Task.FromResult<ImageSource>(null);
-                }
-                catch (Exception)
-                {
-                    return await Task.FromResult<ImageSource>(null);
-                }
-            //}
+            _outputController = outputController;
         }
 
-        public static async Task<ImageSource> DownloadImage(string imageUrl)
+        public async Task<LastFmNowPlayingViewModel> GetNowPlayingInfo(string artist, string album)
         {
             try
             {
-                var request = WebRequest.Create(imageUrl);
-                var response = await request.GetResponseAsync();
+                // Last FM API
+                var client = new LastfmClient(WebConfiguration.LastFmAPIKey, WebConfiguration.LastFmAPISecret);
 
-                // NOTE*** ISSUE WITH AVALONIA UI BITMAP CONSTRUCTOR - HAD TO USE MEMORY STREAM
-                using (var stream = response.GetResponseStream())
+                // Album / Artist Detail
+                var albumResponse = await client.Album.GetInfoAsync(artist, album, false);
+                var artistResponse = await client.Artist.GetInfoAsync(artist);
+
+                // Status OK -> Create bitmap image from the url
+                if (albumResponse.Status == LastResponseStatus.Successful &&
+                    artistResponse.Status == LastResponseStatus.Successful)
                 {
-                    using (var memoryStream = new MemoryStream())
+                    return new LastFmNowPlayingViewModel()
                     {
-                        stream.CopyTo(memoryStream);
-
-                        memoryStream.Seek(0, SeekOrigin.Begin);
-
-                        var decoder = BitmapDecoder.Create(memoryStream, BitmapCreateOptions.PreservePixelFormat, BitmapCacheOption.Default);
-
-                        return decoder.Frames[0];
-                    }
+                        AlbumImage = albumResponse.Content.Images?.Largest?.AbsoluteUri ?? string.Empty,
+                        AlbumUrl = albumResponse.Content.Url?.AbsoluteUri ?? string.Empty,
+                        ArtistMainImage = artistResponse.Content.MainImage?.Largest?.AbsoluteUri ?? string.Empty,
+                        ArtistUrl = artistResponse.Content.Url?.AbsoluteUri ?? string.Empty,
+                        ArtistYearFormed = artistResponse.Content.Bio?.YearFormed ?? 0,
+                        BioContent = artistResponse.Content.Bio?.Content ?? string.Empty,
+                        BioSummary = artistResponse.Content.Bio?.Summary ?? string.Empty,
+                        Tracks = new ObservableCollection<LastFmTrackViewModel>(albumResponse.Content.Tracks.Select(track =>
+                        {
+                            return new LastFmTrackViewModel()
+                            { 
+                                ArtistImage = track.ArtistImages?.Largest?.AbsoluteUri ?? string.Empty,
+                                ArtistUrl = track.ArtistUrl?.AbsoluteUri ?? string.Empty,
+                                Image = track.Images?.Largest?.AbsoluteUri ?? string.Empty,
+                                Url = track.Url?.AbsoluteUri ?? string.Empty
+                            };
+                        }))
+                    };
                 }
-            }
-            catch (Exception)
-            {
+
                 return null;
             }
+            catch (Exception ex)
+            {
+                RaiseLog("Error contacting LastFm:  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
+
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Invokes logger on the application dispatcher thread
+        /// </summary>
+        protected void RaiseLog(string message, LogMessageType type, LogLevel level, params object[] parameters)
+        {
+            if (Thread.CurrentThread.ManagedThreadId != Application.Current.Dispatcher.Thread.ManagedThreadId)
+                Application.Current.Dispatcher.BeginInvoke(RaiseLog, DispatcherPriority.Background, message, type, level, parameters);
+
+            else
+                _outputController.AddLog(message, type, level, parameters);
         }
     }
 }

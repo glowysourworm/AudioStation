@@ -216,49 +216,5 @@
 
         </ListBox-->
 
-        <!-- Now Playing:  Playlist -->
-        <!--Border x:Name="PlaylistContainer" Grid.Column="2" DataContext="{Binding Playlist}">
-            <Grid>
-
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="*" />
-                </Grid.RowDefinitions>
-
-                <TextBlock Text="{Binding Name}" />
-
-                <ListBox x:Name="PlaylistLB"
-						 ItemsSource="{Binding Tracks}"
-						 MouseDoubleClick="OnPlaylistDoubleClick"
-						 BorderBrush="LightGray" BorderThickness="0,1,1,1">
-                    <ListBox.ItemTemplate>
-                        <DataTemplate>
-                            <Border>
-                                <Grid>
-
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto" />
-                                        <ColumnDefinition Width="Auto" />
-                                        <ColumnDefinition Width="*" />
-                                        <ColumnDefinition Width="Auto" />
-                                    </Grid.ColumnDefinitions>
-                                    
-                                    <fa5:SvgAwesome Icon="Solid_PlayCircle"
-													Height="12" Width="12"
-													Foreground="LightGray"
-													VerticalAlignment="Center"
-													Margin="3" />
-                                    <TextBlock Text="{Binding Track}" Grid.Column="1" FontSize="12" Foreground="Gray" Margin="3" />
-                                    <TextBlock Text="{Binding Name}" Grid.Column="2" FontSize="12" Foreground="Gray" Margin="3" />
-                                    <TextBlock Text="{Binding Duration, StringFormat=HH:mm:ss}" Grid.Column="3" FontSize="12" Foreground="Gray" Margin="3" />
-                                </Grid>
-                            </Border>
-                        </DataTemplate>
-                    </ListBox.ItemTemplate>
-                </ListBox>
-
-            </Grid>
-        </Border-->
-
     </Grid>
 </UserControl>

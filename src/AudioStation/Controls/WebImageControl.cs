@@ -14,7 +14,7 @@ namespace AudioStation.Controls
     public class WebImageControl : Image
     {
         public static readonly DependencyProperty ImageEndpointProperty =
-            DependencyProperty.Register("ImageEndpoint", typeof(string), typeof(WebImageControl), new PropertyMetadata(string.Empty));
+            DependencyProperty.Register("ImageEndpoint", typeof(string), typeof(WebImageControl), new PropertyMetadata(string.Empty, OnEndpointChanged));
 
         public string ImageEndpoint
         {
@@ -67,6 +67,12 @@ namespace AudioStation.Controls
             Reload();
         }
 
+        private static void OnEndpointChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            var control = (WebImageControl)d;
+            control?.Reload();
+        }
+
         private async Task Reload()
         {
             // Don't await the BeginInvoke
@@ -78,8 +84,8 @@ namespace AudioStation.Controls
                 // Go ahead and dump the source data until we've been reloaded by the container
                 this.Source = null;
 
-                if (double.IsNaN(this.Width) ||
-                    double.IsNaN(this.Height))
+                if (double.IsNaN(this.RenderSize.Width) ||
+                    double.IsNaN(this.RenderSize.Height))
                     return;
 
                 if (string.IsNullOrEmpty(this.ImageEndpoint) /*|| !this.IsVisible*/)

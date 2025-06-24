@@ -76,8 +76,8 @@ namespace AudioStation.Component
                                                                         Include.Genres | 
                                                                         Include.Tags | 
                                                                         Include.Recordings);
-                var media = release.Media?.FirstOrDefault(x => x.Tracks?.Any(z => z.Id == trackId || z.Title == trackName) ?? false);
-                
+                var media = release.Media?.FirstOrDefault(x => x.Tracks?.Any(z => z.Id == trackId || z.Title == trackName) ?? false);                              
+
                 var coverArtClient = new CoverArt();
                 var frontArt = release.CoverArtArchive?.Front ?? false ? coverArtClient.FetchFront(releaseId) : null;
                 var backArt = release.CoverArtArchive?.Back ?? false ? coverArtClient.FetchBack(releaseId) : null;
