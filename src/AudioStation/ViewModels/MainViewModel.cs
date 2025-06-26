@@ -295,9 +295,9 @@ public partial class MainViewModel : ViewModelBase, IDisposable
         _eventAggregator.GetEvent<PlaybackEqualizerUpdateEvent>().Publish(equalizerValues);
     }
 
-    private void OnPlaybackStateChanged(PlayStopPause state)
+    private void OnPlaybackStateChanged(PlaybackStateChangedEventData eventData)
     {
-        this.PlayState = state;
+        this.PlayState = eventData.State;
     }
     private void OnUpdateVolume(double volume)
     {

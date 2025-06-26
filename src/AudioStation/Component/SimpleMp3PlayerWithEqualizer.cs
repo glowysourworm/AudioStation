@@ -189,7 +189,6 @@ namespace AudioStation.Component
                 var byteDelta = bytePosition - _reader.Position;
 
                 _reader.Skip((int)(position.TotalSeconds - _reader.CurrentTime.TotalSeconds));
-                
             }
         }
 

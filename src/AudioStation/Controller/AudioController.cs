@@ -27,6 +27,7 @@ namespace AudioStation.Controller
         private IAudioPlayer _player;
         private string _streamSource;
         private StreamSourceType _streamSourceType;
+        private bool _userStopped;
 
         [IocImportingConstructor]
         public AudioController(IIocEventAggregator eventAggregator)
@@ -35,10 +36,11 @@ namespace AudioStation.Controller
             _eventAggregator = eventAggregator;
             _streamSource = null;
             _streamSourceType = StreamSourceType.Network;
+            _userStopped = false;
 
             eventAggregator.GetEvent<LoadPlaybackEvent>().Subscribe(eventData =>
             {
-                Stop();
+                Stop(true);
 
                 Load(eventData.Source, eventData.SourceType);
             });
@@ -48,20 +50,24 @@ namespace AudioStation.Controller
                     Resume();
 
                 else if (_streamSource != null)
-                    Play();
+                    Play(true);
 
                 else
                     throw new Exception("Trying to start playback before loading media:  IAudioController");
             });
             eventAggregator.GetEvent<StopPlaybackEvent>().Subscribe(() =>
             {
-                if (_player != null)
-                    Stop();
+                _userStopped = true;
+
+                if (_player != null)        // Race condition on NAudio (we need this handled)
+                    Stop(true);
+
+                _userStopped = false;
             });
             eventAggregator.GetEvent<PausePlaybackEvent>().Subscribe(() =>
             {
                 if (_player != null)
-                    Pause();
+                    Pause(true);
             });
             eventAggregator.GetEvent<UpdateVolumeEvent>().Subscribe(volume =>
             {
@@ -95,11 +101,15 @@ namespace AudioStation.Controller
             return _player.GetPlaybackState();
         }
 
-        public void Pause()
+        public void Pause(bool userInitiated)
         {
             _player.Pause();
 
-            _eventAggregator.GetEvent<PlaybackStateChangedEvent>().Publish(PlayStopPause.Pause);
+            _eventAggregator.GetEvent<PlaybackStateChangedEvent>().Publish(new PlaybackStateChangedEventData()
+            { 
+                State = PlayStopPause.Pause,
+                UserInitiated = userInitiated
+            });
         }
 
         public void Load(string streamSource, StreamSourceType streamSourceType)
@@ -108,7 +118,7 @@ namespace AudioStation.Controller
             _streamSourceType = streamSourceType;
         }
 
-        public void Play()
+        public void Play(bool userInitiated)
         {
             StopImpl();
 
@@ -119,10 +129,14 @@ namespace AudioStation.Controller
         {
             _player.Resume();
 
-            _eventAggregator.GetEvent<PlaybackStateChangedEvent>().Publish(PlayStopPause.Play);
+            _eventAggregator.GetEvent<PlaybackStateChangedEvent>().Publish(new PlaybackStateChangedEventData()
+            { 
+                State = PlayStopPause.Play,
+                UserInitiated = true
+            });
         }
 
-        public void Stop()
+        public void Stop(bool userInitiated)
         {
             StopImpl();
         }
@@ -167,7 +181,11 @@ namespace AudioStation.Controller
 
                 // New Player -> get volume (device) setting
                 _eventAggregator.GetEvent<PlaybackVolumeUpdatedEvent>().Publish(_player.GetVolume());
-                _eventAggregator.GetEvent<PlaybackStateChangedEvent>().Publish(PlayStopPause.Play);
+                _eventAggregator.GetEvent<PlaybackStateChangedEvent>().Publish(new PlaybackStateChangedEventData()
+                {
+                    State = PlayStopPause.Play,
+                    UserInitiated = true
+                });
             }
         }
 
@@ -217,7 +235,11 @@ namespace AudioStation.Controller
         private void OnPlaybackStopped()
         {
             _eventAggregator.GetEvent<PlaybackStateChangedEvent>()
-                            .Publish(PlayStopPause.Stop);
+                            .Publish(new PlaybackStateChangedEventData()
+                            {
+                                State = PlayStopPause.Stop,
+                                UserInitiated = _userStopped
+                            });
         }
 
         public void Dispose()

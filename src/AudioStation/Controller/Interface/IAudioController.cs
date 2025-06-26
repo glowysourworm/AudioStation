@@ -20,9 +20,9 @@ namespace AudioStation.Controller.Interface
         public event SimpleEventHandler<EqualizerResultSet> CurrentBandLevelsUpdated;
 
         void Load(string streamSource, StreamSourceType streamSourceType);
-        void Play();
-        void Stop();
-        void Pause();
+        void Play(bool userInitiated);
+        void Stop(bool userInitiated);
+        void Pause(bool userInitiated);
         PlaybackState GetPlaybackState();
     }
 }

@@ -5,6 +5,7 @@ using System.Windows.Media;
 using AudioStation.Controls;
 using AudioStation.Event;
 using AudioStation.ViewModels;
+using AudioStation.ViewModels.PlaylistViewModels;
 
 using SimpleWpf.IocFramework.Application.Attribute;
 using SimpleWpf.IocFramework.EventAggregation;
@@ -47,12 +48,12 @@ namespace AudioStation.Views
 
         private void ScrubberControl_ScrubbedRatioChanged(ScrubberControl sender, float current)
         {
-            var playlist = this.DataContext as PlaylistViewModel;
+            var track = this.DataContext as PlaylistEntryViewModel;
 
-            if (playlist != null && playlist.CurrentTrack != null)
+            if (track != null)
             {
                 _eventAggregator.GetEvent<PlaybackPositionChangedEvent>()
-                                .Publish(TimeSpan.FromMilliseconds(current * playlist.CurrentTrack.Track.Duration.TotalMilliseconds));
+                                .Publish(TimeSpan.FromMilliseconds(current * track.Track.Duration.TotalMilliseconds));
             }
         }
 

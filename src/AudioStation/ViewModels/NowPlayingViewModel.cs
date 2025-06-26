@@ -1,5 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 
+using AudioStation.Core.Component;
 using AudioStation.Core.Model;
 using AudioStation.Event;
 using AudioStation.ViewModels.PlaylistViewModels.Interface;
@@ -73,6 +74,7 @@ namespace AudioStation.ViewModels
             eventAggregator.GetEvent<LoadPlaylistEvent>().Subscribe(OnLoadPlaylist);
             eventAggregator.GetEvent<LoadNextTrackEvent>().Subscribe(OnLoadNextTrack);
             eventAggregator.GetEvent<LoadPreviousTrackEvent>().Subscribe(OnLoadPreviousTrack);
+            eventAggregator.GetEvent<PlaybackStateChangedEvent>().Subscribe(OnPlaybackStateChanged);
         }
 
         public void SetNowPlaying(IPlaylistEntryViewModel track, bool startTrack)
@@ -83,7 +85,9 @@ namespace AudioStation.ViewModels
             if (!this.Playlist.Entries.Contains(track))
                 throw new ArgumentException("Provided track must be contained in the playlist entries collection:  NowPlayingViewModel");
 
+            this.Playlist.CurrentTrack.IsPlaying = false;
             this.Playlist.CurrentTrack = track;
+            this.Playlist.CurrentTrack.IsPlaying = true;
 
             if (startTrack)
                 StartPlayback(track);
@@ -155,6 +159,14 @@ namespace AudioStation.ViewModels
                 SourceType = StreamSourceType.File
             });
             _eventAggregator.GetEvent<StartPlaybackEvent>().Publish();
+        }
+        private void OnPlaybackStateChanged(PlaybackStateChangedEventData data)
+        {
+            // Not User Initiated -> go ahead through playlist
+            if (!data.UserInitiated && data.State == PlayStopPause.Stop)
+            {
+                OnLoadNextTrack();
+            }
         }
     }
 }
