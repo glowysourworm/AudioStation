@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Documents;
 using System.Windows.Input;
 
 using AudioStation.Component.Interface;
@@ -155,7 +156,7 @@ namespace AudioStation.Views
         {
             // Load Playlist for the whole album
             var viewModel = this.DataContext as LibraryViewModel;
-            var album = (e.OriginalSource as FrameworkElement).DataContext as AlbumViewModel;
+            var album = WpfVisualFinders.FindParent<ListBoxItem>(e.OriginalSource as DependencyObject).DataContext as AlbumViewModel;
             var artist = this.ArtistLB.SelectedItem as ArtistViewModel;
 
             if (viewModel != null && album != null && artist != null)

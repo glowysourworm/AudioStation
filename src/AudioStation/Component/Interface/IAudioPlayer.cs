@@ -12,7 +12,7 @@ namespace AudioStation.Component.Interface
         event SimpleEventHandler<string> MessageEvent;
         event SimpleEventHandler<TimeSpan> PlaybackTickEvent;
         event SimpleEventHandler<EqualizerResultSet> EqualizerCalculated;
-        event SimpleEventHandler PlaybackStoppedEvent;
+        event SimpleEventHandler<StoppedEventArgs> PlaybackStoppedEvent;
 
         void SetVolume(float volume);
         float GetVolume();

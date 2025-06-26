@@ -20,7 +20,7 @@ namespace AudioStation.Component
         public event SimpleEventHandler<string> MessageEvent;
         public event SimpleEventHandler<TimeSpan> PlaybackTickEvent;
         public event SimpleEventHandler<EqualizerResultSet> EqualizerCalculated;
-        public event SimpleEventHandler PlaybackStoppedEvent;
+        public event SimpleEventHandler<StoppedEventArgs> PlaybackStoppedEvent;
 
         MediaFoundationReader _reader;
         IWavePlayer _outputDevice;
@@ -91,19 +91,25 @@ namespace AudioStation.Component
 
         public void Dispose()
         {
-            if (_reader != null)
+            if (Thread.CurrentThread.ManagedThreadId != Application.Current.Dispatcher.Thread.ManagedThreadId)
+                Application.Current.Dispatcher.BeginInvoke(Dispose, DispatcherPriority.Background);
+            else
             {
-                _outputDevice.Stop();
-                _outputDevice.Dispose();
-                _reader.Dispose();
-                _outputDevice.PlaybackTick -= OnPlaybackTick;
-                _outputDevice.PlaybackStopped -= OnPlaybackStopped;
-                _aggregator.FftCalculated -= OnFFTCalculated;
-                _aggregator = null;
-                _equalizer = null;
-                _equalizerBands = null;
-                _reader = null;
-                _outputDevice = null;
+                if (_reader != null)
+                {
+                    _aggregator.Dispose();
+                    _outputDevice.Stop();
+                    _outputDevice.Dispose();
+                    _reader.Dispose();
+                    _outputDevice.PlaybackTick -= OnPlaybackTick;
+                    _outputDevice.PlaybackStopped -= OnPlaybackStopped;
+                    _aggregator.FftCalculated -= OnFFTCalculated;
+                    _aggregator = null;
+                    _equalizer = null;
+                    _equalizerBands = null;
+                    _reader = null;
+                    _outputDevice = null;
+                }
             }
         }
 
@@ -114,7 +120,7 @@ namespace AudioStation.Component
             else
             {
                 if (this.PlaybackStoppedEvent != null)
-                    this.PlaybackStoppedEvent();
+                    this.PlaybackStoppedEvent(e);
             }
         }
 
@@ -125,7 +131,7 @@ namespace AudioStation.Component
             else
             {
                 if (this.PlaybackTickEvent != null)
-                    this.PlaybackTickEvent(_reader.CurrentTime);
+                    this.PlaybackTickEvent(_reader == null ? TimeSpan.Zero : _reader.CurrentTime);
             }
         }
 
@@ -168,7 +174,8 @@ namespace AudioStation.Component
 
         public void Play(string source, StreamSourceType sourceType)
         {
-            CreateDevice(source);
+            if (_outputDevice == null || _outputDevice.PlaybackState != PlaybackState.Stopped)
+                CreateDevice(source);
 
             _outputDevice.Play();
         }

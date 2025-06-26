@@ -25,7 +25,7 @@ namespace AudioStation.Component
 
         public event SimpleEventHandler<string> MessageEvent;
         public event SimpleEventHandler<TimeSpan> PlaybackTickEvent;
-        public event SimpleEventHandler PlaybackStoppedEvent;
+        public event SimpleEventHandler<StoppedEventArgs> PlaybackStoppedEvent;
         public event SimpleEventHandler<EqualizerResultSet> EqualizerCalculated;
 
         public bool HasAudio
@@ -46,7 +46,7 @@ namespace AudioStation.Component
         private void OnMediaEnded(object? sender, EventArgs e)
         {
             if (this.PlaybackStoppedEvent != null)
-                this.PlaybackStoppedEvent();
+                this.PlaybackStoppedEvent(new StoppedEventArgs(null));
         }
 
         private void OnMediaOpened(object? sender, EventArgs e)

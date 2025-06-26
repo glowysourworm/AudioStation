@@ -15,7 +15,7 @@ namespace AudioStation.Component
         MediaPlayer _player;
 
         public event SimpleEventHandler<string> MessageEvent;
-        public event SimpleEventHandler PlaybackStoppedEvent;
+        public event SimpleEventHandler<StoppedEventArgs> PlaybackStoppedEvent;
         public event SimpleEventHandler<TimeSpan> PlaybackTickEvent;        // Not going to use for streams
         public event SimpleEventHandler<EqualizerResultSet> EqualizerCalculated;
 
@@ -90,7 +90,7 @@ namespace AudioStation.Component
         private void OnMediaEnded(object? sender, EventArgs e)
         {
             if (this.PlaybackStoppedEvent != null)
-                this.PlaybackStoppedEvent();
+                this.PlaybackStoppedEvent(new StoppedEventArgs(null));
         }
 
         public void Dispose()

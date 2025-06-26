@@ -163,7 +163,7 @@ namespace AudioStation.ViewModels
         private void OnPlaybackStateChanged(PlaybackStateChangedEventData data)
         {
             // Not User Initiated -> go ahead through playlist
-            if (!data.UserInitiated && data.State == PlayStopPause.Stop)
+            if (data.EndOfTrack && data.State == PlayStopPause.Stop)
             {
                 OnLoadNextTrack();
             }

@@ -40,17 +40,19 @@ namespace AudioStation.Controller
 
             eventAggregator.GetEvent<LoadPlaybackEvent>().Subscribe(eventData =>
             {
-                Stop(true);
+                Stop();
 
                 Load(eventData.Source, eventData.SourceType);
             });
             eventAggregator.GetEvent<StartPlaybackEvent>().Subscribe(() =>
             {
-                if (_player != null && _player.HasAudio)
+                if (_player != null && _player.GetPlaybackState() == PlaybackState.Paused)
                     Resume();
 
                 else if (_streamSource != null)
-                    Play(true);
+                {
+                    Play();
+                }                    
 
                 else
                     throw new Exception("Trying to start playback before loading media:  IAudioController");
@@ -60,14 +62,18 @@ namespace AudioStation.Controller
                 _userStopped = true;
 
                 if (_player != null)        // Race condition on NAudio (we need this handled)
-                    Stop(true);
+                    Stop();
 
                 _userStopped = false;
             });
             eventAggregator.GetEvent<PausePlaybackEvent>().Subscribe(() =>
             {
+                _userStopped = true;
+
                 if (_player != null)
-                    Pause(true);
+                    Pause();
+
+                _userStopped = false;
             });
             eventAggregator.GetEvent<UpdateVolumeEvent>().Subscribe(volume =>
             {
@@ -101,14 +107,13 @@ namespace AudioStation.Controller
             return _player.GetPlaybackState();
         }
 
-        public void Pause(bool userInitiated)
+        public void Pause()
         {
             _player.Pause();
 
             _eventAggregator.GetEvent<PlaybackStateChangedEvent>().Publish(new PlaybackStateChangedEventData()
             { 
-                State = PlayStopPause.Pause,
-                UserInitiated = userInitiated
+                State = PlayStopPause.Pause
             });
         }
 
@@ -118,53 +123,31 @@ namespace AudioStation.Controller
             _streamSourceType = streamSourceType;
         }
 
-        public void Play(bool userInitiated)
-        {
-            StopImpl();
-
-            StartImpl();
-        }
-
-        private void Resume()
-        {
-            _player.Resume();
-
-            _eventAggregator.GetEvent<PlaybackStateChangedEvent>().Publish(new PlaybackStateChangedEventData()
-            { 
-                State = PlayStopPause.Play,
-                UserInitiated = true
-            });
-        }
-
-        public void Stop(bool userInitiated)
-        {
-            StopImpl();
-        }
-
-        private void StartImpl()
+        public void Play()
         {
             if (_player != null &&
-               (_player.GetPlaybackState() == PlaybackState.Playing ||
-                _player.GetPlaybackState() == PlaybackState.Paused))
-            {
-                return;
-            }
+               (_player.GetPlaybackState() == PlaybackState.Paused ||
+                _player.GetPlaybackState() == PlaybackState.Playing))
+                _player.Resume();
 
-            if (!string.IsNullOrEmpty(_streamSource))
+            else if (!string.IsNullOrEmpty(_streamSource))
             {
-                if (_player == null)
+                if (_player != null)
                 {
-                    switch (_streamSourceType)
-                    {
-                        case StreamSourceType.File:
-                            _player = new SimpleMp3PlayerWithEqualizer();
-                            break;
-                        case StreamSourceType.Network:
-                            _player = new StreamMp3Player();
-                            break;
-                        default:
-                            throw new Exception("Unhandled StreamSourceType:  AudioController.cs");
-                    }
+                    _player.Dispose();
+                    _player = null;
+                }
+
+                switch (_streamSourceType)
+                {
+                    case StreamSourceType.File:
+                        _player = new SimpleMp3PlayerWithEqualizer();
+                        break;
+                    case StreamSourceType.Network:
+                        _player = new StreamMp3Player();
+                        break;
+                    default:
+                        throw new Exception("Unhandled StreamSourceType:  AudioController.cs");
                 }
 
                 // Zero-Time
@@ -183,13 +166,22 @@ namespace AudioStation.Controller
                 _eventAggregator.GetEvent<PlaybackVolumeUpdatedEvent>().Publish(_player.GetVolume());
                 _eventAggregator.GetEvent<PlaybackStateChangedEvent>().Publish(new PlaybackStateChangedEventData()
                 {
-                    State = PlayStopPause.Play,
-                    UserInitiated = true
+                    State = PlayStopPause.Play
                 });
             }
         }
 
-        private void StopImpl()
+        private void Resume()
+        {
+            _player.Resume();
+
+            _eventAggregator.GetEvent<PlaybackStateChangedEvent>().Publish(new PlaybackStateChangedEventData()
+            { 
+                State = PlayStopPause.Play
+            });
+        }
+
+        public void Stop()
         {
             if (_player == null)
                 return;
@@ -232,13 +224,13 @@ namespace AudioStation.Controller
             }
         }
 
-        private void OnPlaybackStopped()
+        private void OnPlaybackStopped(StoppedEventArgs eventArgs)
         {
             _eventAggregator.GetEvent<PlaybackStateChangedEvent>()
                             .Publish(new PlaybackStateChangedEventData()
                             {
                                 State = PlayStopPause.Stop,
-                                UserInitiated = _userStopped
+                                EndOfTrack = eventArgs.Exception == null && !_userStopped
                             });
         }
 
