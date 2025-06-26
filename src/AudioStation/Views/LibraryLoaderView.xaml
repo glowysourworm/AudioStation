@@ -125,22 +125,8 @@
                             <fa5:SvgAwesome Icon="Solid_Play" Style="{StaticResource FontAwesomeIconControlPanelButton}" />
                         </RadioButton>
                     </StackPanel>
-
-                    <ComboBox Margin="5 0"
-                            VerticalAlignment="Center"
-                            Height="30"
-                            Width="160"
-                            VerticalContentAlignment="Center"
-                            FontSize="14"                                              
-                            SelectedValue="{Binding SelectedLibraryWorkItemState}">
-                        <ComboBox.Items>
-                            <libraryWork:LibraryWorkItemState>Pending</libraryWork:LibraryWorkItemState>
-                            <libraryWork:LibraryWorkItemState>Processing</libraryWork:LibraryWorkItemState>
-                            <libraryWork:LibraryWorkItemState>CompleteSuccessful</libraryWork:LibraryWorkItemState>
-                            <libraryWork:LibraryWorkItemState>CompleteError</libraryWork:LibraryWorkItemState>
-                        </ComboBox.Items>
-                    </ComboBox>
-
+                    
+                    
                     <Button Style="{StaticResource UserControlButton}" Margin="5 0" VerticalAlignment="Center">
                         <StackPanel Orientation="Horizontal" Margin="5">
                             <TextBlock Text="Clear Completed" Style="{StaticResource LabelTextBlock}" Margin="5 0" />

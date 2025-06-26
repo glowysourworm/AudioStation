@@ -9,5 +9,6 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent
     public abstract class LibraryLoaderLoadBase
     {
         public abstract double GetProgress();
+        public abstract bool HasErrors();
     }
 }

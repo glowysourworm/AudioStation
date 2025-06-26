@@ -25,6 +25,8 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent
     public class LibraryLoaderWorkItem
     {
         int _id;
+        DateTime _startTime;
+        DateTime _lastUpdateTime;
         LibraryLoaderLoadBase _workItem;                                           // Supposed to be a LibraryLoaderLoadBase
         LibraryLoadType _loadType;
         LibraryWorkItemState _loadState;
@@ -35,18 +37,24 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent
         public LibraryLoaderWorkItem()
         {
             _id = -1;
+            _startTime = DateTime.MinValue;
+            _lastUpdateTime = DateTime.MinValue;
             _loadType = LibraryLoadType.Mp3FileAddUpdate;
             _loadState = LibraryWorkItemState.Pending;
         }
         public LibraryLoaderWorkItem(int id, LibraryLoadType loadType)
         {
             _id = id;
+            _startTime = DateTime.MinValue;
+            _lastUpdateTime = DateTime.MinValue;
             _loadType = loadType;
             _loadState = LibraryWorkItemState.Pending;
         }
         public LibraryLoaderWorkItem(LibraryLoaderWorkItem copy)
         {
             _id = copy.GetId();
+            _startTime = copy.GetStartTime();
+            _lastUpdateTime = copy.GetLastUpdateTime();
             _loadType = copy.GetLoadType();
             _loadState = copy.GetLoadState();
             _workItem = copy.GetWorkItem();      
@@ -58,6 +66,27 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent
             {
                 return _id;
             }            
+        }
+        public bool GetHasErrors()
+        {
+            lock ( _lock)
+            {
+                return _workItem.HasErrors();
+            }
+        }
+        public DateTime GetStartTime()
+        {
+            lock(_lock)
+            {
+                return _startTime;
+            }
+        }
+        public DateTime GetLastUpdateTime()
+        {
+            lock (_lock)
+            {
+                return _lastUpdateTime;
+            }
         }
         public LibraryLoaderLoadBase GetWorkItem()
         {
@@ -96,11 +125,21 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent
             }
         }
 
+        public void Start()
+        {
+            lock(_lock)
+            {
+                _startTime = DateTime.Now;
+                _loadState = LibraryWorkItemState.Processing;
+            }
+        }
+
         public void Update(LibraryWorkItemState state)
         {
             lock (_lock)
             {
                 _loadState = state;
+                _lastUpdateTime = DateTime.Now;
             }
         }
     }

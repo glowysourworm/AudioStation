@@ -6,6 +6,7 @@ using System.Windows.Threading;
 using AudioStation.Core.Component;
 using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Component.LibraryLoaderComponent;
+using AudioStation.Core.Model;
 using AudioStation.Model;
 
 using Microsoft.Extensions.Logging;
@@ -25,14 +26,10 @@ namespace AudioStation.ViewModels
         private readonly ILibraryLoader _libraryLoader;
 
         #region Backing Fields (private)
-        KeyedObservableCollection<int, LibraryWorkItemViewModel> _libraryWorkItemsPending;
-        KeyedObservableCollection<int, LibraryWorkItemViewModel> _libraryWorkItemsProcessing;
-        KeyedObservableCollection<int, LibraryWorkItemViewModel> _libraryWorkItemsSuccess;
-        KeyedObservableCollection<int, LibraryWorkItemViewModel> _libraryWorkItemsError;
+        KeyedObservableCollection<int, LibraryWorkItemViewModel> _libraryWorkItems;
 
         ObservableCollection<LibraryWorkItemViewModel> _libraryWorkItemsSelected;
 
-        LibraryWorkItemState _selectedLibraryWorkItemState;
         LibraryLoadType _selectedLibraryNewWorkItemType;
 
         SimpleCommand _loadLibraryCommand;
@@ -45,35 +42,15 @@ namespace AudioStation.ViewModels
             get { return _libraryLoader.GetState(); }
             set { OnLibraryLoaderStateRequest(value); }
         }
-        public LibraryWorkItemState SelectedLibraryWorkItemState
-        {
-            get { return _selectedLibraryWorkItemState; }
-            set { this.RaiseAndSetIfChanged(ref _selectedLibraryWorkItemState, value); SetSelectedWorkItemCollection(); }
-        }
         public LibraryLoadType SelectedLibraryNewWorkItemType
         {
             get { return _selectedLibraryNewWorkItemType; }
             set { this.RaiseAndSetIfChanged(ref _selectedLibraryNewWorkItemType, value); }
         }
-        public KeyedObservableCollection<int, LibraryWorkItemViewModel> LibraryWorkItemsPending
+        public KeyedObservableCollection<int, LibraryWorkItemViewModel> LibraryWorkItems
         {
-            get { return _libraryWorkItemsPending; }
-            set { this.RaiseAndSetIfChanged(ref _libraryWorkItemsPending, value); }
-        }
-        public KeyedObservableCollection<int, LibraryWorkItemViewModel> LibraryWorkItemsProcessing
-        {
-            get { return _libraryWorkItemsProcessing; }
-            set { this.RaiseAndSetIfChanged(ref _libraryWorkItemsProcessing, value); }
-        }
-        public KeyedObservableCollection<int, LibraryWorkItemViewModel> LibraryWorkItemsSuccess
-        {
-            get { return _libraryWorkItemsSuccess; }
-            set { this.RaiseAndSetIfChanged(ref _libraryWorkItemsSuccess, value); }
-        }
-        public KeyedObservableCollection<int, LibraryWorkItemViewModel> LibraryWorkItemsError
-        {
-            get { return _libraryWorkItemsError; }
-            set { this.RaiseAndSetIfChanged(ref _libraryWorkItemsError, value); }
+            get { return _libraryWorkItems; }
+            set { this.RaiseAndSetIfChanged(ref _libraryWorkItems, value); }
         }
         public ObservableCollection<LibraryWorkItemViewModel> LibraryWorkItemsSelected
         {
@@ -96,23 +73,14 @@ namespace AudioStation.ViewModels
             _libraryLoader = libraryLoader;
 
             // Filtering of the library loader work items
-            _selectedLibraryWorkItemState = LibraryWorkItemState.Pending;
+            this.LibraryWorkItems = new KeyedObservableCollection<int, LibraryWorkItemViewModel>(x => x.Id);
 
-            this.LibraryWorkItemsPending = new KeyedObservableCollection<int, LibraryWorkItemViewModel>(x => x.Id);
-            this.LibraryWorkItemsProcessing = new KeyedObservableCollection<int, LibraryWorkItemViewModel>(x => x.Id);
-            this.LibraryWorkItemsSuccess = new KeyedObservableCollection<int, LibraryWorkItemViewModel>(x => x.Id);
-            this.LibraryWorkItemsError = new KeyedObservableCollection<int, LibraryWorkItemViewModel>(x => x.Id);
-
-            this.LibraryWorkItemsSelected = this.LibraryWorkItemsPending;
+            this.LibraryWorkItemsSelected = this.LibraryWorkItems;
 
             this.LibraryLoaderState = libraryLoader.GetState();
 
             libraryLoader.WorkItemUpdate += OnWorkItemUpdate;
-            libraryLoader.WorkItemCompleted += OnWorkItemCompleted;
-            libraryLoader.WorkItemsAdded += OnWorkItemsAdded;
-            libraryLoader.WorkItemsRemoved += OnWorkItemsRemoved;
-            libraryLoader.ProcessingComplete += OnLibraryProcessingComplete;
-            libraryLoader.ProcessingChanged += OnLibraryProcessingChanged;
+            libraryLoader.ProcessingUpdate += OnLibraryProcessingChanged;
 
             this.LoadLibraryCommand = new SimpleCommand(() =>
             {
@@ -122,84 +90,53 @@ namespace AudioStation.ViewModels
         }
 
         #region ILibraryLoader Events (these are all on the Dispatcher)
-        private void RefreshWorkItems()
+        private void RefreshWorkItems(LibraryWorkItem newItem)
         {
-            this.LibraryWorkItemsError.Clear();
-            this.LibraryWorkItemsSelected.Clear();
-            this.LibraryWorkItemsPending.Clear();
-            this.LibraryWorkItemsProcessing.Clear();
-
-            foreach (var workItem in _libraryLoader.GetWorkItems())
+            foreach (var workItem in _libraryLoader.GetIdleWorkItems().Union(new LibraryWorkItem[] {newItem}))
             {
-                var item = new LibraryWorkItemViewModel()
+                // May not be a new item (we're consolidating code)
+                if (workItem == null)
+                    continue;
+
+                if (!this.LibraryWorkItems.ContainsKey(workItem.Id))
                 {
-                    Id = workItem.Id,
-                    Progress = workItem.PercentComplete,
-                    LoadType = workItem.LoadType,
-                    LoadState = workItem.LoadState
-                };
+                    this.LibraryWorkItems.Add(new LibraryWorkItemViewModel()
+                    {
+                        Id = workItem.Id,
+                        HasErrors = workItem.HasErrors,
+                        Progress = workItem.PercentComplete,
+                        Runtime = workItem.Runtime,
+                        LoadType = workItem.LoadType,
+                        LoadState = workItem.LoadState,
+                        LastMessage = workItem.LastMessage,
+                    });
+                }
+                else
+                {
+                    var viewModel = this.LibraryWorkItems[workItem.Id];
 
-                if (workItem.LoadState == LibraryWorkItemState.Pending)
-                    this.LibraryWorkItemsPending.Add(item);
-
-                if (workItem.LoadState == LibraryWorkItemState.Processing)
-                    this.LibraryWorkItemsProcessing.Add(item);
-
-                if (workItem.LoadState == LibraryWorkItemState.CompleteSuccessful)
-                    this.LibraryWorkItemsSuccess.Add(item);
-
-                if (workItem.LoadState == LibraryWorkItemState.CompleteError)
-                    this.LibraryWorkItemsError.Add(item);
+                    viewModel.Progress = workItem.PercentComplete;
+                    viewModel.HasErrors = workItem.HasErrors;
+                    viewModel.Runtime = workItem.Runtime;
+                    viewModel.LoadState = workItem.LoadState;
+                    viewModel.LoadType = workItem.LoadType;
+                    viewModel.LastMessage = workItem.LastMessage;
+                }
             }
         }
-        private void OnWorkItemsRemoved()
+        private void OnWorkItemUpdate(LibraryWorkItem workItem)
         {
-            RefreshWorkItems();
+            RefreshWorkItems(workItem);
         }
-        private void OnWorkItemsAdded()
-        {
-            RefreshWorkItems();
-        }
-        private void OnWorkItemUpdate()
-        {
-            RefreshWorkItems();
-        }
-        private void OnWorkItemCompleted()
-        {
-            // Handles status changes
-            RefreshWorkItems();
-        }
+
         private void OnLibraryProcessingChanged()
         {
+            RefreshWorkItems(null);
+
             // Notify listeners. The getter draws from the library loader
             OnPropertyChanged("LibraryLoaderState");
         }
-        private void OnLibraryProcessingComplete()
-        {
-            _outputController.Log("Library Loader processing complete", LogMessageType.General);
-        }
         #endregion
-
-        private void SetSelectedWorkItemCollection()
-        {
-            switch (this.SelectedLibraryWorkItemState)
-            {
-                case LibraryWorkItemState.Pending:
-                    this.LibraryWorkItemsSelected = this.LibraryWorkItemsPending;
-                    break;
-                case LibraryWorkItemState.Processing:
-                    this.LibraryWorkItemsSelected = this.LibraryWorkItemsProcessing;
-                    break;
-                case LibraryWorkItemState.CompleteSuccessful:
-                    this.LibraryWorkItemsSelected = this.LibraryWorkItemsSuccess;
-                    break;
-                case LibraryWorkItemState.CompleteError:
-                    this.LibraryWorkItemsSelected = this.LibraryWorkItemsError;
-                    break;
-                default:
-                    throw new Exception("Unhandled LibraryWorkItemState:  LibraryLoaderViewModel.cs");
-            }
-        }
 
         private void OnLibraryLoaderStateRequest(PlayStopPause state)
         {

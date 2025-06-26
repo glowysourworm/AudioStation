@@ -8,6 +8,16 @@
         <ResourceDictionary Source="/Resources/TextBlockStyles.xaml" />
     </ResourceDictionary.MergedDictionaries>
 
+    <Style x:Key="ProgressBarStyle" TargetType="{x:Type controls:ProgressBar}">
+        <Setter Property="Foreground" Value="#AF000000" />
+        <Setter Property="Background" Value="LightGray" />
+        <Setter Property="ProgressBrush" Value="LawnGreen" />
+        <Setter Property="Height" Value="24" />
+        <Setter Property="CornerRadius" Value="5" />
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="FontFamily" Value="{Binding FontFamily, RelativeSource={RelativeSource AncestorType=Window}}" />
+    </Style>
+
     <Style x:Key="LibraryWorkItemContainerStyleNormal" TargetType="ListBoxItem">
         <Setter Property="Background" Value="White" />
         <Setter Property="Foreground" Value="{StaticResource LabelForeground}" />
@@ -45,14 +55,43 @@
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="200" />
                     <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
-                <TextBlock Text="{Binding Id}" Style="{StaticResource LabelTextBlock}" HorizontalAlignment="Left" />
-                <TextBlock Text="{Binding LoadType}" Grid.Column="1" Style="{StaticResource LabelTextBlock}" HorizontalAlignment="Left" />
-                <TextBlock Text="{Binding LogIdentity}" Grid.Column="2" Style="{StaticResource LabelTextBlock}" HorizontalAlignment="Left" />
-                <controls:ProgressBar Progress="{Binding Progress}" Height="32" Grid.Column="3" Foreground="White" Background="Gray" ProgressBrush="LawnGreen" />
-                <TextBlock Text="{Binding LoadState}" Grid.Column="4" Style="{StaticResource LabelTextBlock}" HorizontalAlignment="Right" />
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <TextBlock Text="{Binding Id, StringFormat='Id={0}'}" Margin="5" Style="{StaticResource LabelTextBlock}" HorizontalAlignment="Left" VerticalAlignment="Center"  />
+                <TextBlock Text="{Binding LoadType, StringFormat='Load Type={0}'}" Margin="5" Grid.Column="1" Style="{StaticResource LabelTextBlock}" HorizontalAlignment="Left" VerticalAlignment="Center"  />
+                <TextBlock Text="{Binding LogIdentity}" Margin="5" Grid.Column="2" Style="{StaticResource LabelTextBlock}" HorizontalAlignment="Left" VerticalAlignment="Center"  />
+
+                <controls:ProgressBar Progress="{Binding Progress}" 
+                                      Width="200" Margin="5" Grid.Column="3" 
+                                      Style="{StaticResource ProgressBarStyle}" 
+                                      VerticalAlignment="Center" HorizontalAlignment="Right">
+                    <controls:ProgressBar.ProgressBrush>
+                        <Binding Path="HasErrors" Converter="{StaticResource ParameterProviderBoolConverter}">
+                            <Binding.ConverterParameter>
+                                <SolidColorBrush Color="Red" />
+                            </Binding.ConverterParameter>
+                        </Binding>
+                    </controls:ProgressBar.ProgressBrush>
+                </controls:ProgressBar>
+                
+                <TextBlock Text="{Binding LoadState}" Grid.Column="4" Margin="5" Style="{StaticResource LabelTextBlock}" HorizontalAlignment="Right" VerticalAlignment="Center"  />
+                <TextBlock Grid.Column="5" Margin="5" Style="{StaticResource LabelTextBlock}" HorizontalAlignment="Right" VerticalAlignment="Center">
+                    <Run Text="(" />
+                    <Run Text="{Binding Runtime, StringFormat={}{0:hh}:{0:mm}:{0:ss}}" />
+                    <Run Text=")" />
+                </TextBlock>
+
+                <!--TextBlock Text="{Binding LastMessage, StringFormat='Last Message={0}'}" 
+                           TextWrapping="NoWrap"
+                           TextTrimming="CharacterEllipsis"
+                           Margin="5" Style="{StaticResource LabelTextBlock}" 
+                           Grid.ColumnSpan="4" Grid.Column="0" Grid.Row="1" /-->
             </Grid>
         </Border>
     </DataTemplate>

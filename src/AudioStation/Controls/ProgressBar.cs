@@ -19,10 +19,36 @@ namespace AudioStation.Controls
             DependencyProperty.Register("Background", typeof(Brush), typeof(ProgressBar), new PropertyMetadata(Brushes.Gray));
 
         public static readonly DependencyProperty ForegroundProperty =
-            DependencyProperty.Register("Foreground", typeof(Brush), typeof(ProgressBar));
+            DependencyProperty.Register("Foreground", typeof(Brush), typeof(ProgressBar), new PropertyMetadata(OnFontChanged));
 
         public static readonly DependencyProperty ProgressBrushProperty =
-            DependencyProperty.Register("ProgressBrush", typeof(Brush), typeof(ProgressBar), new PropertyMetadata(Brushes.LawnGreen));
+            DependencyProperty.Register("ProgressBrush", typeof(Brush), typeof(ProgressBar), new PropertyMetadata(Brushes.LawnGreen, OnProgressChanged));
+
+        public static readonly DependencyProperty FontFamilyProperty =
+            DependencyProperty.Register("FontFamily", typeof(FontFamily), typeof(ProgressBar), new PropertyMetadata(new FontFamily("Consolas"), OnFontChanged));
+
+        public static readonly DependencyProperty FontSizeProperty =
+            DependencyProperty.Register("FontSize", typeof(double), typeof(ProgressBar), new PropertyMetadata(OnFontChanged));
+
+        public static readonly DependencyProperty CornerRadiusProperty =
+            DependencyProperty.Register("CornerRadius", typeof(double), typeof(ProgressBar), new PropertyMetadata(5.0D));
+
+        public double CornerRadius
+        {
+            get { return (double)GetValue(CornerRadiusProperty); }
+            set { SetValue(CornerRadiusProperty, value); }
+        }
+
+        public FontFamily FontFamily
+        {
+            get { return (FontFamily)GetValue(FontFamilyProperty); }
+            set { SetValue(FontFamilyProperty, value); }
+        }
+        public double FontSize
+        {
+            get { return (double)GetValue(FontSizeProperty); }
+            set { SetValue(FontSizeProperty, value); }
+        }
 
         public double Progress
         {
@@ -59,6 +85,11 @@ namespace AudioStation.Controls
             _typeface = new Typeface("Consolas");
         }
 
+        private void UpdateFont()
+        {
+            _typeface = new Typeface(this.FontFamily, FontStyles.Normal, FontWeights.Normal, FontStretches.Normal);
+        }
+
         private void SetGeometry(Size size)
         {
             _geometry = new RectangleGeometry(new Rect(size));
@@ -87,6 +118,17 @@ namespace AudioStation.Controls
             }
         }
 
+        private static void OnFontChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            var control = d as ProgressBar;
+            if (control != null)
+            {
+                control.UpdateFont();
+                control.InvalidateMeasure();
+                control.InvalidateVisual();
+            }
+        }
+
         protected override void OnRender(DrawingContext drawingContext)
         {
             //base.OnRender(drawingContext);
@@ -99,14 +141,14 @@ namespace AudioStation.Controls
 
             var progressRect = new Rect(0, 0, this.RenderSize.Width * this.Progress, this.RenderSize.Height);
             var renderRect = new Rect(this.RenderSize);
-            var text = this.Progress.ToString("N2");
-            var formattedText = new FormattedText(text, CultureInfo.CurrentUICulture, FlowDirection.LeftToRight, _typeface, 1.25, this.Foreground);
+            var text = this.Progress.ToString("P0");
+            var formattedText = new FormattedText(text, CultureInfo.CurrentUICulture, FlowDirection.LeftToRight, _typeface, this.FontSize, this.Foreground);
 
             var offsetX = (this.RenderSize.Width - formattedText.Width) / 2.0f;
             var offsetY = (this.RenderSize.Height - formattedText.Height) / 2.0f;
 
-            drawingContext.DrawRectangle(this.Background, null, renderRect);
-            drawingContext.DrawRectangle(this.ProgressBrush, null, progressRect);
+            drawingContext.DrawRoundedRectangle(this.Background, null, renderRect, this.CornerRadius, this.CornerRadius);
+            drawingContext.DrawRoundedRectangle(this.ProgressBrush, null, progressRect, this.CornerRadius, this.CornerRadius);
             drawingContext.DrawText(formattedText, new Point(offsetX, offsetY));
         }
     }

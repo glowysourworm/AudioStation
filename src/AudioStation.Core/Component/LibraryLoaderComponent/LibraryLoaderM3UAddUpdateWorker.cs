@@ -2,6 +2,7 @@
 using System.Windows.Threading;
 
 using AudioStation.Core.Component.Interface;
+using AudioStation.Core.Model;
 using AudioStation.Core.Model.M3U;
 using AudioStation.Model;
 
@@ -31,11 +32,12 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent
             // 
 
             var fileLoad = workItem.GetWorkItem() as LibraryLoaderFileLoad;
+            var generalError = false;
 
             // Processing...
-            workItem.Update(LibraryWorkItemState.Processing);
+            workItem.Start();
 
-            foreach (var file in fileLoad.GetFiles())
+            foreach (var file in fileLoad.GetPendingFiles())
             {
                 var streams = LoadRadioEntry(workItem.GetId(), file);
 
@@ -43,6 +45,8 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent
                 if (streams == null || streams.Count == 0)
                 {
                     RaiseLog(workItem.GetId(), "M3U stream file load failed:  {0}", LogLevel.Error, file);
+
+                    generalError = true;
                 }
                 else
                 {
@@ -53,7 +57,26 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent
                 }
 
                 fileLoad.SetComplete(file, streams != null && streams.Count > 0);
+
+                // Report -> UI Dispatcher (progress update)
+                //
+                Report(new LibraryWorkItem()
+                {
+                    Id = workItem.GetId(),
+                    HasErrors = workItem.GetHasErrors(),
+                    LoadState = workItem.GetLoadState(),
+                    LoadType = workItem.GetLoadType(),
+                    Runtime = DateTime.Now.Subtract(workItem.GetStartTime()),
+                    PercentComplete = workItem.GetPercentComplete(),
+                    LastMessage = file
+                });
             }
+
+            if (generalError)
+                workItem.Update(LibraryWorkItemState.CompleteError);
+
+            else
+                workItem.Update(LibraryWorkItemState.CompleteSuccessful);
         }
 
         public List<M3UStream> LoadRadioEntry(int workItemId, string fileName)

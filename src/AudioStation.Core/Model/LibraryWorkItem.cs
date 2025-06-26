@@ -8,6 +8,9 @@ namespace AudioStation.Core.Model
     public class LibraryWorkItem
     {
         public int Id { get; set; }
+        public bool HasErrors { get; set; }
+        public string LastMessage { get; set; }
+        public TimeSpan Runtime {  get; set; }
         public LibraryLoadType LoadType { get; set; }
         public LibraryWorkItemState LoadState { get; set; }
         public double PercentComplete { get; set; }

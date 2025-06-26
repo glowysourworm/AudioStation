@@ -1,9 +1,7 @@
 ﻿using System.IO;
-using System.Windows;
-using System.Windows.Threading;
 
 using AudioStation.Core.Component.Interface;
-using AudioStation.Model;
+using AudioStation.Core.Model;
 
 using Microsoft.Extensions.Logging;
 
@@ -26,13 +24,14 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent
             var fileLoadError = false;
             var fileAvailable = false;
             var fileErrorMessasge = "";
+            var generalError = false;
 
             var fileLoad = workItem.GetWorkItem() as LibraryLoaderFileLoad;
 
             // Processing...
-            workItem.Update(LibraryWorkItemState.Processing);
+            workItem.Start();
 
-            foreach (var file in fileLoad.GetFiles())
+            foreach (var file in fileLoad.GetPendingFiles())
             {
                 var entry = LoadLibraryEntry(workItem.GetId(), file, out fileErrorMessasge, out fileAvailable, out fileLoadError);
 
@@ -40,6 +39,8 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent
                 if (entry == null)
                 {
                     RaiseLog(workItem.GetId(), "Mp3 load failed:  {0}", LogLevel.Error, file);
+
+                    generalError = true;
                 }
                 else
                 {
@@ -50,7 +51,26 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent
                 }
 
                 fileLoad.SetComplete(file, entry != null);
+
+                // Report -> UI Dispatcher (progress update)
+                //
+                Report(new LibraryWorkItem()
+                {
+                    Id = workItem.GetId(),
+                    HasErrors = workItem.GetHasErrors(),
+                    LoadState = workItem.GetLoadState(),
+                    LoadType = workItem.GetLoadType(),
+                    Runtime = DateTime.Now.Subtract(workItem.GetStartTime()),
+                    PercentComplete = workItem.GetPercentComplete(),
+                    LastMessage = file
+                });
             }
+
+            if (generalError)
+                workItem.Update(LibraryWorkItemState.CompleteError);
+
+            else
+                workItem.Update(LibraryWorkItemState.CompleteSuccessful);
         }
 
         public TagLib.File LoadLibraryEntry(int workItemId, string file, out string fileErrorMessage, out bool fileAvailable, out bool fileLoadError)

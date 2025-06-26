@@ -1,5 +1,4 @@
-﻿using AudioStation.Core.Component.LibraryLoaderComponent;
-using AudioStation.Core.Model;
+﻿using AudioStation.Core.Model;
 
 using SimpleWpf.Extensions.Event;
 
@@ -8,21 +7,22 @@ namespace AudioStation.Core.Component.Interface
     public interface ILibraryLoader : IDisposable
     {
         /// <summary>
-        /// Log event, with a bool to represent whether it was an error
+        /// Sends updates from any work item (idle / in process)
         /// </summary>
-        public event SimpleEventHandler WorkItemsRemoved;
-        public event SimpleEventHandler WorkItemsAdded;
-        public event SimpleEventHandler WorkItemCompleted;
-        public event SimpleEventHandler WorkItemUpdate;
-        public event SimpleEventHandler ProcessingChanged;
-        public event SimpleEventHandler ProcessingComplete;
+        public event SimpleEventHandler<LibraryWorkItem> WorkItemUpdate;
+
+        /// <summary>
+        /// Sends an update to remind the UI dispatcher to check the ILibraryLoader for
+        /// any work item updates.
+        /// </summary>
+        public event SimpleEventHandler ProcessingUpdate;
 
         PlayStopPause GetState();
 
         /// <summary>
         /// Gets a thread-safe copy of work items for an update from the loader core
         /// </summary>
-        public IEnumerable<LibraryWorkItem> GetWorkItems();
+        public IEnumerable<LibraryWorkItem> GetIdleWorkItems();
 
         /// <summary>
         /// Stops the work queue
