@@ -29,8 +29,11 @@ namespace AudioStation
             var modelController = IocContainer.Get<IModelController>();
             var outputController = IocContainer.Get<IOutputController>();
 
+            // Get config file from the command line (or default to config folder as current executable directory)
+            var configurationFile = Environment.GetCommandLineArgs().Length > 1 ? Environment.GetCommandLineArgs()[1] : string.Empty;
+
             // Read / Create Configuration
-            configurationManager.Initialize();
+            configurationManager.Initialize(configurationFile);
 
             // Apply configuration
             //modelController.Initialize();

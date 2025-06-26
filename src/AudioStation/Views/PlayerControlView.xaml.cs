@@ -49,16 +49,16 @@ namespace AudioStation.Views
         {
             var playlist = this.DataContext as PlaylistViewModel;
 
-            if (playlist != null && playlist.NowPlaying != null)
+            if (playlist != null && playlist.CurrentTrack != null)
             {
                 _eventAggregator.GetEvent<PlaybackPositionChangedEvent>()
-                                .Publish(TimeSpan.FromMilliseconds(current * playlist.NowPlaying.Track.Duration.TotalMilliseconds));
+                                .Publish(TimeSpan.FromMilliseconds(current * playlist.CurrentTrack.Track.Duration.TotalMilliseconds));
             }
         }
 
         private void BackButton_Click(object sender, System.Windows.RoutedEventArgs e)
         {
-
+            _eventAggregator.GetEvent<LoadPreviousTrackEvent>().Publish();
         }
 
         private void PauseButton_Click(object sender, System.Windows.RoutedEventArgs e)
@@ -78,7 +78,7 @@ namespace AudioStation.Views
 
         private void ForwardButton_Click(object sender, System.Windows.RoutedEventArgs e)
         {
-
+            _eventAggregator.GetEvent<LoadNextTrackEvent>().Publish();
         }
 
         private void ExpandedViewButton_Click(object sender, System.Windows.RoutedEventArgs e)

@@ -1,5 +1,7 @@
-﻿using System.Windows;
+﻿using System.ComponentModel;
+using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 
 using AudioStation.Component.Interface;
 using AudioStation.Core.Database;
@@ -7,10 +9,10 @@ using AudioStation.Core.Model;
 using AudioStation.Event;
 using AudioStation.ViewModels;
 using AudioStation.ViewModels.LibraryViewModels;
-using AudioStation.ViewModels.PlaylistViewModels;
 
 using EMA.ExtendedWPFVisualTreeHelper;
 
+using SimpleWpf.Extensions.Collection;
 using SimpleWpf.IocFramework.Application.Attribute;
 using SimpleWpf.IocFramework.EventAggregation;
 
@@ -19,6 +21,7 @@ namespace AudioStation.Views
     [IocExportDefault]
     public partial class ArtistSearchView : UserControl
     {
+        private readonly INowPlayingViewModelLoader _nowPlayingViewModelLoader;
         private readonly IViewModelLoader _viewModelLoader;
         private readonly IIocEventAggregator _eventAggregator;
 
@@ -32,10 +35,13 @@ namespace AudioStation.Views
         }
 
         [IocImportingConstructor]
-        public ArtistSearchView(IViewModelLoader viewModelLoader, IIocEventAggregator eventAggregator)
+        public ArtistSearchView(IViewModelLoader viewModelLoader,
+                                IIocEventAggregator eventAggregator,
+                                INowPlayingViewModelLoader nowPlayingViewModelLoader)
         {
             _viewModelLoader = viewModelLoader;
             _eventAggregator = eventAggregator;
+            _nowPlayingViewModelLoader = nowPlayingViewModelLoader;
 
             InitializeComponent();
 
@@ -102,90 +108,32 @@ namespace AudioStation.Views
             return artist.Name.Contains(viewModel?.ArtistSearch, StringComparison.OrdinalIgnoreCase);
         }
 
-        private void OnArtistSelectionChanged(object? sender, SelectionChangedEventArgs e)
-        {
-            var viewModel = this.DataContext as LibraryViewModel;
-
-            if (e.AddedItems.Count > 0 && viewModel != null)
-            {
-                // View Artist Detail
-                //this.ArtistDetailLB.ItemsSource = (e.AddedItems[0] as ArtistViewModel).Albums;
-            }
-        }
-
-        private void OnArtistDetailDoubleClick(object? sender, RoutedEventArgs e)
-        {
-            //var albums = this.ArtistDetailLB.ItemsSource as IEnumerable<AlbumViewModel>;
-
-            //if (albums != null)
-            //{
-            //    var firstAlbum = albums.First();
-
-            //    LoadPlaylist(firstAlbum.Tracks.First(), firstAlbum);
-            //}
-        }
-
-        private void OnPlaylistDoubleClick(object? sender, RoutedEventArgs e)
-        {
-            //var selectedTrack = (e.Source as Control).DataContext as LibraryEntryViewModel;
-            //var albums = this.ArtistDetailLB.ItemsSource as IEnumerable<AlbumViewModel>;
-
-            //if (selectedTrack != null && albums != null)
-            //{
-            //    // Contains (by reference) not yet hooked up for sorted observable collection
-            //    var selectedAlbum = albums.First(album => album.Tracks.Any(x => x.FileName == selectedTrack.FileName));
-
-            //    LoadPlaylist(selectedTrack, selectedAlbum);
-            //}
-        }
-
-        private void AlbumViewItem_TrackSelected(object sender, LibraryEntryViewModel selectedTrack)
-        {
-            var viewModel = this.DataContext as LibraryViewModel;
-            var album = (sender as AlbumView).DataContext as AlbumViewModel;
-            var artist = this.ArtistLB.SelectedItem as ArtistViewModel;
-
-            if (viewModel != null && album != null && artist != null)
-            {
-                foreach (var track in album.Tracks)
-                {
-                    if (track == selectedTrack)
-                    {
-                        LoadPlaylist(selectedTrack, album, artist);
-                        return;
-                    }
-                }
-            }
-        }
-
         // Primary load method to send playlist to the main view model
-        private void LoadPlaylist(LibraryEntryViewModel selectedTitle, AlbumViewModel selectedAlbum, ArtistViewModel selectedArtist)
+        private async Task LoadPlaylist(LibraryEntryViewModel selectedTitle, AlbumViewModel selectedAlbum, ArtistViewModel selectedArtist)
         {
+            // Loading...
+            _eventAggregator.GetEvent<MainLoadingChangedEvent>().Publish(true);
+
+            var nowPlayingData = await _nowPlayingViewModelLoader.LoadPlaylist(selectedArtist, selectedAlbum, selectedTitle);
+
             var eventData = new LoadPlaylistEventData()
             {
-                PlaylistEntries = selectedAlbum.Tracks.Select(track =>
-                {
-                    return new PlaylistEntryViewModel(selectedArtist, selectedAlbum, track);
-                })
+                NowPlayingData = nowPlayingData,
+                StartPlayback = true
             };
-            eventData.StartTrack = eventData.PlaylistEntries.First(x => x.Track.Id == selectedTitle.Id);
 
-            // Stop -> (...) -> Load Playlist -> Load Playback -> Start
-            _eventAggregator.GetEvent<StopPlaybackEvent>().Publish();
+            // Load Playlist -> Start Playback
             _eventAggregator.GetEvent<LoadPlaylistEvent>().Publish(eventData);
-            _eventAggregator.GetEvent<LoadPlaybackEvent>().Publish(new LoadPlaybackEventData()
-            {
-                Source = eventData.StartTrack.Track.FileName,
-                SourceType = StreamSourceType.File
-            });
-            _eventAggregator.GetEvent<StartPlaybackEvent>().Publish();
-        }
 
-        private void ArtistDetailLB_PreviewMouseWheel(object sender, System.Windows.Input.MouseWheelEventArgs e)
+            // Loading Finished
+            _eventAggregator.GetEvent<MainLoadingChangedEvent>().Publish(false);
+        }
+        private void OnArtistSearchChanged(object sender, TextChangedEventArgs e)
         {
-
+            LoadArtistPage(1, true);
         }
 
+        #region Artist / Album (LHS)
         private void ArtistLB_ScrollChanged(object sender, ScrollChangedEventArgs e)
         {
             if (_resizing || _loading)
@@ -203,24 +151,66 @@ namespace AudioStation.Views
             }
         }
 
-        private void OnArtistSearchChanged(object sender, TextChangedEventArgs e)
-        {
-            LoadArtistPage(1, true);
-        }
-
-        private void AlbumsLB_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        private async void AlbumsLB_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
             // Load Playlist for the whole album
+            var viewModel = this.DataContext as LibraryViewModel;
+            var album = (e.OriginalSource as FrameworkElement).DataContext as AlbumViewModel;
+            var artist = this.ArtistLB.SelectedItem as ArtistViewModel;
+
+            if (viewModel != null && album != null && artist != null)
+            {
+                await LoadPlaylist(album.Tracks.First(), album, artist);
+            }
         }
 
         private void AlbumsLB_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            // Load Selected Album(s) into the AlbumDetailLB
+
             if (e.AddedItems != null &&
-                e.AddedItems.Count > 0 &&
-                e.AddedItems[0] is AlbumViewModel)
+                e.AddedItems.Count > 0)
             {
-                this.AlbumViewItem.DataContext = e.AddedItems[0] as AlbumViewModel;
+                this.AlbumDetailLB.ScrollIntoView(e.AddedItems[0]);
             }
         }
+        #endregion
+
+        #region Album Detail
+        private async void AlbumDetailLB_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            // Load Playlist for the entire album
+            var viewModel = this.DataContext as LibraryViewModel;
+            var album = (e.OriginalSource as FrameworkElement).DataContext as AlbumViewModel;
+            var artist = this.ArtistLB.SelectedItem as ArtistViewModel;
+
+            if (viewModel != null && album != null && artist != null)
+            {
+                await LoadPlaylist(album.Tracks.First(), album, artist);
+            }
+        }
+        private void AlbumDetailLB_PreviewMouseWheel(object sender, System.Windows.Input.MouseWheelEventArgs e)
+        {
+
+        }
+        private async void AlbumViewItem_TrackSelected(object sender, LibraryEntryViewModel selectedTrack)
+        {
+            var viewModel = this.DataContext as LibraryViewModel;
+            var album = (sender as AlbumView).DataContext as AlbumViewModel;
+            var artist = this.ArtistLB.SelectedItem as ArtistViewModel;
+
+            if (viewModel != null && album != null && artist != null)
+            {
+                foreach (var track in album.Tracks)
+                {
+                    if (track == selectedTrack)
+                    {
+                        await LoadPlaylist(selectedTrack, album, artist);
+                        return;
+                    }
+                }
+            }
+        }
+        #endregion
     }
 }

@@ -135,6 +135,11 @@
     <SolidColorBrush x:Key="ManagerTabItemForeground">White</SolidColorBrush>
     <SolidColorBrush x:Key="ManagerTabItemBorder">Gray</SolidColorBrush>
 
+    <SolidColorBrush x:Key="NowPlayingBackground">#5F000000</SolidColorBrush>
+    <SolidColorBrush x:Key="NowPlayingForeground">#FFFFFFFF</SolidColorBrush>
+    <SolidColorBrush x:Key="NowPlayingHeaderBackground">#8F000000</SolidColorBrush>
+    <SolidColorBrush x:Key="NowPlayingHeaderForeground">#FFFFFFFF</SolidColorBrush>
+    
     <SolidColorBrush x:Key="PlaylistAlternationBackground">AliceBlue</SolidColorBrush>
     <SolidColorBrush x:Key="PropertyGridAlternationBackground">AliceBlue</SolidColorBrush>
 

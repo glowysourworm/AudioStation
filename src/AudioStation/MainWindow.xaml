@@ -5,7 +5,7 @@
         xmlns:controls="clr-namespace:AudioStation.Controls"
         xmlns:region="clr-namespace:SimpleWpf.IocFramework.RegionManagement;assembly=SimpleWpf.IocFramework"        
         Style="{StaticResource MainWindowStyle}"
-        Title="Audio Station" Height="700" Width="1200">
+        Title="Audio Station" Height="800" Width="1200">
     <Grid>
 
         <Grid.ColumnDefinitions>
@@ -33,13 +33,13 @@
         <Border x:Name="PlaylistControllerPanel" 
                     Grid.Row="1"
                     Grid.ColumnSpan="2"
-                    Visibility="{Binding Playlist, Converter={StaticResource NonNullVisibilityConverter}}"
+                    Visibility="{Binding NowPlaying.Playlist.CurrentTrack, Converter={StaticResource NonNullVisibilityConverter}}"
                     Background="Transparent" 
                     BorderBrush="LightGray" 
                     BorderThickness="1">
             <Grid>
                 <region:IocRegion region:IocRegionManager.DefaultViewType="{x:Type views:PlayerControlView}"
-                                  DataContext="{Binding Playlist, Mode=TwoWay, NotifyOnSourceUpdated=True}">
+                                  DataContext="{Binding NowPlaying.Playlist.CurrentTrack, Mode=TwoWay, NotifyOnSourceUpdated=True}">
                 </region:IocRegion>
             </Grid>
         </Border>

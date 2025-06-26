@@ -48,6 +48,7 @@ public partial class MainViewModel : ViewModelBase, IDisposable
     bool _showOutputMessages;
     bool _loadedFromConfiguration;
     float _volume;
+    bool _loading;
 
     LogMessageType _selectedLogType;
     LogLevel _databaseLogLevel;
@@ -55,7 +56,7 @@ public partial class MainViewModel : ViewModelBase, IDisposable
 
     LibraryViewModel _library;
     RadioViewModel _radio;
-    PlaylistViewModel _playlist;
+    NowPlayingViewModel _nowPlaying;
     BandcampViewModel _bandcamp;
     LibraryLoaderViewModel _libraryLoaderViewModel;
 
@@ -102,6 +103,11 @@ public partial class MainViewModel : ViewModelBase, IDisposable
         get { return _volume; }
         set { this.RaiseAndSetIfChanged(ref _volume, value); }
     }
+    public bool Loading
+    {
+        get { return _loading; }
+        set { this.RaiseAndSetIfChanged(ref _loading, value); }
+    }
     public LibraryViewModel Library
     {
         get { return _library; }
@@ -137,10 +143,10 @@ public partial class MainViewModel : ViewModelBase, IDisposable
         get { return _generalLogLevel; }
         set { this.RaiseAndSetIfChanged(ref _generalLogLevel, value); OnLogLevelChanged(LogMessageType.General); }
     }
-    public PlaylistViewModel Playlist
+    public NowPlayingViewModel NowPlaying
     {
-        get { return _playlist; }
-        set { this.RaiseAndSetIfChanged(ref _playlist, value); }
+        get { return _nowPlaying; }
+        set { this.RaiseAndSetIfChanged(ref _nowPlaying, value); }
     }
     public ObservableCollection<float> EqualizerValues
     {
@@ -192,6 +198,7 @@ public partial class MainViewModel : ViewModelBase, IDisposable
                          LibraryViewModel libraryViewModel,
                          RadioViewModel radioViewModel,
                          LibraryLoaderViewModel libraryLoaderViewModel,
+                         NowPlayingViewModel nowPlayingViewModel,
                          BandcampViewModel bandcampViewModel)
     {
         _dialogController = dialogController;
@@ -219,13 +226,14 @@ public partial class MainViewModel : ViewModelBase, IDisposable
         };
 
         // Child View Models
-        this.Playlist = new PlaylistViewModel();
+        this.NowPlaying = nowPlayingViewModel;
         this.PlayState = PlayStopPause.Stop;
         this.Library = libraryViewModel;
         this.Radio = radioViewModel;
         this.LibraryLoader = libraryLoaderViewModel;
         this.Bandcamp = bandcampViewModel;
         this.Volume = 1.0f;
+        this.Loading = false;
 
         this.DatabaseLogLevel = LogLevel.Trace;
         this.GeneralLogLevel = LogLevel.Trace;
@@ -237,11 +245,11 @@ public partial class MainViewModel : ViewModelBase, IDisposable
 
         // Event Aggregator
         eventAggregator.GetEvent<LogEvent>().Subscribe(OnLog);
-        eventAggregator.GetEvent<LoadPlaylistEvent>().Subscribe(OnLoadPlaylist);
         eventAggregator.GetEvent<PlaybackStateChangedEvent>().Subscribe(OnPlaybackStateChanged);      
         eventAggregator.GetEvent<UpdateVolumeEvent>().Subscribe(OnUpdateVolume);
         eventAggregator.GetEvent<UpdateEqualizerGainEvent>().Subscribe(OnUpdateEqualizer);
-        eventAggregator.GetEvent<PlaybackVolumeUpdatedEvent>().Subscribe(OnVolumeUpdated);  
+        eventAggregator.GetEvent<PlaybackVolumeUpdatedEvent>().Subscribe(OnVolumeUpdated);
+        eventAggregator.GetEvent<MainLoadingChangedEvent>().Subscribe(OnMainLoadingChanged);
 
         this.SaveConfigurationCommand = new SimpleCommand(() =>
         {
@@ -276,6 +284,11 @@ public partial class MainViewModel : ViewModelBase, IDisposable
         outputController.AddLog("Welcome to Audio Station!", LogMessageType.General);
     }
 
+    private void OnMainLoadingChanged(bool loading)
+    {
+        this.Loading = loading;
+    }
+
     private void OnCurrentBandLevelsUpdated(EqualizerResultSet equalizerValues)
     {
         // There is a problem binding to this collection. So we may just publish things this way.
@@ -285,13 +298,6 @@ public partial class MainViewModel : ViewModelBase, IDisposable
     private void OnPlaybackStateChanged(PlayStopPause state)
     {
         this.PlayState = state;
-    }
-
-    private void OnLoadPlaylist(LoadPlaylistEventData eventData)
-    {
-        this.Playlist.Entries.Clear();
-        this.Playlist.Entries.AddRange(eventData.PlaylistEntries);
-        this.Playlist.NowPlaying = eventData.StartTrack;
     }
     private void OnUpdateVolume(double volume)
     {
@@ -308,8 +314,8 @@ public partial class MainViewModel : ViewModelBase, IDisposable
     }
     private void OnCurrentTimeUpdated(TimeSpan currentTime)
     {
-        if (this.Playlist.NowPlaying != null)
-            this.Playlist.NowPlaying.UpdateCurrentTime(currentTime);
+        if (this.NowPlaying.Playlist.CurrentTrack != null)
+            this.NowPlaying.Playlist.CurrentTrack.UpdateCurrentTime(currentTime);
     }
 
     private void OnLogTypeChanged()

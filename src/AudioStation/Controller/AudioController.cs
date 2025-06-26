@@ -186,6 +186,10 @@ namespace AudioStation.Controller
                 _player.EqualizerCalculated -= OnEqualizerCalculated;
                 _player = null;
             }
+
+            // Manually update current time to zero
+            if (this.CurrentTimeUpdated != null)
+                this.CurrentTimeUpdated(TimeSpan.Zero);
         }
 
         private void OnPlaybackTick(TimeSpan currentTime)

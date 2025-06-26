@@ -4,9 +4,9 @@
              xmlns:local="clr-namespace:AudioStation.Views"
              xmlns:controls="clr-namespace:AudioStation.Controls"
              xmlns:fa5="http://schemas.fontawesome.com/icons/"
-             DataContext="{Binding Playlist}">
+             DataContext="{Binding NowPlaying}">
     <Grid>
-        
+
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
             <ColumnDefinition Width="350" />
@@ -14,113 +14,150 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <controls:WebImageControl x:Name="BackgroundImage" 
-                                  ImageEndpoint="{Binding LastFmNowPlaying.ArtistMainImage}"
-                                  ImageSize="FullSize" 
-                                  HorizontalAlignment="Stretch" 
-                                  VerticalAlignment="Stretch"  
-                                  Grid.RowSpan="2" Grid.ColumnSpan="3" />
+        <!-- Background -->
+        <Grid Grid.RowSpan="4" Grid.ColumnSpan="2">
+
+            <controls:WebImageControl HorizontalAlignment="Stretch"
+                                      VerticalAlignment="Stretch"
+                                      Stretch="UniformToFill"
+                                      StretchDirection="Both"
+                                      ImageSize="FullSize"
+                                      ImageEndpoint="{Binding BestImage, Mode=TwoWay}">
+                <controls:WebImageControl.Effect>
+                    <BlurEffect Radius="100" />
+                </controls:WebImageControl.Effect>
+            </controls:WebImageControl>
+
+            <Border Background="#3F000000" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+        </Grid>
+
+        <!-- Artist Header -->
+        <Border Grid.Row="0" Background="{StaticResource NowPlayingHeaderBackground}">
+            <TextBlock Text="{Binding NowPlaying.Artist.Artist}" Margin="10 5"
+                       Style="{StaticResource NowPlayingTextBlock}" />
+        </Border>
 
         <!-- Artist Banner / Last Fm (other vendor) Text -->
-        <Border>
-
-            <!-- Artist Banner -->
+        <Border Grid.Row="1">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
 
-                <controls:LibraryImageControl ImageSize="Medium" 
-                                              Height="300" Width="300" 
-                                              HorizontalAlignment="Left"
-                                              VerticalAlignment="Top"
-                                              DataContext="{Binding NowPlaying.Album}" Margin="10" />
+                <controls:WebImageControl Stretch="Uniform"
+                                          StretchDirection="Both"
+                                          HorizontalAlignment="Left"
+                                          VerticalAlignment="Top"
+                                          ImageSize="Medium"
+                                          ImageEndpoint="{Binding BestImage, Mode=TwoWay}" Margin="10 10 0 10" />
 
                 <!-- Artist Header -->
                 <Border Grid.Column="1">
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="*" />
-                        </Grid.RowDefinitions>
-
-                        <!-- Artist Header -->
-                        <TextBlock Text="{Binding NowPlaying.Artist.Artist}" 
-                                   Style="{StaticResource PlayerControlTextBlock}" />
-
-                        <!-- Bio Summary -->
-                        <controls:HyperlinkRichTextBox Text="{Binding LastFmNowPlaying.BioSummary}" 
-                                                       Style="{StaticResource NowPlayingRichTextBox}" Grid.Row="1">
-                        </controls:HyperlinkRichTextBox>
-                    </Grid>
+                    <!-- Bio Summary -->
+                    <controls:HyperlinkRichTextBox Text="{Binding ArtistSummary}"
+                                                   Style="{StaticResource NowPlayingRichTextBox}" Grid.Row="1">
+                    </controls:HyperlinkRichTextBox>
                 </Border>
             </Grid>
+        </Border>
+
+        <Border Grid.Row="2" Background="{StaticResource NowPlayingHeaderBackground}">
+            <TextBlock Text="Biography" Margin="5" Style="{StaticResource NowPlayingTextBlock}" />
         </Border>
 
         <!-- Artist Bio (Last Fm) -->
-        <ScrollViewer Grid.Row="1"
-                      ScrollViewer.VerticalScrollBarVisibility="Auto">
+        <Border Grid.Row="3">
+            <ScrollViewer ScrollViewer.VerticalScrollBarVisibility="Auto">
 
-            <controls:HyperlinkRichTextBox Text="{Binding LastFmNowPlaying.BioContent}" 
-                                            Style="{StaticResource NowPlayingRichTextBox}">
-            </controls:HyperlinkRichTextBox>
+                <controls:HyperlinkRichTextBox Text="{Binding ArtistArticle}" 
+                                               Style="{StaticResource NowPlayingRichTextBox}">
+                </controls:HyperlinkRichTextBox>
 
-            <!--controls:HyperlinkRichTextBox Text="{Binding AudioDBNowPlaying.Artist.ArtistBio}" 
-                                           Style="{StaticResource NowPlayingRichTextBox}">
-            </controls:HyperlinkRichTextBox-->
+            </ScrollViewer>
+        </Border>
 
-            <!--TextBlock Text="{Binding LastFmNowPlaying.BioContent}" 
-                       Style="{StaticResource NowPlayingTextBlock}" /-->
-        </ScrollViewer>
+        <!-- Playlist Header -->
+        <Border Grid.Column="1" Background="{StaticResource NowPlayingHeaderBackground}" Padding="5">
+            <TextBlock Text="Playlist" Style="{StaticResource NowPlayingTextBlock}" />
+        </Border>
 
         <!-- Now Playing:  Playlist Entries -->
-        <Border Grid.Column="1" Grid.RowSpan="2" BorderBrush="LightGray" BorderThickness="1">
-            <Grid>
+        <ListBox x:Name="PlaylistLB"
+                 Grid.Row="1" Grid.Column="1"
+                 Background="#3F000000"
+                 BorderThickness="0"
+				 ItemsSource="{Binding Playlist.Entries}"
+                 HorizontalContentAlignment="Stretch"
+                 ScrollViewer.HorizontalScrollBarVisibility="Hidden"
+				 MouseDoubleClick="OnPlaylistDoubleClick">
 
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="*" />
-                </Grid.RowDefinitions>
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <Border>
+                        <Grid>
 
-                <Border Background="AliceBlue" Padding="5">
-                    <TextBlock Text="Playlist" Style="{StaticResource HeaderTextBlock}" />
-                </Border>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
 
-                <ListBox x:Name="PlaylistLB"
-                     Grid.Row="1"
-                     BorderThickness="0"
-					 ItemsSource="{Binding Entries}"
-					 MouseDoubleClick="OnPlaylistDoubleClick">
-                    <ListBox.ItemTemplate>
-                        <DataTemplate>
-                            <Border>
-                                <Grid>
+                            <fa5:SvgAwesome Icon="Solid_PlayCircle"
+											Height="12" Width="12"
+                                            Visibility="{Binding IsPlaying, Converter={StaticResource BoolVisibilityCollapseConverter}}"
+											Foreground="LightGray"
+											VerticalAlignment="Center"
+											Margin="3">
+                            </fa5:SvgAwesome>
 
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto" />
-                                        <ColumnDefinition Width="*" />
-                                        <ColumnDefinition Width="Auto" />
-                                    </Grid.ColumnDefinitions>
+                            <TextBlock Text="{Binding Track.Title}" Grid.Column="1" FontSize="12"  Style="{StaticResource NowPlayingTextBlock}" Margin="3" />
+                            <TextBlock Text="{Binding Track.Duration, StringFormat={}{0:hh}:{0:mm}:{0:ss}}" 
+                                               HorizontalAlignment="Right"
+                                               Grid.Column="2" FontSize="12"  Style="{StaticResource NowPlayingTextBlock}" Margin="3" />
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
 
-                                    <fa5:SvgAwesome Icon="Solid_PlayCircle"
-													Height="12" Width="12"
-													Foreground="LightGray"
-													VerticalAlignment="Center"
-													Margin="3" />
-
-                                    <TextBlock Text="{Binding Track.Title}" Grid.Column="1" FontSize="12" Foreground="Gray" Margin="3" />
-                                    <TextBlock Text="{Binding Track.Duration, StringFormat={}{0:hh}:{0:mm}:{0:ss}}" 
-                                           HorizontalAlignment="Right"
-                                           Grid.Column="2" FontSize="12" Foreground="Gray" Margin="3" />
-                                </Grid>
-                            </Border>
-                        </DataTemplate>
-                    </ListBox.ItemTemplate>
-                </ListBox>
-            </Grid>
+        <!-- External Links Header -->
+        <Border Grid.Column="1" Grid.Row="2" BorderThickness="0"  Background="{StaticResource NowPlayingHeaderBackground}">
+            <TextBlock Text="External Links" Style="{StaticResource NowPlayingTextBlock}" Margin="5" />
         </Border>
+
+        <!-- External Links -->
+        <ListBox x:Name="ExternalLinkLB"
+                 Grid.Column="1"
+                 Grid.Row="3"
+                 Background="#3F000000"
+                 BorderThickness="0"
+                 ScrollViewer.HorizontalScrollBarVisibility="Hidden"
+				 ItemsSource="{Binding ExternalLinks}">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <Border>
+                        <Grid>
+
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Text="Link" Grid.Column="0" FontSize="12"  Style="{StaticResource NowPlayingTextBlock}" Margin="3" />
+                            <TextBlock Text="{Binding Path=.}" 
+                                       HorizontalAlignment="Right"
+                                       Grid.Column="1" FontSize="12"  
+                                       Style="{StaticResource NowPlayingTextBlock}" Margin="3" />
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+
     </Grid>
 </UserControl>

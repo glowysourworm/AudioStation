@@ -1,6 +1,5 @@
 ﻿using System.Windows.Controls;
 
-using AudioStation.Core;
 using AudioStation.ViewModels;
 
 namespace AudioStation.Views
@@ -16,21 +15,32 @@ namespace AudioStation.Views
 
         private void ConfigurationView_DataContextChanged(object sender, System.Windows.DependencyPropertyChangedEventArgs e)
         {
-            var viewModel = (this.DataContext as MainViewModel);
+            var viewModel = this.DataContext as MainViewModel;
 
             if (viewModel != null)
             {
                 this.PasswordTB.Password = viewModel.Configuration.DatabasePassword;
+                this.LastFmPasswordTB.Password = viewModel.Configuration.LastFmPassword;
             }
         }
 
         private void PasswordTB_PasswordChanged(object sender, System.Windows.RoutedEventArgs e)
         {
-            var viewModel = (this.DataContext as MainViewModel);
+            var viewModel = this.DataContext as MainViewModel;
 
             if (viewModel != null)
             {
                 viewModel.Configuration.DatabasePassword = this.PasswordTB.Password;
+            }
+        }
+
+        private void LastFmPasswordTB_PasswordChanged(object sender, System.Windows.RoutedEventArgs e)
+        {
+            var viewModel = this.DataContext as MainViewModel;
+
+            if (viewModel != null)
+            {
+                viewModel.Configuration.LastFmPassword = this.LastFmPasswordTB.Password;
             }
         }
     }

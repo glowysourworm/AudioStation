@@ -14,6 +14,7 @@ namespace AudioStation.ViewModels.PlaylistViewModels
 
         TimeSpan _currentTime;
         double _currentTimeRatio;
+        bool _isPlaying;
 
         public ArtistViewModel Artist
         {
@@ -40,6 +41,11 @@ namespace AudioStation.ViewModels.PlaylistViewModels
             get { return _currentTimeRatio; }
             set { RaiseAndSetIfChanged(ref _currentTimeRatio, value); }
         }
+        public bool IsPlaying
+        {
+            get { return _isPlaying; }
+            set { this.RaiseAndSetIfChanged(ref _isPlaying, value); }
+        }
         public void UpdateCurrentTime(TimeSpan currentTime)
         {
             _currentTime = currentTime;
@@ -60,6 +66,7 @@ namespace AudioStation.ViewModels.PlaylistViewModels
             this.Track = track;
             this.CurrentTime = TimeSpan.Zero;
             this.CurrentTimeRatio = 0;
+            this.IsPlaying = false;
         }
     }
 }

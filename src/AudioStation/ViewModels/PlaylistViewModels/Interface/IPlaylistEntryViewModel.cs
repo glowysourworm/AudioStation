@@ -10,6 +10,7 @@ namespace AudioStation.ViewModels.PlaylistViewModels.Interface
         LibraryEntryViewModel Track { get; }
         TimeSpan CurrentTime { get; }
         double CurrentTimeRatio { get; }
+        bool IsPlaying { get; set; }
 
         void UpdateCurrentTime(TimeSpan currentTime);
     }

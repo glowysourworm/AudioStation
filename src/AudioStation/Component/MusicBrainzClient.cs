@@ -56,6 +56,71 @@ namespace AudioStation.Component
             return null;
         }
 
+        public async Task<IEnumerable<MusicBrainzArtistViewModel>> QueryArtist(string artistName)
+        {
+            try
+            {
+                // Initialize MetaBrainz.MusicBrainz client
+                var query = new Query();
+                var config = new MapperConfiguration(cfg => cfg.CreateMap<IArtist, MusicBrainzArtistViewModel>(MemberList.Destination));
+                var mapper = config.CreateMapper();
+
+                var searchResults = await query.FindArtistsAsync(string.Format("artist:{1}", artistName));
+
+                return searchResults.Results
+                                    .Select(result => mapper.Map<MusicBrainzArtistViewModel>(result.Item))
+                                    .ToList();
+            }
+            catch (Exception ex)
+            {
+                RaiseLog("Music Brainz Client Error:  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
+            }
+
+            return null;
+        }
+
+        public async Task<MusicBrainzCombinedViewModel> GetCombinedData(string artistName, string albumName, string trackName)
+        {
+            try
+            {
+                // Initialize MetaBrainz.MusicBrainz client
+                var query = new Query();
+                var config = new MapperConfiguration(cfg => cfg.CreateMap<IRecording, MusicBrainzRecordingViewModel>(MemberList.Destination));
+                var mapper = config.CreateMapper();
+
+                var searchResults = await query.FindArtistsAsync(string.Format("title:{0} artist:{1} release:{2}", trackName, artistName, albumName));
+
+                var result = searchResults.Results.FirstOrDefault()?.Item;
+
+                if (result != null)
+                {                    
+                    var artistId = result.Id;
+                    var release = result.Releases?.FirstOrDefault(x => x.Title == albumName);
+
+                    if (release != null)
+                    {
+                        var albumId = release.Id;
+                        var releaseViewModel = await GetReleaseById(release.Id);
+
+                        var media = releaseViewModel.Media?.FirstOrDefault(x => x.Tracks.Any(track => track.Title == trackName));
+
+                        if (media != null)
+                        {
+                            var track = media.Tracks.First(x => x.Title == trackName);
+
+                            return await GetCombinedData(release.Id, artistId, track.Id, trackName);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                RaiseLog("Music Brainz Client Error:  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
+            }
+
+            return null;
+        }
+
         /// <summary>
         /// Gathers information for the combined view model - which should be for a single track. The track name is provided in case the
         /// Id on the tag is out of date.

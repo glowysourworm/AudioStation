@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "AudioStation": {
+      "commandName": "Project",
+      "commandLineArgs": "C:\\Backup\\_SAVE\\.AudioStation"
+    }
+  }
+}

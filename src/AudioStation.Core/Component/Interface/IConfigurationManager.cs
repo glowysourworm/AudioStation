@@ -6,7 +6,7 @@
     /// </summary>
     public interface IConfigurationManager
     {
-        void Initialize();
+        void Initialize(string? configurationFile);
         Configuration GetConfiguration();
         void SaveConfiguration();
     }

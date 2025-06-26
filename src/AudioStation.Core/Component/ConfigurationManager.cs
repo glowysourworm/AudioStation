@@ -26,9 +26,12 @@ namespace AudioStation.Core.Component
             _outputController = outputController;
         }
 
-        public void Initialize()
+        public void Initialize(string? configurationFile)
         {
-            _configuration = this.Open();
+            // Current working directory + configuration file name
+            var configFileName = configurationFile ?? Path.Combine(AppDomain.CurrentDomain.BaseDirectory, CONFIGURATION_FILE);
+
+            _configuration = this.Open(configFileName);
         }
 
         public Configuration GetConfiguration()
@@ -58,29 +61,18 @@ namespace AudioStation.Core.Component
                 _outputController.AddLog("Error saving configuration / data files:  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
             }
         }
-        private Configuration Open()
+        private Configuration Open(string configurationFile)
         {
             try
             {
-                // Current working directory + configuration file name
-                var configPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, CONFIGURATION_FILE);
-
-                return (Configuration)Serializer.Deserialize<Configuration>(configPath);
+                return (Configuration)Serializer.Deserialize<Configuration>(configurationFile);
             }
             catch (Exception ex)
             {
                 _outputController.AddLog(new LogMessage("Error reading configuration file. Please try saving the working configuration first and then restarting.", LogMessageType.General, LogLevel.Error));
                 _outputController.AddLog(new LogMessage("Creating default configuration.", LogMessageType.General, LogLevel.Error));
 
-                return new Configuration()
-                {
-                    DatabaseHost = "localhost",
-                    DatabaseName = "AudioStation",
-                    DatabaseUser = "postgres",
-                    DatabasePassword = "!ngndol234",
-                    DirectoryBase = "C:\\Backup\\audio-library",
-                    DownloadFolder = "C:\\Users\\ryand\\Downloads"
-                };
+                return new Configuration();
             }
         }
 

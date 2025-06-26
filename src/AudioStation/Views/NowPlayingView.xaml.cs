@@ -1,88 +1,45 @@
-﻿using System.ComponentModel;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 
-using AudioStation.Component.Interface;
+using AudioStation.Event;
 using AudioStation.ViewModels;
-using AudioStation.ViewModels.PlaylistViewModels;
+using AudioStation.ViewModels.PlaylistViewModels.Interface;
 
 using SimpleWpf.IocFramework.Application.Attribute;
+using SimpleWpf.IocFramework.EventAggregation;
 
 namespace AudioStation.Views
 {
     [IocExportDefault]
     public partial class NowPlayingView : UserControl
     {
-        private readonly ILastFmClient _lastFmClient;
-        private readonly IAudioDBClient _audioDBClient;
-
-        bool _loading = false;
+        IIocEventAggregator _eventAggregator;
 
         [IocImportingConstructor]
-        public NowPlayingView(ILastFmClient lastFmClient, IAudioDBClient audioDBClient)
+        public NowPlayingView(IIocEventAggregator eventAggregator)
         {
-            _lastFmClient = lastFmClient;
-            _audioDBClient = audioDBClient;
+            _eventAggregator = eventAggregator;
 
             InitializeComponent();
-
-            this.DataContextChanged += OnDataContextChanged;
         }
 
-        private async Task LoadArtwork()
+        private void OnPlaylistDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            if (_loading)
-                return;
+            var viewModel = this.DataContext as NowPlayingViewModel;
+            var trackViewModel = (e.OriginalSource as FrameworkElement).DataContext as IPlaylistEntryViewModel;
 
-            _loading = true;
-
-            var viewModel = this.DataContext as PlaylistViewModel;
-
-            if (viewModel != null && 
-                viewModel.NowPlaying != null)
+            if (viewModel != null && trackViewModel != null)
             {
-                viewModel.LastFmNowPlaying = await _lastFmClient.GetNowPlayingInfo(viewModel.NowPlaying.Artist.Artist, viewModel.NowPlaying.Album.Album);
+                // Loading...
+                _eventAggregator.GetEvent<MainLoadingChangedEvent>().Publish(true);
 
-                // AudioDB
-                var artist = await _audioDBClient.SearchArtist(viewModel.NowPlaying.Artist.Artist);
+                // Set Now Playing
+                viewModel.SetNowPlaying(trackViewModel, true);
 
-                // Lookup album by name (this could be via Music Brainz)
-                if (artist != null)
-                {
-                    var album = artist.Albums.FirstOrDefault(x => x.AlbumName == viewModel.NowPlaying.Album.Album);
-
-                    if (album != null)
-                    {
-                        viewModel.AudioDBNowPlaying = await _audioDBClient.CreateNowPlaying(artist.IdArtist, album.IdAlbum);
-                    }
-                }                
+                // Loading Finished
+                _eventAggregator.GetEvent<MainLoadingChangedEvent>().Publish(false);
             }
-
-            _loading = false;
-        }
-
-        private void OnDataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
-        {
-            var oldViewModel = e.OldValue as PlaylistViewModel;
-            var newViewModel = e.NewValue as PlaylistViewModel;
-
-            if (oldViewModel != null)
-                oldViewModel.PropertyChanged -= OnPlaylistChanged;
-
-            if (newViewModel != null)
-                newViewModel.PropertyChanged += OnPlaylistChanged;
-
-            LoadArtwork();
-        }
-
-        private void OnPlaylistChanged(object? sender, PropertyChangedEventArgs e)
-        {
-            LoadArtwork();
-        }
-
-        private void OnPlaylistDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
-        {
-
         }
     }
 }

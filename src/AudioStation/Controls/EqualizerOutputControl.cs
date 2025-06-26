@@ -40,7 +40,8 @@ namespace AudioStation.Controls
             if (_barSizes.Count != resultSet.Result.Length)
                 _barSizes.Clear();
 
-            var maxRatio = resultSet.Result.Max();
+            //var maxRatio = resultSet.Result.Max();
+            var maxRatio = 1.0f;
 
             for (int index = 0; index < resultSet.Result.Length; index++)
             {

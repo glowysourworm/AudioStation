@@ -3,14 +3,12 @@ using System.Windows;
 using System.Windows.Threading;
 
 using AudioStation.Component.Interface;
-using AudioStation.Constant;
 using AudioStation.Core.Component.Interface;
 using AudioStation.Model;
 using AudioStation.ViewModels.Vendor.LastFmViewModel;
 
 using IF.Lastfm.Core.Api;
 using IF.Lastfm.Core.Api.Enums;
-using IF.Lastfm.Core.Objects;
 
 using Microsoft.Extensions.Logging;
 
@@ -21,20 +19,24 @@ namespace AudioStation.Component
     [IocExport(typeof(ILastFmClient))]
     public class LastFmClient : ILastFmClient
     {
+        private readonly IConfigurationManager _configurationManager;
         private readonly IOutputController _outputController;
 
         [IocImportingConstructor]
-        public LastFmClient(IOutputController outputController)
+        public LastFmClient(IConfigurationManager configurationManager, IOutputController outputController)
         {
             _outputController = outputController;
+            _configurationManager = configurationManager;
         }
 
         public async Task<LastFmNowPlayingViewModel> GetNowPlayingInfo(string artist, string album)
         {
             try
             {
+                var configuration = _configurationManager.GetConfiguration();
+
                 // Last FM API
-                var client = new LastfmClient(WebConfiguration.LastFmAPIKey, WebConfiguration.LastFmAPISecret);
+                var client = new LastfmClient(configuration.LastFmAPIKey, configuration.LastFmAPISecret);
 
                 // Album / Artist Detail
                 var albumResponse = await client.Album.GetInfoAsync(artist, album, false);
@@ -56,7 +58,7 @@ namespace AudioStation.Component
                         Tracks = new ObservableCollection<LastFmTrackViewModel>(albumResponse.Content.Tracks.Select(track =>
                         {
                             return new LastFmTrackViewModel()
-                            { 
+                            {
                                 ArtistImage = track.ArtistImages?.Largest?.AbsoluteUri ?? string.Empty,
                                 ArtistUrl = track.ArtistUrl?.AbsoluteUri ?? string.Empty,
                                 Image = track.Images?.Largest?.AbsoluteUri ?? string.Empty,

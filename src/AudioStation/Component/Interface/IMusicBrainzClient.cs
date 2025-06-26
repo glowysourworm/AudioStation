@@ -11,6 +11,17 @@ namespace AudioStation.Component.Interface
         Task<IEnumerable<MusicBrainzRecordingViewModel>> Query(LibraryEntry entry);
 
         /// <summary>
+        /// Tries to lookup artist detail using the artist name
+        /// </summary>
+        Task<IEnumerable<MusicBrainzArtistViewModel>> QueryArtist(string artistName);
+
+        /// <summary>
+        /// Gathers information for the combined view model - which should be for a single track. The track name is provided in case the
+        /// Id on the tag is out of date.
+        /// </summary>
+        Task<MusicBrainzCombinedViewModel> GetCombinedData(string artistName, string albumName, string trackName);
+
+        /// <summary>
         /// Gathers information for the combined view model - which should be for a single track. The track name is provided in case the
         /// Id on the tag is out of date.
         /// </summary>

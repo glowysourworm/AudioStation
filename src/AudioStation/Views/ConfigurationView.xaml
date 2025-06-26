@@ -13,6 +13,14 @@
             <RowDefinition Height="36" />
             <RowDefinition Height="36" />
             <RowDefinition Height="36" />
+            <RowDefinition Height="36" />
+            <RowDefinition Height="36" />
+            <RowDefinition Height="36" />
+            <RowDefinition Height="36" />
+            <RowDefinition Height="36" />
+            <RowDefinition Height="36" />
+            <RowDefinition Height="36" />
+            <RowDefinition Height="36" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
@@ -30,6 +38,16 @@
         <TextBlock Text="Database User" VerticalAlignment="Center" Margin="10, 0, 10, 0" Grid.Row="4" />
         <TextBlock Text="Database Password" VerticalAlignment="Center" Margin="10, 0, 10, 0" Grid.Row="5" />
 
+        <TextBlock Text="LastFm User" VerticalAlignment="Center" Margin="10, 0, 10, 0" Grid.Row="6" />
+        <TextBlock Text="LastFm Password" VerticalAlignment="Center" Margin="10, 0, 10, 0" Grid.Row="7" />
+        <TextBlock Text="LastFm Application" VerticalAlignment="Center" Margin="10, 0, 10, 0" Grid.Row="8" />
+        <TextBlock Text="LastFm API Key" VerticalAlignment="Center" Margin="10, 0, 10, 0" Grid.Row="9" />
+        <TextBlock Text="LastFm API Secret" VerticalAlignment="Center" Margin="10, 0, 10, 0" Grid.Row="10" />
+        <TextBlock Text="LastFm API User" VerticalAlignment="Center" Margin="10, 0, 10, 0" Grid.Row="11" />
+        
+        <TextBlock Text="Spotify Client Id" VerticalAlignment="Center" Margin="10, 0, 10, 0" Grid.Row="12" />
+        <TextBlock Text="Spotify Client Secret" VerticalAlignment="Center" Margin="10, 0, 10, 0" Grid.Row="13" />
+
         <!-- Input Column -->
         <TextBox Text="{Binding Configuration.DirectoryBase}" Style="{StaticResource UserInputTextBoxReadonly}" Grid.Column="1" Margin="0,5" />
         <TextBox Text="{Binding Configuration.DownloadFolder}" Style="{StaticResource UserInputTextBoxReadonly}" Grid.Column="1" Grid.Row="1" Margin="0,5" />
@@ -37,7 +55,16 @@
         <TextBox Text="{Binding Configuration.DatabaseName}" Style="{StaticResource UserInputTextBox}" Width="300" HorizontalAlignment="Right" Grid.Column="1" Grid.Row="3" Margin="0,5" />
         <TextBox Text="{Binding Configuration.DatabaseUser}" Style="{StaticResource UserInputTextBox}" Width="300" HorizontalAlignment="Right" Grid.Column="1" Grid.Row="4" Margin="0,5" />
         <PasswordBox x:Name="PasswordTB" PasswordChanged="PasswordTB_PasswordChanged" Style="{StaticResource UserInputPasswordBox}" Width="300" HorizontalAlignment="Right" Grid.Column="1" Grid.Row="5" Margin="0,5" />
-        
+
+        <TextBox Text="{Binding Configuration.LastFmUser}" Style="{StaticResource UserInputTextBox}" Width="300" HorizontalAlignment="Right" Grid.Column="1" Grid.Row="6" Margin="0,5" />
+        <PasswordBox x:Name="LastFmPasswordTB" PasswordChanged="LastFmPasswordTB_PasswordChanged" Style="{StaticResource UserInputPasswordBox}" Width="300" HorizontalAlignment="Right" Grid.Column="1" Grid.Row="7" Margin="0,5" />
+        <TextBox Text="{Binding Configuration.LastFmApplication}" Style="{StaticResource UserInputTextBox}" Width="300" HorizontalAlignment="Right" Grid.Column="1" Grid.Row="8" Margin="0,5" />
+        <TextBox Text="{Binding Configuration.LastFmAPIKey}" Style="{StaticResource UserInputTextBox}" Width="300" HorizontalAlignment="Right" Grid.Column="1" Grid.Row="9" Margin="0,5" />
+        <TextBox Text="{Binding Configuration.LastFmAPISecret}" Style="{StaticResource UserInputTextBox}" Width="300" HorizontalAlignment="Right" Grid.Column="1" Grid.Row="10" Margin="0,5" />
+        <TextBox Text="{Binding Configuration.LastFmAPIUser}" Style="{StaticResource UserInputTextBox}" Width="300" HorizontalAlignment="Right" Grid.Column="1" Grid.Row="11" Margin="0,5" />
+
+        <TextBox Text="{Binding Configuration.SpotifyClientId}" Style="{StaticResource UserInputTextBox}" Width="300" HorizontalAlignment="Right" Grid.Column="1" Grid.Row="12" Margin="0,5" />
+        <TextBox Text="{Binding Configuration.SpotifyClientSecret}" Style="{StaticResource UserInputTextBox}" Width="300" HorizontalAlignment="Right" Grid.Column="1" Grid.Row="13" Margin="0,5" />
 
         <!-- Button Column -->
         <Button Grid.Column="2" Command="{Binding OpenLibraryFolderCommand}" Margin="10,5" Style="{StaticResource SmallControlButton}">
@@ -52,7 +79,7 @@
 		</Button-->
 
         <!-- Action Buttons -->
-        <StackPanel Orientation="Horizontal" Grid.Column="1" Grid.Row="6" VerticalAlignment="Top" HorizontalAlignment="Right">
+        <StackPanel Orientation="Horizontal" Grid.Column="1" Grid.Row="14" VerticalAlignment="Top" HorizontalAlignment="Right">
             <Button Command="{Binding SaveConfigurationCommand}" Margin="0 5 5 5" Style="{StaticResource UserControlButton}">
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="Save" Style="{StaticResource LabelTextBlock}" Margin="5" />

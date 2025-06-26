@@ -15,6 +15,8 @@
         <converter:TagIPictureConverter x:Key="TagIPictureConverter" />
         <converter:PlayStopPauseParameterBoolConverter x:Key="PlayStopPauseParameterBoolConverter" />
         <converter:RatioParameterConverter x:Key="RatioParameterConverter" />
+        <converter:NowPlayingBoolConverter x:Key="NowPlayingBoolConverter" />
+        <converter:NowPlayingPlaylistBoolConverter x:Key="NowPlayingPlaylistBoolConverter" />
 
         <!-- SimpleWpf.UI Converters -->
         <simpleConverter:BoolInverseConverter x:Key="BoolInverseConverter" />
@@ -34,7 +36,9 @@
         <simpleConverter:BoolORMultiConverter x:Key="BoolORMultiConverter" />
         <simpleConverter:BoolANDMultiConverter x:Key="BoolANDMultiConverter" />
         <simpleConverter:BoolANDParameterMultiConverter x:Key="BoolANDParameterMultiConverter" />
+        <simpleConverter:BoolANDVisibilityMultiConverter x:Key="BoolANDVisibilityMultiConverter" />
         <simpleConverter:BoolORParameterMultiConverter x:Key="BoolORParameterMultiConverter" />
+        <simpleConverter:BoolToWaitCursorConverter x:Key="BoolToWaitCursorConverter" />
         <simpleConverter:ArrayToObservableCollectionParameterConverter x:Key="ArrayToObservableCollectionParameterConverter" />
         <simpleConverter:IEnumerableToObservableCollectionParameterConverter x:Key="IEnumerableToObservableCollectionParameterConverter" />
 
