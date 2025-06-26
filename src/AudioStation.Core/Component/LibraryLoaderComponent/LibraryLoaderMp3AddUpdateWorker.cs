@@ -1,22 +1,24 @@
 ﻿using System.IO;
+using System.Windows;
+using System.Windows.Threading;
 
 using AudioStation.Core.Component.Interface;
 using AudioStation.Model;
 
 using Microsoft.Extensions.Logging;
 
-using SimpleWpf.Extensions.Collection;
-
 namespace AudioStation.Core.Component.LibraryLoaderComponent
 {
     public class LibraryLoaderMp3AddUpdateWorker : LibraryWorkerThreadBase
     {
         private readonly IModelController _modelController;
+        private readonly IOutputController _outputController;
 
         public LibraryLoaderMp3AddUpdateWorker(IModelController modelController,
                                                IOutputController outputController) : base(outputController)
         {
             _modelController = modelController;
+            _outputController = outputController;
         }
 
         protected override void Work(ref LibraryLoaderWorkItem workItem)
@@ -25,23 +27,33 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent
             var fileAvailable = false;
             var fileErrorMessasge = "";
 
-            var entry = LoadLibraryEntry(workItem.FileName, out fileErrorMessasge, out fileAvailable, out fileLoadError);
+            var fileLoad = workItem.GetWorkItem() as LibraryLoaderFileLoad;
 
-            // Set Work Item
-            if (entry == null || entry.PossiblyCorrupt)
-            {
-                workItem.Set(LibraryWorkItemState.CompleteError, entry?.CorruptionReasons?.Join(",", x => x) ?? "Unknown Error");
-            }
-            else
-            {
-                // Add to database (thread-safe call to create DbContext)
-                _modelController.AddUpdateLibraryEntry(workItem.FileName, fileAvailable, fileLoadError, fileErrorMessasge, entry);
+            // Processing...
+            workItem.Update(LibraryWorkItemState.Processing);
 
-                workItem.Set(LibraryWorkItemState.CompleteSuccessful, "");
+            foreach (var file in fileLoad.GetFiles())
+            {
+                var entry = LoadLibraryEntry(workItem.GetId(), file, out fileErrorMessasge, out fileAvailable, out fileLoadError);
+
+                // Set Work Item
+                if (entry == null)
+                {
+                    RaiseLog(workItem.GetId(), "Mp3 load failed:  {0}", LogLevel.Error, file);
+                }
+                else
+                {
+                    // Add to database (thread-safe call to create DbContext)
+                    _modelController.AddUpdateLibraryEntry(file, fileAvailable, fileLoadError, fileErrorMessasge, entry);
+
+                    RaiseLog(workItem.GetId(), "Mp3 load success:  {0}", LogLevel.Information, file);
+                }
+
+                fileLoad.SetComplete(file, entry != null);
             }
         }
 
-        public TagLib.File LoadLibraryEntry(string file, out string fileErrorMessage, out bool fileAvailable, out bool fileLoadError)
+        public TagLib.File LoadLibraryEntry(int workItemId, string file, out string fileErrorMessage, out bool fileAvailable, out bool fileLoadError)
         {
             if (string.IsNullOrEmpty(file))
                 throw new ArgumentException("Invalid media file name");
@@ -63,8 +75,6 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent
                     fileLoadError = true;
                 }
 
-                RaiseLog("Music file loaded:  {0}", LogMessageType.General, LogLevel.Information, file);
-
                 return fileRef;
             }
             catch (Exception ex)
@@ -72,7 +82,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent
                 fileErrorMessage = ex.Message;
                 fileLoadError = true;
 
-                RaiseLog("Music file load error:  {0}", LogMessageType.General, LogLevel.Error, file);
+                RaiseLog(workItemId, "Mp3 file load error:  {0}", LogLevel.Error, ex.Message);
             }
 
             return null;

@@ -38,13 +38,13 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent
         /// <summary>
         /// Invokes logger on the application dispatcher thread
         /// </summary>
-        protected void RaiseLog(string message, LogMessageType type, LogLevel level, params object[] parameters)
+        protected void RaiseLog(int collectionId, string message, LogLevel level, params object[] parameters)
         {
             if (Thread.CurrentThread.ManagedThreadId != Application.Current.Dispatcher.Thread.ManagedThreadId)
-                Application.Current.Dispatcher.BeginInvoke(RaiseLog, DispatcherPriority.Background, message, type, level, parameters);
+                Application.Current.Dispatcher.BeginInvoke(RaiseLog, DispatcherPriority.Background, collectionId, message, level, parameters);
 
             else
-                _outputController.AddLog(message, type, level, parameters);
+                _outputController.LogSeparate(collectionId, message, LogMessageType.LibraryLoaderWorkItem, level, parameters);
         }
 
         /// <summary>

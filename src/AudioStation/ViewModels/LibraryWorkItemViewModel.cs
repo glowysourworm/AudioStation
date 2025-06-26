@@ -7,16 +7,11 @@ namespace AudioStation.ViewModels
     public class LibraryWorkItemViewModel : ViewModelBase
     {
         int _id;
-        string _fileName;
+        double _progress;
+        string _logIdentity;
         LibraryLoadType _loadType;
         LibraryWorkItemState _loadState;
-        string _errorMessage;
 
-        public string FileName
-        {
-            get { return _fileName; }
-            set { RaiseAndSetIfChanged(ref _fileName, value); }
-        }
         public LibraryLoadType LoadType
         {
             get { return _loadType; }
@@ -27,21 +22,29 @@ namespace AudioStation.ViewModels
             get { return _loadState; }
             set { this.RaiseAndSetIfChanged(ref _loadState, value); }
         }
-        public string ErrorMessage
+        public string LogIdentity
         {
-            get { return _errorMessage; }
-            set { this.RaiseAndSetIfChanged(ref _errorMessage, value); }
+            get { return _logIdentity; }
+            set { this.RaiseAndSetIfChanged(ref _logIdentity, value); }
+        }
+        public double Progress
+        {
+            get { return _progress; }
+            set { this.RaiseAndSetIfChanged(ref _progress, value); }
         }
         public int Id
         {
             get { return _id; }
-            set { this.RaiseAndSetIfChanged(ref _id, value); }
+            set { this.RaiseAndSetIfChanged(ref _id, value); SetLogIdentity(); }
+        }
+
+        private void SetLogIdentity()
+        {
+            this.LogIdentity = "Log Output: (see Library Loader #" + this.Id.ToString() + ")";
         }
 
         public LibraryWorkItemViewModel()
         {
-            this.FileName = string.Empty;
-            this.ErrorMessage = string.Empty;
         }
     }
 }

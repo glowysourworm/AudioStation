@@ -25,6 +25,16 @@ namespace AudioStation.Core
         string _spotifyClientId;
         string _spotifyClientSecret;
 
+        string _fanartUser;
+        string _fanartEmail;
+        string _fanartPassword;
+        string _fanartAPIKey;
+
+        string _discogsEmail;
+        string _discogsKey;
+        string _discogsSecret;
+        string _discogsCurrentToken;
+
         public string DirectoryBase
         {
             get { return _directoryBase; }
@@ -108,6 +118,48 @@ namespace AudioStation.Core
             set { this.RaiseAndSetIfChanged(ref _spotifyClientSecret, value); }
         }
 
+        public string FanartUser
+        {
+            get { return _fanartUser; }
+            set { this.RaiseAndSetIfChanged(ref _fanartUser, value); }
+        }
+        public string FanartEmail
+        {
+            get { return _fanartEmail; }
+            set { this.RaiseAndSetIfChanged(ref _fanartEmail, value); }
+        }
+        public string FanartPassword
+        {
+            get { return _fanartPassword; }
+            set { this.RaiseAndSetIfChanged(ref _fanartPassword, value); }
+        }
+        public string FanartAPIKey
+        {
+            get { return _fanartAPIKey; }
+            set { this.RaiseAndSetIfChanged(ref _fanartAPIKey, value); }
+        }
+
+        public string DiscogsEmail
+        {
+            get { return _discogsEmail; }
+            set { this.RaiseAndSetIfChanged(ref _discogsEmail, value); }
+        }
+        public string DiscogsKey
+        {
+            get { return _discogsKey; }
+            set { this.RaiseAndSetIfChanged(ref _discogsKey, value); }
+        }
+        public string DiscogsSecret
+        {
+            get { return _discogsSecret; }
+            set { this.RaiseAndSetIfChanged(ref _discogsSecret, value); }
+        }
+        public string DiscogsCurrentToken
+        {
+            get { return _discogsCurrentToken; }
+            set { this.RaiseAndSetIfChanged(ref _discogsCurrentToken, value); }
+        }
+
         public Configuration()
         {
             this.DirectoryBase = string.Empty;
@@ -124,7 +176,20 @@ namespace AudioStation.Core
             this.LastFmAPIUser = string.Empty;
             this.LastFmApplication = string.Empty;   
             this.LastFmPassword = string.Empty; 
-            this.LastFmUser = string.Empty; 
+            this.LastFmUser = string.Empty;
+
+            this.SpotifyClientId = string.Empty;
+            this.SpotifyClientSecret = string.Empty;
+
+            this.FanartAPIKey = string.Empty;
+            this.FanartEmail = string.Empty;
+            this.FanartPassword = string.Empty;
+            this.FanartUser = string.Empty;
+
+            this.DiscogsCurrentToken = string.Empty;
+            this.DiscogsEmail = string.Empty;
+            this.DiscogsKey = string.Empty;
+            this.DiscogsSecret = string.Empty;
         }
     }
 }

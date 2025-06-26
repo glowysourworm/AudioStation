@@ -23,6 +23,8 @@ namespace AudioStation.ViewModels
         string _artistArticle;
         string _artistSummary;
         ObservableCollection<string> _externalLinks;
+        ObservableCollection<string> _backgroundImages;
+        ObservableCollection<string> _artistImages;
 
         public PlaylistViewModel Playlist
         {
@@ -57,6 +59,16 @@ namespace AudioStation.ViewModels
             get { return _externalLinks; }
             set { this.RaiseAndSetIfChanged(ref _externalLinks, value); }
         }
+        public ObservableCollection<string> BackgroundImages
+        {
+            get { return _backgroundImages; }
+            set { this.RaiseAndSetIfChanged(ref _backgroundImages, value); }
+        }
+        public ObservableCollection<string> ArtistImages
+        {
+            get { return _artistImages; }
+            set { this.RaiseAndSetIfChanged(ref _artistImages, value); }
+        }
 
         private readonly IIocEventAggregator _eventAggregator;
 
@@ -66,6 +78,8 @@ namespace AudioStation.ViewModels
             _eventAggregator = eventAggregator;
 
             this.ExternalLinks = new ObservableCollection<string>();
+            this.ArtistImages = new ObservableCollection<string>();
+            this.BackgroundImages = new ObservableCollection<string>();
             this.BestImage = string.Empty;
             this.ArtistArticle = string.Empty;
             this.ArtistSummary = string.Empty;
@@ -98,6 +112,12 @@ namespace AudioStation.ViewModels
             this.ArtistArticle = eventData.NowPlayingData.ArtistArticle;
             this.ArtistSummary = eventData.NowPlayingData.ArtistSummary;
             this.BestImage = eventData.NowPlayingData.BestImage;
+
+            this.ArtistImages.Clear();
+            this.ArtistImages.AddRange(eventData.NowPlayingData.ArtistImages);
+
+            this.BackgroundImages.Clear();
+            this.BackgroundImages.AddRange(eventData.NowPlayingData.BackgroundImages);
 
             this.ExternalLinks.Clear();
             this.ExternalLinks.AddRange(eventData.NowPlayingData.ExternalLinks);

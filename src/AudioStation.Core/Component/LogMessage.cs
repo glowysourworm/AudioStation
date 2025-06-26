@@ -6,6 +6,11 @@ namespace AudioStation.Model
     public enum LogMessageType
     {
         General,
+        Vendor,
+        LibraryLoader,
+        LibraryLoaderWorkItem,          // Has specific Id per log message collection
+        AudioProcessing,
+        BitmapConversion,
         Database
     }
     public struct LogMessage

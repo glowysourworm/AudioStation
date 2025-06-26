@@ -54,11 +54,11 @@ namespace AudioStation.Core.Component
                 // Configuration
                 Serializer.Serialize(_configuration, configPath);
 
-                _outputController.AddLog("Configuration saved successfully: {0}", LogMessageType.General, LogLevel.Information, configPath);
+                _outputController.Log("Configuration saved successfully: {0}", LogMessageType.General, LogLevel.Information, configPath);
             }
             catch (Exception ex)
             {
-                _outputController.AddLog("Error saving configuration / data files:  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
+                _outputController.Log("Error saving configuration / data files:  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
             }
         }
         private Configuration Open(string configurationFile)
@@ -69,8 +69,8 @@ namespace AudioStation.Core.Component
             }
             catch (Exception ex)
             {
-                _outputController.AddLog(new LogMessage("Error reading configuration file. Please try saving the working configuration first and then restarting.", LogMessageType.General, LogLevel.Error));
-                _outputController.AddLog(new LogMessage("Creating default configuration.", LogMessageType.General, LogLevel.Error));
+                _outputController.Log(new LogMessage("Error reading configuration file. Please try saving the working configuration first and then restarting.", LogMessageType.General, LogLevel.Error));
+                _outputController.Log(new LogMessage("Creating default configuration.", LogMessageType.General, LogLevel.Error));
 
                 return new Configuration();
             }

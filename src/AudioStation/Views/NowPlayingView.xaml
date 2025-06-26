@@ -21,11 +21,18 @@
         <!-- Background -->
         <Grid Grid.RowSpan="4" Grid.ColumnSpan="2">
 
+            <!--controls:WebImageCarouselControl HorizontalAlignment="Stretch"
+                                                  VerticalAlignment="Stretch"
+                                                  Interval="5000"
+                                                  ImageSize="FullSize"                                      
+                                                  Artwork="{Binding BackgroundImages, Mode=TwoWay}">
+            </controls:WebImageCarouselControl-->
+
             <controls:WebImageControl HorizontalAlignment="Stretch"
                                       VerticalAlignment="Stretch"
                                       Stretch="UniformToFill"
                                       StretchDirection="Both"
-                                      ImageSize="FullSize"
+                                      ImageSize="FullSize"                                      
                                       ImageEndpoint="{Binding BestImage, Mode=TwoWay}">
                 <controls:WebImageControl.Effect>
                     <BlurEffect Radius="100" />
@@ -37,7 +44,7 @@
 
         <!-- Artist Header -->
         <Border Grid.Row="0" Background="{StaticResource NowPlayingHeaderBackground}">
-            <TextBlock Text="{Binding NowPlaying.Artist.Artist}" Margin="10 5"
+            <TextBlock Text="{Binding Playlist.CurrentTrack.Artist.Artist}" Margin="10 5"
                        Style="{StaticResource NowPlayingTextBlock}" />
         </Border>
 

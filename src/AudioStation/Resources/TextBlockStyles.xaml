@@ -68,6 +68,7 @@
         <Setter Property="FontSize" Value="14" />
         <Setter Property="IsReadOnly" Value="True" />
         <Setter Property="Padding" Value="10" />
+        <Setter Property="Block.LineHeight" Value="1" />
         <Setter Property="BorderThickness" Value="0" />
         <Setter Property="TextBlock.TextWrapping" Value="Wrap" />
         <Setter Property="TextBlock.TextTrimming" Value="WordEllipsis" />

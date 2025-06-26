@@ -1,6 +1,5 @@
 ﻿using AudioStation.Core.Component.LibraryLoaderComponent;
 using AudioStation.Core.Model;
-using AudioStation.Core.Model.M3U;
 
 using SimpleWpf.Extensions.Event;
 
@@ -11,14 +10,19 @@ namespace AudioStation.Core.Component.Interface
         /// <summary>
         /// Log event, with a bool to represent whether it was an error
         /// </summary>
-        public event SimpleEventHandler<LibraryLoaderWorkItem[]> WorkItemsRemoved;
-        public event SimpleEventHandler<LibraryLoaderWorkItem[]> WorkItemsAdded;
-        public event SimpleEventHandler<LibraryLoaderWorkItem> WorkItemCompleted;
-        public event SimpleEventHandler<LibraryLoaderWorkItem> WorkItemUpdate;
+        public event SimpleEventHandler WorkItemsRemoved;
+        public event SimpleEventHandler WorkItemsAdded;
+        public event SimpleEventHandler WorkItemCompleted;
+        public event SimpleEventHandler WorkItemUpdate;
         public event SimpleEventHandler ProcessingChanged;
         public event SimpleEventHandler ProcessingComplete;
 
         PlayStopPause GetState();
+
+        /// <summary>
+        /// Gets a thread-safe copy of work items for an update from the loader core
+        /// </summary>
+        public IEnumerable<LibraryWorkItem> GetWorkItems();
 
         /// <summary>
         /// Stops the work queue

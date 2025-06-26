@@ -16,6 +16,7 @@ using AudioStation.ViewModels.Controls;
 using AudioStation.ViewModels.LibraryViewModels.Comparer;
 using AudioStation.ViewModels.PlaylistViewModels.Interface;
 using AudioStation.ViewModels.RadioViewModels;
+using AudioStation.ViewModels.Vendor;
 
 using Microsoft.Extensions.Logging;
 
@@ -49,6 +50,7 @@ public partial class MainViewModel : ViewModelBase, IDisposable
     bool _loadedFromConfiguration;
     float _volume;
     bool _loading;
+    bool _configurationLocked;
 
     LogMessageType _selectedLogType;
     LogLevel _databaseLogLevel;
@@ -70,6 +72,7 @@ public partial class MainViewModel : ViewModelBase, IDisposable
     SimpleCommand _openDownloadFolderCommand;
     SimpleCommand _saveConfigurationCommand;
     SimpleCommand _loadLibraryCommand;
+    SimpleCommand _unlockConfigurationCommand;
     #endregion
 
     #region Properties
@@ -107,6 +110,11 @@ public partial class MainViewModel : ViewModelBase, IDisposable
     {
         get { return _loading; }
         set { this.RaiseAndSetIfChanged(ref _loading, value); }
+    }
+    public bool ConfigurationLocked
+    {
+        get { return _configurationLocked; }
+        set { this.RaiseAndSetIfChanged(ref _configurationLocked, value); }
     }
     public LibraryViewModel Library
     {
@@ -183,6 +191,11 @@ public partial class MainViewModel : ViewModelBase, IDisposable
         get { return _loadLibraryCommand; }
         set { this.RaiseAndSetIfChanged(ref _loadLibraryCommand, value); }
     }
+    public SimpleCommand UnlockConfigurationCommand
+    {
+        get { return _unlockConfigurationCommand; }
+        set { this.RaiseAndSetIfChanged(ref _unlockConfigurationCommand, value); }
+    }
     #endregion
 
     [IocImportingConstructor]
@@ -208,6 +221,7 @@ public partial class MainViewModel : ViewModelBase, IDisposable
         _outputController = outputController;
         _eventAggregator = eventAggregator;
 
+        this.ConfigurationLocked = true;
         this.Configuration = configurationManager.GetConfiguration();
         this.ShowOutputMessages = false;
         this.OutputMessages = new ObservableCollection<LogMessageViewModel>();
@@ -254,6 +268,7 @@ public partial class MainViewModel : ViewModelBase, IDisposable
         this.SaveConfigurationCommand = new SimpleCommand(() =>
         {
             configurationManager.SaveConfiguration();
+            this.ConfigurationLocked = true;
         });
         this.OpenLibraryFolderCommand = new SimpleCommand(() =>
         {
@@ -280,8 +295,12 @@ public partial class MainViewModel : ViewModelBase, IDisposable
                 this.Configuration.DownloadFolder = folder;
             }
         });
+        this.UnlockConfigurationCommand = new SimpleCommand(() =>
+        {
+            this.ConfigurationLocked = false;
+        });
 
-        outputController.AddLog("Welcome to Audio Station!", LogMessageType.General);
+        outputController.Log("Welcome to Audio Station!", LogMessageType.General);
     }
 
     private void OnMainLoadingChanged(bool loading)

@@ -33,6 +33,7 @@ namespace AudioStation.ViewModels
         ObservableCollection<LibraryWorkItemViewModel> _libraryWorkItemsSelected;
 
         LibraryWorkItemState _selectedLibraryWorkItemState;
+        LibraryLoadType _selectedLibraryNewWorkItemType;
 
         SimpleCommand _loadLibraryCommand;
         #endregion
@@ -48,6 +49,11 @@ namespace AudioStation.ViewModels
         {
             get { return _selectedLibraryWorkItemState; }
             set { this.RaiseAndSetIfChanged(ref _selectedLibraryWorkItemState, value); SetSelectedWorkItemCollection(); }
+        }
+        public LibraryLoadType SelectedLibraryNewWorkItemType
+        {
+            get { return _selectedLibraryNewWorkItemType; }
+            set { this.RaiseAndSetIfChanged(ref _selectedLibraryNewWorkItemType, value); }
         }
         public KeyedObservableCollection<int, LibraryWorkItemViewModel> LibraryWorkItemsPending
         {
@@ -116,33 +122,20 @@ namespace AudioStation.ViewModels
         }
 
         #region ILibraryLoader Events (these are all on the Dispatcher)
-        private void OnWorkItemsRemoved(LibraryLoaderWorkItem[] workItems)
+        private void RefreshWorkItems()
         {
-            foreach (var workItem in workItems)
-            {
-                if (this.LibraryWorkItemsPending.ContainsKey(workItem.Id))
-                    this.LibraryWorkItemsPending.RemoveByKey(workItem.Id);
+            this.LibraryWorkItemsError.Clear();
+            this.LibraryWorkItemsSelected.Clear();
+            this.LibraryWorkItemsPending.Clear();
+            this.LibraryWorkItemsProcessing.Clear();
 
-                if (this.LibraryWorkItemsProcessing.ContainsKey(workItem.Id))
-                    this.LibraryWorkItemsProcessing.RemoveByKey(workItem.Id);
-
-                if (this.LibraryWorkItemsSuccess.ContainsKey(workItem.Id))
-                    this.LibraryWorkItemsSuccess.RemoveByKey(workItem.Id);
-
-                if (this.LibraryWorkItemsError.ContainsKey(workItem.Id))
-                    this.LibraryWorkItemsError.RemoveByKey(workItem.Id);
-            }
-        }
-        private void OnWorkItemsAdded(LibraryLoaderWorkItem[] workItems)
-        {
-            foreach (var workItem in workItems)
+            foreach (var workItem in _libraryLoader.GetWorkItems())
             {
                 var item = new LibraryWorkItemViewModel()
                 {
                     Id = workItem.Id,
-                    FileName = workItem.FileName,
+                    Progress = workItem.PercentComplete,
                     LoadType = workItem.LoadType,
-                    ErrorMessage = workItem.ErrorMessage,
                     LoadState = workItem.LoadState
                 };
 
@@ -159,116 +152,22 @@ namespace AudioStation.ViewModels
                     this.LibraryWorkItemsError.Add(item);
             }
         }
-        private void OnWorkItemUpdate(LibraryLoaderWorkItem item)
+        private void OnWorkItemsRemoved()
         {
-            // TRANSFER TO PROPER COLLECTION
-
-            // Pending
-            if (this.LibraryWorkItemsPending.ContainsKey(item.Id))
-            {
-                var workItem = this.LibraryWorkItemsPending[item.Id];
-
-                // Remove
-                if (workItem.LoadState != item.LoadState)
-                    this.LibraryWorkItemsPending.Remove(workItem);
-
-                workItem.LoadState = item.LoadState;
-                workItem.ErrorMessage = item.ErrorMessage;
-
-                // -> Processing
-                if (workItem.LoadState == LibraryWorkItemState.Processing)
-                    this.LibraryWorkItemsProcessing.Add(workItem);
-
-                // -> Success
-                else if (workItem.LoadState == LibraryWorkItemState.CompleteSuccessful)
-                    this.LibraryWorkItemsSuccess.Add(workItem);
-
-                // -> Error
-                else if (workItem.LoadState == LibraryWorkItemState.CompleteError)
-                    this.LibraryWorkItemsError.Add(workItem);
-            }
-
-            // Processing
-            else if (this.LibraryWorkItemsProcessing.ContainsKey(item.Id))
-            {
-                var workItem = this.LibraryWorkItemsProcessing[item.Id];
-
-                // Remove
-                if (workItem.LoadState != item.LoadState)
-                    this.LibraryWorkItemsProcessing.Remove(workItem);
-
-                workItem.LoadState = item.LoadState;
-                workItem.ErrorMessage = item.ErrorMessage;
-
-                // -> Pending
-                if (workItem.LoadState == LibraryWorkItemState.Pending)
-                    this.LibraryWorkItemsPending.Add(workItem);
-
-                // -> Success
-                else if (workItem.LoadState == LibraryWorkItemState.CompleteSuccessful)
-                    this.LibraryWorkItemsSuccess.Add(workItem);
-
-                // -> Error
-                else if (workItem.LoadState == LibraryWorkItemState.CompleteError)
-                    this.LibraryWorkItemsError.Add(workItem);
-            }
-
-            // Success
-            else if (this.LibraryWorkItemsSuccess.ContainsKey(item.Id))
-            {
-                var workItem = this.LibraryWorkItemsSuccess[item.Id];
-
-                // Remove
-                if (workItem.LoadState != item.LoadState)
-                    this.LibraryWorkItemsSuccess.Remove(workItem);
-
-                workItem.LoadState = item.LoadState;
-                workItem.ErrorMessage = item.ErrorMessage;
-
-                // -> Pending
-                if (workItem.LoadState == LibraryWorkItemState.Pending)
-                    this.LibraryWorkItemsPending.Add(workItem);
-
-                // -> Processing
-                else if (workItem.LoadState == LibraryWorkItemState.Processing)
-                    this.LibraryWorkItemsProcessing.Add(workItem);
-
-                // -> Error
-                else if (workItem.LoadState == LibraryWorkItemState.CompleteError)
-                    this.LibraryWorkItemsError.Add(workItem);
-            }
-
-            // Error
-            else if (this.LibraryWorkItemsError.ContainsKey(item.Id))
-            {
-                var workItem = this.LibraryWorkItemsError[item.Id];
-
-                // Remove
-                if (workItem.LoadState != item.LoadState)
-                    this.LibraryWorkItemsError.Remove(workItem);
-
-                workItem.LoadState = item.LoadState;
-                workItem.ErrorMessage = item.ErrorMessage;
-
-                // -> Pending
-                if (workItem.LoadState == LibraryWorkItemState.Pending)
-                    this.LibraryWorkItemsPending.Add(workItem);
-
-                // -> Processing
-                else if (workItem.LoadState == LibraryWorkItemState.Processing)
-                    this.LibraryWorkItemsProcessing.Add(workItem);
-
-                // -> Success
-                else if (workItem.LoadState == LibraryWorkItemState.CompleteSuccessful)
-                    this.LibraryWorkItemsSuccess.Add(workItem);
-            }
-            else
-                throw new Exception("Work item not contained in proper collection:  LibraryLoaderViewModel.cs");
+            RefreshWorkItems();
         }
-        private void OnWorkItemCompleted(LibraryLoaderWorkItem workItem)
+        private void OnWorkItemsAdded()
+        {
+            RefreshWorkItems();
+        }
+        private void OnWorkItemUpdate()
+        {
+            RefreshWorkItems();
+        }
+        private void OnWorkItemCompleted()
         {
             // Handles status changes
-            OnWorkItemUpdate(workItem);
+            RefreshWorkItems();
         }
         private void OnLibraryProcessingChanged()
         {
@@ -277,7 +176,7 @@ namespace AudioStation.ViewModels
         }
         private void OnLibraryProcessingComplete()
         {
-            _outputController.AddLog("Library Loader processing complete", LogMessageType.General);
+            _outputController.Log("Library Loader processing complete", LogMessageType.General);
         }
         #endregion
 

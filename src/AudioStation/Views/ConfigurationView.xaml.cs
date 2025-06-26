@@ -21,6 +21,7 @@ namespace AudioStation.Views
             {
                 this.PasswordTB.Password = viewModel.Configuration.DatabasePassword;
                 this.LastFmPasswordTB.Password = viewModel.Configuration.LastFmPassword;
+                this.FanartPasswordTB.Password = viewModel.Configuration.FanartPassword;
             }
         }
 
@@ -41,6 +42,16 @@ namespace AudioStation.Views
             if (viewModel != null)
             {
                 viewModel.Configuration.LastFmPassword = this.LastFmPasswordTB.Password;
+            }
+        }
+
+        private void FanartPasswordTB_PasswordChanged(object sender, System.Windows.RoutedEventArgs e)
+        {
+            var viewModel = this.DataContext as MainViewModel;
+
+            if (viewModel != null)
+            {
+                viewModel.Configuration.FanartPassword = this.FanartPasswordTB.Password;
             }
         }
     }

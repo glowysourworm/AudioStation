@@ -8,81 +8,160 @@
 
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />            
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
+       
 
-        <!-- Control Panel -->
-        <Border Grid.Column="1" 
-                Margin="5 10 5 5" 
+        <!-- New Work Item -->
+        <Border Margin="5" 
                 CornerRadius="5" 
                 Background="#3FAFAFAF" 
                 BorderBrush="Gray"
                 BorderThickness="1"
-                HorizontalAlignment="Right">
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                HorizontalAlignment="Stretch">
+            <Grid>
+                <Border>
+                    <TextBlock Text="Library Loader" Style="{StaticResource LargeInputLabelTextBlock}" VerticalAlignment="Center" Margin="5" />
+                </Border>
+                
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
 
-                <TextBlock Text="Library Loader Controls" 
+                    <TextBlock Text="Queue Work Item" 
                             Style="{StaticResource LargeInputLabelTextBlock}" 
                             VerticalAlignment="Center" 
                             Margin="5" />
 
-                <StackPanel Orientation="Horizontal" Margin="5 0">
-                    <RadioButton x:Name="PauseRB"
+                    <ComboBox Margin="5 0"
+                            VerticalAlignment="Center"
+                            Height="30"
+                            Width="160"
+                            VerticalContentAlignment="Center"
+                            FontSize="14"                                              
+                            SelectedValue="{Binding SelectedLibraryNewWorkItemType}">
+                        <ComboBox.Items>
+                            <libraryWork:LibraryLoadType>Mp3FileAddUpdate</libraryWork:LibraryLoadType>
+                            <libraryWork:LibraryLoadType>M3UFileAddUpdate</libraryWork:LibraryLoadType>
+                        </ComboBox.Items>
+                    </ComboBox>
+
+                    <Button Command="{Binding LoadLibraryCommand}" Style="{StaticResource UserControlButton}" Margin="5 0" VerticalAlignment="Center">
+                        <StackPanel Orientation="Horizontal" Margin="5">
+                            <TextBlock Text="Start" Style="{StaticResource LabelTextBlock}" Margin="5 0" />
+                            <fa5:SvgAwesome Icon="Solid_Play" Style="{StaticResource FontAwesomeIconDefault}" />
+                        </StackPanel>
+                    </Button>
+
+                </StackPanel>
+            </Grid>
+        </Border>
+        
+        <!-- New Work Item Explanation -->
+        <Border Grid.Row="1"
+                BorderBrush="Gray" 
+                BorderThickness="1" 
+                CornerRadius="5" 
+                Margin="5">
+            <Grid>
+                <TextBlock Margin="5"
+                           Visibility="{Binding SelectedLibraryNewWorkItemType, 
+                                                Converter={StaticResource ParameterVisibilityCollapsedConverter}, 
+                                                ConverterParameter={x:Static libraryWork:LibraryLoadType.Mp3FileAddUpdate}}"
+                           Style="{StaticResource LabelTextBlock}" 
+                           Text="The Mp3 File Add / Update work item (currently) is set to scan and add files from your directory tree starting with your configuration's base directory." />
+
+                <TextBlock Margin="5"
+                           Visibility="{Binding SelectedLibraryNewWorkItemType, 
+                                                Converter={StaticResource ParameterVisibilityCollapsedConverter}, 
+                                                ConverterParameter={x:Static libraryWork:LibraryLoadType.M3UFileAddUpdate}}"                           
+                           Style="{StaticResource LabelTextBlock}" 
+                           Text="The M3U File Add / Update work item (currently) is set to scan and add files from a specific input folder (tree) which is chosen by you after pressing start." />
+            </Grid>
+        </Border>
+
+        <!-- Work Queue Control Panel -->
+        <Border Margin="5" 
+                Grid.Row="2"
+                CornerRadius="5" 
+                Background="#3FAFAFAF" 
+                BorderBrush="Gray"
+                BorderThickness="1"
+                HorizontalAlignment="Stretch">
+
+            <Grid>
+
+                <Border>
+                    <TextBlock Text="Work Queue" Style="{StaticResource LargeInputLabelTextBlock}" VerticalAlignment="Center" Margin="5" />
+                </Border>
+
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+
+                    <TextBlock Text="Library Loader Controls" 
+                            Style="{StaticResource LargeInputLabelTextBlock}" 
+                            VerticalAlignment="Center" 
+                            Margin="5" />
+
+                    <StackPanel Orientation="Horizontal" Margin="5 0">
+                        <RadioButton x:Name="PauseRB"
                                  Click="PauseRB_Click"
                                  Style="{StaticResource ControlPanelRadioButtonLeft}"
                                  GroupName="LibraryLoaderState"
                                  ToolTip="Pause Library Loader:  Preserves pending work items">
-                        <fa5:SvgAwesome Icon="Solid_Pause" Style="{StaticResource FontAwesomeIconControlPanelButton}" />
-                    </RadioButton>
-                    <RadioButton x:Name="StopRB"
+                            <fa5:SvgAwesome Icon="Solid_Pause" Style="{StaticResource FontAwesomeIconControlPanelButton}" />
+                        </RadioButton>
+                        <RadioButton x:Name="StopRB"
                                  Click="StopRB_Click"
                                  Style="{StaticResource ControlPanelRadioButtonMiddle}"
                                  GroupName="LibraryLoaderState"
                                  ToolTip="Stop Library Loader:  Also, cancels current library work items">
-                        <fa5:SvgAwesome Icon="Solid_Stop" Style="{StaticResource FontAwesomeIconControlPanelButton}" />
-                    </RadioButton>
-                    <RadioButton x:Name="PlayRB"
+                            <fa5:SvgAwesome Icon="Solid_Stop" Style="{StaticResource FontAwesomeIconControlPanelButton}" />
+                        </RadioButton>
+                        <RadioButton x:Name="PlayRB"
                                  Click="PlayRB_Click"
                                  Style="{StaticResource ControlPanelRadioButtonRight}"
                                  GroupName="LibraryLoaderState"
                                  ToolTip="Start / Resume Library Loader:  Resumes or startes execution of library work items">
-                        <fa5:SvgAwesome Icon="Solid_Play" Style="{StaticResource FontAwesomeIconControlPanelButton}" />
-                    </RadioButton>
-                </StackPanel>
+                            <fa5:SvgAwesome Icon="Solid_Play" Style="{StaticResource FontAwesomeIconControlPanelButton}" />
+                        </RadioButton>
+                    </StackPanel>
 
-                <ComboBox Margin="5 0"
+                    <ComboBox Margin="5 0"
                             VerticalAlignment="Center"
                             Height="30"
                             Width="160"
                             VerticalContentAlignment="Center"
                             FontSize="14"                                              
                             SelectedValue="{Binding SelectedLibraryWorkItemState}">
-                    <ComboBox.Items>
-                        <libraryWork:LibraryWorkItemState>Pending</libraryWork:LibraryWorkItemState>
-                        <libraryWork:LibraryWorkItemState>Processing</libraryWork:LibraryWorkItemState>
-                        <libraryWork:LibraryWorkItemState>CompleteSuccessful</libraryWork:LibraryWorkItemState>
-                        <libraryWork:LibraryWorkItemState>CompleteError</libraryWork:LibraryWorkItemState>
-                    </ComboBox.Items>
-                </ComboBox>
+                        <ComboBox.Items>
+                            <libraryWork:LibraryWorkItemState>Pending</libraryWork:LibraryWorkItemState>
+                            <libraryWork:LibraryWorkItemState>Processing</libraryWork:LibraryWorkItemState>
+                            <libraryWork:LibraryWorkItemState>CompleteSuccessful</libraryWork:LibraryWorkItemState>
+                            <libraryWork:LibraryWorkItemState>CompleteError</libraryWork:LibraryWorkItemState>
+                        </ComboBox.Items>
+                    </ComboBox>
 
-                <Button Style="{StaticResource UserControlButton}" Margin="5 0" VerticalAlignment="Center">
-                    <StackPanel Orientation="Horizontal" Margin="5">
-                        <TextBlock Text="Clear Completed" Style="{StaticResource LabelTextBlock}" Margin="5 0" />
-                        <fa5:SvgAwesome Icon="Solid_Recycle" Style="{StaticResource FontAwesomeIconDefault}" />
-                    </StackPanel>
-                </Button>
+                    <Button Style="{StaticResource UserControlButton}" Margin="5 0" VerticalAlignment="Center">
+                        <StackPanel Orientation="Horizontal" Margin="5">
+                            <TextBlock Text="Clear Completed" Style="{StaticResource LabelTextBlock}" Margin="5 0" />
+                            <fa5:SvgAwesome Icon="Solid_Recycle" Style="{StaticResource FontAwesomeIconDefault}" />
+                        </StackPanel>
+                    </Button>
 
-            </StackPanel>
+                </StackPanel>
+            </Grid>
         </Border>
 
+        <!-- Work Queue -->
         <ListBox x:Name="LibraryQueueLB" 
-                 Grid.Row="1"
+                 Grid.Row="3"
+                 Grid.ColumnSpan="2"
                  HorizontalContentAlignment="Stretch"
                  VirtualizingPanel.CacheLength="3"
                  VirtualizingPanel.IsVirtualizing="True"
                  VirtualizingPanel.VirtualizationMode="Recycling"
                  ItemContainerStyleSelector="{StaticResource LibraryWorkItemContainerStyleSelector}"                 
-                 ItemTemplateSelector="{StaticResource LibraryWorkItemTemplateSelector}"
+                 ItemTemplate="{StaticResource LibraryWorkItemDataTemplate}"
                  ItemsSource="{Binding LibraryWorkItemsSelected}">
             <ListBox.ItemsPanel>
                 <ItemsPanelTemplate>

@@ -288,7 +288,7 @@ namespace AudioStation.Controller
                 Application.Current.Dispatcher.BeginInvoke(RaiseLog, DispatcherPriority.Background, message, type, level, parameters);
             else
             {
-                _outputController.AddLog(message, type, level, parameters);
+                _outputController.Log(message, type, level, parameters);
             }
         }
     }

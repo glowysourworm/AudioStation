@@ -1,7 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Threading;
 
-using AudioStation.Component;
+using AudioStation.Component.Vendor;
 using AudioStation.Controller.Interface;
 using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Model;
@@ -105,7 +105,7 @@ namespace AudioStation.ViewModels
             }
             catch (Exception ex)
             {
-                _outputController.AddLog("Error querying Radio Browser:  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
+                _outputController.Log("Error querying Radio Browser:  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
             }
         }
 

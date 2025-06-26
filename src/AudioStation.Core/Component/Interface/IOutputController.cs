@@ -12,12 +12,18 @@ namespace AudioStation.Core.Component.Interface
     /// </summary>
     public interface IOutputController : IDisposable
     {
-        void AddLog(LogMessage message);
-        void AddLog(string message, LogMessageType type);
-        void AddLog(string message, LogMessageType type, LogLevel level, params object[] parameters);
+        void Log(LogMessage message);
+        void Log(string message, LogMessageType type);
+        void Log(string message, LogMessageType type, LogLevel level, params object[] parameters);
+
+        void LogSeparate(int collectionId, LogMessage message);
+        void LogSeparate(int collectionId, string message, LogMessageType type);
+        void LogSeparate(int collectionId, string message, LogMessageType type, LogLevel level, params object[] parameters);
 
         IEnumerable<LogMessage> GetLatestLogs(LogMessageType type, LogLevel level, int count);
+        IEnumerable<LogMessage> GetLatestSeparateLogs(int collectionId, LogMessageType type, LogLevel level, int count);
 
         void ClearLogs(LogMessageType type);
+        void ClearLogs(int collectionId, LogMessageType type);
     }
 }

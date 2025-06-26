@@ -1,7 +1,15 @@
-﻿using AudioStation.Component.Interface;
+﻿using System.Windows;
+using System.Windows.Threading;
+
+using AudioStation.Component.Interface;
 using AudioStation.Component.Model;
+using AudioStation.Component.Vendor.Interface;
+using AudioStation.Core.Component.Interface;
+using AudioStation.Model;
 using AudioStation.ViewModels.LibraryViewModels;
 using AudioStation.ViewModels.PlaylistViewModels;
+
+using Microsoft.Extensions.Logging;
 
 using SimpleWpf.IocFramework.Application.Attribute;
 
@@ -13,40 +21,79 @@ namespace AudioStation.Component
         private readonly ILastFmClient _lastFmClient;
         private readonly ISpotifyClient _spotifyClient;
         private readonly IMusicBrainzClient _musicBrainzClient;
+        private readonly IFanartClient _fanartClient;
+        private readonly IWikipediaClient _wikipediaClient;
+        private readonly IOutputController _outputController;
 
         [IocImportingConstructor]
-        public NowPlayingViewModelLoader(ILastFmClient lastFmClient, ISpotifyClient spotifyClient, IMusicBrainzClient musicBrainzClient)
+        public NowPlayingViewModelLoader(ILastFmClient lastFmClient, 
+                                         ISpotifyClient spotifyClient, 
+                                         IMusicBrainzClient musicBrainzClient,
+                                         IFanartClient fanartClient,
+                                         IWikipediaClient wikipediaClient,
+                                         IOutputController outputController)
         {
             _lastFmClient = lastFmClient;
             _spotifyClient = spotifyClient;
             _musicBrainzClient = musicBrainzClient;
+            _fanartClient = fanartClient;
+            _wikipediaClient = wikipediaClient;
+            _outputController = outputController;
         }
 
         public async Task<NowPlayingData> LoadPlaylist(ArtistViewModel artist, AlbumViewModel album, LibraryEntryViewModel startTrack)
         {
-            var lastFmResponse = await _lastFmClient.GetNowPlayingInfo(artist.Artist, album.Album);
-            var spotifyResponse = await _spotifyClient.CreateNowPlaying(artist.Artist, album.Album);
-            var musicBrainzResponse = await _musicBrainzClient.QueryArtist(artist.Artist);
-
-            var playlistEntries = new List<PlaylistEntryViewModel>();
-
-            foreach (var track in album.Tracks)
+            try
             {
-                playlistEntries.Add(new PlaylistEntryViewModel(artist, album, track));
+                var wikipediaResponse = await _wikipediaClient.GetExcerpt(artist.Artist);
+                var lastFmResponse = await _lastFmClient.GetNowPlayingInfo(artist.Artist, album.Album);
+                var spotifyResponse = await _spotifyClient.CreateNowPlaying(artist.Artist, album.Album);
+                var musicBrainzResponse = await _musicBrainzClient.QueryArtist(artist.Artist);
+
+                var musicBrainzArtist = musicBrainzResponse?.FirstOrDefault();
+
+                var fanartBackgrounds = musicBrainzArtist != null ? await _fanartClient.GetArtistBackgrounds(musicBrainzArtist.Id.ToString()) : null;
+                var fanartArtistThumbs = musicBrainzArtist != null ? await _fanartClient.GetArtistImages(musicBrainzArtist.Id.ToString()) : null;
+
+                var playlistEntries = new List<PlaylistEntryViewModel>();
+
+                foreach (var track in album.Tracks)
+                {
+                    playlistEntries.Add(new PlaylistEntryViewModel(artist, album, track));
+                }
+
+                return new NowPlayingData()
+                {
+                    ArtistArticle = wikipediaResponse?.ExtractBody ?? lastFmResponse?.BioContent ?? string.Empty,
+                    ArtistSummary = wikipediaResponse?.ExtractSummary ?? lastFmResponse?.BioSummary ?? string.Empty,
+                    BestImage = spotifyResponse?.CombinedImages?.FirstOrDefault() ?? lastFmResponse?.AlbumImage ?? lastFmResponse?.ArtistMainImage ?? string.Empty,
+                    ArtistImages = fanartArtistThumbs ?? Enumerable.Empty<string>(),
+                    BackgroundImages = fanartBackgrounds ?? Enumerable.Empty<string>(),
+                    ExternalLinks = musicBrainzResponse?.FirstOrDefault()?
+                                                        .Relationships?
+                                                        .Where(x => x.Url != null)?
+                                                        .Select(x => x.Url?.ToString() ?? string.Empty) ?? Enumerable.Empty<string>(),
+                    Entries = playlistEntries,
+                    NowPlaying = playlistEntries.First(x => x.Track.Id == startTrack.Id)
+                };
             }
-
-            return new NowPlayingData()
+            catch (Exception ex)
             {
-                ArtistArticle = lastFmResponse?.BioContent ?? string.Empty,
-                ArtistSummary = lastFmResponse?.BioSummary ?? string.Empty,
-                BestImage = spotifyResponse?.CombinedImages?.FirstOrDefault() ?? lastFmResponse?.AlbumImage ?? lastFmResponse?.ArtistMainImage ?? string.Empty,
-                ExternalLinks = musicBrainzResponse?.FirstOrDefault()?
-                                                    .Relationships?
-                                                    .Where(x => x.Url != null)?
-                                                    .Select(x => x.Url?.ToString() ?? string.Empty) ?? Enumerable.Empty<string>(),
-                Entries = playlistEntries,
-                NowPlaying = playlistEntries.First(x => x.Track.Id == startTrack.Id)
-            };
+                RaiseLog("Error gathering external resources:  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Invokes logger on the application dispatcher thread
+        /// </summary>
+        protected void RaiseLog(string message, LogMessageType type, LogLevel level, params object[] parameters)
+        {
+            if (Thread.CurrentThread.ManagedThreadId != Application.Current.Dispatcher.Thread.ManagedThreadId)
+                Application.Current.Dispatcher.BeginInvoke(RaiseLog, DispatcherPriority.Background, message, type, level, parameters);
+
+            else
+                _outputController.Log(message, type, level, parameters);
         }
     }
 }

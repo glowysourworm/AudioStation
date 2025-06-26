@@ -1,5 +1,6 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
 using System.Windows.Threading;
 
 using AudioStation.Controller.Interface;
@@ -118,6 +119,8 @@ namespace AudioStation.Controls
                 {
                     this.CarouselImages.Add(new Image()
                     {
+                        Stretch = Stretch.Uniform,
+                        StretchDirection = StretchDirection.Both,
                         Source = await _imageCacheController.GetFromEndpoint(imageSource, PictureType.Artist, this.ImageSize)
                     });
                 }

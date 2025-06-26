@@ -87,7 +87,7 @@ namespace AudioStation.Controls
                 }
                 catch (Exception ex)
                 {
-                    _outputController.AddLog("Error loading directory:  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
+                    _outputController.Log("Error loading directory:  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
                 }
             }
         }

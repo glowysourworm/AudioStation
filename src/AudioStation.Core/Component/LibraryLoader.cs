@@ -30,10 +30,10 @@ namespace AudioStation.Core.Component
         const int WORKER_SLEEP_PERIOD = 500;                   // 1 second between queue checks
         const int WORKER_THREAD_MAX = 1;                       // This is actually per type because the work item is not classed out
 
-        public event SimpleEventHandler<LibraryLoaderWorkItem> WorkItemCompleted;
-        public event SimpleEventHandler<LibraryLoaderWorkItem> WorkItemUpdate;
-        public event SimpleEventHandler<LibraryLoaderWorkItem[]> WorkItemsAdded;
-        public event SimpleEventHandler<LibraryLoaderWorkItem[]> WorkItemsRemoved;
+        public event SimpleEventHandler WorkItemCompleted;
+        public event SimpleEventHandler WorkItemUpdate;
+        public event SimpleEventHandler WorkItemsAdded;
+        public event SimpleEventHandler WorkItemsRemoved;
         public event SimpleEventHandler ProcessingComplete;
         public event SimpleEventHandler ProcessingChanged;
 
@@ -103,26 +103,20 @@ namespace AudioStation.Core.Component
 
             // Scan directories for files (Use NativeIO for much faster iteration. Less managed memory loading)
             var files = FastDirectoryEnumerator.GetFiles(baseDirectory, searchPattern, SearchOption.AllDirectories);
-            var workItems = new LibraryLoaderWorkItem[files.Length];
-            var index = 0;
+            var workItem = new LibraryLoaderWorkItem(_workItemIdCounter++, LibraryLoadType.Mp3FileAddUpdate);
 
-            foreach (var file in files)
-            {
-                workItems[index++] = new LibraryLoaderWorkItem(_workItemIdCounter++, file.Path, loadType);
-            }
+            // Set initial state
+            workItem.Initialize(LibraryWorkItemState.Pending, new LibraryLoaderFileLoad(files.Select(x => x.Path)));
 
             lock (_lock)
             {
-                // COPY THESE - we're sending the rest to the main thread
-                foreach (var item in workItems)
-                {
-                    _workQueue.Enqueue(new LibraryLoaderWorkItem(item));
-                }
+                // Queue work item
+                _workQueue.Enqueue(workItem);
             }
 
             // Fire event for new items in the queue
             if (this.WorkItemsAdded != null)
-                this.WorkItemsAdded(workItems);
+                this.WorkItemsAdded();
         }
 
         public PlayStopPause GetState()
@@ -130,6 +124,23 @@ namespace AudioStation.Core.Component
             lock (_lockUserRun)
             {
                 return _userRun;
+            }
+        }
+
+        public IEnumerable<LibraryWorkItem> GetWorkItems()
+        {
+            lock(_lock)     // Work Queue
+            {
+                var result = _workQueue.Select(x => new LibraryWorkItem()
+                {
+                    Id = x.GetId(),
+                    LoadState = x.GetLoadState(),
+                    LoadType = x.GetLoadType(),
+                    PercentComplete = x.GetPercentComplete()
+
+                }).ToList();
+
+                return result;
             }
         }
 
@@ -164,12 +175,12 @@ namespace AudioStation.Core.Component
                 // Clear the worker thread
                 _workQueue.Clear();
 
-                // Copy to the main thread (essentially)
-                if (this.WorkItemsRemoved != null)
-                    this.WorkItemsRemoved(workItems.ToArray());
-
                 // -> Wait for Joins in the run loop. This will update the rest.
             }
+
+            // Fire event to the UI
+            if (this.WorkItemsRemoved != null)
+                this.WorkItemsRemoved();
         }
 
         private void WorkFunction()
@@ -209,7 +220,7 @@ namespace AudioStation.Core.Component
                         workToProcess = true;
 
                         // Send work item to worker
-                        switch (workItem.LoadType)
+                        switch (workItem.GetLoadType())
                         {
                             case LibraryLoadType.Mp3FileAddUpdate:
                             {
@@ -257,8 +268,8 @@ namespace AudioStation.Core.Component
                         continue;
 
                     // Updates sent to the Dispatcher
-                    if (item.LoadState == LibraryWorkItemState.CompleteSuccessful ||
-                        item.LoadState == LibraryWorkItemState.CompleteError)
+                    if (item.GetLoadState() == LibraryWorkItemState.CompleteSuccessful ||
+                        item.GetLoadState() == LibraryWorkItemState.CompleteError)
                     {
                         // Notify UI
                         OnWorkItemCompleted(item);
@@ -329,7 +340,7 @@ namespace AudioStation.Core.Component
             else
             {
                 if (this.WorkItemCompleted != null)
-                    this.WorkItemCompleted(workItem);
+                    this.WorkItemCompleted();
             }
         }
         private void OnWorkItemUpdate(LibraryLoaderWorkItem workItem)
@@ -340,7 +351,7 @@ namespace AudioStation.Core.Component
             else
             {
                 if (this.WorkItemUpdate != null)
-                    this.WorkItemUpdate(workItem);
+                    this.WorkItemUpdate();
             }
         }
 

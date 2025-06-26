@@ -18,10 +18,10 @@ using AudioStation.ViewModels.Vendor.TagLibViewModel;
 using TagLib;
 using MetaBrainz.MusicBrainz;
 using MetaBrainz.MusicBrainz.Interfaces.Entities;
-using AudioStation.Component.Interface;
 using AudioStation.Core.Component.Interface;
 using AudioStation.Model;
 using Microsoft.Extensions.Logging;
+using AudioStation.Component.Vendor.Interface;
 
 namespace AudioStation.Views.LibraryManager
 {
@@ -156,7 +156,7 @@ namespace AudioStation.Views.LibraryManager
                 }
                 else
                 {
-                    _outputController.AddLog("Music Brainz Client Failed:  {0}", LogMessageType.General, LogLevel.Information, tagFileViewModel.Name);
+                    _outputController.Log("Music Brainz Client Failed:  {0}", LogMessageType.General, LogLevel.Information, tagFileViewModel.Name);
                 }
             };
 

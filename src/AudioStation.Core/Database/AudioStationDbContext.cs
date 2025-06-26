@@ -141,7 +141,7 @@ namespace AudioStation.Core.Database
 
             if (eventData.LogLevel <= _currentLogLevel)
             {
-                _outputController.AddLog(new LogMessage()
+                _outputController.Log(new LogMessage()
                 {
                     Message = _logVerbose ? eventData.ToString() :  string.Format("Npgsql Event: Level={0} Id={1} Code={2} Name={3}", 
                                                                                    Enum.GetName(eventData.LogLevel),

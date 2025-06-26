@@ -62,7 +62,7 @@ namespace AudioStation.Component
                     else // Default to Bitmap
                     {
                         if (!string.IsNullOrEmpty(mimeType))
-                            _outputController.AddLog("Unhandled Bitmap mime/type:  {0}", LogMessageType.General, LogLevel.Warning, mimeType);
+                            _outputController.Log("Unhandled Bitmap mime/type:  {0}", LogMessageType.General, LogLevel.Warning, mimeType);
 
                         var bitmap = new Bitmap(memoryStream, false);
                         return BitmapToBitmapSource(bitmap, imageSize);
@@ -71,7 +71,7 @@ namespace AudioStation.Component
             }
             catch (Exception ex)
             {
-                _outputController.AddLog("Error Converting Bitmap:  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
+                _outputController.Log("Error Converting Bitmap:  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
                 return null;
             }
         }
@@ -120,7 +120,7 @@ namespace AudioStation.Component
             }
             catch (Exception ex)
             {
-                _outputController.AddLog("Error Converting Bitmap:  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
+                _outputController.Log("Error Converting Bitmap:  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
                 return null;
             }
         }
@@ -155,7 +155,7 @@ namespace AudioStation.Component
             }
             catch (Exception ex)
             {
-                _outputController.AddLog("Error Converting Bitmap:  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
+                _outputController.Log("Error Converting Bitmap:  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
                 return null;
             }
         }

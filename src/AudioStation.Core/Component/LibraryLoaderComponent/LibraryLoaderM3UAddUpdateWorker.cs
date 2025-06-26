@@ -1,42 +1,62 @@
-﻿using AudioStation.Core.Component.Interface;
+﻿using System.Windows;
+using System.Windows.Threading;
+
+using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Model.M3U;
 using AudioStation.Model;
 
 using Microsoft.Extensions.Logging;
-
-using SimpleWpf.Extensions.Collection;
 
 namespace AudioStation.Core.Component.LibraryLoaderComponent
 {
     public class LibraryLoaderM3UAddUpdateWorker : LibraryWorkerThreadBase
     {
         private readonly IModelController _modelController;
+        private readonly IOutputController _outputController;
 
         public LibraryLoaderM3UAddUpdateWorker(IModelController modelController,
                                                IOutputController outputController) : base(outputController)
         {
             _modelController = modelController;
+            _outputController = outputController;
         }
 
         protected override void Work(ref LibraryLoaderWorkItem workItem)
         {
-            var streams = LoadRadioEntry(workItem.FileName);
+            // Procedure:  Progress updates are polled from the LibraryLoader when
+            //             state change events are fired.
+            //
+            // 1) Loop through items on this thread
+            // 2) Do one at a time
+            // 
 
-            // Set Work Item
-            if (streams == null || streams.Count == 0)
-            {
-                workItem.Set(LibraryWorkItemState.CompleteError, "Error loading .m3u file:  " + workItem.FileName);
-            }
-            else
-            {
-                // Add to database
-                _modelController.AddRadioEntries(streams);
+            var fileLoad = workItem.GetWorkItem() as LibraryLoaderFileLoad;
 
-                workItem.Set(LibraryWorkItemState.CompleteSuccessful, "");
+            // Processing...
+            workItem.Update(LibraryWorkItemState.Processing);
+
+            foreach (var file in fileLoad.GetFiles())
+            {
+                var streams = LoadRadioEntry(workItem.GetId(), file);
+
+                // Set Work Item
+                if (streams == null || streams.Count == 0)
+                {
+                    RaiseLog(workItem.GetId(), "M3U stream file load failed:  {0}", LogLevel.Error, file);
+                }
+                else
+                {
+                    // Add to database
+                    _modelController.AddRadioEntries(streams);
+
+                    RaiseLog(workItem.GetId(), "M3U stream file load success: Streams={0}, File={1}", LogLevel.Information, streams.Count, file);
+                }
+
+                fileLoad.SetComplete(file, streams != null && streams.Count > 0);
             }
         }
 
-        public List<M3UStream> LoadRadioEntry(string fileName)
+        public List<M3UStream> LoadRadioEntry(int workItemId, string fileName)
         {
             List<M3UStream> m3uData = null;
 
@@ -58,14 +78,11 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent
                                                     !string.IsNullOrEmpty(x.Title))
                                         .DistinctBy(x => x.Title);
 
-                if (validMedia.Any())
-                    RaiseLog("Radio M3U file loaded:  {0}", LogMessageType.General, LogLevel.Information, fileName);
-
                 return validMedia.ToList();
             }
             catch (Exception ex)
             {
-                RaiseLog("Radio M3U file load error:  {0}", LogMessageType.General, LogLevel.Error, fileName);
+                RaiseLog(workItemId, "Radio M3U file load error:  {0}", LogLevel.Error, ex.Message);
             }
 
             return null;

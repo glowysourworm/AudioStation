@@ -10,6 +10,7 @@ namespace AudioStation.Core.Database
     {
         public int Id { get; set; }
         public string Name { get; set; }
+        public string? MusicBrainzArtistId { get; set; }
 
         public Mp3FileReferenceArtist() { }
         public Mp3FileReferenceArtist(int Id_, string Name_)

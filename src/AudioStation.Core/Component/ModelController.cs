@@ -207,8 +207,8 @@ namespace AudioStation.Controller
                 using (var context = CreateContext())
                 {
                     var entity = context.Mp3FileReferences.FirstOrDefault(x => x.FileName == fileName);
-                    var newEntity = false;
-
+                    var newEntity = false;                    
+                    
                     if (entity == null)
                     {
                         entity = new Mp3FileReference()
@@ -221,7 +221,8 @@ namespace AudioStation.Controller
                             FileErrorMessage = fileLoadErrorMessage,
                             IsFileCorrupt = tagRef.PossiblyCorrupt,
                             IsFileAvailable = fileAvailable,
-                            IsFileLoadError = fileLoadError
+                            IsFileLoadError = fileLoadError,
+                            MusicBrainzTrackId = tagRef.Tag.MusicBrainzTrackId ?? string.Empty
                         };
                         newEntity = true;
                     }
@@ -239,7 +240,8 @@ namespace AudioStation.Controller
                             DiscCount = (int)tagRef.Tag.DiscCount,
                             DiscNumber = (int)tagRef.Tag.Disc,
                             Year = (int)tagRef.Tag.Year,
-                            Name = tagRef.Tag.Album.Trim()
+                            Name = tagRef.Tag.Album.Trim(),
+                            MusicBrainzReleaseId = tagRef.Tag.MusicBrainzReleaseId ?? string.Empty
                         };
 
                         context.Mp3FileReferenceAlbums.Add(existingAlbum);
@@ -248,7 +250,8 @@ namespace AudioStation.Controller
                     {
                         existingArtist = new Mp3FileReferenceArtist()
                         {
-                            Name = tagRef.Tag.FirstAlbumArtist.Trim()
+                            Name = tagRef.Tag.FirstAlbumArtist.Trim(),
+                            MusicBrainzArtistId = tagRef.Tag.MusicBrainzArtistId ?? string.Empty
                         };
 
                         context.Mp3FileReferenceArtists.Add(existingArtist);
@@ -603,7 +606,7 @@ namespace AudioStation.Controller
                 Application.Current.Dispatcher.BeginInvoke(RaiseLog, DispatcherPriority.Background, message, type, level, parameters);
 
             else
-                _outputController.AddLog(message, type, level, parameters);
+                _outputController.Log(message, type, level, parameters);
         }
 
         private AudioStationDbContext CreateContext()

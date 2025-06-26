@@ -3,7 +3,7 @@ using System.Windows.Threading;
 
 using AudioStation.Component;
 using AudioStation.Component.AudioProcessing;
-using AudioStation.Component.Interface;
+using AudioStation.Component.AudioProcessing.Interface;
 using AudioStation.Controller.Interface;
 using AudioStation.Core.Component;
 using AudioStation.Core.Model;

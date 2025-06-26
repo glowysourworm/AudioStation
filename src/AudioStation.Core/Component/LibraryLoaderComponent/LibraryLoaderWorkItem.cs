@@ -24,61 +24,84 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent
     }
     public class LibraryLoaderWorkItem
     {
-        public int Id { get; private set; }
-        public string FileName { get; private set; }
-        public string ErrorMessage { get; private set; }
-        public LibraryLoadType LoadType { get; private set; }
-        public LibraryWorkItemState LoadState { get; private set; }
+        int _id;
+        LibraryLoaderLoadBase _workItem;                                           // Supposed to be a LibraryLoaderLoadBase
+        LibraryLoadType _loadType;
+        LibraryWorkItemState _loadState;
+
+        object _lock = new object();
 
         // Default constructor used for .Equals comparison / FirstOrDefault / etc...
         public LibraryLoaderWorkItem()
         {
-            this.Id = -1;
-            this.FileName = string.Empty;
-            this.LoadType = LibraryLoadType.Mp3FileAddUpdate;
-            this.LoadState = LibraryWorkItemState.Pending;
-            this.ErrorMessage = string.Empty;
+            _id = -1;
+            _loadType = LibraryLoadType.Mp3FileAddUpdate;
+            _loadState = LibraryWorkItemState.Pending;
         }
-        public LibraryLoaderWorkItem(int id, string fileName, LibraryLoadType loadType)
+        public LibraryLoaderWorkItem(int id, LibraryLoadType loadType)
         {
-            this.Id = id;
-            this.FileName = fileName;
-            this.LoadType = loadType;
-            this.LoadState = LibraryWorkItemState.Pending;
-            this.ErrorMessage = string.Empty;
+            _id = id;
+            _loadType = loadType;
+            _loadState = LibraryWorkItemState.Pending;
         }
         public LibraryLoaderWorkItem(LibraryLoaderWorkItem copy)
         {
-            this.Id = copy.Id;
-            this.FileName = copy.FileName;
-            this.LoadType = copy.LoadType;
-            this.LoadState = copy.LoadState;
-            this.ErrorMessage = copy.ErrorMessage;
+            _id = copy.GetId();
+            _loadType = copy.GetLoadType();
+            _loadState = copy.GetLoadState();
+            _workItem = copy.GetWorkItem();      
         }
 
-        public void Set(LibraryWorkItemState state, string errorMessage)
+        public int GetId()
         {
-            this.ErrorMessage = errorMessage;
-            this.LoadState = state;
+            lock(_lock)
+            {
+                return _id;
+            }            
+        }
+        public LibraryLoaderLoadBase GetWorkItem()
+        {
+            lock (_lock)
+            {
+                return _workItem;
+            }
+        }
+        public LibraryLoadType GetLoadType()
+        {
+            lock (_lock)
+            {
+                return _loadType;
+            }
+        }
+        public LibraryWorkItemState GetLoadState()
+        {
+            lock (_lock)
+            {
+                return _loadState;
+            }
+        }
+        public double GetPercentComplete()
+        {
+            lock(_lock)
+            {
+                return _workItem.GetProgress();
+            }
+        }
+        public void Initialize<T>(LibraryWorkItemState state, T workItem) where T : LibraryLoaderLoadBase
+        {
+            lock (_lock)
+            {
+                _loadState = state;
+                _workItem = workItem;
+            }
         }
 
-        public override bool Equals(object? obj)
+        public void Update(LibraryWorkItemState state)
         {
-            if (obj == null)
-                return false;
-
-            var item = (LibraryLoaderWorkItem)obj;
-
-            return item.LoadState == this.LoadState &&
-                    item.ErrorMessage == this.ErrorMessage &&
-                    item.FileName == this.FileName &&
-                    item.LoadType == this.LoadType &&
-                    item.Id == this.Id;
-        }
-
-        public override int GetHashCode()
-        {
-            return RecursiveSerializerHashGenerator.CreateSimpleHash(this.Id, this.FileName, this.LoadType, this.LoadState, this.ErrorMessage);
+            lock (_lock)
+            {
+                _loadState = state;
+            }
         }
     }
 }

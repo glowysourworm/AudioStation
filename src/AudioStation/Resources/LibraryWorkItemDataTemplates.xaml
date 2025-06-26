@@ -1,6 +1,7 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:viewModel="clr-namespace:AudioStation.ViewModels">
+                    xmlns:viewModel="clr-namespace:AudioStation.ViewModels"
+                    xmlns:controls="clr-namespace:AudioStation.Controls">
 
     <ResourceDictionary.MergedDictionaries>
         <ResourceDictionary Source="/Resources/ThemeColorsAndBrushes.xaml" />
@@ -37,56 +38,22 @@
         <Setter Property="Foreground" Value="{StaticResource LabelForeground}" />
     </Style>
 
-    <DataTemplate x:Key="LibraryWorkItemDataTemplateNormal" DataType="{x:Type viewModel:LibraryWorkItemViewModel}">
+    <DataTemplate x:Key="LibraryWorkItemDataTemplate" DataType="{x:Type viewModel:LibraryWorkItemViewModel}">
         <Border Padding="3">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="200" />
+                    <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
-                <TextBlock Text="{Binding FileName}" Style="{StaticResource LabelTextBlock}" HorizontalAlignment="Left" />
-                <TextBlock Text="Processing..." Grid.Column="1" Style="{StaticResource LabelTextBlock}" HorizontalAlignment="Right" />
+                <TextBlock Text="{Binding Id}" Style="{StaticResource LabelTextBlock}" HorizontalAlignment="Left" />
+                <TextBlock Text="{Binding LoadType}" Grid.Column="1" Style="{StaticResource LabelTextBlock}" HorizontalAlignment="Left" />
+                <TextBlock Text="{Binding LogIdentity}" Grid.Column="2" Style="{StaticResource LabelTextBlock}" HorizontalAlignment="Left" />
+                <controls:ProgressBar Progress="{Binding Progress}" Height="32" Grid.Column="3" Foreground="White" Background="Gray" ProgressBrush="LawnGreen" />
+                <TextBlock Text="{Binding LoadState}" Grid.Column="4" Style="{StaticResource LabelTextBlock}" HorizontalAlignment="Right" />
             </Grid>
-        </Border>
-    </DataTemplate>
-
-    <DataTemplate x:Key="LibraryWorkItemDataTemplateError" DataType="{x:Type viewModel:LibraryWorkItemViewModel}">
-        <Border Padding="3">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="Auto" />
-                </Grid.ColumnDefinitions>
-                <TextBlock Text="{Binding FileName}" Style="{StaticResource LabelErrorTextBlock}" HorizontalAlignment="Left" />
-                <TextBlock Text="Error" Grid.Column="1" Style="{StaticResource LabelErrorTextBlock}" HorizontalAlignment="Right" />
-            </Grid>
-        </Border>
-    </DataTemplate>
-
-    <DataTemplate x:Key="LibraryWorkItemDataTemplatePending" DataType="{x:Type viewModel:LibraryWorkItemViewModel}">
-        <Border Padding="3">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="Auto" />
-                </Grid.ColumnDefinitions>
-                <TextBlock Text="{Binding FileName}" Style="{StaticResource LabelPendingTextBlock}" HorizontalAlignment="Left" />
-                <TextBlock Text="Pending" Grid.Column="1" Style="{StaticResource LabelPendingTextBlock}" HorizontalAlignment="Right" />
-            </Grid>
-        </Border>
-    </DataTemplate>
-
-    <DataTemplate x:Key="LibraryWorkItemDataTemplateSuccess" DataType="{x:Type viewModel:LibraryWorkItemViewModel}">
-        <Border Padding="3">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="Auto" />
-                </Grid.ColumnDefinitions>
-                <TextBlock Text="{Binding FileName}" Style="{StaticResource LabelTextBlock}" HorizontalAlignment="Left" />
-                <TextBlock Text="Success" Grid.Column="1" Style="{StaticResource LabelTextBlock}" HorizontalAlignment="Right" />
-            </Grid>            
         </Border>
     </DataTemplate>
 

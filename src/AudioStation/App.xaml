@@ -43,7 +43,6 @@
         <simpleConverter:IEnumerableToObservableCollectionParameterConverter x:Key="IEnumerableToObservableCollectionParameterConverter" />
 
         <!-- Template Selectors -->
-        <templateSelector:LibraryWorkItemTemplateSelector x:Key="LibraryWorkItemTemplateSelector" />
         <templateSelector:LogItemTemplateSelector x:Key="LogItemTemplateSelector" />
         <templateSelector:LibraryWorkItemContainerStyleSelector x:Key="LibraryWorkItemContainerStyleSelector" />
         <templateSelector:LogItemContainerStyleSelector x:Key="LogItemContainerStyleSelector" />

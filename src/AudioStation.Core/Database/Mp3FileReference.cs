@@ -29,6 +29,9 @@ namespace AudioStation.Core.Database
         public string? FileErrorMessage { get; set; }
         public string? FileCorruptMessage { get; set; }
 
+        public string? AmazonId { get; set; }
+        public string? MusicBrainzTrackId { get; set; }
+
         // Relationship properties
         public Mp3FileReferenceAlbum? Album { get; set; }
         public Mp3FileReferenceArtist? PrimaryArtist { get; set; }
