@@ -4,6 +4,8 @@ using System.Windows.Threading;
 
 using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Component.LibraryLoaderComponent;
+using AudioStation.Core.Component.Vendor.Interface;
+using AudioStation.Core.Database;
 using AudioStation.Core.Model;
 using AudioStation.Core.Utility;
 
@@ -43,7 +45,7 @@ namespace AudioStation.Core.Component
         private int _workItemIdCounter;
 
         [IocImportingConstructor]
-        public LibraryLoader(IModelController modelController, IOutputController outputController)
+        public LibraryLoader(IModelController modelController, IOutputController outputController, IMusicBrainzClient musicBrainzClient)
         {
             _modelController = modelController;
             _outputController = outputController;
@@ -66,6 +68,7 @@ namespace AudioStation.Core.Component
             {
                 _workerThreads.Add(new LibraryLoaderMp3AddUpdateWorker(modelController, outputController));
                 _workerThreads.Add(new LibraryLoaderM3UAddUpdateWorker(modelController, outputController));
+                _workerThreads.Add(new LibraryLoaderFillMusicBrainzIdsWorker(modelController, outputController, musicBrainzClient));
             }
             foreach (var workerThread in _workerThreads)
             {
@@ -83,6 +86,27 @@ namespace AudioStation.Core.Component
         public void LoadRadioAsync(string baseDirectory)
         {
             LoadDirectoryAsync(baseDirectory, "*.m3u");
+        }
+
+        public void LoadMusicBrainzRecordsAsync()
+        {
+            // Query for all music track meta-data
+            var tracks = _modelController.GetEntities<Mp3FileReference>();
+
+            // Create work item for the music brainz search(es)
+            var entityLoad = new LibraryLoaderEntityLoad(tracks);
+
+            // Create new work item for the queue
+            var workItem = new LibraryLoaderWorkItem(_workItemIdCounter++, LibraryLoadType.FillMusicBrainzIds);
+
+            // Set initial state
+            workItem.Initialize(LibraryWorkItemState.Pending, entityLoad);
+
+            lock (_lock)
+            {
+                // Queue work item
+                _workQueue.Enqueue(workItem);
+            }
         }
 
         private void LoadDirectoryAsync(string baseDirectory, string searchPattern)
@@ -235,6 +259,17 @@ namespace AudioStation.Core.Component
                             case LibraryLoadType.M3UFileAddUpdate:
                             {
                                 var worker = _workerThreads.FirstOrDefault(x => x.GetType() == typeof(LibraryLoaderM3UAddUpdateWorker) && x.IsReadyForWork());
+
+                                // Starts Work (thread already running)
+                                if (worker != null)
+                                {
+                                    worker.SetWorkItem(_workQueue.Dequeue());       // DEQUEUE
+                                }
+                            }
+                            break;
+                            case LibraryLoadType.FillMusicBrainzIds:
+                            {
+                                var worker = _workerThreads.FirstOrDefault(x => x.GetType() == typeof(LibraryLoaderFillMusicBrainzIdsWorker) && x.IsReadyForWork());
 
                                 // Starts Work (thread already running)
                                 if (worker != null)

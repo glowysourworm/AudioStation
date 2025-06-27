@@ -3,25 +3,21 @@ using System.Collections.Specialized;
 using System.Windows;
 using System.Windows.Controls;
 
-using AudioStation.Component;
 using AudioStation.Controls;
+using AudioStation.Core.Component.Interface;
+using AudioStation.Core.Component.Vendor.Interface;
+using AudioStation.Model;
 using AudioStation.ViewModels;
 using AudioStation.ViewModels.LibraryViewModels;
-using AudioStation.ViewModels.Vendor;
+using AudioStation.ViewModels.Vendor.TagLibViewModel;
 using AudioStation.Views.LibraryEntryViews;
-using AudioStation.Views.VendorEntryViews;
+
+using Microsoft.Extensions.Logging;
 
 using SimpleWpf.Extensions.Command;
 using SimpleWpf.IocFramework.Application.Attribute;
 
-using AudioStation.ViewModels.Vendor.TagLibViewModel;
 using TagLib;
-using MetaBrainz.MusicBrainz;
-using MetaBrainz.MusicBrainz.Interfaces.Entities;
-using AudioStation.Core.Component.Interface;
-using AudioStation.Model;
-using Microsoft.Extensions.Logging;
-using AudioStation.Component.Vendor.Interface;
 
 namespace AudioStation.Views.LibraryManager
 {
@@ -126,9 +122,9 @@ namespace AudioStation.Views.LibraryManager
             var tagFileViewModel = new FileViewModel(tagFile);
 
             // Hand off the tag data to the view
-            view.TagFileView.DataContext= tagFileViewModel;                                     // Entire File (combined tag)
-            view.Id3v1TagView.DataContext= new TagViewModel(tagFile.GetTag(TagTypes.Id3v1));    // Tag piece (will have to sync data)
-            view.Id3v2TagView.DataContext= new TagViewModel(tagFile.GetTag(TagTypes.Id3v2));    // Tag piece (will have to sync data)
+            view.TagFileView.DataContext = tagFileViewModel;                                     // Entire File (combined tag)
+            view.Id3v1TagView.DataContext = new TagViewModel(tagFile.GetTag(TagTypes.Id3v1));    // Tag piece (will have to sync data)
+            view.Id3v2TagView.DataContext = new TagViewModel(tagFile.GetTag(TagTypes.Id3v2));    // Tag piece (will have to sync data)
 
             // Listen for Music Brainz Query
             view.TagFileView.FindOnMusicBrainzEvent += async () =>
@@ -142,7 +138,7 @@ namespace AudioStation.Views.LibraryManager
                 var trackId = new Guid(tagFileViewModel.Tag.MusicBrainzTrackId);
 
                 var musicBrainzViewModel = await _musicBrainzClient.GetCombinedData(releaseId, artistId, trackId, tagFileViewModel.Tag.Title);
-                
+
                 if (musicBrainzViewModel != null)
                 {
                     // Music Brainz API:  Artist URL relationships have many different links to browse. Also, ASIN is the

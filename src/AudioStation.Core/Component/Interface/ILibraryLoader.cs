@@ -42,6 +42,15 @@ namespace AudioStation.Core.Component.Interface
         void Clear();
 
         /// <summary>
+        /// Loads music brainz data from any possible vendor source; searches to ensure that the
+        /// tag files from taglib are filled in; and stores the music brainz id's in their proper
+        /// database location(s). The result should be a complete music brainz reference set with
+        /// updated ID's. AcoustID is used as a fallback for sound fingerprinting to locate the 
+        /// music brainz id per track.
+        /// </summary>
+        void LoadMusicBrainzRecordsAsync();
+
+        /// <summary>
         /// Loads the library of mp3 files (from disk only!) by reading their TagLib.File entity. This is done
         /// using the taglib standard .net library. An event is fired when the work is completed.
         /// </summary>

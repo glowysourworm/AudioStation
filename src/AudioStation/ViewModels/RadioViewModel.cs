@@ -1,9 +1,9 @@
 ﻿using System.Windows;
 using System.Windows.Threading;
 
-using AudioStation.Component.Vendor;
 using AudioStation.Controller.Interface;
 using AudioStation.Core.Component.Interface;
+using AudioStation.Core.Component.Vendor;
 using AudioStation.Core.Model;
 using AudioStation.Core.Utility;
 using AudioStation.Model;
@@ -53,7 +53,7 @@ namespace AudioStation.ViewModels
         }
 
         [IocImportingConstructor]
-        public RadioViewModel(ILibraryLoader libraryLoader, 
+        public RadioViewModel(ILibraryLoader libraryLoader,
                               IOutputController outputController,
                               IDialogController dialogController)
         {

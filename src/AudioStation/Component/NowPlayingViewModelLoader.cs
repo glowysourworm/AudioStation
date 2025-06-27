@@ -1,10 +1,7 @@
-﻿using System.Windows;
-using System.Windows.Threading;
-
-using AudioStation.Component.Interface;
+﻿using AudioStation.Component.Interface;
 using AudioStation.Component.Model;
-using AudioStation.Component.Vendor.Interface;
 using AudioStation.Core.Component.Interface;
+using AudioStation.Core.Component.Vendor.Interface;
 using AudioStation.Core.Utility;
 using AudioStation.Model;
 using AudioStation.ViewModels.LibraryViewModels;
@@ -27,8 +24,8 @@ namespace AudioStation.Component
         private readonly IOutputController _outputController;
 
         [IocImportingConstructor]
-        public NowPlayingViewModelLoader(ILastFmClient lastFmClient, 
-                                         ISpotifyClient spotifyClient, 
+        public NowPlayingViewModelLoader(ILastFmClient lastFmClient,
+                                         ISpotifyClient spotifyClient,
                                          IMusicBrainzClient musicBrainzClient,
                                          IFanartClient fanartClient,
                                          IWikipediaClient wikipediaClient,

@@ -32,7 +32,7 @@ namespace AudioStation.ViewModels
 
         LibraryLoadType _selectedLibraryNewWorkItemType;
 
-        SimpleCommand _loadLibraryCommand;
+        SimpleCommand _runWorkItemCommand;
         #endregion
 
         #region Properties (public)
@@ -57,10 +57,10 @@ namespace AudioStation.ViewModels
             get { return _libraryWorkItemsSelected; }
             set { this.RaiseAndSetIfChanged(ref _libraryWorkItemsSelected, value); }
         }
-        public SimpleCommand LoadLibraryCommand
+        public SimpleCommand RunWorkItemCommand
         {
-            get { return _loadLibraryCommand; }
-            set { this.RaiseAndSetIfChanged(ref _loadLibraryCommand, value); }
+            get { return _runWorkItemCommand; }
+            set { this.RaiseAndSetIfChanged(ref _runWorkItemCommand, value); }
         }
         #endregion
 
@@ -82,9 +82,23 @@ namespace AudioStation.ViewModels
             libraryLoader.WorkItemUpdate += OnWorkItemUpdate;
             libraryLoader.ProcessingUpdate += OnLibraryProcessingChanged;
 
-            this.LoadLibraryCommand = new SimpleCommand(() =>
+            this.RunWorkItemCommand = new SimpleCommand(() =>
             {
-                libraryLoader.LoadLibraryAsync(configurationManager.GetConfiguration().DirectoryBase);
+                switch (this.SelectedLibraryNewWorkItemType)
+                {
+                    case LibraryLoadType.Mp3FileAddUpdate:
+                        libraryLoader.LoadLibraryAsync(configurationManager.GetConfiguration().DirectoryBase);
+                        break;
+                    case LibraryLoadType.M3UFileAddUpdate:
+                        libraryLoader.LoadRadioAsync(configurationManager.GetConfiguration().DirectoryBase);
+                        break;
+                    case LibraryLoadType.FillMusicBrainzIds:
+                        libraryLoader.LoadMusicBrainzRecordsAsync();
+                        break;
+                    default:
+                        throw new Exception("Unhandled work item type:  LibraryLoaderViewModel.cs");
+                }
+
                 libraryLoader.Start();
             });
         }

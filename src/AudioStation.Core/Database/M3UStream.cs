@@ -7,10 +7,8 @@ namespace AudioStation.Core.Database
     [PrimaryKey("Id")]
     [Index("Name", Name = "NameIndex")]
     [Table("M3UStream", Schema = "public")]
-    public class M3UStream
+    public class M3UStream : EntityBase
     {
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int Id { get; set; }
         public int Duration { get; set; }
         public string Name { get; set; }
         public string? GroupName { get; set; }

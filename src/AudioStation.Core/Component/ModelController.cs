@@ -498,7 +498,7 @@ namespace AudioStation.Controller
             return Enumerable.Empty<Mp3FileReference>();
         }
 
-        public PageResult<TEntity> GetPage<TEntity, TOrder>(PageRequest<TEntity, TOrder> request) where TEntity : class
+        public PageResult<TEntity> GetPage<TEntity, TOrder>(PageRequest<TEntity, TOrder> request) where TEntity : EntityBase
         {
             try
             {
@@ -596,6 +596,112 @@ namespace AudioStation.Controller
             }
 
             return PageResult<TEntity>.GetDefault();
+        }
+
+        public IEnumerable<TEntity> GetEntities<TEntity>() where TEntity : EntityBase
+        {
+            try
+            {
+                using (var context = CreateContext())
+                {
+                    IEnumerable<TEntity> collection;
+
+                    // Flat entities may be queried
+                    if (typeof(TEntity) == typeof(M3UStream))
+                    {
+                        collection = (IEnumerable<TEntity>)context.M3UStreams.ToList();
+                    }
+                    else if (typeof(TEntity) == typeof(Mp3FileReference))
+                    {
+                        collection = (IEnumerable<TEntity>)context.Mp3FileReferences.ToList();
+                    }
+                    else if (typeof(TEntity) == typeof(Mp3FileReferenceArtist))
+                    {
+                        collection = (IEnumerable<TEntity>)context.Mp3FileReferenceArtists.ToList();
+                    }
+                    else if (typeof(TEntity) == typeof(Mp3FileReferenceGenre))
+                    {
+                        collection = (IEnumerable<TEntity>)context.Mp3FileReferenceGenres.ToList();
+                    }
+                    else if (typeof(TEntity) == typeof(RadioBrowserStation))
+                    {
+                        collection = (IEnumerable<TEntity>)context.RadioBrowserStations.ToList();
+                    }
+                    else
+                    {
+                        throw new Exception("IModelController.GetPage only supports flat entity types");
+                    }
+
+                    return collection;
+                }
+            }
+            catch (Exception ex)
+            {
+                ApplicationHelpers.Log("Error retrieving data page:  " + ex.Message, LogMessageType.Database, LogLevel.Error);
+            }
+
+            return Enumerable.Empty<TEntity>();
+        }
+
+        public TEntity GetEntity<TEntity>(int id) where TEntity : EntityBase
+        {
+            try
+            {
+                using (var context = CreateContext())
+                {
+                    TEntity? entity;
+
+                    // Flat entities may be queried
+                    if (typeof(TEntity) == typeof(M3UStream))
+                    {
+                        entity = (TEntity?)(EntityBase?)context.M3UStreams.Find(id);
+                    }
+                    else if (typeof(TEntity) == typeof(Mp3FileReference))
+                    {
+                        entity = (TEntity?)(EntityBase?)context.Mp3FileReferences.Find(id);
+                    }
+                    else if (typeof(TEntity) == typeof(Mp3FileReferenceArtist))
+                    {
+                        entity = (TEntity?)(EntityBase?)context.Mp3FileReferenceArtists.Find(id);
+                    }
+                    else if (typeof(TEntity) == typeof(Mp3FileReferenceGenre))
+                    {
+                        entity = (TEntity?)(EntityBase?)context.Mp3FileReferenceGenres.Find(id);
+                    }
+                    else if (typeof(TEntity) == typeof(RadioBrowserStation))
+                    {
+                        entity = (TEntity?)(EntityBase?)context.RadioBrowserStations.Find(id);
+                    }
+                    else
+                    {
+                        throw new Exception("IModelController.GetPage only supports flat entity types");
+                    }
+
+                    return entity;
+                }
+            }
+            catch (Exception ex)
+            {
+                ApplicationHelpers.Log("Error retrieving data:  " + ex.Message, LogMessageType.Database, LogLevel.Error);
+            }
+
+            return null;
+        }
+
+        public void UpdateEntity<TEntity>(TEntity entity) where TEntity : EntityBase
+        {
+            try
+            {
+                using (var context = CreateContext())
+                {
+                    context.Update<TEntity>(entity);
+                    context.SaveChanges();
+                }
+            }
+            catch (Exception ex)
+            {
+                ApplicationHelpers.Log("Error saving entity data:  " + ex.Message, LogMessageType.Database, LogLevel.Error);
+            }
         }
 
         private AudioStationDbContext CreateContext()

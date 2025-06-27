@@ -6,9 +6,8 @@ namespace AudioStation.Core.Database
 {
     [PrimaryKey("Id")]
     [Table("Mp3FileReferenceAlbum", Schema = "public")]
-    public class Mp3FileReferenceAlbum
+    public class Mp3FileReferenceAlbum : EntityBase
     {
-        public int Id { get; set; }
         public string Name { get; set; }
         public int DiscNumber { get; set; }
         public int DiscCount { get; set; }

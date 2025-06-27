@@ -38,7 +38,7 @@
                     <local:ConfigurationView x:Name="ConfigurationView" />
                 </controls:TabItemPressable>
 
-                <controls:TabItemPressable Header="Library Loader" Style="{StaticResource MainTabItemControlStyle}" DataContext="{Binding LibraryLoader}">
+                <controls:TabItemPressable Header="Library Loader" FontSize="14" Margin="0" Style="{StaticResource MainTabItemControlStyle}" DataContext="{Binding LibraryLoader}">
                     <local:LibraryLoaderView x:Name="LibraryLoaderView" />
                 </controls:TabItemPressable>
 

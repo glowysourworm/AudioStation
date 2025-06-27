@@ -91,7 +91,7 @@ namespace AudioStation.Controller
             // Can't (yet) resize PNG image using GDI. So, these were bilinear resized before embedding them as resources. Let them get transformed
             // as "FullSized"; but cache them as their destination size.
             //
-            using (var stream = Assembly.GetAssembly(typeof(ImageCacheController)).GetManifestResourceStream("AudioStation.placeholder_FullSized.png"))
+            using (var stream = Assembly.GetAssembly(typeof(ImageCacheController)).GetManifestResourceStream("AudioStation.Resources.Images.placeholder_FullSized.png"))
             {
                 using (var memoryStream =  new MemoryStream())
                 {
@@ -101,7 +101,7 @@ namespace AudioStation.Controller
                     this.DefaultImageCache.Add(ImageCacheType.FullSize, _bitmapConverter.BitmapDataToBitmapSource(memoryStream.GetBuffer(), new ImageSize(ImageCacheType.FullSize), "image/png"));
                 }
             }
-            using (var stream = Assembly.GetAssembly(typeof(ImageCacheController)).GetManifestResourceStream("AudioStation.placeholder_Medium.png"))
+            using (var stream = Assembly.GetAssembly(typeof(ImageCacheController)).GetManifestResourceStream("AudioStation.Resources.Images.placeholder_Medium.png"))
             {
                 using (var memoryStream = new MemoryStream())
                 {
@@ -111,7 +111,7 @@ namespace AudioStation.Controller
                     this.DefaultImageCache.Add(ImageCacheType.Medium, _bitmapConverter.BitmapDataToBitmapSource(memoryStream.GetBuffer(), new ImageSize(ImageCacheType.FullSize), "image/png"));
                 }
             }
-            using (var stream = Assembly.GetAssembly(typeof(ImageCacheController)).GetManifestResourceStream("AudioStation.placeholder_Small.png"))
+            using (var stream = Assembly.GetAssembly(typeof(ImageCacheController)).GetManifestResourceStream("AudioStation.Resources.Images.placeholder_Small.png"))
             {
                 using (var memoryStream = new MemoryStream())
                 {
@@ -121,7 +121,7 @@ namespace AudioStation.Controller
                     this.DefaultImageCache.Add(ImageCacheType.Small, _bitmapConverter.BitmapDataToBitmapSource(memoryStream.GetBuffer(), new ImageSize(ImageCacheType.FullSize), "image/png"));
                 }
             }
-            using (var stream = Assembly.GetAssembly(typeof(ImageCacheController)).GetManifestResourceStream("AudioStation.placeholder_Thumbnail.png"))
+            using (var stream = Assembly.GetAssembly(typeof(ImageCacheController)).GetManifestResourceStream("AudioStation.Resources.Images.placeholder_Thumbnail.png"))
             {
                 using (var memoryStream = new MemoryStream())
                 {

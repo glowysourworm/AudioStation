@@ -1,6 +1,5 @@
 ﻿using AudioStation.Core.Database;
 using AudioStation.Core.Model;
-using AudioStation.Core.Model.M3U;
 
 using M3UStream = AudioStation.Core.Model.M3U.M3UStream;
 
@@ -61,9 +60,24 @@ namespace AudioStation.Core.Component.Interface
         IEnumerable<Mp3FileReference> GetAlbumTracks(int albumId);
 
         /// <summary>
+        /// Updates entity using property reflection
+        /// </summary>
+        void UpdateEntity<TEntity>(TEntity entity) where TEntity : EntityBase;
+
+        /// <summary>
         /// Requests a page of data from the database
         /// </summary>
         /// <typeparam name="TEntity">The specific entity type</typeparam>
-        PageResult<TEntity> GetPage<TEntity, TOrder>(PageRequest<TEntity, TOrder> request) where TEntity : class;
+        PageResult<TEntity> GetPage<TEntity, TOrder>(PageRequest<TEntity, TOrder> request) where TEntity : EntityBase;
+
+        /// <summary>
+        /// Gets an entire entity table from the database
+        /// </summary>
+        IEnumerable<TEntity> GetEntities<TEntity>() where TEntity : EntityBase;
+
+        /// <summary>
+        /// Gets entity by ID from the database
+        /// </summary>
+        TEntity GetEntity<TEntity>(int id) where TEntity : EntityBase;
     }
 }

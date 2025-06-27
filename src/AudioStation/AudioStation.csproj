@@ -7,6 +7,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
     <PackageIcon>icon.png</PackageIcon>
+    <ApplicationIcon>icon.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
@@ -18,11 +19,22 @@
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="icon.png" />
-    <EmbeddedResource Include="placeholder_FullSized.png" />
-    <EmbeddedResource Include="placeholder_Medium.png" />
-    <EmbeddedResource Include="placeholder_Small.png" />
-    <EmbeddedResource Include="placeholder_Thumbnail.png" />
+    <Content Include="icon.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\Images\icon.png" />
+    <EmbeddedResource Include="Resources\Images\placeholder_FullSized.png" />
+    <EmbeddedResource Include="Resources\Images\placeholder_Medium.png" />
+    <EmbeddedResource Include="Resources\Images\placeholder_Small.png" />
+    <EmbeddedResource Include="Resources\Images\placeholder_Thumbnail.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\icon.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
   </ItemGroup>
 
   <ItemGroup>
