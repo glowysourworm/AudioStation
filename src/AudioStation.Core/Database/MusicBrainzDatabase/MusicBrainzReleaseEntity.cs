@@ -8,11 +8,10 @@ namespace AudioStation.Core.Database.MusicBrainzDatabase
         public string? Asin { get; set; }
         public string? Barcode { get; set; }
         public string? Country { get; set; }
-        public PartialDate? Date { get; set; }
+        public DateTime? Date { get; set; }
         public string? Packaging { get; set; }
         public string? Quality { get; set; }
         public string? Status { get; set; }
-        public Guid? StatusId { get; set; }
         public string? Annotation { get; set; }
         public string? Disambiguation { get; set; }
         public string? Title { get; set; }

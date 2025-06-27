@@ -9,6 +9,5 @@ namespace AudioStation.Core.Database.MusicBrainzDatabase
     public class MusicBrainzEntityBase
     {
         public Guid Id { get; set; }
-        public int EntityTypeId { get; set; }
     }
 }
