@@ -3,7 +3,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:AudioStation.Views"
              xmlns:fa5="http://schemas.fontawesome.com/icons/"
-             xmlns:controls="clr-namespace:AudioStation.Controls">
+             xmlns:controls="clr-namespace:AudioStation.Controls"
+             Background="White">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />

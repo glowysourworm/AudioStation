@@ -9,13 +9,13 @@ using Microsoft.Extensions.Logging;
 
 namespace AudioStation.Core.Component.LibraryLoaderComponent
 {
-    public class LibraryLoaderMp3AddUpdateWorker : LibraryWorkerThreadBase
+    public class LibraryLoaderFillMusicBrainzIdsWorker : LibraryWorkerThreadBase
     {
         private readonly IModelController _modelController;
         private readonly IOutputController _outputController;
 
-        public LibraryLoaderMp3AddUpdateWorker(IModelController modelController,
-                                               IOutputController outputController) : base(outputController)
+        public LibraryLoaderFillMusicBrainzIdsWorker(IModelController modelController,
+                                                     IOutputController outputController) : base(outputController)
         {
             _modelController = modelController;
             _outputController = outputController;

@@ -6,6 +6,7 @@ using System.Windows.Threading;
 using AudioStation.Component.Interface;
 using AudioStation.Component.Vendor.Bandcamp.Interface;
 using AudioStation.Core.Component.Interface;
+using AudioStation.Core.Utility;
 using AudioStation.Model;
 
 using Microsoft.Extensions.Logging;
@@ -72,25 +73,13 @@ namespace AudioStation.Component.Vendor.Bandcamp
                     // Write Mp3 to file
                     File.WriteAllBytes(mp3Path, track.Data);
 
-                    RaiseLog("Successfully received album info:  {0}", LogMessageType.General, LogLevel.Information, mp3Path);
+                    ApplicationHelpers.Log("Successfully received album info:  {0}", LogMessageType.General, LogLevel.Information, mp3Path);
                 }
             }
             catch (Exception ex)
             {
-                RaiseLog("Error connecting to Bandcamp:  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
+                ApplicationHelpers.Log("Error connecting to Bandcamp:  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
             }
-        }
-
-        /// <summary>
-        /// Invokes logger on the application dispatcher thread
-        /// </summary>
-        protected void RaiseLog(string message, LogMessageType type, LogLevel level, params object[] parameters)
-        {
-            if (Thread.CurrentThread.ManagedThreadId != Application.Current.Dispatcher.Thread.ManagedThreadId)
-                Application.Current.Dispatcher.BeginInvoke(RaiseLog, DispatcherPriority.Background, message, type, level, parameters);
-
-            else
-                _outputController.Log(message, type, level, parameters);
         }
     }
 }

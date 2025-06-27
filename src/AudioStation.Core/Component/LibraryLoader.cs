@@ -5,6 +5,7 @@ using System.Windows.Threading;
 using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Component.LibraryLoaderComponent;
 using AudioStation.Core.Model;
+using AudioStation.Core.Utility;
 
 using SimpleWpf.Extensions;
 using SimpleWpf.Extensions.Collection;
@@ -302,10 +303,10 @@ namespace AudioStation.Core.Component
         */
         private void OnProcessingUpdate()
         {
-            if (Thread.CurrentThread.ManagedThreadId != Application.Current.Dispatcher.Thread.ManagedThreadId)
+            if (ApplicationHelpers.IsDispatcher() == ApplicationIsDispatcherResult.False)
                 Application.Current.Dispatcher.BeginInvoke(OnProcessingUpdate, DispatcherPriority.Background);
 
-            else
+            else if (ApplicationHelpers.IsDispatcher() == ApplicationIsDispatcherResult.True)
             {
                 if (this.ProcessingUpdate != null)
                     this.ProcessingUpdate();

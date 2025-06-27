@@ -5,6 +5,7 @@ using AudioStation.Component.Vendor;
 using AudioStation.Controller.Interface;
 using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Model;
+using AudioStation.Core.Utility;
 using AudioStation.Model;
 using AudioStation.ViewModels.LibraryViewModels.Comparer;
 using AudioStation.ViewModels.RadioViewModels;
@@ -112,9 +113,10 @@ namespace AudioStation.ViewModels
         #region ILibraryLoader Events (some of these events are from the worker thread)
         private void OnRadioEntryLoaded(RadioEntry radioEntry)
         {
-            if (Application.Current.Dispatcher.Thread.ManagedThreadId != Thread.CurrentThread.ManagedThreadId)
+            if (ApplicationHelpers.IsDispatcher() == ApplicationIsDispatcherResult.False)
                 Application.Current.Dispatcher.BeginInvoke(OnRadioEntryLoaded, DispatcherPriority.ApplicationIdle, radioEntry);
-            else
+
+            else if (ApplicationHelpers.IsDispatcher() == ApplicationIsDispatcherResult.True)
             {
                 var entry = this.RadioEntries.FirstOrDefault(item => item.Name == radioEntry.Name);
 

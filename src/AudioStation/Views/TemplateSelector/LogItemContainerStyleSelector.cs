@@ -1,7 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 
-using AudioStation.ViewModels;
+using AudioStation.ViewModels.LogViewModels;
 
 using Microsoft.Extensions.Logging;
 

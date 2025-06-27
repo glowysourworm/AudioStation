@@ -3,7 +3,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:sys="clr-namespace:System;assembly=System.Runtime"
              xmlns:fa5="http://schemas.fontawesome.com/icons/"
-             xmlns:libraryWork="clr-namespace:AudioStation.Core.Component.LibraryLoaderComponent;assembly=AudioStation.Core">
+             xmlns:libraryWork="clr-namespace:AudioStation.Core.Component.LibraryLoaderComponent;assembly=AudioStation.Core"
+             Background="White">
     <Grid>
 
         <Grid.RowDefinitions>

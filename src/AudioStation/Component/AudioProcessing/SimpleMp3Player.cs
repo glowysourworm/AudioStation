@@ -56,6 +56,9 @@ namespace AudioStation.Component.AudioProcessing
 
         private void OnTimerTick(object? state)
         {
+            if (Application.Current == null)
+                return;
+
             Application.Current.Dispatcher.BeginInvoke(() =>
             {
                 if (this.PlaybackTickEvent != null)

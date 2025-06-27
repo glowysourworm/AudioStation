@@ -3,6 +3,7 @@ using System.Windows.Threading;
 
 using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Model;
+using AudioStation.Core.Utility;
 using AudioStation.Model;
 
 using Microsoft.Extensions.Logging;
@@ -49,26 +50,14 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent
         /// </summary>
         protected void Report(LibraryWorkItem workItemData)
         {
-            if (Thread.CurrentThread.ManagedThreadId != Application.Current.Dispatcher.Thread.ManagedThreadId)
+            if (ApplicationHelpers.IsDispatcher() == ApplicationIsDispatcherResult.False)
                 Application.Current.Dispatcher.BeginInvoke(Report, DispatcherPriority.Background, workItemData);
 
-            else
+            else if (ApplicationHelpers.IsDispatcher() == ApplicationIsDispatcherResult.True)
             {
                 if (this.LibraryWorkItemUpdate != null)
                     this.LibraryWorkItemUpdate(workItemData);
             }
-        }
-
-        /// <summary>
-        /// Invokes logger on the application dispatcher thread
-        /// </summary>
-        protected void RaiseLog(int collectionId, string message, LogLevel level, params object[] parameters)
-        {
-            if (Thread.CurrentThread.ManagedThreadId != Application.Current.Dispatcher.Thread.ManagedThreadId)
-                Application.Current.Dispatcher.BeginInvoke(RaiseLog, DispatcherPriority.Background, collectionId, message, level, parameters);
-
-            else
-                _outputController.LogSeparate(collectionId, message, LogMessageType.LibraryLoaderWorkItem, level, parameters);
         }
 
         public LibraryLoaderWorkItem ClearWorkItem()

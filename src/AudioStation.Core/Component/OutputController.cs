@@ -13,7 +13,7 @@ namespace AudioStation.Core.Component
     [IocExport(typeof(IOutputController))]
     public class OutputController : IOutputController
     {
-        public const int MAX_LOG_SIZE = 1000;
+        public const int MAX_LOG_SIZE = 1000000;
 
         private readonly IIocEventAggregator _eventAggregator;
 
@@ -71,7 +71,7 @@ namespace AudioStation.Core.Component
 
         public void LogSeparate(int collectionId, string message, LogMessageType type)
         {
-            var logMessage = new LogMessage(message, type);
+            var logMessage = new LogMessage(true, collectionId, message, type, LogLevel.Information);
 
             this.LogSeparate(collectionId, logMessage);
         }

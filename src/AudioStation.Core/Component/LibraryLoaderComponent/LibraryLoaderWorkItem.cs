@@ -13,7 +13,15 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent
         /// <summary>
         /// Opens m3u file, and adds it to the M3UStream table int the database.
         /// </summary>
-        M3UFileAddUpdate
+        M3UFileAddUpdate,
+
+        /// <summary>
+        /// Completely fill out, and report on music brainz ID's througout the library. The AcoustID
+        /// service is used to try finding the ID by the first 30 seconds of the track in the event
+        /// that we can't find it otherwise. Finally, the data is stored both in the database; and the
+        /// tag data.
+        /// </summary>
+        FillMusicBrainzIds
     }
     public enum LibraryWorkItemState
     {

@@ -6,7 +6,7 @@
              xmlns:fa5="http://schemas.fontawesome.com/icons/"
              xmlns:coreComponent="clr-namespace:AudioStation.Core.Component;assembly=AudioStation.Core"
              xmlns:region="clr-namespace:SimpleWpf.IocFramework.RegionManagement;assembly=SimpleWpf.IocFramework"
-             Background="Transparent">
+             Background="#8F000000">
     
     <!-- Playlist Controller (Panel) (Bound to MainViewModel -> (Playlist)) -->
     <Grid>
@@ -26,6 +26,9 @@
         <controls:EqualizerOutputControl x:Name="EqualizerOutputControl" 
                                         VerticalAlignment="Stretch" 
                                         HorizontalAlignment="Stretch" 
+                                         BarBorder="#5FFFFFFF"
+                                         BarBrush="#5FFFFFFF"
+                                         PeakBrush="#3FFFFFFF"
                                         BarPadding="0" Margin="5" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" />
 
         <!-- Album Image -->

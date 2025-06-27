@@ -6,6 +6,7 @@ using System.Windows.Threading;
 using AudioStation.Controller.Interface;
 using AudioStation.Controller.Model;
 using AudioStation.Controls.Animation;
+using AudioStation.Core.Utility;
 
 using SimpleWpf.IocFramework.Application;
 
@@ -90,14 +91,17 @@ namespace AudioStation.Controls
 
         ~WebImageCarouselControl()
         {
+            if (ApplicationHelpers.IsDispatcher() == ApplicationIsDispatcherResult.ApplicationClosing)
+                return;
+
             Application.Current.Dispatcher.BeginInvoke(Dispose, DispatcherPriority.Background);
         }
         private async Task ReInitialize(int carouselIndex)
         {
-            if (Thread.CurrentThread.ManagedThreadId != Application.Current.Dispatcher.Thread.ManagedThreadId)
+            if (ApplicationHelpers.IsDispatcher() == ApplicationIsDispatcherResult.False)
                 Application.Current.Dispatcher.BeginInvoke(ReInitialize, DispatcherPriority.Background, carouselIndex);
 
-            else
+            else if (ApplicationHelpers.IsDispatcher() == ApplicationIsDispatcherResult.True)
             {
 
                 Dispose();
@@ -141,6 +145,9 @@ namespace AudioStation.Controls
 
         private void TimerTick(object? state)
         {
+            if (ApplicationHelpers.IsDispatcher() == ApplicationIsDispatcherResult.ApplicationClosing)
+                return;
+
             Application.Current.Dispatcher.BeginInvoke(() =>
             {
                 if (this.Artwork == null || this.CarouselImages == null || this.CarouselImages.Count <= 0)

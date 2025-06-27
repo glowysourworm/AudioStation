@@ -4,6 +4,7 @@ using System.Windows.Threading;
 
 using AudioStation.Controller.Interface;
 using AudioStation.Controller.Model;
+using AudioStation.Core.Utility;
 
 using SimpleWpf.IocFramework.Application;
 
@@ -43,6 +44,9 @@ namespace AudioStation.Controls
         }
         ~WebImageControl()
         {
+            if (ApplicationHelpers.IsDispatcher() == ApplicationIsDispatcherResult.ApplicationClosing)
+                return;
+
             // DESTRUCTOR CALED FROM NON-DISPATCHER ?!?
             Application.Current.Dispatcher.BeginInvoke(() =>
             {
@@ -76,10 +80,10 @@ namespace AudioStation.Controls
         private async Task Reload()
         {
             // Don't await the BeginInvoke
-            if (Thread.CurrentThread.ManagedThreadId != Application.Current.Dispatcher.Thread.ManagedThreadId)
+            if (ApplicationHelpers.IsDispatcher() == ApplicationIsDispatcherResult.False)
                 Application.Current.Dispatcher.BeginInvoke(Reload, DispatcherPriority.Background);
 
-            else
+            else if (ApplicationHelpers.IsDispatcher() == ApplicationIsDispatcherResult.True)
             {
                 // Go ahead and dump the source data until we've been reloaded by the container
                 this.Source = null;

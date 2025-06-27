@@ -6,6 +6,7 @@ using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Database;
 using AudioStation.Core.Event;
 using AudioStation.Core.Model;
+using AudioStation.Core.Utility;
 using AudioStation.Model;
 
 using Microsoft.EntityFrameworkCore;
@@ -349,7 +350,7 @@ namespace AudioStation.Controller
             }
             catch (Exception ex)
             {
-                RaiseLog("Error in IModelController (AddLibraryEntry):  {0}", LogMessageType.Database, LogLevel.Error, ex.Message);
+                ApplicationHelpers.Log("Error in IModelController (AddLibraryEntry):  {0}", LogMessageType.Database, LogLevel.Error, ex.Message);
                 throw ex;
             }
         }
@@ -391,7 +392,7 @@ namespace AudioStation.Controller
             }
             catch (Exception ex)
             {
-                RaiseLog("Error in IModelController (AddLibraryEntry):  {0}", LogMessageType.Database, LogLevel.Error, ex.Message);
+                ApplicationHelpers.Log("Error in IModelController (AddLibraryEntry):  {0}", LogMessageType.Database, LogLevel.Error, ex.Message);
                 throw ex;
             }
         }
@@ -434,7 +435,7 @@ namespace AudioStation.Controller
             }
             catch (Exception ex)
             {
-                RaiseLog("Error in IModelController (AddLibraryEntry):  {0}", LogMessageType.Database, LogLevel.Error, ex.Message);
+                ApplicationHelpers.Log("Error in IModelController (AddLibraryEntry):  {0}", LogMessageType.Database, LogLevel.Error, ex.Message);
             }
         }
 
@@ -451,7 +452,7 @@ namespace AudioStation.Controller
             }
             catch (Exception ex)
             {
-                RaiseLog("Error in IModelController (AddLibraryEntry):  {0}", LogMessageType.Database, LogLevel.Error, ex.Message);
+                ApplicationHelpers.Log("Error in IModelController (AddLibraryEntry):  {0}", LogMessageType.Database, LogLevel.Error, ex.Message);
             }
 
             return Enumerable.Empty<Mp3FileReference>();
@@ -472,7 +473,7 @@ namespace AudioStation.Controller
             }
             catch (Exception ex)
             {
-                RaiseLog("Error in IModelController (AddLibraryEntry):  {0}", LogMessageType.Database, LogLevel.Error, ex.Message);
+                ApplicationHelpers.Log("Error in IModelController (AddLibraryEntry):  {0}", LogMessageType.Database, LogLevel.Error, ex.Message);
             }
 
             return Enumerable.Empty<Mp3FileReferenceAlbum>();
@@ -491,7 +492,7 @@ namespace AudioStation.Controller
             }
             catch (Exception ex)
             {
-                RaiseLog("Error in IModelController (AddLibraryEntry):  {0}", LogMessageType.Database, LogLevel.Error, ex.Message);
+                ApplicationHelpers.Log("Error in IModelController (AddLibraryEntry):  {0}", LogMessageType.Database, LogLevel.Error, ex.Message);
             }
 
             return Enumerable.Empty<Mp3FileReference>();
@@ -591,22 +592,10 @@ namespace AudioStation.Controller
             }
             catch (Exception ex)
             {
-                RaiseLog("Error retrieving data page:  " + ex.Message, LogMessageType.Database, LogLevel.Error);
+                ApplicationHelpers.Log("Error retrieving data page:  " + ex.Message, LogMessageType.Database, LogLevel.Error);
             }
 
             return PageResult<TEntity>.GetDefault();
-        }
-
-        /// <summary>
-        /// Invokes logger on the application dispatcher thread
-        /// </summary>
-        protected void RaiseLog(string message, LogMessageType type, LogLevel level, params object[] parameters)
-        {
-            if (Thread.CurrentThread.ManagedThreadId != Application.Current.Dispatcher.Thread.ManagedThreadId)
-                Application.Current.Dispatcher.BeginInvoke(RaiseLog, DispatcherPriority.Background, message, type, level, parameters);
-
-            else
-                _outputController.Log(message, type, level, parameters);
         }
 
         private AudioStationDbContext CreateContext()

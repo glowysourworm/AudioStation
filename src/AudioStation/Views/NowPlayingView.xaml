@@ -4,7 +4,7 @@
              xmlns:local="clr-namespace:AudioStation.Views"
              xmlns:controls="clr-namespace:AudioStation.Controls"
              xmlns:fa5="http://schemas.fontawesome.com/icons/"
-             DataContext="{Binding NowPlaying}">
+             DataContext="{Binding NowPlaying}" Background="Transparent">
     <Grid>
 
         <Grid.ColumnDefinitions>
@@ -28,7 +28,7 @@
                                                   Artwork="{Binding BackgroundImages, Mode=TwoWay}">
             </controls:WebImageCarouselControl-->
 
-            <controls:WebImageControl HorizontalAlignment="Stretch"
+            <!-- controls:WebImageControl HorizontalAlignment="Stretch"
                                       VerticalAlignment="Stretch"
                                       Stretch="UniformToFill"
                                       StretchDirection="Both"
@@ -37,9 +37,9 @@
                 <controls:WebImageControl.Effect>
                     <BlurEffect Radius="100" />
                 </controls:WebImageControl.Effect>
-            </controls:WebImageControl>
+            </controls:WebImageControl-->
 
-            <Border Background="#3F000000" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+            <Border Background="#8F000000" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
         </Grid>
 
         <!-- Artist Header -->

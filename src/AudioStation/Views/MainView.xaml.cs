@@ -20,7 +20,7 @@ namespace AudioStation.Views
 
         private void OnShowOutputMessagesClick(object sender, System.Windows.RoutedEventArgs e)
         {
-            (this.DataContext as MainViewModel).ShowOutputMessages = !(this.DataContext as MainViewModel).ShowOutputMessages;
+            
         }
 
         private void RadioBrowserView_StartStationEvent(ViewModels.RadioViewModels.RadioStationViewModel sender)

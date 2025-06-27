@@ -1,6 +1,11 @@
-﻿using AudioStation.Core.Component.Interface;
+﻿using System.IO;
+
+using AudioStation.Component.Vendor.Interface;
+using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Model;
+using AudioStation.Core.Utility;
 using AudioStation.Model;
+using AudioStation.ViewModels;
 using AudioStation.ViewModels.Vendor.MusicBrainzViewModel;
 
 using AutoMapper;
@@ -11,11 +16,8 @@ using MetaBrainz.MusicBrainz.Interfaces.Entities;
 
 using Microsoft.Extensions.Logging;
 
-using SimpleWpf.IocFramework.Application.Attribute;
 using SimpleWpf.Extensions.Collection;
-using System.IO;
-using AudioStation.ViewModels;
-using AudioStation.Component.Vendor.Interface;
+using SimpleWpf.IocFramework.Application.Attribute;
 
 namespace AudioStation.Component.Vendor
 {
@@ -50,7 +52,7 @@ namespace AudioStation.Component.Vendor
             }
             catch (Exception ex)
             {
-                RaiseLog("Music Brainz Client Error:  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
+                ApplicationHelpers.Log("Music Brainz Client Error:  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
             }
 
             return null;
@@ -73,7 +75,7 @@ namespace AudioStation.Component.Vendor
             }
             catch (Exception ex)
             {
-                RaiseLog("Music Brainz Client Error:  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
+                ApplicationHelpers.Log("Music Brainz Client Error:  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
             }
 
             return null;
@@ -115,7 +117,7 @@ namespace AudioStation.Component.Vendor
             }
             catch (Exception ex)
             {
-                RaiseLog("Music Brainz Client Error:  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
+                ApplicationHelpers.Log("Music Brainz Client Error:  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
             }
 
             return null;
@@ -152,13 +154,13 @@ namespace AudioStation.Component.Vendor
 
                 if (release == null || artist == null)
                 {
-                    RaiseLog("Music Brainz Client failed for:  {0}", LogMessageType.General, LogLevel.Error, trackName);
+                    ApplicationHelpers.Log("Music Brainz Client failed for:  {0}", LogMessageType.General, LogLevel.Error, trackName);
                     return null;
                 }
 
                 if (media == null)
                 {
-                    RaiseLog("Music Brainz Client failed to retrieve media collection for:  {0}", LogMessageType.General, LogLevel.Error, trackName);
+                    ApplicationHelpers.Log("Music Brainz Client failed to retrieve media collection for:  {0}", LogMessageType.General, LogLevel.Error, trackName);
                     return null;
                 }
                     
@@ -168,7 +170,7 @@ namespace AudioStation.Component.Vendor
 
                 if (track == null)
                 {
-                    RaiseLog("Music Brainz Client failed to retrieve track for:  {0}", LogMessageType.General, LogLevel.Error, trackName);
+                    ApplicationHelpers.Log("Music Brainz Client failed to retrieve track for:  {0}", LogMessageType.General, LogLevel.Error, trackName);
                     return null;
                 }
 
@@ -228,7 +230,7 @@ namespace AudioStation.Component.Vendor
             }
             catch (Exception ex)
             {
-                RaiseLog("Music Brainz Client Error:  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
+                ApplicationHelpers.Log("Music Brainz Client Error:  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
             }
 
             return null;
@@ -257,7 +259,7 @@ namespace AudioStation.Component.Vendor
             }
             catch (Exception ex)
             {
-                RaiseLog("Music Brainz Client Error:  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
+                ApplicationHelpers.Log("Music Brainz Client Error:  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
             }
 
             return null;
@@ -286,7 +288,7 @@ namespace AudioStation.Component.Vendor
             }
             catch (Exception ex)
             {
-                RaiseLog("Music Brainz Client Error:  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
+                ApplicationHelpers.Log("Music Brainz Client Error:  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
             }
 
             return null;
@@ -315,7 +317,7 @@ namespace AudioStation.Component.Vendor
             }
             catch (Exception ex)
             {
-                RaiseLog("Music Brainz Client Error:  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
+                ApplicationHelpers.Log("Music Brainz Client Error:  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
             }
 
             return null;
@@ -343,7 +345,7 @@ namespace AudioStation.Component.Vendor
             }
             catch (Exception ex)
             {
-                RaiseLog("Music Brainz Client Error:  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
+                ApplicationHelpers.Log("Music Brainz Client Error:  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
             }
 
             return null;
@@ -371,15 +373,10 @@ namespace AudioStation.Component.Vendor
             }
             catch (Exception ex)
             {
-                RaiseLog("Music Brainz Client Error:  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
+                ApplicationHelpers.Log("Music Brainz Client Error:  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
             }
 
             return null;
-        }
-
-        private void RaiseLog(string message, LogMessageType type, LogLevel level, params object[] parameters)
-        {
-            _outputController.Log(message, type, level, parameters);
         }
     }
 }

@@ -3,6 +3,7 @@ using System.Windows.Threading;
 
 using AudioStation.Component.Vendor.Interface;
 using AudioStation.Core.Component.Interface;
+using AudioStation.Core.Utility;
 using AudioStation.Model;
 
 using Microsoft.Extensions.Logging;
@@ -34,7 +35,7 @@ namespace AudioStation.Component.Vendor
                 }
                 catch (Exception ex)
                 {
-                    RaiseLog("Error connecting to Fanart.tv:  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
+                    ApplicationHelpers.Log("Error connecting to Fanart.tv:  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
 
                     return Enumerable.Empty<string>();
                 }
@@ -53,23 +54,11 @@ namespace AudioStation.Component.Vendor
                 }
                 catch (Exception ex)
                 {
-                    RaiseLog("Error connecting to Fanart.tv:  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
+                    ApplicationHelpers.Log("Error connecting to Fanart.tv:  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
 
                     return Enumerable.Empty<string>();
                 }
             });
-        }
-
-        /// <summary>
-        /// Invokes logger on the application dispatcher thread
-        /// </summary>
-        protected void RaiseLog(string message, LogMessageType type, LogLevel level, params object[] parameters)
-        {
-            if (Thread.CurrentThread.ManagedThreadId != Application.Current.Dispatcher.Thread.ManagedThreadId)
-                Application.Current.Dispatcher.BeginInvoke(RaiseLog, DispatcherPriority.Background, message, type, level, parameters);
-
-            else
-                _outputController.Log(message, type, level, parameters);
         }
     }
 }

@@ -1,6 +1,6 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:viewModel="clr-namespace:AudioStation.ViewModels">
+                    xmlns:viewModel="clr-namespace:AudioStation.ViewModels.LogViewModels">
 
     <ResourceDictionary.MergedDictionaries>
         <ResourceDictionary Source="/Resources/TextBlockStyles.xaml" />
@@ -52,43 +52,106 @@
 
     <DataTemplate x:Key="LogDataTemplate" DataType="{x:Type viewModel:LogMessageViewModel}">
         <Border Padding="3">
-            <TextBlock Text="{Binding Message}" Style="{StaticResource LabelTextBlock}" />
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" Text="{Binding Timestamp, StringFormat={}{0:yyyy-MM-dd HH:mm:ss}}" Margin="10, 0" Style="{StaticResource LabelTextBlock}" />
+                <TextBlock Grid.Column="1" Text="{Binding Message}" Style="{StaticResource LabelTextBlock}" />
+                <TextBlock Grid.Column="2" Text="{Binding Level}" Style="{StaticResource LabelTextBlock}" />
+            </Grid>
         </Border>
     </DataTemplate>    
     
     <DataTemplate x:Key="LogDataTemplateTrace" DataType="{x:Type viewModel:LogMessageViewModel}">
         <Border Padding="3">
-            <TextBlock Text="{Binding Message}" Style="{StaticResource LabelTextBlock}" />
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" Text="{Binding Timestamp, StringFormat={}{0:yyyy-MM-dd HH:mm:ss}}" Margin="10, 0" Style="{StaticResource LabelTextBlock}" />
+                <TextBlock Grid.Column="1" Text="{Binding Message}" Style="{StaticResource LabelTextBlock}" />
+                <TextBlock Grid.Column="2" Text="{Binding Level}" Style="{StaticResource LabelTextBlock}" />
+            </Grid>
         </Border>
     </DataTemplate>
 
     <DataTemplate x:Key="LogDataTemplateDebug" DataType="{x:Type viewModel:LogMessageViewModel}">
         <Border Padding="3">
-            <TextBlock Text="{Binding Message}" Style="{StaticResource LabelTextBlock}" />
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" Text="{Binding Timestamp, StringFormat={}{0:yyyy-MM-dd HH:mm:ss}}" Margin="10, 0" Style="{StaticResource LabelTextBlock}" />
+                <TextBlock Grid.Column="1" Text="{Binding Message}" Style="{StaticResource LabelTextBlock}" />
+                <TextBlock Grid.Column="2" Text="{Binding Level}" Style="{StaticResource LabelTextBlock}" />
+            </Grid>
         </Border>
     </DataTemplate>
 
     <DataTemplate x:Key="LogDataTemplateInfo" DataType="{x:Type viewModel:LogMessageViewModel}">
         <Border Padding="3">
-            <TextBlock Text="{Binding Message}" Style="{StaticResource LabelTextBlock}" />
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" Text="{Binding Timestamp, StringFormat={}{0:yyyy-MM-dd HH:mm:ss}}" Margin="10, 0" Style="{StaticResource LabelTextBlock}" />
+                <TextBlock Grid.Column="1" Text="{Binding Message}" Style="{StaticResource LabelTextBlock}" />
+                <TextBlock Grid.Column="2" Text="{Binding Level}" Style="{StaticResource LabelTextBlock}" />
+            </Grid>
         </Border>
     </DataTemplate>
 
     <DataTemplate x:Key="LogDataTemplateWarning" DataType="{x:Type viewModel:LogMessageViewModel}">
         <Border Padding="3">
-            <TextBlock Text="{Binding Message}" Style="{StaticResource LabelWarningTextBlock}" />
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" Text="{Binding Timestamp, StringFormat={}{0:yyyy-MM-dd HH:mm:ss}}" Margin="10, 0" Style="{StaticResource LabelTextBlock}" />
+                <TextBlock Grid.Column="1" Text="{Binding Message}" Style="{StaticResource LabelTextBlock}" />
+                <TextBlock Grid.Column="2" Text="{Binding Level}" Style="{StaticResource LabelTextBlock}" />
+            </Grid>
         </Border>
     </DataTemplate>
 
     <DataTemplate x:Key="LogDataTemplateError" DataType="{x:Type viewModel:LogMessageViewModel}">
         <Border Padding="3">
-            <TextBlock Text="{Binding Message}" Style="{StaticResource LabelErrorTextBlock}" />
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" Text="{Binding Timestamp, StringFormat={}{0:yyyy-MM-dd HH:mm:ss}}" Margin="10, 0" Style="{StaticResource LabelTextBlock}" />
+                <TextBlock Grid.Column="1" Text="{Binding Message}" Style="{StaticResource LabelTextBlock}" />
+                <TextBlock Grid.Column="2" Text="{Binding Level}" Style="{StaticResource LabelTextBlock}" />
+            </Grid>
         </Border>
     </DataTemplate>
 
     <DataTemplate x:Key="LogDataTemplateCritical" DataType="{x:Type viewModel:LogMessageViewModel}">
         <Border Padding="3">
-            <TextBlock Text="{Binding Message}" Style="{StaticResource LabelErrorTextBlock}" />
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" Text="{Binding Timestamp, StringFormat={}{0:yyyy-MM-dd HH:mm:ss}}" Margin="10, 0" Style="{StaticResource LabelTextBlock}" />
+                <TextBlock Grid.Column="1" Text="{Binding Message}" Style="{StaticResource LabelTextBlock}" />
+                <TextBlock Grid.Column="2" Text="{Binding Level}" Style="{StaticResource LabelTextBlock}" />
+            </Grid>
         </Border>
     </DataTemplate>
 

@@ -1,6 +1,10 @@
 ﻿using AudioStation.Controls;
+using AudioStation.Core.Utility;
 using AudioStation.Event;
+using AudioStation.Model;
 using AudioStation.Views;
+
+using Microsoft.Extensions.Logging;
 
 using SimpleWpf.IocFramework.Application;
 using SimpleWpf.IocFramework.Application.Attribute;
@@ -20,13 +24,13 @@ namespace AudioStation
         {
             _regionManager = regionManager;
 
-            eventAggregator.GetEvent<NowPlayingExpandedViewEvent>().Subscribe(showExpanded =>
-            {
-                if (!showExpanded)
-                    regionManager.LoadNamedInstance(MAIN_REGION, typeof(MainView));
-                else
-                    regionManager.LoadNamedInstance(MAIN_REGION, typeof(NowPlayingView));
-            });
+            //eventAggregator.GetEvent<NowPlayingExpandedViewEvent>().Subscribe(showExpanded =>
+            //{
+                //if (!showExpanded)
+                //    regionManager.LoadNamedInstance(MAIN_REGION, typeof(MainView));
+                //else
+                //    regionManager.LoadNamedInstance(MAIN_REGION, typeof(NowPlayingView));
+           // });
         }
 
         public override void Initialize()
@@ -45,6 +49,8 @@ namespace AudioStation
         public override void Run()
         {
             base.Run();
+
+            ApplicationHelpers.Log("Welcome to Audio Station!", LogMessageType.General, LogLevel.Information);
         }
     }
 }

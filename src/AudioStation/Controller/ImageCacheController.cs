@@ -9,6 +9,7 @@ using AudioStation.Component.Interface;
 using AudioStation.Controller.Interface;
 using AudioStation.Controller.Model;
 using AudioStation.Core.Component.Interface;
+using AudioStation.Core.Utility;
 using AudioStation.Model;
 
 using Microsoft.Extensions.Logging;
@@ -140,7 +141,7 @@ namespace AudioStation.Controller
             }
             catch (Exception ex)
             {
-                RaiseLog("Error loading bitmaps for artist:  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
+                ApplicationHelpers.Log("Error loading bitmaps for artist:  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
             }
 
             return this.DefaultImageCache[cacheAsType];
@@ -154,7 +155,7 @@ namespace AudioStation.Controller
             }
             catch (Exception ex)
             {
-                RaiseLog("Error loading bitmaps for album:  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
+                ApplicationHelpers.Log("Error loading bitmaps for album:  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
             }
 
             return this.DefaultImageCache[cacheAsType];
@@ -196,7 +197,7 @@ namespace AudioStation.Controller
             }
             catch (Exception ex)
             {
-                RaiseLog("Error loading web image:  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
+                ApplicationHelpers.Log("Error loading web image:  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
             }
 
             return this.DefaultImageCache[cacheAsType];
@@ -210,8 +211,8 @@ namespace AudioStation.Controller
             }
             catch (Exception ex)
             {
-                RaiseLog("Error connecting to web image:  {0}", LogMessageType.General, LogLevel.Error, endpoint);
-                RaiseLog("Error trying to get web image:  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
+                ApplicationHelpers.Log("Error connecting to web image:  {0}", LogMessageType.General, LogLevel.Error, endpoint);
+                ApplicationHelpers.Log("Error trying to get web image:  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
             }
 
             return null;
@@ -280,16 +281,6 @@ namespace AudioStation.Controller
         private ImageCacheKey CreateKey(int entityId, ImageCacheType cacheAsType)
         {
             return new ImageCacheKey(entityId, new ImageSize(cacheAsType));
-        }
-
-        private void RaiseLog(string message, LogMessageType type, LogLevel level, params object[] parameters)
-        {
-            if (Thread.CurrentThread.ManagedThreadId != Application.Current.Dispatcher.Thread.ManagedThreadId)
-                Application.Current.Dispatcher.BeginInvoke(RaiseLog, DispatcherPriority.Background, message, type, level, parameters);
-            else
-            {
-                _outputController.Log(message, type, level, parameters);
-            }
         }
     }
 }

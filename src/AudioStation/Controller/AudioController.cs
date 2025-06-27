@@ -7,6 +7,7 @@ using AudioStation.Component.AudioProcessing.Interface;
 using AudioStation.Controller.Interface;
 using AudioStation.Core.Component;
 using AudioStation.Core.Model;
+using AudioStation.Core.Utility;
 using AudioStation.Event;
 
 using NAudio.Wave;
@@ -204,9 +205,10 @@ namespace AudioStation.Controller
 
         private void OnPlaybackTick(TimeSpan currentTime)
         {
-            if (Thread.CurrentThread.ManagedThreadId != Application.Current.Dispatcher.Thread.ManagedThreadId)
+            if (ApplicationHelpers.IsDispatcher() == ApplicationIsDispatcherResult.False)
                 Application.Current.Dispatcher.Invoke(OnPlaybackTick, DispatcherPriority.Background, currentTime);
-            else
+
+            else if (ApplicationHelpers.IsDispatcher() == ApplicationIsDispatcherResult.True)
             {
                 if (this.CurrentTimeUpdated != null)
                     this.CurrentTimeUpdated(currentTime);
@@ -215,9 +217,10 @@ namespace AudioStation.Controller
 
         private void OnEqualizerCalculated(EqualizerResultSet resultSet)
         {
-            if (Thread.CurrentThread.ManagedThreadId != Application.Current.Dispatcher.Thread.ManagedThreadId)
+            if (ApplicationHelpers.IsDispatcher() == ApplicationIsDispatcherResult.False)
                 Application.Current.Dispatcher.Invoke(OnEqualizerCalculated, DispatcherPriority.Background, resultSet);
-            else
+
+            else if (ApplicationHelpers.IsDispatcher() == ApplicationIsDispatcherResult.True)
             {
                 if (this.CurrentBandLevelsUpdated != null)
                     this.CurrentBandLevelsUpdated(resultSet);

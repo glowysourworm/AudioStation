@@ -18,13 +18,37 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="28" />
         </Grid.RowDefinitions>
-        
+
+        <!-- Background -->
+        <Grid Grid.RowSpan="3" 
+              Grid.ColumnSpan="2" 
+              DataContext="{Binding NowPlaying}">
+
+            <!--controls:WebImageCarouselControl HorizontalAlignment="Stretch"
+                                                  VerticalAlignment="Stretch"
+                                                  Interval="5000"
+                                                  ImageSize="FullSize"                                      
+                                                  Artwork="{Binding BackgroundImages, Mode=TwoWay}">
+            </controls:WebImageCarouselControl-->
+
+            <controls:WebImageControl HorizontalAlignment="Stretch"
+                                      VerticalAlignment="Stretch"
+                                      Stretch="UniformToFill"
+                                      StretchDirection="Both"
+                                      ImageSize="FullSize"                                      
+                                      ImageEndpoint="{Binding BestImage, Mode=TwoWay}">
+                <controls:WebImageControl.Effect>
+                    <BlurEffect Radius="100" />
+                </controls:WebImageControl.Effect>
+            </controls:WebImageControl>
+        </Grid>
+
         <!-- Main View (Manager) / (Playlist) -->
         <region:IocRegion region:IocRegionManager.RegionName="MainRegion"
                           Grid.ColumnSpan="2" />
         
         <!-- Audio Control Panel: Equalizer, Volume -->
-        <Border Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Bottom">
+        <Border Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" Background="Transparent">
             <region:IocRegion region:IocRegionManager.DefaultViewType="{x:Type views:AudioControlPanelView}">
             </region:IocRegion>
         </Border>

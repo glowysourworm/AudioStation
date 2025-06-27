@@ -15,6 +15,8 @@ namespace AudioStation.Model
     }
     public struct LogMessage
     {
+        public bool IsSeparatedLog {  get; set; }
+        public object LogComponentId { get; set; }
         public string Message { get; set; }
         public LogLevel Level { get; set; }
         public LogMessageType Type { get; set; }
@@ -29,8 +31,14 @@ namespace AudioStation.Model
         {
             
         }
-        public LogMessage(string message, LogMessageType type, LogLevel level)
+        public LogMessage(string message, LogMessageType type, LogLevel level) :
+            this(false, type, message, type, level)
         {
+        }
+        public LogMessage(bool isSeparated, object componentId, string message, LogMessageType type, LogLevel level)
+        {
+            this.IsSeparatedLog = isSeparated;
+            this.LogComponentId = componentId;
             this.Message = message;
             this.Level = level;
             this.Type = type;

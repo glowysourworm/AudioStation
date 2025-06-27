@@ -29,11 +29,11 @@
     <SolidColorBrush x:Key="OutputTabControlBorder">LightGray</SolidColorBrush>
     
     <SolidColorBrush x:Key="MainTabItemBackground">White</SolidColorBrush>
-    <SolidColorBrush x:Key="MainTabItemBackgroundHover">#0D000000</SolidColorBrush>
-    <SolidColorBrush x:Key="MainTabItemBackgroundPressed">#0F000000</SolidColorBrush>
-    <SolidColorBrush x:Key="MainTabItemBackgroundSelected">#0D000000</SolidColorBrush>
-    <SolidColorBrush x:Key="MainTabItemForeground">Gray</SolidColorBrush>
-    <SolidColorBrush x:Key="MainTabItemBorder">LightGray</SolidColorBrush>
+    <SolidColorBrush x:Key="MainTabItemBackgroundHover">#AFEEEEEE</SolidColorBrush>
+    <SolidColorBrush x:Key="MainTabItemBackgroundPressed">#AFEEEEEE</SolidColorBrush>
+    <SolidColorBrush x:Key="MainTabItemBackgroundSelected">#AFEEEEEE</SolidColorBrush>
+    <SolidColorBrush x:Key="MainTabItemForeground">#8F000000</SolidColorBrush>
+    <SolidColorBrush x:Key="MainTabItemBorder">#8F000000</SolidColorBrush>
 
     <SolidColorBrush x:Key="OutputTabItemBackground">White</SolidColorBrush>
     <SolidColorBrush x:Key="OutputTabItemBackgroundHover">#0F88CCFF</SolidColorBrush>

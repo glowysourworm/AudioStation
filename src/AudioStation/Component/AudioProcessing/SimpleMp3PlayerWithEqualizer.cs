@@ -3,6 +3,7 @@ using System.Windows.Threading;
 
 using AudioStation.Component.AudioProcessing.Interface;
 using AudioStation.Core.Model;
+using AudioStation.Core.Utility;
 
 using NAudio.Extras;
 using NAudio.Wave;
@@ -90,9 +91,10 @@ namespace AudioStation.Component.AudioProcessing
 
         public void Dispose()
         {
-            if (Thread.CurrentThread.ManagedThreadId != Application.Current.Dispatcher.Thread.ManagedThreadId)
+            if (ApplicationHelpers.IsDispatcher() == ApplicationIsDispatcherResult.False)
                 Application.Current.Dispatcher.BeginInvoke(Dispose, DispatcherPriority.Background);
-            else
+
+            else if (ApplicationHelpers.IsDispatcher() == ApplicationIsDispatcherResult.True)
             {
                 if (_reader != null)
                 {
@@ -114,9 +116,10 @@ namespace AudioStation.Component.AudioProcessing
 
         private void OnPlaybackStopped(object? sender, StoppedEventArgs e)
         {
-            if (Thread.CurrentThread.ManagedThreadId != Application.Current.Dispatcher.Thread.ManagedThreadId)
+            if (ApplicationHelpers.IsDispatcher() == ApplicationIsDispatcherResult.False)
                 Application.Current.Dispatcher.BeginInvoke(OnPlaybackStopped, DispatcherPriority.Background, sender, e);
-            else
+
+            else if (ApplicationHelpers.IsDispatcher() == ApplicationIsDispatcherResult.True)
             {
                 if (this.PlaybackStoppedEvent != null)
                     this.PlaybackStoppedEvent(e);
@@ -125,9 +128,10 @@ namespace AudioStation.Component.AudioProcessing
 
         private void OnPlaybackTick(object? sender, TimeSpan currentTime)
         {
-            if (Thread.CurrentThread.ManagedThreadId != Application.Current.Dispatcher.Thread.ManagedThreadId)
+            if (ApplicationHelpers.IsDispatcher() == ApplicationIsDispatcherResult.False)
                 Application.Current.Dispatcher.BeginInvoke(OnPlaybackTick, DispatcherPriority.Background, sender, currentTime);
-            else
+
+            else if (ApplicationHelpers.IsDispatcher() == ApplicationIsDispatcherResult.True)
             {
                 if (this.PlaybackTickEvent != null)
                     this.PlaybackTickEvent(_reader == null ? TimeSpan.Zero : _reader.CurrentTime);
@@ -136,9 +140,10 @@ namespace AudioStation.Component.AudioProcessing
 
         private void OnFFTCalculated(object? sender, FftEventArgs fftArgs)
         {
-            if (Thread.CurrentThread.ManagedThreadId != Application.Current.Dispatcher.Thread.ManagedThreadId)
+            if (ApplicationHelpers.IsDispatcher() == ApplicationIsDispatcherResult.False)
                 Application.Current.Dispatcher.BeginInvoke(OnFFTCalculated, DispatcherPriority.Background, sender, fftArgs);
-            else
+
+            else if (ApplicationHelpers.IsDispatcher() == ApplicationIsDispatcherResult.True)
             {
                 var update = _equalizerResult.Update(fftArgs.Result);
 

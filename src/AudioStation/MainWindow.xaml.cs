@@ -6,6 +6,7 @@ using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Threading;
 
+using AudioStation.Core.Utility;
 using AudioStation.ViewModels;
 
 using Microsoft.Win32;
@@ -82,6 +83,9 @@ namespace AudioStation
 
         protected override void OnStateChanged(EventArgs e)
         {
+            if (ApplicationHelpers.IsDispatcher() == ApplicationIsDispatcherResult.ApplicationClosing)
+                return;
+
             // WindowState = Requested State
             //
             _stateChanging = true;              // Event Blocker
@@ -233,7 +237,11 @@ namespace AudioStation
                 {
                     this.UserMenuPopup.IsOpen = false;
 
-                    _mainViewModel.ShowOutputMessages = !_mainViewModel.ShowOutputMessages;
+                    var window = new LogWindow();
+                    window.DataContext = _mainViewModel.Log;
+                    window.ShowDialog();
+
+                    //_mainViewModel.ShowOutputMessages = !_mainViewModel.ShowOutputMessages;
                 };
             }
             if (this.ExitButton != null)

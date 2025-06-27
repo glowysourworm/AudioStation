@@ -10,10 +10,12 @@ using AudioStation.Core.Component;
 using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Event;
 using AudioStation.Core.Model;
+using AudioStation.Core.Utility;
 using AudioStation.Event;
 using AudioStation.Model;
 using AudioStation.ViewModels.Controls;
 using AudioStation.ViewModels.LibraryViewModels.Comparer;
+using AudioStation.ViewModels.LogViewModels;
 using AudioStation.ViewModels.PlaylistViewModels.Interface;
 using AudioStation.ViewModels.RadioViewModels;
 using AudioStation.ViewModels.Vendor;
@@ -46,18 +48,14 @@ public partial class MainViewModel : ViewModelBase, IDisposable
     #region Backing Fields
     Configuration _configuration;
     string _statusMessage;
-    bool _showOutputMessages;
     bool _loadedFromConfiguration;
     float _volume;
     bool _loading;
     bool _configurationLocked;
 
-    LogMessageType _selectedLogType;
-    LogLevel _databaseLogLevel;
-    LogLevel _generalLogLevel;
-
     LibraryViewModel _library;
     RadioViewModel _radio;
+    LogViewModel _log;
     NowPlayingViewModel _nowPlaying;
     BandcampViewModel _bandcamp;
     LibraryLoaderViewModel _libraryLoaderViewModel;
@@ -65,8 +63,6 @@ public partial class MainViewModel : ViewModelBase, IDisposable
     ObservableCollection<float> _equalizerValues;
     ObservableCollection<EqualizerBandViewModel> _equalizerViewModel;
     PlayStopPause _playState;
-
-    ObservableCollection<LogMessageViewModel> _outputMessages;
 
     SimpleCommand _openLibraryFolderCommand;
     SimpleCommand _openDownloadFolderCommand;
@@ -81,20 +77,10 @@ public partial class MainViewModel : ViewModelBase, IDisposable
         get { return _configuration; }
         set { this.RaiseAndSetIfChanged(ref _configuration, value); }
     }
-    public ObservableCollection<LogMessageViewModel> OutputMessages
-    {
-        get { return _outputMessages; }
-        set { this.RaiseAndSetIfChanged(ref _outputMessages, value); }
-    }
     public string StatusMessage
     {
         get { return _statusMessage; }
         set { this.RaiseAndSetIfChanged(ref _statusMessage, value); }
-    }
-    public bool ShowOutputMessages
-    {
-        get { return _showOutputMessages; }
-        set { this.RaiseAndSetIfChanged(ref _showOutputMessages, value); }
     }
     public bool LoadedFromConfiguration
     {
@@ -126,6 +112,11 @@ public partial class MainViewModel : ViewModelBase, IDisposable
         get { return _radio; }
         set { this.RaiseAndSetIfChanged(ref _radio, value); }
     }
+    public LogViewModel Log
+    {
+        get { return _log; }
+        set { this.RaiseAndSetIfChanged(ref _log, value); }
+    }
     public BandcampViewModel Bandcamp
     {
         get { return _bandcamp; }
@@ -135,21 +126,6 @@ public partial class MainViewModel : ViewModelBase, IDisposable
     {
         get { return _libraryLoaderViewModel; }
         set { this.RaiseAndSetIfChanged(ref _libraryLoaderViewModel, value); }
-    }
-    public LogMessageType SelectedLogType
-    {
-        get { return _selectedLogType; }
-        set { this.RaiseAndSetIfChanged(ref _selectedLogType, value); OnLogTypeChanged(); }
-    }
-    public LogLevel DatabaseLogLevel
-    {
-        get { return _databaseLogLevel; }
-        set { this.RaiseAndSetIfChanged(ref _databaseLogLevel, value); OnLogLevelChanged(LogMessageType.Database); }
-    }
-    public LogLevel GeneralLogLevel
-    {
-        get { return _generalLogLevel; }
-        set { this.RaiseAndSetIfChanged(ref _generalLogLevel, value); OnLogLevelChanged(LogMessageType.General); }
     }
     public NowPlayingViewModel NowPlaying
     {
@@ -204,12 +180,12 @@ public partial class MainViewModel : ViewModelBase, IDisposable
                          IAudioController audioController,
                          IModelController modelController,
                          ILibraryLoader libraryLoader,
-                         IOutputController outputController,
                          IIocEventAggregator eventAggregator,
 
                          // View Models
                          LibraryViewModel libraryViewModel,
                          RadioViewModel radioViewModel,
+                         LogViewModel logViewModel,
                          LibraryLoaderViewModel libraryLoaderViewModel,
                          NowPlayingViewModel nowPlayingViewModel,
                          BandcampViewModel bandcampViewModel)
@@ -218,13 +194,10 @@ public partial class MainViewModel : ViewModelBase, IDisposable
         _audioController = audioController;
         _modelController = modelController;
         _libraryLoader = libraryLoader;
-        _outputController = outputController;
         _eventAggregator = eventAggregator;
 
         this.ConfigurationLocked = true;
         this.Configuration = configurationManager.GetConfiguration();
-        this.ShowOutputMessages = false;
-        this.OutputMessages = new ObservableCollection<LogMessageViewModel>();
         this.EqualizerValues = new ObservableCollection<float>();
         this.EqualizerViewModel = new ObservableCollection<EqualizerBandViewModel>()
         {
@@ -240,6 +213,7 @@ public partial class MainViewModel : ViewModelBase, IDisposable
         };
 
         // Child View Models
+        this.Log = logViewModel;
         this.NowPlaying = nowPlayingViewModel;
         this.PlayState = PlayStopPause.Stop;
         this.Library = libraryViewModel;
@@ -248,10 +222,6 @@ public partial class MainViewModel : ViewModelBase, IDisposable
         this.Bandcamp = bandcampViewModel;
         this.Volume = 1.0f;
         this.Loading = false;
-
-        this.DatabaseLogLevel = LogLevel.Trace;
-        this.GeneralLogLevel = LogLevel.Trace;
-        this.SelectedLogType = LogMessageType.General;
 
         // IAudioController playback tick event
         audioController.CurrentTimeUpdated += OnCurrentTimeUpdated;
@@ -299,8 +269,17 @@ public partial class MainViewModel : ViewModelBase, IDisposable
         {
             this.ConfigurationLocked = false;
         });
+    }
 
-        outputController.Log("Welcome to Audio Station!", LogMessageType.General);
+    private void OnLog(LogMessage message)
+    {
+        if (ApplicationHelpers.IsDispatcher() == ApplicationIsDispatcherResult.False)
+            Application.Current.Dispatcher.BeginInvoke(OnLog, DispatcherPriority.Background, message);
+
+        else
+        {
+            this.StatusMessage = message.Message;
+        }
     }
 
     private void OnMainLoadingChanged(bool loading)
@@ -337,75 +316,6 @@ public partial class MainViewModel : ViewModelBase, IDisposable
             this.NowPlaying.Playlist.CurrentTrack.UpdateCurrentTime(currentTime);
     }
 
-    private void OnLogTypeChanged()
-    {
-        ResetOutputMessages();
-    }
-    private void OnLogLevelChanged(LogMessageType type)
-    {
-        ResetOutputMessages();
-    }
-    private void OnLog(LogMessage message)
-    {
-        if (Thread.CurrentThread.ManagedThreadId != Application.Current.Dispatcher.Thread.ManagedThreadId)
-        {
-            Application.Current.Dispatcher.BeginInvoke(() =>
-            {
-                OnLogImpl(message);
-
-            }, DispatcherPriority.ApplicationIdle);
-        }
-        else
-            OnLogImpl(message);
-    }
-    private void OnLogImpl(LogMessage message)
-    {
-        if (Thread.CurrentThread.ManagedThreadId != Application.Current.Dispatcher.Thread.ManagedThreadId)
-            throw new Exception("Trying to access MainViewModel on non-dispatcher thread");
-
-        var logLevel = this.SelectedLogType == LogMessageType.General ? this.GeneralLogLevel : this.DatabaseLogLevel;
-
-        if (message.Type == this.SelectedLogType && message.Level >= logLevel)
-        {
-            this.OutputMessages.Insert(0, new LogMessageViewModel()
-            {
-                Message = message.Message,
-                Type = message.Type,
-                Level = message.Level
-            });
-
-            if (this.OutputMessages.Count > MAX_LOG_COUNT)
-            {
-                this.OutputMessages.RemoveAt(this.OutputMessages.Count - 1);
-            }
-
-            // Status Message (for now, last log message)
-            this.StatusMessage = message.Message;
-        }
-    }
-    private void ResetOutputMessages()
-    {
-        var logLevel = this.SelectedLogType == LogMessageType.General ? this.GeneralLogLevel : this.DatabaseLogLevel;
-
-        this.OutputMessages.Clear();
-        this.OutputMessages.AddRange(_outputController.GetLatestLogs(this.SelectedLogType, logLevel, MAX_LOG_COUNT)
-                                                      .Select(log => new LogMessageViewModel()
-                                                      {
-                                                          Level = log.Level,
-                                                          Message = log.Message,
-                                                          Type = log.Type,
-                                                      }));
-
-        // Send event out for new log configuration
-        // Update log output configuration
-        _eventAggregator.GetEvent<LogConfigurationChangedEvent>().Publish(new LogConfigurationData()
-        {
-            Level = logLevel,
-            Verbose = false,
-            Type = this.SelectedLogType
-        });
-    }
-
     public void Dispose()
     {
         if (!_disposed)
@@ -419,8 +329,6 @@ public partial class MainViewModel : ViewModelBase, IDisposable
             _audioController.Dispose();
 
             this.Configuration = null;
-            this.ShowOutputMessages = false;
-            this.OutputMessages.Clear();
         }
     }
 }

@@ -11,6 +11,32 @@ namespace AudioStation.Controls
         public static readonly DependencyProperty BarPaddingProperty =
             DependencyProperty.Register("BarPadding", typeof(Thickness), typeof(EqualizerOutputControl), new PropertyMetadata(new Thickness(0)));
 
+        public static readonly DependencyProperty BarBrushProperty =
+            DependencyProperty.Register("BarBrush", typeof(Brush), typeof(EqualizerOutputControl), new PropertyMetadata(Brushes.LightGray));
+
+        public static readonly DependencyProperty BarBorderProperty =
+            DependencyProperty.Register("BarBorder", typeof(Brush), typeof(EqualizerOutputControl), new PropertyMetadata(Brushes.LightGray));
+
+        public static readonly DependencyProperty PeakBrushProperty =
+            DependencyProperty.Register("PeakBrush", typeof(Brush), typeof(EqualizerOutputControl), new PropertyMetadata(Brushes.Red));
+
+        public Brush PeakBrush
+        {
+            get { return (Brush)GetValue(PeakBrushProperty); }
+            set { SetValue(PeakBrushProperty, value); }
+        }
+
+        public Brush BarBrush
+        {
+            get { return (Brush)GetValue(BarBrushProperty); }
+            set { SetValue(BarBrushProperty, value); }
+        }
+        public Brush BarBorder
+        {
+            get { return (Brush)GetValue(BarBorderProperty); }
+            set { SetValue(BarBorderProperty, value); }
+        }
+
         public Thickness BarPadding
         {
             get { return (Thickness)GetValue(BarPaddingProperty); }
@@ -18,12 +44,16 @@ namespace AudioStation.Controls
         }
 
         List<Size> _barSizes;
+        List<Size> _peakSizes;
         StreamGeometry _outputGeometry;
+        StreamGeometry _peakGeometry;
 
         public EqualizerOutputControl()
         {
             _barSizes = new List<Size>();
+            _peakSizes = new List<Size>();
             _outputGeometry = new StreamGeometry();
+            _peakGeometry = new StreamGeometry();
         }
 
         // This method is provided because the observable collection is not updating with the dependency
@@ -38,27 +68,40 @@ namespace AudioStation.Controls
                 return;
 
             if (_barSizes.Count != resultSet.Result.Length)
+            {
                 _barSizes.Clear();
+                _peakSizes.Clear();
+            }    
 
-            //var maxRatio = resultSet.Result.Max();
-            var maxRatio = 1.0f;
+            var maxRatio = resultSet.ResultPeaks.Max();
+            //var maxRatio = 1.0f;
 
             for (int index = 0; index < resultSet.Result.Length; index++)
             {
+                var peakRatio = resultSet.ResultPeaks[index];
                 var ratio = resultSet.Result[index];
+                var scaledPeakRatio = peakRatio / maxRatio;
                 var scaledRatio = ratio / maxRatio;           // Normalizing the bar size
 
                 var width = (this.RenderSize.Width / resultSet.Result.Length) - this.BarPadding.Left - this.BarPadding.Right;
                 var height = (this.RenderSize.Height * scaledRatio) - this.BarPadding.Top - this.BarPadding.Bottom;
 
+                var peakWidth = (this.RenderSize.Width / resultSet.Result.Length) - this.BarPadding.Left - this.BarPadding.Right;
+                var peakHeight = (this.RenderSize.Height * scaledPeakRatio) - this.BarPadding.Top - this.BarPadding.Bottom;
+
                 width = Math.Clamp(width, 0, this.RenderSize.Width);
                 height = Math.Clamp(height, 0, this.RenderSize.Height);
 
                 if (_barSizes.Count == resultSet.Result.Length)
+                {
                     _barSizes[index] = new Size(width, height);
-
+                    _peakSizes[index] = new Size(peakWidth, peakHeight);
+                }
                 else
+                {
                     _barSizes.Add(new Size(width, height));
+                    _peakSizes.Add(new Size(peakWidth, peakHeight));
+                }
             }
 
             InvalidateVisual();
@@ -68,7 +111,7 @@ namespace AudioStation.Controls
         {
             //base.OnRender(drawingContext);
 
-            drawingContext.DrawRectangle(Brushes.White, null, new Rect(this.RenderSize));
+            drawingContext.DrawRectangle(Brushes.Transparent, null, new Rect(this.RenderSize));
 
             // Un-Padded
             var barWidth = this.RenderSize.Width / _barSizes.Count;
@@ -105,9 +148,35 @@ namespace AudioStation.Controls
                 }
             }
 
-            var brush = new SolidColorBrush(Color.FromArgb(0x0F, 0x00, 0x00, 0x00));
+            using (var stream = _peakGeometry.Open())
+            {
+                for (int index = 0; index < _barSizes.Count; index++)
+                {
+                    pointTL.X = barWidth * index;
+                    pointTL.Y = barHeight - _peakSizes[index].Height;
 
-            drawingContext.DrawGeometry(brush, new Pen(Brushes.White, 1), _outputGeometry);
+                    pointTR.X = pointTL.X + barWidth;
+                    pointTR.Y = pointTL.Y;
+
+                    pointBR.X = pointTL.X + barWidth;
+                    pointBR.Y = pointTL.Y + 1;                         
+
+                    pointBL.X = pointTL.X;
+                    pointBL.Y = pointBR.Y;
+
+                    stream.BeginFigure(pointTL, true, false);
+                    stream.LineTo(pointTR, true, true);
+                    stream.LineTo(pointBR, true, true);
+                    stream.LineTo(pointBL, true, true);
+                    stream.LineTo(pointTL, true, true);
+                }
+            }
+
+            // Peaks
+            drawingContext.DrawGeometry(this.PeakBrush, new Pen(this.BarBorder, 1), _peakGeometry);
+
+            // Bars
+            drawingContext.DrawGeometry(this.BarBrush, new Pen(this.BarBorder, 1), _outputGeometry);
         }
     }
 }
