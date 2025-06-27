@@ -53,5 +53,21 @@
                 return this.FilesProcessed.Values.Any(x => !x);
             }
         }
+
+        public override int GetFailureCount()
+        {
+            lock (_lock)
+            {
+                return this.FilesProcessed.Values.Count(x => !x);
+            }
+        }
+
+        public override int GetSuccessCount()
+        {
+            lock (_lock)
+            {
+                return this.FilesProcessed.Values.Count(x => x);
+            }
+        }
     }
 }

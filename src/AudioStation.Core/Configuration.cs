@@ -10,6 +10,11 @@ namespace AudioStation.Core
         string _databaseUser;
         string _databasePassword;
 
+        string _musicBrainzDatabaseHost;
+        string _musicBrainzDatabaseName;
+        string _musicBrainzDatabaseUser;
+        string _musicBrainzDatabasePassword;
+
         string _downloadFolder;
 
         string _bandcampEmail;
@@ -40,6 +45,7 @@ namespace AudioStation.Core
             get { return _directoryBase; }
             set { RaiseAndSetIfChanged(ref _directoryBase, value); }
         }
+
         public string DatabaseHost
         {
             get { return _databaseHost; }
@@ -60,6 +66,28 @@ namespace AudioStation.Core
             get { return _databasePassword; }
             set { RaiseAndSetIfChanged(ref _databasePassword, value); }
         }
+
+        public string MusicBrainzDatabaseHost
+        {
+            get { return _musicBrainzDatabaseHost; }
+            set { this.RaiseAndSetIfChanged(ref _musicBrainzDatabaseHost, value); }
+        }
+        public string MusicBrainzDatabaseName
+        {
+            get { return _musicBrainzDatabaseName; }
+            set { this.RaiseAndSetIfChanged(ref _musicBrainzDatabaseName, value); }
+        }
+        public string MusicBrainzDatabaseUser
+        {
+            get { return _musicBrainzDatabaseUser; }
+            set { this.RaiseAndSetIfChanged(ref _musicBrainzDatabaseUser, value); }
+        }
+        public string MusicBrainzDatabasePassword
+        {
+            get { return _musicBrainzDatabasePassword; }
+            set { this.RaiseAndSetIfChanged(ref _musicBrainzDatabasePassword, value); }
+        }
+
         public string BandcampEmail
         {
             get { return _bandcampEmail; }
@@ -163,10 +191,17 @@ namespace AudioStation.Core
         public Configuration()
         {
             this.DirectoryBase = string.Empty;
+
             this.DatabaseHost = string.Empty;
             this.DatabaseName = string.Empty;
             this.DatabaseUser = string.Empty;
             this.DatabasePassword = string.Empty;
+
+            this.MusicBrainzDatabaseHost = string.Empty;
+            this.MusicBrainzDatabaseName = string.Empty;
+            this.MusicBrainzDatabasePassword = string.Empty;
+            this.MusicBrainzDatabaseUser = string.Empty;
+
             this.BandcampEmail = string.Empty;
             this.BandcampAPIKey = string.Empty;
             this.DownloadFolder = string.Empty;

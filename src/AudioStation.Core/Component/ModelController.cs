@@ -3,7 +3,7 @@ using System.Windows;
 using System.Windows.Threading;
 
 using AudioStation.Core.Component.Interface;
-using AudioStation.Core.Database;
+using AudioStation.Core.Database.AudioStationDatabase;
 using AudioStation.Core.Event;
 using AudioStation.Core.Model;
 using AudioStation.Core.Utility;
@@ -372,7 +372,7 @@ namespace AudioStation.Controller
 
                     if (mediaEntity == null)
                     {
-                        mediaEntity = new Core.Database.M3UStream();
+                        mediaEntity = new M3UStream();
                         newEntry = true;
                     }
 
@@ -498,7 +498,7 @@ namespace AudioStation.Controller
             return Enumerable.Empty<Mp3FileReference>();
         }
 
-        public PageResult<TEntity> GetPage<TEntity, TOrder>(PageRequest<TEntity, TOrder> request) where TEntity : EntityBase
+        public PageResult<TEntity> GetPage<TEntity, TOrder>(PageRequest<TEntity, TOrder> request) where TEntity : AudioStationEntityBase
         {
             try
             {
@@ -598,7 +598,7 @@ namespace AudioStation.Controller
             return PageResult<TEntity>.GetDefault();
         }
 
-        public IEnumerable<TEntity> GetEntities<TEntity>() where TEntity : EntityBase
+        public IEnumerable<TEntity> GetEntities<TEntity>() where TEntity : AudioStationEntityBase
         {
             try
             {
@@ -643,7 +643,7 @@ namespace AudioStation.Controller
             return Enumerable.Empty<TEntity>();
         }
 
-        public TEntity GetEntity<TEntity>(int id) where TEntity : EntityBase
+        public TEntity GetEntity<TEntity>(int id) where TEntity : AudioStationEntityBase
         {
             try
             {
@@ -654,23 +654,23 @@ namespace AudioStation.Controller
                     // Flat entities may be queried
                     if (typeof(TEntity) == typeof(M3UStream))
                     {
-                        entity = (TEntity?)(EntityBase?)context.M3UStreams.Find(id);
+                        entity = (TEntity?)(AudioStationEntityBase?)context.M3UStreams.Find(id);
                     }
                     else if (typeof(TEntity) == typeof(Mp3FileReference))
                     {
-                        entity = (TEntity?)(EntityBase?)context.Mp3FileReferences.Find(id);
+                        entity = (TEntity?)(AudioStationEntityBase?)context.Mp3FileReferences.Find(id);
                     }
                     else if (typeof(TEntity) == typeof(Mp3FileReferenceArtist))
                     {
-                        entity = (TEntity?)(EntityBase?)context.Mp3FileReferenceArtists.Find(id);
+                        entity = (TEntity?)(AudioStationEntityBase?)context.Mp3FileReferenceArtists.Find(id);
                     }
                     else if (typeof(TEntity) == typeof(Mp3FileReferenceGenre))
                     {
-                        entity = (TEntity?)(EntityBase?)context.Mp3FileReferenceGenres.Find(id);
+                        entity = (TEntity?)(AudioStationEntityBase?)context.Mp3FileReferenceGenres.Find(id);
                     }
                     else if (typeof(TEntity) == typeof(RadioBrowserStation))
                     {
-                        entity = (TEntity?)(EntityBase?)context.RadioBrowserStations.Find(id);
+                        entity = (TEntity?)(AudioStationEntityBase?)context.RadioBrowserStations.Find(id);
                     }
                     else
                     {
@@ -688,7 +688,7 @@ namespace AudioStation.Controller
             return null;
         }
 
-        public void UpdateEntity<TEntity>(TEntity entity) where TEntity : EntityBase
+        public void UpdateEntity<TEntity>(TEntity entity) where TEntity : AudioStationEntityBase
         {
             try
             {

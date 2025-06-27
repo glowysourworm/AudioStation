@@ -1,4 +1,4 @@
-﻿using AudioStation.Core.Database;
+﻿using AudioStation.Core.Database.AudioStationDatabase;
 using AudioStation.Core.Model;
 using AudioStation.ViewModels.LibraryViewModels;
 

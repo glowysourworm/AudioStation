@@ -2,11 +2,11 @@
 
 using Microsoft.EntityFrameworkCore;
 
-namespace AudioStation.Core.Database
+namespace AudioStation.Core.Database.AudioStationDatabase
 {
     [PrimaryKey("Id")]
     [Table("Mp3FileReferenceArtist", Schema = "public")]
-    public class Mp3FileReferenceArtist : EntityBase
+    public class Mp3FileReferenceArtist : AudioStationEntityBase
     {
         public string Name { get; set; }
         public string? MusicBrainzArtistId { get; set; }

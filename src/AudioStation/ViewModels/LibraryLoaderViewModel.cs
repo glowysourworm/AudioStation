@@ -119,7 +119,9 @@ namespace AudioStation.ViewModels
                         Id = workItem.Id,
                         HasErrors = workItem.HasErrors,
                         Progress = workItem.PercentComplete,
-                        Runtime = workItem.Runtime,
+                        EstimatedCompletionTime = workItem.EstimatedCompletionTime,
+                        FailureCount = workItem.FailureCount,
+                        SuccessCount = workItem.SuccessCount,
                         LoadType = workItem.LoadType,
                         LoadState = workItem.LoadState,
                         LastMessage = workItem.LastMessage,
@@ -131,7 +133,9 @@ namespace AudioStation.ViewModels
 
                     viewModel.Progress = workItem.PercentComplete;
                     viewModel.HasErrors = workItem.HasErrors;
-                    viewModel.Runtime = workItem.Runtime;
+                    viewModel.FailureCount = workItem.FailureCount;
+                    viewModel.SuccessCount = workItem.SuccessCount;
+                    viewModel.EstimatedCompletionTime = workItem.EstimatedCompletionTime;
                     viewModel.LoadState = workItem.LoadState;
                     viewModel.LoadType = workItem.LoadType;
                     viewModel.LastMessage = workItem.LastMessage;

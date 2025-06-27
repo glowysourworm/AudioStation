@@ -62,7 +62,9 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent
                     HasErrors = workItem.GetHasErrors(),
                     LoadState = workItem.GetLoadState(),
                     LoadType = workItem.GetLoadType(),
-                    Runtime = DateTime.Now.Subtract(workItem.GetStartTime()),
+                    FailureCount = workItem.GetFailureCount(),
+                    SuccessCount = workItem.GetSuccessCount(),
+                    EstimatedCompletionTime = DateTime.Now.AddSeconds(DateTime.Now.Subtract(workItem.GetStartTime()).TotalSeconds / (workItem.GetPercentComplete() == 0 ? 1 : workItem.GetPercentComplete())),
                     PercentComplete = workItem.GetPercentComplete(),
                     LastMessage = file
                 });

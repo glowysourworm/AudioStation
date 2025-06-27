@@ -1,4 +1,4 @@
-﻿using AudioStation.Core.Database;
+﻿using AudioStation.Core.Database.AudioStationDatabase;
 using AudioStation.Core.Model;
 
 using M3UStream = AudioStation.Core.Model.M3U.M3UStream;
@@ -62,22 +62,22 @@ namespace AudioStation.Core.Component.Interface
         /// <summary>
         /// Updates entity using property reflection
         /// </summary>
-        void UpdateEntity<TEntity>(TEntity entity) where TEntity : EntityBase;
+        void UpdateEntity<TEntity>(TEntity entity) where TEntity : AudioStationEntityBase;
 
         /// <summary>
         /// Requests a page of data from the database
         /// </summary>
         /// <typeparam name="TEntity">The specific entity type</typeparam>
-        PageResult<TEntity> GetPage<TEntity, TOrder>(PageRequest<TEntity, TOrder> request) where TEntity : EntityBase;
+        PageResult<TEntity> GetPage<TEntity, TOrder>(PageRequest<TEntity, TOrder> request) where TEntity : AudioStationEntityBase;
 
         /// <summary>
         /// Gets an entire entity table from the database
         /// </summary>
-        IEnumerable<TEntity> GetEntities<TEntity>() where TEntity : EntityBase;
+        IEnumerable<TEntity> GetEntities<TEntity>() where TEntity : AudioStationEntityBase;
 
         /// <summary>
         /// Gets entity by ID from the database
         /// </summary>
-        TEntity GetEntity<TEntity>(int id) where TEntity : EntityBase;
+        TEntity GetEntity<TEntity>(int id) where TEntity : AudioStationEntityBase;
     }
 }

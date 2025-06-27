@@ -1,17 +1,13 @@
-﻿
-using System.Configuration;
-
-using AudioStation.Core.Component.Interface;
+﻿using AudioStation.Core.Component.Interface;
 using AudioStation.Model;
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 using Microsoft.Extensions.Logging;
 
 using Npgsql;
 
-namespace AudioStation.Core.Database
+namespace AudioStation.Core.Database.AudioStationDatabase
 {
     public class AudioStationDbContext : DbContext, IDisposable
     {
@@ -29,8 +25,8 @@ namespace AudioStation.Core.Database
         public DbSet<Mp3FileReferenceGenreMap> Mp3FileReferenceGenreMaps { get; set; }
         public DbSet<RadioBrowserStation> RadioBrowserStations { get; set; }
 
-        public AudioStationDbContext(Configuration configuration, 
-                                     IOutputController outputController, 
+        public AudioStationDbContext(Configuration configuration,
+                                     IOutputController outputController,
                                      LogLevel currentLogLevel,
                                      bool logVerbose)
 
@@ -63,7 +59,7 @@ namespace AudioStation.Core.Database
             var connectionString = GetConnectionString(_configuration, _logVerbose);
 
             optionsBuilder.UseNpgsql(connectionString, builder =>
-            {                
+            {
 
             });
             optionsBuilder.EnableDetailedErrors(true);
@@ -143,10 +139,10 @@ namespace AudioStation.Core.Database
             {
                 _outputController.Log(new LogMessage()
                 {
-                    Message = _logVerbose ? eventData.ToString() :  string.Format("Npgsql Event: Level={0} Id={1} Code={2} Name={3}", 
+                    Message = _logVerbose ? eventData.ToString() : string.Format("Npgsql Event: Level={0} Id={1} Code={2} Name={3}",
                                                                                    Enum.GetName(eventData.LogLevel),
-                                                                                   eventData.EventId.Id, 
-                                                                                   eventData.EventIdCode, 
+                                                                                   eventData.EventId.Id,
+                                                                                   eventData.EventIdCode,
                                                                                    eventData.EventId.Name),
                     Level = eventData.LogLevel,
                     Type = LogMessageType.Database

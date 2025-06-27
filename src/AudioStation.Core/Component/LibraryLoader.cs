@@ -5,7 +5,7 @@ using System.Windows.Threading;
 using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Component.LibraryLoaderComponent;
 using AudioStation.Core.Component.Vendor.Interface;
-using AudioStation.Core.Database;
+using AudioStation.Core.Database.AudioStationDatabase;
 using AudioStation.Core.Model;
 using AudioStation.Core.Utility;
 

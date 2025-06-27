@@ -28,6 +28,16 @@ namespace AudioStation.Core.Component.Vendor.Interface
         Task<MusicBrainzCombined> GetCombinedData(Guid releaseId, Guid artistId, Guid trackId, string trackName);
 
         /// <summary>
+        /// Finds recording for a track (this would be to locate an Mp3FileReference in MusicBrainz)
+        /// </summary>
+        Task<MusicBrainzTrack> GetTrack(Guid trackId,  string trackName, string albumName, string artistName, int searchScoreMin);
+
+        /// <summary>
+        /// Finds recording for a track (this would be to locate an Mp3FileReference in MusicBrainz)
+        /// </summary>
+        Task<MusicBrainzTrack> GetTrack(string trackName, string albumName, string artistName, int searchScoreMin);
+
+        /// <summary>
         /// Gets a single artist record by Id
         /// </summary>
         Task<MusicBrainzArtist> GetArtistById(Guid musicBrainzArtistId);

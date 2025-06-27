@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations;
 using AudioStation.Component;
 using AudioStation.Component.Interface;
 using AudioStation.Core.Component.Interface;
-using AudioStation.Core.Database;
+using AudioStation.Core.Database.AudioStationDatabase;
 using AudioStation.Core.Model;
 using AudioStation.ViewModels.LibraryViewModels;
 

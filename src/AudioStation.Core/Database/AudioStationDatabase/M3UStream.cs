@@ -2,12 +2,12 @@
 
 using Microsoft.EntityFrameworkCore;
 
-namespace AudioStation.Core.Database
+namespace AudioStation.Core.Database.AudioStationDatabase
 {
     [PrimaryKey("Id")]
     [Index("Name", Name = "NameIndex")]
     [Table("M3UStream", Schema = "public")]
-    public class M3UStream : EntityBase
+    public class M3UStream : AudioStationEntityBase
     {
         public int Duration { get; set; }
         public string Name { get; set; }

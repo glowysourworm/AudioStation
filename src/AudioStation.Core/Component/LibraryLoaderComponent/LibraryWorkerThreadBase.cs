@@ -131,7 +131,9 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent
                             LastMessage = "Work Completed",
                             LoadState = _workItem.GetLoadState(),
                             LoadType = _workItem.GetLoadType(),
-                            Runtime = _workItem.GetLastUpdateTime().Subtract(_workItem.GetStartTime()),
+                            FailureCount = _workItem.GetFailureCount(),
+                            SuccessCount = _workItem.GetSuccessCount(),
+                            EstimatedCompletionTime = DateTime.Now.AddSeconds(DateTime.Now.Subtract(_workItem.GetStartTime()).TotalSeconds / (_workItem.GetPercentComplete() == 0 ? 1 : _workItem.GetPercentComplete())),
                             PercentComplete = _workItem.GetPercentComplete()
                         });
                     }

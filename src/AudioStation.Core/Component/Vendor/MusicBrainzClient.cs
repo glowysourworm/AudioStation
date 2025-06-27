@@ -50,7 +50,7 @@ namespace AudioStation.Core.Component.Vendor
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Music Brainz Client Error:  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
+                ApplicationHelpers.Log("Music Brainz Client Error:  {0}", LogMessageType.Vendor, LogLevel.Error, ex.Message);
             }
 
             return null;
@@ -73,7 +73,89 @@ namespace AudioStation.Core.Component.Vendor
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Music Brainz Client Error:  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
+                ApplicationHelpers.Log("Music Brainz Client Error:  {0}", LogMessageType.Vendor, LogLevel.Error, ex.Message);
+            }
+
+            return null;
+        }
+
+        public async Task<MusicBrainzTrack> GetTrack(string trackName, string albumName, string artistName, int searchScoreMin)
+        {
+            try
+            {
+                // Initialize MetaBrainz.MusicBrainz client
+                var query = new Query();
+                var config = new MapperConfiguration(cfg => cfg.CreateMap<ITrack, MusicBrainzTrack>(MemberList.Destination));
+                var mapper = config.CreateMapper();
+
+                var searchResults = await query.FindReleasesAsync(string.Format("title:{0} artist:{1} release:{2}", trackName, artistName, albumName));
+
+                var result = searchResults.Results
+                                          .Where(x => x.Score >= searchScoreMin)
+                                          .OrderByDescending(x => x.Score)
+                                          .FirstOrDefault(x => x.Item.Media?.Any(z => z.Tracks?.Any(w => w.Title == trackName) ?? false) ?? false);
+
+                if (result != null)
+                {
+                    var albumId = result.Item.Id;
+                    
+                    // Get media based on track title
+                    var media = result.Item
+                                      .Media?
+                                      .FirstOrDefault(x => x.Tracks?.Any(track => track.Title == trackName) ?? false);
+
+                    if (media != null)
+                    {
+                        var track = media.Tracks?.First(x => x.Title == trackName);
+
+                        return mapper.Map<MusicBrainzTrack>(track);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                ApplicationHelpers.Log("Music Brainz Client Error:  {0}", LogMessageType.Vendor, LogLevel.Error, ex.Message);
+            }
+
+            return null;
+        }
+
+        public async Task<MusicBrainzTrack> GetTrack(Guid trackId, string trackName, string albumName, string artistName, int searchScoreMin)
+        {
+            try
+            {
+                // Initialize MetaBrainz.MusicBrainz client
+                var query = new Query();
+                var config = new MapperConfiguration(cfg => cfg.CreateMap<ITrack, MusicBrainzTrack>(MemberList.Destination));
+                var mapper = config.CreateMapper();
+
+                var searchResults = await query.FindReleasesAsync(string.Format("title:{0} artist:{1} release:{2}", trackName, artistName, albumName));
+
+                var result = searchResults.Results
+                                          .Where(x => x.Score >= searchScoreMin)
+                                          .OrderByDescending(x => x.Score)
+                                          .FirstOrDefault(x => x.Item.Media?.Any(z => z.Tracks?.Any(w => w.Id.ToString() == trackId.ToString()) ?? false) ?? false);
+
+                if (result != null)
+                {
+                    var albumId = result.Item.Id;
+
+                    // Get media based on track ID
+                    var media = result.Item
+                                      .Media?
+                                      .FirstOrDefault(x => x.Tracks?.Any(track => track.Id.ToString() == trackId.ToString()) ?? false);
+
+                    if (media != null)
+                    {
+                        var track = media.Tracks?.First(x => x.Id.ToString() == trackId.ToString());
+
+                        return mapper.Map<MusicBrainzTrack>(track);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                ApplicationHelpers.Log("Music Brainz Client Error:  {0}", LogMessageType.Vendor, LogLevel.Error, ex.Message);
             }
 
             return null;
@@ -115,7 +197,7 @@ namespace AudioStation.Core.Component.Vendor
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Music Brainz Client Error:  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
+                ApplicationHelpers.Log("Music Brainz Client Error:  {0}", LogMessageType.Vendor, LogLevel.Error, ex.Message);
             }
 
             return null;
@@ -152,13 +234,13 @@ namespace AudioStation.Core.Component.Vendor
 
                 if (release == null || artist == null)
                 {
-                    ApplicationHelpers.Log("Music Brainz Client failed for:  {0}", LogMessageType.General, LogLevel.Error, trackName);
+                    ApplicationHelpers.Log("Music Brainz Client failed for:  {0}", LogMessageType.Vendor, LogLevel.Error, trackName);
                     return null;
                 }
 
                 if (media == null)
                 {
-                    ApplicationHelpers.Log("Music Brainz Client failed to retrieve media collection for:  {0}", LogMessageType.General, LogLevel.Error, trackName);
+                    ApplicationHelpers.Log("Music Brainz Client failed to retrieve media collection for:  {0}", LogMessageType.Vendor, LogLevel.Error, trackName);
                     return null;
                 }
 
@@ -168,7 +250,7 @@ namespace AudioStation.Core.Component.Vendor
 
                 if (track == null)
                 {
-                    ApplicationHelpers.Log("Music Brainz Client failed to retrieve track for:  {0}", LogMessageType.General, LogLevel.Error, trackName);
+                    ApplicationHelpers.Log("Music Brainz Client failed to retrieve track for:  {0}", LogMessageType.Vendor, LogLevel.Error, trackName);
                     return null;
                 }
 
@@ -226,7 +308,7 @@ namespace AudioStation.Core.Component.Vendor
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Music Brainz Client Error:  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
+                ApplicationHelpers.Log("Music Brainz Client Error:  {0}", LogMessageType.Vendor, LogLevel.Error, ex.Message);
             }
 
             return null;
@@ -255,7 +337,7 @@ namespace AudioStation.Core.Component.Vendor
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Music Brainz Client Error:  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
+                ApplicationHelpers.Log("Music Brainz Client Error:  {0}", LogMessageType.Vendor, LogLevel.Error, ex.Message);
             }
 
             return null;
@@ -284,7 +366,7 @@ namespace AudioStation.Core.Component.Vendor
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Music Brainz Client Error:  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
+                ApplicationHelpers.Log("Music Brainz Client Error:  {0}", LogMessageType.Vendor, LogLevel.Error, ex.Message);
             }
 
             return null;
@@ -313,7 +395,7 @@ namespace AudioStation.Core.Component.Vendor
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Music Brainz Client Error:  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
+                ApplicationHelpers.Log("Music Brainz Client Error:  {0}", LogMessageType.Vendor, LogLevel.Error, ex.Message);
             }
 
             return null;
@@ -341,7 +423,7 @@ namespace AudioStation.Core.Component.Vendor
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Music Brainz Client Error:  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
+                ApplicationHelpers.Log("Music Brainz Client Error:  {0}", LogMessageType.Vendor, LogLevel.Error, ex.Message);
             }
 
             return null;
@@ -369,7 +451,7 @@ namespace AudioStation.Core.Component.Vendor
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Music Brainz Client Error:  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
+                ApplicationHelpers.Log("Music Brainz Client Error:  {0}", LogMessageType.Vendor, LogLevel.Error, ex.Message);
             }
 
             return null;

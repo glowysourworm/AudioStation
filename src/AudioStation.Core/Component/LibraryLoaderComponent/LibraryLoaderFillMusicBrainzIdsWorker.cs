@@ -1,7 +1,8 @@
 ﻿using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Component.Vendor.Interface;
-using AudioStation.Core.Database;
+using AudioStation.Core.Database.AudioStationDatabase;
 using AudioStation.Core.Model;
+using AudioStation.Core.Model.Vendor;
 using AudioStation.Core.Utility;
 using AudioStation.Model;
 
@@ -25,6 +26,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent
         protected override void Work(ref LibraryLoaderWorkItem workItem)
         {
             var generalError = false;
+            var musicBrainzMinScore = 100;      // Search Query "Match Score"
 
             var entityLoad = workItem.GetWorkItem() as LibraryLoaderEntityLoad;
 
@@ -33,8 +35,11 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent
 
             foreach (var entity in entityLoad.GetPendingEntities().Cast<Mp3FileReference>())
             {
+
                 string musicBrainzArtistId = string.Empty;
                 string musicBrainzAlbumId = string.Empty;
+
+                MusicBrainzTrack? bestMatch = null;
 
                 // Report -> UI Dispatcher (progress update)
                 //
@@ -44,31 +49,43 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent
                     HasErrors = workItem.GetHasErrors(),
                     LoadState = workItem.GetLoadState(),
                     LoadType = workItem.GetLoadType(),
-                    Runtime = DateTime.Now.Subtract(workItem.GetStartTime()),
+                    FailureCount = workItem.GetFailureCount(),
+                    SuccessCount = workItem.GetSuccessCount(),
+                    EstimatedCompletionTime = DateTime.Now.AddSeconds(DateTime.Now.Subtract(workItem.GetStartTime()).TotalSeconds / (workItem.GetPercentComplete() == 0 ? 1 : workItem.GetPercentComplete())),
                     PercentComplete = workItem.GetPercentComplete(),
                     LastMessage = "Loading Music Brainz Ids:  EntityId=" + entity.Id.ToString()
                 });
 
-                var recordings = _musicBrainzClient.Query(entity.PrimaryArtist?.Name ?? string.Empty,
-                                                          entity.Album?.Name ?? string.Empty,
-                                                          entity.Title ?? string.Empty, 100).Result;
-
-                if (recordings == null)
+                // Existing Music Brainz ID
+                //
+                if (!string.IsNullOrEmpty(entity.MusicBrainzTrackId))
                 {
-                    // Work Item:  Failure
-                    generalError = true;
-                    entityLoad.SetResult(entity, false);
-                    continue;
+                    var track = _musicBrainzClient.GetTrack(new Guid(entity.MusicBrainzTrackId), 
+                                                            entity.Title ?? string.Empty, 
+                                                            entity.Album?.Name ?? string.Empty, 
+                                                            entity.PrimaryArtist?.Name ?? string.Empty,
+                                                            musicBrainzMinScore).Result;
+
+                    // Go ahead and skip this one (there will be the artist / album tag updaters separately)
+                    if (track != null &&
+                        track.Title == entity.Title)
+                    {
+                        bestMatch = track;
+                    }
+                }               
+
+                // Music Brainz Query
+                //
+                if (bestMatch == null)
+                {
+                    bestMatch = _musicBrainzClient.GetTrack(entity.Title ?? string.Empty, 
+                                                            entity.Album?.Name ?? string.Empty, 
+                                                            entity.PrimaryArtist?.Name ?? string.Empty,
+                                                            musicBrainzMinScore).Result;
                 }
 
-                var bestMatch = recordings.FirstOrDefault(x => x.Title == entity.Title &&
-                                                               x.Releases != null &&
-                                                               x.Releases.Count > 0 &&
-                                                               x.Releases.Any(z => !string.IsNullOrEmpty(x.Title) && z.Title == entity.Album?.Name) &&
-                                                               x.ArtistCredit != null &&
-                                                               x.ArtistCredit.Count > 0 &&
-                                                               x.ArtistCredit.Any(z => !string.IsNullOrEmpty(z.Name) && z.Name == entity.PrimaryArtist?.Name));
-
+                // General Error
+                //
                 if (bestMatch == null)
                 {
                     // Work Item:  Failure
@@ -76,14 +93,19 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent
                     entityLoad.SetResult(entity, false);
                     continue;
                 }
+
+                // Validation
+                //
                 else
                 {
-                    // VALIDATION:  Must have matching artist / album / track names
+                    // Must have matching artist / album / track names
                     //
                     if (bestMatch.Title != entity.Title ||
-                        bestMatch.Releases == null ||
-                        bestMatch.Releases.Count == 0 ||
-                       !bestMatch.Releases.Any(x => !string.IsNullOrEmpty(x.Title) && x.Title == entity.Album?.Name) ||
+                        bestMatch.Recording == null ||
+                        bestMatch.Recording.Title != entity.Album?.Name ||
+                        bestMatch.Recording.Releases == null ||
+                        bestMatch.Recording.Releases.Count == 0 ||
+                       !bestMatch.Recording.Releases.Any(x => !string.IsNullOrEmpty(x.Title) && x.Title == entity.Album?.Name) ||
                         bestMatch.ArtistCredit == null ||
                         bestMatch.ArtistCredit.Count == 0 ||
                        !bestMatch.ArtistCredit.Any(x => !string.IsNullOrEmpty(x.Name) &&
@@ -100,7 +122,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent
                     {
                         var trackId = bestMatch.Id;
                         var artistMusicBrainz = bestMatch.ArtistCredit.First(x => x.Name == entity.PrimaryArtist?.Name);
-                        var albumMusicBrainz = bestMatch.Releases.First(x => !string.IsNullOrEmpty(x.Title) && x.Title == entity.Album?.Name);
+                        var albumMusicBrainz = bestMatch.Recording.Releases.First(x => !string.IsNullOrEmpty(x.Title) && x.Title == entity.Album?.Name);
 
                         entity.MusicBrainzTrackId = trackId.ToString();
 
@@ -180,7 +202,8 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent
 
                 fileRef.Save();
 
-                ApplicationHelpers.LogSeparate(workItemId, "Mp3 file updated (w/ Music Brainz Ids):  {0}", LogMessageType.LibraryLoaderWorkItem, LogLevel.Error, file);
+                ApplicationHelpers.LogSeparate(workItemId, "Mp3 file updated (w/ Music Brainz Ids):  {0}", LogMessageType.LibraryLoaderWorkItem, LogLevel.Information, file);
+                ApplicationHelpers.Log("Mp3 file updated (w/ Music Brainz Ids):  {0}", LogMessageType.FileTagUpdate, LogLevel.Information, file);
 
                 return true;
             }

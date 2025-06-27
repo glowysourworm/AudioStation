@@ -5,11 +5,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace AudioStation.Core.Database
+namespace AudioStation.Core.Database.MusicBrainzDatabase
 {
-    public class EntityBase
+    public class MusicBrainzArtistTrackMap
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
+
+        public Guid MusicBrainzArtistId { get; set; }
+        public Guid MusicBrainzTrackId { get; set; }
     }
 }

@@ -5,7 +5,7 @@
 -- Dumped from database version 17.4
 -- Dumped by pg_dump version 17.4
 
--- Started on 2025-06-14 00:47:51
+-- Started on 2025-06-27 17:02:20
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -84,7 +84,9 @@ CREATE TABLE public."Mp3FileReference" (
     "IsFileCorrupt" boolean NOT NULL,
     "IsFileLoadError" boolean NOT NULL,
     "FileErrorMessage" character varying,
-    "FileCorruptMessage" character varying
+    "FileCorruptMessage" character varying,
+    "AmazonId" character varying,
+    "MusicBrainzTrackId" character varying
 );
 
 
@@ -109,7 +111,8 @@ CREATE TABLE public."Mp3FileReferenceAlbum" (
     "Name" character varying NOT NULL,
     "DiscNumber" integer,
     "DiscCount" integer,
-    "Year" integer
+    "Year" integer,
+    "MusicBrainzReleaseId" character varying
 );
 
 
@@ -137,7 +140,8 @@ ALTER TABLE public."Mp3FileReferenceAlbum" ALTER COLUMN "Id" ADD GENERATED ALWAY
 
 CREATE TABLE public."Mp3FileReferenceArtist" (
     "Id" integer NOT NULL,
-    "Name" character varying NOT NULL
+    "Name" character varying NOT NULL,
+    "MusicBrainzArtistId" character varying
 );
 
 
@@ -432,7 +436,7 @@ ALTER TABLE ONLY public."Mp3FileReferenceGenreMap"
     ADD CONSTRAINT "Mp3FileReference_ForeignKey" FOREIGN KEY ("Mp3FileReferenceId") REFERENCES public."Mp3FileReference"("Id");
 
 
--- Completed on 2025-06-14 00:47:51
+-- Completed on 2025-06-27 17:02:20
 
 --
 -- PostgreSQL database dump complete

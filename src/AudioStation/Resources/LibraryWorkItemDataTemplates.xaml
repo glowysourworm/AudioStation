@@ -55,6 +55,8 @@
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="Auto" />
@@ -63,12 +65,24 @@
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
+                
                 <TextBlock Text="{Binding Id, StringFormat='Id={0}'}" Margin="5" Style="{StaticResource LabelTextBlock}" HorizontalAlignment="Left" VerticalAlignment="Center"  />
                 <TextBlock Text="{Binding LoadType, StringFormat='Load Type={0}'}" Margin="5" Grid.Column="1" Style="{StaticResource LabelTextBlock}" HorizontalAlignment="Left" VerticalAlignment="Center"  />
-                <TextBlock Text="{Binding LogIdentity}" Margin="5" Grid.Column="2" Style="{StaticResource LabelTextBlock}" HorizontalAlignment="Left" VerticalAlignment="Center"  />
-
+                
+                <TextBlock Margin="5" Grid.Column="2" Style="{StaticResource LabelTextBlock}" HorizontalAlignment="Left" VerticalAlignment="Center">
+                    <Run Text="Success Count=" />
+                    <Run Text="{Binding SuccessCount}" />
+                </TextBlock>
+                
+                <TextBlock Margin="5" Grid.Column="3" Style="{StaticResource LabelTextBlock}" HorizontalAlignment="Left" VerticalAlignment="Center">
+                    <Run Text="Failure Count=" />
+                    <Run Text="{Binding FailureCount}" />
+                </TextBlock>
+                
+                <TextBlock Text="{Binding LogIdentity}" Margin="5" Grid.Column="4" Style="{StaticResource LabelTextBlock}" HorizontalAlignment="Left" VerticalAlignment="Center"  />
+                
                 <controls:ProgressBar Progress="{Binding Progress}" 
-                                      Width="200" Margin="5" Grid.Column="3" 
+                                      Width="200" Margin="5" Grid.Column="5" 
                                       Style="{StaticResource ProgressBarStyle}" 
                                       VerticalAlignment="Center" HorizontalAlignment="Right">
                     <controls:ProgressBar.ProgressBrush>
@@ -80,18 +94,19 @@
                     </controls:ProgressBar.ProgressBrush>
                 </controls:ProgressBar>
                 
-                <TextBlock Text="{Binding LoadState}" Grid.Column="4" Margin="5" Style="{StaticResource LabelTextBlock}" HorizontalAlignment="Right" VerticalAlignment="Center"  />
-                <TextBlock Grid.Column="5" Margin="5" Style="{StaticResource LabelTextBlock}" HorizontalAlignment="Right" VerticalAlignment="Center">
-                    <Run Text="(" />
-                    <Run Text="{Binding Runtime, StringFormat={}{0:hh}:{0:mm}:{0:ss}}" />
+                <TextBlock Text="{Binding LoadState}" Grid.Column="6" Margin="5" Style="{StaticResource LabelTextBlock}" HorizontalAlignment="Right" VerticalAlignment="Center"  />
+                
+                <TextBlock Grid.Column="7" Margin="5" Style="{StaticResource LabelTextBlock}" HorizontalAlignment="Right" VerticalAlignment="Center">
+                    <Run Text="Estimated Completion=(" />
+                    <Run Text="{Binding EstimatedCompletionTime, StringFormat='yyyy-MM-dd  HH:mm:ss'}" />
                     <Run Text=")" />
                 </TextBlock>
 
-                <!--TextBlock Text="{Binding LastMessage, StringFormat='Last Message={0}'}" 
+                <TextBlock Text="{Binding LastMessage, StringFormat='Last Message={0}'}" 
                            TextWrapping="NoWrap"
                            TextTrimming="CharacterEllipsis"
                            Margin="5" Style="{StaticResource LabelTextBlock}" 
-                           Grid.ColumnSpan="4" Grid.Column="0" Grid.Row="1" /-->
+                           Grid.ColumnSpan="7" Grid.Column="0" Grid.Row="1" />
             </Grid>
         </Border>
     </DataTemplate>

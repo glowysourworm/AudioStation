@@ -1,9 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 
-namespace AudioStation.Core.Database
+namespace AudioStation.Core.Database.AudioStationDatabase
 {
     [Table("RadioBrowserStation", Schema = "public")]
-    public class RadioBrowserStation : EntityBase
+    public class RadioBrowserStation : AudioStationEntityBase
     {
         public Guid StationUUID { get; set; }
         public Guid ServerUUID { get; set; }

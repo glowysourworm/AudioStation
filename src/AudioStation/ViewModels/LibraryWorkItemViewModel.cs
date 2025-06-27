@@ -7,11 +7,13 @@ namespace AudioStation.ViewModels
     public class LibraryWorkItemViewModel : ViewModelBase
     {
         int _id;
+        int _failureCount;
+        int _successCount;
         bool _hasErrors;
         double _progress;
         string _lastMessage;
         string _logIdentity;
-        TimeSpan _runtime;
+        DateTime _estimatedCompletionTime;
         LibraryLoadType _loadType;
         LibraryWorkItemState _loadState;
 
@@ -35,10 +37,20 @@ namespace AudioStation.ViewModels
             get { return _lastMessage; }
             set { this.RaiseAndSetIfChanged(ref _lastMessage, value); }
         }
-        public TimeSpan Runtime
+        public int FailureCount
         {
-            get { return _runtime; }
-            set { this.RaiseAndSetIfChanged(ref _runtime, value); }
+            get { return _failureCount; }
+            set { this.RaiseAndSetIfChanged(ref _failureCount, value); }
+        }
+        public int SuccessCount
+        {
+            get { return _successCount; }
+            set { this.RaiseAndSetIfChanged(ref _successCount, value); }
+        }
+        public DateTime EstimatedCompletionTime
+        {
+            get { return _estimatedCompletionTime; }
+            set { this.RaiseAndSetIfChanged(ref _estimatedCompletionTime, value); }
         }
         public double Progress
         {
@@ -58,7 +70,7 @@ namespace AudioStation.ViewModels
 
         private void SetLogIdentity()
         {
-            this.LogIdentity = "Log Output: (see Library Loader #" + this.Id.ToString() + ")";
+            this.LogIdentity = "Log Output=(Library Loader: Id=" + this.Id.ToString() + ")";
         }
 
         public LibraryWorkItemViewModel()

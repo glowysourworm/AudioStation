@@ -75,6 +75,20 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent
                 return _id;
             }            
         }
+        public int GetFailureCount()
+        {
+            lock (_lock)
+            {
+                return _workItem.GetFailureCount();
+            }
+        }
+        public int GetSuccessCount()
+        {
+            lock (_lock)
+            {
+                return _workItem.GetSuccessCount();
+            }
+        }
         public bool GetHasErrors()
         {
             lock ( _lock)

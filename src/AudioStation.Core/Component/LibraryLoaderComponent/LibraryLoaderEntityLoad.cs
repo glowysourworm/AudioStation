@@ -1,4 +1,4 @@
-﻿using AudioStation.Core.Database;
+﻿using AudioStation.Core.Database.AudioStationDatabase;
 
 using SimpleWpf.SimpleCollections.Collection;
 
@@ -6,14 +6,14 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent
 {
     public class LibraryLoaderEntityLoad : LibraryLoaderLoadBase
     {
-        SimpleDictionary<int, EntityBase> _entities;
+        SimpleDictionary<int, AudioStationEntityBase> _entities;
         SimpleDictionary<int, bool> _entityResults;
 
         object _lock = new object();
 
-        public LibraryLoaderEntityLoad(IEnumerable<EntityBase> entities)
+        public LibraryLoaderEntityLoad(IEnumerable<AudioStationEntityBase> entities)
         {
-            _entities = new SimpleDictionary<int, EntityBase>();
+            _entities = new SimpleDictionary<int, AudioStationEntityBase>();
             _entityResults = new SimpleDictionary<int, bool>();
 
             foreach (var entity in entities)
@@ -22,7 +22,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent
             }
         }
 
-        public void SetResult(EntityBase entity, bool success)
+        public void SetResult(AudioStationEntityBase entity, bool success)
         {
             lock (_lock)
             {
@@ -35,7 +35,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent
             }
         }
 
-        public IEnumerable<EntityBase> GetPendingEntities()
+        public IEnumerable<AudioStationEntityBase> GetPendingEntities()
         {
             lock (_lock)
             {
@@ -56,6 +56,22 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent
             lock (_lock)
             {
                 return _entityResults.Any(x => !x.Value);
+            }
+        }
+
+        public override int GetFailureCount()
+        {
+            lock (_lock)
+            {
+                return _entityResults.Values.Count(x => !x);
+            }
+        }
+
+        public override int GetSuccessCount()
+        {
+            lock (_lock)
+            {
+                return _entityResults.Values.Count(x => x);
             }
         }
     }
