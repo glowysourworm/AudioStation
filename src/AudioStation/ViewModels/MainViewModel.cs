@@ -325,7 +325,6 @@ public partial class MainViewModel : ViewModelBase, IDisposable
             // Dispose of any threads / unmanaged resources / and managed hooks (if they hold memory!) (but, application is now likely finished)
             _libraryLoader.Dispose();
             _dialogController.Dispose();
-            _modelController.Dispose();
             _audioController.Dispose();
 
             this.Configuration = null;

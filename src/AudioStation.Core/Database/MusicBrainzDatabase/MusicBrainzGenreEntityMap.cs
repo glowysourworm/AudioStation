@@ -14,14 +14,13 @@ namespace AudioStation.Core.Database.MusicBrainzDatabase
         [ForeignKey("MusicBrainzGenre")]
         public Guid MusicBrainzGenreId { get; set; }
 
-        [ForeignKey("MusicBrainzEntity")]
+        // This is not a hard foreign key constraint
         public Guid MusicBrainzEntityId { get; set; }
 
         [ForeignKey("MusicBrainzEntityType")]
         public int MusicBrainzEntityTypeId { get; set; }
 
         public MusicBrainzGenreEntity MusicBrainzGenre { get; set; }
-        public MusicBrainzEntityBase MusicBrainzEntity { get; set; }
         public MusicBrainzEntityType MusicBrainzEntityType { get; set; }
 
         public MusicBrainzGenreEntityMap() { }

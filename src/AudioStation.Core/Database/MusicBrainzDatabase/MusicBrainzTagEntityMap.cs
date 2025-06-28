@@ -20,14 +20,13 @@ namespace AudioStation.Core.Database.MusicBrainzDatabase
         [ForeignKey("MusicBrainzTag")]
         public Guid MusicBrainzTagId { get; set; }
 
-        [ForeignKey("MusicBrainzEntity")]
+        // Not a hard foreign key constraint
         public Guid MusicBrainzEntityId {  get; set; }
 
         [ForeignKey("MusicBrainzEntityType")]
         public int MusicBrainzEntityTypeId { get; set; }
 
         public MusicBrainzTagEntity MusicBrainzTag { get; set; }
-        public MusicBrainzEntityBase MusicBrainzEntity { get; set; }
         public MusicBrainzEntityType MusicBrainzEntityType { get; set; }
 
         public MusicBrainzTagEntityMap() { }

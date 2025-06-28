@@ -1,4 +1,5 @@
 ﻿using AudioStation.Core.Component.Interface;
+using AudioStation.Core.Utility;
 using AudioStation.Model;
 
 using Microsoft.EntityFrameworkCore;
@@ -12,7 +13,6 @@ namespace AudioStation.Core.Database.AudioStationDatabase
     public class AudioStationDbContext : DbContext, IDisposable
     {
         private readonly Configuration _configuration;
-        private readonly IOutputController _outputController;
         private readonly LogLevel _currentLogLevel;
         private readonly bool _logVerbose;
 
@@ -26,13 +26,11 @@ namespace AudioStation.Core.Database.AudioStationDatabase
         public DbSet<RadioBrowserStation> RadioBrowserStations { get; set; }
 
         public AudioStationDbContext(Configuration configuration,
-                                     IOutputController outputController,
                                      LogLevel currentLogLevel,
                                      bool logVerbose)
 
         {
             _configuration = configuration;
-            _outputController = outputController;
             _currentLogLevel = currentLogLevel;
             _logVerbose = logVerbose;
         }
@@ -41,11 +39,18 @@ namespace AudioStation.Core.Database.AudioStationDatabase
         {
             base.OnModelCreating(modelBuilder);
 
+            // Add these to use the DbSet methods with templates (!) Very important; and useful!
+            //
             modelBuilder.Entity<M3UStream>().HasIndex("Name");
 
             modelBuilder.Entity<Mp3FileReference>().Navigation(x => x.PrimaryArtist).AutoInclude(true);
             modelBuilder.Entity<Mp3FileReference>().Navigation(x => x.Album).AutoInclude(true);
             modelBuilder.Entity<Mp3FileReference>().Navigation(x => x.PrimaryGenre).AutoInclude(true);
+
+            //modelBuilder.Entity<Mp3FileReferenceAlbum>();
+            //modelBuilder.Entity<Mp3FileReferenceArtist>();
+            //modelBuilder.Entity<Mp3FileReferenceGenre>();
+            //modelBuilder.Entity<RadioBrowserStation>();
 
             modelBuilder.Entity<Mp3FileReferenceArtistMap>().Navigation(x => x.Mp3FileReferenceArtist).AutoInclude(true);
             modelBuilder.Entity<Mp3FileReferenceArtistMap>().Navigation(x => x.Mp3FileReference).AutoInclude(true);
@@ -60,7 +65,7 @@ namespace AudioStation.Core.Database.AudioStationDatabase
 
             optionsBuilder.UseNpgsql(connectionString, builder =>
             {
-
+                
             });
             optionsBuilder.EnableDetailedErrors(true);
             optionsBuilder.EnableSensitiveDataLogging(true);
@@ -135,19 +140,13 @@ namespace AudioStation.Core.Database.AudioStationDatabase
             // TODO:  We could add configuration options for logging to remove / add developer information (select statements).
             //        For now, lets just include the event codes and say they're part of the 
 
-            if (eventData.LogLevel <= _currentLogLevel)
-            {
-                _outputController.Log(new LogMessage()
-                {
-                    Message = _logVerbose ? eventData.ToString() : string.Format("Npgsql Event: Level={0} Id={1} Code={2} Name={3}",
-                                                                                   Enum.GetName(eventData.LogLevel),
-                                                                                   eventData.EventId.Id,
-                                                                                   eventData.EventIdCode,
-                                                                                   eventData.EventId.Name),
-                    Level = eventData.LogLevel,
-                    Type = LogMessageType.Database
-                });
-            }
+            var message = _logVerbose ? eventData.ToString() : string.Format("Npgsql Event (Audio Station Db): Level={0} Id={1} Code={2} Name={3}",
+                                                                             Enum.GetName(eventData.LogLevel),
+                                                                             eventData.EventId.Id,
+                                                                             eventData.EventIdCode,
+                                                                             eventData.EventId.Name);
+
+            ApplicationHelpers.Log(message, LogMessageType.Database, eventData.LogLevel);
         }
 
         public override void Dispose()

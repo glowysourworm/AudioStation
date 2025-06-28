@@ -1,31 +1,24 @@
-﻿using AudioStation.Core.Database.AudioStationDatabase;
-using AudioStation.Core.Model;
+﻿using AudioStation.Core.Model;
 
-using M3UStream = AudioStation.Core.Model.M3U.M3UStream;
-
-namespace AudioStation.Core.Component.Interface
+namespace AudioStation.Core.Database.AudioStationDatabase.Interface
 {
-    /// <summary>
-    /// Multi-thread safe component that handles database communications. The logging is sent to the
-    /// dispatcher from this component - on this component's code. 
-    /// </summary>
-    public interface IModelController
+    public interface IAudioStationDbClient
     {
         /// <summary>
         /// Adds LibraryEntry to database. Does NOT update any existing, similar, entry. The tag data
         /// is also used to initialize the LibraryEntry, adding supporting data to the database.
         /// </summary>
-        bool AddUpdateLibraryEntry(string fileName, bool fileAvailable, bool fileLoadError, string fileLoadErrorMessage, TagLib.File tagRef);
+        void AddUpdateLibraryEntry(string fileName, bool fileAvailable, bool fileLoadError, string fileLoadErrorMessage, TagLib.File tagRef);
 
         /// <summary>
         /// Add / Update M3UStream based on unique Id, and Name
         /// </summary>
-        bool AddUpdateRadioEntry(M3UStream entry);
+        void AddUpdateRadioEntry(Core.Model.M3U.M3UStream entry);
 
         /// <summary>
         /// (Batch) Adds M3UStreams to database based on unique Id, and Name
         /// </summary>
-        bool AddRadioEntries(IEnumerable<M3UStream> entries);
+        void AddRadioEntries(IEnumerable<Core.Model.M3U.M3UStream> entries);
 
         /// <summary>
         /// Returns all files associated with the artist
@@ -62,6 +55,6 @@ namespace AudioStation.Core.Component.Interface
         /// <summary>
         /// Gets entity by ID from the database
         /// </summary>
-        TEntity GetEntity<TEntity>(int id) where TEntity : AudioStationEntityBase;
+        TEntity? GetEntity<TEntity>(int id) where TEntity : AudioStationEntityBase;
     }
 }

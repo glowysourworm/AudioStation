@@ -11,6 +11,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DatabaseScripts", "Database
 	ProjectSection(SolutionItems) = preProject
 		audio-station-delete-data.sql = audio-station-delete-data.sql
 		audio-station.sql = audio-station.sql
+		music-brainz-local.sql = music-brainz-local.sql
 	EndProjectSection
 EndProject
 Global

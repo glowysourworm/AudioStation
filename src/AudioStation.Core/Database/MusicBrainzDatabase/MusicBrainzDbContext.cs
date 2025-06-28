@@ -52,15 +52,34 @@ namespace AudioStation.Core.Database.MusicBrainzDatabase
 
             //modelBuilder.Entity<M3UStream>().HasIndex("Name");
 
-            //modelBuilder.Entity<Mp3FileReference>().Navigation(x => x.PrimaryArtist).AutoInclude(true);
-            //modelBuilder.Entity<Mp3FileReference>().Navigation(x => x.Album).AutoInclude(true);
-            //modelBuilder.Entity<Mp3FileReference>().Navigation(x => x.PrimaryGenre).AutoInclude(true);
+            modelBuilder.Entity<MusicBrainzArtistRecordingMap>().Navigation(x => x.MusicBrainzArtist).AutoInclude(true);
+            modelBuilder.Entity<MusicBrainzArtistRecordingMap>().Navigation(x => x.MusicBrainzRecording).AutoInclude(true);
 
-            //modelBuilder.Entity<Mp3FileReferenceArtistMap>().Navigation(x => x.Mp3FileReferenceArtist).AutoInclude(true);
-            //modelBuilder.Entity<Mp3FileReferenceArtistMap>().Navigation(x => x.Mp3FileReference).AutoInclude(true);
+            modelBuilder.Entity<MusicBrainzArtistReleaseMap>().Navigation(x => x.MusicBrainzArtist).AutoInclude(true);
+            modelBuilder.Entity<MusicBrainzArtistReleaseMap>().Navigation(x => x.MusicBrainzRelease).AutoInclude(true);
 
-            //modelBuilder.Entity<Mp3FileReferenceGenreMap>().Navigation(x => x.Mp3FileReferenceGenre).AutoInclude(true);
-            //modelBuilder.Entity<Mp3FileReferenceGenreMap>().Navigation(x => x.Mp3FileReference).AutoInclude(true);
+            modelBuilder.Entity<MusicBrainzArtistTrackMap>().Navigation(x => x.MusicBrainzArtist).AutoInclude(true);
+            modelBuilder.Entity<MusicBrainzArtistTrackMap>().Navigation(x => x.MusicBrainzTrack).AutoInclude(true);
+
+            modelBuilder.Entity<MusicBrainzDiscEntity>().Navigation(x => x.MusicBrainzMedium).AutoInclude(true);
+            modelBuilder.Entity<MusicBrainzDiscEntity>().Navigation(x => x.MusicBrainzRelease).AutoInclude(true);
+
+            modelBuilder.Entity<MusicBrainzGenreEntityMap>().Navigation(x => x.MusicBrainzGenre).AutoInclude(true);
+            modelBuilder.Entity<MusicBrainzGenreEntityMap>().Navigation(x => x.MusicBrainzEntityType).AutoInclude(true);
+
+            modelBuilder.Entity<MusicBrainzLabelReleaseMap>().Navigation(x => x.MusicBrainzLabel).AutoInclude(true);
+            modelBuilder.Entity<MusicBrainzLabelReleaseMap>().Navigation(x => x.MusicBrainzRelease).AutoInclude(true);
+
+            modelBuilder.Entity<MusicBrainzMediumEntity>().Navigation(x => x.MusicBrainzRelease).AutoInclude(true);
+
+            modelBuilder.Entity<MusicBrainzTagEntityMap>().Navigation(x => x.MusicBrainzEntityType).AutoInclude(true);
+            modelBuilder.Entity<MusicBrainzTagEntityMap>().Navigation(x => x.MusicBrainzTag).AutoInclude(true);
+
+            modelBuilder.Entity<MusicBrainzTrackEntity>().Navigation(x => x.MusicBrainzMedium).AutoInclude(true);
+            modelBuilder.Entity<MusicBrainzTrackEntity>().Navigation(x => x.MusicBrainzRecording).AutoInclude(true);
+
+            modelBuilder.Entity<MusicBrainzUrlEntityMap>().Navigation(x => x.MusicBrainzEntityType).AutoInclude(true);
+            modelBuilder.Entity<MusicBrainzUrlEntityMap>().Navigation(x => x.MusicBrainzUrl).AutoInclude(true);
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -144,7 +163,7 @@ namespace AudioStation.Core.Database.MusicBrainzDatabase
             // TODO:  We could add configuration options for logging to remove / add developer information (select statements).
             //        For now, lets just include the event codes and say they're part of the 
 
-            var message = _logVerbose ? eventData.ToString() : string.Format("Npgsql Event: Level={0} Id={1} Code={2} Name={3}",
+            var message = _logVerbose ? eventData.ToString() : string.Format("Npgsql Event (Music Brainz Local): Level={0} Id={1} Code={2} Name={3}",
                                                                              Enum.GetName(eventData.LogLevel),
                                                                              eventData.EventId.Id,
                                                                              eventData.EventIdCode,

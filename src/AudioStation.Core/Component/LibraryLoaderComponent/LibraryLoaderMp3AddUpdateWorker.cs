@@ -36,6 +36,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent
             foreach (var file in fileLoad.GetPendingFiles())
             {
                 var entry = LoadLibraryEntry(workItem.GetId(), file, out fileErrorMessasge, out fileAvailable, out fileLoadError);
+                var success = false;
 
                 // Set Work Item
                 if (entry == null)
@@ -47,12 +48,12 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent
                 else
                 {
                     // Add to database (thread-safe call to create DbContext)
-                    _modelController.AddUpdateLibraryEntry(file, fileAvailable, fileLoadError, fileErrorMessasge, entry);
-
+                    success = _modelController.AddUpdateLibraryEntry(file, fileAvailable, fileLoadError, fileErrorMessasge, entry);
+                    
                     ApplicationHelpers.LogSeparate(workItem.GetId(), "Mp3 load success:  {0}", LogMessageType.LibraryLoaderWorkItem, LogLevel.Information, file);
                 }
 
-                fileLoad.SetComplete(file, entry != null);
+                fileLoad.SetComplete(file, entry != null && success);
 
                 // Report -> UI Dispatcher (progress update)
                 //
