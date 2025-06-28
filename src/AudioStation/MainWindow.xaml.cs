@@ -239,7 +239,7 @@ namespace AudioStation
 
                     var window = new LogWindow();
                     window.DataContext = _mainViewModel.Log;
-                    window.ShowDialog();
+                    window.Show();
 
                     //_mainViewModel.ShowOutputMessages = !_mainViewModel.ShowOutputMessages;
                 };

@@ -47,10 +47,10 @@ namespace AudioStation.Core.Database.AudioStationDatabase
             modelBuilder.Entity<Mp3FileReference>().Navigation(x => x.Album).AutoInclude(true);
             modelBuilder.Entity<Mp3FileReference>().Navigation(x => x.PrimaryGenre).AutoInclude(true);
 
-            //modelBuilder.Entity<Mp3FileReferenceAlbum>();
-            //modelBuilder.Entity<Mp3FileReferenceArtist>();
-            //modelBuilder.Entity<Mp3FileReferenceGenre>();
-            //modelBuilder.Entity<RadioBrowserStation>();
+            modelBuilder.Entity<Mp3FileReferenceAlbum>();
+            modelBuilder.Entity<Mp3FileReferenceArtist>();
+            modelBuilder.Entity<Mp3FileReferenceGenre>();
+            modelBuilder.Entity<RadioBrowserStation>();
 
             modelBuilder.Entity<Mp3FileReferenceArtistMap>().Navigation(x => x.Mp3FileReferenceArtist).AutoInclude(true);
             modelBuilder.Entity<Mp3FileReferenceArtistMap>().Navigation(x => x.Mp3FileReference).AutoInclude(true);
@@ -140,11 +140,14 @@ namespace AudioStation.Core.Database.AudioStationDatabase
             // TODO:  We could add configuration options for logging to remove / add developer information (select statements).
             //        For now, lets just include the event codes and say they're part of the 
 
-            var message = _logVerbose ? eventData.ToString() : string.Format("Npgsql Event (Audio Station Db): Level={0} Id={1} Code={2} Name={3}",
+            // https://github.com/dotnet/efcore/issues/36313
+            // https://github.com/npgsql/efcore.pg/issues/3559#issuecomment-3015004260
+            var message = /*_logVerbose ? eventData.ToString() : */string.Format("Npgsql Event (Audio Station Db): Level={0} Id={1} Code={2} Name={3}",
                                                                              Enum.GetName(eventData.LogLevel),
                                                                              eventData.EventId.Id,
                                                                              eventData.EventIdCode,
                                                                              eventData.EventId.Name);
+
 
             ApplicationHelpers.Log(message, LogMessageType.Database, eventData.LogLevel);
         }
