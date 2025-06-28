@@ -35,7 +35,6 @@ namespace AudioStation.Core.Database.MusicBrainzDatabase
         public DbSet<MusicBrainzArtistTrackMap> MusicBrainzArtistTrackMaps { get; set; }
         public DbSet<MusicBrainzGenreEntityMap> MusicBrainzGenreEntityMaps { get; set; }
         public DbSet<MusicBrainzLabelReleaseMap> MusicBrainzLabelReleaseMaps { get; set; }
-        public DbSet<MusicBrainzReleaseLabelMap> MusicBrainzReleaseLabelMaps { get; set; }
         public DbSet<MusicBrainzTagEntityMap> MusicBrainzTagEntityMaps { get; set; }
         public DbSet<MusicBrainzUrlEntityMap> MusicBrainzUrlEntityMaps { get; set; }
 

@@ -1,8 +1,14 @@
-﻿using MetaBrainz.MusicBrainz;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+using MetaBrainz.MusicBrainz;
 using MetaBrainz.MusicBrainz.Interfaces.Entities;
+
+using Microsoft.EntityFrameworkCore;
 
 namespace AudioStation.Core.Database.MusicBrainzDatabase
 {
+    [PrimaryKey("Id")]
+    [Table("MusicBrainzRelease", Schema = "public")]
     public class MusicBrainzReleaseEntity : MusicBrainzEntityBase
     {
         public string? Asin { get; set; }
@@ -15,5 +21,7 @@ namespace AudioStation.Core.Database.MusicBrainzDatabase
         public string? Annotation { get; set; }
         public string? Disambiguation { get; set; }
         public string? Title { get; set; }
+
+        public MusicBrainzReleaseEntity() { }
     }
 }

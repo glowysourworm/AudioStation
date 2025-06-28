@@ -1,13 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+using Microsoft.EntityFrameworkCore;
 
 namespace AudioStation.Core.Database.MusicBrainzDatabase
 {
+    [PrimaryKey("Id")]
+    [Table("MusicBrainzTag", Schema = "public")]
     public class MusicBrainzTagEntity : MusicBrainzEntityBase
     {
         public string Name { get; set; }
+
+        public MusicBrainzTagEntity() { }
     }
 }
