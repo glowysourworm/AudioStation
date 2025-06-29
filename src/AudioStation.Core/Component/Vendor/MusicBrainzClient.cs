@@ -21,12 +21,9 @@ namespace AudioStation.Core.Component.Vendor
     [IocExport(typeof(IMusicBrainzClient))]
     public class MusicBrainzClient : IMusicBrainzClient
     {
-        readonly IOutputController _outputController;
-
         [IocImportingConstructor]
-        public MusicBrainzClient(IOutputController outputController)
+        public MusicBrainzClient()
         {
-            _outputController = outputController;
         }
 
         /// <summary>
@@ -456,5 +453,144 @@ namespace AudioStation.Core.Component.Vendor
 
             return null;
         }
+
+        #region Entity Calls (query and insert into localDB)
+
+        public async Task<IEnumerable<IArtist>> QueryArtists(string artist, int minScore)
+        {
+            try
+            {
+                var query = new Query();
+                var result = await query.FindArtistsAsync(string.Format("artist:{0}", artist));
+                return result.Results.Where(x => x.Score >= minScore).Select(x => x.Item).ToList();
+            }
+            catch (Exception ex)
+            {
+                ApplicationHelpers.Log("Music Brainz Client Error:  {0}", LogMessageType.Vendor, LogLevel.Error, ex.Message);
+                throw ex;
+            }
+        }
+
+        public async Task<IEnumerable<IRecording>> QueryRecordings(string artist, string album, string trackName, int minScore)
+        {
+            try
+            {
+                var query = new Query();
+                var result = await query.FindRecordingsAsync(string.Format("title:{0} artist:{1} release:{2}", trackName, artist, album));
+                return result.Results.Where(x => x.Score >= minScore).Select(x => x.Item).ToList();
+            }
+            catch (Exception ex)
+            {
+                ApplicationHelpers.Log("Music Brainz Client Error:  {0}", LogMessageType.Vendor, LogLevel.Error, ex.Message);
+                throw ex;
+            }
+        }
+
+        public async Task<IEnumerable<IRelease>> QueryReleases(string artist, string album, string trackName, int minScore)
+        {
+            try
+            {
+                var query = new Query();
+                var result = await query.FindReleasesAsync(string.Format("title:{0} artist:{1} release:{2}", trackName, artist, album));
+                return result.Results.Where(x => x.Score >= minScore).Select(x => x.Item).ToList();
+            }
+            catch (Exception ex)
+            {
+                ApplicationHelpers.Log("Music Brainz Client Error:  {0}", LogMessageType.Vendor, LogLevel.Error, ex.Message);
+                throw ex;
+            }
+        }
+
+        public async Task<IEnumerable<IDisc>> QueryDiscs(string artist, string album, string trackName, int minScore)
+        {
+            try
+            {
+                var query = new Query();
+                var result = await QueryMedia(artist, album, trackName, minScore);
+                return result.SelectMany(x => x.Discs ?? Enumerable.Empty<IDisc>()).ToList();
+            }
+            catch (Exception ex)
+            {
+                ApplicationHelpers.Log("Music Brainz Client Error:  {0}", LogMessageType.Vendor, LogLevel.Error, ex.Message);
+                throw ex;
+            }
+        }
+
+        public async Task<IEnumerable<IGenre>> GetAllGenres()
+        {
+            try
+            {
+                var query = new Query();
+                var result = await query.BrowseAllGenresAsync();
+                return result.Results.ToList();
+            }
+            catch (Exception ex)
+            {
+                ApplicationHelpers.Log("Music Brainz Client Error:  {0}", LogMessageType.Vendor, LogLevel.Error, ex.Message);
+                throw ex;
+            }
+        }
+
+        public async Task<IEnumerable<ITag>> GetAllTags()
+        {
+            try
+            {
+                var query = new Query();
+                var result = await query.FindTagsAsync("*");
+                return result.Results.Select(x => x.Item).ToList();
+            }
+            catch (Exception ex)
+            {
+                ApplicationHelpers.Log("Music Brainz Client Error:  {0}", LogMessageType.Vendor, LogLevel.Error, ex.Message);
+                throw ex;
+            }
+        }
+
+        public async Task<IEnumerable<ILabel>> QueryLabel(string artist, string album, string trackName, int minScore)
+        {
+            try
+            {
+                var query = new Query();
+                var result = await query.FindLabelsAsync(string.Format("title:{0} artist:{1} release:{2}", trackName, artist, album));
+                return result.Results.Where(x => x.Score >= minScore).Select(x => x.Item).ToList();
+            }
+            catch (Exception ex)
+            {
+                ApplicationHelpers.Log("Music Brainz Client Error:  {0}", LogMessageType.Vendor, LogLevel.Error, ex.Message);
+                throw ex;
+            }
+        }
+
+        public async Task<IEnumerable<IMedium>> QueryMedia(string artist, string album, string trackName, int minScore)
+        {
+            try
+            {
+                var query = new Query();
+                var result = await QueryReleases(artist, album, trackName, minScore);
+                return result.SelectMany(x => x.Media ?? Enumerable.Empty<IMedium>()).ToList();
+            }
+            catch (Exception ex)
+            {
+                ApplicationHelpers.Log("Music Brainz Client Error:  {0}", LogMessageType.Vendor, LogLevel.Error, ex.Message);
+                throw ex;
+            }
+        }
+
+        public async Task<IEnumerable<IUrl>> GetRelatedUrls(string artist, string album, string trackName, int minScore)
+        {
+            try
+            {
+                var query = new Query();
+                var result = await query.FindUrlsAsync(string.Format("title:{0} artist:{1} release:{2}", trackName, artist, album));
+                return result.Results.Where(x => x.Score >= minScore).Select(x => x.Item).ToList();
+            }
+            catch (Exception ex)
+            {
+                ApplicationHelpers.Log("Music Brainz Client Error:  {0}", LogMessageType.Vendor, LogLevel.Error, ex.Message);
+                throw ex;
+            }
+        }
+
+        #endregion
     }
 }

@@ -10,13 +10,13 @@ namespace AudioStation.Core.Database.MusicBrainzDatabase
     [Table("MusicBrainzLabel", Schema = "public")]
     public class MusicBrainzLabelEntity : MusicBrainzEntityBase
     {
-        public int? LabelCode { get; }
-        public string? Name { get; }
-        public string? SortName { get; }
-        public string? Disambiguation { get; }                
-        public string? Type { get; }
-        public string? Country { get; }
-        public string? Annotation { get; }
+        public int? LabelCode { get; set; }
+        public string? Name { get; set; }
+        public string? SortName { get; set; }
+        public string? Disambiguation { get; set; }                
+        public string? Type { get; set; }
+        public string? Country { get; set; }
+        public string? Annotation { get; set; }
 
         public MusicBrainzLabelEntity() { }
     }

@@ -1,10 +1,26 @@
 ﻿using AudioStation.Core.Model;
 using AudioStation.Core.Model.Vendor;
 
+using MetaBrainz.MusicBrainz.Interfaces.Entities;
+
 namespace AudioStation.Core.Component.Vendor.Interface
 {
     public interface IMusicBrainzClient
     {
+        // Entity Calls (Query and Cache)
+        Task<IEnumerable<IArtist>> QueryArtists(string artist, int minScore);
+        Task<IEnumerable<IRecording>> QueryRecordings(string artist, string album, string trackName, int minScore);
+        Task<IEnumerable<IRelease>> QueryReleases(string artist, string album, string trackName, int minScore);
+        Task<IEnumerable<IDisc>> QueryDiscs(string artist, string album, string trackName, int minScore);
+        Task<IEnumerable<IGenre>> GetAllGenres();
+        Task<IEnumerable<ITag>> GetAllTags();
+        Task<IEnumerable<ILabel>> QueryLabel(string artist, string album, string trackName, int minScore);
+        Task<IEnumerable<IMedium>> QueryMedia(string artist, string album, string trackName, int minScore);
+        Task<IEnumerable<IUrl>> GetRelatedUrls(string artist, string album, string trackName, int minScore);
+
+
+
+
         /// <summary>
         /// Tries to look up information for the provided library entry
         /// </summary>

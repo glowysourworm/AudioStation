@@ -25,7 +25,7 @@ namespace AudioStation.Component
             var resultCollection = new List<ArtistViewModel>();
 
             // Database:  Load the artist entities
-            var artistPage = _modelController.GetPage(request);
+            var artistPage = _modelController.GetAudioStationPage(request);
 
             result.PageNumber = request.PageNumber;
             result.PageSize = request.PageSize;
@@ -98,7 +98,7 @@ namespace AudioStation.Component
             var result = new PageResult<LibraryEntryViewModel>();
 
             // Database:  Load the file (entry) entities
-            var entryPage = _modelController.GetPage(request);
+            var entryPage = _modelController.GetAudioStationPage(request);
 
             result.PageNumber = request.PageNumber;
             result.PageSize = request.PageSize;

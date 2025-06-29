@@ -1,5 +1,4 @@
-﻿using AudioStation.Core.Component.Interface;
-using AudioStation.Core.Utility;
+﻿using AudioStation.Core.Utility;
 using AudioStation.Model;
 
 using Microsoft.EntityFrameworkCore;
@@ -65,7 +64,7 @@ namespace AudioStation.Core.Database.AudioStationDatabase
 
             optionsBuilder.UseNpgsql(connectionString, builder =>
             {
-                
+
             });
             optionsBuilder.EnableDetailedErrors(true);
             optionsBuilder.EnableSensitiveDataLogging(true);

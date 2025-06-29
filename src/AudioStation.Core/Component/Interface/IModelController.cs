@@ -1,5 +1,9 @@
 ﻿using AudioStation.Core.Database.AudioStationDatabase;
+using AudioStation.Core.Database.MusicBrainzDatabase;
 using AudioStation.Core.Model;
+
+using MetaBrainz.MusicBrainz;
+using MetaBrainz.MusicBrainz.Interfaces.Entities;
 
 using M3UStream = AudioStation.Core.Model.M3U.M3UStream;
 
@@ -11,6 +15,8 @@ namespace AudioStation.Core.Component.Interface
     /// </summary>
     public interface IModelController
     {
+        #region Audio Station Database
+
         /// <summary>
         /// Adds LibraryEntry to database. Does NOT update any existing, similar, entry. The tag data
         /// is also used to initialize the LibraryEntry, adding supporting data to the database.
@@ -43,25 +49,125 @@ namespace AudioStation.Core.Component.Interface
         /// </summary>
         IEnumerable<Mp3FileReference> GetAlbumTracks(int albumId);
 
+        #endregion
+
+        #region Music Brainz Local / Remote (Query / Cache)
+
+        void AddUpdateMusicBrainzArtist(IArtist musicBrainzArtist);
+        void AddUpdateMusicBrainzRecording(IRecording musicBrainzRecording);
+        void AddUpdateMusicBrainzRelease(IRelease musicBrainzRelease);
+        void AddUpdateMusicBrainzTrack(ITrack musicBrainzTrack);
+        void AddUpdateMusicBrainzTag(ITag musicBrainzTag, MusicBrainzEntityBase musicBrainzEntity);
+        void AddUpdateMusicBrainzGenre(IGenre musicBrainzGenre, MusicBrainzEntityBase musicBrainzEntity);
+        void AddUpdateMusicBrainzUrl(IUrl musicBrainzUrl, MusicBrainzEntityBase musicBrainzEntity);
+        void AddUpdateMusicBrainzMedium(Guid musicBrainzReleaseId, IMedium musicBrainzMedium);
+        void AddUpdateMusicBrainzLabel(ILabel musicBrainzLocal);
+
+        /// <summary>
+        /// Get music brainz data - checking locally and remotely depending on what information is given. If you
+        /// supply a UUID (Guid), then the first check uses a local Guid check. Then, a remote Guid check, then a remote
+        /// find. Any data that comes back from a remote find is stored locally.
+        /// </summary>
+        MusicBrainzArtistEntity GetMusicBrainzArtist(Guid? musicBrainzId, string artistName, string albumName, string trackName);
+
+        /// <summary>
+        /// Get music brainz data - checking locally and remotely depending on what information is given. If you
+        /// supply a UUID (Guid), then the first check uses a local Guid check. Then, a remote Guid check, then a remote
+        /// find. Any data that comes back from a remote find is stored locally.
+        /// </summary>
+        MusicBrainzRecordingEntity GetMusicBrainzRecording(Guid? musicBrainzId, string artistName, string albumName, string trackName);
+
+        /// <summary>
+        /// Get music brainz data - checking locally and remotely depending on what information is given. If you
+        /// supply a UUID (Guid), then the first check uses a local Guid check. Then, a remote Guid check, then a remote
+        /// find. Any data that comes back from a remote find is stored locally.
+        /// </summary>
+        MusicBrainzReleaseEntity GetMusicBrainzRelease(Guid? musicBrainzId, string artistName, string albumName, string trackName);
+
+        /// <summary>
+        /// Get music brainz data - checking locally and remotely depending on what information is given. If you
+        /// supply a UUID (Guid), then the first check uses a local Guid check. Then, a remote Guid check, then a remote
+        /// find. Any data that comes back from a remote find is stored locally.
+        /// </summary>
+        MusicBrainzTrackEntity GetMusicBrainzTrack(Guid? musicBrainzId, string artistName, string albumName, string trackName);
+
+        /// <summary>
+        /// Get music brainz tag data (all records) (storing locally which haven't been cached yet)
+        /// </summary>
+        IEnumerable<MusicBrainzTagEntity> GetMusicBrainzTags(MusicBrainzEntityBase relatedEntity);
+
+        /// <summary>
+        /// Get music brainz genre data (all records) (storing locally which haven't been cached yet)
+        /// </summary>
+        IEnumerable<MusicBrainzGenreEntity> GetMusicBrainzGenres(MusicBrainzEntityBase relatedEntity);
+
+        /// <summary>
+        /// Get music brainz data - checking locally and remotely depending on what information is given. If you
+        /// supply a UUID (Guid), then the first check uses a local Guid check. Then, a remote Guid check, then a remote
+        /// find. Any data that comes back from a remote find is stored locally.
+        /// </summary>
+        MusicBrainzLabelEntity GetMusicBrainzLabel(Guid? musicBrainzId, string artistName, string albumName, string trackName);
+
+        /// <summary>
+        /// Get music brainz data - checking locally and remotely depending on what information is given. If you
+        /// supply a UUID (Guid), then the first check uses a local Guid check. Then, a remote Guid check, then a remote
+        /// find. Any data that comes back from a remote find is stored locally.
+        /// </summary>
+        IEnumerable<MusicBrainzUrlEntity> GetMusicBrainzRelatedUrls<TEntity>(Guid musicBrainzEntityId, string artistName, string albumName, string trackName) where TEntity : MusicBrainzEntityBase;
+
+        /// <summary>
+        /// Get music brainz data - checking locally and remotely depending on what information is given. If you
+        /// supply a UUID (Guid), then the first check uses a local Guid check. Then, a remote Guid check, then a remote
+        /// find. Any data that comes back from a remote find is stored locally.
+        /// </summary>
+        IEnumerable<MusicBrainzMediumEntity> GetMusicBrainzMedia(Guid musicBrainzReleaseId, string artistName, string albumName, string trackName);
+
+        #endregion
+
+        #region Generic Queries (both DbContext)
+
         /// <summary>
         /// Updates entity using property reflection
         /// </summary>
-        bool UpdateEntity<TEntity>(TEntity entity) where TEntity : AudioStationEntityBase;
+        bool UpdateMusicBrainzEntity<TEntity>(TEntity entity) where TEntity : MusicBrainzEntityBase;
 
         /// <summary>
         /// Requests a page of data from the database
         /// </summary>
         /// <typeparam name="TEntity">The specific entity type</typeparam>
-        PageResult<TEntity> GetPage<TEntity, TOrder>(PageRequest<TEntity, TOrder> request) where TEntity : AudioStationEntityBase;
+        PageResult<TEntity> GetMusicBrainzPage<TEntity, TOrder>(PageRequest<TEntity, TOrder> request) where TEntity : MusicBrainzEntityBase;
 
         /// <summary>
         /// Gets an entire entity table from the database
         /// </summary>
-        IEnumerable<TEntity> GetEntities<TEntity>() where TEntity : AudioStationEntityBase;
+        IEnumerable<TEntity> GetMusicBrainzEntities<TEntity>() where TEntity : MusicBrainzEntityBase;
 
         /// <summary>
         /// Gets entity by ID from the database
         /// </summary>
-        TEntity GetEntity<TEntity>(int id) where TEntity : AudioStationEntityBase;
+        TEntity GetMusicBrainzEntity<TEntity>(Guid musicBrainzId) where TEntity : MusicBrainzEntityBase;
+
+        /// <summary>
+        /// Updates entity using property reflection
+        /// </summary>
+        bool UpdateAudioStationEntity<TEntity>(TEntity entity) where TEntity : AudioStationEntityBase;
+
+        /// <summary>
+        /// Requests a page of data from the database
+        /// </summary>
+        /// <typeparam name="TEntity">The specific entity type</typeparam>
+        PageResult<TEntity> GetAudioStationPage<TEntity, TOrder>(PageRequest<TEntity, TOrder> request) where TEntity : AudioStationEntityBase;
+
+        /// <summary>
+        /// Gets an entire entity table from the database
+        /// </summary>
+        IEnumerable<TEntity> GetAudioStationEntities<TEntity>() where TEntity : AudioStationEntityBase;
+
+        /// <summary>
+        /// Gets entity by ID from the database
+        /// </summary>
+        TEntity GetAudioStationEntity<TEntity>(int id) where TEntity : AudioStationEntityBase;
+
+        #endregion
     }
 }

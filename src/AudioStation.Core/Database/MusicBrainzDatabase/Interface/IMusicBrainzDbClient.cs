@@ -5,7 +5,42 @@ namespace AudioStation.Core.Database.MusicBrainzDatabase.Interface
     public interface IMusicBrainzDbClient
     {
         /// <summary>
-        /// Updates entity using property reflection
+        /// Adds Url + Related Entity mapping for a music brainz Url
+        /// </summary>
+        void AddUrl<TEntity>(MusicBrainzUrlEntity entity, TEntity relatedEntity) where TEntity : MusicBrainzEntityBase;
+
+        /// <summary>
+        /// Adds Genre + Related Entity mapping for a music brainz Url
+        /// </summary>
+        void AddGenre<TEntity>(MusicBrainzGenreEntity entity, TEntity relatedEntity) where TEntity : MusicBrainzEntityBase;
+
+        /// <summary>
+        /// Adds Tag + Related Entity mapping for a music brainz Url
+        /// </summary>
+        void AddTag<TEntity>(MusicBrainzTagEntity entity, TEntity relatedEntity) where TEntity : MusicBrainzEntityBase;
+
+        /// <summary>
+        /// Adds entity using the DbContext (generic method)
+        /// </summary>
+        void AddEntity<TEntity>(TEntity entity) where TEntity : MusicBrainzEntityBase;
+
+        /// <summary>
+        /// Returns true if the database contains specified entity (by ID)
+        /// </summary>
+        bool ContainsEntity<TEntity>(TEntity entity) where TEntity : MusicBrainzEntityBase;
+
+        /// <summary>
+        /// Returns true if there are any entities that pass the given predicate
+        /// </summary>
+        bool Any<TEntity>(Func<TEntity, bool> predicate) where TEntity : MusicBrainzEntityBase;
+
+        /// <summary>
+        /// Returns subset of entity set that passes the given predicate
+        /// </summary>
+        IEnumerable<TEntity> Where<TEntity>(Func<TEntity, bool> predicate) where TEntity : class;
+
+        /// <summary>
+        /// Updates entity using generic context method (property reflection)
         /// </summary>
         bool UpdateEntity<TEntity>(TEntity entity) where TEntity : MusicBrainzEntityBase;
 

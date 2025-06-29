@@ -127,11 +127,11 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent
                         entity.MusicBrainzTrackId = trackId.ToString();
 
                         // Update Track Entity (the album / artist will be updated either here or on another work item)
-                        _modelController.UpdateEntity(entity);
+                        _modelController.UpdateAudioStationEntity(entity);
 
                         // Go ahead and fetch the other entities for the music brainz id's
-                        var artistEntity = _modelController.GetEntity<Mp3FileReferenceArtist>(entity.PrimaryArtistId.Value);
-                        var albumEntity = _modelController.GetEntity<Mp3FileReferenceAlbum>(entity.AlbumId.Value);
+                        var artistEntity = _modelController.GetAudioStationEntity<Mp3FileReferenceArtist>(entity.PrimaryArtistId.Value);
+                        var albumEntity = _modelController.GetAudioStationEntity<Mp3FileReferenceAlbum>(entity.AlbumId.Value);
 
                         if (artistEntity == null)
                         {
@@ -156,8 +156,8 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent
                         musicBrainzAlbumId = albumEntity.MusicBrainzReleaseId;
 
                         // Update Entities
-                        _modelController.UpdateEntity(artistEntity);
-                        _modelController.UpdateEntity(albumEntity);
+                        _modelController.UpdateAudioStationEntity(artistEntity);
+                        _modelController.UpdateAudioStationEntity(albumEntity);
                     }
                 }
 

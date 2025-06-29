@@ -91,7 +91,7 @@ namespace AudioStation.Core.Component
         public void LoadMusicBrainzRecordsAsync()
         {
             // Query for all music track meta-data
-            var tracks = _modelController.GetEntities<Mp3FileReference>();
+            var tracks = _modelController.GetAudioStationEntities<Mp3FileReference>();
 
             // Create work item for the music brainz search(es)
             var entityLoad = new LibraryLoaderEntityLoad(tracks);
