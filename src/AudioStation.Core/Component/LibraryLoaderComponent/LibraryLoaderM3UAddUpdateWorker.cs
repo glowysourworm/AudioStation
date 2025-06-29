@@ -14,13 +14,10 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent
     public class LibraryLoaderM3UAddUpdateWorker : LibraryWorkerThreadBase
     {
         private readonly IModelController _modelController;
-        private readonly IOutputController _outputController;
 
-        public LibraryLoaderM3UAddUpdateWorker(IModelController modelController,
-                                               IOutputController outputController) : base(outputController)
+        public LibraryLoaderM3UAddUpdateWorker(IModelController modelController)
         {
             _modelController = modelController;
-            _outputController = outputController;
         }
 
         protected override void Work(ref LibraryLoaderWorkItem workItem)

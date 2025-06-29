@@ -70,8 +70,8 @@ namespace AudioStation.ViewModels
 
                 if (!string.IsNullOrWhiteSpace(directory))
                 {
-                    libraryLoader.LoadRadioAsync(directory);
-                    libraryLoader.Start();
+                    //libraryLoader.LoadRadioAsync(directory);
+                    //libraryLoader.Start();
                 }
             });
         }

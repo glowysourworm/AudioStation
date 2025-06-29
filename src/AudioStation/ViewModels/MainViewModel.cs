@@ -252,8 +252,8 @@ public partial class MainViewModel : ViewModelBase, IDisposable
                                                   "Your audio file(s) will not be otherwise disturbed.",
                                                   "Are you sure you want to do this?"))
             {
-                libraryLoader.LoadLibraryAsync(this.Configuration.DirectoryBase);
-                libraryLoader.Start();
+                //libraryLoader.LoadLibraryAsync(this.Configuration.DirectoryBase);
+                //libraryLoader.Start();
             }
         });
         this.OpenDownloadFolderCommand = new SimpleCommand(() =>

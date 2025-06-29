@@ -1,12 +1,9 @@
 ﻿using System.Windows;
 using System.Windows.Threading;
+using System.Xml;
 
-using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Model;
 using AudioStation.Core.Utility;
-using AudioStation.Model;
-
-using Microsoft.Extensions.Logging;
 
 using SimpleWpf.Extensions.Event;
 
@@ -24,16 +21,12 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent
         Thread _thread;
         object _isWorkingLock = new object();
 
-        private readonly IOutputController _outputController;
-
         // Keep reference to the work item. This will be contended on with UI control.
         //
         private LibraryLoaderWorkItem _workItem;
 
-        public LibraryWorkerThreadBase(IOutputController outputController)
+        public LibraryWorkerThreadBase()
         {
-            _outputController = outputController;
-
             _thread = new Thread(WorkDispatch);
             _thread.IsBackground = true;
             _thread.Priority = ThreadPriority.BelowNormal;
@@ -100,7 +93,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent
 
         public bool IsReadyForWork()
         {
-            lock(_isWorkingLock)
+            lock (_isWorkingLock)
             {
                 return !_isWorking;
             }
@@ -147,7 +140,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent
                 {
                     Thread.Sleep(THREAD_WAIT_SLEEP);
 
-                    lock(_isWorkingLock)
+                    lock (_isWorkingLock)
                     {
                         if (_isWorking)
                             break;

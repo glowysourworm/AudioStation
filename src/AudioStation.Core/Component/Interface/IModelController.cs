@@ -1,5 +1,6 @@
 ﻿using AudioStation.Core.Database.AudioStationDatabase;
 using AudioStation.Core.Database.MusicBrainzDatabase;
+using AudioStation.Core.Database.MusicBrainzDatabase.Model;
 using AudioStation.Core.Model;
 
 using MetaBrainz.MusicBrainz;
@@ -53,15 +54,15 @@ namespace AudioStation.Core.Component.Interface
 
         #region Music Brainz Local / Remote (Query / Cache)
 
-        void AddUpdateMusicBrainzArtist(IArtist musicBrainzArtist);
-        void AddUpdateMusicBrainzRecording(IRecording musicBrainzRecording);
-        void AddUpdateMusicBrainzRelease(IRelease musicBrainzRelease);
-        void AddUpdateMusicBrainzTrack(ITrack musicBrainzTrack);
-        void AddUpdateMusicBrainzTag(ITag musicBrainzTag, MusicBrainzEntityBase musicBrainzEntity);
-        void AddUpdateMusicBrainzGenre(IGenre musicBrainzGenre, MusicBrainzEntityBase musicBrainzEntity);
-        void AddUpdateMusicBrainzUrl(IUrl musicBrainzUrl, MusicBrainzEntityBase musicBrainzEntity);
-        void AddUpdateMusicBrainzMedium(Guid musicBrainzReleaseId, IMedium musicBrainzMedium);
-        void AddUpdateMusicBrainzLabel(ILabel musicBrainzLocal);
+        MusicBrainzArtistEntity AddUpdateMusicBrainzArtist(IArtist musicBrainzArtist);
+        MusicBrainzRecordingEntity AddUpdateMusicBrainzRecording(IRecording musicBrainzRecording);
+        MusicBrainzReleaseEntity AddUpdateMusicBrainzRelease(IRelease musicBrainzRelease);
+        MusicBrainzTrackEntity AddUpdateMusicBrainzTrack(ITrack musicBrainzTrack);
+        MusicBrainzTagEntity AddUpdateMusicBrainzTag(ITag musicBrainzTag, MusicBrainzEntityBase musicBrainzEntity);
+        MusicBrainzGenreEntity AddUpdateMusicBrainzGenre(IGenre musicBrainzGenre, MusicBrainzEntityBase musicBrainzEntity);
+        MusicBrainzUrlEntity AddUpdateMusicBrainzUrl(IUrl musicBrainzUrl, MusicBrainzEntityBase musicBrainzEntity);
+        MusicBrainzMediumEntity AddUpdateMusicBrainzMedium(Guid musicBrainzReleaseId, IMedium musicBrainzMedium);
+        MusicBrainzLabelEntity AddUpdateMusicBrainzLabel(ILabel musicBrainzLocal);
 
         /// <summary>
         /// Get music brainz data - checking locally and remotely depending on what information is given. If you
@@ -122,6 +123,11 @@ namespace AudioStation.Core.Component.Interface
         /// </summary>
         IEnumerable<MusicBrainzMediumEntity> GetMusicBrainzMedia(Guid musicBrainzReleaseId, string artistName, string albumName, string trackName);
 
+        /// <summary>
+        /// Gets a complete record for one track - starting with the matching recordings - for the artist, album, track name search
+        /// from the MusicBrainz database. This will store any data that returns locally for a single search to MB.
+        /// </summary>
+        IEnumerable<MusicBrainzCombinedLibraryEntryRecord> GetCompleteMusicBrainzRecord(string artistName, string albumName, string trackName);
         #endregion
 
         #region Generic Queries (both DbContext)

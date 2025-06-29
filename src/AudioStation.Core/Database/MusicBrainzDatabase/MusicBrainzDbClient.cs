@@ -40,7 +40,7 @@ namespace AudioStation.Core.Database.MusicBrainzDatabase
             });
         }
 
-        public void AddUrl<TEntity>(MusicBrainzUrlEntity entity, TEntity relatedEntity) where TEntity : MusicBrainzEntityBase
+        public void AddUrlRelationship<TEntity>(MusicBrainzUrlEntity entity, TEntity relatedEntity) where TEntity : MusicBrainzEntityBase
         {
             try
             {
@@ -49,15 +49,20 @@ namespace AudioStation.Core.Database.MusicBrainzDatabase
 
                 using (var context = CreateContext())
                 {
-                    var urlMap = new MusicBrainzUrlEntityMap()
-                    {
-                        MusicBrainzEntityId = relatedEntity.Id,
-                        MusicBrainzEntityTypeId = typeId,
-                        MusicBrainzUrlId = entity.Id,
-                    };
+                    if (context.Find<MusicBrainzUrlEntity>(entity) == null)
+                        context.Add(entity);
 
-                    context.Add(urlMap);
-                    context.Add(entity);
+                    if (!context.Set<MusicBrainzUrlEntityMap>().Any(x => x.MusicBrainzEntityId == relatedEntity.Id &&
+                                                                        x.MusicBrainzUrlId == entity.Id))
+                    {
+                        context.Add(new MusicBrainzUrlEntityMap()
+                        {
+                            MusicBrainzEntityId = relatedEntity.Id,
+                            MusicBrainzEntityTypeId = typeId,
+                            MusicBrainzUrlId = entity.Id,
+                        });
+                    }
+                    
 
                     context.SaveChanges();
                 }
@@ -69,7 +74,7 @@ namespace AudioStation.Core.Database.MusicBrainzDatabase
             }
         }
 
-        public void AddGenre<TEntity>(MusicBrainzGenreEntity entity, TEntity relatedEntity) where TEntity : MusicBrainzEntityBase
+        public void AddGenreRelationship<TEntity>(MusicBrainzGenreEntity entity, TEntity relatedEntity) where TEntity : MusicBrainzEntityBase
         {
             try
             {
@@ -78,15 +83,19 @@ namespace AudioStation.Core.Database.MusicBrainzDatabase
 
                 using (var context = CreateContext())
                 {
-                    var genreMap = new MusicBrainzGenreEntityMap()
-                    {
-                        MusicBrainzEntityId = relatedEntity.Id,
-                        MusicBrainzEntityTypeId = typeId,
-                        MusicBrainzGenreId = entity.Id,
-                    };
+                    if (context.Find<MusicBrainzGenreEntity>(entity) == null)
+                        context.Add(entity);
 
-                    context.Add(genreMap);
-                    context.Add(entity);
+                    if (!context.Set<MusicBrainzGenreEntityMap>().Any(x => x.MusicBrainzEntityId == relatedEntity.Id &&
+                                                                           x.MusicBrainzGenreId == entity.Id))
+                    {
+                        context.Add(new MusicBrainzGenreEntityMap()
+                        {
+                            MusicBrainzEntityId = relatedEntity.Id,
+                            MusicBrainzEntityTypeId = typeId,
+                            MusicBrainzGenreId = entity.Id,
+                        });
+                    }
 
                     context.SaveChanges();
                 }
@@ -98,7 +107,7 @@ namespace AudioStation.Core.Database.MusicBrainzDatabase
             }
         }
 
-        public void AddTag<TEntity>(MusicBrainzTagEntity entity, TEntity relatedEntity) where TEntity : MusicBrainzEntityBase
+        public void AddTagRelationship<TEntity>(MusicBrainzTagEntity entity, TEntity relatedEntity) where TEntity : MusicBrainzEntityBase
         {
             try
             {
@@ -107,15 +116,19 @@ namespace AudioStation.Core.Database.MusicBrainzDatabase
 
                 using (var context = CreateContext())
                 {
-                    var tagMap = new MusicBrainzTagEntityMap()
-                    {
-                        MusicBrainzEntityId = relatedEntity.Id,
-                        MusicBrainzEntityTypeId = typeId,
-                        MusicBrainzTagId = entity.Id,
-                    };
+                    if (context.Find<MusicBrainzTagEntity>(entity) == null)
+                        context.Add(entity);
 
-                    context.Add(tagMap);
-                    context.Add(entity);
+                    if (!context.Set<MusicBrainzTagEntityMap>().Any(x => x.MusicBrainzEntityId == relatedEntity.Id &&
+                                                                         x.MusicBrainzTagId == entity.Id))
+                    {
+                        context.Add(new MusicBrainzTagEntityMap()
+                        {
+                            MusicBrainzEntityId = relatedEntity.Id,
+                            MusicBrainzEntityTypeId = typeId,
+                            MusicBrainzTagId = entity.Id,
+                        });
+                    }
 
                     context.SaveChanges();
                 }
@@ -223,7 +236,7 @@ namespace AudioStation.Core.Database.MusicBrainzDatabase
             }
         }
 
-        public void AddEntity<TEntity>(TEntity entity) where TEntity : MusicBrainzEntityBase
+        public void AddEntity<TEntity>(TEntity entity) where TEntity : class
         {
             try
             {
@@ -239,7 +252,6 @@ namespace AudioStation.Core.Database.MusicBrainzDatabase
                 throw ex;
             }
         }
-
 
         public bool UpdateEntity<TEntity>(TEntity entity) where TEntity : MusicBrainzEntityBase
         {
@@ -292,13 +304,6 @@ namespace AudioStation.Core.Database.MusicBrainzDatabase
             }
         }
 
-        private int GetEntityTypeId(EntityType musicBrainzEntityType)
-        {
-            using (var context = CreateContext())
-            {
-                return context.Set<MusicBrainzEntityType>().Where(x => x.Name == musicBrainzEntityType.ToString()).First().Id;
-            }
-        }
         private int GetEntityTypeId<TEntity>() where TEntity : MusicBrainzEntityBase
         {
             using (var context = CreateContext())
@@ -308,10 +313,6 @@ namespace AudioStation.Core.Database.MusicBrainzDatabase
                 if (typeof(TEntity) == typeof(MusicBrainzArtistEntity))
                 {
                     type = EntityType.Artist;
-                }
-                else if (typeof(TEntity) == typeof(MusicBrainzDiscEntity))
-                {
-                    throw new Exception("Can't support relationships to disc entity");
                 }
                 else if (typeof(TEntity) == typeof(MusicBrainzGenreEntity))
                 {

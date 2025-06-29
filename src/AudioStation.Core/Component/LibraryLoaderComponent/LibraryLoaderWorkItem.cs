@@ -21,7 +21,21 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent
         /// that we can't find it otherwise. Finally, the data is stored both in the database; and the
         /// tag data.
         /// </summary>
-        FillMusicBrainzIds
+        FillMusicBrainzIds,
+
+        /// <summary>
+        /// Loads mp3 files waiting for import. These would be in either a staging directory or a download 
+        /// directory. The import process will:  1) Get an AcoustID fingerprint, 2) Get MusicBrainz data for
+        /// the track, 3) Insert all local records into the database, and 4) Import the file by moving it into
+        /// the appropriate (templated) directory. This is configurable.
+        /// </summary>
+        ImportStagedFiles,
+
+        /// <summary>
+        /// Loads M3U file from specified directory (tree) using M3U C# libraries. This process may take some time. 
+        /// Events are fired when items are completed.
+        /// </summary>
+        ImportRadioFiles
     }
     public enum LibraryWorkItemState
     {

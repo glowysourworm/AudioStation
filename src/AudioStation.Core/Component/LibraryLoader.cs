@@ -6,6 +6,7 @@ using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Component.LibraryLoaderComponent;
 using AudioStation.Core.Component.Vendor.Interface;
 using AudioStation.Core.Database.AudioStationDatabase;
+using AudioStation.Core.Database.MusicBrainzDatabase;
 using AudioStation.Core.Model;
 using AudioStation.Core.Utility;
 
@@ -66,9 +67,9 @@ namespace AudioStation.Core.Component
             // Start worker thread (pool)
             for (int index = 0; index < WORKER_THREAD_MAX; index++)
             {
-                _workerThreads.Add(new LibraryLoaderMp3AddUpdateWorker(modelController, outputController));
-                _workerThreads.Add(new LibraryLoaderM3UAddUpdateWorker(modelController, outputController));
-                _workerThreads.Add(new LibraryLoaderFillMusicBrainzIdsWorker(modelController, outputController, musicBrainzClient));
+                _workerThreads.Add(new LibraryLoaderMp3AddUpdateWorker(modelController));
+                _workerThreads.Add(new LibraryLoaderM3UAddUpdateWorker(modelController));
+                _workerThreads.Add(new LibraryLoaderFillMusicBrainzIdsWorker(modelController, musicBrainzClient));
             }
             foreach (var workerThread in _workerThreads)
             {
@@ -78,62 +79,78 @@ namespace AudioStation.Core.Component
             _workerDispatcher.Start();
         }
 
-        public void LoadLibraryAsync(string baseDirectory)
+        public void RunLoaderTask(LibraryLoaderParameters parameters)
         {
-            LoadDirectoryAsync(baseDirectory, "*.mp3");
+            // NOTE:  The incremental work item ID property is a unique identifier! This must be maintained
+            //        properly here by incremeting. It is used to identify logs for the task; and to have a
+            //        handle for later querying.
+            //
+            LibraryLoaderWorkItem workItem = null;
+
+            switch (parameters.LoadType)
+            {
+                case LibraryLoadType.Mp3FileAddUpdate:
+                {
+                    var fileLoad = CreateFileLoad(parameters.Directory, "*.mp3");
+                    workItem = new LibraryLoaderWorkItem(_workItemIdCounter++, LibraryLoadType.Mp3FileAddUpdate);
+                    workItem.Initialize(LibraryWorkItemState.Pending, fileLoad);
+                }
+                break;
+                case LibraryLoadType.M3UFileAddUpdate:
+                {
+                    var fileLoad = CreateFileLoad(parameters.Directory, "*.m3u");
+                    workItem = new LibraryLoaderWorkItem(_workItemIdCounter++, LibraryLoadType.M3UFileAddUpdate);
+                    workItem.Initialize(LibraryWorkItemState.Pending, fileLoad);
+                }
+                break;
+                case LibraryLoadType.FillMusicBrainzIds:
+                {
+                    var entityLoad = CreateAudioStationEntityLoad<Mp3FileReference>();
+                    workItem = new LibraryLoaderWorkItem(_workItemIdCounter++, LibraryLoadType.FillMusicBrainzIds);
+                    workItem.Initialize(LibraryWorkItemState.Pending, entityLoad);
+                }
+                break;
+                case LibraryLoadType.ImportStagedFiles:
+                {
+                    var fileLoad = CreateFileLoad(parameters.Directory, "*.mp3");
+                    workItem = new LibraryLoaderWorkItem(_workItemIdCounter++, LibraryLoadType.ImportStagedFiles);
+                    workItem.Initialize(LibraryWorkItemState.Pending, fileLoad);
+                }
+                break;
+                case LibraryLoadType.ImportRadioFiles:
+                {
+                    var fileLoad = CreateFileLoad(parameters.Directory, "*.m3u");
+                    workItem = new LibraryLoaderWorkItem(_workItemIdCounter++, LibraryLoadType.ImportRadioFiles);
+                    workItem.Initialize(LibraryWorkItemState.Pending, fileLoad);
+                }
+                break;
+                default:
+                    throw new Exception("Unhandled library loader task type:  LibraryLoader.cs");
+            }
+
+            // Queue Work Item
+            lock(_lock)
+            {
+                _workQueue.Enqueue(workItem);
+            }
         }
 
-        public void LoadRadioAsync(string baseDirectory)
+        private LibraryLoaderEntityLoad CreateAudioStationEntityLoad<TEntity>() where TEntity : AudioStationEntityBase
         {
-            LoadDirectoryAsync(baseDirectory, "*.m3u");
-        }
-
-        public void LoadMusicBrainzRecordsAsync()
-        {
-            // Query for all music track meta-data
-            var tracks = _modelController.GetAudioStationEntities<Mp3FileReference>();
+            // Query for all music entity meta-data
+            var entities = _modelController.GetAudioStationEntities<TEntity>();
 
             // Create work item for the music brainz search(es)
-            var entityLoad = new LibraryLoaderEntityLoad(tracks);
-
-            // Create new work item for the queue
-            var workItem = new LibraryLoaderWorkItem(_workItemIdCounter++, LibraryLoadType.FillMusicBrainzIds);
-
-            // Set initial state
-            workItem.Initialize(LibraryWorkItemState.Pending, entityLoad);
-
-            lock (_lock)
-            {
-                // Queue work item
-                _workQueue.Enqueue(workItem);
-            }
+            return new LibraryLoaderEntityLoad(entities);
         }
 
-        private void LoadDirectoryAsync(string baseDirectory, string searchPattern)
+        private LibraryLoaderFileLoad CreateFileLoad(string baseDirectory, string searchPattern)
         {
-            LibraryLoadType loadType;
-
-            if (searchPattern == "*.mp3")
-                loadType = LibraryLoadType.Mp3FileAddUpdate;
-
-            else if (searchPattern == "*.m3u")
-                loadType = LibraryLoadType.M3UFileAddUpdate;
-
-            else
-                throw new FormattedException("Unhandled search pattern type: {0}  LibraryLoader.cs", searchPattern);
-
             // Scan directories for files (Use NativeIO for much faster iteration. Less managed memory loading)
             var files = FastDirectoryEnumerator.GetFiles(baseDirectory, searchPattern, SearchOption.AllDirectories);
-            var workItem = new LibraryLoaderWorkItem(_workItemIdCounter++, LibraryLoadType.Mp3FileAddUpdate);
 
-            // Set initial state
-            workItem.Initialize(LibraryWorkItemState.Pending, new LibraryLoaderFileLoad(files.Select(x => x.Path)));
-
-            lock (_lock)
-            {
-                // Queue work item
-                _workQueue.Enqueue(workItem);
-            }
+            // Create the file load for the next work item
+            return new LibraryLoaderFileLoad(files.Select(x => x.Path));
         }
 
         public PlayStopPause GetState()

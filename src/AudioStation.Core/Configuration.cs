@@ -40,6 +40,11 @@ namespace AudioStation.Core
         string _discogsSecret;
         string _discogsCurrentToken;
 
+        string _musicBrainzUser;
+        string _musicBrainzPassword;
+
+        string _acoustIDAPIKey;
+
         public string DirectoryBase
         {
             get { return _directoryBase; }
@@ -188,6 +193,22 @@ namespace AudioStation.Core
             set { this.RaiseAndSetIfChanged(ref _discogsCurrentToken, value); }
         }
 
+        public string MusicBrainzUser
+        {
+            get { return _musicBrainzUser; }
+            set { this.RaiseAndSetIfChanged(ref _musicBrainzUser, value); }
+        }
+        public string MusicBrainzPassword
+        {
+            get { return _musicBrainzPassword; }
+            set { this.RaiseAndSetIfChanged(ref _musicBrainzPassword, value); }
+        }
+        public string AcoustIDAPIKey
+        {
+            get { return _acoustIDAPIKey; }
+            set { this.RaiseAndSetIfChanged(ref _acoustIDAPIKey, value); }
+        }
+
         public Configuration()
         {
             this.DirectoryBase = string.Empty;
@@ -225,6 +246,10 @@ namespace AudioStation.Core
             this.DiscogsEmail = string.Empty;
             this.DiscogsKey = string.Empty;
             this.DiscogsSecret = string.Empty;
+
+            this.MusicBrainzUser = string.Empty;
+            this.MusicBrainzPassword = string.Empty;
+            this.AcoustIDAPIKey = string.Empty;
         }
     }
 }

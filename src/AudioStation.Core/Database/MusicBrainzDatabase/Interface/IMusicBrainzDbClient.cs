@@ -7,22 +7,22 @@ namespace AudioStation.Core.Database.MusicBrainzDatabase.Interface
         /// <summary>
         /// Adds Url + Related Entity mapping for a music brainz Url
         /// </summary>
-        void AddUrl<TEntity>(MusicBrainzUrlEntity entity, TEntity relatedEntity) where TEntity : MusicBrainzEntityBase;
+        void AddUrlRelationship<TEntity>(MusicBrainzUrlEntity entity, TEntity relatedEntity) where TEntity : MusicBrainzEntityBase;
 
         /// <summary>
         /// Adds Genre + Related Entity mapping for a music brainz Url
         /// </summary>
-        void AddGenre<TEntity>(MusicBrainzGenreEntity entity, TEntity relatedEntity) where TEntity : MusicBrainzEntityBase;
+        void AddGenreRelationship<TEntity>(MusicBrainzGenreEntity entity, TEntity relatedEntity) where TEntity : MusicBrainzEntityBase;
 
         /// <summary>
         /// Adds Tag + Related Entity mapping for a music brainz Url
         /// </summary>
-        void AddTag<TEntity>(MusicBrainzTagEntity entity, TEntity relatedEntity) where TEntity : MusicBrainzEntityBase;
+        void AddTagRelationship<TEntity>(MusicBrainzTagEntity entity, TEntity relatedEntity) where TEntity : MusicBrainzEntityBase;
 
         /// <summary>
         /// Adds entity using the DbContext (generic method)
         /// </summary>
-        void AddEntity<TEntity>(TEntity entity) where TEntity : MusicBrainzEntityBase;
+        void AddEntity<TEntity>(TEntity entity) where TEntity : class;
 
         /// <summary>
         /// Returns true if the database contains specified entity (by ID)

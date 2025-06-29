@@ -1,8 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 
-using MetaBrainz.MusicBrainz;
-using MetaBrainz.MusicBrainz.Interfaces.Entities;
-
 using Microsoft.EntityFrameworkCore;
 
 namespace AudioStation.Core.Database.MusicBrainzDatabase
@@ -21,6 +18,8 @@ namespace AudioStation.Core.Database.MusicBrainzDatabase
         public string? Annotation { get; set; }
         public string? Disambiguation { get; set; }
         public string? Title { get; set; }
+
+        public List<MusicBrainzMediumEntity> Media { get; set; }
 
         public MusicBrainzReleaseEntity() { }
     }

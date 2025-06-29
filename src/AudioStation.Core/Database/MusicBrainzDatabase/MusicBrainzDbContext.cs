@@ -18,7 +18,6 @@ namespace AudioStation.Core.Database.MusicBrainzDatabase
 
         // Entity types
         public DbSet<MusicBrainzArtistEntity> MusicBrainzArtists { get; set; }
-        public DbSet<MusicBrainzDiscEntity> MusicBrainzDiscs { get; set; }
         public DbSet<MusicBrainzEntityType> MusicBrainzEntityTypes { get; set; }
         public DbSet<MusicBrainzGenreEntity> MusicBrainzGenres { get; set; }
         public DbSet<MusicBrainzLabelEntity> MusicBrainzLabels { get; set; }
@@ -32,7 +31,6 @@ namespace AudioStation.Core.Database.MusicBrainzDatabase
         // Maps
         public DbSet<MusicBrainzArtistRecordingMap> MusicBrainzArtistRecordMaps { get; set; }
         public DbSet<MusicBrainzArtistReleaseMap> MusicBrainzArtistReleaseMaps { get; set; }
-        public DbSet<MusicBrainzArtistTrackMap> MusicBrainzArtistTrackMaps { get; set; }
         public DbSet<MusicBrainzGenreEntityMap> MusicBrainzGenreEntityMaps { get; set; }
         public DbSet<MusicBrainzLabelReleaseMap> MusicBrainzLabelReleaseMaps { get; set; }
         public DbSet<MusicBrainzTagEntityMap> MusicBrainzTagEntityMaps { get; set; }
@@ -58,12 +56,6 @@ namespace AudioStation.Core.Database.MusicBrainzDatabase
             modelBuilder.Entity<MusicBrainzArtistReleaseMap>().Navigation(x => x.MusicBrainzArtist).AutoInclude(true);
             modelBuilder.Entity<MusicBrainzArtistReleaseMap>().Navigation(x => x.MusicBrainzRelease).AutoInclude(true);
 
-            modelBuilder.Entity<MusicBrainzArtistTrackMap>().Navigation(x => x.MusicBrainzArtist).AutoInclude(true);
-            modelBuilder.Entity<MusicBrainzArtistTrackMap>().Navigation(x => x.MusicBrainzTrack).AutoInclude(true);
-
-            modelBuilder.Entity<MusicBrainzDiscEntity>().Navigation(x => x.MusicBrainzMedium).AutoInclude(true);
-            modelBuilder.Entity<MusicBrainzDiscEntity>().Navigation(x => x.MusicBrainzRelease).AutoInclude(true);
-
             modelBuilder.Entity<MusicBrainzGenreEntityMap>().Navigation(x => x.MusicBrainzGenre).AutoInclude(true);
             modelBuilder.Entity<MusicBrainzGenreEntityMap>().Navigation(x => x.MusicBrainzEntityType).AutoInclude(true);
 
@@ -71,6 +63,9 @@ namespace AudioStation.Core.Database.MusicBrainzDatabase
             modelBuilder.Entity<MusicBrainzLabelReleaseMap>().Navigation(x => x.MusicBrainzRelease).AutoInclude(true);
 
             modelBuilder.Entity<MusicBrainzMediumEntity>().Navigation(x => x.MusicBrainzRelease).AutoInclude(true);
+
+            // Not sure when / how this loads. This would follow the normal EF pattern.
+            modelBuilder.Entity<MusicBrainzReleaseEntity>().HasMany(x => x.Media).WithOne(x => x.MusicBrainzRelease);
 
             modelBuilder.Entity<MusicBrainzTagEntityMap>().Navigation(x => x.MusicBrainzEntityType).AutoInclude(true);
             modelBuilder.Entity<MusicBrainzTagEntityMap>().Navigation(x => x.MusicBrainzTag).AutoInclude(true);

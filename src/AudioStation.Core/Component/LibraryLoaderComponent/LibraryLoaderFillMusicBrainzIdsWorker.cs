@@ -16,8 +16,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent
         private readonly IMusicBrainzClient _musicBrainzClient;
 
         public LibraryLoaderFillMusicBrainzIdsWorker(IModelController modelController,
-                                                     IOutputController outputController,
-                                                     IMusicBrainzClient musicBrainzClient) : base(outputController)
+                                                     IMusicBrainzClient musicBrainzClient)
         {
             _modelController = modelController;
             _musicBrainzClient = musicBrainzClient;

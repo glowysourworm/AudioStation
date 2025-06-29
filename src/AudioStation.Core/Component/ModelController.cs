@@ -4,6 +4,7 @@ using AudioStation.Core.Database.AudioStationDatabase;
 using AudioStation.Core.Database.AudioStationDatabase.Interface;
 using AudioStation.Core.Database.MusicBrainzDatabase;
 using AudioStation.Core.Database.MusicBrainzDatabase.Interface;
+using AudioStation.Core.Database.MusicBrainzDatabase.Model;
 using AudioStation.Core.Event;
 using AudioStation.Core.Model;
 using AudioStation.Core.Model.Vendor;
@@ -248,7 +249,7 @@ namespace AudioStation.Controller
         #endregion
 
         #region Remote Queries / Local Cache
-        public void AddUpdateMusicBrainzArtist(IArtist musicBrainzArtist)
+        public MusicBrainzArtistEntity AddUpdateMusicBrainzArtist(IArtist musicBrainzArtist)
         {
             try
             {
@@ -269,13 +270,16 @@ namespace AudioStation.Controller
                 // Update
                 else
                     _musicBrainzDbClient.UpdateEntity(entity);
+
+                return entity;
             }
             catch (Exception ex)
             {
                 ApplicationHelpers.Log("Error saving entity data:  " + ex.Message, LogMessageType.Database, LogLevel.Error);
+                return null;
             }
         }
-        public void AddUpdateMusicBrainzRecording(IRecording musicBrainzRecording)
+        public MusicBrainzRecordingEntity AddUpdateMusicBrainzRecording(IRecording musicBrainzRecording)
         {
             try
             {
@@ -295,13 +299,16 @@ namespace AudioStation.Controller
                 // Update
                 else
                     _musicBrainzDbClient.UpdateEntity(entity);
+
+                return entity;
             }
             catch (Exception ex)
             {
                 ApplicationHelpers.Log("Error saving entity data:  " + ex.Message, LogMessageType.Database, LogLevel.Error);
+                return null;
             }
         }
-        public void AddUpdateMusicBrainzRelease(IRelease musicBrainzRelease)
+        public MusicBrainzReleaseEntity AddUpdateMusicBrainzRelease(IRelease musicBrainzRelease)
         {
             try
             {
@@ -327,13 +334,16 @@ namespace AudioStation.Controller
                 // Update
                 else
                     _musicBrainzDbClient.UpdateEntity(entity);
+
+                return entity;
             }
             catch (Exception ex)
             {
                 ApplicationHelpers.Log("Error saving entity data:  " + ex.Message, LogMessageType.Database, LogLevel.Error);
+                return null;
             }
         }
-        public void AddUpdateMusicBrainzTrack(ITrack musicBrainzTrack)
+        public MusicBrainzTrackEntity AddUpdateMusicBrainzTrack(ITrack musicBrainzTrack)
         {
             try
             {
@@ -354,13 +364,16 @@ namespace AudioStation.Controller
                 // Update
                 else
                     _musicBrainzDbClient.UpdateEntity(entity);
+
+                return entity;
             }
             catch (Exception ex)
             {
                 ApplicationHelpers.Log("Error saving entity data:  " + ex.Message, LogMessageType.Database, LogLevel.Error);
+                return null;
             }
         }
-        public void AddUpdateMusicBrainzTag(ITag musicBrainzTag, MusicBrainzEntityBase musicBrainzEntity)
+        public MusicBrainzTagEntity AddUpdateMusicBrainzTag(ITag musicBrainzTag, MusicBrainzEntityBase musicBrainzEntity)
         {
             try
             {
@@ -371,14 +384,17 @@ namespace AudioStation.Controller
                 };
 
                 if (!_musicBrainzDbClient.ContainsEntity(entity))
-                    _musicBrainzDbClient.AddTag(entity, musicBrainzEntity);
+                    _musicBrainzDbClient.AddTagRelationship(entity, musicBrainzEntity);
+
+                return entity;
             }
             catch (Exception ex)
             {
                 ApplicationHelpers.Log("Error saving entity data:  " + ex.Message, LogMessageType.Database, LogLevel.Error);
+                return null;
             }
         }
-        public void AddUpdateMusicBrainzGenre(IGenre musicBrainzGenre, MusicBrainzEntityBase musicBrainzEntity)
+        public MusicBrainzGenreEntity AddUpdateMusicBrainzGenre(IGenre musicBrainzGenre, MusicBrainzEntityBase musicBrainzEntity)
         {
             try
             {
@@ -389,14 +405,17 @@ namespace AudioStation.Controller
                 };
 
                 if (!_musicBrainzDbClient.ContainsEntity(entity))
-                    _musicBrainzDbClient.AddGenre(entity, musicBrainzEntity);
+                    _musicBrainzDbClient.AddGenreRelationship(entity, musicBrainzEntity);
+
+                return entity;
             }
             catch (Exception ex)
             {
                 ApplicationHelpers.Log("Error saving entity data:  " + ex.Message, LogMessageType.Database, LogLevel.Error);
+                return null;
             }
         }
-        public void AddUpdateMusicBrainzUrl(IUrl musicBrainzUrl, MusicBrainzEntityBase musicBrainzEntity)
+        public MusicBrainzUrlEntity AddUpdateMusicBrainzUrl(IUrl musicBrainzUrl, MusicBrainzEntityBase musicBrainzEntity)
         {
             try
             {
@@ -407,14 +426,17 @@ namespace AudioStation.Controller
                 };
 
                 if (!_musicBrainzDbClient.ContainsEntity(entity))
-                    _musicBrainzDbClient.AddUrl(entity, musicBrainzEntity);
+                    _musicBrainzDbClient.AddUrlRelationship(entity, musicBrainzEntity);
+
+                return entity;
             }
             catch (Exception ex)
             {
                 ApplicationHelpers.Log("Error saving entity data:  " + ex.Message, LogMessageType.Database, LogLevel.Error);
+                return null;
             }
         }
-        public void AddUpdateMusicBrainzMedium(Guid musicBrainzReleaseId, IMedium musicBrainzMedium)
+        public MusicBrainzMediumEntity AddUpdateMusicBrainzMedium(Guid musicBrainzReleaseId, IMedium musicBrainzMedium)
         {
             try
             {
@@ -436,13 +458,16 @@ namespace AudioStation.Controller
                 // Update
                 else
                     _musicBrainzDbClient.UpdateEntity(entity);
+
+                return entity;
             }
             catch (Exception ex)
             {
                 ApplicationHelpers.Log("Error saving entity data:  " + ex.Message, LogMessageType.Database, LogLevel.Error);
+                return null;
             }
         }
-        public void AddUpdateMusicBrainzLabel(ILabel musicBrainzLabel)
+        public MusicBrainzLabelEntity AddUpdateMusicBrainzLabel(ILabel musicBrainzLabel)
         {
             try
             {
@@ -465,10 +490,13 @@ namespace AudioStation.Controller
                 // Update
                 else
                     _musicBrainzDbClient.UpdateEntity(entity);
+
+                return entity;
             }
             catch (Exception ex)
             {
                 ApplicationHelpers.Log("Error saving entity data:  " + ex.Message, LogMessageType.Database, LogLevel.Error);
+                return null;
             }
         }
 
@@ -897,6 +925,357 @@ namespace AudioStation.Controller
             {
                 ApplicationHelpers.Log("Error saving entity data:  " + ex.Message, LogMessageType.Database, LogLevel.Error);
                 return Enumerable.Empty<MusicBrainzMediumEntity>();
+            }
+        }
+
+
+        public IEnumerable<MusicBrainzCombinedLibraryEntryRecord> GetCompleteMusicBrainzRecord(string artistName, string albumName, string trackName)
+        {
+            try
+            {
+                var resultSet = new List<MusicBrainzCombinedLibraryEntryRecord>();
+
+                // Music Brainz Caching:
+                //
+                // 1) Get all artists (with min score) with matching names
+                // 2) Take all subsequent data (optimizing for performance based on local stores) (we may already have these by key)
+                // 3) Use album and track name to complete records. So, the result should be a cache for ONE TRACK; but with
+                //    all MB data pieced together.
+                //
+
+                // NOTE:  THERE SHOULD BE JUST ONE RESULT THAT MATTERS! We're taking the top (N) results and caching them
+                //        
+                var matchingReleases = _musicBrainzClient.QueryReleases(artistName, albumName, trackName, MUSIC_BRAINZ_MIN_SCORE)
+                                                         .Result
+                                                         .Where(x => x.Title == albumName)
+                                                         .Where(x => x.ArtistCredit != null)
+                                                         .Where(x => x.Media != null)
+                                                         .Where(x => x.Media.Any(media => media.Tracks != null && media.Tracks.Any(track => track.Title == trackName)));
+
+                foreach (var matchingRelease in matchingReleases)
+                {
+                    var result = new MusicBrainzCombinedLibraryEntryRecord();
+
+
+                    // Track:  Guaranteed by the above query (matches track name)
+                    var matchingTrack = matchingRelease.Media
+                                                       .SelectMany(media => media.Tracks)
+                                                       .First(x => x.Title == trackName);
+
+                    // Recording:  Get by ID matching our results
+                    var matchingRecording = _musicBrainzClient.GetRecordingById(matchingTrack.Recording.Id).Result;
+
+                    // Medium:  Also guaranteed by above query
+                    var matchingMedium = matchingRelease.Media.First(x => x.Tracks.Any(track => track.Title == trackName));
+
+                    // *** Start Matching to our Local Database ***
+
+                    // Recording
+                    var existingRecording = _musicBrainzDbClient.GetEntity<MusicBrainzRecordingEntity>(matchingRecording.Id);
+
+                    if (existingRecording == null)
+                    {
+                        existingRecording = new MusicBrainzRecordingEntity()
+                        {
+                            Id = matchingRecording.Id,
+                            Annotation = matchingRecording.Annotation,
+                            Disambiguation = matchingRecording.Disambiguation,
+                            Length = matchingRecording.Length,
+                            Title = matchingRecording.Title
+                        };
+
+                        // Local Recording
+                        _musicBrainzDbClient.AddEntity(existingRecording);
+
+                        // Tags / Genres
+                        foreach (var tag in matchingRecording.Tags)
+                        {
+                            var tagEntity = AddUpdateMusicBrainzTag(tag, existingRecording);
+
+                            // Result Set
+                            result.RecordingTags.Add(tagEntity);
+                        }
+                        foreach (var genre in matchingRecording.Genres)
+                        {
+                            var genreEntity = AddUpdateMusicBrainzGenre(genre, existingRecording);
+
+                            // Result Set
+                            result.RecordingGenres.Add(genreEntity);
+                        }
+
+                        // Result Set
+                        result.Recording = existingRecording;
+                    }
+
+                    // Release
+                    var existingRelease = _musicBrainzDbClient.GetEntity<MusicBrainzReleaseEntity>(matchingRelease.Id);
+
+                    if (existingRelease == null)
+                    {
+                        // Media (null)
+                        existingRelease = new MusicBrainzReleaseEntity()
+                        {
+                            Annotation = matchingRelease.Annotation,
+                            Asin = matchingRelease.Asin,
+                            Barcode = matchingRelease.Barcode,
+                            Country = matchingRelease.Country,
+                            Date = matchingRelease.Date?.NearestDate ?? DateTime.MinValue,
+                            Disambiguation = matchingRelease.Disambiguation,
+                            Id = matchingRelease.Id,
+                            Packaging = matchingRelease.Packaging,
+                            Quality = matchingRelease.Quality,
+                            Status = matchingRelease.Status,
+                            Title = matchingRelease.Title
+                        };
+
+                        _musicBrainzDbClient.AddEntity(existingRelease);
+
+                        // Tags / Genres
+                        foreach (var tag in matchingRelease.Tags)
+                        {
+                            AddUpdateMusicBrainzTag(tag, existingRelease);
+                        }
+                        foreach (var genre in matchingRelease.Genres)
+                        {
+                            AddUpdateMusicBrainzGenre(genre, existingRelease);
+                        }
+
+                        // Result Set
+                        result.Release = existingRelease;
+                    }
+
+                    // Artist(s)
+                    foreach (var matchingArtist in matchingRelease.ArtistCredit.Select(x => x.Artist))
+                    {
+                        // Fill out our records
+                        //
+                        var existingArtist = _musicBrainzDbClient.GetEntity<MusicBrainzArtistEntity>(matchingArtist.Id);
+
+                        // Artist
+                        if (existingArtist == null)
+                        {
+                            existingArtist = new MusicBrainzArtistEntity()
+                            {
+                                Id = matchingArtist.Id,
+                                Annotation = matchingArtist.Annotation,
+                                Country = matchingArtist.Country,
+                                Disambiguation = matchingArtist.Disambiguation,
+                                Name = matchingArtist.Name,
+                                SortName = matchingArtist.SortName
+                            };
+
+                            _musicBrainzDbClient.AddEntity<MusicBrainzArtistEntity>(existingArtist);
+
+                            // Result Set
+                            result.Artists.Add(existingArtist);
+                        }
+
+                        var existingArtistRecordingMap = _musicBrainzDbClient.Where<MusicBrainzArtistRecordingMap>(x => x.MusicBrainzArtistId == existingArtist.Id &&
+                                                                                                                        x.MusicBrainzRecordingId == existingRecording.Id)
+                                                                             .FirstOrDefault();
+
+                        var existingArtistReleaseMap = _musicBrainzDbClient.Where<MusicBrainzArtistReleaseMap>(x => x.MusicBrainzArtistId == existingArtist.Id &&
+                                                                                                                    x.MusicBrainzReleaseId == existingRelease.Id)
+                                                                           .FirstOrDefault();
+
+                        // Artist Map Entities (Recording / Release)
+                        //
+                        if (existingArtistRecordingMap == null)
+                        {
+                            existingArtistRecordingMap = new MusicBrainzArtistRecordingMap()
+                            {
+                                MusicBrainzArtistId = matchingArtist.Id,
+                                MusicBrainzRecordingId = matchingRecording.Id,
+                            };
+
+                            _musicBrainzDbClient.AddEntity(existingArtistRecordingMap);
+                        }
+                        if (existingArtistReleaseMap == null)
+                        {
+                            existingArtistReleaseMap = new MusicBrainzArtistReleaseMap()
+                            {
+                                MusicBrainzArtistId = matchingArtist.Id,
+                                MusicBrainzReleaseId = matchingRelease.Id,
+                            };
+
+                            _musicBrainzDbClient.AddEntity(existingArtistReleaseMap);
+                        }
+
+                        // Result Set
+                        result.Artists.Add(existingArtist);
+                    }
+
+                    // Media
+
+                    // NOTE: (I've removed the Disc entity from the local database)
+                    //
+                    // 1) 1 Medium = 1 Disc (or) Vinyl (we won't know here which format it is for OUR recording)
+                    //    So, just keep these together. We may have a recording that doesn't match the meta-data
+                    //    but we wouldn't have (necessarily) known anyway.
+                    // 
+                    // 2) There's no ID for a MusicBrainz IMedium. But, there is for a release. So, we'll assign
+                    //    a new ID for our local medium record - which is immediately mapped to a local release.
+                    //
+
+                    // Try matching on the rest of the fields
+                    var existingMedium = _musicBrainzDbClient.Where<MusicBrainzMediumEntity>(x => x.Title == matchingMedium.Title &&
+                                                                                                  x.Format == matchingMedium.Format &&
+                                                                                                  x.Position == matchingMedium.Position &&
+                                                                                                  x.TrackCount == matchingMedium.TrackCount &&
+                                                                                                  x.TrackOffset == matchingMedium.TrackOffset)
+                                                             .FirstOrDefault();
+
+                    if (existingMedium == null)
+                    {
+                        existingMedium = new MusicBrainzMediumEntity()
+                        {
+                            Format = matchingMedium.Format,
+                            Id = Guid.NewGuid(),
+                            MusicBrainzReleaseId = existingRelease.Id,
+                            Position = matchingMedium.Position,
+                            Title = matchingMedium.Title,
+                            TrackCount = matchingMedium.TrackCount,
+                            TrackOffset = matchingMedium.TrackOffset
+                        };
+
+                        _musicBrainzDbClient.AddEntity<MusicBrainzMediumEntity>(existingMedium);
+
+                        // Result Set
+                        result.Medium = existingMedium;
+                    }
+
+
+                    // Track
+                    var existingTrack = _musicBrainzDbClient.GetEntity<MusicBrainzTrackEntity>(matchingTrack.Id);
+
+                    if (existingTrack == null)
+                    {
+                        existingTrack = new MusicBrainzTrackEntity()
+                        {
+                            Id = matchingTrack.Id,
+                            Length = matchingTrack.Length,
+                            MusicBrainzMediumId = existingMedium.Id,
+                            MusicBrainzRecordingId = existingRecording.Id,
+                            Number = matchingTrack.Number,
+                            Position = matchingTrack.Position,
+                            Title = matchingTrack.Title,
+                        };
+
+                        _musicBrainzDbClient.AddEntity(existingTrack);
+
+                        // Result Set
+                        result.Track = existingTrack;
+                    }
+
+                    // Label
+                    if (matchingRelease.LabelInfo != null)
+                    {
+                        foreach (var labelInfo in matchingRelease.LabelInfo.Where(x => x.Label != null))
+                        {
+                            var existingLabel = _musicBrainzDbClient.GetEntity<MusicBrainzLabelEntity>(labelInfo.Label.Id);
+
+                            if (existingLabel == null)
+                            {
+                                existingLabel = new MusicBrainzLabelEntity()
+                                {
+                                    Annotation = labelInfo.Label.Annotation,
+                                    Country = labelInfo.Label.Country,
+                                    Disambiguation = labelInfo.Label.Disambiguation,
+                                    Id = labelInfo.Label.Id,
+                                    LabelCode = labelInfo.Label.LabelCode,
+                                    Name = labelInfo.Label.Name,
+                                    SortName = labelInfo.Label.SortName,
+                                    Type = labelInfo.Label.Type
+                                };
+
+                                _musicBrainzDbClient.AddEntity(existingLabel);
+                            }
+
+                            var existingLabelReleaseMap = _musicBrainzDbClient.Where<MusicBrainzLabelReleaseMap>(x => x.MusicBrainzLabelId == existingLabel.Id &&
+                                                                                                                      x.MusicBrainzReleaseId == existingRelease.Id)
+                                                                              .FirstOrDefault();
+
+                            // Label Release Map
+                            if (existingLabelReleaseMap == null)
+                            {
+                                existingLabelReleaseMap = new MusicBrainzLabelReleaseMap()
+                                {
+                                    MusicBrainzLabelId = existingLabel.Id,
+                                    MusicBrainzReleaseId = existingRelease.Id,
+                                };
+
+                                _musicBrainzDbClient.AddEntity(existingLabelReleaseMap);
+                            }
+
+                            // Result Set
+                            result.Labels.Add(existingLabel);
+                        }
+                    }
+
+                    // These would be related to each track. (May need a separate query to get the artist URL's)
+                    var relatedUrls = _musicBrainzClient.GetRelatedUrls(artistName, albumName, trackName, MUSIC_BRAINZ_MIN_SCORE).Result;
+
+                    foreach (var relatedUrl in relatedUrls)
+                    {
+                        switch (relatedUrl.EntityType)
+                        {
+                            case EntityType.Artist:
+                                
+                                // These should now be available (locally)
+                                foreach (var matchingArtist in matchingRelease.ArtistCredit.Select(x => x.Artist))
+                                {
+                                    var existingArtist = _musicBrainzDbClient.GetEntity<MusicBrainzArtistEntity>(matchingArtist.Id);
+
+                                    if (existingArtist != null)
+                                    {
+                                        AddUpdateMusicBrainzUrl(relatedUrl, existingArtist);
+                                    }
+                                    else
+                                        throw new Exception("Error retrieving / saving artist data:  ModelController.cs");
+                                }
+                                break;
+                            case EntityType.Label:
+                            {
+                                if (matchingRelease.LabelInfo == null)
+                                    continue;
+
+                                foreach (var label in matchingRelease.LabelInfo.Where(x => x.Label != null))
+                                {
+                                    var existingLabel = _musicBrainzDbClient.GetEntity<MusicBrainzLabelEntity>(label.Label.Id);
+
+                                    if (existingLabel != null)
+                                    {
+                                        AddUpdateMusicBrainzUrl(relatedUrl, existingLabel);
+                                    }
+                                    else
+                                        throw new Exception("Error retrieving / saving label data:  ModelController.cs");
+                                }
+                            }
+                            break;
+                            case EntityType.Recording:
+                                AddUpdateMusicBrainzUrl(relatedUrl, existingRecording);
+                                break;
+                            case EntityType.Release:
+                                AddUpdateMusicBrainzUrl(relatedUrl, existingRelease);
+                                break;
+
+                            // Go ahead and skip unknown related URL's (until we need them, or find out the meaning of the URL)
+                            default:
+                                ApplicationHelpers.Log("Skipped Music Brainz Url Relationship:  " + relatedUrl.ToString(), LogMessageType.Database, LogLevel.Warning);
+                                break;
+                        }
+                    }
+
+                    // Result Set
+                    resultSet.Add(result);
+                }
+
+                return resultSet;
+            }
+            catch (Exception ex)
+            {
+                ApplicationHelpers.Log("Error saving entity data:  " + ex.Message, LogMessageType.Database, LogLevel.Error);
+                return Enumerable.Empty<MusicBrainzCombinedLibraryEntryRecord>();
             }
         }
         #endregion

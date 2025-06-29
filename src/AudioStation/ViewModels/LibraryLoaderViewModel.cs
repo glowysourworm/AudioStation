@@ -84,21 +84,12 @@ namespace AudioStation.ViewModels
 
             this.RunWorkItemCommand = new SimpleCommand(() =>
             {
-                switch (this.SelectedLibraryNewWorkItemType)
+                libraryLoader.RunLoaderTask(new LibraryLoaderParameters()
                 {
-                    case LibraryLoadType.Mp3FileAddUpdate:
-                        libraryLoader.LoadLibraryAsync(configurationManager.GetConfiguration().DirectoryBase);
-                        break;
-                    case LibraryLoadType.M3UFileAddUpdate:
-                        libraryLoader.LoadRadioAsync(configurationManager.GetConfiguration().DirectoryBase);
-                        break;
-                    case LibraryLoadType.FillMusicBrainzIds:
-                        libraryLoader.LoadMusicBrainzRecordsAsync();
-                        break;
-                    default:
-                        throw new Exception("Unhandled work item type:  LibraryLoaderViewModel.cs");
-                }
-
+                    Directory = configurationManager.GetConfiguration().DirectoryBase,
+                    LoadType = this.SelectedLibraryNewWorkItemType
+                });
+                
                 libraryLoader.Start();
             });
         }
