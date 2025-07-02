@@ -16,6 +16,7 @@ using Microsoft.Extensions.Logging;
 
 using SimpleWpf.Extensions.Collection;
 
+using TagLib;
 using TagLib.Ape;
 
 namespace AudioStation.Core.Component.LibraryLoaderComponent
@@ -23,15 +24,19 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent
     public class LibraryLoaderImportStagedFilesWorker : LibraryWorkerThreadBase
     {
         private readonly IModelController _modelController;
+        private readonly IMusicBrainzClient _musicBrainzClient;
         private readonly IAcoustIDClient _acoustIDClient;
 
+        private const int ACOUSTID_MIN_SCORE = 80;
         private const int MUSIC_BRAINZ_MIN_SCORE = 100;
 
         public LibraryLoaderImportStagedFilesWorker(IModelController modelController, 
-                                                    IAcoustIDClient acoustIDClient)
+                                                    IAcoustIDClient acoustIDClient,
+                                                    IMusicBrainzClient musicBrainzClient)
         {
             _modelController = modelController;
             _acoustIDClient = acoustIDClient;
+            _musicBrainzClient = musicBrainzClient;
         }
 
         protected override void Work(ref LibraryLoaderWorkItem workItem)
@@ -51,40 +56,67 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent
             //
             foreach (var file in fileLoad.GetPendingFiles())
             {                
-                var acoustIDResults = _acoustIDClient.IdentifyFingerprint(file, MUSIC_BRAINZ_MIN_SCORE).Result;
+                var acoustIDResults = _acoustIDClient.IdentifyFingerprint(file, ACOUSTID_MIN_SCORE).Result;
                 var success = false;
 
                 foreach (var item in acoustIDResults)
                 {
                     // Lets log the result to see, then take the first one
-                    ApplicationHelpers.Log("AcoustID result ({0}) {1}/{2}/{3} for {4}", 
-                                           LogMessageType.Vendor, LogLevel.Information, MUSIC_BRAINZ_MIN_SCORE, item.Title, 
-                                           item.Artists?.FirstOrDefault()?.Name ?? "(Unknown)", 
-                                           item.Releases?.FirstOrDefault()?.Title ?? "(Unknown)");
+                    ApplicationHelpers.Log("AcoustID result ({0}) {1}/{2}/{3} for {4}",
+                                           LogMessageType.Vendor, LogLevel.Information, 
+                                           MUSIC_BRAINZ_MIN_SCORE, item.Title,
+                                           item.Artists?.FirstOrDefault()?.Name ?? "(Unknown)",
+                                           item.Releases?.FirstOrDefault()?.Title ?? "(Unknown)", file);
                 }
 
-                var bestMatch = acoustIDResults.Where(x => !string.IsNullOrEmpty(x.Title) &&
-                                                           x.Artists.Any(artist => !string.IsNullOrEmpty(artist.Name)) &&
-                                                           x.Releases.Any(release => !string.IsNullOrEmpty(release.Title))).FirstOrDefault();
+                /*
+                    AcoustID:  Their results have detailed data (sometimes). I'm seeing that the release group is usually where
+                               to get the MBID.
+                */
 
-                // Success (Call / Cache MusicBrainz)
-                if (bestMatch != null)
+                //var bestMatch = acoustIDResults.Where(x => !string.IsNullOrEmpty(x.Title) &&
+                //                                           x.Artists.Any(artist => !string.IsNullOrEmpty(artist.Name)) &&
+                //                                           x.Releases.Any(release => !string.IsNullOrEmpty(release.Title))).FirstOrDefault();
+
+                var bestMatches = acoustIDResults.Select(x => _musicBrainzClient.GetRecordingById(new Guid(x.Id)).Result);
+                var bestMatch = bestMatches.FirstOrDefault();
+
+                if (bestMatch != null &&
+                    bestMatch.ArtistCredit != null &&
+                    bestMatch.ArtistCredit.Any() &&
+                    bestMatch.Releases != null &&
+                    bestMatch.Releases.Any() &&
+                   !string.IsNullOrEmpty(bestMatch.ArtistCredit.First().Name) &&
+                   !string.IsNullOrEmpty(bestMatch.Releases.First().Title) &&
+                   !string.IsNullOrEmpty(bestMatch.Title))
                 {
-                    var artist = bestMatch.Artists.First();
-                    var release = bestMatch.Releases.First();
-                    var trackName = bestMatch.Title;
+                    // Success (Call / Cache MusicBrainz)
+                    var recordMatches = _modelController.GetCompleteMusicBrainzRecord(bestMatch.ArtistCredit.First().Name,
+                                                                                      bestMatch.Releases.First().Title, 
+                                                                                      bestMatch.Title);
 
-                    // Query / Cache MusicBrainz
-                    var recordMatches = _modelController.GetCompleteMusicBrainzRecord(artist.Name, release.Title, trackName);
-
-                    // Lookup record with matching ID
-                    var record = recordMatches.FirstOrDefault(x => x.Recording.Id.ToString() == bestMatch.Id);
-                   
-                    if (record != null)
+                    if (recordMatches.Any())
                     {
-                        success = EmbedTagData(workItem.GetId(), file, record);
+                        // Lookup record with matching ID (try and select greedily for the artwork)
+                        //
+                        var record = recordMatches.FirstOrDefault(x => x.Track.Title == bestMatch.Title);
+                        var artwork = recordMatches.SelectMany(x => x.ReleasePictures).ToList();
+
+                        var front = record.ReleasePictures.Any(x => x.Type == TagLib.PictureType.FrontCover) ?
+                                    record.ReleasePictures.First(x => x.Type == TagLib.PictureType.FrontCover) :
+                                    artwork.FirstOrDefault(x => x.Type == TagLib.PictureType.FrontCover);
+
+                        var back = record.ReleasePictures.Any(x => x.Type == TagLib.PictureType.BackCover) ?
+                                   record.ReleasePictures.First(x => x.Type == TagLib.PictureType.BackCover) :
+                                   artwork.FirstOrDefault(x => x.Type == TagLib.PictureType.BackCover);
+
+                        if (record != null)
+                        {
+                            success = EmbedTagData(workItem.GetId(), file, record, front, back);
+                        }
                     }
 
+                    // Failure
                     else
                     {
                         success = false;
@@ -125,7 +157,9 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent
 
         public bool EmbedTagData(int workItemId, 
                                  string fileName, 
-                                 MusicBrainzCombinedLibraryEntryRecord record)
+                                 MusicBrainzCombinedLibraryEntryRecord record,
+                                 MusicBrainzPicture? frontCover,
+                                 MusicBrainzPicture? backCover)
         {
             if (string.IsNullOrEmpty(fileName))
                 throw new ArgumentException("Invalid media file name");
@@ -152,24 +186,31 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent
                 fileRef.Tag.MusicBrainzReleaseId = record.Release.Id.ToString();
                 fileRef.Tag.MusicBrainzReleaseStatus = record.Release.Status;
                 fileRef.Tag.MusicBrainzTrackId = record.Track.Id.ToString();
+                fileRef.Tag.Performers = record.Artists.Select(x => x.Name).ToArray();
+                fileRef.Tag.PerformersSort = record.Artists.Select(x => x.SortName).ToArray();
+
+                var pictures = new List<IPicture>();
+
+                if (frontCover != null)
+                    pictures.Add(frontCover);
+
+                if (backCover != null)
+                    pictures.Add(backCover);
 
                 // COVER ART!
-                //fileRef.Tag.Pictures
+                fileRef.Tag.Pictures = pictures.ToArray();
 
                 fileRef.Tag.Title = record.Track.Title;
                 fileRef.Tag.Track = (uint)(record.Track.Position ?? 0);
                 fileRef.Tag.TrackCount = (uint)(record.Medium.TrackCount);
                 fileRef.Tag.Year = (uint)(record.Release.Date.Value.Year);
 
-                //fileRef.Tag.Disc = 
+                fileRef.Save();
 
                 return true;
             }
             catch (Exception ex)
             {
-                //fileErrorMessage = ex.Message;
-                //fileLoadError = true;
-
                 ApplicationHelpers.LogSeparate(workItemId, "Mp3 file load error:  {0}", LogMessageType.LibraryLoaderWorkItem, LogLevel.Error, ex.Message);
                 return false;
             }

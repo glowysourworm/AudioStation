@@ -65,7 +65,10 @@ namespace AudioStation.Core.Database.MusicBrainzDatabase
             modelBuilder.Entity<MusicBrainzMediumEntity>().Navigation(x => x.MusicBrainzRelease).AutoInclude(true);
 
             // Not sure when / how this loads. This would follow the normal EF pattern.
-            modelBuilder.Entity<MusicBrainzReleaseEntity>().HasMany(x => x.Media).WithOne(x => x.MusicBrainzRelease);
+            modelBuilder.Entity<MusicBrainzReleaseEntity>()
+                        .HasMany(x => x.Media)
+                        .WithOne(x => x.MusicBrainzRelease)
+                        .HasForeignKey(x => x.MusicBrainzReleaseId);
 
             modelBuilder.Entity<MusicBrainzTagEntityMap>().Navigation(x => x.MusicBrainzEntityType).AutoInclude(true);
             modelBuilder.Entity<MusicBrainzTagEntityMap>().Navigation(x => x.MusicBrainzTag).AutoInclude(true);
@@ -83,7 +86,6 @@ namespace AudioStation.Core.Database.MusicBrainzDatabase
 
             optionsBuilder.UseNpgsql(connectionString, builder =>
             {
-
             });
             optionsBuilder.EnableDetailedErrors(true);
             optionsBuilder.EnableSensitiveDataLogging(true);

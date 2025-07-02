@@ -1,12 +1,15 @@
-﻿using AudioStation.Core.Model;
+﻿using AudioStation.Core.Database.MusicBrainzDatabase.Model;
 using AudioStation.Core.Model.Vendor;
 
+using MetaBrainz.MusicBrainz.CoverArt;
 using MetaBrainz.MusicBrainz.Interfaces.Entities;
 
 namespace AudioStation.Core.Component.Vendor.Interface
 {
     public interface IMusicBrainzClient
     {
+
+
         // Entity Calls (Query and Cache)
         Task<IEnumerable<IArtist>> QueryArtists(string artist, int minScore);
         Task<IEnumerable<IRecording>> QueryRecordings(string artist, string album, string trackName, int minScore);
@@ -18,8 +21,10 @@ namespace AudioStation.Core.Component.Vendor.Interface
         Task<IEnumerable<IMedium>> QueryMedia(string artist, string album, string trackName, int minScore);
         Task<IEnumerable<IUrl>> GetRelatedUrls(string artist, string album, string trackName, int minScore);
 
-
-
+        /// <summary>
+        /// Returns cover art for the release. This includes data.
+        /// </summary>
+        Task<IEnumerable<MusicBrainzPicture>> GetCoverArt(Guid musicBrainzReleaseId);
 
         /// <summary>
         /// Tries to look up information for the provided library entry
@@ -46,7 +51,7 @@ namespace AudioStation.Core.Component.Vendor.Interface
         /// <summary>
         /// Finds recording for a track (this would be to locate an Mp3FileReference in MusicBrainz)
         /// </summary>
-        Task<MusicBrainzTrack> GetTrack(Guid trackId,  string trackName, string albumName, string artistName, int searchScoreMin);
+        Task<MusicBrainzTrack> GetTrack(Guid trackId, string trackName, string albumName, string artistName, int searchScoreMin);
 
         /// <summary>
         /// Finds recording for a track (this would be to locate an Mp3FileReference in MusicBrainz)
@@ -66,7 +71,12 @@ namespace AudioStation.Core.Component.Vendor.Interface
         /// <summary>
         /// Gets a single release record by Id
         /// </summary>
-        Task<MusicBrainzRelease> GetReleaseById(Guid musicBrainzReleaseId);
+        Task<IRelease> GetReleaseById(Guid musicBrainzReleaseId);
+
+        /// <summary>
+        /// Gets a release group by ID
+        /// </summary>
+        Task<IReleaseGroup> GetReleaseGroupById(Guid musicBrainzReleaseGroupId);
 
         /// <summary>
         /// Gets a single recording record by Id

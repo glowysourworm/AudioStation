@@ -32,7 +32,7 @@ namespace AudioStation.ViewModels
 
         LibraryLoadType _selectedLibraryNewWorkItemType;
 
-        SimpleCommand _runWorkItemCommand;
+        SimpleCommand<LibraryLoadType> _runWorkItemCommand;
         #endregion
 
         #region Properties (public)
@@ -57,7 +57,7 @@ namespace AudioStation.ViewModels
             get { return _libraryWorkItemsSelected; }
             set { this.RaiseAndSetIfChanged(ref _libraryWorkItemsSelected, value); }
         }
-        public SimpleCommand RunWorkItemCommand
+        public SimpleCommand<LibraryLoadType> RunWorkItemCommand
         {
             get { return _runWorkItemCommand; }
             set { this.RaiseAndSetIfChanged(ref _runWorkItemCommand, value); }
@@ -82,15 +82,51 @@ namespace AudioStation.ViewModels
             libraryLoader.WorkItemUpdate += OnWorkItemUpdate;
             libraryLoader.ProcessingUpdate += OnLibraryProcessingChanged;
 
-            this.RunWorkItemCommand = new SimpleCommand(() =>
+            this.RunWorkItemCommand = new SimpleCommand<LibraryLoadType>(loadType =>
             {
-                libraryLoader.RunLoaderTask(new LibraryLoaderParameters()
+                switch (loadType)
                 {
-                    Directory = configurationManager.GetConfiguration().DirectoryBase,
-                    LoadType = this.SelectedLibraryNewWorkItemType
-                });
-                
-                libraryLoader.Start();
+                    case LibraryLoadType.LoadMp3FileData:
+                        libraryLoader.RunLoaderTask(new LibraryLoaderParameters()
+                        {
+                            LoadType = loadType,
+                            SourceDirectory = configurationManager.GetConfiguration().DirectoryBase,
+                            DestinationDirectory = configurationManager.GetConfiguration().DirectoryBase,
+                        });
+                        break;
+                    case LibraryLoadType.LoadM3UFileData:
+                        libraryLoader.RunLoaderTask(new LibraryLoaderParameters()
+                        {
+                            LoadType = loadType,
+                            SourceDirectory = configurationManager.GetConfiguration().DirectoryBase,
+                            DestinationDirectory = configurationManager.GetConfiguration().DirectoryBase,
+                        });
+                        break;
+                    case LibraryLoadType.FillMusicBrainzIds:
+                        libraryLoader.RunLoaderTask(new LibraryLoaderParameters()
+                        {
+                            LoadType = loadType
+                        });
+                        break;
+                    case LibraryLoadType.ImportStagedFiles:
+                        libraryLoader.RunLoaderTask(new LibraryLoaderParameters()
+                        {
+                            LoadType = loadType,
+                            SourceDirectory = configurationManager.GetConfiguration().DownloadFolder,
+                            DestinationDirectory = configurationManager.GetConfiguration().DownloadFolder,
+                        });
+                        break;
+                    case LibraryLoadType.ImportRadioFiles:
+                        libraryLoader.RunLoaderTask(new LibraryLoaderParameters()
+                        {
+                            LoadType = loadType,
+                            SourceDirectory = configurationManager.GetConfiguration().DownloadFolder,
+                            DestinationDirectory = configurationManager.GetConfiguration().DownloadFolder,
+                        });
+                        break;
+                    default:
+                        throw new Exception("Unhandled LibraryLoadType:  LibraryLoaderViewModel.cs");
+                }
             });
         }
 

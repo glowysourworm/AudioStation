@@ -45,15 +45,15 @@ namespace AudioStation.Core.Database.MusicBrainzDatabase
             try
             {
                 // Get Type ID for the related entity
-                var typeId = GetEntityTypeId<TEntity>();
+                var typeId = GetEntityTypeId<MusicBrainzUrlEntity>();
 
                 using (var context = CreateContext())
                 {
-                    if (context.Find<MusicBrainzUrlEntity>(entity) == null)
+                    if (context.Find<MusicBrainzUrlEntity>(entity.Id) == null)
                         context.Add(entity);
 
                     if (!context.Set<MusicBrainzUrlEntityMap>().Any(x => x.MusicBrainzEntityId == relatedEntity.Id &&
-                                                                        x.MusicBrainzUrlId == entity.Id))
+                                                                         x.MusicBrainzUrlId == entity.Id))
                     {
                         context.Add(new MusicBrainzUrlEntityMap()
                         {
@@ -79,11 +79,11 @@ namespace AudioStation.Core.Database.MusicBrainzDatabase
             try
             {
                 // Get Type ID for the related entity
-                var typeId = GetEntityTypeId<TEntity>();
+                var typeId = GetEntityTypeId<MusicBrainzGenreEntity>();
 
                 using (var context = CreateContext())
                 {
-                    if (context.Find<MusicBrainzGenreEntity>(entity) == null)
+                    if (context.Find<MusicBrainzGenreEntity>(entity.Id) == null)
                         context.Add(entity);
 
                     if (!context.Set<MusicBrainzGenreEntityMap>().Any(x => x.MusicBrainzEntityId == relatedEntity.Id &&
@@ -112,11 +112,11 @@ namespace AudioStation.Core.Database.MusicBrainzDatabase
             try
             {
                 // Get Type ID for the related entity
-                var typeId = GetEntityTypeId<TEntity>();
+                var typeId = GetEntityTypeId<MusicBrainzUrlEntity>();
 
                 using (var context = CreateContext())
                 {
-                    if (context.Find<MusicBrainzTagEntity>(entity) == null)
+                    if (context.Find<MusicBrainzTagEntity>(entity.Id) == null)
                         context.Add(entity);
 
                     if (!context.Set<MusicBrainzTagEntityMap>().Any(x => x.MusicBrainzEntityId == relatedEntity.Id &&
@@ -194,7 +194,7 @@ namespace AudioStation.Core.Database.MusicBrainzDatabase
             {
                 using (var context = CreateContext())
                 {
-                    return context.Set<TEntity>().Where(predicate).AsEnumerable();
+                    return context.Set<TEntity>().Where(predicate).ToList();
                 }
             }
             catch (Exception ex)

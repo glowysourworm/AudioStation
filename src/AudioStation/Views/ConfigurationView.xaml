@@ -41,6 +41,10 @@
                         <RowDefinition Height="36" />
                         <RowDefinition Height="36" />
                         <RowDefinition Height="36" />
+                        <RowDefinition Height="36" />
+                        <RowDefinition Height="36" />
+                        <RowDefinition Height="36" />
+                        <RowDefinition Height="36" />                        
                     </Grid.RowDefinitions>
 
                     <Grid.ColumnDefinitions>
@@ -48,15 +52,48 @@
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
 
-                    <TextBlock Text="Database Host" VerticalAlignment="Center" Margin="5" Grid.Row="0" />
-                    <TextBlock Text="Database Name" VerticalAlignment="Center" Margin="5" Grid.Row="1" />
-                    <TextBlock Text="Database User" VerticalAlignment="Center" Margin="5" Grid.Row="2" />
-                    <TextBlock Text="Database Password" VerticalAlignment="Center" Margin="5" Grid.Row="3" />                                       
+                    <TextBlock Text="AudioStation Database Host" VerticalAlignment="Center" Margin="5" Grid.Row="0" />
+                    <TextBlock Text="AudioStation Database Name" VerticalAlignment="Center" Margin="5" Grid.Row="1" />
+                    <TextBlock Text="AudioStation Database User" VerticalAlignment="Center" Margin="5" Grid.Row="2" />
+                    <TextBlock Text="AudioStation Database Password" VerticalAlignment="Center" Margin="5" Grid.Row="3" />
+
+                    <TextBlock Text="Music Brainz (Local) Database Host" VerticalAlignment="Center" Margin="5" Grid.Row="4" />
+                    <TextBlock Text="Music Brainz (Local) Database Name" VerticalAlignment="Center" Margin="5" Grid.Row="5" />
+                    <TextBlock Text="Music Brainz (Local) Database User" VerticalAlignment="Center" Margin="5" Grid.Row="6" />
+                    <TextBlock Text="Music Brainz (Local) Database Password" VerticalAlignment="Center" Margin="5" Grid.Row="7" />
 
                     <TextBox Text="{Binding Configuration.DatabaseHost}" Style="{StaticResource UserInputTextBox}" Width="300" HorizontalAlignment="Right" Grid.Column="1" Grid.Row="0" Margin="5" />
                     <TextBox Text="{Binding Configuration.DatabaseName}" Style="{StaticResource UserInputTextBox}" Width="300" HorizontalAlignment="Right" Grid.Column="1" Grid.Row="1" Margin="5" />
                     <TextBox Text="{Binding Configuration.DatabaseUser}" Style="{StaticResource UserInputTextBox}" Width="300" HorizontalAlignment="Right" Grid.Column="1" Grid.Row="2" Margin="5" />
                     <PasswordBox x:Name="PasswordTB" PasswordChanged="PasswordTB_PasswordChanged" Style="{StaticResource UserInputPasswordBox}" Width="300" HorizontalAlignment="Right" Grid.Column="1" Grid.Row="3" Margin="5" />
+
+                    <TextBox Text="{Binding Configuration.MusicBrainzDatabaseHost}" Style="{StaticResource UserInputTextBox}" Width="300" HorizontalAlignment="Right" Grid.Column="1" Grid.Row="4" Margin="5" />
+                    <TextBox Text="{Binding Configuration.MusicBrainzDatabaseName}" Style="{StaticResource UserInputTextBox}" Width="300" HorizontalAlignment="Right" Grid.Column="1" Grid.Row="5" Margin="5" />
+                    <TextBox Text="{Binding Configuration.MusicBrainzDatabaseUser}" Style="{StaticResource UserInputTextBox}" Width="300" HorizontalAlignment="Right" Grid.Column="1" Grid.Row="6" Margin="5" />
+                    <PasswordBox x:Name="MusicBrainzDatabasePasswordTB" PasswordChanged="MusicBrainzDatabasePasswordTB_PasswordChanged" Style="{StaticResource UserInputPasswordBox}" Width="300" HorizontalAlignment="Right" Grid.Column="1" Grid.Row="7" Margin="5" />
+                </Grid>
+            </TabItem>
+
+            <TabItem Header="Music Brainz">
+                <Grid IsEnabled="{Binding ConfigurationLocked, Converter={StaticResource BoolInverseConverter}}">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="36" />
+                        <RowDefinition Height="36" />
+                        <RowDefinition Height="36" />
+                    </Grid.RowDefinitions>
+
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Text="Music Brainz User" VerticalAlignment="Center" Margin="5" Grid.Row="0" />
+                    <TextBlock Text="Music Brainz Password" VerticalAlignment="Center" Margin="5" Grid.Row="1" />
+                    <TextBlock Text="AcoustID (Application) API Key" VerticalAlignment="Center" Margin="5" Grid.Row="2" />
+
+                    <TextBox Text="{Binding Configuration.MusicBrainzUser}" Style="{StaticResource UserInputTextBox}" Width="300" HorizontalAlignment="Right" Grid.Column="1" Grid.Row="0" Margin="5" />
+                    <PasswordBox x:Name="MusicBrainzPasswordTB" PasswordChanged="MusicBrainzPasswordTB_PasswordChanged" Style="{StaticResource UserInputPasswordBox}" Width="300" HorizontalAlignment="Right" Grid.Column="1" Grid.Row="1" Margin="5" />
+                    <TextBox Text="{Binding Configuration.AcoustIDAPIKey}" Style="{StaticResource UserInputTextBox}" Width="300" HorizontalAlignment="Right" Grid.Column="1" Grid.Row="2" Margin="5" />
                 </Grid>
             </TabItem>
             
@@ -92,6 +129,7 @@
                     <TextBox Text="{Binding Configuration.LastFmAPIUser}" Style="{StaticResource UserInputTextBox}" Width="300" HorizontalAlignment="Right" Grid.Column="1" Grid.Row="5" Margin="5" />
                 </Grid>
             </TabItem>
+            
             <TabItem Header="Spotify">
                 <Grid IsEnabled="{Binding ConfigurationLocked, Converter={StaticResource BoolInverseConverter}}">
                     <Grid.RowDefinitions>
@@ -111,6 +149,7 @@
                     <TextBox Text="{Binding Configuration.SpotifyClientSecret}" Style="{StaticResource UserInputTextBox}" Width="300" HorizontalAlignment="Right" Grid.Column="1" Grid.Row="1" Margin="5" />
                 </Grid>
             </TabItem>
+
             <TabItem Header="Fanart.tv">
                 <Grid IsEnabled="{Binding ConfigurationLocked, Converter={StaticResource BoolInverseConverter}}">
                     <Grid.RowDefinitions>
@@ -136,6 +175,7 @@
                     <TextBox Text="{Binding Configuration.FanartAPIKey}" Style="{StaticResource UserInputTextBox}" Width="300" HorizontalAlignment="Right" Grid.Column="1" Grid.Row="3" Margin="5" />
                 </Grid>
             </TabItem>
+
             <TabItem Header="Discogs">
                 <Grid IsEnabled="{Binding ConfigurationLocked, Converter={StaticResource BoolInverseConverter}}">
                     <Grid.RowDefinitions>

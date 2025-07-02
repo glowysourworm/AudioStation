@@ -1,5 +1,8 @@
-﻿using AudioStation.Core.Component.Interface;
+﻿using System.IO;
+
+using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Component.Vendor.Interface;
+using AudioStation.Core.Database.MusicBrainzDatabase.Model;
 using AudioStation.Core.Model;
 using AudioStation.Core.Model.Vendor;
 using AudioStation.Core.Utility;
@@ -369,14 +372,12 @@ namespace AudioStation.Core.Component.Vendor
             return null;
         }
 
-        public async Task<MusicBrainzRelease> GetReleaseById(Guid musicBrainzReleaseId)
+        public async Task<IRelease> GetReleaseById(Guid musicBrainzReleaseId)
         {
             try
             {
                 // Initialize MetaBrainz.MusicBrainz client
                 var query = new Query();
-                var config = new MapperConfiguration(cfg => cfg.CreateMap<IRelease, MusicBrainzRelease>(MemberList.Destination));
-                var mapper = config.CreateMapper();
 
                 var include = Include.Artists |
                               Include.Recordings |
@@ -386,9 +387,32 @@ namespace AudioStation.Core.Component.Vendor
                               Include.LabelRelationships |
                               Include.EventRelationships;
 
-                var result = await query.LookupReleaseAsync(musicBrainzReleaseId, include);
+                return await query.LookupReleaseAsync(musicBrainzReleaseId, include);
+            }
+            catch (Exception ex)
+            {
+                ApplicationHelpers.Log("Music Brainz Client Error:  {0}", LogMessageType.Vendor, LogLevel.Error, ex.Message);
+            }
 
-                return mapper.Map<MusicBrainzRelease>(result);
+            return null;
+        }
+
+        public async Task<IReleaseGroup> GetReleaseGroupById(Guid musicBrainzReleaseGroupId)
+        {
+            try
+            {
+                // Initialize MetaBrainz.MusicBrainz client
+                var query = new Query();
+
+                var include = Include.Artists |
+                              Include.Media |
+                              Include.Genres |
+                              Include.Releases |
+                              Include.UrlRelationships |
+                              Include.LabelRelationships |
+                              Include.EventRelationships;
+
+                return await query.LookupReleaseGroupAsync(musicBrainzReleaseGroupId, include);
             }
             catch (Exception ex)
             {
@@ -404,15 +428,16 @@ namespace AudioStation.Core.Component.Vendor
             {
                 // Initialize MetaBrainz.MusicBrainz client
                 var query = new Query();
+                
                 var config = new MapperConfiguration(cfg => cfg.CreateMap<IRecording, MusicBrainzRecording>(MemberList.Destination));
                 var mapper = config.CreateMapper();
 
                 var include = Include.Artists |
-                              Include.Media |
                               Include.Genres |
+                              Include.Tags |
+                              Include.Releases |
                               Include.UrlRelationships |
-                              Include.LabelRelationships |
-                              Include.EventRelationships;
+                              Include.LabelRelationships;
 
                 var result = await query.LookupRecordingAsync(musicBrainzRecordingId, include);
 
@@ -424,6 +449,62 @@ namespace AudioStation.Core.Component.Vendor
             }
 
             return null;
+        }
+
+        public async Task<IEnumerable<MusicBrainzPicture>> GetCoverArt(Guid musicBrainzReleaseId)
+        {
+            try
+            {
+                var release = await GetReleaseById(musicBrainzReleaseId);
+                
+                var coverArtClient = new CoverArt();
+                var coverArt = new List<CoverArtImage>();
+                var result = new List<MusicBrainzPicture>();
+
+                if (release.CoverArtArchive.Front)
+                {
+                    var front = await coverArtClient.FetchFrontAsync(musicBrainzReleaseId);
+                    if (front != null)
+                        coverArt.Add(front);
+                }
+
+                if (release.CoverArtArchive.Back)
+                {
+                    var back = await coverArtClient.FetchBackAsync(musicBrainzReleaseId);
+                    if (back != null) 
+                        coverArt.Add(back);
+                }
+                    
+
+                var index = 0;
+
+                foreach (var art in coverArt)
+                {
+                    byte[] buffer = null;
+
+                    using (var stream = new MemoryStream())
+                    {
+                        art.Data.CopyTo(stream);
+                        buffer = stream.GetBuffer();
+                    }
+
+                    result.Add(new MusicBrainzPicture()
+                    {
+                        Description = string.Empty,
+                        MimeType = art.ContentType,
+                        Type = index == 0 && release.CoverArtArchive.Front ? TagLib.PictureType.FrontCover : TagLib.PictureType.BackCover,
+                        Data = new TagLib.ByteVector(buffer, buffer.Length)
+                    });
+                }
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                ApplicationHelpers.Log("Music Brainz Client Error:  {0}", LogMessageType.Vendor, LogLevel.Error, ex.Message);
+            }
+
+            return Enumerable.Empty<MusicBrainzPicture>();
         }
 
         public async Task<MusicBrainzUrl> GetUrlById(Guid musicBrainzUrlId)

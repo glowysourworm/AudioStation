@@ -95,6 +95,9 @@ namespace AudioStation
 
             // Run() -> Window.Show()
             _bootstrapper.Run();
+
+            // https://stackoverflow.com/questions/73693917/net-postgres-ef-core-cannot-write-datetime-with-kind-local-to-postgresql-type
+            //AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
         }
     }
 }

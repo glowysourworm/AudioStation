@@ -13,4 +13,13 @@ namespace AudioStation.Core.Model
         Artist,
         Genre
     }
+
+    /// <summary>
+    /// TODO: This has to be better integrated. What other types are there?
+    /// </summary>
+    public enum LibraryEntryType
+    {
+        Music,
+        AudioBook
+    }
 }

@@ -5,6 +5,11 @@ namespace AudioStation.Core
     public class Configuration : ViewModelBase
     {
         string _directoryBase;
+        string _musicSubDirectory;
+        string _audioBooksSubDirectory;
+
+        string _downloadFolder;
+
         string _databaseHost;
         string _databaseName;
         string _databaseUser;
@@ -14,8 +19,6 @@ namespace AudioStation.Core
         string _musicBrainzDatabaseName;
         string _musicBrainzDatabaseUser;
         string _musicBrainzDatabasePassword;
-
-        string _downloadFolder;
 
         string _bandcampEmail;
         string _bandcampAPIKey;
@@ -49,6 +52,22 @@ namespace AudioStation.Core
         {
             get { return _directoryBase; }
             set { RaiseAndSetIfChanged(ref _directoryBase, value); }
+        }
+        public string MusicSubDirectory
+        {
+            get { return _musicSubDirectory; }
+            set { this.RaiseAndSetIfChanged(ref _musicSubDirectory, value); }
+        }
+        public string AudioBooksSubDirectory
+        {
+            get { return _audioBooksSubDirectory; }
+            set { this.RaiseAndSetIfChanged(ref _audioBooksSubDirectory, value); }
+        }
+
+        public string DownloadFolder
+        {
+            get { return _downloadFolder; }
+            set { this.RaiseAndSetIfChanged(ref _downloadFolder, value); }
         }
 
         public string DatabaseHost
@@ -102,11 +121,6 @@ namespace AudioStation.Core
         {
             get { return _bandcampAPIKey; }
             set { this.RaiseAndSetIfChanged(ref _bandcampAPIKey, value); }
-        }
-        public string DownloadFolder
-        {
-            get { return _downloadFolder; }
-            set { this.RaiseAndSetIfChanged(ref _downloadFolder, value); }
         }
 
         public string LastFmUser
@@ -203,6 +217,7 @@ namespace AudioStation.Core
             get { return _musicBrainzPassword; }
             set { this.RaiseAndSetIfChanged(ref _musicBrainzPassword, value); }
         }
+
         public string AcoustIDAPIKey
         {
             get { return _acoustIDAPIKey; }

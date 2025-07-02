@@ -1,4 +1,6 @@
-﻿namespace AudioStation.Core.Component.LibraryLoaderComponent
+﻿using AudioStation.Core.Model;
+
+namespace AudioStation.Core.Component.LibraryLoaderComponent
 {
     /// <summary>
     /// Generic set of parameters needed to initialize and run a new library loader task
@@ -13,6 +15,11 @@
         /// <summary>
         /// Directory out of which to run the task
         /// </summary>
-        public string Directory { get; set; }
+        public string SourceDirectory { get; set; }
+
+        /// <summary>
+        /// Destination directory for items
+        /// </summary>
+        public string DestinationDirectory { get; set; }
     }
 }

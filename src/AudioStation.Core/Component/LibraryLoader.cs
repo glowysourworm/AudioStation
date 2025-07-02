@@ -21,7 +21,6 @@ namespace AudioStation.Core.Component
     [IocExport(typeof(ILibraryLoader))]
     public class LibraryLoader : ILibraryLoader
     {
-        private readonly IOutputController _outputController;
         private readonly IModelController _modelController;
 
         // Cannot use multi threading on the database until we have proper 
@@ -46,10 +45,11 @@ namespace AudioStation.Core.Component
         private int _workItemIdCounter;
 
         [IocImportingConstructor]
-        public LibraryLoader(IModelController modelController, IOutputController outputController, IMusicBrainzClient musicBrainzClient)
+        public LibraryLoader(IModelController modelController, 
+                             IMusicBrainzClient musicBrainzClient,
+                             IAcoustIDClient acoustIDClient)
         {
             _modelController = modelController;
-            _outputController = outputController;
 
             _workQueue = new Queue<LibraryLoaderWorkItem>();
             _workItemHistory = new List<LibraryLoaderWorkItem>();
@@ -70,6 +70,7 @@ namespace AudioStation.Core.Component
                 _workerThreads.Add(new LibraryLoaderMp3AddUpdateWorker(modelController));
                 _workerThreads.Add(new LibraryLoaderM3UAddUpdateWorker(modelController));
                 _workerThreads.Add(new LibraryLoaderFillMusicBrainzIdsWorker(modelController, musicBrainzClient));
+                _workerThreads.Add(new LibraryLoaderImportStagedFilesWorker(modelController, acoustIDClient, musicBrainzClient));
             }
             foreach (var workerThread in _workerThreads)
             {
@@ -89,17 +90,17 @@ namespace AudioStation.Core.Component
 
             switch (parameters.LoadType)
             {
-                case LibraryLoadType.Mp3FileAddUpdate:
+                case LibraryLoadType.LoadMp3FileData:
                 {
-                    var fileLoad = CreateFileLoad(parameters.Directory, "*.mp3");
-                    workItem = new LibraryLoaderWorkItem(_workItemIdCounter++, LibraryLoadType.Mp3FileAddUpdate);
+                    var fileLoad = CreateFileLoad(parameters.SourceDirectory, "*.mp3");
+                    workItem = new LibraryLoaderWorkItem(_workItemIdCounter++, LibraryLoadType.LoadMp3FileData);
                     workItem.Initialize(LibraryWorkItemState.Pending, fileLoad);
                 }
                 break;
-                case LibraryLoadType.M3UFileAddUpdate:
+                case LibraryLoadType.LoadM3UFileData:
                 {
-                    var fileLoad = CreateFileLoad(parameters.Directory, "*.m3u");
-                    workItem = new LibraryLoaderWorkItem(_workItemIdCounter++, LibraryLoadType.M3UFileAddUpdate);
+                    var fileLoad = CreateFileLoad(parameters.SourceDirectory, "*.m3u");
+                    workItem = new LibraryLoaderWorkItem(_workItemIdCounter++, LibraryLoadType.LoadM3UFileData);
                     workItem.Initialize(LibraryWorkItemState.Pending, fileLoad);
                 }
                 break;
@@ -112,14 +113,14 @@ namespace AudioStation.Core.Component
                 break;
                 case LibraryLoadType.ImportStagedFiles:
                 {
-                    var fileLoad = CreateFileLoad(parameters.Directory, "*.mp3");
+                    var fileLoad = CreateFileLoad(parameters.SourceDirectory, "*.mp3");
                     workItem = new LibraryLoaderWorkItem(_workItemIdCounter++, LibraryLoadType.ImportStagedFiles);
                     workItem.Initialize(LibraryWorkItemState.Pending, fileLoad);
                 }
                 break;
                 case LibraryLoadType.ImportRadioFiles:
                 {
-                    var fileLoad = CreateFileLoad(parameters.Directory, "*.m3u");
+                    var fileLoad = CreateFileLoad(parameters.SourceDirectory, "*.m3u");
                     workItem = new LibraryLoaderWorkItem(_workItemIdCounter++, LibraryLoadType.ImportRadioFiles);
                     workItem.Initialize(LibraryWorkItemState.Pending, fileLoad);
                 }
@@ -262,7 +263,7 @@ namespace AudioStation.Core.Component
                         // Send work item to worker
                         switch (workItem.GetLoadType())
                         {
-                            case LibraryLoadType.Mp3FileAddUpdate:
+                            case LibraryLoadType.LoadMp3FileData:
                             {
                                 var worker = _workerThreads.FirstOrDefault(x => x.GetType() == typeof(LibraryLoaderMp3AddUpdateWorker) && x.IsReadyForWork());
 
@@ -273,7 +274,7 @@ namespace AudioStation.Core.Component
                                 }
                             }
                             break;
-                            case LibraryLoadType.M3UFileAddUpdate:
+                            case LibraryLoadType.LoadM3UFileData:
                             {
                                 var worker = _workerThreads.FirstOrDefault(x => x.GetType() == typeof(LibraryLoaderM3UAddUpdateWorker) && x.IsReadyForWork());
 
@@ -287,6 +288,17 @@ namespace AudioStation.Core.Component
                             case LibraryLoadType.FillMusicBrainzIds:
                             {
                                 var worker = _workerThreads.FirstOrDefault(x => x.GetType() == typeof(LibraryLoaderFillMusicBrainzIdsWorker) && x.IsReadyForWork());
+
+                                // Starts Work (thread already running)
+                                if (worker != null)
+                                {
+                                    worker.SetWorkItem(_workQueue.Dequeue());       // DEQUEUE
+                                }
+                            }
+                            break;
+                            case LibraryLoadType.ImportStagedFiles:
+                            {
+                                var worker = _workerThreads.FirstOrDefault(x => x.GetType() == typeof(LibraryLoaderImportStagedFilesWorker) && x.IsReadyForWork());
 
                                 // Starts Work (thread already running)
                                 if (worker != null)

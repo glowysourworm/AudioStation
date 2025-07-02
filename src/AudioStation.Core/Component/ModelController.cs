@@ -1,4 +1,7 @@
-﻿using AudioStation.Core.Component.Interface;
+﻿using System.Globalization;
+using System.IO;
+
+using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Component.Vendor.Interface;
 using AudioStation.Core.Database.AudioStationDatabase;
 using AudioStation.Core.Database.AudioStationDatabase.Interface;
@@ -947,26 +950,33 @@ namespace AudioStation.Controller
                 //        
                 var matchingReleases = _musicBrainzClient.QueryReleases(artistName, albumName, trackName, MUSIC_BRAINZ_MIN_SCORE)
                                                          .Result
-                                                         .Where(x => x.Title == albumName)
+                                                         .Where(x => StringCompare.CompareIC(x.Title, albumName))
                                                          .Where(x => x.ArtistCredit != null)
-                                                         .Where(x => x.Media != null)
-                                                         .Where(x => x.Media.Any(media => media.Tracks != null && media.Tracks.Any(track => track.Title == trackName)));
+                                                         .ToList();
 
-                foreach (var matchingRelease in matchingReleases)
+                // Must query releases separately for media data
+                //
+                var matchingReleaseData = matchingReleases.Select(x => _musicBrainzClient.GetReleaseById(x.Id).Result)
+                                                          .Where(x => x.Media != null)
+                                                          .Where(x => x.Media.Any(media => media.Tracks != null && 
+                                                                                           media.Tracks.Any(track => StringCompare.CompareIC(track.Title, trackName))))
+                                                          .ToList();
+
+                foreach (var matchingRelease in matchingReleaseData)
                 {
                     var result = new MusicBrainzCombinedLibraryEntryRecord();
 
-
+                    
                     // Track:  Guaranteed by the above query (matches track name)
                     var matchingTrack = matchingRelease.Media
                                                        .SelectMany(media => media.Tracks)
-                                                       .First(x => x.Title == trackName);
+                                                       .First(x => StringCompare.CompareIC(x.Title, trackName));
 
                     // Recording:  Get by ID matching our results
                     var matchingRecording = _musicBrainzClient.GetRecordingById(matchingTrack.Recording.Id).Result;
 
                     // Medium:  Also guaranteed by above query
-                    var matchingMedium = matchingRelease.Media.First(x => x.Tracks.Any(track => track.Title == trackName));
+                    var matchingMedium = matchingRelease.Media.First(x => x.Tracks.Any(track => StringCompare.CompareIC(track.Title, trackName)));
 
                     // *** Start Matching to our Local Database ***
 
@@ -988,24 +998,33 @@ namespace AudioStation.Controller
                         _musicBrainzDbClient.AddEntity(existingRecording);
 
                         // Tags / Genres
-                        foreach (var tag in matchingRecording.Tags)
+                        if (matchingRecording.Tags != null)
                         {
-                            var tagEntity = AddUpdateMusicBrainzTag(tag, existingRecording);
+                            foreach (var tag in matchingRecording.Tags.Where(x => !string.IsNullOrWhiteSpace(x.Name)))
+                            {
+                                var tagEntity = AddUpdateMusicBrainzTag(tag, existingRecording);
 
-                            // Result Set
-                            result.RecordingTags.Add(tagEntity);
-                        }
-                        foreach (var genre in matchingRecording.Genres)
-                        {
-                            var genreEntity = AddUpdateMusicBrainzGenre(genre, existingRecording);
-
-                            // Result Set
-                            result.RecordingGenres.Add(genreEntity);
+                                // Result Set
+                                if (tagEntity != null)
+                                    result.RecordingTags.Add(tagEntity);
+                            }
                         }
 
-                        // Result Set
-                        result.Recording = existingRecording;
+                        if (matchingRecording.Genres != null)
+                        {
+                            foreach (var genre in matchingRecording.Genres.Where(x => !string.IsNullOrWhiteSpace(x.Name)))
+                            {
+                                var genreEntity = AddUpdateMusicBrainzGenre(genre, existingRecording);
+
+                                // Result Set
+                                if (genreEntity != null)
+                                    result.RecordingGenres.Add(genreEntity);
+                            }
+                        }
                     }
+
+                    // Result Set
+                    result.Recording = existingRecording;
 
                     // Release
                     var existingRelease = _musicBrainzDbClient.GetEntity<MusicBrainzReleaseEntity>(matchingRelease.Id);
@@ -1019,7 +1038,7 @@ namespace AudioStation.Controller
                             Asin = matchingRelease.Asin,
                             Barcode = matchingRelease.Barcode,
                             Country = matchingRelease.Country,
-                            Date = matchingRelease.Date?.NearestDate ?? DateTime.MinValue,
+                            Date = matchingRelease.Date?.NearestDate.ToUniversalTime() ?? DateTime.MinValue.ToUniversalTime(),
                             Disambiguation = matchingRelease.Disambiguation,
                             Id = matchingRelease.Id,
                             Packaging = matchingRelease.Packaging,
@@ -1028,21 +1047,29 @@ namespace AudioStation.Controller
                             Title = matchingRelease.Title
                         };
 
+
                         _musicBrainzDbClient.AddEntity(existingRelease);
 
                         // Tags / Genres
-                        foreach (var tag in matchingRelease.Tags)
+                        if (matchingRelease.Tags != null)
                         {
-                            AddUpdateMusicBrainzTag(tag, existingRelease);
-                        }
-                        foreach (var genre in matchingRelease.Genres)
-                        {
-                            AddUpdateMusicBrainzGenre(genre, existingRelease);
+                            foreach (var tag in matchingRelease.Tags.Where(x => !string.IsNullOrWhiteSpace(x.Name)))
+                            {
+                                AddUpdateMusicBrainzTag(tag, existingRelease);
+                            }
                         }
 
-                        // Result Set
-                        result.Release = existingRelease;
+                        if (matchingRelease.Genres != null)
+                        {
+                            foreach (var genre in matchingRelease.Genres.Where(x => !string.IsNullOrWhiteSpace(x.Name)))
+                            {
+                                AddUpdateMusicBrainzGenre(genre, existingRelease);
+                            }
+                        }
                     }
+
+                    // Result Set
+                    result.Release = existingRelease;
 
                     // Artist(s)
                     foreach (var matchingArtist in matchingRelease.ArtistCredit.Select(x => x.Artist))
@@ -1118,7 +1145,7 @@ namespace AudioStation.Controller
                     //
 
                     // Try matching on the rest of the fields
-                    var existingMedium = _musicBrainzDbClient.Where<MusicBrainzMediumEntity>(x => x.Title == matchingMedium.Title &&
+                    var existingMedium = _musicBrainzDbClient.Where<MusicBrainzMediumEntity>(x => StringCompare.CompareIC(x.Title, matchingMedium.Title) &&
                                                                                                   x.Format == matchingMedium.Format &&
                                                                                                   x.Position == matchingMedium.Position &&
                                                                                                   x.TrackCount == matchingMedium.TrackCount &&
@@ -1139,10 +1166,18 @@ namespace AudioStation.Controller
                         };
 
                         _musicBrainzDbClient.AddEntity<MusicBrainzMediumEntity>(existingMedium);
-
-                        // Result Set
-                        result.Medium = existingMedium;
                     }
+
+                    // Go ahead and simulate loading of the media here
+                    if (!existingRelease.Media.Any(x => StringCompare.CompareIC(x.Title, matchingMedium.Title) &&
+                                                        x.Format == matchingMedium.Format &&
+                                                        x.Position == matchingMedium.Position &&
+                                                        x.TrackCount == matchingMedium.TrackCount &&
+                                                        x.TrackOffset == matchingMedium.TrackOffset))
+                        existingRelease.Media.Add(existingMedium);
+
+                    // Result Set
+                    result.Medium = existingMedium;
 
 
                     // Track
@@ -1162,10 +1197,10 @@ namespace AudioStation.Controller
                         };
 
                         _musicBrainzDbClient.AddEntity(existingTrack);
-
-                        // Result Set
-                        result.Track = existingTrack;
                     }
+
+                    // Result Set
+                    result.Track = existingTrack;
 
                     // Label
                     if (matchingRelease.LabelInfo != null)
@@ -1211,7 +1246,7 @@ namespace AudioStation.Controller
                             result.Labels.Add(existingLabel);
                         }
                     }
-
+                    /*
                     // These would be related to each track. (May need a separate query to get the artist URL's)
                     var relatedUrls = _musicBrainzClient.GetRelatedUrls(artistName, albumName, trackName, MUSIC_BRAINZ_MIN_SCORE).Result;
 
@@ -1265,6 +1300,9 @@ namespace AudioStation.Controller
                                 break;
                         }
                     }
+                    */
+                    // Release Picture Set
+                    result.ReleasePictures.AddRange(_musicBrainzClient.GetCoverArt(existingRelease.Id).Result);
 
                     // Result Set
                     resultSet.Add(result);

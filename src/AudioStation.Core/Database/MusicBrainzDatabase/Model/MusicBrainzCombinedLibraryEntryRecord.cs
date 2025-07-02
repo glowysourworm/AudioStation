@@ -14,6 +14,7 @@
         public List<MusicBrainzLabelEntity> Labels { get; set; }
         public List<MusicBrainzGenreEntity> RecordingGenres { get; set; }
         public List<MusicBrainzTagEntity> RecordingTags { get; set; }
+        public List<MusicBrainzPicture> ReleasePictures { get; set; }
 
         public MusicBrainzCombinedLibraryEntryRecord()
         {
@@ -21,6 +22,7 @@
             this.Labels = new List<MusicBrainzLabelEntity>();
             this.RecordingGenres = new List<MusicBrainzGenreEntity>();
             this.RecordingTags = new List<MusicBrainzTagEntity>();
+            this.ReleasePictures = new List<MusicBrainzPicture>();
         }
     }
 }

@@ -34,61 +34,46 @@
                             VerticalAlignment="Center" 
                             Margin="5" />
 
-                    <ComboBox Margin="5 0"
-                            VerticalAlignment="Center"
-                            Height="30"
-                            Width="160"
-                            VerticalContentAlignment="Center"
-                            FontSize="14"                                              
-                            SelectedValue="{Binding SelectedLibraryNewWorkItemType}">
-                        <ComboBox.Items>
-                            <libraryWork:LibraryLoadType>Mp3FileAddUpdate</libraryWork:LibraryLoadType>
-                            <libraryWork:LibraryLoadType>M3UFileAddUpdate</libraryWork:LibraryLoadType>
-                            <libraryWork:LibraryLoadType>FillMusicBrainzIds</libraryWork:LibraryLoadType>
-                        </ComboBox.Items>
-                    </ComboBox>
-
-                    <Button Command="{Binding RunWorkItemCommand}" Style="{StaticResource UserControlButton}" Margin="5 0" VerticalAlignment="Center">
-                        <StackPanel Orientation="Horizontal" Margin="5">
-                            <TextBlock Text="Start" Style="{StaticResource LabelTextBlock}" Margin="5 0" />
-                            <fa5:SvgAwesome Icon="Solid_Play" Style="{StaticResource FontAwesomeIconDefault}" />
-                        </StackPanel>
-                    </Button>
-
                 </StackPanel>
             </Grid>
         </Border>
         
         <!-- New Work Item Explanation -->
-        <Border Grid.Row="1"
-                BorderBrush="Gray" 
-                BorderThickness="1" 
-                CornerRadius="5" 
-                Margin="5">
-            <Grid>
-                <TextBlock Margin="5"
-                           Visibility="{Binding SelectedLibraryNewWorkItemType, 
-                                                Converter={StaticResource ParameterVisibilityCollapsedConverter}, 
-                                                ConverterParameter={x:Static libraryWork:LibraryLoadType.Mp3FileAddUpdate}}"
-                           Style="{StaticResource LabelTextBlock}" 
-                           Text="The Mp3 File Add / Update work item (currently) is set to scan and add files from your directory tree starting with your configuration's base directory." />
+        <ListBox Grid.Row="1"
+                 ItemsSource="{Binding SelectedLibraryNewWorkItemType, Converter={StaticResource EnumObservableCollectionConverter}}"
+                 HorizontalContentAlignment="Stretch"
+                 BorderBrush="Gray" 
+                 BorderThickness="1" 
+                 Margin="5">
 
-                <TextBlock Margin="5"
-                           Visibility="{Binding SelectedLibraryNewWorkItemType, 
-                                                Converter={StaticResource ParameterVisibilityCollapsedConverter}, 
-                                                ConverterParameter={x:Static libraryWork:LibraryLoadType.M3UFileAddUpdate}}"                           
-                           Style="{StaticResource LabelTextBlock}" 
-                           Text="The M3U File Add / Update work item (currently) is set to scan and add files from a specific input folder (tree) which is chosen by you after pressing start." />
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="220" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
 
-                <TextBlock Margin="5"
-                           Visibility="{Binding SelectedLibraryNewWorkItemType, 
-                                                Converter={StaticResource ParameterVisibilityCollapsedConverter}, 
-                                                ConverterParameter={x:Static libraryWork:LibraryLoadType.FillMusicBrainzIds}}"  
-                           TextWrapping="Wrap"
-                           Style="{StaticResource LabelTextBlock}" 
-                           Text="The Fill Music Brainz Ids work item will 1) load music brainz id's from the MetaBrainz.MusicBrainz web service API into your local database; and 2) Update the mp3 file tag. Please make sure to backup your mp3 file folder before proceeding." />
-            </Grid>
-        </Border>
+                        <TextBlock Margin="5" Style="{StaticResource LabelTextBlock}" Text="{Binding DisplayName}" TextWrapping="Wrap" />
+                        <TextBlock Margin="5" Style="{StaticResource LabelTextBlock}" Text="{Binding Description}" TextWrapping="Wrap" Width="600" HorizontalAlignment="Right" Grid.Column="1" />
+
+                        <Button Command="{Binding DataContext.RunWorkItemCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" Grid.Column="2"
+                                CommandParameter="{Binding Value}"
+                                Style="{StaticResource UserControlButton}" 
+                                Margin="5 0" VerticalAlignment="Center">
+                            
+                            <StackPanel Orientation="Horizontal" Margin="5">
+                                <TextBlock Text="Start" Style="{StaticResource LabelTextBlock}" Margin="5 0" />
+                                <fa5:SvgAwesome Icon="Solid_Play" Style="{StaticResource FontAwesomeIconDefault}" />
+                            </StackPanel>
+                        </Button>
+
+                    </Grid>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+            
+        </ListBox>
 
         <!-- Work Queue Control Panel -->
         <Border Margin="5" 

@@ -21,6 +21,9 @@ namespace AudioStation.Core.Database.MusicBrainzDatabase
 
         public List<MusicBrainzMediumEntity> Media { get; set; }
 
-        public MusicBrainzReleaseEntity() { }
+        public MusicBrainzReleaseEntity() 
+        {
+            this.Media = new List<MusicBrainzMediumEntity>();
+        }
     }
 }

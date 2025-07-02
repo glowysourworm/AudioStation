@@ -1,0 +1,16 @@
+INSERT INTO "public"."MusicBrainzEntityType" ("Name")
+VALUES ('Unknown'),
+	   ('Area'),
+	   ('Artist'),
+	   ('Collection'),
+	   ('Event'),
+	   ('Genre'),
+	   ('Instrument'),
+	   ('Label'),
+	   ('Place'),
+	   ('Recording'),
+	   ('Release'),
+	   ('ReleaseGroup'),
+	   ('Series'),
+	   ('Url'),
+	   ('Work');
