@@ -16,7 +16,7 @@ namespace AudioStation.Core.Database.MusicBrainzDatabase
         private readonly Configuration _configuration;
         private readonly bool _logVerbose;
 
-        // Entity types
+        // Tables
         public DbSet<MusicBrainzArtistEntity> MusicBrainzArtists { get; set; }
         public DbSet<MusicBrainzEntityType> MusicBrainzEntityTypes { get; set; }
         public DbSet<MusicBrainzGenreEntity> MusicBrainzGenres { get; set; }
@@ -28,13 +28,16 @@ namespace AudioStation.Core.Database.MusicBrainzDatabase
         public DbSet<MusicBrainzTrackEntity> MusicBrainzTracks { get; set; }
         public DbSet<MusicBrainzUrlEntity> MusicBrainzUrls { get; set; }
 
-        // Maps
+        // Maps (N-M Tables)
         public DbSet<MusicBrainzArtistRecordingMap> MusicBrainzArtistRecordMaps { get; set; }
         public DbSet<MusicBrainzArtistReleaseMap> MusicBrainzArtistReleaseMaps { get; set; }
         public DbSet<MusicBrainzGenreEntityMap> MusicBrainzGenreEntityMaps { get; set; }
         public DbSet<MusicBrainzLabelReleaseMap> MusicBrainzLabelReleaseMaps { get; set; }
         public DbSet<MusicBrainzTagEntityMap> MusicBrainzTagEntityMaps { get; set; }
         public DbSet<MusicBrainzUrlEntityMap> MusicBrainzUrlEntityMaps { get; set; }
+
+        // Views
+        public DbSet<MusicBrainzCombinedRecordView> MusicBrainzCombinedRecordViews { get; set; }
 
         public MusicBrainzDbContext(Configuration configuration,
                                     bool logVerbose)
@@ -78,6 +81,9 @@ namespace AudioStation.Core.Database.MusicBrainzDatabase
 
             modelBuilder.Entity<MusicBrainzUrlEntityMap>().Navigation(x => x.MusicBrainzEntityType).AutoInclude(true);
             modelBuilder.Entity<MusicBrainzUrlEntityMap>().Navigation(x => x.MusicBrainzUrl).AutoInclude(true);
+
+            // Views
+            modelBuilder.Entity<MusicBrainzCombinedRecordView>().ToView("MusicBrainzCombinedRecordView", "public");
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

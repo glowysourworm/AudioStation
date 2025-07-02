@@ -4,6 +4,8 @@ using System.Windows.Threading;
 
 using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Component.LibraryLoaderComponent;
+using AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderLoad;
+using AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderOutput;
 using AudioStation.Core.Component.Vendor.Interface;
 using AudioStation.Core.Database.AudioStationDatabase;
 using AudioStation.Core.Database.MusicBrainzDatabase;
@@ -80,7 +82,7 @@ namespace AudioStation.Core.Component
             _workerDispatcher.Start();
         }
 
-        public void RunLoaderTask(LibraryLoaderParameters parameters)
+        public void RunLoaderTask<TIn>(LibraryLoaderParameters<TIn> parameters) where TIn : LibraryLoaderLoadBase
         {
             // NOTE:  The incremental work item ID property is a unique identifier! This must be maintained
             //        properly here by incremeting. It is used to identify logs for the task; and to have a
@@ -90,39 +92,34 @@ namespace AudioStation.Core.Component
 
             switch (parameters.LoadType)
             {
-                case LibraryLoadType.LoadMp3FileData:
+                case LibraryLoadType.ImportBasic:
                 {
-                    var fileLoad = CreateFileLoad(parameters.SourceDirectory, "*.mp3");
-                    workItem = new LibraryLoaderWorkItem(_workItemIdCounter++, LibraryLoadType.LoadMp3FileData);
-                    workItem.Initialize(LibraryWorkItemState.Pending, fileLoad);
+                    workItem = new LibraryLoaderWorkItem(_workItemIdCounter++, LibraryLoadType.ImportBasic);
+                    workItem.Initialize(LibraryWorkItemState.Pending, parameters.Load, new LibraryLoaderImportLoadOutput());
                 }
                 break;
-                case LibraryLoadType.LoadM3UFileData:
+                case LibraryLoadType.ImportRadioBasic:
                 {
-                    var fileLoad = CreateFileLoad(parameters.SourceDirectory, "*.m3u");
-                    workItem = new LibraryLoaderWorkItem(_workItemIdCounter++, LibraryLoadType.LoadM3UFileData);
-                    workItem.Initialize(LibraryWorkItemState.Pending, fileLoad);
+                    workItem = new LibraryLoaderWorkItem(_workItemIdCounter++, LibraryLoadType.ImportRadioBasic);
+                    workItem.Initialize(LibraryWorkItemState.Pending, parameters.Load, new LibraryLoaderFileLoadOutput());
                 }
                 break;
-                case LibraryLoadType.FillMusicBrainzIds:
+                case LibraryLoadType.DownloadMusicBrainz:
                 {
-                    var entityLoad = CreateAudioStationEntityLoad<Mp3FileReference>();
-                    workItem = new LibraryLoaderWorkItem(_workItemIdCounter++, LibraryLoadType.FillMusicBrainzIds);
-                    workItem.Initialize(LibraryWorkItemState.Pending, entityLoad);
+                    workItem = new LibraryLoaderWorkItem(_workItemIdCounter++, LibraryLoadType.DownloadMusicBrainz);
+                    workItem.Initialize(LibraryWorkItemState.Pending, parameters.Load, new LibraryLoaderEntityLoadOutput());
                 }
                 break;
-                case LibraryLoadType.ImportStagedFiles:
+                case LibraryLoadType.ImportAdvanced:
                 {
-                    var fileLoad = CreateFileLoad(parameters.SourceDirectory, "*.mp3");
-                    workItem = new LibraryLoaderWorkItem(_workItemIdCounter++, LibraryLoadType.ImportStagedFiles);
-                    workItem.Initialize(LibraryWorkItemState.Pending, fileLoad);
+                    workItem = new LibraryLoaderWorkItem(_workItemIdCounter++, LibraryLoadType.ImportAdvanced);
+                    workItem.Initialize(LibraryWorkItemState.Pending, parameters.Load, new LibraryLoaderImportLoadOutput());
                 }
                 break;
-                case LibraryLoadType.ImportRadioFiles:
+                case LibraryLoadType.ImportRadioAdvanced:
                 {
-                    var fileLoad = CreateFileLoad(parameters.SourceDirectory, "*.m3u");
-                    workItem = new LibraryLoaderWorkItem(_workItemIdCounter++, LibraryLoadType.ImportRadioFiles);
-                    workItem.Initialize(LibraryWorkItemState.Pending, fileLoad);
+                    workItem = new LibraryLoaderWorkItem(_workItemIdCounter++, LibraryLoadType.ImportRadioAdvanced);
+                    workItem.Initialize(LibraryWorkItemState.Pending, parameters.Load, new LibraryLoaderFileLoadOutput());
                 }
                 break;
                 default:
@@ -134,24 +131,6 @@ namespace AudioStation.Core.Component
             {
                 _workQueue.Enqueue(workItem);
             }
-        }
-
-        private LibraryLoaderEntityLoad CreateAudioStationEntityLoad<TEntity>() where TEntity : AudioStationEntityBase
-        {
-            // Query for all music entity meta-data
-            var entities = _modelController.GetAudioStationEntities<TEntity>();
-
-            // Create work item for the music brainz search(es)
-            return new LibraryLoaderEntityLoad(entities);
-        }
-
-        private LibraryLoaderFileLoad CreateFileLoad(string baseDirectory, string searchPattern)
-        {
-            // Scan directories for files (Use NativeIO for much faster iteration. Less managed memory loading)
-            var files = FastDirectoryEnumerator.GetFiles(baseDirectory, searchPattern, SearchOption.AllDirectories);
-
-            // Create the file load for the next work item
-            return new LibraryLoaderFileLoad(files.Select(x => x.Path));
         }
 
         public PlayStopPause GetState()
@@ -263,7 +242,7 @@ namespace AudioStation.Core.Component
                         // Send work item to worker
                         switch (workItem.GetLoadType())
                         {
-                            case LibraryLoadType.LoadMp3FileData:
+                            case LibraryLoadType.ImportBasic:
                             {
                                 var worker = _workerThreads.FirstOrDefault(x => x.GetType() == typeof(LibraryLoaderMp3AddUpdateWorker) && x.IsReadyForWork());
 
@@ -274,7 +253,7 @@ namespace AudioStation.Core.Component
                                 }
                             }
                             break;
-                            case LibraryLoadType.LoadM3UFileData:
+                            case LibraryLoadType.ImportRadioBasic:
                             {
                                 var worker = _workerThreads.FirstOrDefault(x => x.GetType() == typeof(LibraryLoaderM3UAddUpdateWorker) && x.IsReadyForWork());
 
@@ -285,7 +264,7 @@ namespace AudioStation.Core.Component
                                 }
                             }
                             break;
-                            case LibraryLoadType.FillMusicBrainzIds:
+                            case LibraryLoadType.DownloadMusicBrainz:
                             {
                                 var worker = _workerThreads.FirstOrDefault(x => x.GetType() == typeof(LibraryLoaderFillMusicBrainzIdsWorker) && x.IsReadyForWork());
 
@@ -296,7 +275,7 @@ namespace AudioStation.Core.Component
                                 }
                             }
                             break;
-                            case LibraryLoadType.ImportStagedFiles:
+                            case LibraryLoadType.ImportAdvanced:
                             {
                                 var worker = _workerThreads.FirstOrDefault(x => x.GetType() == typeof(LibraryLoaderImportStagedFilesWorker) && x.IsReadyForWork());
 

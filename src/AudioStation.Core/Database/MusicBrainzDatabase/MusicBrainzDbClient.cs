@@ -210,7 +210,7 @@ namespace AudioStation.Core.Database.MusicBrainzDatabase
             {
                 using (var context = CreateContext())
                 {
-                    return context.Set<TEntity>().AsEnumerable();
+                    return context.Set<TEntity>().ToList();
                 }
             }
             catch (Exception ex)

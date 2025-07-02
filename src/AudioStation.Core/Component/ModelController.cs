@@ -62,17 +62,16 @@ namespace AudioStation.Controller
         }
 
         #region Audio Station Database Methods
-        public bool AddUpdateLibraryEntry(string fileName, bool fileAvailable, bool fileLoadError, string fileLoadErrorMessage, TagLib.File tagRef)
+        public Mp3FileReference AddUpdateLibraryEntry(string fileName, bool fileAvailable, bool fileLoadError, string fileLoadErrorMessage, TagLib.File tagRef)
         {
             try
             {
-                _audioStationDbClient.AddUpdateLibraryEntry(fileName, fileAvailable, fileLoadError, fileLoadErrorMessage, tagRef);
-                return true;
+                return _audioStationDbClient.AddUpdateLibraryEntry(fileName, fileAvailable, fileLoadError, fileLoadErrorMessage, tagRef);
             }
             catch (Exception ex)
             {
                 ApplicationHelpers.Log("Error in IModelController (AddLibraryEntry):  {0}", LogMessageType.Database, LogLevel.Error, ex.Message);
-                return false;
+                return null;
             }
         }
         public bool AddUpdateRadioEntry(Core.Model.M3U.M3UStream entry)
@@ -950,7 +949,7 @@ namespace AudioStation.Controller
                 //        
                 var matchingReleases = _musicBrainzClient.QueryReleases(artistName, albumName, trackName, MUSIC_BRAINZ_MIN_SCORE)
                                                          .Result
-                                                         .Where(x => StringCompare.CompareIC(x.Title, albumName))
+                                                         .Where(x => StringHelpers.CompareIC(x.Title, albumName))
                                                          .Where(x => x.ArtistCredit != null)
                                                          .ToList();
 
@@ -959,7 +958,7 @@ namespace AudioStation.Controller
                 var matchingReleaseData = matchingReleases.Select(x => _musicBrainzClient.GetReleaseById(x.Id).Result)
                                                           .Where(x => x.Media != null)
                                                           .Where(x => x.Media.Any(media => media.Tracks != null && 
-                                                                                           media.Tracks.Any(track => StringCompare.CompareIC(track.Title, trackName))))
+                                                                                           media.Tracks.Any(track => StringHelpers.CompareIC(track.Title, trackName))))
                                                           .ToList();
 
                 foreach (var matchingRelease in matchingReleaseData)
@@ -970,13 +969,13 @@ namespace AudioStation.Controller
                     // Track:  Guaranteed by the above query (matches track name)
                     var matchingTrack = matchingRelease.Media
                                                        .SelectMany(media => media.Tracks)
-                                                       .First(x => StringCompare.CompareIC(x.Title, trackName));
+                                                       .First(x => StringHelpers.CompareIC(x.Title, trackName));
 
                     // Recording:  Get by ID matching our results
                     var matchingRecording = _musicBrainzClient.GetRecordingById(matchingTrack.Recording.Id).Result;
 
                     // Medium:  Also guaranteed by above query
-                    var matchingMedium = matchingRelease.Media.First(x => x.Tracks.Any(track => StringCompare.CompareIC(track.Title, trackName)));
+                    var matchingMedium = matchingRelease.Media.First(x => x.Tracks.Any(track => StringHelpers.CompareIC(track.Title, trackName)));
 
                     // *** Start Matching to our Local Database ***
 
@@ -1145,7 +1144,7 @@ namespace AudioStation.Controller
                     //
 
                     // Try matching on the rest of the fields
-                    var existingMedium = _musicBrainzDbClient.Where<MusicBrainzMediumEntity>(x => StringCompare.CompareIC(x.Title, matchingMedium.Title) &&
+                    var existingMedium = _musicBrainzDbClient.Where<MusicBrainzMediumEntity>(x => StringHelpers.CompareIC(x.Title, matchingMedium.Title) &&
                                                                                                   x.Format == matchingMedium.Format &&
                                                                                                   x.Position == matchingMedium.Position &&
                                                                                                   x.TrackCount == matchingMedium.TrackCount &&
@@ -1169,7 +1168,7 @@ namespace AudioStation.Controller
                     }
 
                     // Go ahead and simulate loading of the media here
-                    if (!existingRelease.Media.Any(x => StringCompare.CompareIC(x.Title, matchingMedium.Title) &&
+                    if (!existingRelease.Media.Any(x => StringHelpers.CompareIC(x.Title, matchingMedium.Title) &&
                                                         x.Format == matchingMedium.Format &&
                                                         x.Position == matchingMedium.Position &&
                                                         x.TrackCount == matchingMedium.TrackCount &&

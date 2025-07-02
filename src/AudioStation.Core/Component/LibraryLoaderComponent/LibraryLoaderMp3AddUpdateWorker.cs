@@ -1,6 +1,7 @@
 ﻿using System.IO;
 
 using AudioStation.Core.Component.Interface;
+using AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderLoad;
 using AudioStation.Core.Model;
 using AudioStation.Core.Utility;
 using AudioStation.Model;
@@ -45,8 +46,10 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent
                 else
                 {
                     // Add to database (thread-safe call to create DbContext)
-                    success = _modelController.AddUpdateLibraryEntry(file, fileAvailable, fileLoadError, fileErrorMessasge, entry);
-                    
+                    var resultEntity = _modelController.AddUpdateLibraryEntry(file, fileAvailable, fileLoadError, fileErrorMessasge, entry);
+
+                    success = resultEntity != null;
+
                     ApplicationHelpers.LogSeparate(workItem.GetId(), "Mp3 load success:  {0}", LogMessageType.LibraryLoaderWorkItem, LogLevel.Information, file);
                 }
 

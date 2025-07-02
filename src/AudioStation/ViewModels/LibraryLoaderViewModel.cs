@@ -1,18 +1,17 @@
 ﻿using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Windows;
-using System.Windows.Threading;
+using System.IO;
 
+using AudioStation.Controller;
 using AudioStation.Core.Component;
 using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Component.LibraryLoaderComponent;
+using AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderLoad;
+using AudioStation.Core.Database.AudioStationDatabase;
 using AudioStation.Core.Model;
-using AudioStation.Model;
-
-using Microsoft.Extensions.Logging;
+using AudioStation.Core.Utility;
+using AudioStation.ViewModels.LibraryLoaderViewModels;
 
 using SimpleWpf.Extensions;
-using SimpleWpf.Extensions.Collection;
 using SimpleWpf.Extensions.Command;
 using SimpleWpf.Extensions.ObservableCollection;
 using SimpleWpf.IocFramework.Application.Attribute;
@@ -26,6 +25,12 @@ namespace AudioStation.ViewModels
         private readonly ILibraryLoader _libraryLoader;
 
         #region Backing Fields (private)
+        LibraryLoaderImportBasicViewModel _importBasicViewModel;
+        LibraryLoaderImportRadioBasicViewModel _importRadioBasicViewModel;
+        LibraryLoaderImportAdvancedViewModel _importAdvancedViewModel;
+        LibraryLoaderDownloadMusicBrainzViewModel _downloadMusicBrainzViewModel;
+
+
         KeyedObservableCollection<int, LibraryWorkItemViewModel> _libraryWorkItems;
 
         ObservableCollection<LibraryWorkItemViewModel> _libraryWorkItemsSelected;
@@ -57,19 +62,39 @@ namespace AudioStation.ViewModels
             get { return _libraryWorkItemsSelected; }
             set { this.RaiseAndSetIfChanged(ref _libraryWorkItemsSelected, value); }
         }
-        public SimpleCommand<LibraryLoadType> RunWorkItemCommand
+        public LibraryLoaderImportBasicViewModel ImportBasicViewModel
         {
-            get { return _runWorkItemCommand; }
-            set { this.RaiseAndSetIfChanged(ref _runWorkItemCommand, value); }
+            get { return _importBasicViewModel; }
+            set { this.RaiseAndSetIfChanged(ref _importBasicViewModel, value); }
+        }
+        public LibraryLoaderImportRadioBasicViewModel ImportRadioBasicViewModel
+        {
+            get { return _importRadioBasicViewModel; }
+            set { this.RaiseAndSetIfChanged(ref _importRadioBasicViewModel, value); }
+        }
+        public LibraryLoaderImportAdvancedViewModel ImportAdvancedViewModel
+        {
+            get { return _importAdvancedViewModel; }
+            set { this.RaiseAndSetIfChanged(ref _importAdvancedViewModel, value); }
+        }
+        public LibraryLoaderDownloadMusicBrainzViewModel DownloadMusicBrainzViewModel
+        {
+            get { return _downloadMusicBrainzViewModel; }
+            set { this.RaiseAndSetIfChanged(ref _downloadMusicBrainzViewModel, value); }
         }
         #endregion
 
         [IocImportingConstructor]
-        public LibraryLoaderViewModel(IOutputController outputController,
+        public LibraryLoaderViewModel(IModelController modelController,
                                       ILibraryLoader libraryLoader,
-                                      IConfigurationManager configurationManager)
+                                      IConfigurationManager configurationManager, 
+                                      
+                                      // View Models
+                                      LibraryLoaderImportBasicViewModel importBasicViewModel,
+                                      LibraryLoaderImportAdvancedViewModel importAdvancedViewModel,
+                                      LibraryLoaderImportRadioBasicViewModel importRadioBasicViewModel,
+                                      LibraryLoaderDownloadMusicBrainzViewModel downloadMusicBrainzViewModel)
         {
-            _outputController = outputController;
             _libraryLoader = libraryLoader;
 
             // Filtering of the library loader work items
@@ -77,63 +102,67 @@ namespace AudioStation.ViewModels
 
             this.LibraryWorkItemsSelected = this.LibraryWorkItems;
 
+            this.ImportBasicViewModel = importBasicViewModel;
+            this.ImportRadioBasicViewModel = importRadioBasicViewModel;
+            this.ImportAdvancedViewModel = importAdvancedViewModel;
+            this.DownloadMusicBrainzViewModel = downloadMusicBrainzViewModel;
+
             this.LibraryLoaderState = libraryLoader.GetState();
 
             libraryLoader.WorkItemUpdate += OnWorkItemUpdate;
             libraryLoader.ProcessingUpdate += OnLibraryProcessingChanged;
 
-            this.RunWorkItemCommand = new SimpleCommand<LibraryLoadType>(loadType =>
-            {
-                switch (loadType)
-                {
-                    case LibraryLoadType.LoadMp3FileData:
-                        libraryLoader.RunLoaderTask(new LibraryLoaderParameters()
-                        {
-                            LoadType = loadType,
-                            SourceDirectory = configurationManager.GetConfiguration().DirectoryBase,
-                            DestinationDirectory = configurationManager.GetConfiguration().DirectoryBase,
-                        });
-                        break;
-                    case LibraryLoadType.LoadM3UFileData:
-                        libraryLoader.RunLoaderTask(new LibraryLoaderParameters()
-                        {
-                            LoadType = loadType,
-                            SourceDirectory = configurationManager.GetConfiguration().DirectoryBase,
-                            DestinationDirectory = configurationManager.GetConfiguration().DirectoryBase,
-                        });
-                        break;
-                    case LibraryLoadType.FillMusicBrainzIds:
-                        libraryLoader.RunLoaderTask(new LibraryLoaderParameters()
-                        {
-                            LoadType = loadType
-                        });
-                        break;
-                    case LibraryLoadType.ImportStagedFiles:
-                        libraryLoader.RunLoaderTask(new LibraryLoaderParameters()
-                        {
-                            LoadType = loadType,
-                            SourceDirectory = configurationManager.GetConfiguration().DownloadFolder,
-                            DestinationDirectory = configurationManager.GetConfiguration().DownloadFolder,
-                        });
-                        break;
-                    case LibraryLoadType.ImportRadioFiles:
-                        libraryLoader.RunLoaderTask(new LibraryLoaderParameters()
-                        {
-                            LoadType = loadType,
-                            SourceDirectory = configurationManager.GetConfiguration().DownloadFolder,
-                            DestinationDirectory = configurationManager.GetConfiguration().DownloadFolder,
-                        });
-                        break;
-                    default:
-                        throw new Exception("Unhandled LibraryLoadType:  LibraryLoaderViewModel.cs");
-                }
-            });
+            //this.RunWorkItemCommand = new SimpleCommand<LibraryLoadType>(loadType =>
+            //{
+            //    var configuration = configurationManager.GetConfiguration();
+
+            //    switch (loadType)
+            //    {
+            //        case LibraryLoadType.LoadMp3FileData:
+            //        {
+            //            var fileLoad = ApplicationHelpers.FastGetFiles(configuration.DirectoryBase, "*.mp3", SearchOption.AllDirectories);
+            //            var inputLoad = new LibraryLoaderFileLoad(configuration.DirectoryBase, fileLoad);
+            //            libraryLoader.RunLoaderTask(new LibraryLoaderParameters<LibraryLoaderFileLoad>(loadType, inputLoad));
+            //        }
+            //        break;
+            //        case LibraryLoadType.LoadM3UFileData:
+            //        {
+            //            var fileLoad = ApplicationHelpers.FastGetFiles(configuration.DirectoryBase, "*.m3u", SearchOption.AllDirectories);
+            //            var inputLoad = new LibraryLoaderFileLoad(configuration.DirectoryBase, fileLoad);
+            //            libraryLoader.RunLoaderTask(new LibraryLoaderParameters<LibraryLoaderFileLoad>(loadType, inputLoad));
+            //        }
+            //        break;
+            //        case LibraryLoadType.FillMusicBrainzIds:
+            //        {
+            //            var entities = modelController.GetAudioStationEntities<Mp3FileReference>();
+            //            var inputLoad = new LibraryLoaderEntityLoad(entities);
+            //            libraryLoader.RunLoaderTask(new LibraryLoaderParameters<LibraryLoaderEntityLoad>(loadType, inputLoad));
+            //        }
+            //        break;
+            //        case LibraryLoadType.ImportStagedFiles:
+            //        {
+            //            var fileLoad = ApplicationHelpers.FastGetFiles(configuration.DownloadFolder, "*.mp3", SearchOption.AllDirectories);
+            //            var inputLoad = new LibraryLoaderImportLoad(configuration.DirectoryBase, fileLoad);
+            //            libraryLoader.RunLoaderTask(new LibraryLoaderParameters<LibraryLoaderFileLoad>(loadType, inputLoad));
+            //        }
+            //        break;
+            //        case LibraryLoadType.ImportRadioFiles:
+            //        {
+            //            var fileLoad = ApplicationHelpers.FastGetFiles(configuration.DirectoryBase, "*.m3u", SearchOption.AllDirectories);
+            //            var inputLoad = new LibraryLoaderFileLoad(configuration.DirectoryBase, fileLoad);
+            //            libraryLoader.RunLoaderTask(new LibraryLoaderParameters<LibraryLoaderFileLoad>(loadType, inputLoad));
+            //        }
+            //        break;
+            //        default:
+            //            throw new Exception("Unhandled LibraryLoadType:  LibraryLoaderViewModel.cs");
+            //    }
+            //});
         }
 
         #region ILibraryLoader Events (these are all on the Dispatcher)
         private void RefreshWorkItems(LibraryWorkItem newItem)
         {
-            foreach (var workItem in _libraryLoader.GetIdleWorkItems().Union(new LibraryWorkItem[] {newItem}))
+            foreach (var workItem in _libraryLoader.GetIdleWorkItems().Union(new LibraryWorkItem[] { newItem }))
             {
                 // May not be a new item (we're consolidating code)
                 if (workItem == null)
@@ -201,10 +230,7 @@ namespace AudioStation.ViewModels
 
         public void Dispose()
         {
-            if (_libraryLoader != null)
-            {
-                _libraryLoader.Dispose();
-            }
+            _libraryLoader?.Dispose();
         }
     }
 }

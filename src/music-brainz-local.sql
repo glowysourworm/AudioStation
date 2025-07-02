@@ -5,7 +5,7 @@
 -- Dumped from database version 17.4
 -- Dumped by pg_dump version 17.4
 
--- Started on 2025-07-01 21:41:32
+-- Started on 2025-07-02 13:12:12
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -694,7 +694,7 @@ ALTER TABLE ONLY public."MusicBrainzUrlEntityMap"
     ADD CONSTRAINT "MusicBrainzUrl_ForeignKey" FOREIGN KEY ("MusicBrainzUrlId") REFERENCES public."MusicBrainzUrl"("Id") NOT VALID;
 
 
--- Completed on 2025-07-01 21:41:32
+-- Completed on 2025-07-02 13:12:13
 
 --
 -- PostgreSQL database dump complete

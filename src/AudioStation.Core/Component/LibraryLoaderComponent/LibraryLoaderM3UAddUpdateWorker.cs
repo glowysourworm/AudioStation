@@ -2,6 +2,7 @@
 using System.Windows.Threading;
 
 using AudioStation.Core.Component.Interface;
+using AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderLoad;
 using AudioStation.Core.Model;
 using AudioStation.Core.Model.M3U;
 using AudioStation.Core.Utility;

@@ -176,12 +176,12 @@ namespace AudioStation.Core.Component.Vendor
         /// <summary>
         /// Calculates library entry by audio fingerprint using an online api.
         /// </summary>
-        public Task<IEnumerable<Recording>> IdentifyFingerprint(string fileName, int minScore)
+        public Task<IEnumerable<LookupResult>> IdentifyFingerprint(string fileName, int minScore)
         {
             // Setup Static Configuration
             SetConfiguration();
 
-            return Task<IEnumerable<Recording>>.Run(async () =>
+            return Task<IEnumerable<LookupResult>>.Run(async () =>
             {
                 try
                 {
@@ -215,14 +215,13 @@ namespace AudioStation.Core.Component.Vendor
 
                     return response.Results
                                    .Where(x => x.Score >= (minScore / 100.0D))
-                                   .SelectMany(x => x.Recordings)
                                    .ToList();
                 }
                 catch (Exception ex)
                 {
                     ApplicationHelpers.Log("Error using AcoustID service:  {0}", LogMessageType.Vendor, LogLevel.Error, ex.Message);
 
-                    return Enumerable.Empty<Recording>();
+                    return Enumerable.Empty<LookupResult>();
                 }
             });
         }

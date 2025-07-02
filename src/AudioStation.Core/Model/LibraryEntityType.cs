@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace AudioStation.Core.Model
+﻿namespace AudioStation.Core.Model
 {
     public enum LibraryEntityType
     {
@@ -19,7 +13,8 @@ namespace AudioStation.Core.Model
     /// </summary>
     public enum LibraryEntryType
     {
-        Music,
-        AudioBook
+        Any = 0,
+        Music = 1,
+        AudioBook = 2
     }
 }

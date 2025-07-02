@@ -59,13 +59,13 @@ namespace AudioStation.Views
                 switch (viewModel.LibraryLoaderState)
                 {
                     case PlayStopPause.Play:
-                        this.PlayRB.IsChecked = true;
+                        //this.PlayRB.IsChecked = true;
                         break;
                     case PlayStopPause.Pause:
-                        this.PauseRB.IsChecked = true;
+                        //this.PauseRB.IsChecked = true;
                         break;
                     case PlayStopPause.Stop:
-                        this.StopRB.IsChecked = true;
+                       // this.StopRB.IsChecked = true;
                         break;
                     default:
                         throw new Exception("Unhandled LibraryLoaderState:  LibraryLoaderView");

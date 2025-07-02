@@ -1,4 +1,5 @@
 ﻿using AudioStation.Core.Component.LibraryLoaderComponent;
+using AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderLoad;
 using AudioStation.Core.Model;
 
 using SimpleWpf.Extensions.Event;
@@ -45,6 +46,6 @@ namespace AudioStation.Core.Component.Interface
         /// <summary>
         /// Initializes and runs a library loader task with the specified parameters.
         /// </summary>
-        void RunLoaderTask(LibraryLoaderParameters parameters);
+        void RunLoaderTask<TIn>(LibraryLoaderParameters<TIn> parameters) where TIn : LibraryLoaderLoadBase;
     }
 }

@@ -22,7 +22,7 @@ namespace AudioStation.Core.Component.Interface
         /// Adds LibraryEntry to database. Does NOT update any existing, similar, entry. The tag data
         /// is also used to initialize the LibraryEntry, adding supporting data to the database.
         /// </summary>
-        bool AddUpdateLibraryEntry(string fileName, bool fileAvailable, bool fileLoadError, string fileLoadErrorMessage, TagLib.File tagRef);
+        Mp3FileReference AddUpdateLibraryEntry(string fileName, bool fileAvailable, bool fileLoadError, string fileLoadErrorMessage, TagLib.File tagRef);
 
         /// <summary>
         /// Add / Update M3UStream based on unique Id, and Name

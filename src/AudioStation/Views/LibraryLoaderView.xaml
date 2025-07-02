@@ -3,81 +3,47 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:sys="clr-namespace:System;assembly=System.Runtime"
              xmlns:fa5="http://schemas.fontawesome.com/icons/"
+             xmlns:controls="clr-namespace:AudioStation.Controls"
+             xmlns:loaderView="clr-namespace:AudioStation.Views.LibraryLoaderViews"
              xmlns:libraryWork="clr-namespace:AudioStation.Core.Component.LibraryLoaderComponent;assembly=AudioStation.Core"
              Background="White">
     <Grid>
 
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />            
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
        
-
-        <!-- New Work Item -->
-        <Border Margin="5" 
-                CornerRadius="5" 
-                Background="#3FAFAFAF" 
-                BorderBrush="Gray"
-                BorderThickness="1"
-                HorizontalAlignment="Stretch">
-            <Grid>
-                <Border>
-                    <TextBlock Text="Library Loader" Style="{StaticResource LargeInputLabelTextBlock}" VerticalAlignment="Center" Margin="5" />
-                </Border>
-                
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-
-                    <TextBlock Text="Queue Work Item" 
-                            Style="{StaticResource LargeInputLabelTextBlock}" 
-                            VerticalAlignment="Center" 
-                            Margin="5" />
-
-                </StackPanel>
-            </Grid>
-        </Border>
-        
         <!-- New Work Item Explanation -->
-        <ListBox Grid.Row="1"
-                 ItemsSource="{Binding SelectedLibraryNewWorkItemType, Converter={StaticResource EnumObservableCollectionConverter}}"
-                 HorizontalContentAlignment="Stretch"
-                 BorderBrush="Gray" 
-                 BorderThickness="1" 
-                 Margin="5">
+        <TabControl Grid.Row="0" Margin="5" 
+                    Style="{StaticResource ManagerTabControlStyle}">
 
-            <ListBox.ItemTemplate>
-                <DataTemplate>
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="220" />
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
-                        </Grid.ColumnDefinitions>
+            <controls:TabItemPressable Header="Import (Basic)" Style="{StaticResource ManagerTabItemStyle}">
+                <loaderView:LibraryLoaderImportBasicView DataContext="{Binding ImportBasicViewModel}" />
+            </controls:TabItemPressable>
 
-                        <TextBlock Margin="5" Style="{StaticResource LabelTextBlock}" Text="{Binding DisplayName}" TextWrapping="Wrap" />
-                        <TextBlock Margin="5" Style="{StaticResource LabelTextBlock}" Text="{Binding Description}" TextWrapping="Wrap" Width="600" HorizontalAlignment="Right" Grid.Column="1" />
+            <controls:TabItemPressable Header="Import Radio (Basic)" Style="{StaticResource ManagerTabItemStyle}">
+                <loaderView:LibraryLoaderImportRadioBasicView DataContext="{Binding ImportRadioBasicViewModel}" />
+            </controls:TabItemPressable>
 
-                        <Button Command="{Binding DataContext.RunWorkItemCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" Grid.Column="2"
-                                CommandParameter="{Binding Value}"
-                                Style="{StaticResource UserControlButton}" 
-                                Margin="5 0" VerticalAlignment="Center">
-                            
-                            <StackPanel Orientation="Horizontal" Margin="5">
-                                <TextBlock Text="Start" Style="{StaticResource LabelTextBlock}" Margin="5 0" />
-                                <fa5:SvgAwesome Icon="Solid_Play" Style="{StaticResource FontAwesomeIconDefault}" />
-                            </StackPanel>
-                        </Button>
+            <controls:TabItemPressable Header="Music Brainz (Download)" Style="{StaticResource ManagerTabItemStyle}">
+                <loaderView:LibraryLoaderDownloadMusicBrainzView DataContext="{Binding DownloadMusicBrainzViewModel}" />
+            </controls:TabItemPressable>
 
-                    </Grid>
-                </DataTemplate>
-            </ListBox.ItemTemplate>
-            
-        </ListBox>
+            <controls:TabItemPressable Header="Import (Advanced)" Style="{StaticResource ManagerTabItemStyle}">
+                <loaderView:LibraryLoaderImportAdvancedView DataContext="{Binding ImportAdvancedViewModel}" />
+            </controls:TabItemPressable>
+
+            <controls:TabItemPressable Header="Import Radio (Advanced)" Style="{StaticResource ManagerTabItemStyle}">
+                <loaderView:LibraryLoaderImportRadioAdvancedView />
+            </controls:TabItemPressable>
+
+        </TabControl>
 
         <!-- Work Queue Control Panel -->
         <Border Margin="5" 
-                Grid.Row="2"
+                Grid.Row="1"
                 CornerRadius="5" 
                 Background="#3FAFAFAF" 
                 BorderBrush="Gray"
@@ -97,7 +63,7 @@
                             VerticalAlignment="Center" 
                             Margin="5" />
 
-                    <StackPanel Orientation="Horizontal" Margin="5 0">
+                    <!--StackPanel Orientation="Horizontal" Margin="5 0">
                         <RadioButton x:Name="PauseRB"
                                  Click="PauseRB_Click"
                                  Style="{StaticResource ControlPanelRadioButtonLeft}"
@@ -119,7 +85,7 @@
                                  ToolTip="Start / Resume Library Loader:  Resumes or startes execution of library work items">
                             <fa5:SvgAwesome Icon="Solid_Play" Style="{StaticResource FontAwesomeIconControlPanelButton}" />
                         </RadioButton>
-                    </StackPanel>
+                    </StackPanel-->
                     
                     
                     <Button Style="{StaticResource UserControlButton}" Margin="5 0" VerticalAlignment="Center">
@@ -135,7 +101,7 @@
 
         <!-- Work Queue -->
         <ListBox x:Name="LibraryQueueLB" 
-                 Grid.Row="3"
+                 Grid.Row="2"
                  Grid.ColumnSpan="2"
                  HorizontalContentAlignment="Stretch"
                  VirtualizingPanel.CacheLength="3"

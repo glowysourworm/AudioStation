@@ -65,6 +65,8 @@ public partial class MainViewModel : ViewModelBase, IDisposable
     PlayStopPause _playState;
 
     SimpleCommand _openLibraryFolderCommand;
+    SimpleCommand _openMusicSubFolderCommand;
+    SimpleCommand _openAudioBooksSubFolderCommand;
     SimpleCommand _openDownloadFolderCommand;
     SimpleCommand _saveConfigurationCommand;
     SimpleCommand _loadLibraryCommand;
@@ -152,6 +154,16 @@ public partial class MainViewModel : ViewModelBase, IDisposable
         get { return _openLibraryFolderCommand; }
         set { this.RaiseAndSetIfChanged(ref _openLibraryFolderCommand, value); }
     }
+    public SimpleCommand OpenMusicSubFolderCommand
+    {
+        get { return _openMusicSubFolderCommand; }
+        set { this.RaiseAndSetIfChanged(ref _openMusicSubFolderCommand, value); }
+    }
+    public SimpleCommand OpenAudioBooksSubFolderCommand
+    {
+        get { return _openAudioBooksSubFolderCommand; }
+        set { this.RaiseAndSetIfChanged(ref _openAudioBooksSubFolderCommand, value); }
+    }
     public SimpleCommand OpenDownloadFolderCommand
     {
         get { return _openDownloadFolderCommand; }
@@ -161,11 +173,6 @@ public partial class MainViewModel : ViewModelBase, IDisposable
     {
         get { return _saveConfigurationCommand; }
         set { this.RaiseAndSetIfChanged(ref _saveConfigurationCommand, value); }
-    }
-    public SimpleCommand LoadLibraryCommand
-    {
-        get { return _loadLibraryCommand; }
-        set { this.RaiseAndSetIfChanged(ref _loadLibraryCommand, value); }
     }
     public SimpleCommand UnlockConfigurationCommand
     {
@@ -244,17 +251,13 @@ public partial class MainViewModel : ViewModelBase, IDisposable
         {
             this.Configuration.DirectoryBase = dialogController.ShowSelectFolder();
         });
-        this.LoadLibraryCommand = new SimpleCommand(() =>
+        this.OpenMusicSubFolderCommand = new SimpleCommand(() =>
         {
-            if (dialogController.ShowConfirmation("Library Database Initialization", 
-                                                  "This will delete your existing library data and reload it from:",
-                                                  "", this.Configuration.DirectoryBase, "", 
-                                                  "Your audio file(s) will not be otherwise disturbed.",
-                                                  "Are you sure you want to do this?"))
-            {
-                //libraryLoader.LoadLibraryAsync(this.Configuration.DirectoryBase);
-                //libraryLoader.Start();
-            }
+            this.Configuration.MusicSubDirectory = dialogController.ShowSelectFolder();
+        });
+        this.OpenAudioBooksSubFolderCommand = new SimpleCommand(() =>
+        {
+            this.Configuration.AudioBooksSubDirectory = dialogController.ShowSelectFolder();
         });
         this.OpenDownloadFolderCommand = new SimpleCommand(() =>
         {

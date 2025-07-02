@@ -1,25 +1,26 @@
-﻿using AudioStation.Core.Model;
+﻿using AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderLoad;
 
 namespace AudioStation.Core.Component.LibraryLoaderComponent
 {
     /// <summary>
     /// Generic set of parameters needed to initialize and run a new library loader task
     /// </summary>
-    public class LibraryLoaderParameters
+    public class LibraryLoaderParameters<TIn> where TIn : LibraryLoaderLoadBase
     {
         /// <summary>
         /// Type of loader task to run
         /// </summary>
-        public LibraryLoadType LoadType { get; set; }
+        public LibraryLoadType LoadType { get; }
 
         /// <summary>
-        /// Directory out of which to run the task
+        /// The load presented to the library loader. This is setup by user selection for specific task files.
         /// </summary>
-        public string SourceDirectory { get; set; }
+        public TIn Load { get; }
 
-        /// <summary>
-        /// Destination directory for items
-        /// </summary>
-        public string DestinationDirectory { get; set; }
+        public LibraryLoaderParameters(LibraryLoadType loadType, TIn load)
+        {
+            this.LoadType = loadType;
+            this.Load = load;
+        }
     }
 }

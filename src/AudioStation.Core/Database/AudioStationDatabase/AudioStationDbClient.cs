@@ -45,7 +45,7 @@ namespace AudioStation.Core.Database.AudioStationDatabase
             });
         }
 
-        public void AddUpdateLibraryEntry(string fileName, bool fileAvailable, bool fileLoadError, string fileLoadErrorMessage, TagLib.File tagRef)
+        public Mp3FileReference AddUpdateLibraryEntry(string fileName, bool fileAvailable, bool fileLoadError, string fileLoadErrorMessage, TagLib.File tagRef)
         {
             try
             {
@@ -190,6 +190,8 @@ namespace AudioStation.Core.Database.AudioStationDatabase
                     }
 
                     context.SaveChanges();
+
+                    return entity;
                 }
             }
             catch (Exception ex)
@@ -396,7 +398,7 @@ namespace AudioStation.Core.Database.AudioStationDatabase
             {
                 using (var context = CreateContext())
                 {
-                    return GetEntitySet<TEntity>(context).AsEnumerable();
+                    return GetEntitySet<TEntity>(context).ToList();
                 }
             }
             catch (Exception ex)

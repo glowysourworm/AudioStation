@@ -2,7 +2,7 @@
 
 using SimpleWpf.SimpleCollections.Collection;
 
-namespace AudioStation.Core.Component.LibraryLoaderComponent
+namespace AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderLoad
 {
     public class LibraryLoaderEntityLoad : LibraryLoaderLoadBase
     {

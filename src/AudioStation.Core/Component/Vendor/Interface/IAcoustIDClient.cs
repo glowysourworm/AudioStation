@@ -10,6 +10,6 @@ namespace AudioStation.Core.Component.Vendor.Interface
 {
     public interface IAcoustIDClient
     {
-        Task<IEnumerable<Recording>> IdentifyFingerprint(string fileName, int minScore);
+        Task<IEnumerable<LookupResult>> IdentifyFingerprint(string fileName, int minScore);
     }
 }

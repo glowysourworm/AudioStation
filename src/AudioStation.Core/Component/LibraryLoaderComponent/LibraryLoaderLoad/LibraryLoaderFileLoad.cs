@@ -1,14 +1,17 @@
-﻿namespace AudioStation.Core.Component.LibraryLoaderComponent
+﻿namespace AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderLoad
 {
     public class LibraryLoaderFileLoad : LibraryLoaderLoadBase
     {
+        public string DirectoryBase { get; private set; }
+
         protected Dictionary<string, bool> FilesProcessed { get; private set; }
         protected Dictionary<string, bool> FilesPending { get; private set; }
 
         private object _lock = new object();
 
-        public LibraryLoaderFileLoad(IEnumerable<string> files)
+        public LibraryLoaderFileLoad(string directoryBase, IEnumerable<string> files)
         {
+            this.DirectoryBase = directoryBase;
             this.FilesProcessed = new Dictionary<string, bool>();
             this.FilesPending = new Dictionary<string, bool>();
 

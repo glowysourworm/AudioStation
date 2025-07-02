@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System.IO;
+using System.Windows;
 using System.Windows.Threading;
 
 using AudioStation.Core.Component.Interface;
@@ -7,6 +8,7 @@ using AudioStation.Model;
 using Microsoft.Extensions.Logging;
 
 using SimpleWpf.IocFramework.Application;
+using SimpleWpf.NativeIO.FastDirectory;
 
 namespace AudioStation.Core.Utility
 {
@@ -15,6 +17,15 @@ namespace AudioStation.Core.Utility
         private static IOutputController GetOutputController()
         {
             return IocContainer.Get<IOutputController>();
+        }
+
+        public static IEnumerable<string> FastGetFiles(string baseDirectory, string searchPattern, SearchOption option)
+        {
+            // Scan directories for files (Use NativeIO for much faster iteration. Less managed memory loading)
+            var files = FastDirectoryEnumerator.GetFiles(baseDirectory, searchPattern, option);
+
+            // Create the file load for the next work item
+            return new List<string>(files.Select(x => x.Path));
         }
 
         /// <summary>
