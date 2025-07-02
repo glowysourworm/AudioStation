@@ -1,10 +1,77 @@
 ﻿<UserControl x:Class="AudioStation.Views.LibraryLoaderViews.LibraryLoaderImportAdvancedView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"             
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:xceed="http://schemas.xceed.com/wpf/xaml/toolkit"
              xmlns:fa5="http://schemas.fontawesome.com/icons/"
              xmlns:coreModel="clr-namespace:AudioStation.Core.Model;assembly=AudioStation.Core"
              xmlns:simpleUI="clr-namespace:SimpleWpf.UI.Controls;assembly=SimpleWpf.UI">
     <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="200" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
 
+        <Border Grid.ColumnSpan="2" 
+                CornerRadius="5" 
+                Margin="5"
+                Background="#FFEEEEEE" 
+                BorderBrush="Gray" 
+                BorderThickness="1">
+            <TextBlock Style="{StaticResource LabelTextBlock}" Margin="10" TextWrapping="Wrap" 
+                       Text="This import task will load all files from your chosen directory (and sub directories) into the library's database - with options for how to gather their tag data. This will apply gathered tag data from AcoustID, and MusicBrainz, to the mp3 file; and then move it into its final location." />
+        </Border>
+        
+        <TextBlock Text="Import File Type" Style="{StaticResource LabelTextBlock}" Margin="5" Grid.Row="1" />
+        <TextBlock Text="Import Directory" Style="{StaticResource LabelTextBlock}" Margin="5" Grid.Row="2" />
+        <TextBlock Text="Move Files (delete)" Style="{StaticResource LabelTextBlock}" Margin="5" Grid.Row="3" />
+        <TextBlock Text="Import Files" Style="{StaticResource LabelTextBlock}" VerticalAlignment="Top" Margin="5" Grid.Row="4" />
+        
+        <simpleUI:EnumComboBox EnumType="{x:Type coreModel:LibraryEntryType}"
+                               EnumValue="{Binding SelectedImportType, Mode=TwoWay}" 
+                               Grid.Column="1" Grid.Row="1" Margin="5" />
+
+        <TextBox Text="{Binding ImportFolder}" Style="{StaticResource UserInputTextBoxReadonly}" Grid.Column="1" Grid.Row="2" Margin="5" />
+
+        <CheckBox IsChecked="{Binding DeleteOnImport}" Grid.Row="3" Grid.Column="1" HorizontalAlignment="Left" Margin="5" />
+
+        <Grid Grid.Row="4" Grid.Column="1" Margin="5">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <xceed:WatermarkTextBox Margin="0 0 0 5" Grid.ColumnSpan="2" Text="{Binding FileStagingSearch, UpdateSourceTrigger=PropertyChanged, Delay=300}" Watermark="Search Files..." HorizontalAlignment="Stretch" />
+
+            <ListBox Grid.Row="1" Grid.ColumnSpan="2" ItemsSource="{Binding ImportFilesStaged}"
+                     VirtualizingPanel.IsVirtualizing="True"
+                     VirtualizingPanel.VirtualizationMode="Recycling"
+                     VirtualizingPanel.CacheLength="3">
+
+            </ListBox>
+
+            <TextBlock Style="{StaticResource LabelTextBlock}" Margin="10" Grid.Row="2" HorizontalAlignment="Right" VerticalAlignment="Center">
+                <Run Text="Files to Import:  " />
+                <Run Text="{Binding ImportFilesStaged.Count, Mode=OneWay}" />
+            </TextBlock>
+
+            <Button Grid.Row="2" Grid.Column="1" Margin="0 5 0 0" HorizontalAlignment="Right" VerticalAlignment="Bottom" Style="{StaticResource UserControlButton}">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Import (Detail)" Style="{StaticResource LabelTextBlock}" Margin="5" />
+                    <fa5:SvgAwesome Icon="Solid_Database" Style="{StaticResource FontAwesomeIconDefault}" Margin="5" />
+                </StackPanel>
+            </Button>
+        </Grid>
     </Grid>
 </UserControl>

@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using System.IO;
 using System.Windows;
 using System.Windows.Threading;
 
@@ -249,15 +250,30 @@ public partial class MainViewModel : ViewModelBase, IDisposable
         });
         this.OpenLibraryFolderCommand = new SimpleCommand(() =>
         {
-            this.Configuration.DirectoryBase = dialogController.ShowSelectFolder();
+            var folder = dialogController.ShowSelectFolder();
+
+            if (!string.IsNullOrEmpty(folder))
+            {
+                this.Configuration.DirectoryBase = folder;
+            }
         });
         this.OpenMusicSubFolderCommand = new SimpleCommand(() =>
         {
-            this.Configuration.MusicSubDirectory = dialogController.ShowSelectFolder();
+            var folder = dialogController.ShowSelectFolder();
+
+            if (!string.IsNullOrEmpty(folder))
+            {
+                this.Configuration.MusicSubDirectory = Path.GetFileName(folder) ?? string.Empty;
+            }
         });
         this.OpenAudioBooksSubFolderCommand = new SimpleCommand(() =>
         {
-            this.Configuration.AudioBooksSubDirectory = dialogController.ShowSelectFolder();
+            var folder = dialogController.ShowSelectFolder();
+
+            if (!string.IsNullOrEmpty(folder))
+            {
+                this.Configuration.AudioBooksSubDirectory = Path.GetFileName(folder) ?? string.Empty;
+            }
         });
         this.OpenDownloadFolderCommand = new SimpleCommand(() =>
         {

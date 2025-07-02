@@ -33,13 +33,13 @@
                  Text="{Binding Configuration.DirectoryBase}" Style="{StaticResource UserInputTextBoxReadonly}" Grid.Column="1" Margin="5" />
 
         <TextBox IsEnabled="{Binding ConfigurationLocked, Converter={StaticResource BoolInverseConverter}}" 
-                 Text="{Binding Configuration.MusicSubDirectory}" Style="{StaticResource UserInputTextBoxReadonly}" Grid.Column="1" Margin="5" />
+                 Text="{Binding Configuration.MusicSubDirectory}" Style="{StaticResource UserInputTextBoxReadonly}" Grid.Column="1" Grid.Row="1" Margin="5" />
 
         <TextBox IsEnabled="{Binding ConfigurationLocked, Converter={StaticResource BoolInverseConverter}}" 
-                 Text="{Binding Configuration.AudioBooksSubDirectory}" Style="{StaticResource UserInputTextBoxReadonly}" Grid.Column="1" Margin="5" />
+                 Text="{Binding Configuration.AudioBooksSubDirectory}" Style="{StaticResource UserInputTextBoxReadonly}" Grid.Column="1" Grid.Row="2" Margin="5" />
 
         <TextBox IsEnabled="{Binding ConfigurationLocked, Converter={StaticResource BoolInverseConverter}}"  
-                 Text="{Binding Configuration.DownloadFolder}" Style="{StaticResource UserInputTextBoxReadonly}" Grid.Column="1" Grid.Row="1" Margin="5" />
+                 Text="{Binding Configuration.DownloadFolder}" Style="{StaticResource UserInputTextBoxReadonly}" Grid.Column="1" Grid.Row="3" Margin="5" />
 
         <!-- Database / Vendor APIs -->
         <TabControl Grid.Row="4" Grid.ColumnSpan="3">
