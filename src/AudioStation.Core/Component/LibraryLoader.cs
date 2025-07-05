@@ -1,22 +1,18 @@
-﻿using System.IO;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Threading;
 
 using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Component.LibraryLoaderComponent;
 using AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderLoad;
 using AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderOutput;
+using AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderWorker;
 using AudioStation.Core.Component.Vendor.Interface;
-using AudioStation.Core.Database.AudioStationDatabase;
-using AudioStation.Core.Database.MusicBrainzDatabase;
 using AudioStation.Core.Model;
 using AudioStation.Core.Utility;
 
-using SimpleWpf.Extensions;
 using SimpleWpf.Extensions.Collection;
 using SimpleWpf.Extensions.Event;
 using SimpleWpf.IocFramework.Application.Attribute;
-using SimpleWpf.NativeIO.FastDirectory;
 
 namespace AudioStation.Core.Component
 {
@@ -47,7 +43,7 @@ namespace AudioStation.Core.Component
         private int _workItemIdCounter;
 
         [IocImportingConstructor]
-        public LibraryLoader(IModelController modelController, 
+        public LibraryLoader(IModelController modelController,
                              IMusicBrainzClient musicBrainzClient,
                              IAcoustIDClient acoustIDClient)
         {
@@ -69,10 +65,9 @@ namespace AudioStation.Core.Component
             // Start worker thread (pool)
             for (int index = 0; index < WORKER_THREAD_MAX; index++)
             {
-                _workerThreads.Add(new LibraryLoaderMp3AddUpdateWorker(modelController));
                 _workerThreads.Add(new LibraryLoaderM3UAddUpdateWorker(modelController));
                 _workerThreads.Add(new LibraryLoaderFillMusicBrainzIdsWorker(modelController, musicBrainzClient));
-                _workerThreads.Add(new LibraryLoaderImportStagedFilesWorker(modelController, acoustIDClient, musicBrainzClient));
+                _workerThreads.Add(new LibraryLoaderImportWorker(modelController, acoustIDClient, musicBrainzClient));
             }
             foreach (var workerThread in _workerThreads)
             {
@@ -92,15 +87,15 @@ namespace AudioStation.Core.Component
 
             switch (parameters.LoadType)
             {
-                case LibraryLoadType.ImportBasic:
+                case LibraryLoadType.Import:
                 {
-                    workItem = new LibraryLoaderWorkItem(_workItemIdCounter++, LibraryLoadType.ImportBasic);
+                    workItem = new LibraryLoaderWorkItem(_workItemIdCounter++, LibraryLoadType.Import);
                     workItem.Initialize(LibraryWorkItemState.Pending, parameters.Load, new LibraryLoaderImportLoadOutput());
                 }
                 break;
-                case LibraryLoadType.ImportRadioBasic:
+                case LibraryLoadType.ImportRadio:
                 {
-                    workItem = new LibraryLoaderWorkItem(_workItemIdCounter++, LibraryLoadType.ImportRadioBasic);
+                    workItem = new LibraryLoaderWorkItem(_workItemIdCounter++, LibraryLoadType.ImportRadio);
                     workItem.Initialize(LibraryWorkItemState.Pending, parameters.Load, new LibraryLoaderFileLoadOutput());
                 }
                 break;
@@ -110,24 +105,12 @@ namespace AudioStation.Core.Component
                     workItem.Initialize(LibraryWorkItemState.Pending, parameters.Load, new LibraryLoaderEntityLoadOutput());
                 }
                 break;
-                case LibraryLoadType.ImportAdvanced:
-                {
-                    workItem = new LibraryLoaderWorkItem(_workItemIdCounter++, LibraryLoadType.ImportAdvanced);
-                    workItem.Initialize(LibraryWorkItemState.Pending, parameters.Load, new LibraryLoaderImportLoadOutput());
-                }
-                break;
-                case LibraryLoadType.ImportRadioAdvanced:
-                {
-                    workItem = new LibraryLoaderWorkItem(_workItemIdCounter++, LibraryLoadType.ImportRadioAdvanced);
-                    workItem.Initialize(LibraryWorkItemState.Pending, parameters.Load, new LibraryLoaderFileLoadOutput());
-                }
-                break;
                 default:
                     throw new Exception("Unhandled library loader task type:  LibraryLoader.cs");
             }
 
             // Queue Work Item
-            lock(_lock)
+            lock (_lock)
             {
                 _workQueue.Enqueue(workItem);
             }
@@ -242,26 +225,20 @@ namespace AudioStation.Core.Component
                         // Send work item to worker
                         switch (workItem.GetLoadType())
                         {
-                            case LibraryLoadType.ImportBasic:
+                            case LibraryLoadType.Import:
                             {
-                                var worker = _workerThreads.FirstOrDefault(x => x.GetType() == typeof(LibraryLoaderMp3AddUpdateWorker) && x.IsReadyForWork());
+                                var worker = _workerThreads.FirstOrDefault(x => x.GetType() == typeof(LibraryLoaderImportWorker) && x.IsReadyForWork());
 
                                 // Starts Work (thread already running)
-                                if (worker != null)
-                                {
-                                    worker.SetWorkItem(_workQueue.Dequeue());       // DEQUEUE
-                                }
+                                worker?.SetWorkItem(_workQueue.Dequeue());       // DEQUEUE
                             }
                             break;
-                            case LibraryLoadType.ImportRadioBasic:
+                            case LibraryLoadType.ImportRadio:
                             {
                                 var worker = _workerThreads.FirstOrDefault(x => x.GetType() == typeof(LibraryLoaderM3UAddUpdateWorker) && x.IsReadyForWork());
 
                                 // Starts Work (thread already running)
-                                if (worker != null)
-                                {
-                                    worker.SetWorkItem(_workQueue.Dequeue());       // DEQUEUE
-                                }
+                                worker?.SetWorkItem(_workQueue.Dequeue());       // DEQUEUE
                             }
                             break;
                             case LibraryLoadType.DownloadMusicBrainz:
@@ -269,21 +246,7 @@ namespace AudioStation.Core.Component
                                 var worker = _workerThreads.FirstOrDefault(x => x.GetType() == typeof(LibraryLoaderFillMusicBrainzIdsWorker) && x.IsReadyForWork());
 
                                 // Starts Work (thread already running)
-                                if (worker != null)
-                                {
-                                    worker.SetWorkItem(_workQueue.Dequeue());       // DEQUEUE
-                                }
-                            }
-                            break;
-                            case LibraryLoadType.ImportAdvanced:
-                            {
-                                var worker = _workerThreads.FirstOrDefault(x => x.GetType() == typeof(LibraryLoaderImportStagedFilesWorker) && x.IsReadyForWork());
-
-                                // Starts Work (thread already running)
-                                if (worker != null)
-                                {
-                                    worker.SetWorkItem(_workQueue.Dequeue());       // DEQUEUE
-                                }
+                                worker?.SetWorkItem(_workQueue.Dequeue());       // DEQUEUE
                             }
                             break;
                             default:

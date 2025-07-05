@@ -16,11 +16,11 @@ using System.Windows.Shapes;
 namespace AudioStation.Views.LibraryLoaderViews
 {
     /// <summary>
-    /// Interaction logic for LibraryLoaderImportBasicView.xaml
+    /// Interaction logic for LibraryLoaderImportFileView.xaml
     /// </summary>
-    public partial class LibraryLoaderImportBasicView : UserControl
+    public partial class LibraryLoaderImportFileView : UserControl
     {
-        public LibraryLoaderImportBasicView()
+        public LibraryLoaderImportFileView()
         {
             InitializeComponent();
         }

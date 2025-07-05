@@ -7,7 +7,7 @@ using AudioStation.Core.Utility;
 
 using SimpleWpf.Extensions.Event;
 
-namespace AudioStation.Core.Component.LibraryLoaderComponent
+namespace AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderWorker
 {
     public abstract class LibraryWorkerThreadBase : IDisposable
     {

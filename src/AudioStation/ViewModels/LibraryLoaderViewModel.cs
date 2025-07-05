@@ -25,9 +25,8 @@ namespace AudioStation.ViewModels
         private readonly ILibraryLoader _libraryLoader;
 
         #region Backing Fields (private)
-        LibraryLoaderImportBasicViewModel _importBasicViewModel;
-        LibraryLoaderImportRadioBasicViewModel _importRadioBasicViewModel;
-        LibraryLoaderImportAdvancedViewModel _importAdvancedViewModel;
+        LibraryLoaderImportViewModel _importViewModel;
+        LibraryLoaderImportRadioViewModel _importRadioBasicViewModel;
         LibraryLoaderDownloadMusicBrainzViewModel _downloadMusicBrainzViewModel;
 
 
@@ -62,20 +61,15 @@ namespace AudioStation.ViewModels
             get { return _libraryWorkItemsSelected; }
             set { this.RaiseAndSetIfChanged(ref _libraryWorkItemsSelected, value); }
         }
-        public LibraryLoaderImportBasicViewModel ImportBasicViewModel
+        public LibraryLoaderImportViewModel ImportViewModel
         {
-            get { return _importBasicViewModel; }
-            set { this.RaiseAndSetIfChanged(ref _importBasicViewModel, value); }
+            get { return _importViewModel; }
+            set { this.RaiseAndSetIfChanged(ref _importViewModel, value); }
         }
-        public LibraryLoaderImportRadioBasicViewModel ImportRadioBasicViewModel
+        public LibraryLoaderImportRadioViewModel ImportRadioBasicViewModel
         {
             get { return _importRadioBasicViewModel; }
             set { this.RaiseAndSetIfChanged(ref _importRadioBasicViewModel, value); }
-        }
-        public LibraryLoaderImportAdvancedViewModel ImportAdvancedViewModel
-        {
-            get { return _importAdvancedViewModel; }
-            set { this.RaiseAndSetIfChanged(ref _importAdvancedViewModel, value); }
         }
         public LibraryLoaderDownloadMusicBrainzViewModel DownloadMusicBrainzViewModel
         {
@@ -90,9 +84,8 @@ namespace AudioStation.ViewModels
                                       IConfigurationManager configurationManager, 
                                       
                                       // View Models
-                                      LibraryLoaderImportBasicViewModel importBasicViewModel,
-                                      LibraryLoaderImportAdvancedViewModel importAdvancedViewModel,
-                                      LibraryLoaderImportRadioBasicViewModel importRadioBasicViewModel,
+                                      LibraryLoaderImportViewModel importViewModel,
+                                      LibraryLoaderImportRadioViewModel importRadioBasicViewModel,
                                       LibraryLoaderDownloadMusicBrainzViewModel downloadMusicBrainzViewModel)
         {
             _libraryLoader = libraryLoader;
@@ -102,9 +95,8 @@ namespace AudioStation.ViewModels
 
             this.LibraryWorkItemsSelected = this.LibraryWorkItems;
 
-            this.ImportBasicViewModel = importBasicViewModel;
+            this.ImportViewModel = importViewModel;
             this.ImportRadioBasicViewModel = importRadioBasicViewModel;
-            this.ImportAdvancedViewModel = importAdvancedViewModel;
             this.DownloadMusicBrainzViewModel = downloadMusicBrainzViewModel;
 
             this.LibraryLoaderState = libraryLoader.GetState();

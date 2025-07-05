@@ -9,112 +9,22 @@
              Background="White">
     <Grid>
 
-        <Grid.RowDefinitions>
-            <RowDefinition Height="*" />            
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
-        </Grid.RowDefinitions>
-       
         <!-- New Work Item Explanation -->
         <TabControl Grid.Row="0" Margin="5" 
                     Style="{StaticResource ManagerTabControlStyle}">
 
-            <controls:TabItemPressable Header="Import (Basic)" Style="{StaticResource ManagerTabItemStyle}">
-                <loaderView:LibraryLoaderImportBasicView DataContext="{Binding ImportBasicViewModel}" />
+            <controls:TabItemPressable Header="Import" Style="{StaticResource ManagerTabItemStyle}">
+                <loaderView:LibraryLoaderImportView DataContext="{Binding ImportViewModel}" />
             </controls:TabItemPressable>
 
-            <controls:TabItemPressable Header="Import Radio (Basic)" Style="{StaticResource ManagerTabItemStyle}">
-                <loaderView:LibraryLoaderImportRadioBasicView DataContext="{Binding ImportRadioBasicViewModel}" />
+            <controls:TabItemPressable Header="Import Radio" Style="{StaticResource ManagerTabItemStyle}">
+                <loaderView:LibraryLoaderImportRadioView DataContext="{Binding ImportRadioViewModel}" />
             </controls:TabItemPressable>
 
-            <controls:TabItemPressable Header="Music Brainz (Download)" Style="{StaticResource ManagerTabItemStyle}">
+            <controls:TabItemPressable Header="Music Brainz" Style="{StaticResource ManagerTabItemStyle}">
                 <loaderView:LibraryLoaderDownloadMusicBrainzView DataContext="{Binding DownloadMusicBrainzViewModel}" />
             </controls:TabItemPressable>
 
-            <controls:TabItemPressable Header="Import (Advanced)" Style="{StaticResource ManagerTabItemStyle}">
-                <loaderView:LibraryLoaderImportAdvancedView DataContext="{Binding ImportAdvancedViewModel}" />
-            </controls:TabItemPressable>
-
-            <controls:TabItemPressable Header="Import Radio (Advanced)" Style="{StaticResource ManagerTabItemStyle}">
-                <loaderView:LibraryLoaderImportRadioAdvancedView />
-            </controls:TabItemPressable>
-
         </TabControl>
-
-        <!-- Work Queue Control Panel -->
-        <Border Margin="5" 
-                Grid.Row="1"
-                CornerRadius="5" 
-                Background="#3FAFAFAF" 
-                BorderBrush="Gray"
-                BorderThickness="1"
-                HorizontalAlignment="Stretch">
-
-            <Grid>
-
-                <Border>
-                    <TextBlock Text="Work Queue" Style="{StaticResource LargeInputLabelTextBlock}" VerticalAlignment="Center" Margin="5" />
-                </Border>
-
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-
-                    <TextBlock Text="Library Loader Controls" 
-                            Style="{StaticResource LargeInputLabelTextBlock}" 
-                            VerticalAlignment="Center" 
-                            Margin="5" />
-
-                    <!--StackPanel Orientation="Horizontal" Margin="5 0">
-                        <RadioButton x:Name="PauseRB"
-                                 Click="PauseRB_Click"
-                                 Style="{StaticResource ControlPanelRadioButtonLeft}"
-                                 GroupName="LibraryLoaderState"
-                                 ToolTip="Pause Library Loader:  Preserves pending work items">
-                            <fa5:SvgAwesome Icon="Solid_Pause" Style="{StaticResource FontAwesomeIconControlPanelButton}" />
-                        </RadioButton>
-                        <RadioButton x:Name="StopRB"
-                                 Click="StopRB_Click"
-                                 Style="{StaticResource ControlPanelRadioButtonMiddle}"
-                                 GroupName="LibraryLoaderState"
-                                 ToolTip="Stop Library Loader:  Also, cancels current library work items">
-                            <fa5:SvgAwesome Icon="Solid_Stop" Style="{StaticResource FontAwesomeIconControlPanelButton}" />
-                        </RadioButton>
-                        <RadioButton x:Name="PlayRB"
-                                 Click="PlayRB_Click"
-                                 Style="{StaticResource ControlPanelRadioButtonRight}"
-                                 GroupName="LibraryLoaderState"
-                                 ToolTip="Start / Resume Library Loader:  Resumes or startes execution of library work items">
-                            <fa5:SvgAwesome Icon="Solid_Play" Style="{StaticResource FontAwesomeIconControlPanelButton}" />
-                        </RadioButton>
-                    </StackPanel-->
-                    
-                    
-                    <Button Style="{StaticResource UserControlButton}" Margin="5 0" VerticalAlignment="Center">
-                        <StackPanel Orientation="Horizontal" Margin="5">
-                            <TextBlock Text="Clear Completed" Style="{StaticResource LabelTextBlock}" Margin="5 0" />
-                            <fa5:SvgAwesome Icon="Solid_Recycle" Style="{StaticResource FontAwesomeIconDefault}" />
-                        </StackPanel>
-                    </Button>
-
-                </StackPanel>
-            </Grid>
-        </Border>
-
-        <!-- Work Queue -->
-        <ListBox x:Name="LibraryQueueLB" 
-                 Grid.Row="2"
-                 Grid.ColumnSpan="2"
-                 HorizontalContentAlignment="Stretch"
-                 VirtualizingPanel.CacheLength="3"
-                 VirtualizingPanel.IsVirtualizing="True"
-                 VirtualizingPanel.VirtualizationMode="Recycling"
-                 ItemContainerStyleSelector="{StaticResource LibraryWorkItemContainerStyleSelector}"                 
-                 ItemTemplate="{StaticResource LibraryWorkItemDataTemplate}"
-                 ItemsSource="{Binding LibraryWorkItemsSelected}">
-            <ListBox.ItemsPanel>
-                <ItemsPanelTemplate>
-                    <VirtualizingStackPanel IsItemsHost="True" />
-                </ItemsPanelTemplate>
-            </ListBox.ItemsPanel>
-        </ListBox>
     </Grid>
 </UserControl>

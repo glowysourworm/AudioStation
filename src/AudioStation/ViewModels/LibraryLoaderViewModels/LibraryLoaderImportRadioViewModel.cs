@@ -18,7 +18,7 @@ using SimpleWpf.IocFramework.Application.Attribute;
 namespace AudioStation.ViewModels.LibraryLoaderViewModels
 {
     [IocExportDefault]
-    public class LibraryLoaderImportRadioBasicViewModel : ViewModelBase
+    public class LibraryLoaderImportRadioViewModel : ViewModelBase
     {
         ObservableCollection<string> _importFilesStaged;
         string _importDirectory;
@@ -42,7 +42,7 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
         }
 
         [IocImportingConstructor]
-        public LibraryLoaderImportRadioBasicViewModel(IConfigurationManager configurationManager, IDialogController dialogController)
+        public LibraryLoaderImportRadioViewModel(IConfigurationManager configurationManager, IDialogController dialogController)
         {
             var configuration = configurationManager.GetConfiguration();
 

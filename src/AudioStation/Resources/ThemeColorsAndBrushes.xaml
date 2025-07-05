@@ -75,8 +75,14 @@
     <SolidColorBrush x:Key="HoverSelectBackgroundAlternation_Playlist">AliceBlue</SolidColorBrush>
     <SolidColorBrush x:Key="HoverSelectBackgroundHover_Playlist">#EFEFEFEF</SolidColorBrush>
     <SolidColorBrush x:Key="HoverSelectBackgroundSelect_Playlist">#EFEFEFEF</SolidColorBrush>
-    <SolidColorBrush x:Key="HoverSelectForegroundSelect_Playlist">#FF555555</SolidColorBrush>    
-    
+    <SolidColorBrush x:Key="HoverSelectForegroundSelect_Playlist">#FF555555</SolidColorBrush>
+
+    <SolidColorBrush x:Key="HoverSelectBackground_LibraryLoader">White</SolidColorBrush>
+    <SolidColorBrush x:Key="HoverSelectBackgroundAlternation_LibraryLoader">#EFEFEFEF</SolidColorBrush>
+    <SolidColorBrush x:Key="HoverSelectBackgroundHover_LibraryLoader">#EFEFEFEF</SolidColorBrush>
+    <SolidColorBrush x:Key="HoverSelectBackgroundSelect_LibraryLoader">#3F33AAFF</SolidColorBrush>
+    <SolidColorBrush x:Key="HoverSelectForegroundSelect_LibraryLoader">#FF555555</SolidColorBrush>
+
     <SolidColorBrush x:Key="PlayerControlButtonBorder" Color="#FFAAAAAA" />
     <SolidColorBrush x:Key="PlayerControlButtonBackground" Color="#FFAAAAAA" />
     <SolidColorBrush x:Key="PlayerControlButtonBackgroundHover" Color="#FF888888" />

@@ -10,7 +10,7 @@ using AudioStation.Model;
 
 using Microsoft.Extensions.Logging;
 
-namespace AudioStation.Core.Component.LibraryLoaderComponent
+namespace AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderWorker
 {
     public class LibraryLoaderM3UAddUpdateWorker : LibraryWorkerThreadBase
     {

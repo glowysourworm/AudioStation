@@ -13,6 +13,7 @@
 				   Style="{StaticResource PropertyGridLabel}" />
 
         <CheckBox Grid.Column="1" 
+                  VerticalContentAlignment="Center"
 				  IsChecked="{Binding Value, RelativeSource={RelativeSource AncestorType=UserControl}}" 
 				  IsEnabled="{Binding IsReadOnly, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BoolInverseConverter}}" />
     </Grid>

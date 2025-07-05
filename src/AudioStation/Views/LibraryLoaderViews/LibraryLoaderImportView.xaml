@@ -1,0 +1,42 @@
+﻿<UserControl x:Class="AudioStation.Views.LibraryLoaderViews.LibraryLoaderImportView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:xceed="http://schemas.xceed.com/wpf/xaml/toolkit"
+             xmlns:loaderView="clr-namespace:AudioStation.Views.LibraryLoaderViews"
+             xmlns:fa5="http://schemas.fontawesome.com/icons/"
+             xmlns:propertyGrid="clr-namespace:AudioStation.Controls.PropertyGrid"
+             xmlns:coreModel="clr-namespace:AudioStation.Core.Model;assembly=AudioStation.Core"
+             xmlns:simpleUI="clr-namespace:SimpleWpf.UI.Controls;assembly=SimpleWpf.UI">
+
+    <Grid>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <TabControl ItemContainerStyle="{StaticResource SimpleTabItemStyle}">
+            <TabItem Header="Options">
+                <loaderView:LibraryLoaderImportOptionsTabView />
+            </TabItem>
+            <TabItem Header="Import File(s)">
+                <loaderView:LibraryLoaderImportFileView />
+            </TabItem>
+        </TabControl>
+
+        <StackPanel Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Center" Orientation="Horizontal" Margin="5">
+            <TextBlock Style="{StaticResource LabelTextBlock}" Margin="10">
+                <Run Text="Files to Import:  " />
+                <Run Text="{Binding SourceFileSelectedCount, Mode=OneWay}" />
+            </TextBlock>
+
+            <Button Margin="0 5 0 0" Style="{StaticResource UserControlButton}">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Import (Detail)" Style="{StaticResource LabelTextBlock}" Margin="5" />
+                    <fa5:SvgAwesome Icon="Solid_Database" Style="{StaticResource FontAwesomeIconDefault}" Margin="5" />
+                </StackPanel>
+            </Button>
+        </StackPanel>
+    </Grid>
+
+</UserControl>

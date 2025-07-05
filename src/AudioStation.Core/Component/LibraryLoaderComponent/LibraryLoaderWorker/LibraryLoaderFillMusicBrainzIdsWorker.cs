@@ -9,7 +9,7 @@ using AudioStation.Model;
 
 using Microsoft.Extensions.Logging;
 
-namespace AudioStation.Core.Component.LibraryLoaderComponent
+namespace AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderWorker
 {
     public class LibraryLoaderFillMusicBrainzIdsWorker : LibraryWorkerThreadBase
     {
@@ -36,8 +36,8 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent
             foreach (var entity in entityLoad.GetPendingEntities().Cast<Mp3FileReference>())
             {
 
-                string musicBrainzArtistId = string.Empty;
-                string musicBrainzAlbumId = string.Empty;
+                var musicBrainzArtistId = string.Empty;
+                var musicBrainzAlbumId = string.Empty;
 
                 MusicBrainzTrack? bestMatch = null;
 

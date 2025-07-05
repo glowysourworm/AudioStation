@@ -1,30 +1,24 @@
 ﻿using System.IO;
 
-using AcoustID.Web;
-
 using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderLoad;
 using AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderOutput;
 using AudioStation.Core.Component.Vendor.Interface;
 using AudioStation.Core.Database.AudioStationDatabase;
-using AudioStation.Core.Database.MusicBrainzDatabase;
 using AudioStation.Core.Database.MusicBrainzDatabase.Model;
 using AudioStation.Core.Model;
 using AudioStation.Core.Utility;
 using AudioStation.Model;
-
-using MetaBrainz.MusicBrainz.Interfaces.Entities;
 
 using Microsoft.Extensions.Logging;
 
 using SimpleWpf.Extensions.Collection;
 
 using TagLib;
-using TagLib.Ape;
 
-namespace AudioStation.Core.Component.LibraryLoaderComponent
+namespace AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderWorker
 {
-    public class LibraryLoaderImportStagedFilesWorker : LibraryWorkerThreadBase
+    public class LibraryLoaderImportWorker : LibraryWorkerThreadBase
     {
         private readonly IModelController _modelController;
         private readonly IMusicBrainzClient _musicBrainzClient;
@@ -33,7 +27,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent
         private const int ACOUSTID_MIN_SCORE = 80;
         private const int MUSIC_BRAINZ_MIN_SCORE = 100;
 
-        public LibraryLoaderImportStagedFilesWorker(IModelController modelController, 
+        public LibraryLoaderImportWorker(IModelController modelController,
                                                     IAcoustIDClient acoustIDClient,
                                                     IMusicBrainzClient musicBrainzClient)
         {
@@ -120,13 +114,13 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent
                     var record = recordMatches.FirstOrDefault(x => x.Track.Title == bestMatch.Title);
                     var artwork = recordMatches.SelectMany(x => x.ReleasePictures).ToList();
 
-                    var front = record.ReleasePictures.Any(x => x.Type == TagLib.PictureType.FrontCover) ?
-                                record.ReleasePictures.First(x => x.Type == TagLib.PictureType.FrontCover) :
-                                artwork.FirstOrDefault(x => x.Type == TagLib.PictureType.FrontCover);
+                    var front = record.ReleasePictures.Any(x => x.Type == PictureType.FrontCover) ?
+                                record.ReleasePictures.First(x => x.Type == PictureType.FrontCover) :
+                                artwork.FirstOrDefault(x => x.Type == PictureType.FrontCover);
 
-                    var back = record.ReleasePictures.Any(x => x.Type == TagLib.PictureType.BackCover) ?
-                               record.ReleasePictures.First(x => x.Type == TagLib.PictureType.BackCover) :
-                               artwork.FirstOrDefault(x => x.Type == TagLib.PictureType.BackCover);
+                    var back = record.ReleasePictures.Any(x => x.Type == PictureType.BackCover) ?
+                               record.ReleasePictures.First(x => x.Type == PictureType.BackCover) :
+                               artwork.FirstOrDefault(x => x.Type == PictureType.BackCover);
 
                     if (record != null)
                     {
@@ -204,8 +198,43 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent
                 workItem.Update(LibraryWorkItemState.CompleteSuccessful);
         }
 
-        private TagLib.File EmbedTagData(int workItemId, 
-                                         string fileName, 
+        public TagLib.File LoadLibraryEntry(int workItemId, string file, out string fileErrorMessage, out bool fileAvailable, out bool fileLoadError)
+        {
+            if (string.IsNullOrEmpty(file))
+                throw new ArgumentException("Invalid media file name");
+
+            // File load parameters
+            fileAvailable = Path.Exists(file);
+            fileErrorMessage = "";
+            fileLoadError = false;
+
+            TagLib.File fileRef = null;
+
+            try
+            {
+                fileRef = TagLib.File.Create(file);
+
+                if (fileRef == null)
+                {
+                    fileErrorMessage = "Unable to load tag from file";
+                    fileLoadError = true;
+                }
+
+                return fileRef;
+            }
+            catch (Exception ex)
+            {
+                fileErrorMessage = ex.Message;
+                fileLoadError = true;
+
+                ApplicationHelpers.LogSeparate(workItemId, "Mp3 file load error:  {0}", LogMessageType.LibraryLoaderWorkItem, LogLevel.Error, ex.Message);
+            }
+
+            return null;
+        }
+
+        private TagLib.File EmbedTagData(int workItemId,
+                                         string fileName,
                                          MusicBrainzCombinedLibraryEntryRecord record,
                                          MusicBrainzPicture? frontCover,
                                          MusicBrainzPicture? backCover,
@@ -258,8 +287,8 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent
 
                 fileRef.Tag.Title = record.Track.Title;
                 fileRef.Tag.Track = (uint)(record.Track.Position ?? 0);
-                fileRef.Tag.TrackCount = (uint)(record.Medium.TrackCount);
-                fileRef.Tag.Year = (uint)(record.Release.Date.Value.Year);
+                fileRef.Tag.TrackCount = (uint)record.Medium.TrackCount;
+                fileRef.Tag.Year = (uint)record.Release.Date.Value.Year;
 
                 fileRef.Save();
 

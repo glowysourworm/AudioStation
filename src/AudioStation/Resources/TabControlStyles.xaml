@@ -16,6 +16,16 @@
 
     <converter:ParameterVisibilityCollapsedConverter x:Key="ParameterVisibilityCollapsedConverter" />
 
+    <Style x:Key="SimpleTabItemStyle" TargetType="TabItem">
+        <Setter Property="HeaderTemplate">
+            <Setter.Value>
+                <DataTemplate>
+                    <TextBlock Text="{Binding Header, RelativeSource={RelativeSource AncestorType=TabItem}}" Style="{StaticResource LabelTextBlock}" Margin="5" />
+                </DataTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
     <Style x:Key="MainTabItemControlStyle" TargetType="{x:Type controls:TabItemPressable}">
 
         <Setter Property="Background" Value="{StaticResource MainTabItemBackground}" />
