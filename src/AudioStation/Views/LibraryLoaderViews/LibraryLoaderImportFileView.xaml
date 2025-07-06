@@ -34,10 +34,29 @@
                  VirtualizingPanel.CacheLength="3">
             <ListBox.ContextMenu>
                 <ContextMenu>
-                    <MenuItem Header="Import" />
-                    <MenuItem Header="Run AcoustID" />
-                    <MenuItem Header="Run Music Brainz Detail" />
-                    <MenuItem Header="Edit (Group) Tag" />
+                    <ContextMenu.Template>
+                        <ControlTemplate>
+                            <Border CornerRadius="10"
+                                    BorderBrush="Gray"
+                                    BorderThickness="3"
+                                    Background="White">
+                                <StackPanel>
+                                    <Button x:Name="PlayerModeButton" Style="{StaticResource UserMenuButtonStyle}" Content="Import">
+                                        <Button.Tag>
+                                            <CornerRadius TopLeft="10" TopRight="10" />
+                                        </Button.Tag>
+                                    </Button>
+                                    <Button x:Name="ManagementModeButton" Style="{StaticResource UserMenuButtonStyle}" Content="Edit Tag(s)" />
+                                    <Button x:Name="ShowOutputButton" Style="{StaticResource UserMenuButtonStyle}" Content="Run AcoustID" />
+                                    <Button x:Name="ExitButton" Style="{StaticResource UserMenuButtonStyle}" Content="Run Music Brainz (Detail)">
+                                        <Button.Tag>
+                                            <CornerRadius BottomLeft="10" BottomRight="10" />
+                                        </Button.Tag>
+                                    </Button>
+                                </StackPanel>
+                            </Border>
+                        </ControlTemplate>
+                    </ContextMenu.Template>
                 </ContextMenu>
             </ListBox.ContextMenu>
             <ListBox.ItemTemplate>
