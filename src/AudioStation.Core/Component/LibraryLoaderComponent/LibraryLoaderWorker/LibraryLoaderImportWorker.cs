@@ -1,5 +1,7 @@
 ﻿using System.IO;
 
+using AcoustID.Web;
+
 using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderLoad;
 using AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderOutput;
@@ -9,6 +11,8 @@ using AudioStation.Core.Database.MusicBrainzDatabase.Model;
 using AudioStation.Core.Model;
 using AudioStation.Core.Utility;
 using AudioStation.Model;
+
+using MetaBrainz.MusicBrainz.Interfaces.Entities;
 
 using Microsoft.Extensions.Logging;
 
@@ -38,53 +42,177 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderWorker
 
         protected override void Work(ref LibraryLoaderWorkItem workItem)
         {
-            var generalError = false;
-            var fileAvailable = false;
-            var fileLoadError = false;
-            var fileErrorMessage = string.Empty;
-            TagLib.File taglibRef = null;
-
+            // Procedure
+            //
+            // - Using AcoustID / Music Brainz
+            //      1) AcoustID
+            //      2) Music Brainz Complete Record Detail
+            //      3) Embed Tag File
+            // 
+            // - Using Existing Tag
+            //      1) Read Tag
+            //
+            // Then:  Import Library Entry from tag data; and move (migrate) file.
+            //
+            //
             var importLoad = workItem.GetWorkItem() as LibraryLoaderImportLoad;
-            var outputItem = workItem.GetOutputItem() as LibraryLoaderImportLoadOutput;
+            var output = workItem.GetOutputItem() as LibraryLoaderImportLoadOutput;
 
             // Processing...
             workItem.Start();
 
+            foreach (var sourceFile in importLoad.GetSourceFiles())
+            {
+                var outputItem = new LibraryLoaderImportFileResult();
+                var success = true;
+                var fileAvailable = false;
+                var fileLoadError = false;
+                var fileErrorMessage = string.Empty;
+                TagLib.File tagFile = null;
+
+                // Add result instance to output
+                output.Results.Add(outputItem);
+
+                // These have to be paired until we establish other ways of getting at the
+                // MusicBrainz ID (which there are many). For now, these will be dual-checked.
+                //
+                if (importLoad.IdentifyUsingAcoustID && importLoad.IncludeMusicBrainzDetail)
+                {
+                    /*
+                        AcoustID:  Their results have detailed data (sometimes). I'm seeing that the release group is usually where
+                                   to get the MBID.
+                    */
+                    GetAcoustIDResults(ref outputItem, sourceFile);
+
+                    // AcoustID Result
+                    success &= outputItem.AcoustIDSuccess;
+
+                    if (!success)
+                    {
+                        SendReport(workItem, "Acoust ID acoustic fingerprint identification failed:  please see results");
+                        importLoad.SetResult(sourceFile, false);
+                        continue;
+                    }
+
+                    GetMusicBrainzDetail(ref outputItem, sourceFile);
+
+                    // Music Brainz Detail Result
+                    success &= outputItem.MusicBrainzRecordingMatchSuccess && outputItem.MusicBrainzCombinedRecordQuerySuccess;
+
+                    if (!success)
+                    {
+                        SendReport(workItem, "Music Brainz Lookup Failed:  please see results");
+                        importLoad.SetResult(sourceFile, false);
+                        continue;
+                    }
+
+                    // Embed tag data into the SOURCE FILE
+                    tagFile = EmbedTagData(workItem.GetId(), sourceFile,
+                                           outputItem.FinalQueryRecord,
+                                           outputItem.BestFrontCover,
+                                           outputItem.BestBackCover,
+                                           out fileAvailable,
+                                           out fileLoadError,
+                                           out fileErrorMessage);
+                }
+
+                // Get tag data from the existing Mp3 file
+                else
+                {
+                    tagFile = ReadTagData(workItem.GetId(), sourceFile, out fileErrorMessage, out fileAvailable, out fileLoadError);
+                }
+
+                // Make sure tag data was read before continuing
+                success &= tagFile != null;
+
+                if (!success)
+                {
+                    SendReport(workItem, "Tag data could not be located. Import progress halted:  please see results");
+                    importLoad.SetResult(sourceFile, false);
+                    continue;
+                }
+
+                // Calculate destination file name. Destination path is used no matter if there is a file migration or not.
+                CalculateFileName(importLoad, sourceFile, tagFile, ref outputItem);
+
+                // Import Record:  Save imported entity for output
+                outputItem.ImportedRecord = _modelController.AddUpdateLibraryEntry(outputItem.DestinationPathCalculated, fileAvailable, fileLoadError, fileErrorMessage, tagFile);
+                outputItem.Mp3FileImportSuccess = outputItem.ImportedRecord != null;
+
+                // Update Result
+                success &= outputItem.Mp3FileImportSuccess;
+
+                if (!success)
+                {
+                    SendReport(workItem, "Final import of track data failed:  please see results");
+                    importLoad.SetResult(sourceFile, false);
+                    continue;
+                }
+
+                // Move File
+                if (importLoad.ImportFileMigration)
+                {
+                    // Move File, and update the entity (database)
+                    outputItem.Mp3FileMoveSuccess = MoveFile(workItem.GetId(), sourceFile, outputItem.DestinationPathCalculated);
+
+                    // Update Result
+                    success &= outputItem.Mp3FileMoveSuccess;
+
+                    if (!success)
+                    {
+                        SendReport(workItem, "Final import succeeded; but the source file could not be migrated (move failed):  please see results");
+                        importLoad.SetResult(sourceFile, false);
+                        continue;
+                    }
+                }
+
+                importLoad.SetResult(sourceFile, true);
+            }
+
+            if (workItem.GetHasErrors())
+                workItem.Update(LibraryWorkItemState.CompleteError);
+
+            else
+                workItem.Update(LibraryWorkItemState.CompleteSuccessful);
+        }
+
+        public void SendReport(LibraryLoaderWorkItem workItem, string message)
+        {
+            // Report -> UI Dispatcher (progress update)
+            //
+            Report(new LibraryWorkItem()
+            {
+                Id = workItem.GetId(),
+                HasErrors = workItem.GetHasErrors(),
+                LoadState = workItem.GetLoadState(),
+                LoadType = workItem.GetLoadType(),
+                FailureCount = workItem.GetFailureCount(),
+                SuccessCount = workItem.GetSuccessCount(),
+                EstimatedCompletionTime = DateTime.Now.AddSeconds(DateTime.Now.Subtract(workItem.GetStartTime()).TotalSeconds / (workItem.GetPercentComplete() == 0 ? 1 : workItem.GetPercentComplete())),
+                PercentComplete = workItem.GetPercentComplete(),
+                LastMessage = message
+            });
+        }
+
+        public void GetAcoustIDResults(ref LibraryLoaderImportFileResult outputItem, string fileFullName)
+        {
             // Import:  Assume no tag data is filled out. Go with the best acoustID result you can
             //          get; and hope that it works right out of the box.
             //
-            var acoustIDResults = _acoustIDClient.IdentifyFingerprint(importLoad.SourcePath, ACOUSTID_MIN_SCORE).Result;
-            var success = false;
+            var acoustIDResults = _acoustIDClient.IdentifyFingerprint(fileFullName, ACOUSTID_MIN_SCORE).Result;
 
             // Output -> AcoustID Results
             outputItem.AcoustIDResults = acoustIDResults;
             outputItem.AcoustIDSuccess = acoustIDResults != null && acoustIDResults.Any();
+        }
 
-            foreach (var item in acoustIDResults)
-            {
-                var resultFormat = "AcoustID Result: Id={0} MinScore={1}, Score={2}, Title={3}";
+        public void GetMusicBrainzDetail(ref LibraryLoaderImportFileResult outputItem, string fileFullName)
+        {
+            // Output -> Music Brainz Recording Matches (heavy load)
+            outputItem.MusicBrainzRecordingMatches = outputItem.AcoustIDResults.Select(x => _musicBrainzClient.GetRecordingById(new Guid(x.Id)).Result);
 
-                foreach (var recording in item.Recordings)
-                {
-                    // Lets log the result to see, then take the first one
-                    outputItem.Log.Add(new LogMessage(string.Format(item.Id, MUSIC_BRAINZ_MIN_SCORE, item.Score, recording.Title), LogMessageType.LibraryLoader));
-                }
-            }
-
-            /*
-                AcoustID:  Their results have detailed data (sometimes). I'm seeing that the release group is usually where
-                           to get the MBID.
-            */
-
-            //var bestMatch = acoustIDResults.Where(x => !string.IsNullOrEmpty(x.Title) &&
-            //                                           x.Artists.Any(artist => !string.IsNullOrEmpty(artist.Name)) &&
-            //                                           x.Releases.Any(release => !string.IsNullOrEmpty(release.Title))).FirstOrDefault();
-
-            var bestMatches = acoustIDResults.Select(x => _musicBrainzClient.GetRecordingById(new Guid(x.Id)).Result);
-            var bestMatch = bestMatches.FirstOrDefault();
-
-            // Output -> Music Brainz Recording Matches
-            outputItem.MusicBrainzRecordingMatches = bestMatches;
+            // Take the first result - the rest may be presented to the user for further processing
+            var bestMatch = outputItem.MusicBrainzRecordingMatches.FirstOrDefault();
 
             if (bestMatch != null &&
                 bestMatch.ArtistCredit != null &&
@@ -95,10 +223,10 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderWorker
                !string.IsNullOrEmpty(bestMatch.Releases.First().Title) &&
                !string.IsNullOrEmpty(bestMatch.Title))
             {
-                // Music Brainz Match Complete
+                // Music Brainz Match Complete (VERIFIED MINIMAL RECORDS)
                 outputItem.MusicBrainzRecordingMatchSuccess = true;
 
-                // Success (Call / Cache MusicBrainz)
+                // Success (Call / Cache MusicBrainz) (heavy load)
                 var recordMatches = _modelController.GetCompleteMusicBrainzRecord(bestMatch.ArtistCredit.First().Name,
                                                                                   bestMatch.Releases.First().Title,
                                                                                   bestMatch.Title);
@@ -112,93 +240,104 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderWorker
                     // Lookup record with matching ID (try and select greedily for the artwork)
                     //
                     var record = recordMatches.FirstOrDefault(x => x.Track.Title == bestMatch.Title);
-                    var artwork = recordMatches.SelectMany(x => x.ReleasePictures).ToList();
-
-                    var front = record.ReleasePictures.Any(x => x.Type == PictureType.FrontCover) ?
-                                record.ReleasePictures.First(x => x.Type == PictureType.FrontCover) :
-                                artwork.FirstOrDefault(x => x.Type == PictureType.FrontCover);
-
-                    var back = record.ReleasePictures.Any(x => x.Type == PictureType.BackCover) ?
-                               record.ReleasePictures.First(x => x.Type == PictureType.BackCover) :
-                               artwork.FirstOrDefault(x => x.Type == PictureType.BackCover);
 
                     if (record != null)
                     {
+                        var artwork = recordMatches.SelectMany(x => x.ReleasePictures).ToList();
+
+                        // Scrape any artwork that is already downloaded from the results
+                        var front = record.ReleasePictures.Any(x => x.Type == PictureType.FrontCover) ?
+                                    record.ReleasePictures.First(x => x.Type == PictureType.FrontCover) :
+                                    artwork.FirstOrDefault(x => x.Type == PictureType.FrontCover);
+
+                        var back = record.ReleasePictures.Any(x => x.Type == PictureType.BackCover) ?
+                                   record.ReleasePictures.First(x => x.Type == PictureType.BackCover) :
+                                   artwork.FirstOrDefault(x => x.Type == PictureType.BackCover);
+
+                        // Store artwork
+                        outputItem.BestBackCover = back;
+                        outputItem.BestFrontCover = front;
+
                         // Music Brainz Combined Record Query Complete
                         outputItem.MusicBrainzCombinedRecordQuerySuccess = true;
                         outputItem.FinalQueryRecord = record;
-
-                        taglibRef = EmbedTagData(workItem.GetId(), importLoad.SourcePath, record, front, back, out fileAvailable, out fileLoadError, out fileErrorMessage);
-
-                        success = taglibRef != null;
-
-                        // Tag Embedding Complete
-                        outputItem.TagEmbeddingSuccess = success;
                     }
                 }
+            }
+        }
+        
+        public void CalculateFileName(LibraryLoaderImportLoad inputItem,
+                                      string fileFullName, 
+                                      TagLib.File tagFile,
+                                      ref LibraryLoaderImportFileResult outputItem)
+        {
+            // All groupings are based on the destination file folder (base)
+            var fileName = Path.GetFileName(fileFullName);
+            var calculatedFileName = fileName;
 
-                // Failure
-                else
+            switch (inputItem.NamingType)
+            {
+                case LibraryEntryNamingType.None:
+                    // Calculated file name is the original file name
+                    break;
+                case LibraryEntryNamingType.Standard:
                 {
-                    success = false;
+                    var format = "{0:#} {1}-{2}.mp3";
+                    var formattedTitle = string.Format(format, tagFile.Tag.Track, tagFile.Tag.FirstAlbumArtist, tagFile.Tag.Track);
+                    calculatedFileName = StringHelpers.MakeFriendlyFileName(formattedTitle);
+                }    
+                    break;
+                case LibraryEntryNamingType.Descriptive:
+                {
+                    var format = "{0:#} {1}-{2}-{3}.mp3";
+                    var formattedTitle = string.Format(format, tagFile.Tag.Track, tagFile.Tag.FirstGenre, tagFile.Tag.FirstAlbumArtist, tagFile.Tag.Track);
+                    calculatedFileName = StringHelpers.MakeFriendlyFileName(formattedTitle);
                 }
+                break;
+                default:
+                    throw new Exception("Unhandled naming type:  LibraryLoaderImportWorker.cs");
             }
 
-            // Failure
-            else
+            switch (inputItem.GroupingType)
             {
-                success = false;
+                case LibraryEntryGroupingType.None:
+                    outputItem.DestinationPathCalculated = Path.Combine(outputItem.DestinationFolderBase, calculatedFileName);
+                    break;
+                case LibraryEntryGroupingType.ArtistAlbum:
+                {
+                    var artistFolder = StringHelpers.MakeFriendlyPath(tagFile.Tag.FirstAlbumArtist);
+                    var albumFolder = StringHelpers.MakeFriendlyPath(tagFile.Tag.Album);
+
+                    outputItem.DestinationSubFolders = new string[] { artistFolder, Path.Combine(artistFolder, albumFolder) };
+                    outputItem.DestinationPathCalculated = Path.Combine(outputItem.DestinationFolderBase, 
+                                                                        artistFolder, 
+                                                                        albumFolder, 
+                                                                        calculatedFileName);
+                }                    
+                break;
+                case LibraryEntryGroupingType.GenreArtistAlbum:
+                {
+                    var artistFolder = StringHelpers.MakeFriendlyPath(tagFile.Tag.FirstAlbumArtist);
+                    var albumFolder = StringHelpers.MakeFriendlyPath(tagFile.Tag.Album);
+                    var genreFolder = StringHelpers.MakeFriendlyPath(tagFile.Tag.FirstGenre);
+
+                    outputItem.DestinationSubFolders = new string[] { genreFolder, 
+                                                                      Path.Combine(genreFolder, artistFolder),
+                                                                      Path.Combine(genreFolder, artistFolder, albumFolder)};
+
+                    outputItem.DestinationPathCalculated = Path.Combine(outputItem.DestinationFolderBase,
+                                                                        genreFolder,    
+                                                                        artistFolder,
+                                                                        albumFolder,
+                                                                        calculatedFileName);
+                }
+                break;
+                default:
+                    throw new Exception("Unhandled grouping type:  LibraryLoaderImportWorker.cs");
             }
-
-            // Import Record
-            if (success)
-            {
-                // Save imported entity for output
-                outputItem.ImportedRecord = _modelController.AddUpdateLibraryEntry(importLoad.SourcePath, fileAvailable, fileLoadError, fileErrorMessage, taglibRef);
-                outputItem.Mp3FileImportSuccess = outputItem.ImportedRecord != null;
-
-                // Set success flag
-                success = outputItem.ImportedRecord != null;
-            }
-
-            // Move File
-            if (success)
-            {
-                var outputPathFinal = string.Empty;
-
-                // Move File, and update the entity (database)
-                outputItem.Mp3FileMoveSuccess = MoveFile(workItem.GetId(), outputItem.ImportedRecord, outputItem.DestinationFolderBase, out outputPathFinal);
-                outputItem.DestinationPathCalculated = outputPathFinal;
-
-                success = outputItem.Mp3FileMoveSuccess;
-            }
-
-            // TODO: Move the file to it's permanent location in the audio library
-            importLoad.Success = success;
-
-            // Report -> UI Dispatcher (progress update)
-            //
-            Report(new LibraryWorkItem()
-            {
-                Id = workItem.GetId(),
-                HasErrors = workItem.GetHasErrors(),
-                LoadState = workItem.GetLoadState(),
-                LoadType = workItem.GetLoadType(),
-                FailureCount = workItem.GetFailureCount(),
-                SuccessCount = workItem.GetSuccessCount(),
-                EstimatedCompletionTime = DateTime.Now.AddSeconds(DateTime.Now.Subtract(workItem.GetStartTime()).TotalSeconds / (workItem.GetPercentComplete() == 0 ? 1 : workItem.GetPercentComplete())),
-                PercentComplete = workItem.GetPercentComplete(),
-                LastMessage = importLoad.SourcePath
-            });
-
-            if (generalError)
-                workItem.Update(LibraryWorkItemState.CompleteError);
-
-            else
-                workItem.Update(LibraryWorkItemState.CompleteSuccessful);
         }
 
-        public TagLib.File LoadLibraryEntry(int workItemId, string file, out string fileErrorMessage, out bool fileAvailable, out bool fileLoadError)
+        public TagLib.File ReadTagData(int workItemId, string file, out string fileErrorMessage, out bool fileAvailable, out bool fileLoadError)
         {
             if (string.IsNullOrEmpty(file))
                 throw new ArgumentException("Invalid media file name");
@@ -305,26 +444,12 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderWorker
             }
         }
 
-        private bool MoveFile(int workItemId, Mp3FileReference importedEntity, string baseFolder, out string outputPath)
+        private bool MoveFile(int workItemId, string sourceFilePath, string destinationFilePath)
         {
-            outputPath = string.Empty;
-
             try
             {
-                var artistFolder = StringHelpers.MakeFriendlyPath(importedEntity?.PrimaryArtist?.Name ?? string.Empty);
-                var albumFolder = StringHelpers.MakeFriendlyPath(importedEntity?.Album?.Name ?? string.Empty);
-                var fileName = StringHelpers.MakeFriendlyFileName(importedEntity?.Title ?? string.Empty);
-
-                // Final Path
-                outputPath = Path.Combine(baseFolder, artistFolder, albumFolder, fileName);
-
-                importedEntity.FileName = outputPath;
-
-                // Move File
-                System.IO.File.Move(importedEntity.FileName, outputPath, true);
-
-                // Update Database (file name changed)
-                return _modelController.UpdateAudioStationEntity(importedEntity);
+                System.IO.File.Move(sourceFilePath, destinationFilePath, true);
+                return true;
             }
             catch (Exception ex)
             {

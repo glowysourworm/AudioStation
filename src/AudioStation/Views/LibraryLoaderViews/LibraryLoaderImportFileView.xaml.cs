@@ -13,6 +13,8 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
+using AudioStation.ViewModels.LibraryLoaderViewModels;
+
 namespace AudioStation.Views.LibraryLoaderViews
 {
     /// <summary>
@@ -23,6 +25,19 @@ namespace AudioStation.Views.LibraryLoaderViews
         public LibraryLoaderImportFileView()
         {
             InitializeComponent();
+        }
+
+        private void InputLB_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            var viewModel = this.DataContext as LibraryLoaderImportViewModel;
+
+            if (viewModel != null)
+            {
+                foreach (var item in viewModel.SourceFiles)
+                {
+                    item.IsSelected = this.InputLB.SelectedItems.Contains(item);
+                }
+            }
         }
     }
 }

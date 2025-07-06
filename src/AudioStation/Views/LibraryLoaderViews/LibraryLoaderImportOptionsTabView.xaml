@@ -76,12 +76,14 @@
                   Grid.Column="1" 
                   Grid.Row="6">
             <StackPanel>
-                <propertyGrid:PropertyStringControl LabelColumnWidth="250" IsReadOnly="True" Margin="5" LabelText="Destination Folder Base" />
-                <propertyGrid:PropertyStringControl LabelColumnWidth="250" IsReadOnly="True" Margin="5" LabelText="Destination Music Folder" />
-                <propertyGrid:PropertyStringControl LabelColumnWidth="250" IsReadOnly="True" Margin="5" LabelText="Destination Audio Books Folder" />
-                <propertyGrid:PropertyBooleanControl LabelColumnWidth="250" Margin="5" LabelText="Overwrite Existing File(s)" />
-                <propertyGrid:PropertyBooleanControl LabelColumnWidth="250" Margin="5" LabelText="Delete Source File(s)" />
-                <propertyGrid:PropertyBooleanControl LabelColumnWidth="250" Margin="5" LabelText="Delete Source Empty Folder(s)" />
+                <propertyGrid:PropertyStringControl LabelColumnWidth="250" Value="{Binding DestinationFolder}" IsReadOnly="True" Margin="5" LabelText="Destination Folder Base" />
+                <propertyGrid:PropertyStringControl LabelColumnWidth="250" Value="{Binding DestinationMusicSubFolder}" IsReadOnly="True" Margin="5" LabelText="Destination Music Folder" />
+                <propertyGrid:PropertyStringControl LabelColumnWidth="250" Value="{Binding DestinationAudioBooksSubFolder}" IsReadOnly="True" Margin="5" LabelText="Destination Audio Books Folder" />
+                <propertyGrid:PropertyEnumControl EnumType="{x:Type coreModel:LibraryEntryNamingType}" Value="{Binding NamingType}" LabelColumnWidth="250" IsReadOnly="True" Margin="5" LabelText="Destination File Naming" />
+                <propertyGrid:PropertyEnumControl EnumType="{x:Type coreModel:LibraryEntryGroupingType}" Value="{Binding GroupingType}" LabelColumnWidth="250" IsReadOnly="True" Margin="5" LabelText="Destination File Grouping" />
+                <propertyGrid:PropertyBooleanControl LabelColumnWidth="250" Value="{Binding MigrationOverwriteDestinationFiles}" Margin="5" LabelText="Overwrite Existing File(s)" />
+                <propertyGrid:PropertyBooleanControl LabelColumnWidth="250" Value="{Binding MigrationDeleteSourceFiles}" Margin="5" LabelText="Delete Source File(s)" />
+                <propertyGrid:PropertyBooleanControl LabelColumnWidth="250" Value="{Binding MigrationDeleteSourceFolders}" Margin="5" LabelText="Delete Source Empty Folder(s)" />
             </StackPanel>
         </GroupBox>
     </Grid>

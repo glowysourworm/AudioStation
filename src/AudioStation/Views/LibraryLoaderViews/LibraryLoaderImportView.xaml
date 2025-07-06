@@ -15,7 +15,7 @@
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <TabControl ItemContainerStyle="{StaticResource SimpleTabItemStyle}">
+        <TabControl ItemContainerStyle="{StaticResource SimpleTabItemStyle}" Margin="5">
             <TabItem Header="Options">
                 <loaderView:LibraryLoaderImportOptionsTabView />
             </TabItem>
@@ -26,13 +26,34 @@
 
         <StackPanel Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Center" Orientation="Horizontal" Margin="5">
             <TextBlock Style="{StaticResource LabelTextBlock}" Margin="10">
-                <Run Text="Files to Import:  " />
+                <Run Text="Files to Run:  " />
                 <Run Text="{Binding SourceFileSelectedCount, Mode=OneWay}" />
             </TextBlock>
 
+            <Button Margin="0 5 5 0" Style="{StaticResource UserControlButton}">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Edit Tag(s)" Style="{StaticResource LabelTextBlock}" Margin="5" />
+                    <fa5:SvgAwesome Icon="Solid_Tag" Style="{StaticResource FontAwesomeIconDefault}" Margin="5" />
+                </StackPanel>
+            </Button>
+
+            <Button Margin="0 5 5 0" Style="{StaticResource UserControlButton}">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Run AcoustID" Style="{StaticResource LabelTextBlock}" Margin="5" />
+                    <fa5:SvgAwesome Icon="Solid_VolumeUp" Style="{StaticResource FontAwesomeIconDefault}" Margin="5" />
+                </StackPanel>
+            </Button>
+
+            <Button Margin="0 5 5 0" Style="{StaticResource UserControlButton}">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Run Music Brainz (Detail)" Style="{StaticResource LabelTextBlock}" Margin="5" />
+                    <fa5:SvgAwesome Icon="Solid_Music" Style="{StaticResource FontAwesomeIconDefault}" Margin="5" />
+                </StackPanel>
+            </Button>            
+            
             <Button Margin="0 5 0 0" Style="{StaticResource UserControlButton}">
                 <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="Import (Detail)" Style="{StaticResource LabelTextBlock}" Margin="5" />
+                    <TextBlock Text="Import" Style="{StaticResource LabelTextBlock}" Margin="5" />
                     <fa5:SvgAwesome Icon="Solid_Database" Style="{StaticResource FontAwesomeIconDefault}" Margin="5" />
                 </StackPanel>
             </Button>

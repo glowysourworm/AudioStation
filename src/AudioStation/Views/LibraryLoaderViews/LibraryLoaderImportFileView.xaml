@@ -19,19 +19,46 @@
         </Grid.ColumnDefinitions>
 
         <!-- Input Files -->
-        <Grid>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="*" />
-            </Grid.ColumnDefinitions>
-            <CheckBox Content="Select All" IsChecked="{Binding SourceFolderSelectAll, Mode=TwoWay}" Grid.Column="0" VerticalAlignment="Center" Margin="5 0" />
-            <xceed:WatermarkTextBox Grid.Column="1" Margin="0 5" Text="{Binding SourceFolderSearch, UpdateSourceTrigger=PropertyChanged, Delay=300}" Watermark="Search Input Files..." HorizontalAlignment="Stretch" />
-        </Grid>
+        <xceed:WatermarkTextBox Margin="5" Text="{Binding SourceFolderSearch, UpdateSourceTrigger=PropertyChanged, Delay=300}" Watermark="Search Input Files..." HorizontalAlignment="Stretch" />
 
-        <ListBox Grid.Row="1" ItemsSource="{Binding SourceFiles}"
+        <ListBox Grid.Row="1" Margin="5" x:Name="InputLB"
+                 ItemsSource="{Binding SourceFiles}"
+                 SelectedValuePath="IsSelected"
+                 SelectionChanged="InputLB_SelectionChanged"
                  SelectionMode="Extended"
                  AlternationCount="2"
                  ItemContainerStyle="{StaticResource HoverSelectItemContainerStyleWithAlternation_LibraryLoader}"
+                 HorizontalContentAlignment="Stretch"
+                 VirtualizingPanel.IsVirtualizing="True"
+                 VirtualizingPanel.VirtualizationMode="Recycling"
+                 VirtualizingPanel.CacheLength="3">
+            <ListBox.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="Import" />
+                    <MenuItem Header="Run AcoustID" />
+                    <MenuItem Header="Run Music Brainz Detail" />
+                    <MenuItem Header="Edit (Group) Tag" />
+                </ContextMenu>
+            </ListBox.ContextMenu>
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="{Binding FileFullPath}" Margin="3" VerticalAlignment="Center" Grid.Column="1" />
+                    </Grid>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+
+        <!-- Output Files -->
+        <xceed:WatermarkTextBox Grid.Column="2" Margin="5" Text="{Binding DestinationFolderSearch, UpdateSourceTrigger=PropertyChanged, Delay=300}" Watermark="Search Output Files..." HorizontalAlignment="Stretch" />
+
+        <ListBox Grid.Row="1" Grid.Column="2" Margin="5"
+                 ItemsSource="{Binding DestinationFiles}"
+                 AlternationCount="2"
+                 ItemContainerStyle="{StaticResource HoverSelectItemContainerStyleWithAlternation_LibraryLoader}"      
                  HorizontalContentAlignment="Stretch"
                  VirtualizingPanel.IsVirtualizing="True"
                  VirtualizingPanel.VirtualizationMode="Recycling"
@@ -40,41 +67,8 @@
                 <DataTemplate>
                     <Grid>
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
-                        <CheckBox IsChecked="{Binding IsSelected}" Margin="3" VerticalAlignment="Center" HorizontalAlignment="Right" />
-                        <TextBlock Text="{Binding FileFullPath}" Margin="3" VerticalAlignment="Center" Grid.Column="1" />
-                    </Grid>
-                </DataTemplate>
-            </ListBox.ItemTemplate>
-        </ListBox>
-
-        <!-- Output Files -->
-        <Grid Grid.Column="2">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="*" />
-            </Grid.ColumnDefinitions>
-            <CheckBox Content="Select All" Grid.Column="0" VerticalAlignment="Center" Margin="5 0" />
-            <xceed:WatermarkTextBox Grid.Column="1" Margin="0 5" Text="{Binding DestinationFolderSearch, UpdateSourceTrigger=PropertyChanged, Delay=300}" Watermark="Search Output Files..." HorizontalAlignment="Stretch" />
-        </Grid>
-
-        <ListBox Grid.Row="1" Grid.Column="2" ItemsSource="{Binding DestinationFiles}"
-                     AlternationCount="2"
-                     ItemContainerStyle="{StaticResource HoverSelectItemContainerStyleWithAlternation_LibraryLoader}"      
-                     HorizontalContentAlignment="Stretch"
-                     VirtualizingPanel.IsVirtualizing="True"
-                     VirtualizingPanel.VirtualizationMode="Recycling"
-                     VirtualizingPanel.CacheLength="3">
-            <ListBox.ItemTemplate>
-                <DataTemplate>
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
-                        <CheckBox IsChecked="{Binding IsSelected}" Margin="3" VerticalAlignment="Center" HorizontalAlignment="Right" />
                         <TextBlock Text="{Binding ImportFileName}" Margin="3" VerticalAlignment="Center" Grid.Column="1" />
                     </Grid>
                 </DataTemplate>

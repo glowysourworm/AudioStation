@@ -1,53 +1,97 @@
-﻿namespace AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderLoad
+﻿using AudioStation.Core.Model;
+
+using SimpleWpf.SimpleCollections.Collection;
+
+namespace AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderLoad
 {
     public class LibraryLoaderImportLoad : LibraryLoaderLoadBase
     {
-        public LibraryLoaderImportLoad(string sourceFile, string destinationBaseDirectory, bool moveNotCopy) 
+        protected SimpleDictionary<string, bool> SourceFiles { get; set; }
+        protected SimpleDictionary<string, bool> CompletedFiles { get; set; }
+        public string SourceFolder { get; set; }
+        public string DestinationFolder { get; set; }
+        public LibraryEntryGroupingType GroupingType { get; set; }
+        public LibraryEntryNamingType NamingType { get; set; }
+        public bool IncludeMusicBrainzDetail { get; set; }
+        public bool IdentifyUsingAcoustID { get; set; }
+        public bool ImportFileMigration { get; set; }
+        public bool MigrationDeleteSourceFiles { get; set; }
+        public bool MigrationDeleteSourceFolders { get; set; }
+        public bool MigrationOverwriteDestinationFiles { get; set; }
+        public bool TestOnly { get; set; }
+
+        public LibraryLoaderImportLoad(string sourceFolder,
+                                       string destinationFolder,
+                                       IEnumerable<string> sourceFiles,
+                                       LibraryEntryGroupingType groupingType,
+                                       LibraryEntryNamingType namingType,
+                                       bool includeMusicBrainzDetail,
+                                       bool identifyUsingAcoustID,
+                                       bool importFileMigration,
+                                       bool migrationDeleteSourceFiles,
+                                       bool migrationDeleteSourceFolders,
+                                       bool migrationOverwriteDestinationFiles,
+                                       bool testOnly)
         {
-            this.SourcePath = sourceFile;
-            this.DestinationBaseDirectory = destinationBaseDirectory;
-            this.DeleteSourceFile = moveNotCopy;
+            this.SourceFolder = sourceFolder;
+            this.DestinationFolder = destinationFolder;
+            this.GroupingType = groupingType;
+            this.NamingType = namingType;
+            this.IncludeMusicBrainzDetail = includeMusicBrainzDetail;
+            this.IdentifyUsingAcoustID = identifyUsingAcoustID;
+            this.ImportFileMigration = importFileMigration;
+            this.MigrationDeleteSourceFolders = migrationDeleteSourceFolders;
+            this.MigrationDeleteSourceFiles = migrationDeleteSourceFiles;
+            this.MigrationOverwriteDestinationFiles = migrationOverwriteDestinationFiles;
+            this.TestOnly = testOnly;
+
+            this.SourceFiles = new SimpleDictionary<string, bool>();
+            this.CompletedFiles = new SimpleDictionary<string, bool>();
+
+            foreach (var file in sourceFiles)
+            {
+                this.SourceFiles.Add(file, false);
+            }
         }
 
-        /// <summary>
-        /// Mp3 file we're importing (FULL PATH)
-        /// </summary>
-        public string SourcePath { get; private set; }
+        public IEnumerable<string> GetSourceFiles()
+        {
+            return this.SourceFiles.Keys;
+        }
 
-        /// <summary>
-        /// Destination (base directory) for the mp3 file. This will include the user's preference
-        /// based on whether it is a music / audio-book file.
-        /// </summary>
-        public string DestinationBaseDirectory { get; private set; }
+        public void SetResult(string file, bool success)
+        {
+            if (!this.CompletedFiles.ContainsKey(file))
+                this.CompletedFiles.Add(file, success);
 
-        /// <summary>
-        /// Instruct loader to delete the source file when finished (move, instead of copy)
-        /// </summary>
-        public bool DeleteSourceFile { get; private set; }
+            else
+                throw new Exception("Set result for import file more than once");
 
-        /// <summary>
-        /// Flag for success of the import for this file
-        /// </summary>
-        public bool Success { get; set; }
+            // Mark completed (also)
+            this.SourceFiles[file] = true;
+        }
 
         public override int GetFailureCount()
         {
-            return this.Success ? 0 : 1;
+            return this.CompletedFiles.Count(pair => !pair.Value);
         }
 
         public override double GetProgress()
         {
-            return 0;
+            if (this.SourceFiles.Count == 0)
+                return 1;
+
+            return this.CompletedFiles.Count / (double)this.SourceFiles.Count;
         }
 
         public override int GetSuccessCount()
         {
-            return 0;
+            return this.CompletedFiles.Count(pair => pair.Value);
         }
 
         public override bool HasErrors()
         {
-            return !this.Success;
+            return GetFailureCount() > 0;
         }
     }
 }
