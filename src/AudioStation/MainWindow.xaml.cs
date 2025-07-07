@@ -6,8 +6,10 @@ using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Threading;
 
+using AudioStation.Controller.Interface;
 using AudioStation.Core.Utility;
 using AudioStation.ViewModels;
+using AudioStation.Windows;
 
 using Microsoft.Win32;
 using Microsoft.Windows.Shell;
@@ -43,6 +45,7 @@ namespace AudioStation
         protected Point HeaderMouseDownPosition { get;private set; }
 
         private readonly MainViewModel _mainViewModel;
+        private readonly IDialogController _dialogController;
         private readonly IIocEventAggregator _eventAggregator;
 
         // This may need to be calculated
@@ -65,10 +68,11 @@ namespace AudioStation
         }
 
         [IocImportingConstructor]
-        public MainWindow(IIocEventAggregator eventAggregator, MainViewModel mainViewModel)
+        public MainWindow(IIocEventAggregator eventAggregator, IDialogController dialogController, MainViewModel mainViewModel)
         {
             _mainViewModel = mainViewModel;
             _eventAggregator = eventAggregator;
+            _dialogController = dialogController;
 
             InitializeComponent();
 
@@ -237,9 +241,7 @@ namespace AudioStation
                 {
                     this.UserMenuPopup.IsOpen = false;
 
-                    var window = new LogWindow();
-                    window.DataContext = _mainViewModel.Log;
-                    window.Show();
+                    _dialogController.ShowLogWindow(_mainViewModel.Log);
 
                     //_mainViewModel.ShowOutputMessages = !_mainViewModel.ShowOutputMessages;
                 };

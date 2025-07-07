@@ -9,7 +9,7 @@ using TagLib;
 
 namespace AudioStation.ViewModels.Vendor.TagLibViewModel
 {
-    public class FileViewModel : ViewModelBase
+    public class TagFileViewModel : ViewModelBase
     {
         // User Control Parameters
         TagTypes _tagTypeUserSelect;                // User selects filter
@@ -76,13 +76,13 @@ namespace AudioStation.ViewModels.Vendor.TagLibViewModel
             set { this.RaiseAndSetIfChanged(ref _corruptReasons, value); }
         }
 
-        public FileViewModel()
+        public TagFileViewModel()
         {
             this.TagTypeUserSelect = TagTypes.AllTags;
             this.TagTypes = TagTypes.AllTags;
             this.TagTypesOnDisk = TagTypes.AllTags;
         }
-        public FileViewModel(TagLib.File tagLibFile)
+        public TagFileViewModel(TagLib.File tagLibFile)
         {
             this.Tag = new TagViewModel(tagLibFile.Tag);
             this.Properties = new PropertiesViewModel(tagLibFile.Properties);

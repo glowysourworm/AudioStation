@@ -78,7 +78,7 @@ namespace AudioStation.Component.AudioProcessing
                 new EqualizerBand(9600, gainDB, bandWidth, _reader.WaveFormat.Channels)
             };
             _equalizer = new Equalizer(sampleProvider, _equalizerBands);
-            _equalizerResult = new EqualizerResultSet((int)Math.Pow(2, 10), (int)Math.Pow(2, 7), 10, 10, 0.3f);
+            _equalizerResult = new EqualizerResultSet((int)Math.Pow(2, 10), (int)Math.Pow(2, 7), 5, 5, 0.3f);
             _aggregator = new SampleAggregator(_equalizer, _equalizerResult.ChannelsInput);                     // "Channels" is a misnomer. The FFT "buffer" has to be
             _aggregator.PerformFFT = true;                                                                      // related to the frequency
             _aggregator.FftCalculated += OnFFTCalculated;

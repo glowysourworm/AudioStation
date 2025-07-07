@@ -119,7 +119,7 @@ namespace AudioStation.Views.LibraryManager
             // Replicate TagLib's tag into our data structure
             var tagFile = TagLib.File.Create(viewModel.FileName);
             var tag = tagFile.Tag;
-            var tagFileViewModel = new FileViewModel(tagFile);
+            var tagFileViewModel = new TagFileViewModel(tagFile);
 
             // Hand off the tag data to the view
             view.TagFileView.DataContext = tagFileViewModel;                                     // Entire File (combined tag)

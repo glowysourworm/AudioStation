@@ -241,7 +241,7 @@ public partial class MainViewModel : ViewModelBase, IDisposable
         eventAggregator.GetEvent<UpdateVolumeEvent>().Subscribe(OnUpdateVolume);
         eventAggregator.GetEvent<UpdateEqualizerGainEvent>().Subscribe(OnUpdateEqualizer);
         eventAggregator.GetEvent<PlaybackVolumeUpdatedEvent>().Subscribe(OnVolumeUpdated);
-        eventAggregator.GetEvent<MainLoadingChangedEvent>().Subscribe(OnMainLoadingChanged);
+        eventAggregator.GetEvent<MainLoadingChangedEvent>().Subscribe(OnMainLoadingChanged, IocEventPriority.High);
 
         this.SaveConfigurationCommand = new SimpleCommand(() =>
         {
@@ -292,18 +292,12 @@ public partial class MainViewModel : ViewModelBase, IDisposable
 
     private void OnLog(LogMessage message)
     {
-        if (ApplicationHelpers.IsDispatcher() == ApplicationIsDispatcherResult.False)
-            Application.Current.Dispatcher.BeginInvoke(OnLog, DispatcherPriority.Background, message);
-
-        else
-        {
-            this.StatusMessage = message.Message;
-        }
+        this.StatusMessage = message.Message;
     }
 
-    private void OnMainLoadingChanged(bool loading)
+    private void OnMainLoadingChanged(MainLoadingChangedEventData eventData)
     {
-        this.Loading = loading;
+        this.Loading = eventData.IsLoading;
     }
 
     private void OnCurrentBandLevelsUpdated(EqualizerResultSet equalizerValues)

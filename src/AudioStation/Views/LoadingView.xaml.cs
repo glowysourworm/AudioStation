@@ -10,16 +10,17 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace AudioStation
+namespace AudioStation.Views
 {
     /// <summary>
-    /// Interaction logic for LogWindow.xaml
+    /// Interaction logic for LoadingView.xaml
     /// </summary>
-    public partial class LogWindow : Window
+    public partial class LoadingView : UserControl
     {
-        public LogWindow()
+        public LoadingView()
         {
             InitializeComponent();
         }

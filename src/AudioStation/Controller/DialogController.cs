@@ -1,6 +1,9 @@
 ﻿using System.Windows;
 
 using AudioStation.Controller.Interface;
+using AudioStation.ViewModels;
+using AudioStation.ViewModels.Vendor.TagLibViewModel;
+using AudioStation.Windows;
 
 using Microsoft.Win32;
 
@@ -15,11 +18,11 @@ namespace AudioStation.Controller
         [IocImportingConstructor]
         public DialogController()
         {
-
         }
 
         public void Initialize()
         {
+
         }
 
         public string ShowSaveFile()
@@ -58,16 +61,45 @@ namespace AudioStation.Controller
             return string.Empty;
         }
 
-        public void Dispose()
-        {
-            // TODO
-        }
-
         public bool ShowConfirmation(string caption, params string[] messageLines)
         {
             var message = messageLines.Join("\n", x => x);
 
             return MessageBox.Show(message, caption, MessageBoxButton.YesNoCancel) == MessageBoxResult.Yes;
+        }
+
+        public void ShowLogWindow(LogViewModel viewModel)
+        {
+            var window = new LogWindow();
+            window.DataContext = viewModel;
+            window.Show();
+        }
+
+        public void ShowTagWindow(TagFileViewModel viewModel)
+        {
+            var window = new TagWindow();
+            window.DataContext = viewModel;
+            window.Show();
+        }
+
+        public void ShowLoadingWindow()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void UpdateLoadingWindow(double progress)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void HideLoadingWindow()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Dispose()
+        {
+            // TODO
         }
     }
 }

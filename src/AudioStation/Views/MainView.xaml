@@ -29,50 +29,51 @@
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
 
-            <TabControl TabStripPlacement="Left" 
+            <TabControl x:Name="MainTabControl"
+                        TabStripPlacement="Left" 
                         Grid.ColumnSpan="2" 
                         Background="Transparent"
                         IsEnabled="{Binding Loading, Converter={StaticResource BoolInverseConverter}}">
 
-                <controls:TabItemPressable FontSize="14" Margin="0" Header="Configuration" Style="{StaticResource MainTabItemControlStyle}">
+                <controls:TabItemPressable x:Name="ConfigurationTab" FontSize="14" Margin="0" Header="Configuration" Style="{StaticResource MainTabItemControlStyle}">
                     <local:ConfigurationView x:Name="ConfigurationView" />
                 </controls:TabItemPressable>
 
-                <controls:TabItemPressable Header="Library Loader" FontSize="14" Margin="0" Style="{StaticResource MainTabItemControlStyle}" DataContext="{Binding LibraryLoader}">
+                <controls:TabItemPressable x:Name="LibraryLoaderTab" Header="Library Loader" FontSize="14" Margin="0" Style="{StaticResource MainTabItemControlStyle}" DataContext="{Binding LibraryLoader}">
                     <local:LibraryLoaderView x:Name="LibraryLoaderView" />
                 </controls:TabItemPressable>
 
-                <controls:TabItemPressable FontSize="14" Margin="0" Header="Library Manager" Style="{StaticResource MainTabItemControlStyle}">
+                <controls:TabItemPressable x:Name="LibraryManagerTab" FontSize="14" Margin="0" Header="Library Manager" Style="{StaticResource MainTabItemControlStyle}">
                     <region:IocRegion region:IocRegionManager.RegionName="ManagerView"
                                       region:IocRegionManager.DefaultViewType="{x:Type viewsManager:ManagerView}"
                                       DataContext="{Binding Library}">
                     </region:IocRegion>
                 </controls:TabItemPressable>
 
-                <controls:TabItemPressable FontSize="14" Margin="0" Header="Artist Search" Style="{StaticResource MainTabItemControlStyle}">
+                <controls:TabItemPressable x:Name="ArtistSearchTab" FontSize="14" Margin="0" Header="Artist Search" Style="{StaticResource MainTabItemControlStyle}">
                     <region:IocRegion region:IocRegionManager.RegionName="ArtistSearchView"
                                       region:IocRegionManager.DefaultViewType="{x:Type local:ArtistSearchView}">
                     </region:IocRegion>
                 </controls:TabItemPressable>
 
-                <controls:TabItemPressable FontSize="14" Margin="0" Header="Now Playing" Style="{StaticResource MainTabItemControlStyle}">
+                <controls:TabItemPressable x:Name="NowPlayingTab" FontSize="14" Margin="0" Header="Now Playing" Style="{StaticResource MainTabItemControlStyle}">
                     <region:IocRegion region:IocRegionManager.RegionName="ArtistSearchView"
                                       region:IocRegionManager.DefaultViewType="{x:Type local:NowPlayingView}">
                     </region:IocRegion>
                 </controls:TabItemPressable>
 
-                <controls:TabItemPressable FontSize="14" Margin="0" Header="Radio" Style="{StaticResource MainTabItemControlStyle}">
+                <controls:TabItemPressable x:Name="RadioTab" FontSize="14" Margin="0" Header="Radio" Style="{StaticResource MainTabItemControlStyle}">
                     <local:RadioView x:Name="RadioView" DataContext="{Binding Radio}" />
                 </controls:TabItemPressable>
 
-                <controls:TabItemPressable FontSize="14" Margin="0" Header="Radio Browser" Style="{StaticResource MainTabItemControlStyle}">
+                <controls:TabItemPressable x:Name="RadioBrowserTab" FontSize="14" Margin="0" Header="Radio Browser" Style="{StaticResource MainTabItemControlStyle}">
                     <region:IocRegion region:IocRegionManager.RegionName="RadioBrowserView"
                                       region:IocRegionManager.DefaultViewType="{x:Type local:RadioBrowserView}"
                                       DataContext="{Binding Radio}">
                     </region:IocRegion>
                 </controls:TabItemPressable>
 
-                <controls:TabItemPressable FontSize="14" Margin="0" Header="Bandcamp" Style="{StaticResource MainTabItemControlStyle}">
+                <controls:TabItemPressable x:Name="BandcampTab" FontSize="14" Margin="0" Header="Bandcamp" Style="{StaticResource MainTabItemControlStyle}">
                     <region:IocRegion region:IocRegionManager.RegionName="BandcampView"
                                       region:IocRegionManager.DefaultViewType="{x:Type local:BandcampView}"
                                       DataContext="{Binding Bandcamp}">

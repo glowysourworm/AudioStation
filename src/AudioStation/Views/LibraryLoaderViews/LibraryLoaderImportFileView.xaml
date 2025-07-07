@@ -41,14 +41,14 @@
                                     BorderThickness="3"
                                     Background="White">
                                 <StackPanel>
-                                    <Button x:Name="PlayerModeButton" Style="{StaticResource UserMenuButtonStyle}" Content="Import">
+                                    <Button Style="{StaticResource UserMenuButtonStyle}" Content="Import">
                                         <Button.Tag>
                                             <CornerRadius TopLeft="10" TopRight="10" />
                                         </Button.Tag>
                                     </Button>
-                                    <Button x:Name="ManagementModeButton" Style="{StaticResource UserMenuButtonStyle}" Content="Edit Tag(s)" />
-                                    <Button x:Name="ShowOutputButton" Style="{StaticResource UserMenuButtonStyle}" Content="Run AcoustID" />
-                                    <Button x:Name="ExitButton" Style="{StaticResource UserMenuButtonStyle}" Content="Run Music Brainz (Detail)">
+                                    <Button Style="{StaticResource UserMenuButtonStyle}" Content="Edit Tag(s)" />
+                                    <Button Style="{StaticResource UserMenuButtonStyle}" Content="Run AcoustID" />
+                                    <Button Style="{StaticResource UserMenuButtonStyle}" Content="Run Music Brainz (Detail)">
                                         <Button.Tag>
                                             <CornerRadius BottomLeft="10" BottomRight="10" />
                                         </Button.Tag>
