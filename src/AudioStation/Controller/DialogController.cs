@@ -75,11 +75,18 @@ namespace AudioStation.Controller
             window.Show();
         }
 
-        public void ShowTagWindow(TagFileViewModel viewModel)
+        public void ShowTagWindow(TagViewModel viewModel)
         {
             var window = new TagWindow();
             window.DataContext = viewModel;
-            window.Show();
+            window.ShowDialog();
+        }
+
+        public void ShowTagWindow(TagGroupViewModel viewModel)
+        {
+            var window = new TagWindow();
+            window.DataContext = viewModel;
+            window.ShowDialog();
         }
 
         public void ShowLoadingWindow()

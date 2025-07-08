@@ -93,7 +93,6 @@
                     </StackPanel>
                 </GroupBox>
 
-
                 <!-- Properties -->
                 <GroupBox Header="Properties" Grid.Column="1">
                     <controls:NoScrollListBox Style="{StaticResource PropertyGridNoScrollListBox}">

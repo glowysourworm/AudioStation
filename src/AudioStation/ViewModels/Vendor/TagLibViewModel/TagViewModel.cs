@@ -15,19 +15,56 @@ namespace AudioStation.ViewModels.Vendor.TagLibViewModel
     {
         public event PropertyChangedEventHandler? PropertyChanged;
 
+        TagTypes _tagTypes;
+        string _album;
+        string[] _albumArtists;
+        string[] _albumArtistsSort;
+        string _title;
+        string _titleSort;
+        string[] _performers;
+        string[] _performersSort;
+        string[] _composers;
+        string[] _composersSort;
+        string _albumSort;
+        string _comment;
+        string[] _genres;
+        uint _year;
+        uint _track;
+        uint _trackCount;
+        uint _disc;
+        uint _discCount;
+        string _lyrics;
+        string _grouping;
+        uint _beatsPerMinute;
+        string _conductor;
+        string _copyright;
+        string _muiscBrainzArtistId;
+        string _musicBrainzReleaseId;
+        string _musicBrainzReleaseArtistId;
+        string _musicBrainzTrackId;
+        string _musicBrainzDiscId;
+        string _musicIpId;
+        string _amazonId;
+        string _musicBrainzReleaseStatus;
+        string _musicBrainzReleaseType;
+        string _musicBrainzReleaseCountry;
+        double _replayGainTrackGain;
+        double _replayGainTrackPeak;
+        double _replayGainAlbumGain;
+        double _replayGainAlbumPeak;
+        IPicture[] _pictures;
+        string[] _artists;
+        bool _isEmpty;
+
         public override void Clear()
         {
             throw new NotImplementedException();
         }
 
-        TagTypes _tagTypes;
-
         public override TagTypes TagTypes
         {
             get { return _tagTypes; }
         }
-        string _album;
-
         public override string Album
         {
             get { return _album; }
@@ -39,8 +76,6 @@ namespace AudioStation.ViewModels.Vendor.TagLibViewModel
                     this.PropertyChanged(this, new PropertyChangedEventArgs("Album"));
             }
         }
-        string[] _albumArtists;
-
         public override string[] AlbumArtists
         {
             get { return _albumArtists; }
@@ -52,8 +87,6 @@ namespace AudioStation.ViewModels.Vendor.TagLibViewModel
                     this.PropertyChanged(this, new PropertyChangedEventArgs("AlbumArtists"));
             }
         }
-        string[] _albumArtistsSort;
-
         public override string[] AlbumArtistsSort
         {
             get { return _albumArtistsSort; }
@@ -65,8 +98,6 @@ namespace AudioStation.ViewModels.Vendor.TagLibViewModel
                     this.PropertyChanged(this, new PropertyChangedEventArgs("AlbumArtistsSort"));
             }
         }
-        string _title;
-
         public override string Title
         {
             get { return _title; }
@@ -78,8 +109,6 @@ namespace AudioStation.ViewModels.Vendor.TagLibViewModel
                     this.PropertyChanged(this, new PropertyChangedEventArgs("Title"));
             }
         }
-        string _titleSort;
-
         public override string TitleSort
         {
             get { return _titleSort; }
@@ -91,8 +120,6 @@ namespace AudioStation.ViewModels.Vendor.TagLibViewModel
                     this.PropertyChanged(this, new PropertyChangedEventArgs("TitleSort"));
             }
         }
-        string[] _performers;
-
         public override string[] Performers
         {
             get { return _performers; }
@@ -104,8 +131,6 @@ namespace AudioStation.ViewModels.Vendor.TagLibViewModel
                     this.PropertyChanged(this, new PropertyChangedEventArgs("Performers"));
             }
         }
-        string[] _performersSort;
-
         public override string[] PerformersSort
         {
             get { return _performersSort; }
@@ -117,8 +142,6 @@ namespace AudioStation.ViewModels.Vendor.TagLibViewModel
                     this.PropertyChanged(this, new PropertyChangedEventArgs("PerformersSort"));
             }
         }
-        string[] _composers;
-
         public override string[] Composers
         {
             get { return _composers; }
@@ -130,8 +153,6 @@ namespace AudioStation.ViewModels.Vendor.TagLibViewModel
                     this.PropertyChanged(this, new PropertyChangedEventArgs("Composers"));
             }
         }
-        string[] _composersSort;
-
         public override string[] ComposersSort
         {
             get { return _composersSort; }
@@ -143,8 +164,6 @@ namespace AudioStation.ViewModels.Vendor.TagLibViewModel
                     this.PropertyChanged(this, new PropertyChangedEventArgs("ComposersSort"));
             }
         }
-        string _albumSort;
-
         public override string AlbumSort
         {
             get { return _albumSort; }
@@ -156,8 +175,6 @@ namespace AudioStation.ViewModels.Vendor.TagLibViewModel
                     this.PropertyChanged(this, new PropertyChangedEventArgs("AlbumSort"));
             }
         }
-        string _comment;
-
         public override string Comment
         {
             get { return _comment; }
@@ -169,8 +186,6 @@ namespace AudioStation.ViewModels.Vendor.TagLibViewModel
                     this.PropertyChanged(this, new PropertyChangedEventArgs("Comment"));
             }
         }
-        string[] _genres;
-
         public override string[] Genres
         {
             get { return _genres; }
@@ -182,8 +197,6 @@ namespace AudioStation.ViewModels.Vendor.TagLibViewModel
                     this.PropertyChanged(this, new PropertyChangedEventArgs("Genres"));
             }
         }
-        uint _year;
-
         public override uint Year
         {
             get { return _year; }
@@ -195,8 +208,6 @@ namespace AudioStation.ViewModels.Vendor.TagLibViewModel
                     this.PropertyChanged(this, new PropertyChangedEventArgs("Year"));
             }
         }
-        uint _track;
-
         public override uint Track
         {
             get { return _track; }
@@ -208,8 +219,6 @@ namespace AudioStation.ViewModels.Vendor.TagLibViewModel
                     this.PropertyChanged(this, new PropertyChangedEventArgs("Track"));
             }
         }
-        uint _trackCount;
-
         public override uint TrackCount
         {
             get { return _trackCount; }
@@ -221,8 +230,6 @@ namespace AudioStation.ViewModels.Vendor.TagLibViewModel
                     this.PropertyChanged(this, new PropertyChangedEventArgs("TrackCount"));
             }
         }
-        uint _disc;
-
         public override uint Disc
         {
             get { return _disc; }
@@ -234,8 +241,6 @@ namespace AudioStation.ViewModels.Vendor.TagLibViewModel
                     this.PropertyChanged(this, new PropertyChangedEventArgs("Disc"));
             }
         }
-        uint _discCount;
-
         public override uint DiscCount
         {
             get { return _discCount; }
@@ -247,8 +252,6 @@ namespace AudioStation.ViewModels.Vendor.TagLibViewModel
                     this.PropertyChanged(this, new PropertyChangedEventArgs("DiscCount"));
             }
         }
-        string _lyrics;
-
         public override string Lyrics
         {
             get { return _lyrics; }
@@ -260,8 +263,6 @@ namespace AudioStation.ViewModels.Vendor.TagLibViewModel
                     this.PropertyChanged(this, new PropertyChangedEventArgs("Lyrics"));
             }
         }
-        string _grouping;
-
         public override string Grouping
         {
             get { return _grouping; }
@@ -273,8 +274,6 @@ namespace AudioStation.ViewModels.Vendor.TagLibViewModel
                     this.PropertyChanged(this, new PropertyChangedEventArgs("Grouping"));
             }
         }
-        uint _beatsPerMinute;
-
         public override uint BeatsPerMinute
         {
             get { return _beatsPerMinute; }
@@ -286,8 +285,6 @@ namespace AudioStation.ViewModels.Vendor.TagLibViewModel
                     this.PropertyChanged(this, new PropertyChangedEventArgs("BeatsPerMinute"));
             }
         }
-        string _conductor;
-
         public override string Conductor
         {
             get { return _conductor; }
@@ -299,8 +296,6 @@ namespace AudioStation.ViewModels.Vendor.TagLibViewModel
                     this.PropertyChanged(this, new PropertyChangedEventArgs("Conductor"));
             }
         }
-        string _copyright;
-
         public override string Copyright
         {
             get { return _copyright; }
@@ -312,8 +307,6 @@ namespace AudioStation.ViewModels.Vendor.TagLibViewModel
                     this.PropertyChanged(this, new PropertyChangedEventArgs("Copyright"));
             }
         }
-        string _muiscBrainzArtistId;
-
         public override string MusicBrainzArtistId
         {
             get { return _muiscBrainzArtistId; }
@@ -325,8 +318,6 @@ namespace AudioStation.ViewModels.Vendor.TagLibViewModel
                     this.PropertyChanged(this, new PropertyChangedEventArgs("MusicBrainzArtistId"));
             }
         }
-        string _musicBrainzReleaseId;
-
         public override string MusicBrainzReleaseId
         {
             get { return _musicBrainzReleaseId; }
@@ -338,8 +329,6 @@ namespace AudioStation.ViewModels.Vendor.TagLibViewModel
                     this.PropertyChanged(this, new PropertyChangedEventArgs("MusicBrainzReleaseId"));
             }
         }
-        string _musicBrainzReleaseArtistId;
-
         public override string MusicBrainzReleaseArtistId
         {
             get { return _musicBrainzReleaseArtistId; }
@@ -351,8 +340,6 @@ namespace AudioStation.ViewModels.Vendor.TagLibViewModel
                     this.PropertyChanged(this, new PropertyChangedEventArgs("MusicBrainzReleaseArtistId"));
             }
         }
-        string _musicBrainzTrackId;
-
         public override string MusicBrainzTrackId
         {
             get { return _musicBrainzTrackId; }
@@ -364,8 +351,6 @@ namespace AudioStation.ViewModels.Vendor.TagLibViewModel
                     this.PropertyChanged(this, new PropertyChangedEventArgs("MusicBrainzTrackId"));
             }
         }
-        string _musicBrainzDiscId;
-
         public override string MusicBrainzDiscId
         {
             get { return _musicBrainzDiscId; }
@@ -377,8 +362,6 @@ namespace AudioStation.ViewModels.Vendor.TagLibViewModel
                     this.PropertyChanged(this, new PropertyChangedEventArgs("MusicBrainzDiscId"));
             }
         }
-        string _musicIpId;
-
         public override string MusicIpId
         {
             get { return _musicIpId; }
@@ -390,8 +373,6 @@ namespace AudioStation.ViewModels.Vendor.TagLibViewModel
                     this.PropertyChanged(this, new PropertyChangedEventArgs("MusicIpId"));
             }
         }
-        string _amazonId;
-
         public override string AmazonId
         {
             get { return _amazonId; }
@@ -403,8 +384,6 @@ namespace AudioStation.ViewModels.Vendor.TagLibViewModel
                     this.PropertyChanged(this, new PropertyChangedEventArgs("AmazonId"));
             }
         }
-        string _musicBrainzReleaseStatus;
-
         public override string MusicBrainzReleaseStatus
         {
             get { return _musicBrainzReleaseStatus; }
@@ -416,8 +395,6 @@ namespace AudioStation.ViewModels.Vendor.TagLibViewModel
                     this.PropertyChanged(this, new PropertyChangedEventArgs("MusicBrainzReleaseStatus"));
             }
         }
-        string _musicBrainzReleaseType;
-
         public override string MusicBrainzReleaseType
         {
             get { return _musicBrainzReleaseType; }
@@ -429,8 +406,6 @@ namespace AudioStation.ViewModels.Vendor.TagLibViewModel
                     this.PropertyChanged(this, new PropertyChangedEventArgs("MusicBrainzReleaseType"));
             }
         }
-        string _musicBrainzReleaseCountry;
-
         public override string MusicBrainzReleaseCountry
         {
             get { return _musicBrainzReleaseCountry; }
@@ -442,8 +417,6 @@ namespace AudioStation.ViewModels.Vendor.TagLibViewModel
                     this.PropertyChanged(this, new PropertyChangedEventArgs("MusicBrainzReleaseCountry"));
             }
         }
-        double _replayGainTrackGain;
-
         public override double ReplayGainTrackGain
         {
             get { return _replayGainTrackGain; }
@@ -455,8 +428,6 @@ namespace AudioStation.ViewModels.Vendor.TagLibViewModel
                     this.PropertyChanged(this, new PropertyChangedEventArgs("ReplayGainTrackGain"));
             }
         }
-        double _replayGainTrackPeak;
-
         public override double ReplayGainTrackPeak
         {
             get { return _replayGainTrackPeak; }
@@ -468,8 +439,6 @@ namespace AudioStation.ViewModels.Vendor.TagLibViewModel
                     this.PropertyChanged(this, new PropertyChangedEventArgs("ReplayGainTrackPeak"));
             }
         }
-        double _replayGainAlbumGain;
-
         public override double ReplayGainAlbumGain
         {
             get { return _replayGainAlbumGain; }
@@ -481,8 +450,6 @@ namespace AudioStation.ViewModels.Vendor.TagLibViewModel
                     this.PropertyChanged(this, new PropertyChangedEventArgs("ReplayGainAlbumGain"));
             }
         }
-        double _replayGainAlbumPeak;
-
         public override double ReplayGainAlbumPeak
         {
             get { return _replayGainAlbumPeak; }
@@ -494,8 +461,6 @@ namespace AudioStation.ViewModels.Vendor.TagLibViewModel
                     this.PropertyChanged(this, new PropertyChangedEventArgs("ReplayGainAlbumPeak"));
             }
         }
-        IPicture[] _pictures;
-
         public override IPicture[] Pictures
         {
             get { return _pictures; }
@@ -507,8 +472,6 @@ namespace AudioStation.ViewModels.Vendor.TagLibViewModel
                     this.PropertyChanged(this, new PropertyChangedEventArgs("Pictures"));
             }
         }
-        string[] _artists;
-
         public override string[] Artists
         {
             get { return _artists; }
@@ -520,8 +483,6 @@ namespace AudioStation.ViewModels.Vendor.TagLibViewModel
                     this.PropertyChanged(this, new PropertyChangedEventArgs("Artists"));
             }
         }
-        bool _isEmpty;
-
         public override bool IsEmpty
         {
             get { return _isEmpty; }
@@ -529,6 +490,12 @@ namespace AudioStation.ViewModels.Vendor.TagLibViewModel
 
         public TagViewModel()
         {
+            this.Title = string.Empty;
+            this.TitleSort = string.Empty;
+            this.AlbumSort = string.Empty;
+            this.Comment = string.Empty;
+            this.Lyrics = string.Empty;
+            this.Grouping = string.Empty;
         }
         public TagViewModel(TagLib.Tag tag)
         {

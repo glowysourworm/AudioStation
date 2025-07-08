@@ -4,6 +4,6 @@
         xmlns:vendorView="clr-namespace:AudioStation.Views.VendorEntryViews"
         Title="Tag Editor">
     <Grid>
-        <vendorView:TagFileView />
+        <vendorView:TagView />
     </Grid>
 </Window>

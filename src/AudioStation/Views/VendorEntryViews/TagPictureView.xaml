@@ -1,0 +1,74 @@
+﻿<UserControl x:Class="AudioStation.Views.VendorEntryViews.TagPictureView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:fa5="http://schemas.fontawesome.com/icons/"
+             xmlns:simpleEnum="clr-namespace:SimpleWpf.Extensions.BindingExtension;assembly=SimpleWpf"
+             xmlns:simpleUI="clr-namespace:SimpleWpf.UI.Controls;assembly=SimpleWpf.UI"
+             xmlns:simpleUIModel="clr-namespace:SimpleWpf.UI.Controls.Model;assembly=SimpleWpf.UI"
+             xmlns:propertyGrid="clr-namespace:AudioStation.Controls.PropertyGrid"
+             xmlns:controls="clr-namespace:AudioStation.Controls"
+             xmlns:system="clr-namespace:System;assembly=System"
+             xmlns:tagLib="clr-namespace:TagLib;assembly=taglib-sharp"
+             xmlns:controllerModel="clr-namespace:AudioStation.Controller.Model">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!-- Artwork List Header -->
+        <Border>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Text="Artwork List" Margin="3" VerticalAlignment="Center" />
+                <Button fa5:Awesome.Content="Solid_Plus" 
+                        ToolTip="Add Artwork to Tag"
+                        Grid.Column="1" 
+                        Style="{StaticResource SmallControlButton}" />
+            </Grid>
+        </Border>
+
+        <!-- Artwork List -->
+        <ListBox x:Name="PictureLB" ItemsSource="{Binding Tag.Pictures}" Grid.Row="1" Width="200">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding Type}" />
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+
+        <!-- Selected IPicture -->
+        <StackPanel Grid.Column="1" Grid.RowSpan="2">
+            <propertyGrid:PropertyEnumControl LabelText="Artwork Type" 
+                                              EnumType="{x:Type tagLib:PictureType}"                                                              
+                                              Value="{Binding SelectedItem.Type, ElementName=PictureLB}" />
+
+            <controls:ImageUserSelectControl Margin="150 0 0 0" 
+                                             Width="250" Height="250" 
+                                             Background="AliceBlue"
+                                             BorderBrush="LightGray"
+                                             BorderThickness="1"
+                                             UserImageSource="{Binding SelectedItem, ElementName=PictureLB, Converter={StaticResource TagIPictureConverter}, ConverterParameter={x:Static controllerModel:ImageCacheType.Medium}}" />
+
+            <propertyGrid:PropertyStringControl LabelText="Mime Type" 
+                                                LabelColumnWidth="200"
+                                                Value="{Binding SelectedItem.MimeType, ElementName=PictureLB}" 
+                                                IsReadOnly="False" />
+
+            <propertyGrid:PropertyStringControl LabelText="Description" 
+                                                LabelColumnWidth="200"
+                                                Value="{Binding SelectedItem.Description, ElementName=PictureLB}" 
+                                                IsReadOnly="False" />
+        </StackPanel>
+
+    </Grid>
+</UserControl>

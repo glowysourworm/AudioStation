@@ -11,7 +11,8 @@ namespace AudioStation.Controller.Interface
         bool ShowConfirmation(string caption, params string[] messageLines);
 
         void ShowLogWindow(LogViewModel viewModel);
-        void ShowTagWindow(TagFileViewModel viewModel);
+        void ShowTagWindow(TagViewModel viewModel);
+        void ShowTagWindow(TagGroupViewModel viewModel);
 
         void ShowLoadingWindow();
         void UpdateLoadingWindow(double progress);

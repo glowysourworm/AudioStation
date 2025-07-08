@@ -11,8 +11,11 @@ using AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderLoad;
 using AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderOutput;
 using AudioStation.Core.Model;
 using AudioStation.Core.Utility;
+using AudioStation.Model;
+using AudioStation.ViewModels.Vendor.TagLibViewModel;
 
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
+using Microsoft.Extensions.Logging;
 
 using SimpleWpf.Extensions;
 using SimpleWpf.Extensions.Command;
@@ -25,6 +28,7 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
     public class LibraryLoaderImportViewModel : ViewModelBase
     {
         private readonly IConfigurationManager _configurationManager;
+        private readonly IDialogController _dialogController;
 
         string _sourceFolderSearch;
         string _sourceFolder;
@@ -49,6 +53,7 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
         bool _migrationOverwriteDestinationFiles;
 
         SimpleCommand _selectSourceFolderCommand;
+        SimpleCommand _editTagsCommand;
         SimpleCommand _runImportCommand;
         SimpleCommand _runImportTestCommand;
         SimpleCommand _runMusicBrainzLookupCommand;
@@ -153,6 +158,11 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
             get { return _selectSourceFolderCommand; }
             set { this.RaiseAndSetIfChanged(ref _selectSourceFolderCommand, value); }
         }
+        public SimpleCommand EditTagsCommand
+        {
+            get { return _editTagsCommand; }
+            set { this.RaiseAndSetIfChanged(ref _editTagsCommand, value); }
+        }
         public SimpleCommand RunImportCommand
         {
             get { return _runImportCommand; }
@@ -175,6 +185,7 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
                                             IDialogController dialogController)
         {
             _configurationManager = configurationManager;
+            _dialogController = dialogController;
 
             var configuration = configurationManager.GetConfiguration();
 
@@ -191,6 +202,11 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
             this.ImportAsType = LibraryEntryType.Music;
             this.GroupingType = LibraryEntryGroupingType.ArtistAlbum;
             this.NamingType = LibraryEntryNamingType.Standard;
+
+            this.EditTagsCommand = new SimpleCommand(() =>
+            {
+                EditTags();
+            });
 
             this.RunImportCommand = new SimpleCommand(() =>
             {
@@ -260,6 +276,38 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
 
             libraryLoader.RunLoaderTask(new LibraryLoaderParameters<LibraryLoaderImportLoad>(LibraryLoadType.Import, inputLoad));
             libraryLoader.Start();
+        }
+
+        private void  EditTags()
+        {
+            var inputFiles = _sourceFiles.Where(x => x.IsSelected).ToList();
+            var firstFile = inputFiles.FirstOrDefault();
+
+            if (firstFile == null)
+                return;
+
+            // Base the tag view model on the first input. Then, build a group tag
+            // from there.
+            //
+            try
+            {
+                var viewModel = new TagGroupViewModel();
+
+                foreach (var file in inputFiles)
+                {
+                    var tagFile = TagLib.File.Create(firstFile.FileFullPath);
+                    var tagViewModel = new TagViewModel(tagFile.Tag);
+
+                    // Add tag to the group view model
+                    viewModel.Add(tagViewModel);
+                }
+
+                _dialogController.ShowTagWindow(viewModel);
+            }
+            catch (Exception ex)
+            {
+                ApplicationHelpers.Log("Error loading file tag:  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
+            }
         }
 
         private void ToggleSourceFolderSelectAll()

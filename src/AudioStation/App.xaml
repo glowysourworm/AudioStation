@@ -17,6 +17,7 @@
         <converter:RatioParameterConverter x:Key="RatioParameterConverter" />
         <converter:NowPlayingBoolConverter x:Key="NowPlayingBoolConverter" />
         <converter:NowPlayingPlaylistBoolConverter x:Key="NowPlayingPlaylistBoolConverter" />
+        <converter:StringLengthConverter x:Key="StringLengthConverter" />
 
         <!-- SimpleWpf.UI Converters -->
         <simpleConverter:BoolInverseConverter x:Key="BoolInverseConverter" />

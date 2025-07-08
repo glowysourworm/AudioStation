@@ -19,7 +19,7 @@ namespace AudioStation.Controls.PropertyGrid
             DependencyProperty.Register("MaxLengthForeground", typeof(int), typeof(PropertyStringControlMultiline), new PropertyMetadata(300));
 
         public static readonly DependencyProperty ValueProperty =
-            DependencyProperty.Register("Value", typeof(string), typeof(PropertyStringControlMultiline));
+            DependencyProperty.Register("Value", typeof(string), typeof(PropertyStringControlMultiline), new PropertyMetadata(OnTextValueChanged));
 
         public static readonly DependencyProperty IsReadOnlyProperty =
             DependencyProperty.Register("IsReadOnly", typeof(bool), typeof(PropertyStringControlMultiline));
@@ -58,6 +58,16 @@ namespace AudioStation.Controls.PropertyGrid
         public PropertyStringControlMultiline()
         {
             InitializeComponent();
+        }
+
+        private static void OnTextValueChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            var control = d as PropertyStringControlMultiline;
+
+            if (control != null)
+            {
+                //control.GetBindingExpression(ValueProperty).UpdateTarget();
+            }
         }
     }
 }

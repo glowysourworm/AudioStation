@@ -30,7 +30,7 @@
                 <Run Text="{Binding SourceFileSelectedCount, Mode=OneWay}" />
             </TextBlock>
 
-            <Button Margin="0 5 5 0" Style="{StaticResource UserControlButton}">
+            <Button Margin="0 5 5 0" Style="{StaticResource UserControlButton}" Command="{Binding EditTagsCommand}">
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="Edit Tag(s)" Style="{StaticResource LabelTextBlock}" Margin="5" />
                     <fa5:SvgAwesome Icon="Solid_Tag" Style="{StaticResource FontAwesomeIconDefault}" Margin="5" />
