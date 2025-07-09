@@ -18,6 +18,7 @@
         <converter:NowPlayingBoolConverter x:Key="NowPlayingBoolConverter" />
         <converter:NowPlayingPlaylistBoolConverter x:Key="NowPlayingPlaylistBoolConverter" />
         <converter:StringLengthConverter x:Key="StringLengthConverter" />
+        <converter:ValidationForegroundConverter x:Key="ValidationForegroundConverter" />
 
         <!-- SimpleWpf.UI Converters -->
         <simpleConverter:BoolInverseConverter x:Key="BoolInverseConverter" />
@@ -29,6 +30,7 @@
         <simpleConverter:NullVisibilityConverter x:Key="NullVisibilityConverter" />
         <simpleConverter:ParameterEqualityBoolConverter x:Key="ParameterEqualityBoolConverter" />
         <simpleConverter:ParameterProviderBoolConverter x:Key="ParameterProviderBoolConverter" />
+        <simpleConverter:ParameterProviderBoolInverseConverter x:Key="ParameterProviderBoolInverseConverter" />
         <simpleConverter:ParameterVisibilityCollapsedConverter x:Key="ParameterVisibilityCollapsedConverter" />
         <simpleConverter:ParameterVisibilityCollapsedInverseConverter x:Key="ParameterVisibilityCollapsedInverseConverter" />
         <simpleConverter:TimeSpanMillisecondsConverter x:Key="TimeSpanMillisecondsConverter" />

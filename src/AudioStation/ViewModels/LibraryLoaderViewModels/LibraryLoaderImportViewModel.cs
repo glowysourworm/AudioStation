@@ -330,26 +330,21 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
             {
                 var files = ApplicationHelpers.FastGetFiles(this.SourceFolder, "*.mp3", SearchOption.AllDirectories);
 
+                var directoryBase = configuration.DirectoryBase;
+                var subDirectory = this.ImportAsType == LibraryEntryType.Music ? configuration.MusicSubDirectory :
+                                   this.ImportAsType == LibraryEntryType.AudioBook ? configuration.AudioBooksSubDirectory :
+                                   string.Empty;
+
+                // Calculate base directory
+                var directory = Path.Combine(directoryBase, subDirectory);
+
                 this.SourceFiles.Clear();
 
                 if (!string.IsNullOrWhiteSpace(this.SourceFolderSearch))
                     this.SourceFiles.AddRange(files.Where(x => StringHelpers.RegexMatchIC(this.SourceFolderSearch, x))
-                                                    .Select(x => new LibraryLoaderImportFileViewModel()
-                                                    {
-                                                        FileName = Path.GetFileName(x),
-                                                        FileFullPath = x,
-                                                        IsMusicBrainzSelected = false,
-                                                        IsSelected = false
-                                                    }));
-
+                                                   .Select(x => new LibraryLoaderImportFileViewModel(x, directory, this.ImportAsType)));
                 else
-                    this.SourceFiles.AddRange(files.Select(x => new LibraryLoaderImportFileViewModel()
-                    {
-                        FileName = Path.GetFileName(x),
-                        FileFullPath = x,
-                        IsMusicBrainzSelected = false,
-                        IsSelected = false
-                    }));
+                    this.SourceFiles.AddRange(files.Select(x => new LibraryLoaderImportFileViewModel(x, directory, this.ImportAsType)));
             }
             else
             {

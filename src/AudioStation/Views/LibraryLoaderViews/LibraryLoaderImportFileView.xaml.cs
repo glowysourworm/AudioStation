@@ -1,29 +1,25 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+using System.Windows.Controls.Primitives;
 
+using AudioStation.Controller.Interface;
 using AudioStation.ViewModels.LibraryLoaderViewModels;
+using AudioStation.ViewModels.Vendor.TagLibViewModel;
+
+using SimpleWpf.IocFramework.Application.Attribute;
 
 namespace AudioStation.Views.LibraryLoaderViews
 {
-    /// <summary>
-    /// Interaction logic for LibraryLoaderImportFileView.xaml
-    /// </summary>
+    [IocExportDefault]
     public partial class LibraryLoaderImportFileView : UserControl
     {
-        public LibraryLoaderImportFileView()
+        private readonly IDialogController _dialogController;
+
+        [IocImportingConstructor]
+        public LibraryLoaderImportFileView(IDialogController dialogController)
         {
+            _dialogController = dialogController;
+
             InitializeComponent();
         }
 
@@ -37,6 +33,66 @@ namespace AudioStation.Views.LibraryLoaderViews
                 {
                     item.IsSelected = this.InputLB.SelectedItems.Contains(item);
                 }
+            }
+        }
+
+        private void InputFileExpanderButton_Click(object sender, RoutedEventArgs e)
+        {
+            var button = sender as ToggleButton;
+            var viewModel = this.DataContext as LibraryLoaderImportViewModel;
+
+            if (viewModel != null && button != null)
+            {
+                var selectedFile = button.DataContext as LibraryLoaderImportFileViewModel;
+
+                foreach (var item in viewModel.SourceFiles)
+                {
+                    item.IsExpanded = (selectedFile == item) && selectedFile.IsExpanded;
+                }
+            }
+        }
+
+        private void EditTagButton_Click(object sender, RoutedEventArgs e)
+        {
+            var button = sender as Button;
+            var viewModel = this.DataContext as LibraryLoaderImportViewModel;
+
+            if (viewModel != null && button != null)
+            {
+                var selectedFile = button.DataContext as LibraryLoaderImportFileViewModel;
+
+                if (selectedFile != null)
+                {
+                    var tagFileGroupModel = new TagFileGroupViewModel(_dialogController, new TagFileViewModel[] { selectedFile.TagFile });
+
+                    _dialogController.ShowTagWindow(tagFileGroupModel);
+                }                
+            }
+        }
+
+        private void AcoustIDTestButton_Click(object sender, RoutedEventArgs e)
+        {
+            var button = sender as Button;
+            var viewModel = this.DataContext as LibraryLoaderImportViewModel;
+
+            if (viewModel != null && button != null)
+            {
+                var selectedFile = button.DataContext as LibraryLoaderImportFileViewModel;
+
+                // TODO
+            }
+        }
+
+        private void MusicBrainzTestButton_Click(object sender, RoutedEventArgs e)
+        {
+            var button = sender as Button;
+            var viewModel = this.DataContext as LibraryLoaderImportViewModel;
+
+            if (viewModel != null && button != null)
+            {
+                var selectedFile = button.DataContext as LibraryLoaderImportFileViewModel;
+
+                // TODO
             }
         }
     }

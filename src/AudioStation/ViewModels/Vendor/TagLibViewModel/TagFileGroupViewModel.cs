@@ -1,4 +1,6 @@
-﻿using AudioStation.Controller.Interface;
+﻿using System.Windows;
+
+using AudioStation.Controller.Interface;
 using AudioStation.Core.Utility;
 using AudioStation.Model;
 
@@ -18,6 +20,8 @@ namespace AudioStation.ViewModels.Vendor.TagLibViewModel
         SimpleDictionary<string, TagViewModel> _tagDict;
         TagGroupViewModel _tagGroup;
         SimpleCommand _saveCommand;
+        SimpleCommand _copyCommand;
+        SimpleCommand _pasteCommand;
 
         public TagGroupViewModel TagGroup
         {
@@ -33,6 +37,16 @@ namespace AudioStation.ViewModels.Vendor.TagLibViewModel
             get { return _saveCommand; }
             set { this.RaiseAndSetIfChanged(ref _saveCommand, value); }
         }
+        public SimpleCommand CopyCommand
+        {
+            get { return _copyCommand; }
+            set { this.RaiseAndSetIfChanged(ref _copyCommand, value); }
+        }
+        public SimpleCommand PasteCommand
+        {
+            get { return _pasteCommand; }
+            set { this.RaiseAndSetIfChanged(ref _pasteCommand, value); }
+        }
 
         public TagFileGroupViewModel(IDialogController dialogController)
         {
@@ -42,6 +56,14 @@ namespace AudioStation.ViewModels.Vendor.TagLibViewModel
             this.SaveCommand = new SimpleCommand(() =>
             {
                 Save(dialogController);
+            });
+            this.CopyCommand = new SimpleCommand(() =>
+            {
+                Copy(dialogController);
+            });
+            this.PasteCommand = new SimpleCommand(() =>
+            {
+                Paste(dialogController);
             });
         }
         public TagFileGroupViewModel(IDialogController dialogController, IEnumerable<TagFileViewModel> tagFiles)
@@ -85,6 +107,36 @@ namespace AudioStation.ViewModels.Vendor.TagLibViewModel
                 {
                     ApplicationHelpers.Log("Error saving tag data:  {0}", LogMessageType.LibraryLoader, LogLevel.Error, ex.Message);
                 }
+            }
+        }
+
+        private void Copy(IDialogController dialogController)
+        {
+            try
+            {
+                Clipboard.SetDataObject(this.TagGroup as TagLib.Tag);
+            }
+            catch (Exception ex)
+            {
+                ApplicationHelpers.Log("Error copying tag data:  {0}", LogMessageType.LibraryLoader, LogLevel.Error, ex.Message);
+            }
+        }
+
+        private void Paste(IDialogController dialogController)
+        {
+            try
+            {
+                var tagData = Clipboard.GetDataObject().GetDataPresent(typeof(TagLib.Tag));
+
+                // Use AutoMapper to map properties to the tag
+                var config = new MapperConfiguration(cfg => cfg.CreateMap<TagLib.Tag, TagGroupViewModel>(MemberList.Source));
+                var mapper = config.CreateMapper();
+
+                mapper.Map(tagData, this.TagGroup, typeof(TagLib.Tag), typeof(TagGroupViewModel));
+            }
+            catch (Exception ex)
+            {
+                ApplicationHelpers.Log("Error pasting tag data:  {0}", LogMessageType.LibraryLoader, LogLevel.Error, ex.Message);
             }
         }
     }
