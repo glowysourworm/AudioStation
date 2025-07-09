@@ -291,18 +291,18 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
             //
             try
             {
-                var viewModel = new TagGroupViewModel();
+                var fileViewModels = new List<TagFileViewModel>();
 
                 foreach (var file in inputFiles)
                 {
-                    var tagFile = TagLib.File.Create(firstFile.FileFullPath);
-                    var tagViewModel = new TagViewModel(tagFile.Tag);
+                    var tagFile = TagLib.File.Create(file.FileFullPath);
+                    var tagFileViewModel = new TagFileViewModel(tagFile);
 
                     // Add tag to the group view model
-                    viewModel.Add(tagViewModel);
+                    fileViewModels.Add(tagFileViewModel);
                 }
 
-                _dialogController.ShowTagWindow(viewModel);
+                _dialogController.ShowTagWindow(new TagFileGroupViewModel(_dialogController, fileViewModels));
             }
             catch (Exception ex)
             {

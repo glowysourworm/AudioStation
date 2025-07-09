@@ -22,15 +22,6 @@ namespace AudioStation.ViewModels.Vendor.TagLibViewModel
             ArtistAlbum = 2
         }
 
-        public int Count { get { return _tags.Count; } }
-        public bool IsReadOnly { get { return false; } }
-
-        public TagViewModel this[int index]
-        {
-            get { return _tags[index]; }
-            set { _tags[index] = value; }
-        }
-
         GroupType _groupType;
         List<TagViewModel> _tags;
 
@@ -43,6 +34,10 @@ namespace AudioStation.ViewModels.Vendor.TagLibViewModel
             _tags = new List<TagViewModel>(tags);
         }
 
+        public override void Clear()
+        {
+            _tags.Clear();
+        }
         public override TagTypes TagTypes
         {
             get { return GetProperty(x => x.TagTypes); }
@@ -267,9 +262,12 @@ namespace AudioStation.ViewModels.Vendor.TagLibViewModel
         }
 
         #region IList Methods
-        public override void Clear()
+        public int Count { get { return _tags.Count; } }
+        public bool IsReadOnly { get { return false; } }
+        public TagViewModel this[int index]
         {
-            _tags.Clear();
+            get { return _tags[index]; }
+            set { _tags[index] = value; }
         }
         public int IndexOf(TagViewModel item)
         {

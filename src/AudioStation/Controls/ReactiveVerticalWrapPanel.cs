@@ -3,6 +3,8 @@ using System.Windows.Controls;
 
 using EMA.ExtendedWPFVisualTreeHelper;
 
+using NAudio.Utils;
+
 namespace AudioStation.Controls
 {
     public class ReactiveVerticalWrapPanel : Panel
@@ -10,13 +12,20 @@ namespace AudioStation.Controls
         public static readonly DependencyProperty WrapColumnSizeProperty =
             DependencyProperty.Register("WrapColumnSize", typeof(double), typeof(ReactiveVerticalWrapPanel), new PropertyMetadata(300D));
 
+        public static readonly DependencyProperty NumberOfColumnsProperty =
+            DependencyProperty.Register("NumberOfColumns", typeof(int), typeof(ReactiveVerticalWrapPanel), new PropertyMetadata(1));
+
+        public int NumberOfColumns
+        {
+            get { return (int)GetValue(NumberOfColumnsProperty); }
+            set { SetValue(NumberOfColumnsProperty, value); }
+        }
+
         public double WrapColumnSize
         {
             get { return (double)GetValue(WrapColumnSizeProperty); }
             set { SetValue(WrapColumnSizeProperty, value); }
         }
-
-        protected double[] ColumnHeights { get; private set; }
 
         public ReactiveVerticalWrapPanel()
         {
@@ -26,11 +35,11 @@ namespace AudioStation.Controls
         private void ReactiveVerticalWrapPanel_Loaded(object sender, RoutedEventArgs e)
         {
             // Need the render size of the items control parent
-            //var itemsControl = GetParentItemsControl();
-            //var scrollViewer = GetParentScrollViewer();
+            var itemsControl = GetParentItemsControl();
+            var scrollViewer = GetParentScrollViewer();
 
-            //itemsControl.SizeChanged += OnParentSizeChanged;
-            //scrollViewer.SizeChanged += OnParentSizeChanged;
+            itemsControl.SizeChanged += OnParentSizeChanged;
+            scrollViewer.SizeChanged += OnParentSizeChanged;
 
             var window = WpfVisualFinders.FindParent<Window>(this);
 
@@ -38,12 +47,20 @@ namespace AudioStation.Controls
             window.SizeChanged += Window_SizeChanged;
         }
 
+        private void OnParentSizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            //Application.Current.Dispatcher.BeginInvoke(() =>
+            //{
+                InvalidateMeasure();
+            //});
+        }
+
         private void Window_SizeChanged(object sender, SizeChangedEventArgs e)
         {
-            Application.Current.Dispatcher.BeginInvoke(() =>
-            {
-                InvalidateMeasure();
-            });
+            //Application.Current.Dispatcher.BeginInvoke(() =>
+            //{
+            //    InvalidateMeasure();
+            //});
         }
         private void Window_StateChanged(object? sender, EventArgs e)
         {
@@ -58,7 +75,6 @@ namespace AudioStation.Controls
             if (this.ActualWidth == 0 ||
                 this.ActualHeight == 0)
             {
-                this.ColumnHeights = new double[1] { availableSize.Height };
                 return base.MeasureOverride(availableSize);
             }
 
@@ -73,74 +89,100 @@ namespace AudioStation.Controls
             var listSize = new Size(scrollViewer.ViewportWidth > 0 ? scrollViewer.ViewportWidth : itemsControl.RenderSize.Width, 
                                     scrollViewer.ViewportHeight > 0 ? scrollViewer.ViewportHeight : itemsControl.RenderSize.Height);
 
-            var numberColumns = (int)Math.Max(1, Math.Floor(listSize.Width / this.WrapColumnSize));
-            var columnWidth = listSize.Width / numberColumns;
-            var columnIndex = 0;
-
-            // Store column dimensions for the arrange pass
-            this.ColumnHeights = new double[numberColumns];
+            var numberColumnsMax = (int)Math.Max(1, Math.Floor(listSize.Width / this.WrapColumnSize));
+            var columnWidth = listSize.Width / numberColumnsMax;
+            var columnCount = 1;
+            var totalHeight = 0.0D;
 
             foreach (UIElement element in this.Children)
             {
                 element.Measure(listSize);
 
-                this.ColumnHeights[columnIndex] += element.DesiredSize.Height;
+                totalHeight += element.DesiredSize.Height;
 
-                // ITEMS CONTROL SIZE CHECK
-                if (this.ColumnHeights[columnIndex] > listSize.Height && 
-                    columnIndex < this.ColumnHeights.Length - 1)
-                    columnIndex++;
-            }
-
-            // Check for unused columns
-            for (int index = this.ColumnHeights.Length - 1; index >= 0; index--)
-            {
-                // Remove the last column, and continue
-                if (this.ColumnHeights[index] <= 0)
+                // Increment number of columns desired
+                if (totalHeight >= columnCount * listSize.Height)
                 {
-                    var columnHeights = new double[this.ColumnHeights.Length - 1];
-                    Array.Copy(this.ColumnHeights, columnHeights, columnHeights.Length);
-                    this.ColumnHeights = columnHeights;
+                    columnCount++;
                 }
             }
 
-            // ITEMS CONTROL WIDTH + our column max height
-            return new Size(listSize.Width, this.ColumnHeights.Max());
+            // Calculate max stack height
+            var maxHeight = numberColumnsMax * listSize.Height;
+
+            // Divide the overflow between the columns
+            var overflow = totalHeight - maxHeight;
+
+            // Set the desired column height
+            var columnHeight = overflow > 0 ? listSize.Height + (overflow / numberColumnsMax) : listSize.Height;
+
+            // Repeat measurement for the final overflow; and set the max column height based on this height.
+            totalHeight = 0.0D;
+            columnCount = 1;
+
+            foreach (UIElement element in this.Children)
+            {
+                element.Measure(listSize);
+
+                totalHeight += element.DesiredSize.Height;
+
+                // Increment number of columns desired (USING NEW HEIGHT)
+                if (totalHeight >= columnCount * columnHeight)
+                {
+                    columnCount++;
+                }
+            }
+
+            // ASSERT:  column count is no more than the max + 1
+            if (columnCount > numberColumnsMax + 1)
+                throw new Exception("Error measuring vertical wrap panel columns:  ReactiveVerticalWrapPanel.cs");
+
+            // Store the column count
+            this.NumberOfColumns = Math.Clamp(columnCount, 1, numberColumnsMax);
+
+            // Remeasure the overflow
+            overflow = Math.Clamp(totalHeight - maxHeight, 0, columnHeight);
+
+            // Set the measurement
+            return new Size(listSize.Width, columnHeight + overflow);
         }
 
         protected override Size ArrangeOverride(Size finalSize)
         {
-            var columnIndex = 0;
-            var columnWidth = finalSize.Width / this.ColumnHeights.Length;
+            //if (this.ActualHeight == 0 ||
+            //    this.ActualWidth == 0)
+            //{
+            //    return base.ArrangeOverride(finalSize);
+            //}
+
+            var columnWidth = finalSize.Width / this.NumberOfColumns;
             var columnHeight = 0.0D;
-            var finalItemHeight = this.ColumnHeights.Length * finalSize.Height;     // Constraint
-            var elementRect = new Rect(0, 0, columnWidth, this.ColumnHeights[0]);
+            var elementRect = new Rect(0, 0, columnWidth, finalSize.Height);
 
             foreach (UIElement element in this.Children)
             {
                 // Set rect height for this element
                 elementRect.Height = element.DesiredSize.Height;
 
+                // Update the current column's height
+                columnHeight += element.DesiredSize.Height;
+
+                // Goto next column
+                if (columnHeight >= finalSize.Height)
+                {
+                    elementRect.Y = 0;
+                    elementRect.X += columnWidth;
+                    columnHeight = 0;
+                }
+
                 // Arrange the element
                 element.Arrange(elementRect);
 
                 // Update the element rect in the layout
                 elementRect.Y += element.DesiredSize.Height;
-
-                // Update the current column's height
-                columnHeight += element.DesiredSize.Height;
-
-                // Goto next column
-                if (columnHeight >= this.ColumnHeights[columnIndex])
-                {
-                    elementRect.Y = 0;
-                    elementRect.X += columnWidth;
-                    columnHeight = 0;
-                    columnIndex++;
-                }
             }
 
-            return base.ArrangeOverride(finalSize);
+            return finalSize;
         }
 
         private ItemsControl GetParentItemsControl()

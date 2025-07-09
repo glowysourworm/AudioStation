@@ -1,28 +1,40 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace AudioStation.Views.VendorEntryViews
 {
-    /// <summary>
-    /// Interaction logic for TagView.xaml
-    /// </summary>
     public partial class TagView : UserControl
     {
+        public static readonly DependencyProperty ShowAdvancedEditorProperty =
+            DependencyProperty.Register("ShowAdvancedEditor", typeof(bool), typeof(TagView));
+
+        public static readonly DependencyProperty ShowArtworkEditorProperty =
+            DependencyProperty.Register("ShowArtworkEditor", typeof(bool), typeof(TagView));
+
+        public bool ShowAdvancedEditor
+        {
+            get { return (bool)GetValue(ShowAdvancedEditorProperty); }
+            set { SetValue(ShowAdvancedEditorProperty, value); }
+        }
+        public bool ShowArtworkEditor
+        {
+            get { return (bool)GetValue(ShowArtworkEditorProperty); }
+            set { SetValue(ShowArtworkEditorProperty, value); }
+        }
+
         public TagView()
         {
             InitializeComponent();
+        }
+
+        private void ShowAdvancedButton_Click(object sender, RoutedEventArgs e)
+        {
+            this.ShowAdvancedEditor = !this.ShowAdvancedEditor;
+        }
+
+        private void ShowArtworkButton_Click(object sender, RoutedEventArgs e)
+        {
+            this.ShowArtworkEditor = !this.ShowArtworkEditor;
         }
     }
 }

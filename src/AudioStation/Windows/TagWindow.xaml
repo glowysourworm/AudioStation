@@ -4,6 +4,19 @@
         xmlns:vendorView="clr-namespace:AudioStation.Views.VendorEntryViews"
         Title="Tag Editor">
     <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        
         <vendorView:TagView />
+
+        <!-- Status Bar (Footer) -->
+        <Border x:Name="StatusBorder" Grid.Row="1" Background="#EEEEEE">
+            <TextBlock x:Name="StatusMessageTB" 
+					   Text="Status Bar" 
+					   FontSize="14" Margin="5" 
+					   Foreground="#555555" VerticalAlignment="Center" />
+        </Border>
     </Grid>
 </Window>
