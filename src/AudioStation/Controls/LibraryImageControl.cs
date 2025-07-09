@@ -89,10 +89,16 @@ namespace AudioStation.Controls
                 switch (this.ViewModel.Type)
                 {
                     case Core.Model.LibraryEntityType.Album:
-                        this.Source = await _cacheController.GetForAlbum(this.ViewModel.Id, this.ImageSize);
+                    {
+                        var imageData = await _cacheController.GetForAlbum(this.ViewModel.Id, this.ImageSize);
+                        this.Source = imageData?.Source;
+                    }
                         break;
                     case Core.Model.LibraryEntityType.Artist:
-                        this.Source = await _cacheController.GetForArtist(this.ViewModel.Id, this.ImageSize);
+                    {
+                        var imageData = await _cacheController.GetForArtist(this.ViewModel.Id, this.ImageSize);
+                        this.Source = imageData?.Source;
+                    }
                         break;
                     case Core.Model.LibraryEntityType.Track:
                     case Core.Model.LibraryEntityType.Genre:
@@ -101,7 +107,11 @@ namespace AudioStation.Controls
                 }
 
                 if (this.Source == null)
-                    this.Source = _cacheController.GetDefaultImage(this.ImageSize);
+                {
+                    var imageData = _cacheController.GetDefaultImage(this.ImageSize);
+                    this.Source = imageData?.Source;
+                }
+                    
 
                 InvalidateVisual();
             }

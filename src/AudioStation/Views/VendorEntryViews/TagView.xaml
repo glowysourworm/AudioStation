@@ -10,11 +10,12 @@
              xmlns:controls="clr-namespace:AudioStation.Controls"
              xmlns:system="clr-namespace:System;assembly=System"
              xmlns:tagLib="clr-namespace:TagLib;assembly=taglib-sharp"
+             xmlns:region="clr-namespace:SimpleWpf.IocFramework.RegionManagement;assembly=SimpleWpf.IocFramework"
              xmlns:controllerModel="clr-namespace:AudioStation.Controller.Model">
 
     <ListBox ItemContainerStyle="{StaticResource PlainItemContainerStyleWithAlternation}"
-             HorizontalContentAlignment="Stretch"
              AlternationCount="2"
+             HorizontalContentAlignment="Stretch"
              VirtualizingPanel.ScrollUnit="Pixel">
 
         <ListBox.ItemsPanel>
@@ -58,7 +59,6 @@
         <propertyGrid:PropertyStringEnumerableControl LabelColumnWidth="200" LabelText="Album Artists (Sort)" Value="{Binding AlbumArtistsSort, Converter={StaticResource ArrayToObservableCollectionParameterConverter}, ConverterParameter={x:Type system:String}}" IsReadOnly="False" />
         <propertyGrid:PropertyStringEnumerableControl LabelColumnWidth="200" LabelText="Performers (Sort)" Value="{Binding PerformersSort, Converter={StaticResource ArrayToObservableCollectionParameterConverter}, ConverterParameter={x:Type system:String}}" IsReadOnly="False" />
         <propertyGrid:PropertyStringEnumerableControl LabelColumnWidth="200" LabelText="Composers (Sort)" Value="{Binding ComposersSort, Converter={StaticResource ArrayToObservableCollectionParameterConverter}, ConverterParameter={x:Type system:String}}" IsReadOnly="False" />
-        <propertyGrid:PropertyStringEnumerableControl LabelColumnWidth="200" LabelText="Genres (Sort)" Value="{Binding GenresSort, Converter={StaticResource ArrayToObservableCollectionParameterConverter}, ConverterParameter={x:Type system:String}}" IsReadOnly="False" />
 
         <!-- Comments -->
         <propertyGrid:PropertyStringControlMultiline Value="{Binding Comment}" LabelText="Comment" LabelColumnWidth="200" MaxLength="5000" MaxLines="10" />
@@ -67,22 +67,24 @@
         <propertyGrid:PropertyStringControlMultiline Value="{Binding Lyrics}" LabelText="Lyrics" LabelColumnWidth="200" MaxLength="5000" MaxLines="30" />
 
         <!-- Vendor Information -->
+        <propertyGrid:PropertyHeader Value="3rd Party Detail" />
+
         <propertyGrid:PropertyStringControl LabelColumnWidth="200" LabelText="Amazon Id" Value="{Binding AmazonId}" IsReadOnly="False" />
         <propertyGrid:PropertyStringControl LabelColumnWidth="200" LabelText="MusicIP Id" Value="{Binding MusicIpId}" IsReadOnly="False" />
-        <propertyGrid:PropertyStringControl LabelColumnWidth="200" LabelText="Track Id" Value="{Binding MusicBrainzTrackId}" IsReadOnly="False" />
-        <propertyGrid:PropertyStringControl LabelColumnWidth="200" LabelText="Artist Id" Value="{Binding MusicBrainzArtistId}" IsReadOnly="False" />
-        <propertyGrid:PropertyStringControl LabelColumnWidth="200" LabelText="Disc Id" Value="{Binding MusicBrainzDiscId}" IsReadOnly="False" />
-        <propertyGrid:PropertyStringControl LabelColumnWidth="200" LabelText="Release Id" Value="{Binding MusicBrainzReleaseId}" IsReadOnly="False" />
-        <propertyGrid:PropertyStringControl LabelColumnWidth="200" LabelText="Release Artist Id" Value="{Binding MusicBrainzReleaseArtistId}" IsReadOnly="False" />
-        <propertyGrid:PropertyStringControl LabelColumnWidth="200" LabelText="Release Status" Value="{Binding MusicBrainzReleaseStatus}" IsReadOnly="False" />
-        <propertyGrid:PropertyStringControl LabelColumnWidth="200" LabelText="Release Type" Value="{Binding MusicBrainzReleaseType}" IsReadOnly="False" />
-        <propertyGrid:PropertyStringControl LabelColumnWidth="200" LabelText="Release Country" Value="{Binding MusicBrainzReleaseCountry}" IsReadOnly="False" />
-        <propertyGrid:PropertyStringControl LabelColumnWidth="200" LabelText="Track Gain" Value="{Binding ReplayGainTrackGain}" IsReadOnly="False" />
-        <propertyGrid:PropertyStringControl LabelColumnWidth="200" LabelText="Track Peak" Value="{Binding ReplayGainTrackPeak}" IsReadOnly="False" />
-        <propertyGrid:PropertyStringControl LabelColumnWidth="200" LabelText="Album Gain" Value="{Binding ReplayGainAlbumGain}" IsReadOnly="False" />
-        <propertyGrid:PropertyStringControl LabelColumnWidth="200" LabelText="Album Peak" Value="{Binding ReplayGainAlbumPeak}" IsReadOnly="False" />
+        <propertyGrid:PropertyStringControl LabelColumnWidth="200" LabelText="Music Brainz Track Id" Value="{Binding MusicBrainzTrackId}" IsReadOnly="False" />
+        <propertyGrid:PropertyStringControl LabelColumnWidth="200" LabelText="Music Brainz Artist Id" Value="{Binding MusicBrainzArtistId}" IsReadOnly="False" />
+        <propertyGrid:PropertyStringControl LabelColumnWidth="200" LabelText="Music Brainz Disc Id" Value="{Binding MusicBrainzDiscId}" IsReadOnly="False" />
+        <propertyGrid:PropertyStringControl LabelColumnWidth="200" LabelText="Music Brainz Release Id" Value="{Binding MusicBrainzReleaseId}" IsReadOnly="False" />
+        <propertyGrid:PropertyStringControl LabelColumnWidth="200" LabelText="Music Brainz Release Artist Id" Value="{Binding MusicBrainzReleaseArtistId}" IsReadOnly="False" />
+        <propertyGrid:PropertyStringControl LabelColumnWidth="200" LabelText="Music Brainz Release Status" Value="{Binding MusicBrainzReleaseStatus}" IsReadOnly="False" />
+        <propertyGrid:PropertyStringControl LabelColumnWidth="200" LabelText="Music Brainz Release Type" Value="{Binding MusicBrainzReleaseType}" IsReadOnly="False" />
+        <propertyGrid:PropertyStringControl LabelColumnWidth="200" LabelText="Music Brainz Release Country" Value="{Binding MusicBrainzReleaseCountry}" IsReadOnly="False" />
+        <propertyGrid:PropertyDoubleControl LabelColumnWidth="200" LabelText="ReplayGain Track Gain" ValueMin="0" ValueMax="1" ValueIncrement="0.01" Value="{Binding ReplayGainTrackGain}" IsReadOnly="False" />
+        <propertyGrid:PropertyDoubleControl LabelColumnWidth="200" LabelText="ReplayGain Track Peak" ValueMin="0" ValueMax="1" ValueIncrement="0.01" Value="{Binding ReplayGainTrackPeak}" IsReadOnly="False" />
+        <propertyGrid:PropertyDoubleControl LabelColumnWidth="200" LabelText="ReplayGain Album Gain" ValueMin="0" ValueMax="1" ValueIncrement="0.01" Value="{Binding ReplayGainAlbumGain}" IsReadOnly="False" />
+        <propertyGrid:PropertyDoubleControl LabelColumnWidth="200" LabelText="ReplayGain Album Peak" ValueMin="0" ValueMax="1" ValueIncrement="0.01" Value="{Binding ReplayGainAlbumPeak}" IsReadOnly="False" />
 
         <!-- Artwork -->
-        <local:TagPictureView />
+        <region:IocRegion region:IocRegionManager.DefaultViewType="{x:Type local:TagPictureView}" />
     </ListBox>
 </UserControl>

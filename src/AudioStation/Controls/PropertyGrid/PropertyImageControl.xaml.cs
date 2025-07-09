@@ -52,7 +52,9 @@ namespace AudioStation.Controls.PropertyGrid
 
         private void SetImage()
         {
-            this.ImageControl.Source = _bitmapConverter.BitmapDataToBitmapSource(this.Value.Buffer, new ImageSize(ImageCacheType.Medium), this.Value.MimeType);
+            var imageData = _bitmapConverter.BitmapDataToBitmapSource(this.Value.Buffer, new ImageSize(ImageCacheType.Medium), this.Value.MimeType);
+
+            this.ImageControl.Source = imageData.Source;
         }
 
         private static void OnValueChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)

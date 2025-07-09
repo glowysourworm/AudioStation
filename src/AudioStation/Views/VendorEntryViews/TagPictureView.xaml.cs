@@ -1,28 +1,43 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+﻿using System.Windows.Controls;
+
+using AudioStation.Controller.Interface;
+using AudioStation.Controller.Model;
+
+using SimpleWpf.IocFramework.Application.Attribute;
+
+using TagLib;
 
 namespace AudioStation.Views.VendorEntryViews
 {
-    /// <summary>
-    /// Interaction logic for TagPictureView.xaml
-    /// </summary>
+    [IocExportDefault]
     public partial class TagPictureView : UserControl
     {
-        public TagPictureView()
+        readonly IImageCacheController _imageCacheController;
+
+        [IocImportingConstructor]
+        public TagPictureView(IImageCacheController imageCacheController)
         {
+            _imageCacheController = imageCacheController;
+
             InitializeComponent();
+        }
+
+        private void AddButton_Click(object sender, System.Windows.RoutedEventArgs e)
+        {
+            var viewModel = this.DataContext as TagLib.Tag;
+
+            if (viewModel != null)
+            {
+                // Extend the picture array by one
+                var pictures = viewModel.Pictures;
+                viewModel.Pictures = new IPicture[viewModel.Pictures.Length + 1];
+                pictures.CopyTo(viewModel.Pictures, 0);
+
+                // Get default image for the IPicture
+                var defaultImage = _imageCacheController.GetDefaultImage(ImageCacheType.FullSize);
+
+                viewModel.Pictures[viewModel.Pictures.Length - 1] = new TagLib.Picture();
+            }
         }
     }
 }

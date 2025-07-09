@@ -1,0 +1,22 @@
+﻿<UserControl x:Class="AudioStation.Controls.PropertyGrid.PropertyDoubleControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:xceed="http://schemas.xceed.com/wpf/xaml/toolkit"
+             Style="{StaticResource PropertyGridUserControl}">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="{Binding LabelColumnWidth, RelativeSource={RelativeSource AncestorType=UserControl}}" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <TextBlock Text="{Binding LabelText, RelativeSource={RelativeSource AncestorType=UserControl}}" 
+				   Style="{StaticResource PropertyGridLabel}" />
+
+        <xceed:DoubleUpDown Grid.Column="1" 
+                            Minimum="{Binding ValueMin, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                            Maximum="{Binding ValueMax, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                            Increment="{Binding ValueIncrement, RelativeSource={RelativeSource AncestorType=UserControl}}"
+				            Value="{Binding Value, RelativeSource={RelativeSource AncestorType=UserControl}}" 
+				            IsReadOnly="{Binding IsReadOnly, RelativeSource={RelativeSource AncestorType=UserControl}}" />
+    </Grid>
+</UserControl>

@@ -125,7 +125,7 @@ namespace AudioStation.Controls
                     {
                         Stretch = Stretch.Uniform,
                         StretchDirection = StretchDirection.Both,
-                        Source = await _imageCacheController.GetFromEndpoint(imageSource, PictureType.Artist, this.ImageSize)
+                        Source = (await _imageCacheController.GetFromEndpoint(imageSource, PictureType.Artist, this.ImageSize))?.Source
                     });
                 }
 

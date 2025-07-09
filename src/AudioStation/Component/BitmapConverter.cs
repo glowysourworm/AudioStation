@@ -1,4 +1,5 @@
-﻿using System.Drawing;
+﻿using System;
+using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.IO;
@@ -7,6 +8,7 @@ using System.Windows.Forms;
 using System.Windows.Media.Imaging;
 
 using AudioStation.Component.Interface;
+using AudioStation.Component.Model;
 using AudioStation.Controller.Model;
 using AudioStation.Core.Component.Interface;
 using AudioStation.Model;
@@ -28,7 +30,7 @@ namespace AudioStation.Component
             _outputController = outputController;
         }
 
-        public BitmapSource BitmapDataToBitmapSource(byte[] buffer, ImageSize imageSize, string mimeType)
+        public BitmapImageData BitmapDataToBitmapSource(byte[] buffer, ImageSize imageSize, string mimeType)
         {
             try
             {
@@ -76,11 +78,11 @@ namespace AudioStation.Component
             }
         }
 
-        public BitmapSource BitmapFrameToBitmapSource(BitmapFrame bitmapFrame, ImageSize imageSize, string mimeType)
+        public BitmapImageData BitmapFrameToBitmapSource(BitmapFrame bitmapFrame, ImageSize imageSize, string mimeType)
         {
             try
             {
-                BitmapSource source = null;
+                BitmapImageData result = null;
 
                 // Save to File / Re-open
                 using (var writeStream = new MemoryStream())
@@ -108,7 +110,7 @@ namespace AudioStation.Component
                     writeStream.Seek(0, SeekOrigin.Begin);
 
                     var bitmap = new Bitmap(writeStream, false);
-                    source = BitmapToBitmapSource(bitmap, imageSize);
+                    result = BitmapToBitmapSource(bitmap, imageSize);
 
                     encoder = null;
 
@@ -116,7 +118,7 @@ namespace AudioStation.Component
                     writeStream.Dispose();
                 }
 
-                return source;
+                return result;
             }
             catch (Exception ex)
             {
@@ -126,7 +128,7 @@ namespace AudioStation.Component
         }
 
         /// https://stackoverflow.com/a/30729291
-        public BitmapSource BitmapToBitmapSource(Bitmap bitmap, ImageSize imageSize)
+        public BitmapImageData BitmapToBitmapSource(Bitmap bitmap, ImageSize imageSize)
         {
             try
             {
@@ -151,7 +153,18 @@ namespace AudioStation.Component
 
                 resultBitmap.UnlockBits(bitmapData);
 
-                return bitmapSource;
+                // Use the bitmap encoder to save the byte[]. Otherwise, there are pixel format calculations
+                // to consider; and I'd rather not even use WPF's API. If there is a memory leak here - we'll
+                // just fix it.
+                using (var memoryStream = new MemoryStream())
+                {
+                    var encoder = new BmpBitmapEncoder();
+                    var frame = BitmapFrame.Create(bitmapSource);
+                    encoder.Frames.Add(frame);
+                    encoder.Save(memoryStream);
+
+                    return new BitmapImageData(bitmapSource, memoryStream.GetBuffer(), bitmapData.Stride);
+                }               
             }
             catch (Exception ex)
             {

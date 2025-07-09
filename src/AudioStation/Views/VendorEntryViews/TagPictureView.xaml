@@ -12,7 +12,7 @@
              xmlns:controllerModel="clr-namespace:AudioStation.Controller.Model">
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="200" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
 
@@ -29,8 +29,11 @@
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
 
-                <TextBlock Text="Artwork List" Margin="3" VerticalAlignment="Center" />
-                <Button fa5:Awesome.Content="Solid_Plus" 
+                <TextBlock Text="Artwork List" Style="{StaticResource PropertyGridLabel}" Margin="5" VerticalAlignment="Center" />
+                
+                <Button x:Name="AddButton" 
+                        Click="AddButton_Click"
+                        fa5:Awesome.Content="Solid_Plus" 
                         ToolTip="Add Artwork to Tag"
                         Grid.Column="1" 
                         Style="{StaticResource SmallControlButton}" />
@@ -38,7 +41,7 @@
         </Border>
 
         <!-- Artwork List -->
-        <ListBox x:Name="PictureLB" ItemsSource="{Binding Tag.Pictures}" Grid.Row="1" Width="200">
+        <ListBox x:Name="PictureLB" ItemsSource="{Binding Pictures}" Grid.Row="1" Width="200">
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <TextBlock Text="{Binding Type}" />

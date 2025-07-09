@@ -32,9 +32,23 @@
         </Style.Triggers>
     </Style>
 
+    <Style x:Key="PropertyGridWatermarkTextBox" TargetType="{x:Type xceed:WatermarkTextBox}">
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="Foreground" Value="#FF555555" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+
+        <Style.Triggers>
+            <Trigger Property="IsEnabled" Value="False">
+                <Setter Property="Foreground" Value="#FFAAAAAA" />
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
     <Style x:Key="PropertyGridUserControl" TargetType="UserControl">
         <Setter Property="Background" Value="Transparent" />
-        <Setter Property="Margin" Value="0" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="BorderBrush" Value="Transparent" />
+        <Setter Property="Margin" Value="1" />
     </Style>
 
     <Style x:Key="PropertyGridLargeUserControl" TargetType="UserControl" BasedOn="{StaticResource PropertyGridUserControl}">

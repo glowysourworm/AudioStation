@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Media.Imaging;
+﻿using System.Drawing;
 
+using AudioStation.Component.Model;
 using AudioStation.Controller.Model;
 
 namespace AudioStation.Component.Interface
@@ -17,9 +11,9 @@ namespace AudioStation.Component.Interface
     /// </summary>
     public interface IBitmapConverter
     {
-        BitmapSource BitmapDataToBitmapSource(byte[] buffer, ImageSize size, string mimeType);
+        BitmapImageData BitmapDataToBitmapSource(byte[] buffer, ImageSize size, string mimeType);
 
         /// https://stackoverflow.com/a/30729291
-        BitmapSource BitmapToBitmapSource(Bitmap bitmap, ImageSize size);
+        BitmapImageData BitmapToBitmapSource(Bitmap bitmap, ImageSize size);
     }
 }

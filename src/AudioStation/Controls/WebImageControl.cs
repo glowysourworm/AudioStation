@@ -98,14 +98,14 @@ namespace AudioStation.Controls
                 switch (_cacheType)
                 {
                     case PictureType.FrontCover:
-                        this.Source = await _cacheController.GetFromEndpoint(this.ImageEndpoint, _cacheType, this.ImageSize);
+                        this.Source = (await _cacheController.GetFromEndpoint(this.ImageEndpoint, _cacheType, this.ImageSize))?.Source;
                         break;
                     default:
                         throw new Exception("Unhandled Picture Type:  WebImageControl.cs");
                 }
 
                 if (this.Source == null)
-                    this.Source = _cacheController.GetDefaultImage(this.ImageSize);
+                    this.Source = _cacheController.GetDefaultImage(this.ImageSize).Source;
             }
         }
     }

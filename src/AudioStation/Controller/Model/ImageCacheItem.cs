@@ -1,6 +1,8 @@
 ﻿using System.Runtime.CompilerServices;
 using System.Windows.Media;
 
+using AudioStation.Component.Model;
+
 using SimpleWpf.SimpleCollections.Collection;
 using SimpleWpf.SimpleCollections.Extension;
 
@@ -10,9 +12,9 @@ namespace AudioStation.Controller.Model
 {
     public class ImageCacheItem
     {
-        public readonly SimpleDictionary<PictureType, ImageSource> Images;
+        public readonly SimpleDictionary<PictureType, BitmapImageData> Images;
 
-        public ImageSource GetArtistImage()
+        public BitmapImageData GetArtistImage()
         {
             return this.Images.GetValue(PictureType.LeadArtist) ??
                    this.Images.GetValue(PictureType.Artist) ??
@@ -21,22 +23,22 @@ namespace AudioStation.Controller.Model
                    this.Images.GetValue(PictureType.FrontCover) ?? null;
         }
 
-        public ImageSource GetFirstImage()
+        public BitmapImageData GetFirstImage()
         {
             return this.Images.GetFirstValue();
         }
 
-        public ImageSource GetAlbumImage()
+        public BitmapImageData GetAlbumImage()
         {
             return this.Images.GetValue(PictureType.FrontCover) ?? null;
         }
-        public ImageCacheItem(PictureType type, ImageSource image)
+        public ImageCacheItem(PictureType type, BitmapImageData image)
         {
-            this.Images = new SimpleDictionary<PictureType, ImageSource>() { { type, image } };
+            this.Images = new SimpleDictionary<PictureType, BitmapImageData>() { { type, image } };
         }
-        public ImageCacheItem(IDictionary<PictureType, ImageSource> images)
+        public ImageCacheItem(IDictionary<PictureType, BitmapImageData> images)
         {
-            this.Images = new SimpleDictionary<PictureType, ImageSource>(images);
+            this.Images = new SimpleDictionary<PictureType, BitmapImageData>(images);
         }
     }
 }

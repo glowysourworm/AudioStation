@@ -17,20 +17,23 @@
         <TextBlock Text="{Binding LabelText, RelativeSource={RelativeSource AncestorType=UserControl}}" 
 				   Style="{StaticResource PropertyGridLabel}" />
 
-        <TextBox Grid.Column="1" AcceptsReturn="True" Height="300" 
+        <TextBox Grid.Column="1" AcceptsReturn="True" MinHeight="160" 
                  Style="{StaticResource PropertyGridTextBox}"
                  VerticalContentAlignment="Top"
                  MaxLines="{Binding MaxLines, RelativeSource={RelativeSource AncestorType=UserControl}}" 
                  MaxLength="{Binding MaxLength, RelativeSource={RelativeSource AncestorType=UserControl}}"
 				 Text="{Binding Value, UpdateSourceTrigger=PropertyChanged, RelativeSource={RelativeSource AncestorType=UserControl}}" 
+                 TextWrapping="Wrap"
 				 IsReadOnly="{Binding IsReadOnly, RelativeSource={RelativeSource AncestorType=UserControl}}" />
 
-        <TextBlock Style="{StaticResource PropertyGridLabel}" HorizontalAlignment="Right" Grid.Row="1" Grid.Column="1">
-            <Run Text="{Binding Value, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource StringLengthConverter}}" />
-            <Run Text="/" />
-            <Run Text="{Binding MaxLength, RelativeSource={RelativeSource AncestorType=UserControl}}" />
-        </TextBlock>
-        
-        
+        <Border Grid.Row="1" Grid.Column="1" Background="White" BorderBrush="Gray" BorderThickness="1">
+            <TextBlock Style="{StaticResource PropertyGridLabel}" HorizontalAlignment="Right">
+                <Run Text="{Binding Value, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource StringLengthConverter}}" />
+                <Run Text="/" />
+                <Run Text="{Binding MaxLength, RelativeSource={RelativeSource AncestorType=UserControl}}" />
+            </TextBlock>
+        </Border>
+
+
     </Grid>
 </UserControl>

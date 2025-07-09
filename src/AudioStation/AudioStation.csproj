@@ -90,6 +90,9 @@
     <Compile Update="Controls\PropertyGrid\PropertyHeader.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Update="Controls\PropertyGrid\PropertyDoubleControl.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Update="Controls\PropertyGrid\PropertyTokenizingStringControl.xaml.cs">
       <SubType>Code</SubType>
     </Compile>

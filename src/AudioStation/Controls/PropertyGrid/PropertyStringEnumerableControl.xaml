@@ -5,7 +5,7 @@
              xmlns:system="clr-namespace:System;assembly=System"
              xmlns:xceed="http://schemas.xceed.com/wpf/xaml/toolkit"
              xmlns:local="clr-namespace:AudioStation.Controls"
-             Style="{StaticResource PropertyGridUserControl}">             
+             Style="{StaticResource PropertyGridUserControl}" BorderThickness="0">             
     <Grid>
 
         <Grid.RowDefinitions>
@@ -27,15 +27,18 @@
             <TextBlock Text="{Binding LabelText, RelativeSource={RelativeSource AncestorType=UserControl}}" 
 				       Style="{StaticResource PropertyGridLabel}" />
 
-            <Button fa5:Awesome.Content="Solid_Plus" 
+            <Button x:Name="AddButton"
+                    fa5:Awesome.Content="Solid_Plus" 
+                    Click="AddButton_Click"
+                    Margin="0 0 5 0"
                     Visibility="{Binding IsReadOnly, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BoolInverseVisibilityCollapseConverter}}"
                     Style="{StaticResource SmallControlButton}" 
                     Grid.Column="1" />
 
         </Grid>
 
-        <Border Grid.Column="1" Grid.RowSpan="2" BorderBrush="LightGray" BorderThickness="1">
-            <ItemsControl ItemsSource="{Binding Path=Value, RelativeSource={RelativeSource AncestorType=UserControl}}">
+        <Border Grid.Column="1" Grid.RowSpan="2" BorderBrush="LightGray" Background="White" BorderThickness="0">
+            <ItemsControl x:Name="ItemsLB" ItemsSource="{Binding Path=Value, RelativeSource={RelativeSource AncestorType=UserControl}}" BorderThickness="0">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
                         <Grid>
@@ -44,11 +47,16 @@
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
 
-                            <xceed:WatermarkTextBox Text="{Binding Path=.}" 
+                            <xceed:WatermarkTextBox x:Name="ValueTB"
+                                                    TextChanged="ValueTB_TextChanged"
+                                                    Style="{StaticResource PropertyGridWatermarkTextBox}"
                                                     Watermark="{Binding LabelText, RelativeSource={RelativeSource AncestorType=UserControl}}" 
                                                     IsReadOnly="{Binding IsReadOnly, RelativeSource={RelativeSource AncestorType=UserControl}}" />
 
-                            <Button fa5:Awesome.Content="Solid_Minus" 
+                            <Button x:Name="RemoveButton"
+                                    Click="RemoveButton_Click"
+                                    fa5:Awesome.Content="Solid_Minus" 
+                                    Margin="5 0 0 0"
                                     Visibility="{Binding IsReadOnly, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BoolInverseVisibilityCollapseConverter}}"
                                     Style="{StaticResource SmallControlButton}" 
                                     Grid.Column="1" />

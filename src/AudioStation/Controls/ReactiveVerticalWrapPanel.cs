@@ -26,16 +26,31 @@ namespace AudioStation.Controls
         private void ReactiveVerticalWrapPanel_Loaded(object sender, RoutedEventArgs e)
         {
             // Need the render size of the items control parent
-            var itemsControl = GetParentItemsControl();
-            var scrollViewer = GetParentScrollViewer();
+            //var itemsControl = GetParentItemsControl();
+            //var scrollViewer = GetParentScrollViewer();
 
-            itemsControl.SizeChanged += OnParentSizeChanged;
-            scrollViewer.SizeChanged += OnParentSizeChanged;
+            //itemsControl.SizeChanged += OnParentSizeChanged;
+            //scrollViewer.SizeChanged += OnParentSizeChanged;
+
+            var window = WpfVisualFinders.FindParent<Window>(this);
+
+            window.StateChanged += Window_StateChanged;
+            window.SizeChanged += Window_SizeChanged;
         }
 
-        private void OnParentSizeChanged(object sender, SizeChangedEventArgs e)
+        private void Window_SizeChanged(object sender, SizeChangedEventArgs e)
         {
-            InvalidateMeasure();
+            Application.Current.Dispatcher.BeginInvoke(() =>
+            {
+                InvalidateMeasure();
+            });
+        }
+        private void Window_StateChanged(object? sender, EventArgs e)
+        {
+            Application.Current.Dispatcher.BeginInvoke(() =>
+            {
+                InvalidateMeasure();
+            });
         }
 
         protected override Size MeasureOverride(Size availableSize)

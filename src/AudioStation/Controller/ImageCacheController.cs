@@ -6,6 +6,7 @@ using System.Windows.Media;
 using System.Windows.Threading;
 
 using AudioStation.Component.Interface;
+using AudioStation.Component.Model;
 using AudioStation.Controller.Interface;
 using AudioStation.Controller.Model;
 using AudioStation.Core.Component.Interface;
@@ -39,7 +40,7 @@ namespace AudioStation.Controller
         protected ImageCacheSet<ImageCacheType, ImageCacheKey, ImageCacheItem> AlbumCacheSet;
         protected ImageCacheSet<ImageCacheType, string, ImageCacheItem> WebImageCacheSet;
 
-        protected SimpleDictionary<ImageCacheType, ImageSource> DefaultImageCache { get; private set; }
+        protected SimpleDictionary<ImageCacheType, BitmapImageData> DefaultImageCache { get; private set; }
 
         private object _artistLock = new object();
         private object _albumLock = new object();
@@ -63,7 +64,7 @@ namespace AudioStation.Controller
             this.WebImageCacheSet = new ImageCacheSet<ImageCacheType, string, ImageCacheItem>();
 
             // Default image
-            this.DefaultImageCache = new SimpleDictionary<ImageCacheType, ImageSource>();
+            this.DefaultImageCache = new SimpleDictionary<ImageCacheType, BitmapImageData>();
 
             // Add Caches
             this.ArtistCacheSet.AddCache(ImageCacheType.Thumbnail, new ImageCache<ImageCacheKey, ImageCacheItem>(THUMBNAIL_CACHE_MAX_ENTRIES));
@@ -133,7 +134,7 @@ namespace AudioStation.Controller
             }
         }
 
-        public async Task<ImageSource> GetForArtist(int artistId, ImageCacheType cacheAsType)
+        public async Task<BitmapImageData> GetForArtist(int artistId, ImageCacheType cacheAsType)
         {
             try
             {
@@ -147,7 +148,7 @@ namespace AudioStation.Controller
             return this.DefaultImageCache[cacheAsType];
         }
 
-        public async Task<ImageSource> GetForAlbum(int albumId, ImageCacheType cacheAsType)
+        public async Task<BitmapImageData> GetForAlbum(int albumId, ImageCacheType cacheAsType)
         {
             try
             {
@@ -161,12 +162,12 @@ namespace AudioStation.Controller
             return this.DefaultImageCache[cacheAsType];
         }
 
-        public ImageSource GetDefaultImage(ImageCacheType cacheAsType)
+        public BitmapImageData GetDefaultImage(ImageCacheType cacheAsType)
         {
             return this.DefaultImageCache[cacheAsType];
         }
 
-        public async Task<ImageSource> GetFromEndpoint(string endpoint, PictureType cacheType, ImageCacheType cacheAsType)
+        public async Task<BitmapImageData> GetFromEndpoint(string endpoint, PictureType cacheType, ImageCacheType cacheAsType)
         {
             try
             {
@@ -218,7 +219,7 @@ namespace AudioStation.Controller
             return null;
         }
 
-        private async Task<ImageSource> Get(int entityId, ImageCacheType cacheAsType, bool forArtist)
+        private async Task<BitmapImageData> Get(int entityId, ImageCacheType cacheAsType, bool forArtist)
         {
             var cacheKey = CreateKey(entityId, cacheAsType);
 
@@ -249,11 +250,11 @@ namespace AudioStation.Controller
                               .DistinctBy(picture => picture.Type);                     // See Enumeration
 
             // Convert all images
-            Dictionary<PictureType, ImageSource> imageSources;
+            Dictionary<PictureType, BitmapImageData> imageSources;
 
             // Contention for web image loading (Task)
             imageSources = images.ToDictionary(picture => picture.Type,
-                                                picture => (ImageSource)_bitmapConverter.BitmapDataToBitmapSource(picture.Data.Data, new ImageSize(cacheAsType), picture.MimeType));
+                                                picture => (BitmapImageData)_bitmapConverter.BitmapDataToBitmapSource(picture.Data.Data, new ImageSize(cacheAsType), picture.MimeType));
 
             var cacheItem = new ImageCacheItem(imageSources);
 
