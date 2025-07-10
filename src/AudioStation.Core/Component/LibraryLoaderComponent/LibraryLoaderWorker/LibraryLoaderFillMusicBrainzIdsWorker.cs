@@ -15,12 +15,15 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderWorker
     {
         private readonly IModelController _modelController;
         private readonly IMusicBrainzClient _musicBrainzClient;
+        private readonly ITagCacheController _tagCacheController;
 
         public LibraryLoaderFillMusicBrainzIdsWorker(IModelController modelController,
-                                                     IMusicBrainzClient musicBrainzClient)
+                                                     IMusicBrainzClient musicBrainzClient,
+                                                     ITagCacheController tagCacheController)
         {
             _modelController = modelController;
             _musicBrainzClient = musicBrainzClient;
+            _tagCacheController = tagCacheController;
         }
 
         protected override void Work(ref LibraryLoaderWorkItem workItem)
@@ -185,7 +188,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderWorker
 
             try
             {
-                fileRef = TagLib.File.Create(file);
+                fileRef = _tagCacheController.Get(file);
 
                 if (fileRef == null)
                 {

@@ -3,6 +3,7 @@ using System.Collections.Specialized;
 using System.Windows;
 using System.Windows.Controls;
 
+using AudioStation.Controller.Interface;
 using AudioStation.Controls;
 using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Component.Vendor.Interface;
@@ -26,14 +27,22 @@ namespace AudioStation.Views.LibraryManager
     {
         private readonly IMusicBrainzClient _musicBrainzClient;
         private readonly IOutputController _outputController;
+        private readonly IDialogController _dialogController;
+        private readonly ITagCacheController _tagCacheController;
 
         private ObservableCollection<TabItemPressable> _tabItems;
 
         [IocImportingConstructor]
-        public ManagerView(IMusicBrainzClient musicBrainzClient, IOutputController outputController)
+        public ManagerView(IMusicBrainzClient musicBrainzClient, 
+                           IOutputController outputController, 
+                           IDialogController dialogController,
+                           ITagCacheController tagCacheController)
         {
             _musicBrainzClient = musicBrainzClient;
             _outputController = outputController;
+            _dialogController = dialogController;
+            _tagCacheController = tagCacheController;
+
             _tabItems = new ObservableCollection<TabItemPressable>();
 
             InitializeComponent();
@@ -117,7 +126,7 @@ namespace AudioStation.Views.LibraryManager
             var view = new EntryView();
 
             // Replicate TagLib's tag into our data structure
-            var tagFile = TagLib.File.Create(viewModel.FileName);
+            var tagFile = _tagCacheController.Get(viewModel.FileName);
             var tag = tagFile.Tag;
             var tagFileViewModel = new TagFileViewModel(tagFile);
 

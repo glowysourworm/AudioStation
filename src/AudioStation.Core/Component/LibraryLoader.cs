@@ -45,7 +45,8 @@ namespace AudioStation.Core.Component
         [IocImportingConstructor]
         public LibraryLoader(IModelController modelController,
                              IMusicBrainzClient musicBrainzClient,
-                             IAcoustIDClient acoustIDClient)
+                             IAcoustIDClient acoustIDClient,
+                             ITagCacheController tagCacheController)
         {
             _modelController = modelController;
 
@@ -66,8 +67,8 @@ namespace AudioStation.Core.Component
             for (int index = 0; index < WORKER_THREAD_MAX; index++)
             {
                 _workerThreads.Add(new LibraryLoaderM3UAddUpdateWorker(modelController));
-                _workerThreads.Add(new LibraryLoaderFillMusicBrainzIdsWorker(modelController, musicBrainzClient));
-                _workerThreads.Add(new LibraryLoaderImportWorker(modelController, acoustIDClient, musicBrainzClient));
+                _workerThreads.Add(new LibraryLoaderFillMusicBrainzIdsWorker(modelController, musicBrainzClient, tagCacheController));
+                _workerThreads.Add(new LibraryLoaderImportWorker(modelController, acoustIDClient, musicBrainzClient, tagCacheController));
             }
             foreach (var workerThread in _workerThreads)
             {

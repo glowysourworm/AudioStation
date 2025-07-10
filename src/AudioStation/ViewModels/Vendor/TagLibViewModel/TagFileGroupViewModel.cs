@@ -1,6 +1,7 @@
 ﻿using System.Windows;
 
 using AudioStation.Controller.Interface;
+using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Utility;
 using AudioStation.Model;
 
@@ -11,6 +12,7 @@ using Microsoft.Extensions.Logging;
 using SimpleWpf.Extensions;
 using SimpleWpf.Extensions.Collection;
 using SimpleWpf.Extensions.Command;
+using SimpleWpf.IocFramework.Application;
 using SimpleWpf.SimpleCollections.Collection;
 
 namespace AudioStation.ViewModels.Vendor.TagLibViewModel
@@ -48,58 +50,70 @@ namespace AudioStation.ViewModels.Vendor.TagLibViewModel
             set { this.RaiseAndSetIfChanged(ref _pasteCommand, value); }
         }
 
-        public TagFileGroupViewModel(IDialogController dialogController)
+        public TagFileGroupViewModel()
         {
+            var dialogController = IocContainer.Get<IDialogController>();
+            var tagCacheController = IocContainer.Get<ITagCacheController>();
+
             _tagDict = new SimpleDictionary<string, TagViewModel>();
             _tagGroup = new TagGroupViewModel();
 
             this.SaveCommand = new SimpleCommand(() =>
             {
-                Save(dialogController);
+                Save(dialogController, tagCacheController);
             });
             this.CopyCommand = new SimpleCommand(() =>
             {
-                Copy(dialogController);
+                Copy(dialogController, tagCacheController);
             });
             this.PasteCommand = new SimpleCommand(() =>
             {
-                Paste(dialogController);
+                Paste(dialogController, tagCacheController);
             });
         }
-        public TagFileGroupViewModel(IDialogController dialogController, IEnumerable<TagFileViewModel> tagFiles)
+        public TagFileGroupViewModel(IEnumerable<TagFileViewModel> tagFiles)
         {
+            var dialogController = IocContainer.Get<IDialogController>();
+            var tagCacheController = IocContainer.Get<ITagCacheController>();
+
             _tagDict = tagFiles.ToSimpleDictionary(x => x.Name, x => x.Tag);
             _tagGroup = new TagGroupViewModel(TagGroupViewModel.GroupType.None, tagFiles.Select(x => x.Tag));
 
             this.SaveCommand = new SimpleCommand(() =>
             {
-                Save(dialogController);
+                Save(dialogController, tagCacheController);
+            });
+            this.CopyCommand = new SimpleCommand(() =>
+            {
+                Copy(dialogController, tagCacheController);
+            });
+            this.PasteCommand = new SimpleCommand(() =>
+            {
+                Paste(dialogController, tagCacheController);
             });
         }
 
-        private void Save(IDialogController dialogController)
+        private void Save(IDialogController dialogController, ITagCacheController tagCacheController)
         {
-            var messageLines = new List<string>() { "This data will be saved to the following tags:" };
+            var messageLines = new List<string>() { "This data will be saved to the following tags:", "" };
             messageLines.AddRange(_tagDict.Keys);
+            messageLines.Add("");
             messageLines.Add("Are you sure you want to do this?");
 
             if (dialogController.ShowConfirmation("Save Mp3 Tag to File?", messageLines.ToArray()))
             {
                 try
                 {
-                    // Use AutoMapper to map properties to the tag
-                    var config = new MapperConfiguration(cfg => cfg.CreateMap<TagGroupViewModel, TagLib.Tag>(MemberList.Destination));
-                    var mapper = config.CreateMapper();
-
                     // Save the group data to each individual tag
                     foreach (var pair in _tagDict)
                     {
                         // Create file in memory (load)
-                        var tagFile = TagLib.File.Create(pair.Key);
+                        var tagFile = tagCacheController.Get(pair.Key);
 
                         // Map properties
-                        mapper.Map(_tagGroup, tagFile.Tag, typeof(TagGroupViewModel), typeof(TagLib.Tag));
+                        tagCacheController.MapOnto(_tagGroup, tagFile.Tag);
 
+                        // No need to evict cache - this will be the same reference
                         tagFile.Save();
                     }
                 }
@@ -109,34 +123,39 @@ namespace AudioStation.ViewModels.Vendor.TagLibViewModel
                 }
             }
         }
-
-        private void Copy(IDialogController dialogController)
+        private void Copy(IDialogController dialogController, ITagCacheController tagCacheController)
         {
             try
             {
-                Clipboard.SetDataObject(this.TagGroup as TagLib.Tag);
+                if (tagCacheController.CopyToClipboard(this.TagGroup))
+                {
+                    dialogController.ShowAlert("Mp3 File Data Copy", "Tag data copied to clipboard:", "(Grouped Mp3 File(s))");
+                }
             }
             catch (Exception ex)
             {
                 ApplicationHelpers.Log("Error copying tag data:  {0}", LogMessageType.LibraryLoader, LogLevel.Error, ex.Message);
             }
         }
-
-        private void Paste(IDialogController dialogController)
+        private void Paste(IDialogController dialogController, ITagCacheController tagCacheController)
         {
-            try
-            {
-                var tagData = Clipboard.GetDataObject().GetDataPresent(typeof(TagLib.Tag));
+            var messageLines = new List<string>() { "This data will be saved to the following tags:" };
+            messageLines.AddRange(this.TagFileNames);
+            messageLines.Add("Are you sure you want to do this?");
 
-                // Use AutoMapper to map properties to the tag
-                var config = new MapperConfiguration(cfg => cfg.CreateMap<TagLib.Tag, TagGroupViewModel>(MemberList.Source));
-                var mapper = config.CreateMapper();
-
-                mapper.Map(tagData, this.TagGroup, typeof(TagLib.Tag), typeof(TagGroupViewModel));
-            }
-            catch (Exception ex)
+            if (dialogController.ShowConfirmation("Save Mp3 Tag to File?", messageLines.ToArray()))
             {
-                ApplicationHelpers.Log("Error pasting tag data:  {0}", LogMessageType.LibraryLoader, LogLevel.Error, ex.Message);
+                try
+                {
+                    var tagData = tagCacheController.CopyFromClipboard();
+                    
+                    // Map data back to the tag group
+                    tagCacheController.MapOnto(tagData, this.TagGroup);
+                }
+                catch (Exception ex)
+                {
+                    ApplicationHelpers.Log("Error pasting tag data:  {0}", LogMessageType.LibraryLoader, LogLevel.Error, ex.Message);
+                }
             }
         }
     }

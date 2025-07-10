@@ -1,8 +1,7 @@
 ﻿using System.Collections.ObjectModel;
-using System.Formats.Tar;
 using System.IO;
-using System.Windows;
 
+using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Model;
 using AudioStation.Core.Utility;
 using AudioStation.Model;
@@ -11,7 +10,7 @@ using AudioStation.ViewModels.Vendor.TagLibViewModel;
 using Microsoft.Extensions.Logging;
 
 using SimpleWpf.Extensions;
-using SimpleWpf.Extensions.Command;
+using SimpleWpf.IocFramework.Application;
 
 namespace AudioStation.ViewModels.LibraryLoaderViewModels
 {
@@ -36,8 +35,6 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
         LibraryEntryType _importAsType;
 
         TagFileViewModel _tagFile;
-
-        SimpleCommand _copyTagCommand;
 
         public bool IsSelected
         {
@@ -109,16 +106,13 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
             get { return _destinationDirectory; }
             set { this.RaiseAndSetIfChanged(ref _destinationDirectory, value); }
         }
-        public SimpleCommand CopyTagCommand
-        {
-            get { return _copyTagCommand; }
-            set { this.RaiseAndSetIfChanged(ref _copyTagCommand, value); }
-        }
 
         public LibraryLoaderImportFileViewModel(string fileName, string destinationDirectory, LibraryEntryType importAsType)
         {
             try
             {
+                var tagCacheController = IocContainer.Get<ITagCacheController>();
+
                 this.FileFullPath = fileName;
                 this.FileName = Path.GetFileName(fileName);
                 this.ImportAsType = importAsType;
@@ -126,37 +120,27 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
                 this.AcoustIDTestResults = new ObservableCollection<string>();
                 this.MusicBrainzTestResults = new ObservableCollection<string>();
 
-                var file = TagLib.File.Create(fileName);
+                var file = tagCacheController.Get(fileName);
 
-                this.TagFile = new TagFileViewModel(file);
-                this.TagFile.PropertyChanged += (sender, e) =>
+                if (file != null)
                 {
+                    this.TagFile = new TagFileViewModel(file);
+                    this.TagFile.PropertyChanged += (sender, e) =>
+                    {
+                        UpdateMigrationDetails();
+                    };
+
                     UpdateMigrationDetails();
-                };
-                
-                UpdateMigrationDetails();
+                }
+                else
+                {
+                    ApplicationHelpers.Log("Error loading tag file:  {0}", LogMessageType.LibraryLoader, LogLevel.Error, fileName);
+                }
             }
             catch (Exception ex)
             {
                 ApplicationHelpers.Log("Error loading tag file:  {0}, {1}", LogMessageType.LibraryLoader, LogLevel.Error, fileName, ex.Message);
             }
-
-            this.CopyTagCommand = new SimpleCommand(() =>
-            {
-                if (this.TagFile != null)
-                {
-                    try
-                    {
-                        Clipboard.SetDataObject(this.TagFile.Tag as TagLib.Tag);
-
-                        ApplicationHelpers.Log("Tag data copied to clipboard:  {0}", LogMessageType.LibraryLoader, LogLevel.Information, this.TagFile.Name);
-                    }
-                    catch (Exception ex)
-                    {
-                        ApplicationHelpers.Log("Tag data copy to clipboard failed:  {0}", LogMessageType.LibraryLoader, LogLevel.Error, ex.Message);
-                    }
-                }
-            });
         }
 
         private void UpdateMigrationDetails()
@@ -179,8 +163,8 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
             {
                 case LibraryEntryNamingType.Standard:
                 {
-                    var format = "{0:##} {1}-{2}.mp3";
-                    var formattedTitle = string.Format(format, track, firstAlbumArtist, trackTitle);
+                    var format = "{0:##} {1}.mp3";
+                    var formattedTitle = string.Format(format, track, trackTitle);
                     return StringHelpers.MakeFriendlyFileName(formattedTitle);
                 }
                 case LibraryEntryNamingType.None:

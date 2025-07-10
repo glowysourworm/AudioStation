@@ -48,7 +48,6 @@
                                         </Button.Tag>
                                     </Button>
                                     <Button Style="{StaticResource UserMenuButtonStyle}" Content="Import (Detail)" />
-                                    <Button Style="{StaticResource UserMenuButtonStyle}" Command="{Binding CopyTagCommand}" Content="Copy Tag" />
                                     <Button Style="{StaticResource UserMenuButtonStyle}" Command="{Binding EditTagsCommand}" Content="Edit Tag(s)" />
                                     <Button Style="{StaticResource UserMenuButtonStyle}" Content="Run AcoustID" />
                                     <Button Style="{StaticResource UserMenuButtonStyle}" Content="Run Music Brainz (Detail)">
@@ -89,16 +88,32 @@
                                 <Button x:Name="EditTagButton" 
                                         Click="EditTagButton_Click" 
                                         Style="{StaticResource SmallControlButton}" 
-                                        Margin="3">
+                                        Margin="1">
                                     <fa5:SvgAwesome Icon="Solid_Tag" 
                                                     Width="12" Height="12"
                                                     ToolTip="Tag data is required to complete the import"                       
                                                     Foreground="{Binding TagMinimumForImport, Converter={StaticResource ValidationForegroundConverter}}" />
                                 </Button>
+                                <Button x:Name="CopyTagButton" 
+                                        Command="{Binding TagFile.CopyCommand}"
+                                        Style="{StaticResource SmallControlButton}" 
+                                        Margin="1">
+                                    <fa5:SvgAwesome Icon="Solid_Copy" 
+                                                    Width="12" Height="12"
+                                                    ToolTip="Copy tag data to clipboard" />
+                                </Button>
+                                <Button x:Name="PasteTagButton" 
+                                        Command="{Binding TagFile.PasteCommand}"
+                                        Style="{StaticResource SmallControlButton}" 
+                                        Margin="1">
+                                    <fa5:SvgAwesome Icon="Solid_Paste" 
+                                                    Width="12" Height="12"
+                                                    ToolTip="Paste tag data from clipboard"/>
+                                </Button>
                                 <Button x:Name="AcoustIDTestButton" 
                                         Click="AcoustIDTestButton_Click" 
                                         Style="{StaticResource SmallControlButton}" 
-                                        Margin="3">
+                                        Margin="1">
                                     <fa5:SvgAwesome Icon="Solid_VolumeUp" 
                                                     Width="12" Height="12" Margin="3"
                                                     ToolTip="AcoustID data may be downloaded prior to import; or after."
@@ -110,7 +125,7 @@
                                 <Button x:Name="MusicBrainzTestButton" 
                                         Click="MusicBrainzTestButton_Click"
                                         Style="{StaticResource SmallControlButton}" 
-                                        Margin="3">
+                                        Margin="1">
                                     <fa5:SvgAwesome Icon="Solid_Music" 
                                                     Width="12" Height="12"
                                                     ToolTip="Music Brainz data may be downloaded prior to import; or after."              

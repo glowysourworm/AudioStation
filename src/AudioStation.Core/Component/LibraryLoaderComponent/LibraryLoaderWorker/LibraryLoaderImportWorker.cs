@@ -27,17 +27,20 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderWorker
         private readonly IModelController _modelController;
         private readonly IMusicBrainzClient _musicBrainzClient;
         private readonly IAcoustIDClient _acoustIDClient;
+        private readonly ITagCacheController _tagCacheController;
 
         private const int ACOUSTID_MIN_SCORE = 80;
         private const int MUSIC_BRAINZ_MIN_SCORE = 100;
 
         public LibraryLoaderImportWorker(IModelController modelController,
-                                                    IAcoustIDClient acoustIDClient,
-                                                    IMusicBrainzClient musicBrainzClient)
+                                         IAcoustIDClient acoustIDClient,
+                                         IMusicBrainzClient musicBrainzClient,
+                                         ITagCacheController tagCacheController)
         {
             _modelController = modelController;
             _acoustIDClient = acoustIDClient;
             _musicBrainzClient = musicBrainzClient;
+            _tagCacheController = tagCacheController;
         }
 
         protected override void Work(ref LibraryLoaderWorkItem workItem)
@@ -351,7 +354,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderWorker
 
             try
             {
-                fileRef = TagLib.File.Create(file);
+                fileRef = _tagCacheController.Get(file);
 
                 if (fileRef == null)
                 {
@@ -390,7 +393,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderWorker
                 fileLoadError = false;
                 fileErrorMessage = string.Empty;
 
-                var fileRef = TagLib.File.Create(fileName);
+                var fileRef = _tagCacheController.Get(fileName);
 
                 if (fileRef == null)
                     return null;

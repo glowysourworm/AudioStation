@@ -63,7 +63,7 @@ namespace AudioStation.Views.LibraryLoaderViews
 
                 if (selectedFile != null)
                 {
-                    var tagFileGroupModel = new TagFileGroupViewModel(_dialogController, new TagFileViewModel[] { selectedFile.TagFile });
+                    var tagFileGroupModel = new TagFileGroupViewModel(new TagFileViewModel[] { selectedFile.TagFile });
 
                     _dialogController.ShowTagWindow(tagFileGroupModel);
                 }                

@@ -68,6 +68,13 @@ namespace AudioStation.Controller
             return MessageBox.Show(message, caption, MessageBoxButton.YesNoCancel) == MessageBoxResult.Yes;
         }
 
+        public void ShowAlert(string caption, params string[] messageLines)
+        {
+            var message = messageLines.Join("\n", x => x);
+
+            MessageBox.Show(message, caption, MessageBoxButton.OK);
+        }
+
         public void ShowLogWindow(LogViewModel viewModel)
         {
             var window = new LogWindow();

@@ -69,7 +69,7 @@
                 </ItemsPanelTemplate>
             </ListBox.ItemsPanel>
 
-            <propertyGrid:PropertyStringControl LabelColumnWidth="200" LabelText="Title" Value="{Binding Title}" IsReadOnly="False" />
+            <propertyGrid:PropertyStringControl LabelColumnWidth="200" LabelText="Title" Value="{Binding Title, Mode=TwoWay}" IsReadOnly="False" />
             <propertyGrid:PropertyStringControl LabelColumnWidth="200" LabelText="Album" Value="{Binding Album}" IsReadOnly="False" />
             <propertyGrid:PropertyStringEnumerableControl LabelColumnWidth="200"
                                                       LabelText="Artists" 

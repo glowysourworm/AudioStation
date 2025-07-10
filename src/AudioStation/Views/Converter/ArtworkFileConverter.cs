@@ -3,10 +3,21 @@ using System.IO;
 using System.Windows.Data;
 using System.Windows.Media.Imaging;
 
+using AudioStation.Core.Component.Interface;
+
+using SimpleWpf.IocFramework.Application;
+
 namespace AudioStation.Views.Converter
 {
     public class ArtworkFileConverter : IValueConverter
     {
+        private readonly ITagCacheController _tagCacheController;
+
+        public ArtworkFileConverter()
+        {
+            _tagCacheController = IocContainer.Get<ITagCacheController>();
+        }
+
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             if (value == null)
@@ -17,7 +28,7 @@ namespace AudioStation.Views.Converter
             if (string.IsNullOrEmpty(fileName))
                 return null;
 
-            var fileRef = TagLib.File.Create(fileName);
+            var fileRef = _tagCacheController.Get(fileName);
 
             // Creates IImage "source" for the Avalonia Image control
             if (fileRef.Tag.Pictures.Any())

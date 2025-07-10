@@ -54,6 +54,7 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
 
         SimpleCommand _selectSourceFolderCommand;
         SimpleCommand _editTagsCommand;
+        SimpleCommand _copyTagCommand;
         SimpleCommand _runImportCommand;
         SimpleCommand _runImportTestCommand;
         SimpleCommand _runMusicBrainzLookupCommand;
@@ -182,7 +183,8 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
         [IocImportingConstructor]
         public LibraryLoaderImportViewModel(IConfigurationManager configurationManager,
                                             ILibraryLoader libraryLoader,
-                                            IDialogController dialogController)
+                                            IDialogController dialogController,
+                                            ITagCacheController tagCacheController)
         {
             _configurationManager = configurationManager;
             _dialogController = dialogController;
@@ -205,7 +207,7 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
 
             this.EditTagsCommand = new SimpleCommand(() =>
             {
-                EditTags();
+                EditTags(tagCacheController);
             });
 
             this.RunImportCommand = new SimpleCommand(() =>
@@ -278,7 +280,7 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
             libraryLoader.Start();
         }
 
-        private void  EditTags()
+        private void  EditTags(ITagCacheController tagCacheController)
         {
             var inputFiles = _sourceFiles.Where(x => x.IsSelected).ToList();
             var firstFile = inputFiles.FirstOrDefault();
@@ -295,14 +297,14 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
 
                 foreach (var file in inputFiles)
                 {
-                    var tagFile = TagLib.File.Create(file.FileFullPath);
+                    var tagFile = tagCacheController.Get(file.FileFullPath);
                     var tagFileViewModel = new TagFileViewModel(tagFile);
 
                     // Add tag to the group view model
                     fileViewModels.Add(tagFileViewModel);
                 }
 
-                _dialogController.ShowTagWindow(new TagFileGroupViewModel(_dialogController, fileViewModels));
+                _dialogController.ShowTagWindow(new TagFileGroupViewModel(fileViewModels));
             }
             catch (Exception ex)
             {

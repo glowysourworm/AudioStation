@@ -28,6 +28,7 @@ namespace AudioStation.Controller
         readonly IModelController _modelController;
         readonly IBitmapConverter _bitmapConverter;
         readonly IOutputController _outputController;
+        readonly ITagCacheController _tagCacheController;
 
         private const int FULL_CACHE_MAX_ENTRIES = 30;
         private const int MEDIUM_CACHE_MAX_ENTRIES = 50;
@@ -51,11 +52,13 @@ namespace AudioStation.Controller
         [IocImportingConstructor]
         public ImageCacheController(IModelController modelController,
                                     IBitmapConverter bitmapConverter,
-                                    IOutputController outputController)
+                                    IOutputController outputController,
+                                    ITagCacheController tagCacheController)
         {
             _modelController = modelController;
             _bitmapConverter = bitmapConverter;
             _outputController = outputController;
+            _tagCacheController = tagCacheController;
 
             this.ArtistCacheSet = new ImageCacheSet<ImageCacheType, ImageCacheKey, ImageCacheItem>();
             this.AlbumCacheSet = new ImageCacheSet<ImageCacheType, ImageCacheKey, ImageCacheItem>();
@@ -244,7 +247,7 @@ namespace AudioStation.Controller
             var files = forArtist ? _modelController.GetArtistFiles(entityId) : _modelController.GetAlbumTracks(entityId);
 
             // Take all the artwork - consolidating the images
-            var images = files.Select(entity => TagLib.File.Create(entity.FileName))
+            var images = files.Select(entity => _tagCacheController.Get(entity.FileName))
                               .Where(tagRef => !tagRef.PossiblyCorrupt)
                               .SelectMany(tagRef => tagRef.Tag.Pictures)
                               .DistinctBy(picture => picture.Type);                     // See Enumeration
