@@ -24,17 +24,14 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
         string _fileMigrationName;
         string _fileMigrationFullPath;
         string _destinationDirectory;
-        ObservableCollection<string> _acoustIDTestResults;
-        ObservableCollection<string> _musicBrainzTestResults;
 
         // Data available for the import (either cached here or in the database)
         bool _tagMinimumForImport;
-        bool _musicBrainzDataLocal;
-        bool _acoustIDLocal;
 
         LibraryEntryType _importAsType;
 
         TagFileViewModel _tagFile;
+        LibraryLoaderImportOutputViewModel _importOutput;
 
         public bool IsSelected
         {
@@ -66,35 +63,20 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
             get { return _fileMigrationFullPath; }
             set { this.RaiseAndSetIfChanged(ref _fileMigrationFullPath, value); }
         }
-        public ObservableCollection<string> AcoustIDTestResults
-        {
-            get { return _acoustIDTestResults; }
-            set { this.RaiseAndSetIfChanged(ref _acoustIDTestResults, value); }
-        }
-        public ObservableCollection<string> MusicBrainzTestResults
-        {
-            get { return _musicBrainzTestResults; }
-            set { this.RaiseAndSetIfChanged(ref _musicBrainzTestResults, value); }
-        }
         public bool TagMinimumForImport
         {
             get { return _tagMinimumForImport; }
             set { this.RaiseAndSetIfChanged(ref _tagMinimumForImport, value); }
         }
-        public bool MusicBrainzDataLocal
-        {
-            get { return _musicBrainzDataLocal; }
-            set { this.RaiseAndSetIfChanged(ref _musicBrainzDataLocal, value); }
-        }
-        public bool AcoustIDLocal
-        {
-            get { return _acoustIDLocal; }
-            set { this.RaiseAndSetIfChanged(ref _acoustIDLocal, value); }
-        }
         public TagFileViewModel TagFile
         {
             get { return _tagFile; }
             set { this.RaiseAndSetIfChanged(ref _tagFile, value); }
+        }
+        public LibraryLoaderImportOutputViewModel ImportOutput
+        {
+            get { return _importOutput; }
+            set { this.RaiseAndSetIfChanged(ref _importOutput, value); }
         }
         public LibraryEntryType ImportAsType
         {
@@ -117,8 +99,7 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
                 this.FileName = Path.GetFileName(fileName);
                 this.ImportAsType = importAsType;
                 this.DestinationDirectory = destinationDirectory;
-                this.AcoustIDTestResults = new ObservableCollection<string>();
-                this.MusicBrainzTestResults = new ObservableCollection<string>();
+                this.ImportOutput = new LibraryLoaderImportOutputViewModel();
 
                 var file = tagCacheController.Get(fileName);
 

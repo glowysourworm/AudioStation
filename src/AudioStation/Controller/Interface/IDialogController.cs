@@ -13,9 +13,5 @@ namespace AudioStation.Controller.Interface
 
         void ShowLogWindow(LogViewModel viewModel);
         void ShowTagWindow(TagFileGroupViewModel viewModel);
-
-        void ShowLoadingWindow();
-        void UpdateLoadingWindow(double progress);
-        void HideLoadingWindow();
     }
 }

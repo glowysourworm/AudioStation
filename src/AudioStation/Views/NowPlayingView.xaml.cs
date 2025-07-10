@@ -32,13 +32,13 @@ namespace AudioStation.Views
             if (viewModel != null && trackViewModel != null)
             {
                 // Loading...
-                _eventAggregator.GetEvent<MainLoadingChangedEvent>().Publish(new MainLoadingChangedEventData(true, "Loading Playlist..."));
+                _eventAggregator.GetEvent<DialogEvent>().Publish(DialogEventData.ShowLoading("Loading Playlist..."));
 
                 // Set Now Playing
                 viewModel.SetNowPlaying(trackViewModel, true);
 
                 // Loading Finished
-                _eventAggregator.GetEvent<MainLoadingChangedEvent>().Publish(new MainLoadingChangedEventData(NavigationView.NowPlaying));
+                _eventAggregator.GetEvent<DialogEvent>().Publish(DialogEventData.Dismiss(NavigationView.NowPlaying));
             }
         }
     }

@@ -113,7 +113,7 @@ namespace AudioStation.Views
         private async Task LoadPlaylist(LibraryEntryViewModel selectedTitle, AlbumViewModel selectedAlbum, ArtistViewModel selectedArtist)
         {
             // Loading...
-            _eventAggregator.GetEvent<MainLoadingChangedEvent>().Publish(new MainLoadingChangedEventData(true, "Loading Playlist..."));
+            _eventAggregator.GetEvent<DialogEvent>().Publish(DialogEventData.ShowLoading("Loading Playlist..."));
 
             var nowPlayingData = await _nowPlayingViewModelLoader.LoadPlaylist(selectedArtist, selectedAlbum, selectedTitle);
 
@@ -127,7 +127,7 @@ namespace AudioStation.Views
             _eventAggregator.GetEvent<LoadPlaylistEvent>().Publish(eventData);
 
             // Loading Finished
-            _eventAggregator.GetEvent<MainLoadingChangedEvent>().Publish(new MainLoadingChangedEventData(NavigationView.NowPlaying));
+            _eventAggregator.GetEvent<DialogEvent>().Publish(DialogEventData.Dismiss(NavigationView.NowPlaying));
         }
         private void OnArtistSearchChanged(object sender, TextChangedEventArgs e)
         {

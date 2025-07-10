@@ -42,7 +42,6 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
         LibraryEntryNamingType _namingType;
 
         NotifyingObservableCollection<LibraryLoaderImportFileViewModel> _sourceFiles;
-        NotifyingObservableCollection<LibraryLoaderImportOutputViewModel> _destinationFiles;
 
         bool _includeMusicBrainzDetail;
         bool _identifyUsingAcoustID;
@@ -54,7 +53,6 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
 
         SimpleCommand _selectSourceFolderCommand;
         SimpleCommand _editTagsCommand;
-        SimpleCommand _copyTagCommand;
         SimpleCommand _runImportCommand;
         SimpleCommand _runImportTestCommand;
         SimpleCommand _runMusicBrainzLookupCommand;
@@ -108,11 +106,6 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
         {
             get { return _sourceFiles; }
             set { this.RaiseAndSetIfChanged(ref _sourceFiles, value); }
-        }
-        public NotifyingObservableCollection<LibraryLoaderImportOutputViewModel> DestinationFiles
-        {
-            get { return _destinationFiles; }
-            set { this.RaiseAndSetIfChanged(ref _destinationFiles, value); }
         }
         public bool IncludeMusicBrainzDetail
         {
@@ -192,7 +185,6 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
             var configuration = configurationManager.GetConfiguration();
 
             this.SourceFiles = new NotifyingObservableCollection<LibraryLoaderImportFileViewModel>();
-            this.DestinationFiles = new NotifyingObservableCollection<LibraryLoaderImportOutputViewModel>();
             this.SourceFolderSearch = string.Empty;
             this.DestinationFolderSearch = string.Empty;
 
@@ -235,21 +227,13 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
             });
 
             this.SourceFiles.ItemPropertyChanged += SourceFiles_ItemPropertyChanged;
-            this.DestinationFiles.ItemPropertyChanged += DestinationFiles_ItemPropertyChanged;
 
             RefreshImportFiles();
-        }
-
-        private void DestinationFiles_ItemPropertyChanged(NotifyingObservableCollection<LibraryLoaderImportOutputViewModel> item1, LibraryLoaderImportOutputViewModel item2, PropertyChangedEventArgs item3)
-        {
-            
         }
 
         private void SourceFiles_ItemPropertyChanged(NotifyingObservableCollection<LibraryLoaderImportFileViewModel> item1, LibraryLoaderImportFileViewModel item2, PropertyChangedEventArgs item3)
         {
             OnPropertyChanged("SourceFileSelectedCount");
-
-            RefreshDestinationFiles();
         }
 
         private void RunImport(ILibraryLoader libraryLoader, Configuration configuration, bool testOnly)
@@ -354,17 +338,6 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
             }
 
             //RefreshDestinationFiles();
-        }
-
-        private void RefreshDestinationFiles()
-        {
-            this.DestinationFiles.Clear();
-            //this.DestinationFiles.AddRange(this.SourceFiles
-            //                                   .Where(x => x.IsSelected)
-            //                                   .Select(x => new LibraryLoaderImportOutputViewModel()
-            //{
-            //    ImportFileName = x.FileName
-            //}));
         }
 
         public void SetImportComplete(LibraryLoaderImportLoadOutput output)

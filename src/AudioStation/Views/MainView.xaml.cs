@@ -22,12 +22,12 @@ namespace AudioStation.Views
 
             InitializeComponent();
 
-            eventAggregator.GetEvent<MainLoadingChangedEvent>().Subscribe(OnMainLoadingChanged, IocEventPriority.Low);
+            eventAggregator.GetEvent<DialogEvent>().Subscribe(OnMainLoadingChanged, IocEventPriority.Low);
         }
 
-        private void OnMainLoadingChanged(MainLoadingChangedEventData data)
+        private void OnMainLoadingChanged(DialogEventData data)
         {
-            switch (data.RequestedView)
+            switch (data.NavigationView)
             {
                 case NavigationView.None:
                     break;

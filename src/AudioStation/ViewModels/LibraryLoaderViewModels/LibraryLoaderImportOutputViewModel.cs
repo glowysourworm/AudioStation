@@ -95,6 +95,11 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
 
         public LibraryLoaderImportOutputViewModel()
         {
+            this.ImportFileName = string.Empty;
+            this.OutputFileName = string.Empty;
+            this.FinalRecord = string.Empty;
+            this.ImportedRecord = string.Empty;
+
             this.AcoustIDResults = new ObservableCollection<string>();
             this.MusicBrainzCombinedRecords = new ObservableCollection<string>();
             this.MusicBrainzRecordingMatches = new ObservableCollection<string>();

@@ -11,21 +11,18 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
-            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="Auto" />
-            <ColumnDefinition Width="*" />
-        </Grid.ColumnDefinitions>
 
         <!-- Input Files -->
-        <xceed:WatermarkTextBox Margin="5" Text="{Binding SourceFolderSearch, UpdateSourceTrigger=PropertyChanged, Delay=300}" Watermark="Search Input Files..." HorizontalAlignment="Stretch" />
+        <xceed:WatermarkTextBox Margin="5" 
+                                Text="{Binding SourceFolderSearch, UpdateSourceTrigger=PropertyChanged, Delay=300}" 
+                                Watermark="Search Import Files..." 
+                                HorizontalAlignment="Stretch" />
 
-        <ListBox Grid.Row="1" Margin="5" x:Name="InputLB"
+        <ListBox Grid.Row="1" Margin="5" x:Name="ImportLB"
                  ItemsSource="{Binding SourceFiles}"
                  SelectedValuePath="IsSelected"
-                 SelectionChanged="InputLB_SelectionChanged"
+                 SelectionChanged="ImportLB_SelectionChanged"
                  SelectionMode="Extended"
                  AlternationCount="2"
                  ItemContainerStyle="{StaticResource HoverSelectItemContainerStyleWithAlternation_LibraryLoader}"
@@ -118,7 +115,7 @@
                                                     Width="12" Height="12" Margin="3"
                                                     ToolTip="AcoustID data may be downloaded prior to import; or after."
                                                     Style="{StaticResource FontAwesomeIconManagerViewPager}"
-                                                    Foreground="{Binding AcoustIDLocal, 
+                                                    Foreground="{Binding ImportOutput.AcoustIDSuccess, 
                                                                          Converter={StaticResource ParameterProviderBoolConverter},
                                                                          ConverterParameter={x:Static Brushes.DodgerBlue}}" />
                                 </Button>
@@ -130,7 +127,7 @@
                                                     Width="12" Height="12"
                                                     ToolTip="Music Brainz data may be downloaded prior to import; or after."              
                                                     Style="{StaticResource FontAwesomeIconManagerViewPager}"
-                                                    Foreground="{Binding MusicBrainzDataLocal, 
+                                                    Foreground="{Binding ImportOutput.MusicBrainzRecordingMatchSuccess, 
                                                                          Converter={StaticResource ParameterProviderBoolConverter},
                                                                          ConverterParameter={x:Static Brushes.DodgerBlue}}" />
                                 </Button>
@@ -162,27 +159,5 @@
             </ListBox.ItemTemplate>
         </ListBox>
 
-        <!-- Output Files -->
-        <xceed:WatermarkTextBox Grid.Column="2" Margin="5" Text="{Binding DestinationFolderSearch, UpdateSourceTrigger=PropertyChanged, Delay=300}" Watermark="Search Output Files..." HorizontalAlignment="Stretch" />
-
-        <ListBox Grid.Row="1" Grid.Column="2" Margin="5"
-                 ItemsSource="{Binding DestinationFiles}"
-                 AlternationCount="2"
-                 ItemContainerStyle="{StaticResource HoverSelectItemContainerStyleWithAlternation_LibraryLoader}"      
-                 HorizontalContentAlignment="Stretch"
-                 VirtualizingPanel.IsVirtualizing="True"
-                 VirtualizingPanel.VirtualizationMode="Recycling"
-                 VirtualizingPanel.CacheLength="3">
-            <ListBox.ItemTemplate>
-                <DataTemplate>
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
-                        <TextBlock Text="{Binding ImportFileName}" Margin="3" VerticalAlignment="Center" Grid.Column="1" />
-                    </Grid>
-                </DataTemplate>
-            </ListBox.ItemTemplate>
-        </ListBox>
     </Grid>
 </UserControl>

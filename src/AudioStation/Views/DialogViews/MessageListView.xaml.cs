@@ -13,14 +13,14 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace AudioStation.Views
+namespace AudioStation.Views.DialogViews
 {
     /// <summary>
-    /// Interaction logic for LoadingView.xaml
+    /// Interaction logic for MessageListView.xaml
     /// </summary>
-    public partial class LoadingView : UserControl
+    public partial class MessageListView : UserControl
     {
-        public LoadingView()
+        public MessageListView()
         {
             InitializeComponent();
         }
