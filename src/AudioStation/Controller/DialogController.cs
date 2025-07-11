@@ -158,8 +158,12 @@ namespace AudioStation.Controller
                     throw new Exception("Unhandled dialog view type:  DialogController.cs");
             }
 
-            // We could add this (more event data) to the binding for this window; but it's ok
-            // to do directly since we're going to own this window here:
+            // We can't add this to the binding data because it is for the window. The data context is now being used
+            // for the actual view content. So, we should try to keep this pattern so this dialog controller owns the
+            // DialogWindow.
+            //
+            _dialogWindow.TitleTB.Text = data.DialogTitle;
+            _dialogWindow.HeaderContainer.Visibility = string.IsNullOrEmpty(data.DialogTitle) ? Visibility.Collapsed : Visibility.Visible;
             _dialogWindow.ButtonPanel.Visibility = data.UserDismissalMode ? Visibility.Visible : Visibility.Collapsed;
 
             // Can't show the loading screen as a dialog window; but the window will appear as

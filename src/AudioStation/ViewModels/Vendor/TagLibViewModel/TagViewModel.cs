@@ -1,5 +1,7 @@
 ﻿using System.ComponentModel;
 
+using AudioStation.Core.Utility;
+
 using AutoMapper;
 
 using TagLib;
@@ -499,10 +501,7 @@ namespace AudioStation.ViewModels.Vendor.TagLibViewModel
         }
         public TagViewModel(TagLib.Tag tag)
         {
-            var config = new MapperConfiguration(cfg => cfg.CreateMap<TagLib.Tag, TagViewModel>(MemberList.Destination));
-            var mapper = config.CreateMapper();
-
-            mapper.Map(tag, this, typeof(TagLib.Tag), typeof(TagViewModel));
+            ApplicationHelpers.MapOnto(tag, this);
 
             _tagTypes = tag.TagTypes;
         }

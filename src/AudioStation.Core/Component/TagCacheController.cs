@@ -10,6 +10,10 @@ using AutoMapper;
 
 using Microsoft.Extensions.Logging;
 
+using NAudio.Dmo;
+using NAudio.MediaFoundation;
+using NAudio.Wave;
+
 using SimpleWpf.IocFramework.Application.Attribute;
 using SimpleWpf.RecursiveSerializer.Shared;
 using SimpleWpf.SimpleCollections.Collection;
@@ -50,7 +54,7 @@ namespace AudioStation.Core.Component
             try
             {
                 // Map to our tag extension class and serialize
-                var tagExtension = Map<TagLib.Tag, TagExtension>(tag);
+                var tagExtension = ApplicationHelpers.Map<TagLib.Tag, TagExtension>(tag);
                 var buffer = Serialize(tagExtension);
 
                 Clipboard.SetDataObject(buffer);
@@ -97,57 +101,24 @@ namespace AudioStation.Core.Component
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Error initializing tag data:  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
-            }
-        }
+                ApplicationHelpers.Log("Error reading tag data (rebuilding Mp3 file):  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
 
-        public TDestination Map<TSource, TDestination>(TSource tagSource) 
-            where TSource : TagLib.Tag
-            where TDestination : TagLib.Tag
-        {
-            try
-            {
-                var config = new MapperConfiguration(cfg =>
+                var tagFile = RepairFile(fileName);
+
+                if (tagFile == null)
+                    ApplicationHelpers.Log("Mp3 file rebuild failed (mp3 file load failed):  {0}", LogMessageType.General, LogLevel.Error, fileName);
+
+                else
                 {
-                    cfg.CreateMap<TSource, TDestination>();
-                });
+                    ApplicationHelpers.Log("Mp3 file rebuilt (tag data erased!):  {0}", LogMessageType.General, LogLevel.Warning, fileName);
 
-                var mapper = config.CreateMapper();
+                    if (_tagFiles.ContainsKey(fileName))
+                        _tagFiles.Remove(fileName);
 
-                // Use our implementation for an instance
-                var tagDestination = Activator.CreateInstance(typeof(TDestination));
-
-                return (TDestination)mapper.Map(tagSource, tagDestination, typeof(TSource), typeof(TDestination));
-            }
-            catch (Exception ex)
-            {
-                ApplicationHelpers.Log("Error mapping tag types:  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
-                throw ex;
+                    _tagFiles.Add(fileName, tagFile);
+                }
             }
         }
-
-        public TDestination MapOnto<TSource, TDestination>(TSource tagSource, TDestination tagDestination)
-            where TSource : TagLib.Tag
-            where TDestination : TagLib.Tag
-        {
-            try
-            {
-                var config = new MapperConfiguration(cfg =>
-                {
-                    cfg.CreateMap<TSource, TDestination>();
-                });
-
-                var mapper = config.CreateMapper();
-
-                return (TDestination)mapper.Map(tagSource, tagDestination, typeof(TSource), typeof(TDestination));
-            }
-            catch (Exception ex)
-            {
-                ApplicationHelpers.Log("Error mapping tag types:  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
-                throw ex;
-            }
-        }
-
         public byte[] Serialize(TagExtension serializableTag)
         {
             using (var stream = new MemoryStream())
@@ -176,6 +147,47 @@ namespace AudioStation.Core.Component
                 stream.Seek(0, SeekOrigin.Begin);
 
                 return serializer.Deserialize(stream);
+            }
+        }
+
+        private TagLib.File RepairFile(string fileName)
+        {
+            // Procedure
+            //
+            // 1) Take audio using NAudio's MediaFoundataionEncoder
+            // 2) Create bare Mp3 file in place of existing file
+            // 3) Open using taglib and do a bare save
+            //
+
+            try
+            {
+                // Load into memory
+                var mp3Reader = new Mp3FileReader(fileName);
+                var stream = new MemoryStream();
+
+                // This may or may not repair the file as TagLib reads it. If not, then we'll use the NAudio create
+                // header tag methods.
+                MediaFoundationEncoder.EncodeToMp3(mp3Reader, stream);
+
+                var buffer = stream.GetBuffer();
+
+                mp3Reader.Close();
+                mp3Reader.Dispose();
+                mp3Reader = null;
+
+                stream.Dispose();
+                stream = null;
+
+                System.IO.File.WriteAllBytes(fileName, buffer);
+
+                buffer = null;
+
+                return TagLib.File.Create(fileName);
+            }
+            catch (Exception ex)
+            {
+                ApplicationHelpers.Log("Cannot rebuild mp3 file:  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
+                return null;
             }
         }
     }

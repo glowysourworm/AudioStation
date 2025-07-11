@@ -43,7 +43,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderWorker
                 // Set Work Item
                 if (streams == null || streams.Count == 0)
                 {
-                    ApplicationHelpers.LogSeparate(workItem.GetId(), "M3U stream file load failed:  {0}", LogMessageType.LibraryLoaderWorkItem, LogLevel.Error, file);
+                    //ApplicationHelpers.LogSeparate(workItem.GetId(), "M3U stream file load failed:  {0}", LogMessageType.LibraryLoaderWorkItem, LogLevel.Error, file);
 
                     generalError = true;
                 }
@@ -52,7 +52,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderWorker
                     // Add to database
                     _modelController.AddRadioEntries(streams);
 
-                    ApplicationHelpers.LogSeparate(workItem.GetId(), "M3U stream file load success: Streams={0}, File={1}", LogMessageType.LibraryLoaderWorkItem, LogLevel.Information, streams.Count, file);
+                    //ApplicationHelpers.LogSeparate(workItem.GetId(), "M3U stream file load success: Streams={0}, File={1}", LogMessageType.LibraryLoaderWorkItem, LogLevel.Information, streams.Count, file);
                 }
 
                 fileLoad.SetComplete(file, streams != null && streams.Count > 0);
@@ -106,7 +106,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderWorker
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.LogSeparate(workItemId, "Radio M3U file load error:  {0}", LogMessageType.LibraryLoaderWorkItem, LogLevel.Error, ex.Message);
+                //ApplicationHelpers.LogSeparate(workItemId, "Radio M3U file load error:  {0}", LogMessageType.LibraryLoaderWorkItem, LogLevel.Error, ex.Message);
             }
 
             return null;

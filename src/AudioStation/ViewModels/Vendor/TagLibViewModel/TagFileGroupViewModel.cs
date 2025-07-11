@@ -111,7 +111,7 @@ namespace AudioStation.ViewModels.Vendor.TagLibViewModel
                         var tagFile = tagCacheController.Get(pair.Key);
 
                         // Map properties
-                        tagCacheController.MapOnto(_tagGroup, tagFile.Tag);
+                        ApplicationHelpers.MapOnto(_tagGroup, tagFile.Tag);
 
                         // No need to evict cache - this will be the same reference
                         tagFile.Save();
@@ -150,7 +150,7 @@ namespace AudioStation.ViewModels.Vendor.TagLibViewModel
                     var tagData = tagCacheController.CopyFromClipboard();
                     
                     // Map data back to the tag group
-                    tagCacheController.MapOnto(tagData, this.TagGroup);
+                    ApplicationHelpers.MapOnto(tagData, this.TagGroup);
                 }
                 catch (Exception ex)
                 {

@@ -1,5 +1,12 @@
 ﻿using System.Collections.ObjectModel;
 
+using AcoustID.Web;
+
+using AudioStation.Core.Database.MusicBrainzDatabase.Model;
+using AudioStation.Core.Model.Vendor;
+using AudioStation.ViewModels.Vendor.AcoustIDViewModel;
+using AudioStation.ViewModels.Vendor.MusicBrainzViewModel;
+
 using SimpleWpf.Extensions;
 
 namespace AudioStation.ViewModels.LibraryLoaderViewModels
@@ -9,9 +16,9 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
         string _importFileName;
         string _outputFileName;
         ObservableCollection<string> _logMessages;
-        ObservableCollection<string> _acoustIDResults;
-        ObservableCollection<string> _musicBrainzRecordingMatches;
-        ObservableCollection<string> _musicBrainzCombinedRecords;
+        ObservableCollection<LookupResultViewModel> _acoustIDResults;
+        ObservableCollection<MusicBrainzRecordingViewModel> _musicBrainzRecordingMatches;
+        ObservableCollection<MusicBrainzCombinedLibraryEntryRecord> _musicBrainzCombinedRecords;
         string _finalRecord;
         string _importedRecord;
 
@@ -37,17 +44,17 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
             get { return _logMessages; }
             set { this.RaiseAndSetIfChanged(ref _logMessages, value); }
         }
-        public ObservableCollection<string> AcoustIDResults
+        public ObservableCollection<LookupResultViewModel> AcoustIDResults
         {
             get { return _acoustIDResults; }
             set { this.RaiseAndSetIfChanged(ref _acoustIDResults, value); }
         }
-        public ObservableCollection<string> MusicBrainzRecordingMatches
+        public ObservableCollection<MusicBrainzRecordingViewModel> MusicBrainzRecordingMatches
         {
             get { return _musicBrainzRecordingMatches; }
             set { this.RaiseAndSetIfChanged(ref _musicBrainzRecordingMatches, value); }
         }
-        public ObservableCollection<string> MusicBrainzCombinedRecords
+        public ObservableCollection<MusicBrainzCombinedLibraryEntryRecord> MusicBrainzCombinedRecords
         {
             get { return _musicBrainzCombinedRecords; }
             set { this.RaiseAndSetIfChanged(ref _musicBrainzCombinedRecords, value); }
@@ -100,9 +107,9 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
             this.FinalRecord = string.Empty;
             this.ImportedRecord = string.Empty;
 
-            this.AcoustIDResults = new ObservableCollection<string>();
-            this.MusicBrainzCombinedRecords = new ObservableCollection<string>();
-            this.MusicBrainzRecordingMatches = new ObservableCollection<string>();
+            this.AcoustIDResults = new ObservableCollection<LookupResultViewModel>();
+            this.MusicBrainzCombinedRecords = new ObservableCollection<MusicBrainzCombinedLibraryEntryRecord>();
+            this.MusicBrainzRecordingMatches = new ObservableCollection<MusicBrainzRecordingViewModel>();
             this.LogMessages = new ObservableCollection<string>();
         }
     }

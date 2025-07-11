@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using AudioStation.Core.Utility;
+
 using AutoMapper;
 
 using SimpleWpf.Extensions;
@@ -101,10 +103,7 @@ namespace AudioStation.ViewModels.Vendor.TagLibViewModel
         }
         public PropertiesViewModel(TagLib.Properties properties)
         {
-            var config = new MapperConfiguration(cfg => cfg.CreateMap<TagLib.Properties, PropertiesViewModel>(MemberList.Destination));
-            var mapper = config.CreateMapper();
-
-            mapper.Map(properties, this, typeof(TagLib.Properties), typeof(PropertiesViewModel));
+            ApplicationHelpers.MapOnto(properties, this);
         }
     }
 }

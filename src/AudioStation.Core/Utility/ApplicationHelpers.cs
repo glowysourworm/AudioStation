@@ -5,6 +5,8 @@ using System.Windows.Threading;
 using AudioStation.Core.Component.Interface;
 using AudioStation.Model;
 
+using AutoMapper;
+
 using Microsoft.Extensions.Logging;
 
 using SimpleWpf.IocFramework.Application;
@@ -17,6 +19,10 @@ namespace AudioStation.Core.Utility
         private static IOutputController GetOutputController()
         {
             return IocContainer.Get<IOutputController>();
+        }
+        private static ILoggerFactory GetLoggerFactory()
+        {
+            return IocContainer.Get<ILoggerFactory>();
         }
 
         public static IEnumerable<string> FastGetFiles(string baseDirectory, string searchPattern, SearchOption option)
@@ -54,16 +60,47 @@ namespace AudioStation.Core.Utility
                 GetOutputController().Log(message, type, level, parameters);
         }
 
-        /// <summary>
-        /// Sends a log request to the dispatcher to log with the output controller
-        /// </summary>
-        public static void LogSeparate(int logId, string message, LogMessageType type, LogLevel level, params object[] parameters)
+        public static TDest Map<TSource, TDest>(TSource source)
         {
-            if (IsDispatcher() == ApplicationIsDispatcherResult.False)
-                Application.Current.Dispatcher.BeginInvoke(LogSeparate, DispatcherPriority.Background, logId, message, type, level, parameters);
+            try
+            {
+                var config = new MapperConfiguration(cfg =>
+                {
+                    cfg.CreateMap<TSource, TDest>();
 
-            else
-                GetOutputController().LogSeparate(logId, message, type, level, parameters);
+                }, GetLoggerFactory());
+
+                var mapper = config.CreateMapper();
+                var destination = Activator.CreateInstance(typeof(TDest));
+
+                return (TDest)mapper.Map(source, destination, typeof(TSource), typeof(TDest));
+            }
+            catch (Exception ex)
+            {
+                ApplicationHelpers.Log("Error mapping objects:  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
+                throw ex;
+            }
+        }
+
+        public static void MapOnto<TSource, TDest>(TSource source, TDest dest)
+        {
+            try
+            {
+                var config = new MapperConfiguration(cfg =>
+                {
+                    cfg.CreateMap<TSource, TDest>();
+
+                }, GetLoggerFactory());
+
+                var mapper = config.CreateMapper();
+
+                mapper.Map(source, dest, typeof(TSource), typeof(TDest));
+            }
+            catch (Exception ex)
+            {
+                ApplicationHelpers.Log("Error mapping objects:  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
+                throw ex;
+            }
         }
     }
 }

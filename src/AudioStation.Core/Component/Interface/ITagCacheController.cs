@@ -21,17 +21,5 @@
         /// Copy last tag data from clipboard
         /// </summary>
         TagLib.Tag CopyFromClipboard();
-
-        /// <summary>
-        /// Maps to / from another tag type that inherits from a tag-lib tag
-        /// </summary>
-        public TDestination Map<TSource, TDestination>(TSource tagSource) where TSource : TagLib.Tag
-                                                                          where TDestination : TagLib.Tag;
-
-        /// <summary>
-        /// Maps to / from another tag type that inherits from a tag-lib tag
-        /// </summary>
-        public TDestination MapOnto<TSource, TDestination>(TSource tagSource, TDestination tagDestination) where TSource : TagLib.Tag
-                                                                                                           where TDestination : TagLib.Tag;
     }
 }

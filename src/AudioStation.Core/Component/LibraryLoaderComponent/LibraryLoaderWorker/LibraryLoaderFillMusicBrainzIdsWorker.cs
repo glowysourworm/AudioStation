@@ -172,7 +172,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderWorker
                 else
                     entityLoad.SetResult(entity, true);
 
-                ApplicationHelpers.LogSeparate(workItem.GetId(), "Music Brainz Id's Updated (database):  Mp3FileReference.Id={0}", LogMessageType.LibraryLoaderWorkItem, LogLevel.Information, entity.Id);
+                //ApplicationHelpers.LogSeparate(workItem.GetId(), "Music Brainz Id's Updated (database):  Mp3FileReference.Id={0}", LogMessageType.LibraryLoaderWorkItem, LogLevel.Information, entity.Id);
             }
 
             if (generalError)
@@ -205,14 +205,14 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderWorker
 
                 fileRef.Save();
 
-                ApplicationHelpers.LogSeparate(workItemId, "Mp3 file updated (w/ Music Brainz Ids):  {0}", LogMessageType.LibraryLoaderWorkItem, LogLevel.Information, file);
+                //ApplicationHelpers.LogSeparate(workItemId, "Mp3 file updated (w/ Music Brainz Ids):  {0}", LogMessageType.LibraryLoaderWorkItem, LogLevel.Information, file);
                 ApplicationHelpers.Log("Mp3 file updated (w/ Music Brainz Ids):  {0}", LogMessageType.FileTagUpdate, LogLevel.Information, file);
 
                 return true;
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.LogSeparate(workItemId, "Mp3 file load error:  {0}", LogMessageType.LibraryLoaderWorkItem, LogLevel.Error, ex.Message);
+                //ApplicationHelpers.LogSeparate(workItemId, "Mp3 file load error:  {0}", LogMessageType.LibraryLoaderWorkItem, LogLevel.Error, ex.Message);
             }
 
             return false;

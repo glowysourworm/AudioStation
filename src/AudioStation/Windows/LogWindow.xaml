@@ -5,6 +5,7 @@
         xmlns:controls="clr-namespace:AudioStation.Controls"
         xmlns:converter="clr-namespace:SimpleWpf.UI.Converter;assembly=SimpleWpf.UI"
         xmlns:efLogging="clr-namespace:Microsoft.Extensions.Logging;assembly=Microsoft.Extensions.Logging.Abstractions"        
+        Icon="/Resources/Images/icon.bmp"
         Title="Audio Station Log" Height="600" Width="1200">
     <Grid>
 

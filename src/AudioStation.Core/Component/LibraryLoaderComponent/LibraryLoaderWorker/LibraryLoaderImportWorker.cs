@@ -369,7 +369,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderWorker
                 fileErrorMessage = ex.Message;
                 fileLoadError = true;
 
-                ApplicationHelpers.LogSeparate(workItemId, "Mp3 file load error:  {0}", LogMessageType.LibraryLoaderWorkItem, LogLevel.Error, ex.Message);
+                //ApplicationHelpers.LogSeparate(workItemId, "Mp3 file load error:  {0}", LogMessageType.LibraryLoaderWorkItem, LogLevel.Error, ex.Message);
             }
 
             return null;
@@ -442,7 +442,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderWorker
                 fileLoadError = true;
                 fileErrorMessage = ex.Message;
 
-                ApplicationHelpers.LogSeparate(workItemId, "Mp3 file load error:  {0}", LogMessageType.LibraryLoaderWorkItem, LogLevel.Error, ex.Message);
+                //ApplicationHelpers.LogSeparate(workItemId, "Mp3 file load error:  {0}", LogMessageType.LibraryLoaderWorkItem, LogLevel.Error, ex.Message);
                 return null;
             }
         }
@@ -456,7 +456,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderWorker
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.LogSeparate(workItemId, "Mp3 file move error:  {0}", LogMessageType.LibraryLoaderWorkItem, LogLevel.Error, ex.Message);
+                //ApplicationHelpers.LogSeparate(workItemId, "Mp3 file move error:  {0}", LogMessageType.LibraryLoaderWorkItem, LogLevel.Error, ex.Message);
                 return false;
             }
         }

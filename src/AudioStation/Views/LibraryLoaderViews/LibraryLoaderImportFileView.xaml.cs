@@ -1,13 +1,23 @@
-﻿using System.Windows;
+﻿using System.Collections.ObjectModel;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 
 using AudioStation.Controller.Interface;
 using AudioStation.Core.Component.Vendor.Interface;
+using AudioStation.Core.Model.Vendor;
+using AudioStation.Core.Utility;
 using AudioStation.Event;
 using AudioStation.Event.EventViewModel;
+using AudioStation.Model;
 using AudioStation.ViewModels.LibraryLoaderViewModels;
+using AudioStation.ViewModels.Vendor.AcoustIDViewModel;
+using AudioStation.ViewModels.Vendor.MusicBrainzViewModel;
 using AudioStation.ViewModels.Vendor.TagLibViewModel;
+
+using AutoMapper;
+
+using Microsoft.Extensions.Logging;
 
 using SimpleWpf.Extensions.ObservableCollection;
 using SimpleWpf.IocFramework.Application.Attribute;
@@ -21,15 +31,18 @@ namespace AudioStation.Views.LibraryLoaderViews
         private readonly IIocEventAggregator _eventAggregator;
         private readonly IDialogController _dialogController;
         private readonly IAcoustIDClient _acoustIDClient;
+        private readonly IMusicBrainzClient _musicBrainzClient;
 
         [IocImportingConstructor]
         public LibraryLoaderImportFileView(IIocEventAggregator eventAggregator, 
                                            IDialogController dialogController, 
-                                           IAcoustIDClient acoustIDClient)
+                                           IAcoustIDClient acoustIDClient,
+                                           IMusicBrainzClient musicBrainzClient)
         {
             _eventAggregator = eventAggregator;
             _dialogController = dialogController;
             _acoustIDClient = acoustIDClient;
+            _musicBrainzClient = musicBrainzClient;
 
             InitializeComponent();
         }
@@ -74,7 +87,7 @@ namespace AudioStation.Views.LibraryLoaderViews
 
                 if (selectedFile != null)
                 {
-                    var tagFileGroupModel = new TagFileGroupViewModel(new TagFileViewModel[] { selectedFile.TagFile });
+                    var tagFileGroupModel = new TagFileGroupViewModel( new TagFileViewModel[] { selectedFile.TagFile });
 
                     _dialogController.ShowTagWindow(tagFileGroupModel);
                 }                
@@ -92,44 +105,12 @@ namespace AudioStation.Views.LibraryLoaderViews
 
                 if (selectedFile != null)
                 {
-                    // Loading...
-                    _eventAggregator.GetEvent<DialogEvent>().Publish(DialogEventData.ShowLoading("Running AcoustID Fingerprinting Service..."));
-
-                    var acoustIDResults = await _acoustIDClient.IdentifyFingerprint(selectedFile.FileFullPath, 30);
-
-                    selectedFile.ImportOutput.AcoustIDResults.Clear();
-                    selectedFile.ImportOutput.AcoustIDResults.AddRange(acoustIDResults.SelectMany(result =>
-                    {
-                        var format = "Acoust ID Result: (All Id's refer to Music Brainz Records) \n Id={0} \n Score={1:P2} \n RecordingId={2} \n Recording=({3})";
-                        var recordingFormat = "Title={0} Artist={1} Album={2}";
-
-                        return result.Recordings.Select(recording =>
-                        {
-                            var recordingResult = string.Format(recordingFormat, 
-                                                                recording.Title ?? "(Unknown)", 
-                                                                recording.Artists?.FirstOrDefault()?.Name ?? "(Unknown)", 
-                                                                recording.Releases?.FirstOrDefault()?.Title ?? "(Unknown)");
-
-
-                            return string.Format(format, result.Id, result.Score, recording.Id, recordingResult);
-                        });
-                    }));
-                    selectedFile.ImportOutput.AcoustIDSuccess = selectedFile.ImportOutput.AcoustIDResults.Any();
-
-                    // (Loading Close)
-                    _eventAggregator.GetEvent<DialogEvent>().Publish(DialogEventData.Dismiss());
-
-                    // Show AcoustID Results
-                    _eventAggregator.GetEvent<DialogEvent>().Publish(new DialogEventData("Acoust ID Results (Min Score = 30%)", 
-                                                                                         new DialogMessageListViewModel()
-                    {
-                        MessageList = selectedFile.ImportOutput.AcoustIDResults
-                    }));
+                    await RunAcoustID(selectedFile, true);
                 }                
             }
         }
 
-        private void MusicBrainzTestButton_Click(object sender, RoutedEventArgs e)
+        private async void MusicBrainzTestButton_Click(object sender, RoutedEventArgs e)
         {
             var button = sender as Button;
             var viewModel = this.DataContext as LibraryLoaderImportViewModel;
@@ -138,8 +119,128 @@ namespace AudioStation.Views.LibraryLoaderViews
             {
                 var selectedFile = button.DataContext as LibraryLoaderImportFileViewModel;
 
-                // TODO
+                if (selectedFile != null)
+                {
+                    // Must first run AcoustID
+                    if (!selectedFile.ImportOutput.AcoustIDSuccess)
+                        await RunAcoustID(selectedFile, false);
+
+                    // AcoustID Failure
+                    if (!selectedFile.ImportOutput.AcoustIDSuccess)
+                    {
+                        _dialogController.ShowAlert("AcoustID Fingerprinting Failed", "AcoustID was not successful in finidng your audio file. Please use the tag editor to complete the import.");
+                    }
+
+                    // AcoustID Success -> Music Brainz
+                    else
+                    {
+                        RunMusicBrainz(selectedFile);
+                    }
+                }
             }
+        }
+
+        private async Task RunAcoustID(LibraryLoaderImportFileViewModel selectedFile, bool showResults)
+        {
+            if (!selectedFile.ImportOutput.AcoustIDSuccess)
+            {
+                // Loading...
+                _eventAggregator.GetEvent<DialogEvent>().Publish(DialogEventData.ShowLoading("Running AcoustID Fingerprinting Service..."));
+
+                var acoustIDResults = await _acoustIDClient.IdentifyFingerprint(selectedFile.FileFullPath, 30);
+
+                selectedFile.ImportOutput.AcoustIDResults.Clear();
+                selectedFile.ImportOutput.AcoustIDResults.AddRange(acoustIDResults.SelectMany(result =>
+                {
+                    // Recording data is not filled out by the lookup service. Just the ID's.
+                    return result.Recordings.Select(recording => new LookupResultViewModel()
+                    {
+                        Id = new Guid(result.Id),
+                        Score = result.Score,
+                        MusicBrainzRecordingId = new Guid(recording.Id)
+                    });
+                }));
+
+                selectedFile.ImportOutput.AcoustIDSuccess = selectedFile.ImportOutput.AcoustIDResults.Any();
+
+                // (Loading Close)
+                _eventAggregator.GetEvent<DialogEvent>().Publish(DialogEventData.Dismiss());
+            }
+
+            if (showResults)
+            {
+                ShowAcoustIDResults(selectedFile);
+            }
+        }
+
+        private void RunMusicBrainz(LibraryLoaderImportFileViewModel selectedFile)
+        {
+            if (!selectedFile.ImportOutput.MusicBrainzRecordingMatchSuccess)
+            {
+                // Loading...
+                _eventAggregator.GetEvent<DialogEvent>().Publish(DialogEventData.ShowLoading("Running Music Brainz Client..."));
+
+                var musicBrainzRecordings = selectedFile.ImportOutput
+                                                        .AcoustIDResults
+                                                        .Select(x => _musicBrainzClient.GetRecordingById(x.MusicBrainzRecordingId).Result);
+
+                selectedFile.ImportOutput.MusicBrainzRecordingMatches.Clear();
+                
+                foreach (var recording in musicBrainzRecordings)
+                {
+                    try
+                    {
+                        // AutoMapper: MusicBrainzRecording -> (view model)
+                        var viewModel = ApplicationHelpers.Map<MusicBrainzRecording, MusicBrainzRecordingViewModel>(recording);
+
+                        selectedFile.ImportOutput.MusicBrainzRecordingMatches.Add(viewModel);
+                    }
+                    catch (Exception ex)
+                    {
+                        ApplicationHelpers.Log("Music Brainz Recording Mapping Error:  {0}", LogMessageType.LibraryLoader, LogLevel.Error, ex.Message);
+                    }
+                }
+
+                selectedFile.ImportOutput.MusicBrainzRecordingMatchSuccess = selectedFile.ImportOutput.MusicBrainzRecordingMatches.Any();
+
+                // (Loading Close)
+                _eventAggregator.GetEvent<DialogEvent>().Publish(DialogEventData.Dismiss());
+            }
+
+            ShowMusicBrainzResults(selectedFile);
+        }
+
+        private void ShowAcoustIDResults(LibraryLoaderImportFileViewModel selectedFile)
+        {
+            // Format AcoustID Output
+            string format = "Id={0}\nScore={1:P2}\nMusic Brainz Id={2}";
+
+            _eventAggregator.GetEvent<DialogEvent>().Publish(new DialogEventData("Acoust ID Results (Min Score = 30%)",
+                                                                new DialogMessageListViewModel()
+                                                                {
+                                                                    MessageList = new ObservableCollection<string>(
+                                                                                  selectedFile.ImportOutput
+                                                                                              .AcoustIDResults
+                                                                                              .Select(x => string.Format(format, x.Id, x.Score, x.MusicBrainzRecordingId)))
+                                                                }));
+        }
+
+        private void ShowMusicBrainzResults(LibraryLoaderImportFileViewModel selectedFile)
+        {
+            // Format Music Brainz Output
+            string format = "Id={0}\nArtist={1}\nAlbum={2}\nTrack={3}";
+
+            _eventAggregator.GetEvent<DialogEvent>().Publish(new DialogEventData("Music Brainz Results",
+                                                                new DialogMessageListViewModel()
+                                                                {
+                                                                    MessageList = new ObservableCollection<string>(
+                                                                                  selectedFile.ImportOutput
+                                                                                              .MusicBrainzRecordingMatches
+                                                                                              .Select(x => string.Format(format, x.Id, 
+                                                                                                                                 x.ArtistCredit?.FirstOrDefault()?.Name ?? string.Empty, 
+                                                                                                                                 x.Releases?.FirstOrDefault()?.Title ?? string.Empty,
+                                                                                                                                 x.Title ?? string.Empty)))
+                                                                }));
         }
     }
 }

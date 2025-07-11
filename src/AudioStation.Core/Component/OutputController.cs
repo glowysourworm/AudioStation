@@ -13,7 +13,7 @@ namespace AudioStation.Core.Component
     [IocExport(typeof(IOutputController))]
     public class OutputController : IOutputController
     {
-        public const int MAX_LOG_SIZE = 1000000;
+        public const int MAX_LOG_SIZE = 1000;
 
         private readonly IIocEventAggregator _eventAggregator;
 
@@ -21,18 +21,12 @@ namespace AudioStation.Core.Component
         // constructor. (LibraryLoaderWorkItem logs should mostly be "specific"; but it's up to the user end)
         SimpleDictionary<LogMessageType, LogComponent> _logs;
 
-        // The specific logs are mostly meant for the library loader. Each work item may have a log
-        // with a specified Id so that the user can browse the log individually.
-        //
-        SimpleDictionary<int, LogComponent> _specificLogs;
-
         [IocImportingConstructor]
         public OutputController(IIocEventAggregator eventAggregator)
         {
             _eventAggregator = eventAggregator;
 
             _logs = new SimpleDictionary<LogMessageType, LogComponent>();
-            _specificLogs = new SimpleDictionary<int, LogComponent>();
 
             foreach (var value in Enum.GetValues(typeof(LogMessageType)))
             {
@@ -60,45 +54,9 @@ namespace AudioStation.Core.Component
 
             this.Log(logMessage);
         }
-        public void LogSeparate(int collectionId, LogMessage message)
-        {
-            if (!_specificLogs.ContainsKey(collectionId))
-                _specificLogs.Add(collectionId, new LogComponent(MAX_LOG_SIZE));
-
-            _specificLogs[collectionId].Add(message);
-            _eventAggregator.GetEvent<LogEvent>().Publish(message);
-        }
-
-        public void LogSeparate(int collectionId, string message, LogMessageType type)
-        {
-            var logMessage = new LogMessage(true, collectionId, message, type, LogLevel.Information);
-
-            this.LogSeparate(collectionId, logMessage);
-        }
-
-        public void LogSeparate(int collectionId, string message, LogMessageType type, LogLevel level, params object[] parameters)
-        {
-            var logMessage = new LogMessage(string.Format(message, parameters), type, level);
-
-            this.LogSeparate(collectionId, logMessage);
-        }
-
-        public IEnumerable<LogMessage> GetLatestSeparateLogs(int collectionId, LogMessageType type, LogLevel level, int count)
-        {
-            if (!_specificLogs.ContainsKey(collectionId))
-                throw new ArgumentException("Separate log not yet made for collection (Id):  " + collectionId.ToString());
-
-            return _specificLogs[collectionId].GetLatestLogs(type, level, count);
-        }
         public IEnumerable<LogMessage> GetLatestLogs(LogMessageType type, LogLevel level, int count)
         {
             return _logs[type].GetLatestLogs(type, level, count);
-        }
-        public void ClearLogs(int collectionId, LogMessageType type)
-        {
-            _specificLogs[collectionId].Clear();
-
-            _eventAggregator.GetEvent<LogClearedEvent>().Publish(type);
         }
         public void ClearLogs(LogMessageType type)
         {
@@ -110,7 +68,22 @@ namespace AudioStation.Core.Component
         public void Dispose()
         {
             _logs.Clear();
-            _specificLogs.Clear();
         }
+
+        #region (public) ILogger (MSFT Design. This came about in two places:  AutoMapper, and Npgsql/EF database logging)
+        public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception?, string> formatter)
+        {
+            // Lets add these to "OtherComponent" logs
+            Log(formatter(state, exception), LogMessageType.OtherComponent);
+        }
+        public bool IsEnabled(LogLevel logLevel)
+        {
+            return true;
+        }
+        public IDisposable? BeginScope<TState>(TState state) where TState : notnull
+        {
+            return null;
+        }
+        #endregion
     }
 }

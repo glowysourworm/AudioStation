@@ -10,20 +10,14 @@ namespace AudioStation.Core.Component.Interface
     /// have to find other ways to manage it; but view binding is expected to be the biggest amount
     /// of memory. (so, please use virtual scrolling)
     /// </summary>
-    public interface IOutputController : IDisposable
+    public interface IOutputController : ILogger, IDisposable
     {
         void Log(LogMessage message);
         void Log(string message, LogMessageType type);
         void Log(string message, LogMessageType type, LogLevel level, params object[] parameters);
 
-        void LogSeparate(int collectionId, LogMessage message);
-        void LogSeparate(int collectionId, string message, LogMessageType type);
-        void LogSeparate(int collectionId, string message, LogMessageType type, LogLevel level, params object[] parameters);
-
         IEnumerable<LogMessage> GetLatestLogs(LogMessageType type, LogLevel level, int count);
-        IEnumerable<LogMessage> GetLatestSeparateLogs(int collectionId, LogMessageType type, LogLevel level, int count);
 
         void ClearLogs(LogMessageType type);
-        void ClearLogs(int collectionId, LogMessageType type);
     }
 }

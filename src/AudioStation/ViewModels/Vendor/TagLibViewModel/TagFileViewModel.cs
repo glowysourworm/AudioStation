@@ -99,6 +99,7 @@ namespace AudioStation.ViewModels.Vendor.TagLibViewModel
             set { this.RaiseAndSetIfChanged(ref _pasteCommand, value); }
         }
 
+        /*
         public TagFileViewModel()
         {
             var dialogController = IocContainer.Get<IDialogController>();
@@ -121,6 +122,7 @@ namespace AudioStation.ViewModels.Vendor.TagLibViewModel
                 Paste(dialogController, tagCacheController);
             });
         }
+        */
         public TagFileViewModel(TagLib.File tagLibFile)
         {
             var dialogController = IocContainer.Get<IDialogController>();
@@ -171,7 +173,7 @@ namespace AudioStation.ViewModels.Vendor.TagLibViewModel
                     var tagFile = tagCacheController.Get(this.Name);
 
                     // Map tag data onto the cache instance
-                    tagCacheController.MapOnto(this.Tag, tagFile.Tag);
+                    ApplicationHelpers.MapOnto(this.Tag, tagFile.Tag);
 
                     // No need to evict cache - this is the same reference
                     tagFile.Save();
@@ -208,7 +210,7 @@ namespace AudioStation.ViewModels.Vendor.TagLibViewModel
                     var tagData = tagCacheController.CopyFromClipboard();
 
                     // Map tag data onto this instance
-                    tagCacheController.MapOnto(tagData, this.Tag);
+                    ApplicationHelpers.MapOnto(tagData, this.Tag);
                 }
                 catch (Exception ex)
                 {

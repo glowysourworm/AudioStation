@@ -29,7 +29,10 @@ namespace AudioStation.Model
         FileTagUpdate,
 
         [Display(Name = "Database", Description = "Application log messages about the database")]
-        Database
+        Database,
+
+        [Display(Name = "Other (Component)", Description = "Application log messages about other 3rd party components")]
+        OtherComponent
     }
     public struct LogMessage
     {
