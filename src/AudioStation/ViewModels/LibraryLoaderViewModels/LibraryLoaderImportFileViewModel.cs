@@ -10,12 +10,16 @@ using AudioStation.ViewModels.Vendor.TagLibViewModel;
 using Microsoft.Extensions.Logging;
 
 using SimpleWpf.Extensions;
+using SimpleWpf.Extensions.Command;
+using SimpleWpf.Extensions.Event;
 using SimpleWpf.IocFramework.Application;
 
 namespace AudioStation.ViewModels.LibraryLoaderViewModels
 {
     public class LibraryLoaderImportFileViewModel : ViewModelBase
     {
+        public event SimpleEventHandler<LibraryLoaderImportFileViewModel> ImportBasicEvent;
+
         bool _isSelected;
         bool _isExpanded;
 
@@ -32,6 +36,8 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
 
         TagFileViewModel _tagFile;
         LibraryLoaderImportOutputViewModel _importOutput;
+
+        SimpleCommand _importBasicCommand;
 
         public bool IsSelected
         {
@@ -88,6 +94,11 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
             get { return _destinationDirectory; }
             set { this.RaiseAndSetIfChanged(ref _destinationDirectory, value); }
         }
+        public SimpleCommand ImportBasicCommand
+        {
+            get { return _importBasicCommand; }
+            set { this.RaiseAndSetIfChanged(ref _importBasicCommand, value); }
+        }
 
         public LibraryLoaderImportFileViewModel(string fileName, string destinationDirectory, LibraryEntryType importAsType)
         {
@@ -100,6 +111,13 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
                 this.ImportAsType = importAsType;
                 this.DestinationDirectory = destinationDirectory;
                 this.ImportOutput = new LibraryLoaderImportOutputViewModel();
+
+                this.ImportBasicCommand = new SimpleCommand(() =>
+                {
+                    if (this.ImportBasicEvent != null)
+                        this.ImportBasicEvent(this);
+
+                }, () => this.TagMinimumForImport);
 
                 var file = tagCacheController.Get(fileName);
 

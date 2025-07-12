@@ -19,6 +19,7 @@ using Microsoft.Extensions.Logging;
 
 using SimpleWpf.Extensions;
 using SimpleWpf.Extensions.Command;
+using SimpleWpf.Extensions.Event;
 using SimpleWpf.Extensions.ObservableCollection;
 using SimpleWpf.IocFramework.Application.Attribute;
 
@@ -324,20 +325,48 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
                 // Calculate base directory
                 var directory = Path.Combine(directoryBase, subDirectory);
 
-                this.SourceFiles.Clear();
+                ClearSourceFiles();
 
                 if (!string.IsNullOrWhiteSpace(this.SourceFolderSearch))
                     this.SourceFiles.AddRange(files.Where(x => StringHelpers.RegexMatchIC(this.SourceFolderSearch, x))
-                                                   .Select(x => new LibraryLoaderImportFileViewModel(x, directory, this.ImportAsType)));
+                                                   .Select(x => CreateSourceFile(x, directory, this.ImportAsType)));
                 else
-                    this.SourceFiles.AddRange(files.Select(x => new LibraryLoaderImportFileViewModel(x, directory, this.ImportAsType)));
+                    this.SourceFiles.AddRange(files.Select(x => CreateSourceFile(x, directory, this.ImportAsType)));
+
+
             }
             else
             {
-                this.SourceFiles.Clear();
+                ClearSourceFiles();
             }
 
             //RefreshDestinationFiles();
+        }
+
+        private LibraryLoaderImportFileViewModel CreateSourceFile(string fileName, string directory, LibraryEntryType importAsType)
+        {
+            var viewModel = new LibraryLoaderImportFileViewModel(fileName, directory, importAsType);
+
+            // Hook event request
+            viewModel.ImportBasicEvent += OnImportBasicRequest;
+
+            return viewModel;
+        }
+
+        private void ClearSourceFiles()
+        {
+            // Unhook event request
+            foreach (var sourceFile in this.SourceFiles)
+            {
+                sourceFile.ImportBasicEvent -= OnImportBasicRequest;
+            }
+
+            this.SourceFiles.Clear();
+        }
+
+        private void OnImportBasicRequest(LibraryLoaderImportFileViewModel sender)
+        {
+            
         }
 
         public void SetImportComplete(LibraryLoaderImportLoadOutput output)

@@ -66,6 +66,7 @@
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
 
                         <Grid.RowDefinitions>
@@ -140,7 +141,16 @@
                                    Style="{StaticResource LabelTextBlock}" 
                                    Grid.Column="2" />
 
-                        <controls:NoScrollListBox Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3"
+                        <StackPanel Orientation="Horizontal" Grid.Column="3">
+                            <Button Style="{StaticResource UserControlButton}" Command="{Binding ImportBasicCommand}">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="Import (Basic)" Margin="3" />
+                                    <fa5:SvgAwesome Icon="Solid_Save" Margin="3" />
+                                </StackPanel>
+                            </Button>
+                        </StackPanel>
+
+                        <controls:NoScrollListBox Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="4"
                                                   Margin="0"
                                                   AlternationCount="2" 
                                                   BorderThickness="0" 
@@ -151,8 +161,8 @@
                             <propertyGrid:PropertyLabelControl LabelColumnWidth="200" LabelText="Import Type:" Value="{Binding ImportAsType}" />
                             <propertyGrid:PropertyLabelControl LabelColumnWidth="200" LabelText="Import Basic Valid:" Value="{Binding TagMinimumForImport}"
                                                                ToolTip="You can fill out the tag data here by selecting items; and editing their tags. This will allow Audio Station to fill in the required data. Other data may be entered later; and 3rd party services may be used at another time." />
-                            <propertyGrid:PropertyLabelControl LabelColumnWidth="200" LabelText="AcoustID Tested:" Value="{Binding AcoustIDLocal}" />
-                            <propertyGrid:PropertyLabelControl LabelColumnWidth="200" LabelText="Music Brainz Tested:" Value="{Binding MusicBrainzDataLocal}" />
+                            <propertyGrid:PropertyLabelControl LabelColumnWidth="200" LabelText="AcoustID Tested:" Value="{Binding ImportOutput.AcoustIDSuccess}" />
+                            <propertyGrid:PropertyLabelControl LabelColumnWidth="200" LabelText="Music Brainz Tested:" Value="{Binding ImportOutput.MusicBrainzRecordingMatchSuccess}" />
                         </controls:NoScrollListBox>
                         
                     </Grid>

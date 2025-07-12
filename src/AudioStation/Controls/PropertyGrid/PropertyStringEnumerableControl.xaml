@@ -48,6 +48,7 @@
                             </Grid.ColumnDefinitions>
 
                             <xceed:WatermarkTextBox x:Name="ValueTB"
+                                                    Text="{Binding Path=.}"
                                                     TextChanged="ValueTB_TextChanged"
                                                     Style="{StaticResource PropertyGridWatermarkTextBox}"
                                                     Watermark="{Binding LabelText, RelativeSource={RelativeSource AncestorType=UserControl}}" 
