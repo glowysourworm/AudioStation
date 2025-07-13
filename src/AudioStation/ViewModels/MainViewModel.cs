@@ -38,7 +38,6 @@ public partial class MainViewModel : ViewModelBase, IDisposable
     private readonly IDialogController _dialogController;
     private readonly IAudioController _audioController;
     private readonly IModelController _modelController;
-    private readonly ILibraryLoader _libraryLoader;
     private readonly IOutputController _outputController;
     private readonly IIocEventAggregator _eventAggregator;
 
@@ -187,7 +186,6 @@ public partial class MainViewModel : ViewModelBase, IDisposable
                          IDialogController dialogController,
                          IAudioController audioController,
                          IModelController modelController,
-                         ILibraryLoader libraryLoader,
                          IIocEventAggregator eventAggregator,
 
                          // View Models
@@ -201,7 +199,6 @@ public partial class MainViewModel : ViewModelBase, IDisposable
         _dialogController = dialogController;
         _audioController = audioController;
         _modelController = modelController;
-        _libraryLoader = libraryLoader;
         _eventAggregator = eventAggregator;
 
         this.ConfigurationLocked = true;
@@ -336,7 +333,6 @@ public partial class MainViewModel : ViewModelBase, IDisposable
             _disposed = true;
 
             // Dispose of any threads / unmanaged resources / and managed hooks (if they hold memory!) (but, application is now likely finished)
-            _libraryLoader.Dispose();
             _dialogController.Dispose();
             _audioController.Dispose();
 

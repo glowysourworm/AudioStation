@@ -13,6 +13,11 @@
         void Set(string fileName);
 
         /// <summary>
+        /// Sets tag data using AutoMapper, and, optionally, saves tag to file.
+        /// </summary>
+        void SetData(string fileName, TagLib.Tag tagData, bool save = true);
+
+        /// <summary>
         /// Copy tag data to clipboard
         /// </summary>
         bool CopyToClipboard(TagLib.Tag tag);

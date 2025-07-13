@@ -7,8 +7,6 @@ using AudioStation.ViewModels.Vendor.TagLibViewModel;
 using AudioStation.Views.DialogViews;
 using AudioStation.Windows;
 
-using EMA.ExtendedWPFVisualTreeHelper;
-
 using Microsoft.Win32;
 
 using SimpleWpf.Extensions.Collection;
@@ -140,7 +138,7 @@ namespace AudioStation.Controller
                     _dialogWindow.DataContext = new LoadingView()
                     {
                         DataContext = data.DataContext
-                    };                 
+                    };
                     break;
                 case DialogEventView.SplashScreenLoading:
                     _dialogWindow.DataContext = new LoadingView()

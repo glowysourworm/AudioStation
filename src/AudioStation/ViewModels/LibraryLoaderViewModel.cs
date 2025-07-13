@@ -6,24 +6,25 @@ using AudioStation.Core.Component;
 using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Component.LibraryLoaderComponent;
 using AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderLoad;
+using AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderOutput;
 using AudioStation.Core.Database.AudioStationDatabase;
 using AudioStation.Core.Model;
 using AudioStation.Core.Utility;
+using AudioStation.Event.LibraryLoaderEvent;
 using AudioStation.ViewModels.LibraryLoaderViewModels;
+using AudioStation.ViewModels.LogViewModels;
 
 using SimpleWpf.Extensions;
 using SimpleWpf.Extensions.Command;
 using SimpleWpf.Extensions.ObservableCollection;
 using SimpleWpf.IocFramework.Application.Attribute;
+using SimpleWpf.IocFramework.EventAggregation;
 
 namespace AudioStation.ViewModels
 {
     [IocExportDefault]
-    public class LibraryLoaderViewModel : ViewModelBase, IDisposable
+    public class LibraryLoaderViewModel : ViewModelBase
     {
-        private readonly IOutputController _outputController;
-        private readonly ILibraryLoader _libraryLoader;
-
         #region Backing Fields (private)
         LibraryLoaderImportViewModel _importViewModel;
         LibraryLoaderImportRadioViewModel _importRadioBasicViewModel;
@@ -35,17 +36,9 @@ namespace AudioStation.ViewModels
         ObservableCollection<LibraryWorkItemViewModel> _libraryWorkItemsSelected;
 
         LibraryLoadType _selectedLibraryNewWorkItemType;
-
-        SimpleCommand<LibraryLoadType> _runWorkItemCommand;
         #endregion
 
         #region Properties (public)
-        public PlayStopPause LibraryLoaderState
-        {
-            // These forward / receive state requests to/from the library loader
-            get { return _libraryLoader.GetState(); }
-            set { OnLibraryLoaderStateRequest(value); }
-        }
         public LibraryLoadType SelectedLibraryNewWorkItemType
         {
             get { return _selectedLibraryNewWorkItemType; }
@@ -79,17 +72,14 @@ namespace AudioStation.ViewModels
         #endregion
 
         [IocImportingConstructor]
-        public LibraryLoaderViewModel(IModelController modelController,
-                                      ILibraryLoader libraryLoader,
-                                      IConfigurationManager configurationManager, 
+        public LibraryLoaderViewModel(IConfigurationManager configurationManager, 
+                                      IIocEventAggregator eventAggregator,
                                       
                                       // View Models
                                       LibraryLoaderImportViewModel importViewModel,
                                       LibraryLoaderImportRadioViewModel importRadioBasicViewModel,
                                       LibraryLoaderDownloadMusicBrainzViewModel downloadMusicBrainzViewModel)
         {
-            _libraryLoader = libraryLoader;
-
             // Filtering of the library loader work items
             this.LibraryWorkItems = new KeyedObservableCollection<int, LibraryWorkItemViewModel>(x => x.Id);
 
@@ -99,10 +89,14 @@ namespace AudioStation.ViewModels
             this.ImportRadioBasicViewModel = importRadioBasicViewModel;
             this.DownloadMusicBrainzViewModel = downloadMusicBrainzViewModel;
 
-            this.LibraryLoaderState = libraryLoader.GetState();
+            eventAggregator.GetEvent<LibraryLoaderWorkItemUpdateEvent>().Subscribe(viewModel =>
+            {
+                if (this.LibraryWorkItems.ContainsKey(viewModel.Id))
+                    ApplicationHelpers.MapOnto(viewModel, this.LibraryWorkItems[viewModel.Id]);
+                else
+                    this.LibraryWorkItems.Add(viewModel);
+            });
 
-            libraryLoader.WorkItemUpdate += OnWorkItemUpdate;
-            libraryLoader.ProcessingUpdate += OnLibraryProcessingChanged;
 
             //this.RunWorkItemCommand = new SimpleCommand<LibraryLoadType>(loadType =>
             //{
@@ -149,80 +143,6 @@ namespace AudioStation.ViewModels
             //            throw new Exception("Unhandled LibraryLoadType:  LibraryLoaderViewModel.cs");
             //    }
             //});
-        }
-
-        #region ILibraryLoader Events (these are all on the Dispatcher)
-        private void RefreshWorkItems(LibraryWorkItem newItem)
-        {
-            foreach (var workItem in _libraryLoader.GetIdleWorkItems().Union(new LibraryWorkItem[] { newItem }))
-            {
-                // May not be a new item (we're consolidating code)
-                if (workItem == null)
-                    continue;
-
-                if (!this.LibraryWorkItems.ContainsKey(workItem.Id))
-                {
-                    this.LibraryWorkItems.Add(new LibraryWorkItemViewModel()
-                    {
-                        Id = workItem.Id,
-                        HasErrors = workItem.HasErrors,
-                        Progress = workItem.PercentComplete,
-                        EstimatedCompletionTime = workItem.EstimatedCompletionTime,
-                        FailureCount = workItem.FailureCount,
-                        SuccessCount = workItem.SuccessCount,
-                        LoadType = workItem.LoadType,
-                        LoadState = workItem.LoadState,
-                        LastMessage = workItem.LastMessage,
-                    });
-                }
-                else
-                {
-                    var viewModel = this.LibraryWorkItems[workItem.Id];
-
-                    viewModel.Progress = workItem.PercentComplete;
-                    viewModel.HasErrors = workItem.HasErrors;
-                    viewModel.FailureCount = workItem.FailureCount;
-                    viewModel.SuccessCount = workItem.SuccessCount;
-                    viewModel.EstimatedCompletionTime = workItem.EstimatedCompletionTime;
-                    viewModel.LoadState = workItem.LoadState;
-                    viewModel.LoadType = workItem.LoadType;
-                    viewModel.LastMessage = workItem.LastMessage;
-                }
-            }
-        }
-        private void OnWorkItemUpdate(LibraryWorkItem workItem)
-        {
-            RefreshWorkItems(workItem);
-        }
-
-        private void OnLibraryProcessingChanged()
-        {
-            RefreshWorkItems(null);
-
-            // Notify listeners. The getter draws from the library loader
-            OnPropertyChanged("LibraryLoaderState");
-        }
-        #endregion
-
-        private void OnLibraryLoaderStateRequest(PlayStopPause state)
-        {
-            switch (state)
-            {
-                case PlayStopPause.Play:
-                    _libraryLoader.Start();
-                    break;
-                case PlayStopPause.Pause:
-                case PlayStopPause.Stop:
-                    _libraryLoader.Stop();
-                    break;
-                default:
-                    throw new Exception("Unhandled play / stop / pause state:  MainViewModel.cs");
-            }
-        }
-
-        public void Dispose()
-        {
-            _libraryLoader?.Dispose();
         }
     }
 }

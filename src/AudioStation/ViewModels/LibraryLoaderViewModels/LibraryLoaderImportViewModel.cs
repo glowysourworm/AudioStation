@@ -11,17 +11,21 @@ using AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderLoad;
 using AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderOutput;
 using AudioStation.Core.Model;
 using AudioStation.Core.Utility;
+using AudioStation.Event.LibraryLoaderEvent;
 using AudioStation.Model;
+using AudioStation.Service.Interface;
 using AudioStation.ViewModels.Vendor.TagLibViewModel;
 
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.Extensions.Logging;
 
 using SimpleWpf.Extensions;
+using SimpleWpf.Extensions.Collection;
 using SimpleWpf.Extensions.Command;
 using SimpleWpf.Extensions.Event;
 using SimpleWpf.Extensions.ObservableCollection;
 using SimpleWpf.IocFramework.Application.Attribute;
+using SimpleWpf.IocFramework.EventAggregation;
 
 namespace AudioStation.ViewModels.LibraryLoaderViewModels
 {
@@ -30,6 +34,9 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
     {
         private readonly IConfigurationManager _configurationManager;
         private readonly IDialogController _dialogController;
+        private readonly ILibraryLoaderService _libraryLoaderService;
+        private readonly IModelValidationService _modelValidationService;
+        private readonly ITagCacheController _tagCacheController;
 
         string _sourceFolderSearch;
         string _sourceFolder;
@@ -176,12 +183,17 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
 
         [IocImportingConstructor]
         public LibraryLoaderImportViewModel(IConfigurationManager configurationManager,
-                                            ILibraryLoader libraryLoader,
+                                            ILibraryLoaderService libraryLoaderService,
                                             IDialogController dialogController,
-                                            ITagCacheController tagCacheController)
+                                            ITagCacheController tagCacheController,
+                                            IModelValidationService modelValidationService,
+                                            IIocEventAggregator eventAggregator)
         {
             _configurationManager = configurationManager;
             _dialogController = dialogController;
+            _libraryLoaderService = libraryLoaderService;
+            _modelValidationService = modelValidationService;
+            _tagCacheController = tagCacheController;
 
             var configuration = configurationManager.GetConfiguration();
 
@@ -198,6 +210,12 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
             this.GroupingType = LibraryEntryGroupingType.ArtistAlbum;
             this.NamingType = LibraryEntryNamingType.Standard;
 
+            // RunImport -> Complete
+            eventAggregator.GetEvent<LibraryLoaderWorkItemCompleteEvent>().Subscribe(payload =>
+            {
+                RefreshImportFiles();
+            });
+
             this.EditTagsCommand = new SimpleCommand(() =>
             {
                 EditTags(tagCacheController);
@@ -205,12 +223,12 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
 
             this.RunImportCommand = new SimpleCommand(() =>
             {
-                RunImport(libraryLoader, configurationManager.GetConfiguration(), false);
+                RunImport(configurationManager.GetConfiguration(), false);
             });
 
             this.RunImportTestCommand = new SimpleCommand(() =>
             {
-                RunImport(libraryLoader, configurationManager.GetConfiguration(), true);
+                RunImport(configurationManager.GetConfiguration(), true);
             });
 
             this.SelectSourceFolderCommand = new SimpleCommand(() =>
@@ -229,7 +247,7 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
 
             this.SourceFiles.ItemPropertyChanged += SourceFiles_ItemPropertyChanged;
 
-            RefreshImportFiles();
+            RefreshImportFiles();            
         }
 
         private void SourceFiles_ItemPropertyChanged(NotifyingObservableCollection<LibraryLoaderImportFileViewModel> item1, LibraryLoaderImportFileViewModel item2, PropertyChangedEventArgs item3)
@@ -237,32 +255,13 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
             OnPropertyChanged("SourceFileSelectedCount");
         }
 
-        private void RunImport(ILibraryLoader libraryLoader, Configuration configuration, bool testOnly)
+        private void RunImport(Configuration configuration, bool testOnly)
         {
-            var directoryBase = configuration.DirectoryBase;
-            var subDirectory = this.ImportAsType == LibraryEntryType.Music ? configuration.MusicSubDirectory :
-                               this.ImportAsType == LibraryEntryType.AudioBook ? configuration.AudioBooksSubDirectory :
-                               string.Empty;
-
-            // Calculate base directory
-            var directory = Path.Combine(directoryBase, subDirectory);
-
-            // Setup file load for the library loader
-            var inputLoad = new LibraryLoaderImportLoad(this.SourceFolder,
-                                                        directory,
-                                                        this.SourceFiles.Select(x => x.FileFullPath),
-                                                        LibraryEntryGroupingType.ArtistAlbum,
-                                                        LibraryEntryNamingType.Standard,
-                                                        this.IncludeMusicBrainzDetail,
-                                                        this.IdentifyUsingAcoustID,
-                                                        this.ImportFileMigration,
-                                                        this.MigrationDeleteSourceFiles,
-                                                        this.MigrationDeleteSourceFolders,
-                                                        this.MigrationOverwriteDestinationFiles,
-                                                        testOnly);
-
-            libraryLoader.RunLoaderTask(new LibraryLoaderParameters<LibraryLoaderImportLoad>(LibraryLoadType.Import, inputLoad));
-            libraryLoader.Start();
+            // Queue work items
+            foreach (var fileViewModel in this.SourceFiles)
+            {
+                RunImportImpl(configuration, fileViewModel.FileFullPath, testOnly);
+            }
         }
 
         private void  EditTags(ITagCacheController tagCacheController)
@@ -349,6 +348,7 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
 
             // Hook event request
             viewModel.ImportBasicEvent += OnImportBasicRequest;
+            viewModel.SaveTagEvent += OnSaveTag;
 
             return viewModel;
         }
@@ -359,6 +359,7 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
             foreach (var sourceFile in this.SourceFiles)
             {
                 sourceFile.ImportBasicEvent -= OnImportBasicRequest;
+                sourceFile.SaveTagEvent -= OnSaveTag;
             }
 
             this.SourceFiles.Clear();
@@ -366,12 +367,84 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
 
         private void OnImportBasicRequest(LibraryLoaderImportFileViewModel sender)
         {
-            
+            RunImportImpl(_configurationManager.GetConfiguration(), sender.FileFullPath, false);
         }
 
-        public void SetImportComplete(LibraryLoaderImportLoadOutput output)
+        private void OnSaveTag(LibraryLoaderImportFileViewModel sender)
         {
+            // Procedure
+            //
+            // 1) Verify AcoustID Success
+            // 2) Verify Music Brainz Success
+            // 3) Validate Music Brainz Best Match (Artist, Album, Track Title, Track Number)
+            // 4) Save all data available
+            //
 
+            if (!sender.ImportOutput.AcoustIDSuccess)
+                throw new ArgumentException("Cannot save import data without successful AcoustID result");
+
+            if (!sender.ImportOutput.MusicBrainzRecordingMatchSuccess)
+                throw new ArgumentException("Cannot save import data without successful Music Brainz result");
+
+            var bestMatch = sender.ImportOutput.MusicBrainzRecordingMatches.FirstOrDefault(match =>
+            {
+                return _modelValidationService.ValidateMusicBrainzRecording_ImportBasic(match);
+            });
+
+            if (bestMatch == null)
+                throw new ArgumentException("Music Brainz Results Invalid:  Cannot save import data without successful Music Brainz result.");
+
+            // Validated Fields
+            var release = bestMatch.Releases.First();
+            sender.TagFile.Tag.Album = release.Title;
+            sender.TagFile.Tag.AlbumSort = release.Title;
+            sender.TagFile.Tag.Artists = bestMatch.ArtistCredit.Select(x => x.Name).ToArray();
+            sender.TagFile.Tag.AlbumArtists = bestMatch.ArtistCredit.Select(x => x.Name).ToArray();
+            sender.TagFile.Tag.AlbumArtistsSort = bestMatch.ArtistCredit.Select(x => x.Name).ToArray();
+            sender.TagFile.Tag.Title = bestMatch.Title;
+            sender.TagFile.Tag.TitleSort = bestMatch.Title;
+            
+            // Also Validated: This may be the CD or "Media" that contains the track (only); or some duplicate record of
+            //                 that media (if there are multiple releases); but there will be at least one with the track information.
+            //
+            var trackMedia = release.Media.First(x => x.Tracks.Any(z => z.Title == bestMatch.Title));
+
+            sender.TagFile.Tag.Year = (uint)(release.Date.Year ?? 0);
+            sender.TagFile.Tag.Track = (uint)(trackMedia.Tracks.First(x => x.Title == bestMatch.Title).Position);
+            sender.TagFile.Tag.TrackCount = (uint)trackMedia.TrackCount;
+            sender.TagFile.Tag.Disc = (uint)(release.Media.IndexOf(trackMedia) + 1);
+            sender.TagFile.Tag.DiscCount = (uint)release.Media.Count;
+
+            // TODO: TRACK !!! There's no track data by default! The IRecording has no track data from music brainz!
+
+            _tagCacheController.SetData(sender.FileFullPath, sender.TagFile.Tag, true);
+        }
+
+        private void RunImportImpl(Configuration configuration, string fileFullPath, bool testOnly)
+        {
+            var directoryBase = configuration.DirectoryBase;
+            var subDirectory = this.ImportAsType == LibraryEntryType.Music ? configuration.MusicSubDirectory :
+                               this.ImportAsType == LibraryEntryType.AudioBook ? configuration.AudioBooksSubDirectory :
+                               string.Empty;
+
+            // Calculate base directory
+            var directory = Path.Combine(directoryBase, subDirectory);
+
+            // Setup file load for the library loader
+            var inputLoad = new LibraryLoaderImportBasicLoad(this.SourceFolder,
+                                                             directory,
+                                                             fileFullPath,
+                                                             LibraryEntryGroupingType.ArtistAlbum,
+                                                             LibraryEntryNamingType.Standard,
+                                                             this.IncludeMusicBrainzDetail,
+                                                             this.IdentifyUsingAcoustID,
+                                                             this.ImportFileMigration,
+                                                             this.MigrationDeleteSourceFiles,
+                                                             this.MigrationDeleteSourceFolders,
+                                                             this.MigrationOverwriteDestinationFiles);
+
+            // Queue worker task
+            _libraryLoaderService.RunLoaderTaskAsync(inputLoad);
         }
     }
 }

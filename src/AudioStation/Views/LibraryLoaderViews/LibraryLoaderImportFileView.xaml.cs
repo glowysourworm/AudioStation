@@ -8,14 +8,12 @@ using AudioStation.Core.Component.Vendor.Interface;
 using AudioStation.Core.Model.Vendor;
 using AudioStation.Core.Utility;
 using AudioStation.Event;
-using AudioStation.Event.EventViewModel;
+using AudioStation.Event.DialogEvents;
 using AudioStation.Model;
 using AudioStation.ViewModels.LibraryLoaderViewModels;
 using AudioStation.ViewModels.Vendor.AcoustIDViewModel;
 using AudioStation.ViewModels.Vendor.MusicBrainzViewModel;
 using AudioStation.ViewModels.Vendor.TagLibViewModel;
-
-using AutoMapper;
 
 using Microsoft.Extensions.Logging;
 
@@ -34,8 +32,8 @@ namespace AudioStation.Views.LibraryLoaderViews
         private readonly IMusicBrainzClient _musicBrainzClient;
 
         [IocImportingConstructor]
-        public LibraryLoaderImportFileView(IIocEventAggregator eventAggregator, 
-                                           IDialogController dialogController, 
+        public LibraryLoaderImportFileView(IIocEventAggregator eventAggregator,
+                                           IDialogController dialogController,
                                            IAcoustIDClient acoustIDClient,
                                            IMusicBrainzClient musicBrainzClient)
         {
@@ -87,10 +85,10 @@ namespace AudioStation.Views.LibraryLoaderViews
 
                 if (selectedFile != null)
                 {
-                    var tagFileGroupModel = new TagFileGroupViewModel( new TagFileViewModel[] { selectedFile.TagFile });
+                    var tagFileGroupModel = new TagFileGroupViewModel(new TagFileViewModel[] { selectedFile.TagFile });
 
                     _dialogController.ShowTagWindow(tagFileGroupModel);
-                }                
+                }
             }
         }
 
@@ -106,7 +104,7 @@ namespace AudioStation.Views.LibraryLoaderViews
                 if (selectedFile != null)
                 {
                     await RunAcoustID(selectedFile, true);
-                }                
+                }
             }
         }
 
@@ -185,7 +183,7 @@ namespace AudioStation.Views.LibraryLoaderViews
                                                         .Select(x => _musicBrainzClient.GetRecordingById(x.MusicBrainzRecordingId).Result);
 
                 selectedFile.ImportOutput.MusicBrainzRecordingMatches.Clear();
-                
+
                 foreach (var recording in musicBrainzRecordings)
                 {
                     try
@@ -236,8 +234,8 @@ namespace AudioStation.Views.LibraryLoaderViews
                                                                     MessageList = new ObservableCollection<string>(
                                                                                   selectedFile.ImportOutput
                                                                                               .MusicBrainzRecordingMatches
-                                                                                              .Select(x => string.Format(format, x.Id, 
-                                                                                                                                 x.ArtistCredit?.FirstOrDefault()?.Name ?? string.Empty, 
+                                                                                              .Select(x => string.Format(format, x.Id,
+                                                                                                                                 x.ArtistCredit?.FirstOrDefault()?.Name ?? string.Empty,
                                                                                                                                  x.Releases?.FirstOrDefault()?.Title ?? string.Empty,
                                                                                                                                  x.Title ?? string.Empty)))
                                                                 }));

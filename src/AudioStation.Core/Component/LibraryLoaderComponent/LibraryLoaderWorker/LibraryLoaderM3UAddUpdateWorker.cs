@@ -1,14 +1,7 @@
-﻿using System.Windows;
-using System.Windows.Threading;
-
-using AudioStation.Core.Component.Interface;
+﻿using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderLoad;
-using AudioStation.Core.Model;
+using AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderOutput;
 using AudioStation.Core.Model.M3U;
-using AudioStation.Core.Utility;
-using AudioStation.Model;
-
-using Microsoft.Extensions.Logging;
 
 namespace AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderWorker
 {
@@ -16,71 +9,55 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderWorker
     {
         private readonly IModelController _modelController;
 
-        public LibraryLoaderM3UAddUpdateWorker(IModelController modelController)
+        private LibraryLoaderFileLoad _workLoad;
+        private LibraryLoaderOutputBase _workOutput;
+
+        private bool _started;
+
+        public LibraryLoaderM3UAddUpdateWorker(LibraryLoaderWorkItem workItem, IModelController modelController)
+            : base(workItem)
         {
             _modelController = modelController;
+            _started = false;
+            _workLoad = workItem.GetWorkItem() as LibraryLoaderFileLoad;
+            _workOutput = workItem.GetOutputItem() as LibraryLoaderOutputBase;
         }
 
-        protected override void Work(ref LibraryLoaderWorkItem workItem)
+        protected override bool WorkNext()
         {
-            // Procedure:  Progress updates are polled from the LibraryLoader when
-            //             state change events are fired.
-            //
-            // 1) Loop through items on this thread
-            // 2) Do one at a time
-            // 
+            _started = true;
 
-            var fileLoad = workItem.GetWorkItem() as LibraryLoaderFileLoad;
-            var generalError = false;
+            var streams = LoadRadioEntry(_workLoad.File);
 
-            // Processing...
-            workItem.Start();
-
-            foreach (var file in fileLoad.GetPendingFiles())
+            // Set Work Item
+            if (streams == null || streams.Count == 0)
             {
-                var streams = LoadRadioEntry(workItem.GetId(), file);
+                //ApplicationHelpers.LogSeparate(workItem.GetId(), "M3U stream file load failed:  {0}", LogMessageType.LibraryLoaderWorkItem, LogLevel.Error, file);
+            }
+            else
+            {
+                // Add to database
+                _modelController.AddRadioEntries(streams);
 
-                // Set Work Item
-                if (streams == null || streams.Count == 0)
-                {
-                    //ApplicationHelpers.LogSeparate(workItem.GetId(), "M3U stream file load failed:  {0}", LogMessageType.LibraryLoaderWorkItem, LogLevel.Error, file);
-
-                    generalError = true;
-                }
-                else
-                {
-                    // Add to database
-                    _modelController.AddRadioEntries(streams);
-
-                    //ApplicationHelpers.LogSeparate(workItem.GetId(), "M3U stream file load success: Streams={0}, File={1}", LogMessageType.LibraryLoaderWorkItem, LogLevel.Information, streams.Count, file);
-                }
-
-                fileLoad.SetComplete(file, streams != null && streams.Count > 0);
-
-                // Report -> UI Dispatcher (progress update)
-                //
-                Report(new LibraryWorkItem()
-                {
-                    Id = workItem.GetId(),
-                    HasErrors = workItem.GetHasErrors(),
-                    LoadState = workItem.GetLoadState(),
-                    LoadType = workItem.GetLoadType(),
-                    FailureCount = workItem.GetFailureCount(),
-                    SuccessCount = workItem.GetSuccessCount(),
-                    EstimatedCompletionTime = DateTime.Now.AddSeconds(DateTime.Now.Subtract(workItem.GetStartTime()).TotalSeconds / (workItem.GetPercentComplete() == 0 ? 1 : workItem.GetPercentComplete())),
-                    PercentComplete = workItem.GetPercentComplete(),
-                    LastMessage = file
-                });
+                //ApplicationHelpers.LogSeparate(workItem.GetId(), "M3U stream file load success: Streams={0}, File={1}", LogMessageType.LibraryLoaderWorkItem, LogLevel.Information, streams.Count, file);
             }
 
-            if (generalError)
-                workItem.Update(LibraryWorkItemState.CompleteError);
+            _workOutput.SetResult(streams != null && streams.Count > 0, 1, 1, "Radio Import Complete");
 
-            else
-                workItem.Update(LibraryWorkItemState.CompleteSuccessful);
+            return true;
         }
 
-        public List<M3UStream> LoadRadioEntry(int workItemId, string fileName)
+        public override int GetNumberOfWorkSteps()
+        {
+            return 1;
+        }
+
+        public override int GetCurrentWorkStep()
+        {
+            return _started ? 1 : 0;
+        }
+
+        public List<M3UStream> LoadRadioEntry(string fileName)
         {
             List<M3UStream> m3uData = null;
 

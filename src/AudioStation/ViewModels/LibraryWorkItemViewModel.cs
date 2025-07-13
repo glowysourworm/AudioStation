@@ -1,4 +1,8 @@
-﻿using AudioStation.Core.Component.LibraryLoaderComponent;
+﻿using System.Collections.ObjectModel;
+
+using AudioStation.Core.Component.LibraryLoaderComponent;
+using AudioStation.ViewModels.LibraryLoaderViewModels;
+using AudioStation.ViewModels.LogViewModels;
 
 using SimpleWpf.Extensions;
 
@@ -7,74 +11,41 @@ namespace AudioStation.ViewModels
     public class LibraryWorkItemViewModel : ViewModelBase
     {
         int _id;
-        int _failureCount;
-        int _successCount;
-        bool _hasErrors;
-        double _progress;
-        string _lastMessage;
-        string _logIdentity;
-        DateTime _estimatedCompletionTime;
         LibraryLoadType _loadType;
-        LibraryWorkItemState _loadState;
+        ObservableCollection<LibraryLoaderWorkStepViewModel> _workSteps;
+        ObservableCollection<LogMessageViewModel> _logMessages;
+        bool _isCompleted;
 
-        public LibraryLoadType LoadType
-        {
-            get { return _loadType; }
-            set { RaiseAndSetIfChanged(ref _loadType, value); }
-        }
-        public LibraryWorkItemState LoadState
-        {
-            get { return _loadState; }
-            set { this.RaiseAndSetIfChanged(ref _loadState, value); }
-        }
-        public string LogIdentity
-        {
-            get { return _logIdentity; }
-            set { this.RaiseAndSetIfChanged(ref _logIdentity, value); }
-        }
-        public string LastMessage
-        {
-            get { return _lastMessage; }
-            set { this.RaiseAndSetIfChanged(ref _lastMessage, value); }
-        }
-        public int FailureCount
-        {
-            get { return _failureCount; }
-            set { this.RaiseAndSetIfChanged(ref _failureCount, value); }
-        }
-        public int SuccessCount
-        {
-            get { return _successCount; }
-            set { this.RaiseAndSetIfChanged(ref _successCount, value); }
-        }
-        public DateTime EstimatedCompletionTime
-        {
-            get { return _estimatedCompletionTime; }
-            set { this.RaiseAndSetIfChanged(ref _estimatedCompletionTime, value); }
-        }
-        public double Progress
-        {
-            get { return _progress; }
-            set { this.RaiseAndSetIfChanged(ref _progress, value); }
-        }
-        public bool HasErrors
-        {
-            get { return _hasErrors; }
-            set { this.RaiseAndSetIfChanged(ref _hasErrors, value); }
-        }
         public int Id
         {
             get { return _id; }
-            set { this.RaiseAndSetIfChanged(ref _id, value); SetLogIdentity(); }
+            set { this.RaiseAndSetIfChanged(ref _id, value); }
         }
-
-        private void SetLogIdentity()
+        public LibraryLoadType LoadType
         {
-            this.LogIdentity = "Log Output=(Library Loader: Id=" + this.Id.ToString() + ")";
+            get { return _loadType; }
+            set { this.RaiseAndSetIfChanged(ref _loadType, value); }
+        }
+        public ObservableCollection<LibraryLoaderWorkStepViewModel> WorkSteps
+        {
+            get { return _workSteps; }
+            set { this.RaiseAndSetIfChanged(ref _workSteps, value); }
+        }
+        public ObservableCollection<LogMessageViewModel> LogMessages
+        {
+            get { return _logMessages; }
+            set { this.RaiseAndSetIfChanged(ref _logMessages, value); }
+        }
+        public bool IsCompleted
+        {
+            get { return _isCompleted; }
+            set { this.RaiseAndSetIfChanged(ref _isCompleted, value); }
         }
 
         public LibraryWorkItemViewModel()
         {
+            this.WorkSteps = new ObservableCollection<LibraryLoaderWorkStepViewModel>();
+            this.LogMessages = new ObservableCollection<LogMessageViewModel>();
         }
     }
 }

@@ -8,13 +8,18 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent
     public enum LibraryLoadType
     {
         /// <summary>
-        /// Loads mp3 files waiting for import. These would be in either a staging directory or a download 
-        /// directory. The import process will:  1) Get an AcoustID fingerprint, 2) Get MusicBrainz data for
-        /// the track, 3) Insert all local records into the database, and 4) Import the file by moving it into
-        /// the appropriate (templated) directory. This is configurable.
+        /// Loads mp3 file waiting for import. The tag data must meet minimum requirements for import (see IModelValidationService). AcoustID / Music Brainz are
+        /// used as a means of getting data automatically, if needed.
         /// </summary>
-        [Display(Name = "Load Mp3 Files Into Library", Description = "Task that opens all mp3 files, and adds them to the Mp3FileReference collection in the database. This will not overwrite any existing records.")]
-        Import,
+        [Display(Name = "Load Mp3 File Into Library", Description = "Task that imports an mp3 file based on its tag data. This data may be input manually; or by using the AcoustID fingerprinting service along with Music Brainz tag data.")]
+        ImportBasic,
+
+        /// <summary>
+        /// Loads mp3 file waiting for import. The tag data must (also) meet minimum requirements for import (see IModelValidationService). 
+        /// The complete record of detailed data is filled out using Music Brainz; and any other album or fan art for the work.
+        /// </summary>
+        [Display(Name = "Load Mp3 File Into Library (Detail)", Description = "Task that imports an mp3 file based on its tag data; and also data collected using the Music Brainz service; and other artwork for the work.")]
+        ImportDetail,
 
         /// <summary>
         /// Opens m3u file, and adds it to the M3UStream table int the database.
@@ -56,7 +61,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent
             _id = -1;
             _startTime = DateTime.MinValue;
             _lastUpdateTime = DateTime.MinValue;
-            _loadType = LibraryLoadType.Import;
+            _loadType = LibraryLoadType.ImportBasic;
             _loadState = LibraryWorkItemState.Pending;
         }
         public LibraryLoaderWorkItem(int id, LibraryLoadType loadType)
@@ -83,27 +88,6 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent
             lock (_lock)
             {
                 return _id;
-            }
-        }
-        public int GetFailureCount()
-        {
-            lock (_lock)
-            {
-                return _workItem.GetFailureCount();
-            }
-        }
-        public int GetSuccessCount()
-        {
-            lock (_lock)
-            {
-                return _workItem.GetSuccessCount();
-            }
-        }
-        public bool GetHasErrors()
-        {
-            lock (_lock)
-            {
-                return _workItem.HasErrors();
             }
         }
         public DateTime GetStartTime()
@@ -146,13 +130,6 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent
             lock (_lock)
             {
                 return _loadState;
-            }
-        }
-        public double GetPercentComplete()
-        {
-            lock (_lock)
-            {
-                return _workItem.GetProgress();
             }
         }
         public void Initialize<TIn, TOut>(LibraryWorkItemState state, TIn workItem, TOut outputItem) where TIn : LibraryLoaderLoadBase

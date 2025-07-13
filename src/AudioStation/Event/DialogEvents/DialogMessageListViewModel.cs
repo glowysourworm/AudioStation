@@ -2,7 +2,7 @@
 
 using SimpleWpf.Extensions;
 
-namespace AudioStation.Event.EventViewModel
+namespace AudioStation.Event.DialogEvents
 {
     public class DialogMessageListViewModel : DialogViewModelBase
     {

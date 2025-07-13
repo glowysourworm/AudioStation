@@ -447,7 +447,8 @@ namespace AudioStation.Core.Component.Vendor
                     var include = Include.Artists |
                                   Include.Genres |
                                   Include.Tags |
-                                  Include.Releases;
+                                  Include.Releases |
+                                  Include.Media;
 
                     var result = await query.LookupRecordingAsync(musicBrainzRecordingId, include);
 

@@ -1,10 +1,8 @@
-﻿using System.Collections.ObjectModel;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Forms;
 
-using AudioStation.Event.EventViewModel;
+using AudioStation.Event.DialogEvents;
 
-using SimpleWpf.Extensions;
 using SimpleWpf.IocFramework.EventAggregation;
 
 namespace AudioStation.Event
@@ -37,7 +35,7 @@ namespace AudioStation.Event
         /// dialog window will be dismissed by the user. For this, the message box buttons must
         /// be set; and only for certain dialog views.
         /// </summary>
-        public bool ShowDialog { get; set; }       
+        public bool ShowDialog { get; set; }
 
         /// <summary>
         /// User Dismissal Mode:  Set in the event that the dialog window is used as a send / response
@@ -95,12 +93,12 @@ namespace AudioStation.Event
             : this(true, false, string.Empty, MessageBoxButton.OK, DialogResult.Abort, NavigationView.None, DialogEventView.SplashScreenLoading, viewModel)
         { }
 
-        private DialogEventData(bool showDialog, 
+        private DialogEventData(bool showDialog,
                                 bool userDismissal,
                                 string dialogTitle,
                                 MessageBoxButton userDismissalButtons,
                                 DialogResult dialogResult,
-                                NavigationView requestedView, 
+                                NavigationView requestedView,
                                 DialogEventView eventView,
                                 DialogViewModelBase viewDataContext)
         {

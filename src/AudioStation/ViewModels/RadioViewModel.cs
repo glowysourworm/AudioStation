@@ -7,6 +7,7 @@ using AudioStation.Core.Component.Vendor;
 using AudioStation.Core.Model;
 using AudioStation.Core.Utility;
 using AudioStation.Model;
+using AudioStation.Service.Interface;
 using AudioStation.ViewModels.LibraryViewModels.Comparer;
 using AudioStation.ViewModels.RadioViewModels;
 
@@ -53,7 +54,7 @@ namespace AudioStation.ViewModels
         }
 
         [IocImportingConstructor]
-        public RadioViewModel(ILibraryLoader libraryLoader,
+        public RadioViewModel(ILibraryLoaderService libraryLoaderService,
                               IOutputController outputController,
                               IDialogController dialogController)
         {

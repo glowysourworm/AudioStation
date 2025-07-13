@@ -119,6 +119,25 @@ namespace AudioStation.Core.Component
                 }
             }
         }
+        public void SetData(string fileName, Tag tagData, bool save = true)
+        {
+            if (!_tagFiles.ContainsKey(fileName))
+                Set(fileName);
+
+            try
+            {
+                var existingFile = Get(fileName);
+
+                ApplicationHelpers.MapOnto(tagData, existingFile.Tag);
+
+                if (save)
+                    existingFile.Save();
+            }
+            catch (Exception ex)
+            {
+                ApplicationHelpers.Log("Error saving tag data:  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
+            }
+        }
         public byte[] Serialize(TagExtension serializableTag)
         {
             using (var stream = new MemoryStream())

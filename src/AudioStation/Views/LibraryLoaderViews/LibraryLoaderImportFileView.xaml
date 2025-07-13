@@ -142,10 +142,16 @@
                                    Grid.Column="2" />
 
                         <StackPanel Orientation="Horizontal" Grid.Column="3">
+                            <Button Style="{StaticResource UserControlButton}" Command="{Binding SaveTagCommand}">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="Save Tag" Style="{StaticResource LabelTextBlock}" Margin="3" />
+                                    <fa5:SvgAwesome Icon="Solid_Tag" Style="{StaticResource FontAwesomeIconDefault}" Margin="3" />
+                                </StackPanel>
+                            </Button>
                             <Button Style="{StaticResource UserControlButton}" Command="{Binding ImportBasicCommand}">
                                 <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="Import (Basic)" Margin="3" />
-                                    <fa5:SvgAwesome Icon="Solid_Save" Margin="3" />
+                                    <TextBlock Text="Import (Basic)" Style="{StaticResource LabelTextBlock}" Margin="3" />
+                                    <fa5:SvgAwesome Icon="Solid_Save" Style="{StaticResource FontAwesomeIconDefault}" Margin="3" />
                                 </StackPanel>
                             </Button>
                         </StackPanel>

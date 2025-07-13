@@ -1,12 +1,18 @@
 ﻿using SimpleWpf.Extensions;
 
-namespace AudioStation.Event.EventViewModel
+namespace AudioStation.Event.DialogEvents
 {
-    public class DialogSplashScreenViewModel : DialogViewModelBase
+    public class DialogLoadingViewModel : DialogViewModelBase
     {
+        bool _showProgressBar;
         double _progress;
         string _message;
 
+        public bool ShowProgressBar
+        {
+            get { return _showProgressBar; }
+            set { this.RaiseAndSetIfChanged(ref _showProgressBar, value); }
+        }
         public double Progress
         {
             get { return _progress; }
@@ -18,7 +24,7 @@ namespace AudioStation.Event.EventViewModel
             set { this.RaiseAndSetIfChanged(ref _message, value); }
         }
 
-        public DialogSplashScreenViewModel()
+        public DialogLoadingViewModel()
         {
             this.Message = string.Empty;
         }

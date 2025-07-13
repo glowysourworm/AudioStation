@@ -7,10 +7,8 @@ using AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderLoad;
 using AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderOutput;
 using AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderWorker;
 using AudioStation.Core.Component.Vendor.Interface;
-using AudioStation.Core.Model;
 using AudioStation.Core.Utility;
 
-using SimpleWpf.Extensions.Collection;
 using SimpleWpf.Extensions.Event;
 using SimpleWpf.IocFramework.Application.Attribute;
 
@@ -20,65 +18,49 @@ namespace AudioStation.Core.Component
     public class LibraryLoader : ILibraryLoader
     {
         private readonly IModelController _modelController;
+        private readonly IMusicBrainzClient _musicBrainzClient;
+        private readonly IAcoustIDClient _acoustIDClient;
+        private readonly ITagCacheController _tagCacheController;
+        private readonly IModelValidationService _modelValidationService;
 
         // Cannot use multi threading on the database until we have proper 
         // table locking, or transactions!
 
-        const int WORKER_SLEEP_PERIOD = 500;                   // 1 second between queue checks
-        const int WORKER_THREAD_MAX = 1;                       // This is actually per type because the work item is not classed out
-
-        public event SimpleEventHandler<LibraryWorkItem> WorkItemUpdate;
-        public event SimpleEventHandler ProcessingUpdate;
+        public event SimpleEventHandler<LibraryLoaderWorkItemUpdate> WorkItemUpdate;
+        public event SimpleEventHandler<LibraryLoaderOutputBase> WorkItemComplete;
 
         private Queue<LibraryLoaderWorkItem> _workQueue;
+        private List<LibraryLoaderWorkItem> _workItemsWorking;
         private List<LibraryLoaderWorkItem> _workItemHistory;
         private List<LibraryWorkerThreadBase> _workerThreads;
-        private Thread _workerDispatcher;
-        private object _lock;
-        private object _lockUserRun;
-        private bool _run;
-        private PlayStopPause _userRun;              // This is the flag to allow user to stop the queue
 
-        // Adds Id property to the work item for reference because of copying during processing
+        // We're going to keep a history of the work items. An ID counter will supply id's to the
+        // work items. In future cases, this may come from the database.
+        //
         private int _workItemIdCounter;
 
         [IocImportingConstructor]
         public LibraryLoader(IModelController modelController,
                              IMusicBrainzClient musicBrainzClient,
                              IAcoustIDClient acoustIDClient,
-                             ITagCacheController tagCacheController)
+                             ITagCacheController tagCacheController,
+                             IModelValidationService modelValidationService)
         {
             _modelController = modelController;
+            _musicBrainzClient = musicBrainzClient;
+            _acoustIDClient = acoustIDClient;
+            _tagCacheController = tagCacheController;
+            _modelValidationService = modelValidationService;
 
             _workQueue = new Queue<LibraryLoaderWorkItem>();
+            _workItemsWorking = new List<LibraryLoaderWorkItem>();
             _workItemHistory = new List<LibraryLoaderWorkItem>();
             _workerThreads = new List<LibraryWorkerThreadBase>();
 
-            _workItemIdCounter = 0;
-            _workerDispatcher = new Thread(WorkFunction);
-            _workerDispatcher.Priority = ThreadPriority.BelowNormal;
-            _lock = new object();
-            _lockUserRun = new object();
-            _run = true;
-
-            _userRun = PlayStopPause.Stop;               // Queue must be started by user code
-
-            // Start worker thread (pool)
-            for (int index = 0; index < WORKER_THREAD_MAX; index++)
-            {
-                _workerThreads.Add(new LibraryLoaderM3UAddUpdateWorker(modelController));
-                _workerThreads.Add(new LibraryLoaderFillMusicBrainzIdsWorker(modelController, musicBrainzClient, tagCacheController));
-                _workerThreads.Add(new LibraryLoaderImportWorker(modelController, acoustIDClient, musicBrainzClient, tagCacheController));
-            }
-            foreach (var workerThread in _workerThreads)
-            {
-                workerThread.LibraryWorkItemUpdate += WorkerThread_LibraryWorkItemUpdate;
-            }
-
-            _workerDispatcher.Start();
+            _workItemIdCounter = 0;            
         }
 
-        public void RunLoaderTask<TIn>(LibraryLoaderParameters<TIn> parameters) where TIn : LibraryLoaderLoadBase
+        public void RunLoaderTaskAsync<TIn>(LibraryLoaderParameters<TIn> parameters) where TIn : LibraryLoaderLoadBase
         {
             // NOTE:  The incremental work item ID property is a unique identifier! This must be maintained
             //        properly here by incremeting. It is used to identify logs for the task; and to have a
@@ -88,258 +70,146 @@ namespace AudioStation.Core.Component
 
             switch (parameters.LoadType)
             {
-                case LibraryLoadType.Import:
+                case LibraryLoadType.ImportBasic:
                 {
-                    workItem = new LibraryLoaderWorkItem(_workItemIdCounter++, LibraryLoadType.Import);
-                    workItem.Initialize(LibraryWorkItemState.Pending, parameters.Load, new LibraryLoaderImportLoadOutput());
+                    workItem = new LibraryLoaderWorkItem(_workItemIdCounter++, LibraryLoadType.ImportBasic);
+                    workItem.Initialize(LibraryWorkItemState.Pending, parameters.Load, new LibraryLoaderImportBasicOutput());
                 }
                 break;
+                case LibraryLoadType.ImportDetail:
                 case LibraryLoadType.ImportRadio:
-                {
-                    workItem = new LibraryLoaderWorkItem(_workItemIdCounter++, LibraryLoadType.ImportRadio);
-                    workItem.Initialize(LibraryWorkItemState.Pending, parameters.Load, new LibraryLoaderFileLoadOutput());
-                }
-                break;
                 case LibraryLoadType.DownloadMusicBrainz:
-                {
-                    workItem = new LibraryLoaderWorkItem(_workItemIdCounter++, LibraryLoadType.DownloadMusicBrainz);
-                    workItem.Initialize(LibraryWorkItemState.Pending, parameters.Load, new LibraryLoaderEntityLoadOutput());
-                }
-                break;
                 default:
                     throw new Exception("Unhandled library loader task type:  LibraryLoader.cs");
             }
 
             // Queue Work Item
-            lock (_lock)
-            {
-                _workQueue.Enqueue(workItem);
-            }
+            _workQueue.Enqueue(workItem);
+
+            CheckMoreWork();
         }
 
-        public PlayStopPause GetState()
+        public bool IsWorkCompleted()
         {
-            lock (_lockUserRun)
-            {
-                return _userRun;
-            }
+            return !_workerThreads.Any() && _workQueue.Count == 0;
         }
 
-        public IEnumerable<LibraryWorkItem> GetIdleWorkItems()
+        /// <summary>
+        /// Method that tends to thread "pool" and is used to start new threads or reuse existing threads
+        /// for the next work item. This should be called when a thread exits; but we may not have a waiting
+        /// thread pool / pattern (as of yet).
+        /// </summary>
+        private void CheckMoreWork()
         {
-            lock (_lock)     // Work Queue, Work Item History
+            // Next work item
+            if (_workQueue.Count > 0 && _workerThreads.Count == 0)
             {
-                var result = _workQueue.Select(x => new LibraryWorkItem()
+                // -> Dequeue
+                var workItem = _workQueue.Dequeue();
+
+                switch (workItem.GetLoadType())
                 {
-                    Id = x.GetId(),
-                    LoadState = x.GetLoadState(),
-                    LoadType = x.GetLoadType(),
-                    PercentComplete = x.GetPercentComplete(),
-                    LastMessage = "Idle"
-
-                }).ToList();
-
-                result.AddRange(_workItemHistory.Select(x => new LibraryWorkItem()
-                {
-                    Id = x.GetId(),
-                    LoadState = x.GetLoadState(),
-                    LoadType = x.GetLoadType(),
-                    PercentComplete = x.GetPercentComplete(),
-                    LastMessage = "Idle"
-                }));
-
-                return result;
-            }
-        }
-
-        public void Stop()
-        {
-            lock (_lockUserRun)
-            {
-                _userRun = PlayStopPause.Stop;
-            }
-        }
-
-        public void Start()
-        {
-            lock (_lockUserRun)
-            {
-                _userRun = PlayStopPause.Play;
-            }
-        }
-
-        public void Clear()
-        {
-            lock (_lockUserRun)
-            {
-                _userRun = PlayStopPause.Stop;
-            }
-
-            lock (_lock)
-            {
-                // Our work items
-                var workItems = _workQueue;
-
-                // Clear the worker thread
-                _workQueue.Clear();
-
-                // -> Wait for Joins in the run loop. This will update the rest.
-            }
-
-            // Fire event to the UI
-            OnProcessingUpdate();
-        }
-
-        private void WorkFunction()
-        {
-            while (_run)
-            {
-                var workToProcess = false;
-                var workHistoryModified = false;
-
-                // EVENTS:         The dispatcher invokes are meant to serialize the application's work to the UI. They're
-                //                 needed for handoff of the work items.
-                //
-                //                 Also, the UI requests the User's Run Setting (on events). So, there needs to be a separation
-                //                 from the locks to prevent a dead-lock.
-                //
-                // Primary Lock:   Work Queue (ONLY)
-                // User Run Lock:  User Run Setting (events fired from this thread will contend with the primary lock)
-                //
-
-                PlayStopPause userRun;
-
-                // User Run Lock
-                lock (_lockUserRun)
-                {
-                    userRun = _userRun;
-                }
-
-                // Primary Lock (events content with user's run lock only)
-                lock (_lock)
-                {
-                    if (_workQueue.Count > 0 && userRun == PlayStopPause.Play)
+                    case LibraryLoadType.ImportBasic:
                     {
-                        // Query for first work item
-                        var workItem = _workQueue.Peek();
+                        var thread = new LibraryLoaderImportBasicWorker(workItem,
+                                                                       _modelController,
+                                                                       _acoustIDClient,
+                                                                       _musicBrainzClient,
+                                                                       _tagCacheController,
+                                                                       _modelValidationService);
 
-                        // Send work item to worker
-                        switch (workItem.GetLoadType())
-                        {
-                            case LibraryLoadType.Import:
-                            {
-                                var worker = _workerThreads.FirstOrDefault(x => x.GetType() == typeof(LibraryLoaderImportWorker) && x.IsReadyForWork());
+                        // Make sure to hook / unhook these events before start / after complete
+                        thread.ReportWorkStepStarted += Worker_ReportWorkStepStarted;
+                        thread.ReportWorkStepComplete += Worker_ReportWorkStepComplete;
+                        thread.ReportComplete += Worker_ReportComplete;
 
-                                // Starts Work (thread already running)
-                                worker?.SetWorkItem(_workQueue.Dequeue());       // DEQUEUE
-                            }
-                            break;
-                            case LibraryLoadType.ImportRadio:
-                            {
-                                var worker = _workerThreads.FirstOrDefault(x => x.GetType() == typeof(LibraryLoaderM3UAddUpdateWorker) && x.IsReadyForWork());
-
-                                // Starts Work (thread already running)
-                                worker?.SetWorkItem(_workQueue.Dequeue());       // DEQUEUE
-                            }
-                            break;
-                            case LibraryLoadType.DownloadMusicBrainz:
-                            {
-                                var worker = _workerThreads.FirstOrDefault(x => x.GetType() == typeof(LibraryLoaderFillMusicBrainzIdsWorker) && x.IsReadyForWork());
-
-                                // Starts Work (thread already running)
-                                worker?.SetWorkItem(_workQueue.Dequeue());       // DEQUEUE
-                            }
-                            break;
-                            default:
-                                throw new Exception("Worker load type not handled:  LibraryLoader.cs");
-                        }
+                        _workerThreads.Add(thread);
                     }
-
-                    // Manage Worker Threads (UI Events) (sent to dispatcher)
-                    foreach (var worker in _workerThreads)
-                    {
-                        // Thread is still working
-                        if (!worker.IsReadyForWork())
-                            continue;
-
-                        // Clear Work Item (Ok to do here). There may be a stray extra loop for the current work
-                        // item in case it barely had time to set the completed status. So, next iteration will
-                        // send an extra event to the UI. Then, the work will be cleared.
-                        //
-                        if (worker.IsReadyForWork())
-                        {
-                            // Set the thread's reference to null (pass the ball back)
-                            var workItem = worker.ClearWorkItem();
-
-                            // PROBLEM: No way to know whether work item is null already! This is because of our
-                            //          long running worker threads... It's fine as long as we're done. The workers
-                            //          could be more granular in their work processing.
-
-                            // Store work item in our history
-                            if (workItem != null)
-                            {
-                                _workItemHistory.Add(workItem);
-                                workHistoryModified = true;
-                            }
-                        }
-                    }
-
-                    // Set this flag for sleep loop
-                    workToProcess = _workQueue.Count > 0 || _workerThreads.Any(x => !x.IsReadyForWork());
+                    break;
+                    case LibraryLoadType.ImportDetail:
+                    case LibraryLoadType.ImportRadio:
+                    case LibraryLoadType.DownloadMusicBrainz:
+                    default:
+                        throw new Exception("Unhandled work item type:  LibraryLoader.cs");
                 }
 
-                if (!workToProcess && !workHistoryModified)
-                {
-                    Thread.Sleep(WORKER_SLEEP_PERIOD);
-                }
+                // -> Working
+                _workItemsWorking.Add(workItem);
 
-                // Lets allow the main thread to catch up so we can see what's going on
-                else
-                {
-                    Thread.Sleep(5);
-
-                    // -> Dispatcher -> Notify UI
-                    //
-                    OnProcessingUpdate();
-                }
+                // Start worker thread
+                _workerThreads[_workerThreads.Count - 1].Start();
             }
         }
 
-        /*
-            Dispatcher:  Invoke is used to serialize the work to the dispatcher.
-        */
-        private void OnProcessingUpdate()
+        private void CompleteWorker(LibraryWorkerThreadBase worker, LibraryLoaderWorkItem workItem)
         {
+            // Remove worker from the list
+            _workerThreads.Remove(worker);
+
+            // Add work item to the history
+            _workItemsWorking.Remove(workItem);
+            _workItemHistory.Add(workItem);
+
+            // Worker has reported complete. Go ahead and wait for a join.
+            worker.Stop();
+            worker = null;
+
+            // Final Report Event
+            if (this.WorkItemComplete != null)
+                this.WorkItemComplete(workItem.GetOutputItem());
+
+            CheckMoreWork();
+        }
+
+        #region (private) Worker Thread Callbacks
+        private void Worker_ReportComplete(LibraryWorkerThreadBase sender, LibraryLoaderWorkItem workItem)
+        {
+            // NOTE*** BeginInvoke must be allowing the worker (background thread) to exit its stack and finish the
+            //         join. Otherwise, Thread.Abort is throwing a TargetOfInvocationException.
+            //
             if (ApplicationHelpers.IsDispatcher() == ApplicationIsDispatcherResult.False)
-                Application.Current.Dispatcher.BeginInvoke(OnProcessingUpdate, DispatcherPriority.Background);
+                Application.Current.Dispatcher.BeginInvoke(Worker_ReportComplete, DispatcherPriority.Background, sender, workItem);
 
             else if (ApplicationHelpers.IsDispatcher() == ApplicationIsDispatcherResult.True)
             {
-                if (this.ProcessingUpdate != null)
-                    this.ProcessingUpdate();
+                CompleteWorker(sender, workItem);
             }
         }
-        // This event actually occurrs on the UI dispatcher already
-        private void WorkerThread_LibraryWorkItemUpdate(LibraryWorkItem sender)
+        private void Worker_ReportWorkStepComplete(LibraryWorkerThreadBase sender, LibraryLoaderWorkItemUpdate update)
         {
-            if (this.WorkItemUpdate != null)
-                this.WorkItemUpdate(sender);
+            if (ApplicationHelpers.IsDispatcher() == ApplicationIsDispatcherResult.False)
+                Application.Current.Dispatcher.Invoke(Worker_ReportWorkStepComplete, DispatcherPriority.Background, sender, update);
+
+            else if (ApplicationHelpers.IsDispatcher() == ApplicationIsDispatcherResult.True)
+            {
+                if (this.WorkItemUpdate != null)
+                    this.WorkItemUpdate(update);
+            }
         }
+        private void Worker_ReportWorkStepStarted(LibraryWorkerThreadBase sender, LibraryLoaderWorkItemUpdate update)
+        {
+            if (ApplicationHelpers.IsDispatcher() == ApplicationIsDispatcherResult.False)
+                Application.Current.Dispatcher.Invoke(Worker_ReportWorkStepStarted, DispatcherPriority.Background, sender, update);
+
+            else if (ApplicationHelpers.IsDispatcher() == ApplicationIsDispatcherResult.True)
+            {
+                if (this.WorkItemUpdate != null)
+                    this.WorkItemUpdate(update);
+            }
+        }
+        #endregion
+
         public void Dispose()
         {
-            if (_workerDispatcher != null)
+            if (_workerThreads != null)
             {
-                // May have to finish a final iteration (only a problem is there is work running)
-                //
-                lock (_lock)
+                foreach (var worker in _workerThreads)
                 {
-                    _run = false;
+                    worker.Dispose();
                 }
 
-                if (!_workerDispatcher.Join(WORKER_SLEEP_PERIOD * 3))
-                    _workerDispatcher.Abort();
-
-                _workerDispatcher = null;
+                _workerThreads.Clear();
+                _workerThreads = null;
             }
         }
     }
