@@ -57,10 +57,10 @@ namespace AudioStation.Controls
 
         private void Window_SizeChanged(object sender, SizeChangedEventArgs e)
         {
-            //Application.Current.Dispatcher.BeginInvoke(() =>
-            //{
-            //    InvalidateMeasure();
-            //});
+            Application.Current.Dispatcher.BeginInvoke(() =>
+            {
+                InvalidateMeasure();
+            });
         }
         private void Window_StateChanged(object? sender, EventArgs e)
         {
@@ -82,11 +82,11 @@ namespace AudioStation.Controls
             var itemsControl = GetParentItemsControl();
             var scrollViewer = GetParentScrollViewer();
 
-
             // Actual Width / Height are used for the panel; but these dimensions aren't constrained. So, 
             // we need the items control render size to constrain the items.
             //
-            var listSize = new Size(scrollViewer.ViewportWidth > 0 ? scrollViewer.ViewportWidth : itemsControl.RenderSize.Width, 
+            var listSize = new Size(scrollViewer.ViewportWidth > 0 ? Math.Min(scrollViewer.ViewportWidth, itemsControl.RenderSize.Width) : 
+                                                                     itemsControl.RenderSize.Width, 
                                     scrollViewer.ViewportHeight > 0 ? scrollViewer.ViewportHeight : itemsControl.RenderSize.Height);
 
             var numberColumnsMax = (int)Math.Max(1, Math.Floor(listSize.Width / this.WrapColumnSize));

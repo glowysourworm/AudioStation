@@ -139,7 +139,33 @@
                     <TextBox Text="{Binding Configuration.LastFmAPIUser}" Style="{StaticResource UserInputTextBox}" Width="300" HorizontalAlignment="Right" Grid.Column="1" Grid.Row="5" Margin="5" />
                 </Grid>
             </TabItem>
-            
+
+            <TabItem Header="Bandcamp">
+                <Grid IsEnabled="{Binding ConfigurationLocked, Converter={StaticResource BoolInverseConverter}}">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="36" />
+                        <RowDefinition Height="36" />
+                        <RowDefinition Height="36" />
+                        <RowDefinition Height="36" />
+                    </Grid.RowDefinitions>
+
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Text="Bandcamp Email" VerticalAlignment="Center" Margin="5" Grid.Row="0" />
+                    <TextBlock Text="Bandcamp Password" VerticalAlignment="Center" Margin="5" Grid.Row="1" />
+                    <TextBlock Text="Bandcamp API Key" VerticalAlignment="Center" Margin="5" Grid.Row="2" />
+                    <TextBlock Text="Bandcamp API Secret" VerticalAlignment="Center" Margin="5" Grid.Row="3" />
+
+                    <TextBox Text="{Binding Configuration.BandcampEmail}" Style="{StaticResource UserInputTextBox}" Width="300" HorizontalAlignment="Right" Grid.Column="1" Grid.Row="0" Margin="5" />
+                    <PasswordBox x:Name="BandcampPasswordTB" PasswordChanged="BandcampPasswordTB_PasswordChanged" Style="{StaticResource UserInputPasswordBox}" Width="300" HorizontalAlignment="Right" Grid.Column="1" Grid.Row="1" Margin="5" />
+                    <TextBox Text="{Binding Configuration.BandcampAPIKey}" Style="{StaticResource UserInputTextBox}" Width="300" HorizontalAlignment="Right" Grid.Column="1" Grid.Row="2" Margin="5" />
+                    <TextBox Text="{Binding Configuration.BandcampAPISecret}" Style="{StaticResource UserInputTextBox}" Width="300" HorizontalAlignment="Right" Grid.Column="1" Grid.Row="3" Margin="5" />
+                </Grid>
+            </TabItem>
+
             <TabItem Header="Spotify">
                 <Grid IsEnabled="{Binding ConfigurationLocked, Converter={StaticResource BoolInverseConverter}}">
                     <Grid.RowDefinitions>

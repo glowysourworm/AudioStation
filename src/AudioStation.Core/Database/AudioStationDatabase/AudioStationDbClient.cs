@@ -355,7 +355,7 @@ namespace AudioStation.Core.Database.AudioStationDatabase
                     long totalFilteredRecords = 0;
 
                     if (request.WhereCallback != null)
-                        totalFilteredRecords = context.Set<TEntity>().Where(x => request.WhereCallback(x as TEntity)).Count();
+                        totalFilteredRecords = context.Set<TEntity>().AsEnumerable().Where(x => request.WhereCallback(x as TEntity)).Count();
                     else
                         totalFilteredRecords = totalRecords;
 

@@ -21,7 +21,9 @@ namespace AudioStation.Core
         string _musicBrainzDatabasePassword;
 
         string _bandcampEmail;
+        string _bandcampPassword;
         string _bandcampAPIKey;
+        string _bandcampAPISecret;
 
         string _lastFmUser;
         string _lastFmPassword;
@@ -116,6 +118,16 @@ namespace AudioStation.Core
         {
             get { return _bandcampEmail; }
             set { this.RaiseAndSetIfChanged(ref _bandcampEmail, value); }
+        }
+        public string BandcampPassword
+        {
+            get { return _bandcampPassword; }
+            set { this.RaiseAndSetIfChanged(ref _bandcampPassword, value); }
+        }
+        public string BandcampAPISecret
+        {
+            get { return _bandcampAPISecret; }
+            set { this.RaiseAndSetIfChanged(ref _bandcampAPISecret, value); }
         }
         public string BandcampAPIKey
         {
@@ -240,6 +252,8 @@ namespace AudioStation.Core
 
             this.BandcampEmail = string.Empty;
             this.BandcampAPIKey = string.Empty;
+            this.BandcampAPISecret = string.Empty;
+            this.BandcampPassword = string.Empty;
             this.DownloadFolder = string.Empty;
 
             this.LastFmAPIKey = string.Empty;

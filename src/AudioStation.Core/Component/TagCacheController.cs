@@ -6,12 +6,8 @@ using AudioStation.Core.Model.Vendor.TagLibExtension;
 using AudioStation.Core.Utility;
 using AudioStation.Model;
 
-using AutoMapper;
-
 using Microsoft.Extensions.Logging;
 
-using NAudio.Dmo;
-using NAudio.MediaFoundation;
 using NAudio.Wave;
 
 using SimpleWpf.IocFramework.Application.Attribute;
@@ -85,7 +81,7 @@ namespace AudioStation.Core.Component
             catch (Exception ex)
             {
                 ApplicationHelpers.Log("Error initializing tag data:  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
-                return null;
+                throw ex;
             }
         }
         public void Set(string fileName)
@@ -102,21 +98,7 @@ namespace AudioStation.Core.Component
             catch (Exception ex)
             {
                 ApplicationHelpers.Log("Error reading tag data (rebuilding Mp3 file):  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
-
-                var tagFile = RepairFile(fileName);
-
-                if (tagFile == null)
-                    ApplicationHelpers.Log("Mp3 file rebuild failed (mp3 file load failed):  {0}", LogMessageType.General, LogLevel.Error, fileName);
-
-                else
-                {
-                    ApplicationHelpers.Log("Mp3 file rebuilt (tag data erased!):  {0}", LogMessageType.General, LogLevel.Warning, fileName);
-
-                    if (_tagFiles.ContainsKey(fileName))
-                        _tagFiles.Remove(fileName);
-
-                    _tagFiles.Add(fileName, tagFile);
-                }
+                throw ex;
             }
         }
         public void SetData(string fileName, Tag tagData, bool save = true)
@@ -136,6 +118,7 @@ namespace AudioStation.Core.Component
             catch (Exception ex)
             {
                 ApplicationHelpers.Log("Error saving tag data:  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
+                throw ex;
             }
         }
         public byte[] Serialize(TagExtension serializableTag)

@@ -24,12 +24,18 @@
 
         <!-- Equalizer (Set data manually from the control) -->
         <controls:EqualizerOutputControl x:Name="EqualizerOutputControl" 
-                                        VerticalAlignment="Stretch" 
-                                        HorizontalAlignment="Stretch" 
+                                         VerticalAlignment="Stretch" 
+                                         HorizontalAlignment="Stretch" 
                                          BarBorder="#5FFFFFFF"
-                                         BarBrush="#5FFFFFFF"
                                          PeakBrush="#3FFFFFFF"
-                                        BarPadding="0" Margin="5" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" />
+                                         BarPadding="0" Margin="5" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3">
+            <controls:EqualizerOutputControl.BarBrush>
+                <LinearGradientBrush StartPoint="0.5, 0" EndPoint="0.5, 1">
+                    <GradientStop Offset="0" Color="#5FFFFFFF" />
+                    <GradientStop Offset="1" Color="#7FFFFFFF" />
+                </LinearGradientBrush>
+            </controls:EqualizerOutputControl.BarBrush>
+        </controls:EqualizerOutputControl>
 
         <!-- Album Image -->
         <controls:LibraryImageControl Width="40" Height="40" Margin="10" HorizontalAlignment="Left" ImageSize="Small" DataContext="{Binding Album}" />

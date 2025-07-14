@@ -24,6 +24,7 @@ namespace AudioStation.Views
                 this.FanartPasswordTB.Password = viewModel.Configuration.FanartPassword;
                 this.MusicBrainzPasswordTB.Password = viewModel.Configuration.MusicBrainzPassword;
                 this.MusicBrainzDatabasePasswordTB.Password = viewModel.Configuration.MusicBrainzDatabasePassword;
+                this.BandcampPasswordTB.Password = viewModel.Configuration.BandcampPassword;
             }
         }
 
@@ -74,6 +75,16 @@ namespace AudioStation.Views
             if (viewModel != null)
             {
                 viewModel.Configuration.MusicBrainzDatabasePassword = this.MusicBrainzDatabasePasswordTB.Password;
+            }
+        }
+
+        private void BandcampPasswordTB_PasswordChanged(object sender, System.Windows.RoutedEventArgs e)
+        {
+            var viewModel = this.DataContext as MainViewModel;
+
+            if (viewModel != null)
+            {
+                viewModel.Configuration.BandcampPassword = this.BandcampPasswordTB.Password;
             }
         }
     }

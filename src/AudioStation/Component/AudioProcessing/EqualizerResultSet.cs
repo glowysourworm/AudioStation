@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using NAudio.Dsp;
-
-using Newtonsoft.Json;
+﻿using NAudio.Dsp;
 
 namespace AudioStation.Component.AudioProcessing
 {
@@ -115,7 +107,7 @@ namespace AudioStation.Component.AudioProcessing
                 _inputBuffer[index] = fftOutput;
 
                 // Average the input into buckets
-                _outputBuffer[bucketIndex] += fftOutput / bucketSize;
+                _outputBuffer[bucketIndex] += fftOutput / (float)bucketSize;
 
                 // Integrate this for the period (running average)
                 //var fftOutputAverage = this.Counter == 0 ? fftOutput : (fftOutput + (this.Counter * _inputBuffer[index])) / (this.Counter + 1);
@@ -132,18 +124,30 @@ namespace AudioStation.Component.AudioProcessing
             // Integrate the output until we're ready to read it
             for (int bucketIndex = 0; bucketIndex < this.ChannelsOutput; bucketIndex++)
             {
-                var average = (_outputBuffer[bucketIndex] + (this.Counter * this.Result[bucketIndex])) / (this.Counter + 1);
-
-                // Running average
-                this.Result[bucketIndex] = this.Counter == 0 ? 
-                                               _outputBuffer[bucketIndex] :
-                                               (this.Result[bucketIndex] * this.ReleaseCoefficient) + ((1 - this.ReleaseCoefficient) * average);
-                                                
+                // Change the result output using the release coefficient parameter to linearly interpolate over a number of samples
+                this.Result[bucketIndex] += (_outputBuffer[bucketIndex] - this.Result[bucketIndex]) * (1 - this.ReleaseCoefficient);
 
                 // Running peak (for the peak period)
-                this.ResultPeaks[bucketIndex] = this.PeakCounter == 0 ? 
-                                                    this.Result[bucketIndex] : 
-                                                    Math.Max(this.Result[bucketIndex], this.ResultPeaks[bucketIndex]);
+                var peakValue = Math.Max(this.Result[bucketIndex], this.ResultPeaks[bucketIndex]);
+
+                if (this.PeakCounter == 0)
+                    this.ResultPeaks[bucketIndex] = this.Result[bucketIndex];
+
+                else
+                    this.ResultPeaks[bucketIndex] = peakValue;
+
+                //var average = (_outputBuffer[bucketIndex] + (this.Counter * this.Result[bucketIndex])) / ((float)(this.Counter + 1));
+
+                //// Running average
+                //this.Result[bucketIndex] = this.Counter == 0 ?
+                //                               _outputBuffer[bucketIndex] :
+                //                               (this.Result[bucketIndex] * this.ReleaseCoefficient) + ((1.0f - this.ReleaseCoefficient) * average);
+
+
+                //// Running peak (for the peak period)
+                //this.ResultPeaks[bucketIndex] = this.PeakCounter == 0 ?
+                //                                    this.Result[bucketIndex] :
+                //                                    Math.Max(this.Result[bucketIndex], this.ResultPeaks[bucketIndex]);
             }
 
             this.Counter++;

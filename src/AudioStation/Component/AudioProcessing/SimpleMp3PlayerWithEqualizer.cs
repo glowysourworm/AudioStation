@@ -31,6 +31,8 @@ namespace AudioStation.Component.AudioProcessing
 
         EqualizerResultSet _equalizerResult;
 
+        DispatcherTimer _timer;
+
         public SimpleMp3PlayerWithEqualizer()
         {
             _reader = null;
@@ -40,6 +42,12 @@ namespace AudioStation.Component.AudioProcessing
             _equalizer = null;
             _equalizerBands = null;
             _equalizerResult = null;
+
+            _timer = new DispatcherTimer(DispatcherPriority.Background, Application.Current.Dispatcher);
+            _timer.Tick += OnTimerTick;
+            _timer.Interval = TimeSpan.FromMilliseconds(10);
+            _timer.Start();
+            _timer.IsEnabled = false;
         }
 
         private void CreateDevice(string fileSource)
@@ -68,24 +76,20 @@ namespace AudioStation.Component.AudioProcessing
 
             _equalizerBands = new EqualizerBand[]
             {
-                new EqualizerBand(100, gainDB, bandWidth, _reader.WaveFormat.Channels),
-                new EqualizerBand(200, gainDB, bandWidth, _reader.WaveFormat.Channels),
-                new EqualizerBand(400, gainDB, bandWidth, _reader.WaveFormat.Channels),
-                new EqualizerBand(800, gainDB, bandWidth, _reader.WaveFormat.Channels),
-                new EqualizerBand(1200, gainDB, bandWidth, _reader.WaveFormat.Channels),
-                new EqualizerBand(2400, gainDB, bandWidth, _reader.WaveFormat.Channels),
-                new EqualizerBand(4800, gainDB, bandWidth, _reader.WaveFormat.Channels),
-                new EqualizerBand(9600, gainDB, bandWidth, _reader.WaveFormat.Channels)
+                new EqualizerBand(100, gainDB, bandWidth),
+                new EqualizerBand(200, gainDB, bandWidth),
+                new EqualizerBand(400, gainDB, bandWidth),
+                new EqualizerBand(800, gainDB, bandWidth),
+                new EqualizerBand(1200, gainDB, bandWidth),
+                new EqualizerBand(2400, gainDB, bandWidth),
+                new EqualizerBand(4800, gainDB, bandWidth),
+                new EqualizerBand(9600, gainDB, bandWidth)
             };
             _equalizer = new Equalizer(sampleProvider, _equalizerBands);
-            _equalizerResult = new EqualizerResultSet((int)Math.Pow(2, 10), (int)Math.Pow(2, 7), 5, 5, 0.3f);
+            _equalizerResult = new EqualizerResultSet((int)Math.Pow(2, 10), (int)Math.Pow(2, 7), 1, 25, 0.75f);
             _aggregator = new SampleAggregator(_equalizer, _equalizerResult.ChannelsInput);                     // "Channels" is a misnomer. The FFT "buffer" has to be
-            _aggregator.PerformFFT = true;                                                                      // related to the frequency
-            _aggregator.FftCalculated += OnFFTCalculated;
             _outputDevice.Init(_aggregator);
-            _outputDevice.PlaybackTick += OnPlaybackTick;
             _outputDevice.PlaybackStopped += OnPlaybackStopped;
-            _outputDevice.PlaybackTickInterval = 10;
             _outputDevice.Volume = 1;
         }
 
@@ -98,13 +102,11 @@ namespace AudioStation.Component.AudioProcessing
             {
                 if (_reader != null)
                 {
-                    _aggregator.Dispose();
+                    _timer.IsEnabled = false;
                     _outputDevice.Stop();
                     _outputDevice.Dispose();
                     _reader.Dispose();
-                    _outputDevice.PlaybackTick -= OnPlaybackTick;
                     _outputDevice.PlaybackStopped -= OnPlaybackStopped;
-                    _aggregator.FftCalculated -= OnFFTCalculated;
                     _aggregator = null;
                     _equalizer = null;
                     _equalizerBands = null;
@@ -126,32 +128,22 @@ namespace AudioStation.Component.AudioProcessing
             }
         }
 
-        private void OnPlaybackTick(object? sender, TimeSpan currentTime)
+        private void OnTimerTick(object? sender, EventArgs e)
         {
-            if (ApplicationHelpers.IsDispatcher() == ApplicationIsDispatcherResult.False)
-                Application.Current.Dispatcher.BeginInvoke(OnPlaybackTick, DispatcherPriority.Background, sender, currentTime);
+            // Dispatcher Timer => Dispatcher Thread. So, go ahead and fire the event.
+            if (this.PlaybackTickEvent != null)
+                this.PlaybackTickEvent(_reader == null ? TimeSpan.Zero : _reader.CurrentTime);
 
-            else if (ApplicationHelpers.IsDispatcher() == ApplicationIsDispatcherResult.True)
+            // Contends for FFT result from NAudio
+            var fftResult = _aggregator.FFTResult;
+
+            // Update our result set
+            var update = _equalizerResult.Update(fftResult);
+
+            if (update != EqualizerResultSet.UpdateType.None)
             {
-                if (this.PlaybackTickEvent != null)
-                    this.PlaybackTickEvent(_reader == null ? TimeSpan.Zero : _reader.CurrentTime);
-            }
-        }
-
-        private void OnFFTCalculated(object? sender, FftEventArgs fftArgs)
-        {
-            if (ApplicationHelpers.IsDispatcher() == ApplicationIsDispatcherResult.False)
-                Application.Current.Dispatcher.BeginInvoke(OnFFTCalculated, DispatcherPriority.Background, sender, fftArgs);
-
-            else if (ApplicationHelpers.IsDispatcher() == ApplicationIsDispatcherResult.True)
-            {
-                var update = _equalizerResult.Update(fftArgs.Result);
-
-                if (update != EqualizerResultSet.UpdateType.None)
-                {
-                    if (this.EqualizerCalculated != null)
-                        this.EqualizerCalculated(_equalizerResult);
-                }
+                if (this.EqualizerCalculated != null)
+                    this.EqualizerCalculated(_equalizerResult);
             }
         }
 
@@ -174,20 +166,27 @@ namespace AudioStation.Component.AudioProcessing
         public void Pause()
         {
             _outputDevice?.Pause();
+            _timer.IsEnabled = false;
         }
 
         public void Play(string source, StreamSourceType sourceType)
         {
             if (_outputDevice == null || _outputDevice.PlaybackState != PlaybackState.Stopped)
+            {
                 CreateDevice(source);
-
+            }
+                
             _outputDevice.Play();
+            _timer.IsEnabled = true;
         }
 
         public void Resume()
         {
             if (_outputDevice != null && _outputDevice.PlaybackState != PlaybackState.Playing)
+            {
                 _outputDevice.Play();
+                _timer.IsEnabled = true;
+            }
         }
 
         public void SetPosition(TimeSpan position)
@@ -213,9 +212,9 @@ namespace AudioStation.Component.AudioProcessing
         {
             for (int index = 0; index < _equalizerBands.Length; index++)
             {
-                // Set Gain in decibels (go ahead and use linear scale)
-                if (_equalizerBands[index].GetFrequency() == frequency)
-                    _equalizerBands[index].UpdateParameters(((gain * 2) - 1) * 20.0f); // Must add an offset (hearing threshold) to keep it off zero
+                // Set Gain in decibels (go ahead and use linear scale) (also, these are not lock-protected, but it's just a float setting)
+                if (_equalizerBands[index].Frequency == frequency)
+                    _equalizerBands[index].Gain = (float)AudioMath.ToDecibel(gain, AudioScale.AudioScaleType.GainStandardLogarithmic); 
             }
 
             _equalizer.Update();
@@ -225,6 +224,8 @@ namespace AudioStation.Component.AudioProcessing
         {
             if (_outputDevice != null && _outputDevice.PlaybackState != PlaybackState.Stopped)
                 _outputDevice.Stop();
+
+            _timer.IsEnabled = false;
         }
     }
 }

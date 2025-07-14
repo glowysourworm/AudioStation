@@ -1,6 +1,6 @@
-﻿using System.Text.RegularExpressions;
-
-using SimpleWpf.NativeIO;
+﻿using System.IO;
+using System.Text;
+using System.Text.RegularExpressions;
 
 namespace AudioStation.Core.Utility
 {
@@ -34,29 +34,70 @@ namespace AudioStation.Core.Utility
         }
 
         /// <summary>
-        /// Removes un-friendly characters for the file path. (TODO: Conventions (enum) for how the user will like to use this)
+        /// Removes un-friendly characters for the file path. Use for 
+        /// directory names / file paths. The file name has a different illegal character set - so set 
+        /// isFileName = true (iff) the final string is a file name. Otherwise, set it to false, and the 
+        /// path will be processed according to what is "legal" for a directory (and, in this case, "friendly"). 
+        /// Also, decodes UTF-8 escape sequences.
         /// </summary>
-        public static string MakeFriendlyPath(string filePath)
+        public static string MakeFriendlyPath(bool isFileName, params string[] filePath)
         {
-            var result = filePath;
-            var invalidChars = System.IO.Path.GetInvalidPathChars();
+            // MUST SPLIT THE FILE PIECES FOR SUB-DIRECTORIES
+            var filePathParts = filePath.SelectMany(x => x.Split('\\', StringSplitOptions.RemoveEmptyEntries)).ToArray();
+
+            var resultPath = new string[filePathParts.Length];
+
+            for (int index = 0; index < filePathParts.Length; index++)
+            {
+                // File Name
+                if (isFileName && index == filePathParts.Length - 1)
+                    resultPath[index] = StripFileCharacters(filePathParts[index]);
+
+                // Directory Part
+                else
+                {
+                    // Check For Drive Label
+                    if (Directory.GetLogicalDrives().Any(drive => drive == filePathParts[index] + "\\"))
+                        resultPath[index] = filePathParts[index];
+
+                    else
+                        resultPath[index] = StripPathCharacters(filePathParts[index]);
+                }
+                    
+            }
+
+            return System.IO.Path.Combine(resultPath);
+        }
+
+        private static string StripFileCharacters(string fileName)
+        {
+            // Convert UTF-8 character sequences
+            var result = Encoding.UTF8.GetString(Encoding.Default.GetBytes(fileName));
+
+            var invalidChars = System.IO.Path.GetInvalidFileNameChars();
 
             foreach (var invalidChar in invalidChars)
             {
-                result = result.Replace(invalidChar, '_');
+                result = result.Replace(invalidChar.ToString(), string.Empty);
             }
 
             return result;
         }
 
-        public static string MakeFriendlyFileName(string fileName)
+        private static string StripPathCharacters(string pathPart)
         {
-            var result = fileName;
-            var invalidChars = System.IO.Path.GetInvalidFileNameChars();
+            // Convert UTF-8 character sequences
+            var result = Encoding.UTF8.GetString(Encoding.Default.GetBytes(pathPart));
+
+            // NOTE*** This does not include all invalid path characters!!! 
+            //
+            //         Adding:  ['?', '!', '\'', '%', '$', '#', '@', '^', '&', '*', '(', ')', '+', '=']
+            var invalidChars = System.IO.Path.GetInvalidPathChars()
+                                             .Concat(new char[] { '?', '!', '\'', ':', ';', '\"', '%', '$', '#', '@', '^', '&', '*', '(', ')', '+', '=' });
 
             foreach (var invalidChar in invalidChars)
             {
-                result = result.Replace(invalidChar, '_');
+                result = result.Replace(invalidChar.ToString(), string.Empty);
             }
 
             return result;

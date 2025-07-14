@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Net;
 using System.Net.Http;
 
 using AudioStation.Core.Component.Interface;
@@ -10,6 +11,8 @@ using Microsoft.Extensions.Logging;
 
 using SimpleWpf.IocFramework.Application.Attribute;
 
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.StartPanel;
+
 namespace AudioStation.Core.Component.Vendor.Bandcamp
 {
     [IocExport(typeof(IBandcampClient))]
@@ -17,34 +20,77 @@ namespace AudioStation.Core.Component.Vendor.Bandcamp
     {
         private readonly IConfigurationManager _configurationManager;
         private readonly IOutputController _outputController;
+        private readonly ILoggerFactory _loggerFactory;
 
         [IocImportingConstructor]
         public BandcampClient(IConfigurationManager configurationManager,
-                              IOutputController outputController)
+                              IOutputController outputController,
+                              ILoggerFactory loggerFactory)
         {
             _configurationManager = configurationManager;
             _outputController = outputController;
+            _loggerFactory = loggerFactory;
         }
+
+        //public async Task Download(string artist)
+        //{
+        //    var config = _configurationManager.GetConfiguration();
+
+        //    using (var client = new BandcampHttpClient(config.BandcampEmail, 
+        //                                               config.BandcampEmail, 
+        //                                               config.BandcampAPIKey, 
+        //                                               config.BandcampAPISecret,
+        //                                               _loggerFactory))
+        //    {
+        //        var collection = client.GetCollection();
+
+        //        if (collection == null)
+        //            return;
+
+        //        await foreach (var album in collection)
+        //        {
+        //            var baseFolder = Path.Combine(config.DownloadFolder, "Bandcamp");
+        //            var artistFolder = Path.Combine(baseFolder, StringHelpers.MakeFriendlyPath(album.Artist));
+        //            var albumFolder = Path.Combine(artistFolder, StringHelpers.MakeFriendlyPath(album.Title));
+
+        //            if (!Path.Exists(baseFolder))
+        //                Directory.CreateDirectory(baseFolder);
+
+        //            if (!Path.Exists(artistFolder))
+        //                Directory.CreateDirectory(artistFolder);
+
+        //            if (!Path.Exists(albumFolder))
+        //                Directory.CreateDirectory(albumFolder);
+
+        //            foreach (var track in album.Tracks)
+        //            {
+        //                var fileFormat = "{0}-{1}-{2}.{3}";
+
+        //                var mp3Path = StringHelpers.MakeFriendlyFileName(Path.Combine(albumFolder, string.Format(fileFormat, album.Artist, album.Title, track.Title, "mp3")));
+        //                var mp3Data = await client.GetAudioData(track);
+
+        //                File.WriteAllBytes(mp3Path, mp3Data);
+        //            }
+        //        }
+        //    }
+        //}
 
         public async Task Download(string endpoint)
         {
             try
             {
-                var client = new HttpClient();
-                var downloader = new BCDownloader.Downloader(client);
-
-                var album = await downloader.GetAlbumInfoAsync(endpoint);
+                var client = new BandcampClientCore();
+                var album = await client.GetAlbumInfoAsync(endpoint, 1000);
 
                 if (album == null ||
                     album.TrackInfo == null ||
-                    album.TrackInfo.Any(x => x.Data == null || x.Data.Length == 0) ||
-                    string.IsNullOrEmpty(album.Artist) ||
-                    string.IsNullOrEmpty(album.Title?.Title))
+                    string.IsNullOrWhiteSpace(album.Artist) ||
+                    string.IsNullOrWhiteSpace(album.Title?.Title))
                     throw new Exception("Error reading data from Bandcamp API. Invalid or incomplete data set.");
 
                 var baseFolder = Path.Combine(_configurationManager.GetConfiguration().DownloadFolder, "Bandcamp");
-                var artistFolder = Path.Combine(baseFolder, album.Artist);
-                var albumFolder = Path.Combine(artistFolder, album.Title.Title);
+                var artistFolder = Path.Combine(baseFolder, StringHelpers.MakeFriendlyPath(false, album.Artist));
+                var albumFolder = Path.Combine(artistFolder, StringHelpers.MakeFriendlyPath(false, album.Title.Title));
 
                 if (!Path.Exists(baseFolder))
                     Directory.CreateDirectory(baseFolder);
@@ -55,7 +101,8 @@ namespace AudioStation.Core.Component.Vendor.Bandcamp
                 if (!Path.Exists(albumFolder))
                     Directory.CreateDirectory(albumFolder);
 
-                var bmpPath = Path.Combine(albumFolder, string.Format("{0}-{1}.bmp", album.Title?.Title, album.Artist, ".bmp"));
+                var bmpFile = StringHelpers.MakeFriendlyPath(true, string.Format("{0}-{1}.bmp", album.Title?.Title, album.Artist));
+                var bmpPath = Path.Combine(albumFolder, bmpFile);
 
                 // Write Album Art
                 if (album.CoverData != null)
@@ -63,9 +110,13 @@ namespace AudioStation.Core.Component.Vendor.Bandcamp
 
                 foreach (var track in album.TrackInfo)
                 {
+                    if (track.Data == null || track.Data.Length == 0)
+                        continue;
+
                     var fileFormat = "{0}-{1}-{2}.{3}";
 
-                    var mp3Path = Path.Combine(albumFolder, string.Format(fileFormat, track.Artist, album.Title?.Title, track.Title, ".mp3"));
+                    var mp3File = StringHelpers.MakeFriendlyPath(true, string.Format(fileFormat, track.Artist, album.Title?.Title, track.Title, "mp3"));
+                    var mp3Path = Path.Combine(albumFolder, mp3File);
 
                     // Write Mp3 to file
                     File.WriteAllBytes(mp3Path, track.Data);

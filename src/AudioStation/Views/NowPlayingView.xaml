@@ -122,7 +122,11 @@
 											Margin="3">
                             </fa5:SvgAwesome>
 
-                            <TextBlock Text="{Binding Track.Title}" Grid.Column="1" FontSize="12"  Style="{StaticResource NowPlayingTextBlock}" Margin="3" />
+                            <TextBlock Grid.Column="1" FontSize="12"  Style="{StaticResource NowPlayingTextBlock}" Margin="3">
+                                <Run Text="{Binding Track.Track}" />
+                                <Run Text=" " />
+                                <Run Text="{Binding Track.Title}" />
+                            </TextBlock>
                             <TextBlock Text="{Binding Track.Duration, StringFormat={}{0:hh}:{0:mm}:{0:ss}}" 
                                                HorizontalAlignment="Right"
                                                Grid.Column="2" FontSize="12"  Style="{StaticResource NowPlayingTextBlock}" Margin="3" />

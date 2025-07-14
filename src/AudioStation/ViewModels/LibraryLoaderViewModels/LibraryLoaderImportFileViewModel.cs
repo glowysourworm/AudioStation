@@ -173,7 +173,7 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
             if (this.TagMinimumForImport)
             {
                 this.FileMigrationName = CalculateFileName(this.TagFile.Tag.Track, this.TagFile.Tag.FirstAlbumArtist, this.TagFile.Tag.Title, LibraryEntryNamingType.Standard);
-                this.FileMigrationFullPath = Path.Combine(this.DestinationDirectory, this.TagFile.Tag.FirstAlbumArtist, this.TagFile.Tag.Album, this.FileMigrationName);
+                this.FileMigrationFullPath = StringHelpers.MakeFriendlyPath(true, this.DestinationDirectory, this.TagFile.Tag.FirstAlbumArtist, this.TagFile.Tag.Album, this.FileMigrationName);
             }
         }
 
@@ -185,7 +185,7 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
                 {
                     var format = "{0:##} {1}.mp3";
                     var formattedTitle = string.Format(format, track, trackTitle);
-                    return StringHelpers.MakeFriendlyFileName(formattedTitle);
+                    return StringHelpers.MakeFriendlyPath(true, formattedTitle);
                 }
                 case LibraryEntryNamingType.None:
                 case LibraryEntryNamingType.Descriptive:

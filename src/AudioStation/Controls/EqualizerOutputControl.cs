@@ -73,15 +73,17 @@ namespace AudioStation.Controls
                 _peakSizes.Clear();
             }    
 
-            var maxRatio = resultSet.ResultPeaks.Max();
-            //var maxRatio = 1.0f;
+            //var maxRatio = resultSet.ResultPeaks.Max();
+            var maxRatio = 1.0f;
 
             for (int index = 0; index < resultSet.Result.Length; index++)
             {
                 var peakRatio = resultSet.ResultPeaks[index];
                 var ratio = resultSet.Result[index];
+
+                // Normalizing the bar size: Not sure what to do here. Going to try Db scale.
                 var scaledPeakRatio = peakRatio / maxRatio;
-                var scaledRatio = ratio / maxRatio;           // Normalizing the bar size
+                var scaledRatio = ratio / maxRatio;             
 
                 var width = (this.RenderSize.Width / resultSet.Result.Length) - this.BarPadding.Left - this.BarPadding.Right;
                 var height = (this.RenderSize.Height * scaledRatio) - this.BarPadding.Top - this.BarPadding.Bottom;

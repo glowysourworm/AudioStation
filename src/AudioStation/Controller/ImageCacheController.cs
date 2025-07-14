@@ -248,9 +248,10 @@ namespace AudioStation.Controller
 
             // Take all the artwork - consolidating the images
             var images = files.Select(entity => _tagCacheController.Get(entity.FileName))
+                              .Where(tagRef => tagRef != null)                              // TODO: Application Level Validation (Library Maintenance)
                               .Where(tagRef => !tagRef.PossiblyCorrupt)
                               .SelectMany(tagRef => tagRef.Tag.Pictures)
-                              .DistinctBy(picture => picture.Type);                     // See Enumeration
+                              .DistinctBy(picture => picture.Type);                         // See Enumeration
 
             // Convert all images
             Dictionary<PictureType, BitmapImageData> imageSources;

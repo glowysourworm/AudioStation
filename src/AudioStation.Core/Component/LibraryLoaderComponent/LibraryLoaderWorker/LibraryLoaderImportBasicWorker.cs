@@ -248,14 +248,14 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderWorker
                 {
                     var format = "{0:#} {1}.mp3";
                     var formattedTitle = string.Format(format, _workOutput.ImportedTagFile.Tag.Track, _workOutput.ImportedTagFile.Tag.Title);
-                    calculatedFileName = StringHelpers.MakeFriendlyFileName(formattedTitle);
+                    calculatedFileName = StringHelpers.MakeFriendlyPath(true, formattedTitle);
                 }
                 break;
                 case LibraryEntryNamingType.Descriptive:
                 {
                     var format = "{0:#} {1}-{2}-{3}.mp3";
                     var formattedTitle = string.Format(format, _workOutput.ImportedTagFile.Tag.Track, _workOutput.ImportedTagFile.Tag.FirstGenre, _workOutput.ImportedTagFile.Tag.FirstAlbumArtist, _workOutput.ImportedTagFile.Tag.Track);
-                    calculatedFileName = StringHelpers.MakeFriendlyFileName(formattedTitle);
+                    calculatedFileName = StringHelpers.MakeFriendlyPath(true, formattedTitle);
                 }
                 break;
                 default:
@@ -269,8 +269,8 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderWorker
                     break;
                 case LibraryEntryGroupingType.ArtistAlbum:
                 {
-                    var artistFolder = StringHelpers.MakeFriendlyPath(_workOutput.ImportedTagFile.Tag.FirstAlbumArtist);
-                    var albumFolder = StringHelpers.MakeFriendlyPath(_workOutput.ImportedTagFile.Tag.Album);
+                    var artistFolder = StringHelpers.MakeFriendlyPath(false, _workOutput.ImportedTagFile.Tag.FirstAlbumArtist);
+                    var albumFolder = StringHelpers.MakeFriendlyPath(false, _workOutput.ImportedTagFile.Tag.Album);
 
                     _workOutput.DestinationSubFolders = new string[] { artistFolder, Path.Combine(artistFolder, albumFolder) };
                     _workOutput.DestinationPathCalculated = Path.Combine(_workLoad.DestinationFolder,
@@ -281,9 +281,9 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderWorker
                 break;
                 case LibraryEntryGroupingType.GenreArtistAlbum:
                 {
-                    var artistFolder = StringHelpers.MakeFriendlyPath(_workOutput.ImportedTagFile.Tag.FirstAlbumArtist);
-                    var albumFolder = StringHelpers.MakeFriendlyPath(_workOutput.ImportedTagFile.Tag.Album);
-                    var genreFolder = StringHelpers.MakeFriendlyPath(_workOutput.ImportedTagFile.Tag.FirstGenre);
+                    var artistFolder = StringHelpers.MakeFriendlyPath(false, _workOutput.ImportedTagFile.Tag.FirstAlbumArtist);
+                    var albumFolder = StringHelpers.MakeFriendlyPath(false, _workOutput.ImportedTagFile.Tag.Album);
+                    var genreFolder = StringHelpers.MakeFriendlyPath(false, _workOutput.ImportedTagFile.Tag.FirstGenre);
 
                     _workOutput.DestinationSubFolders = new string[] { genreFolder,
                                                                       Path.Combine(genreFolder, artistFolder),
