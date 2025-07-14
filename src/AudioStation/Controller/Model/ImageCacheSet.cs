@@ -2,7 +2,7 @@
 
 namespace AudioStation.Controller.Model
 {
-    public class ImageCacheSet<TType, TKey, TValue>
+    public class ImageCacheSet<TType, TKey, TValue> where TValue : IDisposable
     {
         SimpleDictionary<TType, ImageCache<TKey, TValue>> _cache;
 

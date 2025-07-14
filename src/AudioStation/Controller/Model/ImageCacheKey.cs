@@ -2,7 +2,7 @@
 
 namespace AudioStation.Controller.Model
 {
-    public struct ImageCacheKey
+    public struct ImageCacheKey : IDisposable
     {
         /// <summary>
         /// Id of the associated entity. Image caches are also indexed by file name (from the mp3 file)
@@ -49,6 +49,11 @@ namespace AudioStation.Controller.Model
         public override int GetHashCode()
         {
             return RecursiveSerializerHashGenerator.CreateSimpleHash(this.EntityId, this.DesiredWidth, this.DesiredHeight);
+        }
+
+        public void Dispose()
+        {
+            // Nothing to do
         }
     }
 }

@@ -1,29 +1,38 @@
-﻿using System.Windows.Media.Imaging;
+﻿using System.Drawing.Imaging;
+using System.IO;
+using System.Windows.Media.Imaging;
 
 namespace AudioStation.Component.Model
 {
-    public class BitmapImageData
+    public class BitmapImageData : IDisposable
     {
         /// <summary>
         /// Prepared source for the image
         /// </summary>
         public BitmapSource Source { get; private set; }
 
-        /// <summary>
-        /// Copied buffer for saving to file (not part of WPF's standard ImageSource API to expose the buffer)
-        /// </summary>
-        public byte[] Buffer { get; private set; }
-
-        /// <summary>
-        /// Stride of the bitmap color array
-        /// </summary>
-        public int Stride { get; private set; }
-
-        public BitmapImageData(BitmapSource source, byte[] buffer, int stride)
+        public BitmapImageData(BitmapSource source)
         {
             this.Source = source;
-            this.Buffer = buffer;
-            this.Stride = stride;
+        }
+
+        public void Save()
+        {
+            // Use the bitmap encoder to save the byte[]. Otherwise, there are pixel format calculations
+            // to consider; and I'd rather not even use WPF's API. If there is a memory leak here - we'll
+            // just fix it.
+            using (var memoryStream = new MemoryStream())
+            {
+                var encoder = new BmpBitmapEncoder();
+                var frame = BitmapFrame.Create(this.Source);
+                encoder.Frames.Add(frame);
+                encoder.Save(memoryStream);
+            }
+        }
+
+        public void Dispose()
+        {
+            this.Source = null;
         }
     }
 }

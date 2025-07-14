@@ -2,7 +2,7 @@
 
 namespace AudioStation.Controller.Model
 {
-    public class ImageCache<TKey, TValue>
+    public class ImageCache<TKey, TValue> where TValue : IDisposable
     {
         public int CacheLimit { get; private set; }
 
@@ -17,7 +17,12 @@ namespace AudioStation.Controller.Model
         public void Add(TKey key, TValue value)
         {
             if (_cacheDict.Count >= this.CacheLimit)
-                _cacheDict.RemoveFirst();
+            {
+                var pair = _cacheDict.RemoveFirst();
+
+                pair.Value.Dispose();
+            }
+                
 
             _cacheDict.Add(key, value);
         }

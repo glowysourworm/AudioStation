@@ -10,9 +10,9 @@ using TagLib;
 
 namespace AudioStation.Controller.Model
 {
-    public class ImageCacheItem
+    public class ImageCacheItem : IDisposable
     {
-        public readonly SimpleDictionary<PictureType, BitmapImageData> Images;
+        public SimpleDictionary<PictureType, BitmapImageData> Images;
 
         public BitmapImageData GetArtistImage()
         {
@@ -32,6 +32,7 @@ namespace AudioStation.Controller.Model
         {
             return this.Images.GetValue(PictureType.FrontCover) ?? null;
         }
+
         public ImageCacheItem(PictureType type, BitmapImageData image)
         {
             this.Images = new SimpleDictionary<PictureType, BitmapImageData>() { { type, image } };
@@ -39,6 +40,19 @@ namespace AudioStation.Controller.Model
         public ImageCacheItem(IDictionary<PictureType, BitmapImageData> images)
         {
             this.Images = new SimpleDictionary<PictureType, BitmapImageData>(images);
+        }
+
+        public void Dispose()
+        {
+            foreach (var pair in this.Images)
+            {
+                // TODO:  THREADING PROBLEM! (This is being somehow "disposed" elsewhere.. may have been a framework bug)
+                if (pair.Value != null)
+                    pair.Value.Dispose();
+            }
+
+            this.Images.Clear();
+            this.Images = null;
         }
     }
 }

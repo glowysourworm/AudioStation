@@ -153,18 +153,7 @@ namespace AudioStation.Component
 
                 resultBitmap.UnlockBits(bitmapData);
 
-                // Use the bitmap encoder to save the byte[]. Otherwise, there are pixel format calculations
-                // to consider; and I'd rather not even use WPF's API. If there is a memory leak here - we'll
-                // just fix it.
-                using (var memoryStream = new MemoryStream())
-                {
-                    var encoder = new BmpBitmapEncoder();
-                    var frame = BitmapFrame.Create(bitmapSource);
-                    encoder.Frames.Add(frame);
-                    encoder.Save(memoryStream);
-
-                    return new BitmapImageData(bitmapSource, memoryStream.GetBuffer(), bitmapData.Stride);
-                }               
+                return new BitmapImageData(bitmapSource);
             }
             catch (Exception ex)
             {
