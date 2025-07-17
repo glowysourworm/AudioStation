@@ -1,0 +1,61 @@
+﻿<UserControl x:Class="AudioStation.Views.LibraryLoaderViews.LibraryLoaderCDImport"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:fa5="http://schemas.fontawesome.com/icons/"
+             xmlns:controls="clr-namespace:AudioStation.Controls"
+             xmlns:propertyGrid="clr-namespace:AudioStation.Controls.PropertyGrid">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <ItemsControl HorizontalContentAlignment="Stretch" Margin="5" >
+            <propertyGrid:PropertyLabelControl LabelColumnWidth="200" LabelText="CD Drive" Value="{Binding CDPlayerDrive}" />
+            <propertyGrid:PropertyLabelControl LabelColumnWidth="200" LabelText="CD Drive Ready" Value="{Binding CDPlayerLoaded}" />
+            <propertyGrid:PropertyStringControl LabelColumnWidth="200" LabelText="Artist" Value="{Binding Artist, Mode=TwoWay}" />
+            <propertyGrid:PropertyStringControl LabelColumnWidth="200" LabelText="Album" Value="{Binding Album, Mode=TwoWay}" />
+            <propertyGrid:PropertyIntControl LabelColumnWidth="200" LabelText="Disc Number" Value="{Binding DiscNumber}" />
+            <propertyGrid:PropertyIntControl LabelColumnWidth="200" LabelText="Disc Count" Value="{Binding DiscCount}" />
+        </ItemsControl>
+
+        <ListBox ItemsSource="{Binding Tracks}" 
+                 HorizontalContentAlignment="Stretch"
+                 Margin="5" Grid.Row="1">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Style="{StaticResource LabelTextBlock}">
+                            <Run Text="Track " />
+                            <Run Text="{Binding Track}" />
+                        </TextBlock>
+
+                        <controls:ProgressBar Width="200" Height="24" Grid.Column="1"
+                                              Progress="{Binding Progress}" 
+                                              ProgressBrush="LawnGreen" 
+                                              Background="LightGray" 
+                                              Foreground="#FF555555" 
+                                              HorizontalAlignment="Right"
+                                              CornerRadius="5" FontSize="12" />
+                    </Grid>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+
+        <Button Style="{StaticResource UserControlButton}" Command="{Binding ImportCommand}"
+                Margin="5"
+                Grid.Row="2" HorizontalAlignment="Right">
+            <StackPanel Orientation="Horizontal" Margin="5">
+                <TextBlock Text="Import" VerticalAlignment="Center" />
+                <fa5:SvgAwesome Icon="Solid_CompactDisc" Style="{StaticResource FontAwesomeIconDefault}" Margin="5 0 0 0" VerticalAlignment="Center" />
+            </StackPanel>
+        </Button>
+
+    </Grid>
+</UserControl>

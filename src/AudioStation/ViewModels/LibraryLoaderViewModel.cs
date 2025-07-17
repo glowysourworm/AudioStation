@@ -26,6 +26,7 @@ namespace AudioStation.ViewModels
     public class LibraryLoaderViewModel : ViewModelBase
     {
         #region Backing Fields (private)
+        LibraryLoaderCDImportViewModel _importCDViewModel;
         LibraryLoaderImportViewModel _importViewModel;
         LibraryLoaderImportRadioViewModel _importRadioBasicViewModel;
         LibraryLoaderDownloadMusicBrainzViewModel _downloadMusicBrainzViewModel;
@@ -69,6 +70,11 @@ namespace AudioStation.ViewModels
             get { return _downloadMusicBrainzViewModel; }
             set { this.RaiseAndSetIfChanged(ref _downloadMusicBrainzViewModel, value); }
         }
+        public LibraryLoaderCDImportViewModel ImportCDViewModel
+        {
+            get { return _importCDViewModel; }
+            set { this.RaiseAndSetIfChanged(ref _importCDViewModel, value); }
+        }
         #endregion
 
         [IocImportingConstructor]
@@ -76,6 +82,7 @@ namespace AudioStation.ViewModels
                                       IIocEventAggregator eventAggregator,
                                       
                                       // View Models
+                                      LibraryLoaderCDImportViewModel importCDViewModel,
                                       LibraryLoaderImportViewModel importViewModel,
                                       LibraryLoaderImportRadioViewModel importRadioBasicViewModel,
                                       LibraryLoaderDownloadMusicBrainzViewModel downloadMusicBrainzViewModel)
@@ -85,6 +92,7 @@ namespace AudioStation.ViewModels
 
             this.LibraryWorkItemsSelected = this.LibraryWorkItems;
 
+            this.ImportCDViewModel = importCDViewModel;
             this.ImportViewModel = importViewModel;
             this.ImportRadioBasicViewModel = importRadioBasicViewModel;
             this.DownloadMusicBrainzViewModel = downloadMusicBrainzViewModel;

@@ -13,6 +13,10 @@
         <TabControl Grid.Row="0" Margin="5" 
                     Style="{StaticResource ManagerTabControlStyle}">
 
+            <controls:TabItemPressable Header="Import CD" Style="{StaticResource ManagerTabItemStyle}">
+                <loaderView:LibraryLoaderCDImport DataContext="{Binding ImportCDViewModel}" />
+            </controls:TabItemPressable>
+
             <controls:TabItemPressable Header="Import" Style="{StaticResource ManagerTabItemStyle}">
                 <loaderView:LibraryLoaderImportView DataContext="{Binding ImportViewModel}" />
             </controls:TabItemPressable>

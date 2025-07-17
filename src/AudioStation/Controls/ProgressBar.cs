@@ -92,19 +92,18 @@ namespace AudioStation.Controls
 
         private void SetGeometry(Size size)
         {
-            _geometry = new RectangleGeometry(new Rect(size));
+            // TODO: Make this work with parent control
+            var width = Math.Clamp(size.Width, 0, 10000);
+            var height = Math.Clamp(size.Height, 0, 10000);
+
+            _geometry = new RectangleGeometry(new Rect(new Size(width, height)));
         }
 
         protected override Size MeasureOverride(Size constraint)
         {
             SetGeometry(constraint);
 
-            return base.MeasureOverride(constraint);
-        }
-
-        protected override Size ArrangeOverride(Size finalSize)
-        {
-            return base.ArrangeOverride(finalSize);
+            return _geometry.Bounds.Size;
         }
 
         private static void OnProgressChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)

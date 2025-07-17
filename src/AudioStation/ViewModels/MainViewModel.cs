@@ -8,6 +8,8 @@ using AudioStation.Component.AudioProcessing;
 using AudioStation.Controller.Interface;
 using AudioStation.Core;
 using AudioStation.Core.Component;
+using AudioStation.Core.Component.CDPlayer;
+using AudioStation.Core.Component.CDPlayer.Interface;
 using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Event;
 using AudioStation.Core.Model;
@@ -187,6 +189,7 @@ public partial class MainViewModel : ViewModelBase, IDisposable
                          IAudioController audioController,
                          IModelController modelController,
                          IIocEventAggregator eventAggregator,
+                         ICDDrive cdDrive,
 
                          // View Models
                          LibraryViewModel libraryViewModel,
