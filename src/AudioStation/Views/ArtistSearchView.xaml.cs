@@ -8,7 +8,7 @@ using AudioStation.Component.Interface;
 using AudioStation.Core.Database.AudioStationDatabase;
 using AudioStation.Core.Model;
 using AudioStation.Event;
-using AudioStation.ViewModels;
+using AudioStation.ViewModels.LibraryManagerViewModels;
 using AudioStation.ViewModels.LibraryViewModels;
 
 using EMA.ExtendedWPFVisualTreeHelper;

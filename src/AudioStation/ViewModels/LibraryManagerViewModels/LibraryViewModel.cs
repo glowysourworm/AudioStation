@@ -14,11 +14,8 @@ using SimpleWpf.Extensions.Command;
 using SimpleWpf.Extensions.ObservableCollection;
 using SimpleWpf.IocFramework.Application.Attribute;
 
-namespace AudioStation.ViewModels
+namespace AudioStation.ViewModels.LibraryManagerViewModels
 {
-
-
-    [IocExportDefault]
     public class LibraryViewModel : ViewModelBase
     {
         private readonly IViewModelLoader _viewModelLoader;
@@ -58,134 +55,137 @@ namespace AudioStation.ViewModels
         public ObservableCollection<LibraryEntryViewModel> LibraryEntries
         {
             get { return _libraryEntries; }
-            set { this.RaiseAndSetIfChanged(ref _libraryEntries, value); }
+            set { RaiseAndSetIfChanged(ref _libraryEntries, value); }
         }
         public ObservableCollection<LibraryEntryViewModel> LibraryEntryTabItems
         {
             get { return _libraryEntryTabItems; }
-            set { this.RaiseAndSetIfChanged(ref _libraryEntryTabItems, value); }
+            set { RaiseAndSetIfChanged(ref _libraryEntryTabItems, value); }
         }
         public ObservableCollection<AlbumViewModel> Albums
         {
             get { return _albums; }
-            set { this.RaiseAndSetIfChanged(ref _albums, value); }
+            set { RaiseAndSetIfChanged(ref _albums, value); }
         }
         public ObservableCollection<ArtistViewModel> Artists
         {
             get { return _artists; }
-            set { this.RaiseAndSetIfChanged(ref _artists, value); }
+            set { RaiseAndSetIfChanged(ref _artists, value); }
         }
         public ObservableCollection<GenreViewModel> Genres
         {
             get { return _genres; }
-            set { this.RaiseAndSetIfChanged(ref _genres, value); }
+            set { RaiseAndSetIfChanged(ref _genres, value); }
         }
 
         public int TotalArtistCount
         {
             get { return _totalArtistCount; }
-            set { this.RaiseAndSetIfChanged(ref _totalArtistCount, value); }
+            set { RaiseAndSetIfChanged(ref _totalArtistCount, value); }
         }
         public int TotalAlbumCount
         {
             get { return _totalAlbumCount; }
-            set { this.RaiseAndSetIfChanged(ref _totalAlbumCount, value); }
+            set { RaiseAndSetIfChanged(ref _totalAlbumCount, value); }
         }
         public int TotalLibraryEntriesCount
         {
             get { return _totalLibraryEntriesCount; }
-            set { this.RaiseAndSetIfChanged(ref _totalLibraryEntriesCount, value); }
+            set { RaiseAndSetIfChanged(ref _totalLibraryEntriesCount, value); }
         }
         public int TotalGenresCount
         {
             get { return _totalGenresCount; }
-            set { this.RaiseAndSetIfChanged(ref _totalGenresCount, value); }
+            set { RaiseAndSetIfChanged(ref _totalGenresCount, value); }
         }
         public int TotalArtistFilteredCount
         {
             get { return _totalArtistFilteredCount; }
-            set { this.RaiseAndSetIfChanged(ref _totalArtistFilteredCount, value); }
+            set { RaiseAndSetIfChanged(ref _totalArtistFilteredCount, value); }
         }
         public int TotalAlbumFilteredCount
         {
             get { return _totalAlbumFilteredCount; }
-            set { this.RaiseAndSetIfChanged(ref _totalAlbumFilteredCount, value); }
+            set { RaiseAndSetIfChanged(ref _totalAlbumFilteredCount, value); }
         }
         public int TotalLibraryEntriesFilteredCount
         {
             get { return _totalLibraryEntriesFilteredCount; }
-            set { this.RaiseAndSetIfChanged(ref _totalLibraryEntriesFilteredCount, value); }
+            set { RaiseAndSetIfChanged(ref _totalLibraryEntriesFilteredCount, value); }
         }
         public int TotalGenresFilteredCount
         {
             get { return _totalGenresFilteredCount; }
-            set { this.RaiseAndSetIfChanged(ref _totalGenresFilteredCount, value); }
+            set { RaiseAndSetIfChanged(ref _totalGenresFilteredCount, value); }
         }
 
         public string ArtistSearch
         {
             get { return _artistSearch; }
-            set { this.RaiseAndSetIfChanged(ref _artistSearch, value); }
+            set { RaiseAndSetIfChanged(ref _artistSearch, value); }
         }
         public LibraryEntryViewModel LibraryEntrySearch
         {
             get { return _libraryEntrySearch; }
-            set { this.RaiseAndSetIfChanged(ref _libraryEntrySearch, value); }
+            set { RaiseAndSetIfChanged(ref _libraryEntrySearch, value); }
         }
         public LibraryManagerErrorFilterType LibraryManagerFilterType
         {
             get { return _libraryManagerFilterType; }
-            set { this.RaiseAndSetIfChanged(ref _libraryManagerFilterType, value); }
+            set { RaiseAndSetIfChanged(ref _libraryManagerFilterType, value); }
         }
 
         public int LibraryEntriesPageBeginEntryNumber
         {
             get { return _libraryEntriesPageBeginEntryNumber; }
-            set { this.RaiseAndSetIfChanged(ref _libraryEntriesPageBeginEntryNumber, value); }
+            set { RaiseAndSetIfChanged(ref _libraryEntriesPageBeginEntryNumber, value); }
         }
         public int LibraryEntriesPageEndEntryNumber
         {
             get { return _libraryEntriesPageEndEntryNumber; }
-            set { this.RaiseAndSetIfChanged(ref _libraryEntriesPageEndEntryNumber, value); }
+            set { RaiseAndSetIfChanged(ref _libraryEntriesPageEndEntryNumber, value); }
         }
         public int LibraryEntryRequestPage
         {
             get { return _libraryEntryRequestPage; }
-            set { this.RaiseAndSetIfChanged(ref _libraryEntryRequestPage, value); }
+            set { RaiseAndSetIfChanged(ref _libraryEntryRequestPage, value); }
         }
         public int LibraryEntryPage
         {
             get { return _libraryEntryPage; }
-            set { this.RaiseAndSetIfChanged(ref _libraryEntryPage, value); }
+            set { RaiseAndSetIfChanged(ref _libraryEntryPage, value); }
         }
 
         public SimpleCommand LibraryEntryPageRequestCommand
         {
             get { return _libraryEntryPageRequestCommand; }
-            set { this.RaiseAndSetIfChanged(ref _libraryEntryPageRequestCommand, value); }
+            set { RaiseAndSetIfChanged(ref _libraryEntryPageRequestCommand, value); }
         }
         public SimpleCommand<int> LibraryEntryPageRequestBackCommand
         {
             get { return _libraryEntryPageRequestBackCommand; }
-            set { this.RaiseAndSetIfChanged(ref _libraryEntryPageRequestBackCommand, value); }
+            set { RaiseAndSetIfChanged(ref _libraryEntryPageRequestBackCommand, value); }
         }
         public SimpleCommand<int> LibraryEntryPageRequestForwardCommand
         {
             get { return _libraryEntryPageRequestForwardCommand; }
-            set { this.RaiseAndSetIfChanged(ref _libraryEntryPageRequestForwardCommand, value); }
+            set { RaiseAndSetIfChanged(ref _libraryEntryPageRequestForwardCommand, value); }
         }
         public SimpleCommand<LibraryEntryViewModel> AddLibraryEntryTabCommand
         {
             get { return _addLibraryEntryTabCommand; }
-            set { this.RaiseAndSetIfChanged(ref _addLibraryEntryTabCommand, value); }
+            set { RaiseAndSetIfChanged(ref _addLibraryEntryTabCommand, value); }
         }
         public SimpleCommand<LibraryEntryViewModel> RemoveLibraryEntryTabCommand
         {
             get { return _removeLibraryEntryTabCommand; }
-            set { this.RaiseAndSetIfChanged(ref _removeLibraryEntryTabCommand, value); }
+            set { RaiseAndSetIfChanged(ref _removeLibraryEntryTabCommand, value); }
         }
 
-        [IocImportingConstructor]
+        /// <summary>
+        /// This instance should be owned by the LibraryManagerViewModel. The primary view model (main) 
+        /// will have the manager view model injected (as a pattern).
+        /// </summary>
         public LibraryViewModel(IViewModelLoader viewModelLoader)
         {
             _viewModelLoader = viewModelLoader;
@@ -280,7 +280,7 @@ namespace AudioStation.ViewModels
             this.LibraryEntryPage = result.PageNumber;
             this.LibraryEntryRequestPage = result.PageNumber;
             this.LibraryEntriesPageBeginEntryNumber = (result.PageNumber - 1) * result.PageSize + 1;
-            this.LibraryEntriesPageEndEntryNumber = (result.PageNumber) * result.PageSize;
+            this.LibraryEntriesPageEndEntryNumber = result.PageNumber * result.PageSize;
             this.TotalLibraryEntriesCount = result.TotalRecordCount;
             this.TotalLibraryEntriesFilteredCount = result.TotalRecordCountFiltered;
         }
@@ -308,7 +308,7 @@ namespace AudioStation.ViewModels
                 });
             }
             
-            this.LoadEntryPage(result, true);
+            LoadEntryPage(result, true);
         }
 
         private bool FilterFileErrors(Mp3FileReference entity)

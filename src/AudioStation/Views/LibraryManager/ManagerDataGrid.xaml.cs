@@ -3,7 +3,7 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
 
-using AudioStation.ViewModels;
+using AudioStation.ViewModels.LibraryManagerViewModels;
 using AudioStation.ViewModels.LibraryViewModels;
 
 namespace AudioStation.Views.LibraryManager

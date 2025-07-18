@@ -272,7 +272,10 @@ namespace AudioStation.Core.Component.CDPlayer
         protected const int CB_CDROMSECTOR = 2048;
         protected const int CB_QSUBCHANNEL = 16;
         protected const int CB_AUDIO = CB_CDDASECTOR - CB_QSUBCHANNEL;
-        protected const int MAX_SECTORS = 74 * 60 * 75;                     // 74 minutes * 60 seconds * 75 sectors (per second)
+
+        // This doesn't have to be exact - just greater than the last sector. The read will return 0 at the end, essentially.
+        //
+        protected const int MAX_SECTORS = 76 * 60 * 75;                     // 76 minutes * 60 seconds * 75 sectors (per second)
 
         private readonly CDDriveCore _device;
 

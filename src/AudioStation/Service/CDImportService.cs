@@ -59,7 +59,7 @@ namespace AudioStation.Service
                     });
 
                     // Complete the progress bar (TODO: Problem knowing the last sector read)
-                    progressCallback(1);
+                    Application.Current.Dispatcher.BeginInvoke(() => progressCallback(1));
                 }
                 catch (Exception ex)
                 {

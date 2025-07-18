@@ -1,5 +1,6 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Documents;
 using System.Windows.Input;
 
 using AudioStation.Event;
@@ -27,7 +28,10 @@ namespace AudioStation.Views
         private void OnPlaylistDoubleClick(object sender, MouseButtonEventArgs e)
         {
             var viewModel = this.DataContext as NowPlayingViewModel;
-            var trackViewModel = (e.OriginalSource as FrameworkElement).DataContext as IPlaylistEntryViewModel;
+
+            // There's a Run inside the list box item template. So, there's probably a better way to avoid these casts; but this works for now.
+            var trackViewModel = e.OriginalSource is FrameworkElement ? (e.OriginalSource as FrameworkElement).DataContext as IPlaylistEntryViewModel :
+                                                                        (e.OriginalSource as FrameworkContentElement).DataContext as IPlaylistEntryViewModel;
 
             if (viewModel != null && trackViewModel != null)
             {

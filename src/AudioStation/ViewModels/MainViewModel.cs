@@ -1,34 +1,22 @@
 ﻿using System.Collections.ObjectModel;
 using System.IO;
-using System.Windows;
-using System.Windows.Threading;
 
-using AudioStation.Component;
 using AudioStation.Component.AudioProcessing;
 using AudioStation.Controller.Interface;
 using AudioStation.Core;
 using AudioStation.Core.Component;
-using AudioStation.Core.Component.CDPlayer;
 using AudioStation.Core.Component.CDPlayer.Interface;
 using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Event;
-using AudioStation.Core.Model;
-using AudioStation.Core.Utility;
 using AudioStation.Event;
 using AudioStation.Model;
 using AudioStation.ViewModels.Controls;
-using AudioStation.ViewModels.LibraryViewModels.Comparer;
-using AudioStation.ViewModels.LogViewModels;
-using AudioStation.ViewModels.PlaylistViewModels.Interface;
-using AudioStation.ViewModels.RadioViewModels;
+using AudioStation.ViewModels.LibraryManagerViewModels;
 using AudioStation.ViewModels.Vendor;
-
-using Microsoft.Extensions.Logging;
 
 using SimpleWpf.Extensions;
 using SimpleWpf.Extensions.Collection;
 using SimpleWpf.Extensions.Command;
-using SimpleWpf.Extensions.ObservableCollection;
 using SimpleWpf.IocFramework.Application.Attribute;
 using SimpleWpf.IocFramework.EventAggregation;
 
@@ -55,7 +43,7 @@ public partial class MainViewModel : ViewModelBase, IDisposable
     bool _loading;
     bool _configurationLocked;
 
-    LibraryViewModel _library;
+    LibraryManagerViewModel _libraryManager;
     RadioViewModel _radio;
     LogViewModel _log;
     NowPlayingViewModel _nowPlaying;
@@ -106,10 +94,10 @@ public partial class MainViewModel : ViewModelBase, IDisposable
         get { return _configurationLocked; }
         set { this.RaiseAndSetIfChanged(ref _configurationLocked, value); }
     }
-    public LibraryViewModel Library
+    public LibraryManagerViewModel LibraryManager
     {
-        get { return _library; }
-        set { this.RaiseAndSetIfChanged(ref _library, value); }
+        get { return _libraryManager; }
+        set { this.RaiseAndSetIfChanged(ref _libraryManager, value); }
     }
     public RadioViewModel Radio
     {
@@ -192,7 +180,7 @@ public partial class MainViewModel : ViewModelBase, IDisposable
                          ICDDrive cdDrive,
 
                          // View Models
-                         LibraryViewModel libraryViewModel,
+                         LibraryManagerViewModel libraryManagerViewModel,
                          RadioViewModel radioViewModel,
                          LogViewModel logViewModel,
                          LibraryLoaderViewModel libraryLoaderViewModel,
@@ -224,7 +212,7 @@ public partial class MainViewModel : ViewModelBase, IDisposable
         this.Log = logViewModel;
         this.NowPlaying = nowPlayingViewModel;
         this.PlayState = PlayStopPause.Stop;
-        this.Library = libraryViewModel;
+        this.LibraryManager = libraryManagerViewModel;
         this.Radio = radioViewModel;
         this.LibraryLoader = libraryLoaderViewModel;
         this.Bandcamp = bandcampViewModel;
@@ -237,7 +225,7 @@ public partial class MainViewModel : ViewModelBase, IDisposable
 
         // Event Aggregator
         eventAggregator.GetEvent<LogEvent>().Subscribe(OnLog);
-        eventAggregator.GetEvent<PlaybackStateChangedEvent>().Subscribe(OnPlaybackStateChanged);      
+        eventAggregator.GetEvent<PlaybackStateChangedEvent>().Subscribe(OnPlaybackStateChanged);
         eventAggregator.GetEvent<UpdateVolumeEvent>().Subscribe(OnUpdateVolume);
         eventAggregator.GetEvent<UpdateEqualizerGainEvent>().Subscribe(OnUpdateEqualizer);
         eventAggregator.GetEvent<PlaybackVolumeUpdatedEvent>().Subscribe(OnVolumeUpdated);
@@ -325,8 +313,7 @@ public partial class MainViewModel : ViewModelBase, IDisposable
     }
     private void OnCurrentTimeUpdated(TimeSpan currentTime)
     {
-        if (this.NowPlaying.Playlist.CurrentTrack != null)
-            this.NowPlaying.Playlist.CurrentTrack.UpdateCurrentTime(currentTime);
+        this.NowPlaying.Playlist.CurrentTrack?.UpdateCurrentTime(currentTime);
     }
 
     public void Dispose()

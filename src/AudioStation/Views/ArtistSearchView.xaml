@@ -9,7 +9,7 @@
              xmlns:viewModel="clr-namespace:AudioStation.ViewModels.LibraryViewModels"
              xmlns:cacheModel="clr-namespace:AudioStation.Controller.Model"
              xmlns:region="clr-namespace:SimpleWpf.IocFramework.RegionManagement;assembly=SimpleWpf.IocFramework"
-             DataContext="{Binding Library}"
+             DataContext="{Binding LibraryManager.Library}"
              Background="White">
     <Grid>
 

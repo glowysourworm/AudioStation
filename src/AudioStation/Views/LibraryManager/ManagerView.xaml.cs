@@ -8,7 +8,7 @@ using AudioStation.Controls;
 using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Component.Vendor.Interface;
 using AudioStation.Model;
-using AudioStation.ViewModels;
+using AudioStation.ViewModels.LibraryManagerViewModels;
 using AudioStation.ViewModels.LibraryViewModels;
 using AudioStation.ViewModels.Vendor.TagLibViewModel;
 using AudioStation.Views.LibraryEntryViews;
@@ -75,7 +75,7 @@ namespace AudioStation.Views.LibraryManager
             if (viewModel != null)
             {
                 // Removed Tab(s)
-                for (int index = _tabItems.Count - 1; index >= 2 /* Skipping Non-Closeable Tabs */; index--)
+                for (int index = _tabItems.Count - 1; index >= 3 /* Skipping Non-Closeable Tabs */; index--)
                 {
                     var entryViewModel = viewModel.LibraryEntryTabItems.FirstOrDefault(x => GetFileTabName(x) == (string)_tabItems[index].Header);
 
@@ -105,6 +105,7 @@ namespace AudioStation.Views.LibraryManager
             // Using UserControl resources "proxy" to utilize all the XAML binding
             _tabItems.Add(CreateLibraryDatabaseTab());
             _tabItems.Add(CreateLibraryFileTab());
+            _tabItems.Add(CreateLibraryMaintenanceTab());
         }
 
         private TabItemPressable CreateLibraryDatabaseTab()
@@ -114,6 +115,10 @@ namespace AudioStation.Views.LibraryManager
         private TabItemPressable CreateLibraryFileTab()
         {
             return this.Resources["LibraryFileTab"] as TabItemPressable;
+        }
+        private TabItemPressable CreateLibraryMaintenanceTab()
+        {
+            return this.Resources["LibraryMaintenanceTab"] as TabItemPressable;
         }
         private async Task<TabItemPressable> CreateLibraryEntryFileTab(LibraryEntryViewModel viewModel)
         {
