@@ -1,19 +1,23 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.Net.Mail;
+using System.Runtime.InteropServices;
 
 namespace AudioStation.Core.Component.CDPlayer
 {
     [StructLayout(LayoutKind.Sequential)]
     public class CDPlayerData
     {
+        //public const int MAXIMUM_NUMBER_TRACKS = 100;
+
         public ushort Length;
         public byte FirstTrack = 0;
         public byte LastTrack = 0;
-
-        public CDPlayerTrack.CDPlayerTrackList TrackData;
+        public CDPlayerTrackList TrackData;
 
         public CDPlayerData()
         {
-            TrackData = new CDPlayerTrack.CDPlayerTrackList();
+            // 100 tracks is some sort of windows maximum constant
+            //
+            TrackData = new CDPlayerTrackList();
             Length = (ushort)Marshal.SizeOf(this);
         }
     }

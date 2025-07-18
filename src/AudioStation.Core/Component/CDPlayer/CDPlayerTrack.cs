@@ -5,16 +5,26 @@ namespace AudioStation.Core.Component.CDPlayer
     [StructLayout(LayoutKind.Sequential)]
     public struct CDPlayerTrack
     {
-        public byte TrackNumber;
-        public byte Reserved1;
-        public byte Address_0;
-        public byte Address_1;
-        public byte Address_2;
-        public byte Address_3;
+        // NOTE*** I HAD TO COUNT BYTES PHYSICALLY! THE TOTAL LENGTH OF A TABLE OF CONTENTS (TOC) ENTRY
+        //         APPEARS TO BE 8 BYTES. 
+        //  
+        //         So, I'm going to remove the Control byte to get the right alignment.
+        //
+
+        /*  https://www.codeproject.com/Articles/15725/Tutorial-on-reading-Audio-CDs
+
+            UCHAR Reserved;
+            UCHAR Control : 4;      // Removing
+            UCHAR Adr : 4;
+            UCHAR TrackNumber;
+            UCHAR Reserved1;
+            UCHAR Address[4];
+
+        */
 
         public byte Reserved;
-        private byte BitMapped;
-        public byte Control
+        private byte BitMapped;     // Not serialized
+        /*public byte Control
         {
             get
             {
@@ -22,9 +32,10 @@ namespace AudioStation.Core.Component.CDPlayer
             }
             set
             {
-                BitMapped = (byte)((BitMapped & 0xF0) | (value & (byte)0x0F));
+                BitMapped = (byte)((BitMapped & 0xF0) |
+                   (value & (byte)0x0F));
             }
-        }
+        }*/
         public byte Adr
         {
             get
@@ -33,43 +44,55 @@ namespace AudioStation.Core.Component.CDPlayer
             }
             set
             {
-                BitMapped = (byte)((BitMapped & (byte)0x0F) | (value << 4));
+                BitMapped = (byte)((BitMapped & (byte)0x0F) |
+                   (value << 4));
             }
         }
+        public byte TrackNumber;
+        public byte Reserved1;
 
-        [StructLayout(LayoutKind.Sequential)]
-        public class CDPlayerTrackList
+        public byte Address0;
+        public byte Address1;
+        public byte Address2;
+        public byte Address3;
+
+        public CDPlayerTrack()
+        { }
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    public class CDPlayerTrackList
+    {
+        public const int MAXIMUM_NUMBER_TRACKS = 100;
+
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = MAXIMUM_NUMBER_TRACKS * 8)]
+        public byte[] Data;
+
+        /// <summary>
+        /// No way to know what track count was here. This method should be located in the CDPlayerData struct.
+        /// </summary>
+        public CDPlayerTrack GetTrack(int index)
         {
-            public const int MAXIMUM_NUMBER_TRACKS = 100;
+            var result = new CDPlayerTrack();
 
-            [MarshalAs(UnmanagedType.ByValArray, SizeConst = MAXIMUM_NUMBER_TRACKS * 8)]
-            private byte[] Data;
+            // We have the data loaded - just have to deserialize it
+            //
+            var baseAddress = index * Marshal.SizeOf<CDPlayerTrack>();
 
-            public CDPlayerTrack this[int Index]
-            {
-                get
-                {
-                    if ((Index < 0) | (Index >= MAXIMUM_NUMBER_TRACKS))
-                    {
-                        throw new IndexOutOfRangeException();
-                    }
+            result.Reserved = this.Data[baseAddress++];
 
-                    CDPlayerTrack result;
-                    GCHandle handle = GCHandle.Alloc(Data, GCHandleType.Pinned);
+            //result.Control = this.Data[baseAddress++];
+            result.Adr = this.Data[baseAddress++];
 
-                    try
-                    {
-                        IntPtr buffer = handle.AddrOfPinnedObject();
-                        buffer = (IntPtr)(buffer.ToInt32() + (Index * Marshal.SizeOf(typeof(CDPlayerTrack))));
-                        result = (CDPlayerTrack)Marshal.PtrToStructure(buffer, typeof(CDPlayerTrack));
-                    }
-                    finally
-                    {
-                        handle.Free();
-                    }
-                    return result;
-                }
-            }
+            result.TrackNumber = this.Data[baseAddress++];
+            result.Reserved1 = this.Data[baseAddress++];
+
+            result.Address0 = this.Data[baseAddress++];
+            result.Address1 = this.Data[baseAddress++];
+            result.Address2 = this.Data[baseAddress++];
+            result.Address3 = this.Data[baseAddress++];
+
+            return result;
         }
     }
 }

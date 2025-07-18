@@ -1,17 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.IO;
 using System.Windows;
 using System.Windows.Threading;
 
+using AudioStation.Controller.Interface;
 using AudioStation.Core.Component.CDPlayer.Interface;
 using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Utility;
 using AudioStation.Service.Interface;
-using AudioStation.ViewModels.LibraryLoaderViewModels;
+
+using NAudio.Wave;
 
 using SimpleWpf.IocFramework.Application.Attribute;
 
@@ -20,13 +17,17 @@ namespace AudioStation.Service
     [IocExport(typeof(ICDImportService))]
     public class CDImportService : ICDImportService
     {
+        private readonly IDialogController _dialogController;
         private readonly IConfigurationManager _configurationManager;
         private readonly ICDDrive _cdDrive;
 
         [IocImportingConstructor]
-        public CDImportService(IConfigurationManager configurationManager, ICDDrive cdDrive)
+        public CDImportService(IConfigurationManager configurationManager, 
+                               IDialogController dialogController,
+                               ICDDrive cdDrive)
         {
             _configurationManager = configurationManager;
+            _dialogController = dialogController;
             _cdDrive = cdDrive;
         }
 
@@ -42,17 +43,26 @@ namespace AudioStation.Service
                 var bufferData = new List<byte>();
 
                 // Read Sectors -> Callback Progress %
-                _cdDrive.ReadTrack(trackNumber, (args) =>
+                try
                 {
-                    bufferData.AddRange(args.Data);
-
-                    Application.Current.Dispatcher.BeginInvoke(() =>
+                    _cdDrive.ReadTrack(trackNumber, (args) =>
                     {
-                        // Progress %
-                        progressCallback(args.TotalBytesRead / (double)args.TotalBytesToRead);
+                        bufferData.AddRange(args.Data);
 
-                    }, DispatcherPriority.Background);
-                });
+                        Application.Current.Dispatcher.BeginInvoke(() =>
+                        {
+                            // Progress %
+                            progressCallback(args.TotalBytesRead / (double)args.TotalBytesToRead);
+
+                        }, DispatcherPriority.Background);
+                    });
+                }
+                catch (Exception ex)
+                {
+                    _dialogController.ShowAlert("CD-ROM Read Error", "There was an error reading from the CD-ROM", ex.Message);
+                    return;
+                }
+                
 
                 var directory = configuration.DownloadFolder;
                 var artistFolder = StringHelpers.MakeFriendlyPath(false, artist);
@@ -70,7 +80,14 @@ namespace AudioStation.Service
                 if (!Directory.Exists(albumDirectory))
                     Directory.CreateDirectory(albumDirectory);
 
-                File.WriteAllBytes(filePath, bufferData.ToArray());
+                // Collect the buffer into an array
+                var buffer = bufferData.ToArray();
+
+                // Convert .raw format to .wav format
+                using (var rawWaveStream = new RawSourceWaveStream(buffer, 0, buffer.Length, new WaveFormat()))
+                {
+                    WaveFileWriter.CreateWaveFile(filePath, rawWaveStream);
+                }
             });
         }
     }

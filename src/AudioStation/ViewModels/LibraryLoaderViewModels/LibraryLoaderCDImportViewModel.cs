@@ -2,6 +2,7 @@
 using System.IO;
 
 using AudioStation.Core.Component.CDPlayer;
+using AudioStation.Core.Component.CDPlayer.Interface;
 using AudioStation.Event;
 using AudioStation.Service.Interface;
 
@@ -70,7 +71,8 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
         }
 
         [IocImportingConstructor]
-        public LibraryLoaderCDImportViewModel(IIocEventAggregator eventAggregator, ICDImportService cdImportService)
+        public LibraryLoaderCDImportViewModel(IIocEventAggregator eventAggregator, 
+                                              ICDImportService cdImportService)
         {
             _cdImportService = cdImportService;
 

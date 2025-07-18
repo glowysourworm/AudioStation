@@ -6,7 +6,6 @@ namespace AudioStation.Core.Component.CDPlayer.Interface
     {
         event SimpleEventHandler<CDDeviceTracksLoadedEventArgs> TracksLoadedEvent;
 
-        int GetTrackCount();
         void ReadTrack(int trackNumber, SimpleEventHandler<CDDataReadEventArgs> progressCallback);
         void SetDevice(char driveLetter, DeviceChangeEventType changeType);
     }

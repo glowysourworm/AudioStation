@@ -1,4 +1,7 @@
-﻿using System.Runtime.InteropServices;
+﻿using System;
+using System.Runtime.InteropServices;
+using System.Windows;
+using System.Windows.Media;
 
 using AudioStation.Core.Component.CDPlayer.Interface;
 
@@ -7,185 +10,130 @@ using SimpleWpf.IocFramework.Application.Attribute;
 
 namespace AudioStation.Core.Component.CDPlayer
 {
-    [IocExport(typeof(ICDDrive))]
-    public class CDDrive : ICDDrive, IDisposable
+    public class CDDriveCore : IDisposable
     {
-        public event SimpleEventHandler<CDDeviceTracksLoadedEventArgs> TracksLoadedEvent;
-
-        private IntPtr _handleCDDrive;
-        private bool _hasData = false;
-        private CDPlayerData _trackData = null;
+        [Flags]
+        public enum ReadyState
+        {
+            None = 0,
+            Initialized = 1,
+            MediaAvailable = 2,
+            ReadReady = 4,
+            Locked = 8
+        }
 
         protected const int NSECTORS = 13;
         protected const int CB_CDDASECTOR = 2368;
         protected const int CB_CDROMSECTOR = 2048;
         protected const int CB_QSUBCHANNEL = 16;
         protected const int CB_AUDIO = CB_CDDASECTOR - CB_QSUBCHANNEL;
+        protected const int SECTOR_SIZE = 75;
 
-        public CDDrive()
+        private IntPtr _handleCDDrive;
+        private CDPlayerData _trackData = null;
+        private ReadyState _readyState = ReadyState.None;
+
+        public CDDriveCore()
         {
-            _trackData = new CDPlayerData();
+            _trackData = null;
             _handleCDDrive = IntPtr.Zero;
         }
 
+        public ReadyState GetReadyState()
+        {
+            return _readyState;
+        }
+        private void CalculateReadyState()
+        {
+            ReadyState result = ReadyState.None;
+
+            if ((int)_handleCDDrive != -1 && (int)_handleCDDrive != 0)
+                result |= ReadyState.Initialized;
+
+            if (_trackData != null)
+                result |= ReadyState.MediaAvailable;
+
+            if (result.HasFlag(ReadyState.Initialized) &&
+                result.HasFlag(ReadyState.MediaAvailable) /*&&
+                IsReadReady()*/)
+                result |= ReadyState.ReadReady;
+
+            // TODO: Need a way to know if it's locked / reading
+
+            _readyState = result;
+        }
         public int GetTrackCount()
         {
-            if (!DeviceHandleAvailable() &&
-                !_hasData)
+            if (!GetReadyState().HasFlag(ReadyState.ReadReady))
                 throw new Exception("CD-ROM device not initialized and not yet read");
 
-            if (_hasData)
-            {
-                return _trackData.LastTrack - _trackData.FirstTrack + 1;
-            }
-            else return -1;
+            return _trackData.LastTrack - _trackData.FirstTrack + 1;
         }
-        public void ReadTrack(int trackNumber, SimpleEventHandler<CDDataReadEventArgs> progressCallback)
+        public int GetFirstTrack()
         {
-            if (!DeviceHandleAvailable() &&
-                !_hasData)
+            if (!GetReadyState().HasFlag(ReadyState.ReadReady))
                 throw new Exception("CD-ROM device not initialized and not yet read");
 
-            ReadTrack(trackNumber, 0, 0, progressCallback);
+            return _trackData.FirstTrack;
         }
-        public void SetDevice(char drive, DeviceChangeEventType changeType)
+        public int GetLastTrack()
         {
-            if (Initialize(drive))
+            if (!GetReadyState().HasFlag(ReadyState.ReadReady))
+                throw new Exception("CD-ROM device not initialized and not yet read");
+
+            return _trackData.LastTrack;
+        }
+        public int GetStartSector(int track)
+        {
+            if (GetReadyState().HasFlag(ReadyState.ReadReady) &&
+               (track >= _trackData.FirstTrack) &&
+               (track <= _trackData.LastTrack))
             {
-                switch (changeType)
-                {
-                    case DeviceChangeEventType.DeviceInserted:
-                    {
-                        var ready = Load() && Ready();
-                        var trackCount = GetTrackCount();
-                        OnTracksLoaded(drive, ready, trackCount);
-                    }
-                    break;
-                    case DeviceChangeEventType.DeviceRemoved:
-                    {
-                        Dispose();
-                        OnTracksLoaded(drive, false, 0);
-                    }
-                    break;
-                }
+                return AddressToSector(_trackData.TrackData.GetTrack(track - 1));
+            }
+            else
+            {
+                return -1;
             }
         }
-
-
-        private bool Initialize(char drive)
+        public bool Initialize(char driveLetter)
         {
-            if (!DeviceWinAPI.IsCDDrive(drive))
-            {
-                throw new ArgumentException("Provided drive is not a CD-ROM drive:  " + drive);
-            }
+            if (!DeviceWinAPI.IsCDDrive(driveLetter))
+                throw new ArgumentException("Provided drive is not a CD-ROM drive:  " + driveLetter);
 
             Dispose();
 
-            _handleCDDrive = DeviceWinAPI.CreateFile(@"\\.\" + drive.ToString() + ":",
+            _handleCDDrive = DeviceWinAPI.CreateFile(@"\\.\" + driveLetter.ToString() + ":",
                                                      DeviceWinAPI.GENERIC_READ, DeviceWinAPI.FILE_SHARE_READ,
                                                      IntPtr.Zero, DeviceWinAPI.OPEN_EXISTING, 0,
                                                      IntPtr.Zero);
 
-            if (DeviceHandleAvailable())
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
-        private void Close()
-        {
-            UnLock();
+            CalculateReadyState();
 
-            if (DeviceHandleAvailable())
-            {
-                DeviceWinAPI.CloseHandle(_handleCDDrive);
-            }
-
-            _handleCDDrive = IntPtr.Zero;
-            _hasData = false;
+            return _handleCDDrive > 0;
         }
-        private bool DeviceHandleAvailable()
+        public bool LoadMedia()
         {
-            return ((int)_handleCDDrive != -1) && ((int)_handleCDDrive != 0);
-        }
-        private bool UnLock()
-        {
-            if (!DeviceHandleAvailable())
+            if (!GetReadyState().HasFlag(ReadyState.Initialized))
                 throw new Exception("CD-ROM device not initialized");
 
-            uint Dummy = 0;
-            var preventMediaRemoval = new DeviceWinAPI.PREVENT_MEDIA_REMOVAL();
-            preventMediaRemoval.PreventMediaRemoval = 0;
-
-            return DeviceWinAPI.DeviceIoControl(_handleCDDrive,
-                                                DeviceWinAPI.IOCTL_STORAGE_MEDIA_REMOVAL, preventMediaRemoval,
-                                                (uint)Marshal.SizeOf(preventMediaRemoval), IntPtr.Zero, 0,
-                                                ref Dummy, IntPtr.Zero) != 0;
+            return Load();
         }
-        private bool Load()
+        public bool ReadSector(int sector, byte[] buffer, int sectorsToRead, ref uint actualBytesRead)
         {
-            if (!DeviceHandleAvailable())
-                throw new Exception("CD-ROM device not initialized");
-
-            uint Dummy = 0;
-            var result = DeviceWinAPI.DeviceIoControl(_handleCDDrive,
-                                                      DeviceWinAPI.IOCTL_STORAGE_LOAD_MEDIA, IntPtr.Zero, 0,
-                                                      IntPtr.Zero, 0, ref Dummy, IntPtr.Zero) != 0;
-
-            // If native call succeeds -> Load Data (Native)
-            return result && LoadData();
-        }
-        private bool Eject()
-        {
-            if (!DeviceHandleAvailable())
-                throw new Exception("CD-ROM device not initialized");
-
-            uint Dummy = 0;
-            return DeviceWinAPI.DeviceIoControl(_handleCDDrive,
-                                                DeviceWinAPI.IOCTL_STORAGE_EJECT_MEDIA, IntPtr.Zero, 0,
-                                                IntPtr.Zero, 0, ref Dummy, IntPtr.Zero) != 0;
-        }
-        private bool Ready()
-        {
-            if (!DeviceHandleAvailable())
-                throw new Exception("CD-ROM device not initialized");
-
-            uint Dummy = 0;
-
-            if (DeviceWinAPI.DeviceIoControl(_handleCDDrive,
-                                             DeviceWinAPI.IOCTL_STORAGE_CHECK_VERIFY, IntPtr.Zero, 0,
-                                             IntPtr.Zero, 0, ref Dummy, IntPtr.Zero) != 0)
-            {
-                return true;
-            }
-            else
-            {
-                Dispose();
-                return false;
-            }
-        }
-
-        private bool ReadSector(int sector, byte[] bBuffer, int iSectors)
-        {
-            if (_hasData && 
-               ((sector + iSectors) <= EndSector(_trackData.LastTrack)) && 
-               (bBuffer.Length >= CB_AUDIO * iSectors))
+            if (GetReadyState().HasFlag(ReadyState.ReadReady) &&
+               (buffer.Length >= CB_AUDIO * sectorsToRead))
             {
                 var rawReadInfo = new DeviceWinAPI.RAW_READ_INFO();
 
                 rawReadInfo.TrackMode = DeviceWinAPI.TRACK_MODE_TYPE.CDDA;
-                rawReadInfo.SectorCount = (uint)iSectors;
+                rawReadInfo.SectorCount = (uint)sectorsToRead;
                 rawReadInfo.DiskOffset = sector * CB_CDROMSECTOR;
-
-                uint uiRead = 0;
 
                 if (DeviceWinAPI.DeviceIoControl(_handleCDDrive,
                                                  DeviceWinAPI.IOCTL_CDROM_RAW_READ, rawReadInfo,
-                                                 (uint)Marshal.SizeOf(rawReadInfo), bBuffer, (uint)iSectors *
-                                                 CB_AUDIO, ref uiRead, IntPtr.Zero) != 0)
+                                                 (uint)Marshal.SizeOf(rawReadInfo), buffer, (uint)sectorsToRead *
+                                                 CB_AUDIO, ref actualBytesRead, IntPtr.Zero) != 0)
                 {
                     return true;
                 }
@@ -199,47 +147,235 @@ namespace AudioStation.Core.Component.CDPlayer
                 return false;
             }
         }
-        private int ReadTrack(int trackNumber, uint startSecond, uint secondsRead, SimpleEventHandler<CDDataReadEventArgs> progressCallback)
+        private int AddressToSector(CDPlayerTrack track)
         {
-            if (_hasData && (trackNumber >= _trackData.FirstTrack) && (trackNumber <= _trackData.LastTrack))
+            // Address[4]:  [ Hour, Minute, Second, Frame ]
+            var sectors = (track.Address1 * 75 * 60) + (track.Address2 * 75) + track.Address3;
+
+            return sectors - 150;       // 1/75 seconds per sample
+        }
+
+        #region (private) Device State Methods
+        private bool Load()
+        {
+            if (!GetReadyState().HasFlag(ReadyState.Initialized))
+                throw new Exception("Trying to load CD data before initializing the device handle");
+
+            uint Dummy = 0;
+            var resultLoad = DeviceWinAPI.DeviceIoControl(_handleCDDrive,
+                                                      DeviceWinAPI.IOCTL_STORAGE_LOAD_MEDIA, IntPtr.Zero, 0,
+                                                      IntPtr.Zero, 0, ref Dummy, IntPtr.Zero) != 0;
+
+            // Must have an instance pointer for the native call
+            _trackData = new CDPlayerData();
+
+            uint bytesRead = 0;
+            var resultTOC = DeviceWinAPI.DeviceIoControl(_handleCDDrive,
+                                                        DeviceWinAPI.IOCTL_CDROM_READ_TOC, IntPtr.Zero, 0, _trackData,
+                                                        (uint)Marshal.SizeOf(_trackData), ref bytesRead,
+                                                        IntPtr.Zero) != 0;
+
+            if (!resultTOC)
+                _trackData = null;
+
+            CalculateReadyState();
+
+            return resultLoad && resultTOC;
+        }
+        private bool IsReadReady()
+        {
+            if (!_readyState.HasFlag(ReadyState.MediaAvailable))
+                throw new Exception("Trying to access read ready state before checking media available state");
+
+            uint Dummy = 0;
+
+            var result = (DeviceWinAPI.DeviceIoControl(_handleCDDrive,
+                                                       DeviceWinAPI.IOCTL_STORAGE_CHECK_VERIFY, IntPtr.Zero, 0,
+                                                       IntPtr.Zero, 0, ref Dummy, IntPtr.Zero) != 0);
+
+            if (!result)
             {
-                int startSector = StartSector(trackNumber);
-                int endSector = EndSector(trackNumber);
+                Dispose();
+            }
 
-                if ((startSector += (int)startSecond * 75) >= endSector)
+            CalculateReadyState();
+
+            return result;
+        }
+        private bool Eject()
+        {
+            if (!_readyState.HasFlag(ReadyState.Initialized))
+                throw new Exception("Trying to eject CD player before initializing the device handle");
+
+            uint Dummy = 0;
+            var result = DeviceWinAPI.DeviceIoControl(_handleCDDrive,
+                                                      DeviceWinAPI.IOCTL_STORAGE_EJECT_MEDIA, IntPtr.Zero, 0,
+                                                      IntPtr.Zero, 0, ref Dummy, IntPtr.Zero) != 0;
+
+            CalculateReadyState();
+
+            return result;
+        }
+        private void Close()
+        {
+            if (!_readyState.HasFlag(ReadyState.Initialized))
+                throw new Exception("Trying to close CD player before initializing the device handle");
+
+            // Unlock device (should call close for the device tray if applicable)
+            UnLock();
+
+            // Free CD Drive Handle
+            DeviceWinAPI.CloseHandle(_handleCDDrive);
+
+            _handleCDDrive = IntPtr.Zero;
+            _trackData = null;
+
+            CalculateReadyState();
+        }
+        private bool UnLock()
+        {
+            if (!_readyState.HasFlag(ReadyState.Initialized))
+                throw new Exception("Trying to unlock CD player before initializing the device handle");
+
+            uint Dummy = 0;
+            var preventMediaRemoval = new DeviceWinAPI.PREVENT_MEDIA_REMOVAL();
+            preventMediaRemoval.PreventMediaRemoval = 0;
+
+            var result = DeviceWinAPI.DeviceIoControl(_handleCDDrive,
+                                                      DeviceWinAPI.IOCTL_STORAGE_MEDIA_REMOVAL, preventMediaRemoval,
+                                                      (uint)Marshal.SizeOf(preventMediaRemoval), IntPtr.Zero, 0,
+                                                      ref Dummy, IntPtr.Zero) != 0;
+
+            CalculateReadyState();
+
+            return result;
+        }
+        #endregion
+
+        public void Dispose()
+        {
+            if (_readyState.HasFlag(ReadyState.Initialized))
+            {
+                Close();
+                GC.SuppressFinalize(this);
+            }
+        }
+    }
+
+    [IocExport(typeof(ICDDrive))]
+    public class CDDrive : ICDDrive, IDisposable
+    {
+        public event SimpleEventHandler<CDDeviceTracksLoadedEventArgs> TracksLoadedEvent;
+
+        protected const int NSECTORS = 13;
+        protected const int CB_CDDASECTOR = 2368;
+        protected const int CB_CDROMSECTOR = 2048;
+        protected const int CB_QSUBCHANNEL = 16;
+        protected const int CB_AUDIO = CB_CDDASECTOR - CB_QSUBCHANNEL;
+        protected const int MAX_SECTORS = 74 * 60 * 75;                     // 74 minutes * 60 seconds * 75 sectors (per second)
+
+        private readonly CDDriveCore _device;
+
+        public CDDrive()
+        {
+            _device = new CDDriveCore();
+        }
+
+        public void ReadTrack(int trackNumber, SimpleEventHandler<CDDataReadEventArgs> progressCallback)
+        {
+            if (!_device.GetReadyState().HasFlag(CDDriveCore.ReadyState.ReadReady))
+                throw new Exception("CD-ROM device not initialized and not yet read");
+
+            ReadTrackImpl(trackNumber, 0, 0, progressCallback);
+        }
+        public void SetDevice(char drive, DeviceChangeEventType changeType)
+        {
+            if (_device.Initialize(drive))
+            {
+                switch (changeType)
                 {
-                    startSector -= (int)startSecond * 75;
+                    case DeviceChangeEventType.DeviceInserted:
+                    {
+                        var loaded = _device.LoadMedia();
+                        var ready = _device.GetReadyState().HasFlag(CDDriveCore.ReadyState.ReadReady);
+                        var trackCount = _device.GetTrackCount();
+                        OnTracksLoaded(drive, ready, trackCount);
+                    }
+                    break;
+                    case DeviceChangeEventType.DeviceRemoved:
+                    {
+                        Dispose();
+                        OnTracksLoaded(drive, false, 0);
+                    }
+                    break;
                 }
+            }
+        }
 
-                if ((secondsRead > 0) && ((int)(startSector +
-                   (secondsRead * 75)) < endSector))
-                {
-                    endSector = startSector + ((int)secondsRead * 75);
-                }
+        private int ReadTrackImpl(int trackNumber, uint startSecond, uint secondsRead, SimpleEventHandler<CDDataReadEventArgs> progressCallback)
+        {
+            if (!_device.GetReadyState().HasFlag(CDDriveCore.ReadyState.ReadReady))
+                throw new Exception("CD-ROM device not initialized and not yet read");
 
-                uint bytesToRead = (uint)(endSector - startSector) * CB_AUDIO;
+            if ((trackNumber >= _device.GetFirstTrack()) && 
+                (trackNumber <= _device.GetLastTrack()))
+            {
+                uint bytesToRead = 0;
                 uint bytesRead = 0;
+                int startSector = -1;
+                int endSector = -1;
+
+                // Last Track (Can't pre-compute the sector length)
+                if (trackNumber == _device.GetLastTrack())
+                {
+                    startSector = _device.GetStartSector(trackNumber);
+                    endSector = MAX_SECTORS;
+
+                    bytesToRead = (uint)(endSector - startSector) * CB_AUDIO;
+                    bytesRead = 0;
+                }
+                else
+                {
+                    startSector = _device.GetStartSector(trackNumber);
+                    endSector = _device.GetStartSector(trackNumber + 1);
+
+                    bytesToRead = (uint)(endSector - startSector) * CB_AUDIO;
+                    bytesRead = 0;
+                }
+
                 byte[] data = new byte[CB_AUDIO * NSECTORS];
-                bool continueRead = true;
                 bool readOK = true;
 
                 // 0% Progress
                 progressCallback(new CDDataReadEventArgs(Array.Empty<byte>(), 0, bytesToRead, 0));
 
-                for (int sector = startSector; (sector < endSector) && continueRead && readOK; sector += NSECTORS)
+                for (int sector = startSector; (sector < endSector) && readOK; sector += NSECTORS)
                 {
-                    int sectorsToRead = ((sector + NSECTORS) < endSector) ? NSECTORS : (endSector - sector);
+                    //int sectorsToRead = ((sector + NSECTORS) < endSector) ? NSECTORS : (endSector - sector);
+                    int sectorsToRead = NSECTORS;
+                    int sectorsRead = 0;
+                    uint actualBytesRead = 0;
 
-                    readOK = ReadSector(sector, data, sectorsToRead);
+                    readOK = _device.ReadSector(sector, data, sectorsToRead, ref actualBytesRead);
+
+                    if (actualBytesRead % CB_AUDIO != 0)
+                        throw new Exception("Sector read error:  CDDrive.cs");
 
                     if (readOK)
                     {
+                        // Sectors Read
+                        sectorsRead = (int)actualBytesRead / CB_AUDIO;
+
                         // Bytes Read
-                        bytesRead += (uint)(CB_AUDIO * sectorsToRead);
+                        bytesRead += (uint)(CB_AUDIO * sectorsRead);
 
                         // % Progress
-                        progressCallback(new CDDataReadEventArgs(data, (uint)(CB_AUDIO * sectorsToRead), bytesToRead, bytesRead));
+                        progressCallback(new CDDataReadEventArgs(data, (uint)(CB_AUDIO * sectorsRead), bytesToRead, bytesRead));
                     }
+
+                    // FINAL SECTOR READ
+                    if (sectorsRead < sectorsToRead)
+                        break;
                 }
                 if (readOK)
                 {
@@ -256,51 +392,6 @@ namespace AudioStation.Core.Component.CDPlayer
                 return -1;
             }
         }
-        private int StartSector(int track)
-        {
-            if (_hasData && 
-               (track >= _trackData.FirstTrack) &&
-               (track <= _trackData.LastTrack))
-            {
-                var trackData = _trackData.TrackData[track - 1];
-
-                return (trackData.Address_1 * 60 * 75) + (trackData.Address_2 * 75) + trackData.Address_3 - 150;
-            }
-            else
-            {
-                return -1;
-            }
-        }
-        private int EndSector(int track)
-        {
-            if (_hasData && 
-               (track >= _trackData.FirstTrack) &&
-               (track <= _trackData.LastTrack))
-            {
-                // Allocate Track Data
-                var trackData = _trackData.TrackData[track];
-
-                return (trackData.Address_1 * 60 * 75) + (trackData.Address_2 * 75) + trackData.Address_3 - 151;
-            }
-            else
-            {
-                return -1;
-            }
-        }
-
-        private bool LoadData()
-        {
-            if (!DeviceHandleAvailable())
-                throw new Exception("CD-ROM device not initialized");
-
-            uint bytesRead = 0;
-
-            _hasData = DeviceWinAPI.DeviceIoControl(_handleCDDrive,
-                                                    DeviceWinAPI.IOCTL_CDROM_READ_TOC, IntPtr.Zero, 0, _trackData,
-                                                    (uint)Marshal.SizeOf(_trackData), ref bytesRead,
-                                                    IntPtr.Zero) != 0;
-            return _hasData;
-        }
 
         private void OnTracksLoaded(char driveLetter, bool isReady, int trackCount)
         {
@@ -310,11 +401,7 @@ namespace AudioStation.Core.Component.CDPlayer
 
         public void Dispose()
         {
-            if (DeviceHandleAvailable())
-            {
-                Close();
-                GC.SuppressFinalize(this);
-            }
+            _device.Dispose();
         }
     }
 }
