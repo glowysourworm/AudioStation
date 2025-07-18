@@ -16,8 +16,8 @@
             <propertyGrid:PropertyLabelControl LabelColumnWidth="200" LabelText="CD Drive Ready" Value="{Binding CDPlayerLoaded}" />
             <propertyGrid:PropertyStringControl LabelColumnWidth="200" LabelText="Artist" Value="{Binding Artist, Mode=TwoWay}" />
             <propertyGrid:PropertyStringControl LabelColumnWidth="200" LabelText="Album" Value="{Binding Album, Mode=TwoWay}" />
-            <propertyGrid:PropertyIntControl LabelColumnWidth="200" LabelText="Disc Number" Value="{Binding DiscNumber}" />
-            <propertyGrid:PropertyIntControl LabelColumnWidth="200" LabelText="Disc Count" Value="{Binding DiscCount}" />
+            <propertyGrid:PropertyIntControl LabelColumnWidth="200" LabelText="Disc Number" Value="{Binding DiscNumber, Mode=TwoWay}" />
+            <propertyGrid:PropertyIntControl LabelColumnWidth="200" LabelText="Disc Count" Value="{Binding DiscCount, Mode=TwoWay}" />
         </ItemsControl>
 
         <ListBox ItemsSource="{Binding Tracks}" 

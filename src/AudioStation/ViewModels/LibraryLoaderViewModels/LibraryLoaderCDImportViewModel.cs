@@ -89,7 +89,7 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
             {
                 foreach (var track in this.Tracks)
                 {
-                    await cdImportService.ImportTrack(track.Track, this.Artist, this.Album, progress =>
+                    await cdImportService.ImportTrack(track.Track, this.Artist, this.Album, this.DiscNumber, this.DiscCount, progress =>
                     {
                         track.Progress = progress;
                     });

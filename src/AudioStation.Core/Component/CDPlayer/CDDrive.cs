@@ -375,7 +375,10 @@ namespace AudioStation.Core.Component.CDPlayer
 
                     // FINAL SECTOR READ
                     if (sectorsRead < sectorsToRead)
-                        break;
+                    {
+                        return (int)bytesRead;
+                    }
+                        
                 }
                 if (readOK)
                 {
