@@ -27,6 +27,6 @@ namespace AudioStation.Component.Interface
         /// <summary>
         /// Converts any non-mp3 files to mp3 files and puts them in a special staging folder to be imported.
         /// </summary>
-        Task ConvertFiles(IEnumerable<string> convertibleFiles, Action<double> progressCallback); 
+        Task ConvertFiles(IEnumerable<string> convertibleFiles, Action<double, string> progressCallback); 
     }
 }

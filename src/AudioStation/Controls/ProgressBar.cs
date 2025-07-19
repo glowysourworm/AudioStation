@@ -28,7 +28,7 @@ namespace AudioStation.Controls
             DependencyProperty.Register("FontFamily", typeof(FontFamily), typeof(ProgressBar), new PropertyMetadata(new FontFamily("Consolas"), OnFontChanged));
 
         public static readonly DependencyProperty FontSizeProperty =
-            DependencyProperty.Register("FontSize", typeof(double), typeof(ProgressBar), new PropertyMetadata(OnFontChanged));
+            DependencyProperty.Register("FontSize", typeof(double), typeof(ProgressBar), new PropertyMetadata(12.0D, OnFontChanged));
 
         public static readonly DependencyProperty CornerRadiusProperty =
             DependencyProperty.Register("CornerRadius", typeof(double), typeof(ProgressBar), new PropertyMetadata(5.0D));

@@ -4,6 +4,7 @@ using System.Windows;
 using AudioStation.Component.Interface;
 using AudioStation.Controller.Interface;
 using AudioStation.Event;
+using AudioStation.Event.DialogEvents;
 using AudioStation.ViewModels.LibraryManagerViewModels;
 
 using SimpleWpf.Extensions;
@@ -49,16 +50,23 @@ namespace AudioStation.ViewModels
 
             this.ConvertCommand = new SimpleCommand(async () =>
             {
+                var dialogViewModel = new DialogLoadingViewModel()
+                {
+                    Title = "Converting Files",
+                    Progress = 0,
+                    ShowProgressBar = true
+                };
+
                 // Dialog Show
-                eventAggregator.GetEvent<DialogEvent>().Publish(DialogEventData.ShowLoading("Converting Files..."));
+                eventAggregator.GetEvent<DialogEvent>().Publish(new DialogEventData(dialogViewModel));
 
                 // Convert...
-                await viewModelLoader.ConvertFiles(this.NonConvertedFiles, progress =>
+                await viewModelLoader.ConvertFiles(this.NonConvertedFiles, (progress, fileName) =>
                 {
                     Application.Current.Dispatcher.BeginInvoke(() =>
                     {
-                        //eventAggregator.GetEvent<DialogEvent>()
-                        //               .Publish(DialogEventData.ShowLoading(string.Format("Converting Files ({0:P0})", progress)));
+                        dialogViewModel.Progress = progress;
+                        dialogViewModel.Message = fileName;
                     });
                 });
 

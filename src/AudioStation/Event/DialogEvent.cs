@@ -137,11 +137,14 @@ namespace AudioStation.Event
             return new DialogEventData(false, false, string.Empty, MessageBoxButton.OK, DialogResult.Abort, nextView, DialogEventView.Loading, null);
         }
 
-        public static DialogEventData ShowLoading(string message)
+        public static DialogEventData ShowLoading(string title)
         {
             return new DialogEventData(new DialogLoadingViewModel()
             {
-                Message = message
+                Title = title,
+                ShowProgressBar = false,
+                Message = string.Empty,
+                Progress = 0
             });
         }
     }

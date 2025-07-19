@@ -37,7 +37,7 @@ namespace AudioStation.Component
 
             CONVERTIBLE_FILE_EXT = new string[]
             {
-                ".wma", ".wav"
+                ".wma", ".wav", ".m4a"
             };
         }
 
@@ -165,7 +165,7 @@ namespace AudioStation.Component
             }
         }
 
-        public Task ConvertFiles(IEnumerable<string> convertibleFiles, Action<double> progressCallback)
+        public Task ConvertFiles(IEnumerable<string> convertibleFiles, Action<double, string> progressCallback)
         {
             var configuration = _configurationManager.GetConfiguration();
 
@@ -199,21 +199,34 @@ namespace AudioStation.Component
                             Directory.CreateDirectory(stagingDirectory);
 
                         var destinationFile = Path.Combine(stagingDirectory, name + ".mp3");
+                        var success = false;
 
-                        // Convert File (into staging)
-                        using (var reader = new MediaFoundationReader(filePath))
+                        try
                         {
-                            using (var mp3Writer = new LameMP3FileWriter(destinationFile, reader.WaveFormat, 128))
+                            // Convert File (into staging)
+                            using (var reader = new MediaFoundationReader(filePath))
                             {
-                                reader.CopyTo(mp3Writer);
+                                using (var mp3Writer = new LameMP3FileWriter(destinationFile, reader.WaveFormat, 128))
+                                {
+                                    reader.CopyTo(mp3Writer);
+                                }
                             }
+
+                            // Success!
+                            success = true;
+                        }
+                        catch (Exception ex)
+                        {
+                            ApplicationHelpers.Log("Error converting file: {0}, {1}", LogMessageType.General, LogLevel.Error, fileName, ex.Message);
                         }
 
+
                         // Progress %
-                        progressCallback(++fileCounter / (double)totalFiles);
+                        progressCallback(++fileCounter / (double)totalFiles, fileName);
 
                         // Delete Original File
-                        File.Delete(filePath);
+                        if (success)
+                            File.Delete(filePath);
                     }
                 }
                 catch (Exception ex)
