@@ -1,10 +1,22 @@
-﻿using AudioStation.Component.Interface;
+﻿
+using System.IO;
+
+using AudioStation.Component.Interface;
 using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Database.AudioStationDatabase;
 using AudioStation.Core.Model;
+using AudioStation.Core.Utility;
+using AudioStation.Model;
 using AudioStation.ViewModels.LibraryViewModels;
 
+using Microsoft.Extensions.Logging;
+
+using NAudio.Lame;
+using NAudio.MediaFoundation;
+using NAudio.Wave;
+
 using SimpleWpf.IocFramework.Application.Attribute;
+using SimpleWpf.NativeIO.FastDirectory;
 
 namespace AudioStation.Component
 {
@@ -12,11 +24,21 @@ namespace AudioStation.Component
     public class ViewModelLoader : IViewModelLoader
     {
         readonly IModelController _modelController;
+        readonly IConfigurationManager _configurationManager;
+
+        private readonly string[] CONVERTIBLE_FILE_EXT;
+        private readonly string CONVERT_OUTPUT_FOLDER = "ConvertedFiles";
 
         [IocImportingConstructor]
-        public ViewModelLoader(IModelController modelController)
+        public ViewModelLoader(IModelController modelController, IConfigurationManager configurationManager)
         {
             _modelController = modelController;
+            _configurationManager = configurationManager;
+
+            CONVERTIBLE_FILE_EXT = new string[]
+            {
+                ".wma", ".wav"
+            };
         }
 
         public PageResult<ArtistViewModel> LoadArtistPage(PageRequest<Mp3FileReferenceArtist, string> request)
@@ -122,6 +144,84 @@ namespace AudioStation.Component
             }).ToList();
 
             return result;
+        }
+
+        public IEnumerable<string> LoadNonConvertedFiles()
+        {
+            var configuration = _configurationManager.GetConfiguration();
+
+            try
+            {
+                var allFiles = FastDirectoryEnumerator.GetFiles(configuration.DirectoryBase, "*.*", System.IO.SearchOption.AllDirectories);
+
+                return allFiles.Where(x =>  CONVERTIBLE_FILE_EXT.Any(z => x.Path.EndsWith(z)))
+                               .Select(x => x.Path)
+                               .ToList();
+            }
+            catch (Exception ex)
+            {
+                ApplicationHelpers.Log("Error getting non-converted files:  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
+                throw ex;
+            }
+        }
+
+        public Task ConvertFiles(IEnumerable<string> convertibleFiles, Action<double> progressCallback)
+        {
+            var configuration = _configurationManager.GetConfiguration();
+
+            return Task.Run(() =>
+            {
+                try
+                {
+                    var directory = Path.Combine(configuration.DownloadFolder, CONVERT_OUTPUT_FOLDER);
+
+                    if (!Directory.Exists(directory))
+                        Directory.CreateDirectory(directory);
+
+                    var fileCounter = 0;
+                    var totalFiles = convertibleFiles.Count();
+
+                    foreach (var filePath in convertibleFiles)
+                    {
+                        var fileName = Path.GetFileName(filePath);
+                        var name = Path.GetFileNameWithoutExtension(fileName);
+
+                        // Strip other library folders, and the file name, to get the proper sub-folders
+                        //
+                        var subDirectory = filePath.Replace(configuration.DirectoryBase, string.Empty)
+                                                   .Replace(fileName, string.Empty)
+                                                   .TrimStart('\\')
+                                                   .TrimEnd('\\');
+
+                        var stagingDirectory = directory.TrimEnd('\\') + "\\" + subDirectory;
+
+                        if (!Directory.Exists(stagingDirectory))
+                            Directory.CreateDirectory(stagingDirectory);
+
+                        var destinationFile = Path.Combine(stagingDirectory, name + ".mp3");
+
+                        // Convert File (into staging)
+                        using (var reader = new MediaFoundationReader(filePath))
+                        {
+                            using (var mp3Writer = new LameMP3FileWriter(destinationFile, reader.WaveFormat, 128))
+                            {
+                                reader.CopyTo(mp3Writer);
+                            }
+                        }
+
+                        // Progress %
+                        progressCallback(++fileCounter / (double)totalFiles);
+
+                        // Delete Original File
+                        File.Delete(filePath);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    ApplicationHelpers.Log("Error converted files:  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
+                    throw ex;
+                }
+            });
         }
     }
 }

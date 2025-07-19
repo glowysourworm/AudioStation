@@ -17,5 +17,16 @@ namespace AudioStation.Component.Interface
         /// one for the ViewModel namespace.
         /// </summary>
         PageResult<LibraryEntryViewModel> LoadEntryPage(PageRequest<Mp3FileReference, int> request);
+
+        /// <summary>
+        /// Loads a collection of non-converted files from the library base folder. These would also be
+        /// non-imported.
+        /// </summary>
+        IEnumerable<string> LoadNonConvertedFiles();
+
+        /// <summary>
+        /// Converts any non-mp3 files to mp3 files and puts them in a special staging folder to be imported.
+        /// </summary>
+        Task ConvertFiles(IEnumerable<string> convertibleFiles, Action<double> progressCallback); 
     }
 }
