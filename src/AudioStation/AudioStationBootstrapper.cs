@@ -1,4 +1,5 @@
 ﻿using System.Windows;
+using System.Windows.Media;
 using System.Windows.Threading;
 
 using AudioStation.Controller.Interface;
@@ -63,7 +64,7 @@ namespace AudioStation
                  Message = "(Initializing Components)",
                  Progress = 0,
                  ShowProgressBar = false,
-                 ShowProgressMessage = true
+                 ShowProgressMessage = true                 
             };
             var dialogEventData = new DialogEventData(dialogViewModel);
 

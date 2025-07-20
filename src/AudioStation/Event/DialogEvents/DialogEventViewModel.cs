@@ -1,4 +1,6 @@
-﻿using SimpleWpf.Extensions;
+﻿using System.Drawing;
+
+using SimpleWpf.Extensions;
 
 namespace AudioStation.Event.DialogEvents
 {
@@ -6,6 +8,7 @@ namespace AudioStation.Event.DialogEvents
     {
         bool _userDismissalMode;
         string _dialogTitle;
+        Brush _dialogBackground;
         DialogViewModelBase _viewDataContext;
 
         public bool UserDismissalMode
@@ -18,6 +21,11 @@ namespace AudioStation.Event.DialogEvents
             get { return _dialogTitle; }
             set { this.RaiseAndSetIfChanged(ref _dialogTitle, value); }
         }
+        public Brush DialogBackground
+        {
+            get { return _dialogBackground; }
+            set { this.RaiseAndSetIfChanged(ref _dialogBackground, value); }
+        }
         public DialogViewModelBase ViewDataContext
         {
             get { return _viewDataContext; }
@@ -28,6 +36,7 @@ namespace AudioStation.Event.DialogEvents
         {
             this.UserDismissalMode = false;
             this.DialogTitle = string.Empty;
+            this.DialogBackground = Brushes.White;
         }
     }
 }

@@ -1,6 +1,9 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
+    <SolidColorBrush x:Key="LoadingBarFill">#FFAAAAAA</SolidColorBrush>
+    <SolidColorBrush x:Key="LoadingBarStroke">#FFEEEEEE</SolidColorBrush>
+    
     <SolidColorBrush x:Key="HeaderBackground">#FFEEEEEE</SolidColorBrush>
     <SolidColorBrush x:Key="HeaderTitleForeground">#FF555555</SolidColorBrush>
     <SolidColorBrush x:Key="HeaderBarButtonBackground">Transparent</SolidColorBrush>

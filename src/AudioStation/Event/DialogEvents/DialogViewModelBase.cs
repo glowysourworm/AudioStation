@@ -1,4 +1,6 @@
-﻿using SimpleWpf.Extensions;
+﻿using System.Windows.Media;
+
+using SimpleWpf.Extensions;
 
 namespace AudioStation.Event.DialogEvents
 {
