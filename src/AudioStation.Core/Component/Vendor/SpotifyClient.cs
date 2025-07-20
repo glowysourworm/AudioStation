@@ -72,7 +72,7 @@ namespace AudioStation.Core.Component.Vendor
                 }
                 catch (Exception ex)
                 {
-                    ApplicationHelpers.Log("Error connecting to Spotify API:  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
+                    ApplicationHelpers.Log("Error connecting to Spotify API:  {0}", LogMessageType.General, LogLevel.Error, ex, ex.Message);
                     return null;
                 }
             });

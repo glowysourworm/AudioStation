@@ -1,5 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using System.Windows;
+using System.Windows.Threading;
 
 using AudioStation.Component;
 using AudioStation.Component.Interface;
@@ -18,6 +19,8 @@ using SimpleWpf.Extensions.Command;
 using SimpleWpf.Extensions.ObservableCollection;
 using SimpleWpf.IocFramework.Application.Attribute;
 using SimpleWpf.IocFramework.EventAggregation;
+
+using static AudioStation.EventHandler.DialogEventHandlers;
 
 namespace AudioStation.ViewModels
 {
@@ -71,11 +74,12 @@ namespace AudioStation.ViewModels
                 // Convert...
                 await viewModelLoader.ConvertFiles(this.NonConvertedFiles, (progress, fileName) =>
                 {
-                    Application.Current.Dispatcher.BeginInvoke(() =>
+                    ApplicationHelpers.BeginInvokeDispatcher(() =>
                     {
                         dialogViewModel.Progress = progress;
                         dialogViewModel.Message = fileName;
-                    });
+
+                    }, DispatcherPriority.Background);
                 });
 
                 // Dialog Hide
@@ -86,18 +90,22 @@ namespace AudioStation.ViewModels
             });
         }
 
-        public override void Initialize(DialogProgressHandler progressHandler)
+        public override async Task Initialize(DialogProgressHandler progressHandler)
         {
             try
             {
-                this.NonConvertedFiles.AddRange(_viewModelLoader.LoadNonConvertedFiles());
+                ApplicationHelpers.BeginInvokeDispatcher(() =>
+                {
+                    this.NonConvertedFiles.AddRange(_viewModelLoader.LoadNonConvertedFiles());
+
+                }, DispatcherPriority.Background);
 
                 // Load Artists / Albums / Genres
-                this.Library.Initialize(progressHandler);
+                await this.Library.Initialize(progressHandler);
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Error loading non-converted files:  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
+                ApplicationHelpers.Log("Error loading non-converted files:  {0}", LogMessageType.General, LogLevel.Error, ex, ex.Message);
                 this.NonConvertedFiles.Clear();
             }
         }

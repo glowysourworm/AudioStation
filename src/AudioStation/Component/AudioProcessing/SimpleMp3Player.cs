@@ -5,6 +5,7 @@ using System.Windows.Threading;
 using AudioStation.Component.AudioProcessing;
 using AudioStation.Component.AudioProcessing.Interface;
 using AudioStation.Core.Model;
+using AudioStation.Core.Utility;
 
 using NAudio.Wave;
 
@@ -59,7 +60,7 @@ namespace AudioStation.Component.AudioProcessing
             if (Application.Current == null)
                 return;
 
-            Application.Current.Dispatcher.BeginInvoke(() =>
+            ApplicationHelpers.BeginInvokeDispatcher(() =>
             {
                 if (this.PlaybackTickEvent != null)
                     this.PlaybackTickEvent(_player.Position);

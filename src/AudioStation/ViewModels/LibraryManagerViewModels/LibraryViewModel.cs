@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using System.Windows.Threading;
 
 using AudioStation.Component.Interface;
 using AudioStation.Core.Database.AudioStationDatabase;
@@ -13,6 +14,8 @@ using Microsoft.Extensions.Logging;
 using SimpleWpf.Extensions;
 using SimpleWpf.Extensions.Command;
 using SimpleWpf.Extensions.ObservableCollection;
+
+using static AudioStation.EventHandler.DialogEventHandlers;
 
 namespace AudioStation.ViewModels.LibraryManagerViewModels
 {
@@ -238,26 +241,33 @@ namespace AudioStation.ViewModels.LibraryManagerViewModels
             };
         }
 
-        public override void Initialize(DialogProgressHandler progressHandler)
+        public override Task Initialize(DialogProgressHandler progressHandler)
         {
-            // Load Searchable Data (except for the library entries)
-            try
+            return Task.Factory.StartNew(() =>
             {
-                var artists = _viewModelLoader.LoadArtists();
-                var albums = _viewModelLoader.LoadAlbums();
-                var genres = _viewModelLoader.LoadGenres();
+                // Load Searchable Data (except for the library entries)
+                try
+                {
+                    var artists = _viewModelLoader.LoadArtists(progressHandler);
+                    var albums = _viewModelLoader.LoadAlbums(progressHandler);
+                    var genres = _viewModelLoader.LoadGenres(progressHandler);
 
-                this.Artists.AddRange(artists);
-                this.Albums.AddRange(albums);
-                this.Genres.AddRange(genres);
+                    ApplicationHelpers.BeginInvokeDispatcher(() =>
+                    {
+                        this.Artists.AddRange(artists);
+                        this.Albums.AddRange(albums);
+                        this.Genres.AddRange(genres);
 
-                // Backup for filtered searching
-                _artistsFull.AddRange(artists);
-            }
-            catch (Exception ex)
-            {
-                ApplicationHelpers.Log("Error Loading Audio Station Entities:  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
-            }
+                        // Backup for filtered searching
+                        _artistsFull.AddRange(artists);
+
+                    }, DispatcherPriority.Background);
+                }
+                catch (Exception ex)
+                {
+                    ApplicationHelpers.Log("Error Loading Audio Station Entities:  {0}", LogMessageType.General, LogLevel.Error, ex, ex.Message);
+                }
+            });
         }
 
         public override void Dispose()

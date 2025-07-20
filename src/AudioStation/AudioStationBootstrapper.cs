@@ -1,10 +1,13 @@
 ﻿using System.Windows;
+using System.Windows.Threading;
 
 using AudioStation.Controller.Interface;
 using AudioStation.Core;
 using AudioStation.Core.Component.Interface;
+using AudioStation.Core.Utility;
 using AudioStation.Event;
 using AudioStation.Event.DialogEvents;
+using AudioStation.EventHandler;
 using AudioStation.Views.DialogViews;
 using AudioStation.Windows;
 
@@ -29,7 +32,7 @@ namespace AudioStation
 
         }
 
-        protected override void UserPreModuleInitialize()
+        protected override async void UserPreModuleInitialize()
         {
             // This must happen first; and the dialog window must be called after initializing
             // the (base) "pre-module initialize" method because it tries to create the shell
@@ -55,14 +58,16 @@ namespace AudioStation
             //
 
             var dialogWindow = new DialogWindow();
-            var dialogViewModel = new DialogLoadingViewModel()
+            var dialogViewModel = new DialogSplashScreenViewModel()
             {
-                Title = "Audio Station",
-                ShowProgressBar = false
+                 Message = "(Initializing Components)",
+                 Progress = 0,
+                 ShowProgressBar = false,
+                 ShowProgressMessage = true
             };
             var dialogEventData = new DialogEventData(dialogViewModel);
 
-            dialogWindow.DataContext = new LoadingView()
+            dialogWindow.DataContext = new SplashScreenView()
             {
                 DataContext = dialogEventData.DataContext
             };
@@ -76,14 +81,23 @@ namespace AudioStation
             var viewModelController = IocContainer.Get<IViewModelController>();
 
             // (see DialogEventHandlers.cs)
-            viewModelController.Initialize((taskCount, tasksComplete, tasksError, message) =>
+            await viewModelController.Initialize((taskCount, tasksComplete, tasksError, message) =>
             {
-                dialogViewModel.Progress = tasksComplete / (double)taskCount;
-                dialogViewModel.Message = message;
+                ApplicationHelpers.InvokeDispatcher(() =>
+                {
+                    dialogViewModel.Progress = tasksComplete / (double)taskCount;
+                    dialogViewModel.Message = message;
+                    dialogViewModel.ShowProgressMessage = (message != string.Empty);
+                    dialogViewModel.ShowProgressBar = dialogViewModel.Progress > 0;
+
+                }, DispatcherPriority.Normal);
             });
 
             // Dismiss Splash Screen
             dialogWindow.Close();
+
+            // Show Main Window
+            Application.Current.MainWindow.WindowState = WindowState.Normal;
         }
 
         /// <summary>

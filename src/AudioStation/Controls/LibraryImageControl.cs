@@ -38,7 +38,7 @@ namespace AudioStation.Controls
                 return;
 
             // DESTRUCTOR CALED FROM NON-DISPATCHER ?!?
-            Application.Current.Dispatcher.BeginInvoke(() =>
+            ApplicationHelpers.BeginInvokeDispatcher(() =>
             {
                 this.Unloaded -= LibraryImageControl_Unloaded;
                 this.IsVisibleChanged -= LibraryImageControl_IsVisibleChanged;
@@ -75,7 +75,7 @@ namespace AudioStation.Controls
         private async Task Reload()
         {
             if (ApplicationHelpers.IsDispatcher() == ApplicationIsDispatcherResult.False)
-                Application.Current.Dispatcher.BeginInvoke(Reload, DispatcherPriority.Background);
+                ApplicationHelpers.BeginInvokeDispatcher(Reload, DispatcherPriority.Background);
 
             else if (ApplicationHelpers.IsDispatcher() == ApplicationIsDispatcherResult.True)
             {

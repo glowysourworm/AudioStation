@@ -12,12 +12,13 @@ using AudioStation.ViewModels.LibraryViewModels;
 using Microsoft.Extensions.Logging;
 
 using NAudio.Lame;
-using NAudio.MediaFoundation;
 using NAudio.Wave;
 
 using SimpleWpf.Extensions.ObservableCollection;
 using SimpleWpf.IocFramework.Application.Attribute;
 using SimpleWpf.NativeIO.FastDirectory;
+
+using static AudioStation.EventHandler.DialogEventHandlers;
 
 namespace AudioStation.Component
 {
@@ -42,12 +43,14 @@ namespace AudioStation.Component
             };
         }
 
-        public IEnumerable<ArtistViewModel> LoadArtists()
+        public IEnumerable<ArtistViewModel> LoadArtists(DialogProgressHandler progressHandler)
         {
             var resultCollection = new List<ArtistViewModel>();
 
             // Database:  Load the artist entities
             var artistEntities = _modelController.GetAudioStationEntities<Mp3FileReferenceArtist>();
+            var artistCount = artistEntities.Count();
+            var artistIndex = 0;
 
             // Load the album collection
             foreach (var artist in artistEntities.OrderBy(x => x.Name))
@@ -58,7 +61,7 @@ namespace AudioStation.Component
                 // Create Artist Result
                 var artistViewModel = new ArtistViewModel(artist.Id)
                 {
-                    Artist = artist.Name                    
+                    Artist = artist.Name
                 };
 
                 // Add Album - Query Tracks
@@ -85,34 +88,45 @@ namespace AudioStation.Component
 
                 // Add Artist to result page
                 resultCollection.Add(artistViewModel);
+
+                // Progress Update
+                progressHandler(artistCount, ++artistIndex, 0, "Loading Artists...");
             }
 
             return resultCollection;
         }
 
-        public IEnumerable<GenreViewModel> LoadGenres()
+        public IEnumerable<GenreViewModel> LoadGenres(DialogProgressHandler progressHandler)
         {
             var result = new List<GenreViewModel>();
 
             var genreEntities = _modelController.GetAudioStationEntities<Mp3FileReferenceGenre>();
+            var genreCount = genreEntities.Count();
+            var genreIndex = 0;
 
             foreach (var genre in genreEntities.OrderBy(x => x.Name))
             {
                 result.Add(new GenreViewModel(genre.Id)
                 {
-                    Name = genre.Name                    
+                    Name = genre.Name
                 });
+
+                // Progress Update
+                progressHandler(genreCount, ++genreIndex, 0, "Loading Genres...");
             }
 
             return result;
         }
 
-        public IEnumerable<AlbumViewModel> LoadAlbums()
+        public IEnumerable<AlbumViewModel> LoadAlbums(DialogProgressHandler progressHandler)
         {
             var result = new List<AlbumViewModel>();
 
             var albumEntities = _modelController.GetAudioStationEntities<Mp3FileReferenceAlbum>();
             var trackEntities = _modelController.GetAudioStationEntities<Mp3FileReference>();
+
+            var albumCount = albumEntities.Count();
+            var albumIndex = 0;
 
             foreach (var albumEntity in albumEntities.OrderBy(x => x.Name))
             {
@@ -125,7 +139,7 @@ namespace AudioStation.Component
 
                 if (artistId == null)
                 {
-                    ApplicationHelpers.Log("Error loading album-artist:  AlbumId={0}", LogMessageType.General, LogLevel.Error, albumEntity.Id);
+                    ApplicationHelpers.Log("Error loading album-artist:  AlbumId={0}", LogMessageType.General, LogLevel.Error, null, albumEntity.Id);
                     continue;
                 }
 
@@ -136,6 +150,9 @@ namespace AudioStation.Component
                 var album = MapAlbum(artist, albumEntity, tracks);
 
                 result.Add(album);
+
+                // Progress Update
+                progressHandler(albumCount, ++albumIndex, 0, "Loading Albums...");
             }
 
             return result;
@@ -197,13 +214,13 @@ namespace AudioStation.Component
             {
                 var allFiles = FastDirectoryEnumerator.GetFiles(configuration.DirectoryBase, "*.*", System.IO.SearchOption.AllDirectories);
 
-                return allFiles.Where(x =>  CONVERTIBLE_FILE_EXT.Any(z => x.Path.EndsWith(z)))
+                return allFiles.Where(x => CONVERTIBLE_FILE_EXT.Any(z => x.Path.EndsWith(z)))
                                .Select(x => x.Path)
                                .ToList();
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Error getting non-converted files:  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
+                ApplicationHelpers.Log("Error getting non-converted files:  {0}", LogMessageType.General, LogLevel.Error, ex, ex.Message);
                 throw ex;
             }
         }
@@ -260,7 +277,7 @@ namespace AudioStation.Component
                         }
                         catch (Exception ex)
                         {
-                            ApplicationHelpers.Log("Error converting file: {0}, {1}", LogMessageType.General, LogLevel.Error, fileName, ex.Message);
+                            ApplicationHelpers.Log("Error converting file: {0}, {1}", LogMessageType.General, LogLevel.Error, ex, fileName, ex.Message);
                         }
 
 
@@ -274,7 +291,7 @@ namespace AudioStation.Component
                 }
                 catch (Exception ex)
                 {
-                    ApplicationHelpers.Log("Error converted files:  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
+                    ApplicationHelpers.Log("Error converted files:  {0}", LogMessageType.General, LogLevel.Error, ex, ex.Message);
                     throw ex;
                 }
             });

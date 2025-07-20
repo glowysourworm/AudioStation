@@ -71,7 +71,7 @@ namespace AudioStation.Core.Component.Vendor
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Error contacting LastFm:  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
+                ApplicationHelpers.Log("Error contacting LastFm:  {0}", LogMessageType.General, LogLevel.Error, ex, ex.Message);
 
                 return null;
             }

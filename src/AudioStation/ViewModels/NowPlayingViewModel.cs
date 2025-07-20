@@ -12,6 +12,8 @@ using SimpleWpf.Extensions.ObservableCollection;
 using SimpleWpf.IocFramework.Application.Attribute;
 using SimpleWpf.IocFramework.EventAggregation;
 
+using static AudioStation.EventHandler.DialogEventHandlers;
+
 namespace AudioStation.ViewModels
 {
     public class NowPlayingViewModel : PrimaryViewModelBase
@@ -90,8 +92,9 @@ namespace AudioStation.ViewModels
             eventAggregator.GetEvent<PlaybackStateChangedEvent>().Subscribe(OnPlaybackStateChanged);
         }
 
-        public override void Initialize(DialogProgressHandler progressHandler)
+        public override Task Initialize(DialogProgressHandler progressHandler)
         {
+            return Task.CompletedTask;
         }
 
         public override void Dispose()

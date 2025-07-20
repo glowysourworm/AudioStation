@@ -206,7 +206,7 @@ namespace AudioStation.Controller
         private void OnPlaybackTick(TimeSpan currentTime)
         {
             if (ApplicationHelpers.IsDispatcher() == ApplicationIsDispatcherResult.False)
-                Application.Current.Dispatcher.Invoke(OnPlaybackTick, DispatcherPriority.Background, currentTime);
+                ApplicationHelpers.BeginInvokeDispatcher(OnPlaybackTick, DispatcherPriority.Background, currentTime);
 
             else if (ApplicationHelpers.IsDispatcher() == ApplicationIsDispatcherResult.True)
             {
@@ -218,7 +218,7 @@ namespace AudioStation.Controller
         private void OnEqualizerCalculated(EqualizerResultSet resultSet)
         {
             if (ApplicationHelpers.IsDispatcher() == ApplicationIsDispatcherResult.False)
-                Application.Current.Dispatcher.Invoke(OnEqualizerCalculated, DispatcherPriority.Background, resultSet);
+                ApplicationHelpers.BeginInvokeDispatcher(OnEqualizerCalculated, DispatcherPriority.Background, resultSet);
 
             else if (ApplicationHelpers.IsDispatcher() == ApplicationIsDispatcherResult.True)
             {

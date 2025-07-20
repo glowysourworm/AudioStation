@@ -29,7 +29,7 @@ namespace AudioStation.Core.Component.Vendor
                 }
                 catch (Exception ex)
                 {
-                    ApplicationHelpers.Log("Error connecting to Fanart.tv:  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
+                    ApplicationHelpers.Log("Error connecting to Fanart.tv:  {0}", LogMessageType.General, LogLevel.Error, ex, ex.Message);
 
                     return Enumerable.Empty<string>();
                 }
@@ -48,7 +48,7 @@ namespace AudioStation.Core.Component.Vendor
                 }
                 catch (Exception ex)
                 {
-                    ApplicationHelpers.Log("Error connecting to Fanart.tv:  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
+                    ApplicationHelpers.Log("Error connecting to Fanart.tv:  {0}", LogMessageType.General, LogLevel.Error, ex, ex.Message);
 
                     return Enumerable.Empty<string>();
                 }

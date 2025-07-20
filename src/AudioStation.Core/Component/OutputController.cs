@@ -48,9 +48,9 @@ namespace AudioStation.Core.Component
 
             this.Log(logMessage);
         }
-        public void Log(string message, LogMessageType type, LogLevel severity, params object[] parameters)
+        public void Log(string message, LogMessageType type, LogLevel severity, Exception? exception, params object[] parameters)
         {
-            var logMessage = new LogMessage(string.Format(message, parameters), type, severity);
+            var logMessage = new LogMessage(string.Format(message, parameters), type, severity, exception);
 
             this.Log(logMessage);
         }

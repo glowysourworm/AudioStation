@@ -94,14 +94,14 @@ namespace AudioStation.Controls
             if (ApplicationHelpers.IsDispatcher() == ApplicationIsDispatcherResult.ApplicationClosing)
                 return;
 
-            Application.Current.Dispatcher.BeginInvoke(Dispose, DispatcherPriority.Background);
+            ApplicationHelpers.BeginInvokeDispatcher(Dispose, DispatcherPriority.Background);
         }
         private async Task ReInitialize(int carouselIndex)
         {
             if (ApplicationHelpers.IsDispatcher() == ApplicationIsDispatcherResult.False)
-                Application.Current.Dispatcher.BeginInvoke(ReInitialize, DispatcherPriority.Background, carouselIndex);
+                ApplicationHelpers.BeginInvokeDispatcher(ReInitialize, DispatcherPriority.Background, carouselIndex);
 
-            else if (ApplicationHelpers.IsDispatcher() == ApplicationIsDispatcherResult.True)
+            else
             {
 
                 Dispose();
@@ -148,7 +148,7 @@ namespace AudioStation.Controls
             if (ApplicationHelpers.IsDispatcher() == ApplicationIsDispatcherResult.ApplicationClosing)
                 return;
 
-            Application.Current.Dispatcher.BeginInvoke(() =>
+            ApplicationHelpers.BeginInvokeDispatcher(() =>
             {
                 if (this.Artwork == null || this.CarouselImages == null || this.CarouselImages.Count <= 0)
                     return;

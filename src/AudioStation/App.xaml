@@ -19,6 +19,7 @@
         <converter:NowPlayingPlaylistBoolConverter x:Key="NowPlayingPlaylistBoolConverter" />
         <converter:StringLengthConverter x:Key="StringLengthConverter" />
         <converter:ValidationForegroundConverter x:Key="ValidationForegroundConverter" />
+        <converter:ValidationForegroundParameterConverter x:Key="ValidationForegroundParameterConverter" />
 
         <!-- SimpleWpf.UI Converters -->
         <simpleConverter:BoolInverseConverter x:Key="BoolInverseConverter" />

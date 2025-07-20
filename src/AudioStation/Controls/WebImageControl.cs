@@ -48,7 +48,7 @@ namespace AudioStation.Controls
                 return;
 
             // DESTRUCTOR CALED FROM NON-DISPATCHER ?!?
-            Application.Current.Dispatcher.BeginInvoke(() =>
+            ApplicationHelpers.BeginInvokeDispatcher(() =>
             {
                 this.Unloaded -= WebImageControl_Unloaded;
                 this.IsVisibleChanged -= WebImageControl_IsVisibleChanged;
@@ -81,9 +81,9 @@ namespace AudioStation.Controls
         {
             // Don't await the BeginInvoke
             if (ApplicationHelpers.IsDispatcher() == ApplicationIsDispatcherResult.False)
-                Application.Current.Dispatcher.BeginInvoke(Reload, DispatcherPriority.Background);
+                ApplicationHelpers.BeginInvokeDispatcher(Reload, DispatcherPriority.Background);
 
-            else if (ApplicationHelpers.IsDispatcher() == ApplicationIsDispatcherResult.True)
+            else
             {
                 // Go ahead and dump the source data until we've been reloaded by the container
                 this.Source = null;

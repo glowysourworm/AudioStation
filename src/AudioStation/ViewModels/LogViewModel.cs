@@ -15,6 +15,8 @@ using SimpleWpf.Extensions;
 using SimpleWpf.IocFramework.Application.Attribute;
 using SimpleWpf.IocFramework.EventAggregation;
 
+using static AudioStation.EventHandler.DialogEventHandlers;
+
 namespace AudioStation.ViewModels
 {
     public class LogViewModel : PrimaryViewModelBase
@@ -47,9 +49,9 @@ namespace AudioStation.ViewModels
             }
         }
 
-        public override void Initialize(DialogProgressHandler progressHandler)
+        public override Task Initialize(DialogProgressHandler progressHandler)
         {
-            
+            return Task.CompletedTask;
         }
 
         public override void Dispose()
@@ -59,9 +61,9 @@ namespace AudioStation.ViewModels
         private void OnLog(LogMessage message)
         {
             if (ApplicationHelpers.IsDispatcher() == ApplicationIsDispatcherResult.False)
-                Application.Current.Dispatcher.BeginInvoke(OnLog, DispatcherPriority.Background, message);
+                ApplicationHelpers.BeginInvokeDispatcher(OnLog, DispatcherPriority.Background, message);
 
-            else if (ApplicationHelpers.IsDispatcher() == ApplicationIsDispatcherResult.True)
+            else
             {
                 if (!_logs.Any(log => log.Id.Equals(message.LogComponentId)))
                 {

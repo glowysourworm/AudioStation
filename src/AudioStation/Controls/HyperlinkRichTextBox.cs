@@ -103,7 +103,7 @@ namespace AudioStation.Controls
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Error navigating to URL:  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
+                ApplicationHelpers.Log("Error navigating to URL:  {0}", LogMessageType.General, LogLevel.Error, ex, ex.Message);
             }
         }
 

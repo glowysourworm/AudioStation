@@ -220,7 +220,7 @@ namespace AudioStation.Core.Component.Vendor
                 }
                 catch (Exception ex)
                 {
-                    ApplicationHelpers.Log("Error using AcoustID service:  {0}", LogMessageType.Vendor, LogLevel.Error, ex.Message);
+                    ApplicationHelpers.Log("Error using AcoustID service:  {0}", LogMessageType.Vendor, LogLevel.Error, ex, ex.Message);
 
                     return Enumerable.Empty<LookupResult>();
                 }

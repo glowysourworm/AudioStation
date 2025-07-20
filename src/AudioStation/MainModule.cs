@@ -50,7 +50,7 @@ namespace AudioStation
         {
             base.Run();
 
-            ApplicationHelpers.Log("Welcome to Audio Station!", LogMessageType.General, LogLevel.Information);
+            ApplicationHelpers.Log("Welcome to Audio Station!", LogMessageType.General, LogLevel.Information, null);
         }
     }
 }

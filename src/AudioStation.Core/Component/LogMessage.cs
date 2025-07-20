@@ -39,6 +39,7 @@ namespace AudioStation.Model
         public bool IsSeparatedLog {  get; set; }
         public object LogComponentId { get; set; }
         public string Message { get; set; }
+        public Exception? Exception { get; set; }
         public LogLevel Level { get; set; }
         public LogMessageType Type { get; set; }
         public DateTime Timestamp { get; set; }
@@ -53,11 +54,16 @@ namespace AudioStation.Model
             
         }
         public LogMessage(string message, LogMessageType type, LogLevel level) :
-            this(false, type, message, type, level)
+            this(false, type, message, type, level, null)
         {
         }
-        public LogMessage(bool isSeparated, object componentId, string message, LogMessageType type, LogLevel level)
+        public LogMessage(string message, LogMessageType type, LogLevel level, Exception? exception) :
+            this(false, type, message, type, level, exception)
         {
+        }
+        public LogMessage(bool isSeparated, object componentId, string message, LogMessageType type, LogLevel level, Exception? exception)
+        {
+            this.Exception = exception;
             this.IsSeparatedLog = isSeparated;
             this.LogComponentId = componentId;
             this.Message = message;

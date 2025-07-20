@@ -196,7 +196,7 @@ namespace AudioStation.Views.LibraryLoaderViews
                     }
                     catch (Exception ex)
                     {
-                        ApplicationHelpers.Log("Music Brainz Recording Mapping Error:  {0}", LogMessageType.LibraryLoader, LogLevel.Error, ex.Message);
+                        ApplicationHelpers.Log("Music Brainz Recording Mapping Error:  {0}", LogMessageType.LibraryLoader, LogLevel.Error, ex, ex.Message);
                     }
                 }
 

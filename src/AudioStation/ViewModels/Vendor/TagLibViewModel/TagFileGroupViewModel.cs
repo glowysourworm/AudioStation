@@ -119,7 +119,7 @@ namespace AudioStation.ViewModels.Vendor.TagLibViewModel
                 }
                 catch (Exception ex)
                 {
-                    ApplicationHelpers.Log("Error saving tag data:  {0}", LogMessageType.LibraryLoader, LogLevel.Error, ex.Message);
+                    ApplicationHelpers.Log("Error saving tag data:  {0}", LogMessageType.LibraryLoader, LogLevel.Error, ex, ex.Message);
                 }
             }
         }
@@ -134,7 +134,7 @@ namespace AudioStation.ViewModels.Vendor.TagLibViewModel
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Error copying tag data:  {0}", LogMessageType.LibraryLoader, LogLevel.Error, ex.Message);
+                ApplicationHelpers.Log("Error copying tag data:  {0}", LogMessageType.LibraryLoader, LogLevel.Error, ex, ex.Message);
             }
         }
         private void Paste(IDialogController dialogController, ITagCacheController tagCacheController)
@@ -154,7 +154,7 @@ namespace AudioStation.ViewModels.Vendor.TagLibViewModel
                 }
                 catch (Exception ex)
                 {
-                    ApplicationHelpers.Log("Error pasting tag data:  {0}", LogMessageType.LibraryLoader, LogLevel.Error, ex.Message);
+                    ApplicationHelpers.Log("Error pasting tag data:  {0}", LogMessageType.LibraryLoader, LogLevel.Error, ex, ex.Message);
                 }
             }
         }

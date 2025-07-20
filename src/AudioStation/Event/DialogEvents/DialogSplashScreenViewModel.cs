@@ -6,6 +6,8 @@ namespace AudioStation.Event.DialogEvents
     {
         double _progress;
         string _message;
+        bool _showProgressBar;
+        bool _showProgressMessage;
 
         public double Progress
         {
@@ -16,6 +18,16 @@ namespace AudioStation.Event.DialogEvents
         {
             get { return _message; }
             set { this.RaiseAndSetIfChanged(ref _message, value); }
+        }
+        public bool ShowProgressBar
+        {
+            get { return _showProgressBar; }
+            set { this.RaiseAndSetIfChanged(ref _showProgressBar, value); }
+        }
+        public bool ShowProgressMessage
+        {
+            get { return _showProgressMessage; }
+            set { this.RaiseAndSetIfChanged(ref _showProgressMessage, value); }
         }
 
         public DialogSplashScreenViewModel()

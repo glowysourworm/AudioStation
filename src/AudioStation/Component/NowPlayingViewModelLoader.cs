@@ -77,7 +77,7 @@ namespace AudioStation.Component
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Error gathering external resources:  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
+                ApplicationHelpers.Log("Error gathering external resources:  {0}", LogMessageType.General, LogLevel.Error, ex, ex.Message);
                 return null;
             }
         }

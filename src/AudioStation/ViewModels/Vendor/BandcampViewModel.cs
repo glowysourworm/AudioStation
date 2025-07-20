@@ -1,11 +1,10 @@
 ﻿using AudioStation.Core.Component.Vendor.Bandcamp.Interface;
 using AudioStation.Event;
-using AudioStation.EventHandler;
 
-using SimpleWpf.Extensions;
 using SimpleWpf.Extensions.Command;
-using SimpleWpf.IocFramework.Application.Attribute;
 using SimpleWpf.IocFramework.EventAggregation;
+
+using static AudioStation.EventHandler.DialogEventHandlers;
 
 namespace AudioStation.ViewModels.Vendor
 {
@@ -31,8 +30,9 @@ namespace AudioStation.ViewModels.Vendor
             });
         }
 
-        public override void Initialize(DialogProgressHandler progressHandler)
+        public override Task Initialize(DialogProgressHandler progressHandler)
         {
+            return Task.CompletedTask;
         }
 
         public override void Dispose()

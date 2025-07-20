@@ -21,6 +21,8 @@ using SimpleWpf.Extensions.Command;
 using SimpleWpf.IocFramework.Application.Attribute;
 using SimpleWpf.IocFramework.EventAggregation;
 
+using static AudioStation.EventHandler.DialogEventHandlers;
+
 namespace AudioStation.ViewModels;
 
 public class MainViewModel : PrimaryViewModelBase
@@ -270,9 +272,9 @@ public class MainViewModel : PrimaryViewModelBase
         });
     }
 
-    public override void Initialize(DialogProgressHandler progressHandler)
+    public override Task Initialize(DialogProgressHandler progressHandler)
     {
-        
+        return Task.CompletedTask;
     }
 
     private void OnLog(LogMessage message)

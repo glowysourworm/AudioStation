@@ -1,6 +1,8 @@
 ﻿using AudioStation.EventHandler;
 using AudioStation.ViewModels;
 
+using static AudioStation.EventHandler.DialogEventHandlers;
+
 namespace AudioStation.Controller.Interface
 {
     /// <summary>
@@ -14,7 +16,7 @@ namespace AudioStation.Controller.Interface
         /// <summary>
         /// Loads the initial state of the view models for the application. This should be run prior to showing the main window.
         /// </summary>
-        void Initialize(DialogProgressHandler progressHandler);
+        Task Initialize(DialogProgressHandler progressHandler);
 
         /// <summary>
         /// Returns the (loaded) main view model instance for the application

@@ -1,6 +1,9 @@
 ﻿using AudioStation.Core.Database.AudioStationDatabase;
 using AudioStation.Core.Model;
+using AudioStation.EventHandler;
 using AudioStation.ViewModels.LibraryViewModels;
+
+using static AudioStation.EventHandler.DialogEventHandlers;
 
 namespace AudioStation.Component.Interface
 {
@@ -10,19 +13,19 @@ namespace AudioStation.Component.Interface
         /// Loads a collection of ArtistViewModel ordered by name; and translates them into 
         /// one for the ViewModel namespace.
         /// </summary>
-        IEnumerable<ArtistViewModel> LoadArtists();
+        IEnumerable<ArtistViewModel> LoadArtists(DialogProgressHandler progressHandler);
 
         /// <summary>
         /// Loads a collection of GenreViewModel entities ordered by name from the database.
         /// </summary>
         /// <returns></returns>
-        IEnumerable<GenreViewModel> LoadGenres();
+        IEnumerable<GenreViewModel> LoadGenres(DialogProgressHandler progressHandler);
 
         /// <summary>
         /// Loads a collection of AlbumViewModel entities ordered by name from the database.
         /// </summary>
         /// <returns></returns>
-        IEnumerable<AlbumViewModel> LoadAlbums();
+        IEnumerable<AlbumViewModel> LoadAlbums(DialogProgressHandler progressHandler);
 
         /// <summary>
         /// Loads a collection of LibraryEntryViewModel ordered by ID; and translates the PageResult into 

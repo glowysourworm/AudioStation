@@ -5,6 +5,7 @@ using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Interop;
+using System.Windows.Threading;
 
 using AudioStation.Controller.Interface;
 using AudioStation.Core.Component.CDPlayer;
@@ -121,7 +122,7 @@ namespace AudioStation
 
             // Track position / size of "Normal" window state
             _positionNormal = new Point(this.Left, this.Top);
-            _sizeNormal = new Size(this.RenderSize.Width, this.RenderSize.Height);
+            _sizeNormal = new Size(this.Width, this.Height);                // These must be set in the markup, or initialized here!
             _stateChangingOverride = false;
             _windowStateOverride = this.WindowState;
 
@@ -213,14 +214,15 @@ namespace AudioStation
             // Prevent Window State (base)
             _windowStateRequest = this.WindowState;
 
-            Application.Current.Dispatcher.BeginInvoke(() =>
+            ApplicationHelpers.BeginInvokeDispatcher(() =>
             {
                 _windowStateOverride = _windowStateRequest;
 
                 WindowStateChangeOverride();
 
                 _stateChanging = false;
-            });
+
+            }, DispatcherPriority.Background);
         }
 
         private void WindowStateChangeOverride()

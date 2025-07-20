@@ -50,7 +50,7 @@ namespace AudioStation.Service
                     {
                         bufferData.AddRange(args.Data);
 
-                        Application.Current.Dispatcher.BeginInvoke(() =>
+                        ApplicationHelpers.BeginInvokeDispatcher(() =>
                         {
                             // Progress %
                             progressCallback(args.TotalBytesRead / (double)args.TotalBytesToRead);
@@ -59,7 +59,7 @@ namespace AudioStation.Service
                     });
 
                     // Complete the progress bar (TODO: Problem knowing the last sector read)
-                    Application.Current.Dispatcher.BeginInvoke(() => progressCallback(1));
+                    ApplicationHelpers.BeginInvokeDispatcher(() => progressCallback(1), DispatcherPriority.Background);
                 }
                 catch (Exception ex)
                 {

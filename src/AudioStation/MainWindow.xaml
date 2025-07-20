@@ -5,6 +5,8 @@
         xmlns:controls="clr-namespace:AudioStation.Controls"
         xmlns:region="clr-namespace:SimpleWpf.IocFramework.RegionManagement;assembly=SimpleWpf.IocFramework"        
         Style="{StaticResource MainWindowStyle}"
+        WindowState="Minimized"
+        WindowStartupLocation="CenterOwner"
         Title="Audio Station" Height="800" Width="1200">
     <Grid>
 

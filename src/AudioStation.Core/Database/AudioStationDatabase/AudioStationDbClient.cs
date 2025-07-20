@@ -196,7 +196,7 @@ namespace AudioStation.Core.Database.AudioStationDatabase
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Error in IModelController (AddLibraryEntry):  {0}", LogMessageType.Database, LogLevel.Error, ex.Message);
+                ApplicationHelpers.Log("Error in IModelController (AddLibraryEntry):  {0}", LogMessageType.Database, LogLevel.Error, ex, ex.Message);
                 throw ex;
             }
         }
@@ -238,7 +238,7 @@ namespace AudioStation.Core.Database.AudioStationDatabase
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Error in IModelController (AddLibraryEntry):  {0}", LogMessageType.Database, LogLevel.Error, ex.Message);
+                ApplicationHelpers.Log("Error in IModelController (AddLibraryEntry):  {0}", LogMessageType.Database, LogLevel.Error, ex, ex.Message);
                 throw ex;
             }
         }
@@ -281,7 +281,7 @@ namespace AudioStation.Core.Database.AudioStationDatabase
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Error in IModelController (AddLibraryEntry):  {0}", LogMessageType.Database, LogLevel.Error, ex.Message);
+                ApplicationHelpers.Log("Error in IModelController (AddLibraryEntry):  {0}", LogMessageType.Database, LogLevel.Error, ex, ex.Message);
                 throw ex;
             }
         }
@@ -299,7 +299,7 @@ namespace AudioStation.Core.Database.AudioStationDatabase
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Error in IModelController (AddLibraryEntry):  {0}", LogMessageType.Database, LogLevel.Error, ex.Message);
+                ApplicationHelpers.Log("Error in IModelController (AddLibraryEntry):  {0}", LogMessageType.Database, LogLevel.Error, ex, ex.Message);
                 throw ex;
             }
         }
@@ -311,17 +311,17 @@ namespace AudioStation.Core.Database.AudioStationDatabase
                 using (var context = CreateContext())
                 {
                     return context.Mp3FileReferenceArtistMaps
-                                    .Where(x => x.Mp3FileReferenceArtistId == artistId && 
-                                                isPrimaryArtist == x.IsPrimaryArtist &&
-                                                x.Mp3FileReference.Album != null)
-                                    .Select(x => x.Mp3FileReference.Album!)
-                                    .Distinct()
-                                    .ToList();
+                                      .Where(x => x.Mp3FileReferenceArtistId == artistId &&
+                                                     isPrimaryArtist == x.IsPrimaryArtist &&
+                                                   x.Mp3FileReference.Album != null)
+                                      .Select(x => x.Mp3FileReference.Album)
+                                      .Distinct()
+                                      .ToList();
                 }
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Error in IModelController (AddLibraryEntry):  {0}", LogMessageType.Database, LogLevel.Error, ex.Message);
+                ApplicationHelpers.Log("Error in IModelController (AddLibraryEntry):  {0}", LogMessageType.Database, LogLevel.Error, ex, ex.Message);
                 throw ex;
             }
         }
@@ -339,7 +339,7 @@ namespace AudioStation.Core.Database.AudioStationDatabase
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Error in IModelController (AddLibraryEntry):  {0}", LogMessageType.Database, LogLevel.Error, ex.Message);
+                ApplicationHelpers.Log("Error in IModelController (AddLibraryEntry):  {0}", LogMessageType.Database, LogLevel.Error,    ex, ex.Message);
                 throw ex;
             }
         }
@@ -387,7 +387,7 @@ namespace AudioStation.Core.Database.AudioStationDatabase
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Error retrieving data page:  " + ex.Message, LogMessageType.Database, LogLevel.Error);
+                ApplicationHelpers.Log("Error retrieving data page:  " + ex.Message, LogMessageType.Database, LogLevel.Error, ex);
                 throw ex;
             }
         }
@@ -403,7 +403,7 @@ namespace AudioStation.Core.Database.AudioStationDatabase
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Error retrieving data page:  " + ex.Message, LogMessageType.Database, LogLevel.Error);
+                ApplicationHelpers.Log("Error retrieving data page:  " + ex.Message, LogMessageType.Database, LogLevel.Error, ex);
                 throw ex;
             }
         }
@@ -419,7 +419,7 @@ namespace AudioStation.Core.Database.AudioStationDatabase
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Error retrieving data:  " + ex.Message, LogMessageType.Database, LogLevel.Error);
+                ApplicationHelpers.Log("Error retrieving data:  " + ex.Message, LogMessageType.Database, LogLevel.Error, ex);
                 throw ex;
             }
         }
@@ -438,7 +438,7 @@ namespace AudioStation.Core.Database.AudioStationDatabase
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Error saving entity data:  " + ex.Message, LogMessageType.Database, LogLevel.Error);
+                ApplicationHelpers.Log("Error saving entity data:  " + ex.Message, LogMessageType.Database, LogLevel.Error, ex);
                 throw ex;
             }
         }

@@ -1,6 +1,8 @@
 ﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
+using System.Windows;
+using System.Windows.Threading;
 
 using AudioStation.Controller.Interface;
 using AudioStation.Core;
@@ -27,6 +29,8 @@ using SimpleWpf.Extensions.Event;
 using SimpleWpf.Extensions.ObservableCollection;
 using SimpleWpf.IocFramework.Application.Attribute;
 using SimpleWpf.IocFramework.EventAggregation;
+
+using static AudioStation.EventHandler.DialogEventHandlers;
 
 namespace AudioStation.ViewModels.LibraryLoaderViewModels
 {
@@ -247,9 +251,16 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
             this.SourceFiles.ItemPropertyChanged += SourceFiles_ItemPropertyChanged;            
         }
 
-        public override void Initialize(DialogProgressHandler progressHandler)
+        public override Task Initialize(DialogProgressHandler progressHandler)
         {
-            RefreshImportFiles();
+            // Let this run in the background
+            ApplicationHelpers.InvokeDispatcher(() =>
+            {
+                RefreshImportFiles();
+
+            }, DispatcherPriority.Background);
+
+            return Task.CompletedTask;
         }
 
         public override void Dispose()
@@ -299,7 +310,7 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Error loading file tag:  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
+                ApplicationHelpers.Log("Error loading file tag:  {0}", LogMessageType.General, LogLevel.Error, ex, ex.Message);
             }
         }
 

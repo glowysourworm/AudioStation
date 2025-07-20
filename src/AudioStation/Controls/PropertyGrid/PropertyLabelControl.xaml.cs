@@ -15,6 +15,15 @@ namespace AudioStation.Controls.PropertyGrid
         public static readonly DependencyProperty ValueProperty =
             DependencyProperty.Register("Value", typeof(string), typeof(PropertyLabelControl));
 
+        public static readonly DependencyProperty LabelForegroundProperty =
+            DependencyProperty.Register("LabelForeground", typeof(Brush), typeof(PropertyLabelControl), new PropertyMetadata(Brushes.Black));
+
+        public Brush LabelForeground
+        {
+            get { return (Brush)GetValue(LabelForegroundProperty); }
+            set { SetValue(LabelForegroundProperty, value); }
+        }
+
         public string LabelText
         {
             get { return (string)GetValue(LabelTextProperty); }

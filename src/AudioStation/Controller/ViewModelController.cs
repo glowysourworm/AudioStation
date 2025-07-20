@@ -3,7 +3,6 @@ using AudioStation.Controller.Interface;
 using AudioStation.Core.Component.CDPlayer.Interface;
 using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Component.Vendor.Bandcamp.Interface;
-using AudioStation.EventHandler;
 using AudioStation.Service.Interface;
 using AudioStation.ViewModels;
 using AudioStation.ViewModels.LibraryLoaderViewModels;
@@ -11,6 +10,8 @@ using AudioStation.ViewModels.Vendor;
 
 using SimpleWpf.IocFramework.Application.Attribute;
 using SimpleWpf.IocFramework.EventAggregation;
+
+using static AudioStation.EventHandler.DialogEventHandlers;
 
 namespace AudioStation.Controller
 {
@@ -33,13 +34,13 @@ namespace AudioStation.Controller
         private readonly BandcampViewModel _bandcampViewModel;
 
         [IocImportingConstructor]
-        public ViewModelController(IConfigurationManager configurationManager, 
+        public ViewModelController(IConfigurationManager configurationManager,
                                    IModelController modelController,
-                                   IDialogController dialogController, 
+                                   IDialogController dialogController,
                                    IAudioController audioController,
                                    ITagCacheController tagCacheController,
                                    IViewModelLoader viewModelLoader,
-                                   ILibraryLoaderService libraryLoaderService,                                   
+                                   ILibraryLoaderService libraryLoaderService,
                                    IModelValidationService modelValidationService,
                                    IBandcampClient bandcampClient,
                                    IIocEventAggregator eventAggregator,
@@ -60,15 +61,15 @@ namespace AudioStation.Controller
             _bandcampViewModel = new BandcampViewModel(bandcampClient, eventAggregator);
 
 
-            _libraryLoaderViewModel = new LibraryLoaderViewModel(configurationManager, eventAggregator, 
-                                                                 _libraryLoaderCDImportViewModel, _libraryLoaderImportViewModel, 
+            _libraryLoaderViewModel = new LibraryLoaderViewModel(configurationManager, eventAggregator,
+                                                                 _libraryLoaderCDImportViewModel, _libraryLoaderImportViewModel,
                                                                  _libraryLoaderImportRadioViewModel, _libraryLoaderDownloadMusicBrainzViewModel);
 
-            _mainViewModel = new MainViewModel(configurationManager, dialogController, 
-                                               audioController, eventAggregator, cdDrive, 
+            _mainViewModel = new MainViewModel(configurationManager, dialogController,
+                                               audioController, eventAggregator, cdDrive,
                                                configurationManager.GetConfiguration(),
-                                               _libraryManagerViewModel, _radioViewModel, 
-                                               _logViewModel, _libraryLoaderViewModel, 
+                                               _libraryManagerViewModel, _radioViewModel,
+                                               _logViewModel, _libraryLoaderViewModel,
                                                _nowPlayingViewModel, _bandcampViewModel);
         }
 
@@ -77,7 +78,7 @@ namespace AudioStation.Controller
             return _mainViewModel;
         }
 
-        public void Initialize(DialogProgressHandler progressHandler)
+        public async Task Initialize(DialogProgressHandler progressHandler)
         {
             // Procedure
             // 
@@ -88,27 +89,42 @@ namespace AudioStation.Controller
             // 2) Report between view models
             //
 
-            progressHandler(2, 0, 0, "Initializing Audio Station...");
+            progressHandler(10, 0, 0, "Initializing Bandcamp Client...");
+            await _bandcampViewModel.Initialize(progressHandler);
 
-            _bandcampViewModel.Initialize(progressHandler);
-            _nowPlayingViewModel.Initialize(progressHandler);
-            _libraryLoaderCDImportViewModel.Initialize(progressHandler);
-            _libraryLoaderDownloadMusicBrainzViewModel.Initialize(progressHandler);
-            _libraryLoaderImportRadioViewModel.Initialize(progressHandler);
-            _libraryLoaderImportRadioViewModel.Initialize(progressHandler);
-            _libraryLoaderImportViewModel.Initialize(progressHandler);
-            _libraryLoaderViewModel.Initialize(progressHandler);
-            _logViewModel.Initialize(progressHandler);
-            _radioViewModel.Initialize(progressHandler);
+            progressHandler(10, 1, 0, "Initializing Now Playing...");
+            await _nowPlayingViewModel.Initialize(progressHandler);
+
+            progressHandler(10, 2, 0, "Initializing CD Importer...");
+            await _libraryLoaderCDImportViewModel.Initialize(progressHandler);
+
+            progressHandler(10, 3, 0, "Initializing Music Brainz...");
+            await _libraryLoaderDownloadMusicBrainzViewModel.Initialize(progressHandler);
+
+            progressHandler(10, 4, 0, "Initializing Radio Importer...");
+            await _libraryLoaderImportRadioViewModel.Initialize(progressHandler);
+
+            progressHandler(10, 5, 0, "Initializing Importer...");
+            await _libraryLoaderImportViewModel.Initialize(progressHandler);
+
+            progressHandler(10, 6, 0, "Initializing Library Loader...");
+            await _libraryLoaderViewModel.Initialize(progressHandler);
+
+            progressHandler(10, 7, 0, "Initializing Logger...");
+            await _logViewModel.Initialize(progressHandler);
+
+            progressHandler(10, 8, 0, "Initializing Radio...");
+            await _radioViewModel.Initialize(progressHandler);
 
             // Primary Loading... There would then be navigation to the first "task" for the user:  Configuration Errors, 
             //                    Library Maintenance; or even Now Playing :)
             //
 
-            progressHandler(2, 1, 0, "Loading Library...");
+            progressHandler(10, 9, 0, "Initializing Library...");
+            await _libraryManagerViewModel.Initialize(progressHandler);
 
-            _libraryManagerViewModel.Initialize(progressHandler);
-            _mainViewModel.Initialize(progressHandler);
+            progressHandler(10, 10, 0, "Initializing User Interface...");
+            await _mainViewModel.Initialize(progressHandler);
         }
     }
 }

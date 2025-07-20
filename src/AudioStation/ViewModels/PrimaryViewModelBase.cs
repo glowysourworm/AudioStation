@@ -1,6 +1,6 @@
-﻿using AudioStation.EventHandler;
+﻿using SimpleWpf.Extensions;
 
-using SimpleWpf.Extensions;
+using static AudioStation.EventHandler.DialogEventHandlers;
 
 namespace AudioStation.ViewModels
 {
@@ -11,7 +11,7 @@ namespace AudioStation.ViewModels
     /// </summary>
     public abstract class PrimaryViewModelBase : ViewModelBase, IDisposable
     {
-        public abstract void Initialize(DialogProgressHandler progressHandler);
+        public abstract Task Initialize(DialogProgressHandler progressHandler);
         public abstract void Dispose();
     }
 }

@@ -48,16 +48,37 @@ namespace AudioStation.Core.Utility
             else
                 return ApplicationIsDispatcherResult.False;
         }
+
+        public static void BeginInvokeDispatcher(Delegate method, DispatcherPriority priority, params object[] parameters)
+        {
+            if (IsDispatcher() == ApplicationIsDispatcherResult.False)
+                Application.Current.Dispatcher.BeginInvoke(method, priority, parameters);
+
+            // Dispatcher (SYNCHRONOUS!)
+            else
+                method.DynamicInvoke(parameters);
+        }
+
+        public static void InvokeDispatcher(Delegate method, DispatcherPriority priority, params object[] parameters)
+        {
+            if (IsDispatcher() == ApplicationIsDispatcherResult.False)
+                Application.Current.Dispatcher.Invoke(method, priority, parameters);
+
+            // Dispatcher
+            else
+                method.DynamicInvoke(parameters);
+        }
+
         /// <summary>
         /// Sends a log request to the dispatcher to log with the output controller
         /// </summary>
-        public static void Log(string message, LogMessageType type, LogLevel level, params object[] parameters)
+        public static void Log(string message, LogMessageType type, LogLevel level, Exception? exception, params object[] parameters)
         {
             if (IsDispatcher() == ApplicationIsDispatcherResult.False)
-                Application.Current.Dispatcher.BeginInvoke(Log, DispatcherPriority.Background, message, type, level, parameters);
+                Application.Current.Dispatcher.BeginInvoke(Log, DispatcherPriority.Background, message, type, level, exception, parameters);
 
             else
-                GetOutputController().Log(message, type, level, parameters);
+                GetOutputController().Log(message, type, level, exception, parameters);
         }
 
         public static TDest Map<TSource, TDest>(TSource source)
@@ -77,7 +98,7 @@ namespace AudioStation.Core.Utility
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Error mapping objects:  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
+                ApplicationHelpers.Log("Error mapping objects:  {0}", LogMessageType.General, LogLevel.Error, ex, ex.Message);
                 throw ex;
             }
         }
@@ -98,7 +119,7 @@ namespace AudioStation.Core.Utility
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Error mapping objects:  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
+                ApplicationHelpers.Log("Error mapping objects:  {0}", LogMessageType.General, LogLevel.Error, ex, ex.Message);
                 throw ex;
             }
         }

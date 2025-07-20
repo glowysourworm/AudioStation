@@ -8,12 +8,18 @@ using AudioStation.Core.Utility;
 using AudioStation.Model;
 using AudioStation.ViewModels.Vendor.TagLibViewModel;
 
+using MetaBrainz.MusicBrainz.CoverArt.Interfaces;
+using MetaBrainz.MusicBrainz.Interfaces.Entities;
+
 using Microsoft.Extensions.Logging;
 
 using SimpleWpf.Extensions;
+using SimpleWpf.Extensions.Collection;
 using SimpleWpf.Extensions.Command;
 using SimpleWpf.Extensions.Event;
 using SimpleWpf.IocFramework.Application;
+
+using IRelease = MetaBrainz.MusicBrainz.Interfaces.Entities.IRelease;
 
 namespace AudioStation.ViewModels.LibraryLoaderViewModels
 {
@@ -160,12 +166,12 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
                 }
                 else
                 {
-                    ApplicationHelpers.Log("Error loading tag file:  {0}", LogMessageType.LibraryLoader, LogLevel.Error, fileName);
+                    ApplicationHelpers.Log("Error loading tag file:  {0}", LogMessageType.LibraryLoader, LogLevel.Error, null, fileName);
                 }
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Error loading tag file:  {0}, {1}", LogMessageType.LibraryLoader, LogLevel.Error, fileName, ex.Message);
+                ApplicationHelpers.Log("Error loading tag file:  {0}, {1}", LogMessageType.LibraryLoader, LogLevel.Error, ex, fileName, ex.Message);
             }
         }
 
@@ -173,33 +179,35 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
         {
             this.TagIssues = string.Empty;
 
-            if (string.IsNullOrWhiteSpace(this.TagFile.Tag.FirstAlbumArtist))
+            if (string.IsNullOrWhiteSpace(GetPrimaryAlbumArtist()))
                 this.TagIssues += "(Album Artist)";
 
-            if (string.IsNullOrWhiteSpace(this.TagFile.Tag.Album))
+            if (string.IsNullOrWhiteSpace(GetAlbum()))
                 this.TagIssues += " (Album)";
 
-            if (string.IsNullOrWhiteSpace(this.TagFile.Tag.Title))
+            if (string.IsNullOrWhiteSpace(GetTrackTitle()))
                 this.TagIssues += " (Title)";
 
-            if (string.IsNullOrWhiteSpace(this.TagFile.Tag.FirstGenre))
+            if (string.IsNullOrWhiteSpace(GetGenre()))
                 this.TagIssues += " (Genre)";
 
-            if (this.TagFile.Tag.Disc <= 0)
+            if (GetDisc() <= 0)
                 this.TagIssues += " (Disc)";
 
-            if (this.TagFile.Tag.DiscCount <= 0)
+            if (GetDiscCount() <= 0)
                 this.TagIssues += " (Disc Count)";
 
-            if (this.TagFile.Tag.Track <= 0)
+            if (GetTrackNumber() <= 0)
                 this.TagIssues += " (Track)";
 
             this.TagMinimumForImport = string.IsNullOrEmpty(this.TagIssues);
 
             if (this.TagMinimumForImport)
             {
-                this.FileMigrationName = CalculateFileName(this.TagFile.Tag.Track, this.TagFile.Tag.FirstAlbumArtist, this.TagFile.Tag.Title, LibraryEntryNamingType.Standard);
-                this.FileMigrationFullPath = StringHelpers.MakeFriendlyPath(true, this.DestinationDirectory, this.TagFile.Tag.FirstAlbumArtist, this.TagFile.Tag.Album, this.FileMigrationName);
+                this.FileMigrationName = CalculateFileName(GetTrackNumber(), GetPrimaryAlbumArtist(), GetTrackTitle(), LibraryEntryNamingType.Standard);
+                this.FileMigrationFullPath = StringHelpers.MakeFriendlyPath(true, this.DestinationDirectory, GetPrimaryAlbumArtist(), GetAlbum(), this.FileMigrationName);
+
+                this.TagIssues = "(None)";
             }
         }
 
@@ -231,5 +239,171 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
             this.ImportBasicCommand.RaiseCanExecuteChanged();
             this.SaveTagCommand.RaiseCanExecuteChanged();
         }
+
+        #region (private) Tag Data (resolved from AcoustID + Music Brainz + Tag
+        public string GetPrimaryAlbumArtist()
+        {
+            var result = string.Empty;
+
+            if (this.ImportOutput.SelectedMusicBrainzRecordingMatch != null)
+            {
+                result = this.ImportOutput.SelectedMusicBrainzRecordingMatch.ArtistCredit?.FirstOrDefault()?.Name ?? string.Empty;
+            }
+
+            if (result == string.Empty)
+            {
+                result = this.TagFile.Tag.FirstAlbumArtist ?? string.Empty;
+            }
+
+            return result;
+        }
+        public string GetAlbum()
+        {
+            var result = string.Empty;
+
+            if (this.ImportOutput.SelectedMusicBrainzRecordingMatch != null)
+            {
+                var release = GetRelease();
+
+                if (release != null)
+                {
+                    result = release.Title ?? string.Empty;
+                }
+            }
+
+            if (result == string.Empty)
+            {
+                result = this.TagFile.Tag.Album ?? string.Empty;
+            }
+
+            return result;
+        }        
+        public string GetTrackTitle()
+        {
+            var result = string.Empty;
+
+            if (this.ImportOutput.SelectedMusicBrainzRecordingMatch != null)
+            {
+                result = this.ImportOutput.SelectedMusicBrainzRecordingMatch.Title ?? string.Empty;
+            }
+
+            if (result == string.Empty)
+            {
+                result = this.TagFile.Tag.Title ?? string.Empty;
+            }
+
+            return result;
+        }
+        public string GetGenre()
+        {
+            var result = string.Empty;
+
+            if (this.ImportOutput.SelectedMusicBrainzRecordingMatch != null)
+            {
+                result = this.ImportOutput.SelectedMusicBrainzRecordingMatch.Genres?.FirstOrDefault()?.Name ?? string.Empty;
+            }
+
+            if (result == string.Empty)
+            {
+                result = this.TagFile.Tag.FirstGenre ?? string.Empty;
+            }
+
+            return result;
+        }
+        public uint GetDisc()
+        {
+            uint result = 0;
+
+            if (this.ImportOutput.SelectedMusicBrainzRecordingMatch != null)
+            {
+                var release = GetRelease();
+                var medium = GetReleaseMedium();
+
+                if (medium != null && release != null)
+                {
+                    result = (uint)(release.Media?.IndexOf(medium) + 1);
+                }
+            }
+
+            if (result == 0)
+            {
+                result = this.TagFile.Tag.Disc;
+            }
+
+            return result;
+        }
+        public uint GetDiscCount()
+        {
+            uint result = 0;
+
+            if (this.ImportOutput.SelectedMusicBrainzRecordingMatch != null)
+            {
+                var release = GetRelease();
+
+                if (release != null && release.Media != null)
+                {
+                    result = (uint)release.Media.Count;
+                }
+            }
+
+            if (result == 0)
+            {
+                result = this.TagFile.Tag.DiscCount;
+            }
+
+            return result;
+        }
+        public uint GetTrackNumber()
+        {
+            uint result = 0;
+
+            if (this.ImportOutput.SelectedMusicBrainzRecordingMatch != null)
+            {
+                var medium = GetReleaseMedium();
+
+                if (medium != null)
+                {
+                    result = (uint)medium.Tracks.First(x => x.Title == GetTrackTitle()).Position;
+                }
+            }
+
+            if (result == 0)
+            {
+                result = this.TagFile.Tag.Track;
+            }
+
+            return result;
+        }
+        private IRelease? GetRelease()
+        {
+            if (this.ImportOutput.SelectedMusicBrainzRecordingMatch != null)
+            {
+                var album = this.TagFile.Tag.Album ?? string.Empty;
+
+                if (album == string.Empty) 
+                {
+                    return this.ImportOutput.SelectedMusicBrainzRecordingMatch?.Releases?.FirstOrDefault();
+                }
+                else
+                {
+                    return this.ImportOutput.SelectedMusicBrainzRecordingMatch?.Releases?.FirstOrDefault(x => x.Title == album);
+                }                    
+            }
+
+            return null;
+        }
+        private IMedium? GetReleaseMedium()
+        {
+            var release = GetRelease();
+            var trackTitle = GetTrackTitle();
+
+            if (release != null)
+            {
+                return release.Media?.FirstOrDefault(x => x.Tracks != null && x.Tracks.Any(z => z.Title == trackTitle));
+            }
+
+            return null;
+        }
+        #endregion
     }
 }

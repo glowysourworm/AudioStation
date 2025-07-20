@@ -4,11 +4,12 @@ using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Component.LibraryLoaderComponent;
 using AudioStation.Core.Utility;
 using AudioStation.Event.LibraryLoaderEvent;
-using AudioStation.EventHandler;
 using AudioStation.ViewModels.LibraryLoaderViewModels;
 
 using SimpleWpf.Extensions.ObservableCollection;
 using SimpleWpf.IocFramework.EventAggregation;
+
+using static AudioStation.EventHandler.DialogEventHandlers;
 
 namespace AudioStation.ViewModels
 {
@@ -141,9 +142,9 @@ namespace AudioStation.ViewModels
             //});
         }
 
-        public override void Initialize(DialogProgressHandler progressHandler)
+        public override Task Initialize(DialogProgressHandler progressHandler)
         {
-
+            return Task.CompletedTask;
         }
 
         public override void Dispose()

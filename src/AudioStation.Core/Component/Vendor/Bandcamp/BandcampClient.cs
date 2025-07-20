@@ -121,12 +121,12 @@ namespace AudioStation.Core.Component.Vendor.Bandcamp
                     // Write Mp3 to file
                     File.WriteAllBytes(mp3Path, track.Data);
 
-                    ApplicationHelpers.Log("Successfully received album info:  {0}", LogMessageType.General, LogLevel.Information, mp3Path);
+                    ApplicationHelpers.Log("Successfully received album info:  {0}", LogMessageType.General, LogLevel.Information, null, mp3Path);
                 }
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Error connecting to Bandcamp:  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
+                ApplicationHelpers.Log("Error connecting to Bandcamp:  {0}", LogMessageType.General, LogLevel.Error, ex, ex.Message);
             }
         }
     }

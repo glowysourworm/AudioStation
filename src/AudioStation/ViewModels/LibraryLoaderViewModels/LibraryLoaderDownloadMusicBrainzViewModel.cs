@@ -9,6 +9,8 @@ using SimpleWpf.Extensions;
 using SimpleWpf.Extensions.Command;
 using SimpleWpf.IocFramework.Application.Attribute;
 
+using static AudioStation.EventHandler.DialogEventHandlers;
+
 namespace AudioStation.ViewModels.LibraryLoaderViewModels
 {
     public class LibraryLoaderDownloadMusicBrainzViewModel : PrimaryViewModelBase
@@ -51,9 +53,9 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
             });
         }
 
-        public override void Initialize(DialogProgressHandler progressHandler)
+        public override Task Initialize(DialogProgressHandler progressHandler)
         {
-            
+            return Task.CompletedTask;
         }
 
         public override void Dispose()

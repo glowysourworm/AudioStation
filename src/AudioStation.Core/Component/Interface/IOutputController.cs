@@ -14,7 +14,7 @@ namespace AudioStation.Core.Component.Interface
     {
         void Log(LogMessage message);
         void Log(string message, LogMessageType type);
-        void Log(string message, LogMessageType type, LogLevel level, params object[] parameters);
+        void Log(string message, LogMessageType type, LogLevel level, Exception? exception, params object[] parameters);
 
         IEnumerable<LogMessage> GetLatestLogs(LogMessageType type, LogLevel level, int count);
 

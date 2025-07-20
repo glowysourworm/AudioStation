@@ -1,5 +1,8 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Threading;
+
+using AudioStation.Core.Utility;
 
 using EMA.ExtendedWPFVisualTreeHelper;
 
@@ -57,17 +60,19 @@ namespace AudioStation.Controls
 
         private void Window_SizeChanged(object sender, SizeChangedEventArgs e)
         {
-            Application.Current.Dispatcher.BeginInvoke(() =>
+            ApplicationHelpers.BeginInvokeDispatcher(() =>
             {
                 InvalidateMeasure();
-            });
+
+            }, DispatcherPriority.Background);
         }
         private void Window_StateChanged(object? sender, EventArgs e)
         {
-            Application.Current.Dispatcher.BeginInvoke(() =>
+            ApplicationHelpers.BeginInvokeDispatcher(() =>
             {
                 InvalidateMeasure();
-            });
+
+            }, DispatcherPriority.Background);
         }
 
         protected override Size MeasureOverride(Size availableSize)

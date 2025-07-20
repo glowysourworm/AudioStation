@@ -96,7 +96,7 @@ namespace AudioStation.Component.AudioProcessing
         public void Dispose()
         {
             if (ApplicationHelpers.IsDispatcher() == ApplicationIsDispatcherResult.False)
-                Application.Current.Dispatcher.BeginInvoke(Dispose, DispatcherPriority.Background);
+                ApplicationHelpers.BeginInvokeDispatcher(Dispose, DispatcherPriority.Background);
 
             else if (ApplicationHelpers.IsDispatcher() == ApplicationIsDispatcherResult.True)
             {
@@ -119,9 +119,9 @@ namespace AudioStation.Component.AudioProcessing
         private void OnPlaybackStopped(object? sender, StoppedEventArgs e)
         {
             if (ApplicationHelpers.IsDispatcher() == ApplicationIsDispatcherResult.False)
-                Application.Current.Dispatcher.BeginInvoke(OnPlaybackStopped, DispatcherPriority.Background, sender, e);
+                ApplicationHelpers.BeginInvokeDispatcher(OnPlaybackStopped, DispatcherPriority.Background, sender, e);
 
-            else if (ApplicationHelpers.IsDispatcher() == ApplicationIsDispatcherResult.True)
+            else
             {
                 if (this.PlaybackStoppedEvent != null)
                     this.PlaybackStoppedEvent(e);

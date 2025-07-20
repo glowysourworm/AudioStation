@@ -56,7 +56,7 @@ namespace AudioStation.Core.Component.Vendor
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Error getting Wikipedia excerpt:  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
+                ApplicationHelpers.Log("Error getting Wikipedia excerpt:  {0}", LogMessageType.General, LogLevel.Error, ex, ex.Message);
 
                 return null;
             }

@@ -19,6 +19,8 @@ using SimpleWpf.Extensions.Command;
 using SimpleWpf.Extensions.ObservableCollection;
 using SimpleWpf.IocFramework.Application.Attribute;
 
+using static AudioStation.EventHandler.DialogEventHandlers;
+
 namespace AudioStation.ViewModels
 {
     public class RadioViewModel : PrimaryViewModelBase
@@ -71,9 +73,9 @@ namespace AudioStation.ViewModels
             });
         }
 
-        public override void Initialize(DialogProgressHandler progressHandler)
+        public override Task Initialize(DialogProgressHandler progressHandler)
         {
-            
+            return Task.CompletedTask;
         }
 
         public override void Dispose()
@@ -111,7 +113,7 @@ namespace AudioStation.ViewModels
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Error querying Radio Browser:  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
+                ApplicationHelpers.Log("Error querying Radio Browser:  {0}", LogMessageType.General, LogLevel.Error, ex,  ex.Message);
             }
         }
 
@@ -119,7 +121,7 @@ namespace AudioStation.ViewModels
         private void OnRadioEntryLoaded(RadioEntry radioEntry)
         {
             if (ApplicationHelpers.IsDispatcher() == ApplicationIsDispatcherResult.False)
-                Application.Current.Dispatcher.BeginInvoke(OnRadioEntryLoaded, DispatcherPriority.ApplicationIdle, radioEntry);
+                ApplicationHelpers.BeginInvokeDispatcher(OnRadioEntryLoaded, DispatcherPriority.ApplicationIdle, radioEntry);
 
             else if (ApplicationHelpers.IsDispatcher() == ApplicationIsDispatcherResult.True)
             {

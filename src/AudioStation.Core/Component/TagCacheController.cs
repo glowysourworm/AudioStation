@@ -40,7 +40,7 @@ namespace AudioStation.Core.Component
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Error pasting tag data:  {0}", LogMessageType.LibraryLoader, LogLevel.Error, ex.Message);
+                ApplicationHelpers.Log("Error pasting tag data:  {0}", LogMessageType.LibraryLoader, LogLevel.Error, ex, ex.Message);
                 return null;
             }
         }
@@ -59,7 +59,7 @@ namespace AudioStation.Core.Component
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Error copying tag data:  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
+                ApplicationHelpers.Log("Error copying tag data:  {0}", LogMessageType.General, LogLevel.Error, ex, ex.Message);
                 return false;
             }
         }
@@ -80,7 +80,7 @@ namespace AudioStation.Core.Component
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Error initializing tag data:  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
+                ApplicationHelpers.Log("Error initializing tag data:  {0}", LogMessageType.General, LogLevel.Error, ex, ex.Message);
                 throw ex;
             }
         }
@@ -97,7 +97,7 @@ namespace AudioStation.Core.Component
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Error reading tag data (rebuilding Mp3 file):  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
+                ApplicationHelpers.Log("Error reading tag data (rebuilding Mp3 file):  {0}", LogMessageType.General, LogLevel.Error, ex, ex.Message);
                 throw ex;
             }
         }
@@ -117,7 +117,7 @@ namespace AudioStation.Core.Component
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Error saving tag data:  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
+                ApplicationHelpers.Log("Error saving tag data:  {0}", LogMessageType.General, LogLevel.Error, ex, ex.Message);
                 throw ex;
             }
         }
@@ -149,47 +149,6 @@ namespace AudioStation.Core.Component
                 stream.Seek(0, SeekOrigin.Begin);
 
                 return serializer.Deserialize(stream);
-            }
-        }
-
-        private TagLib.File RepairFile(string fileName)
-        {
-            // Procedure
-            //
-            // 1) Take audio using NAudio's MediaFoundataionEncoder
-            // 2) Create bare Mp3 file in place of existing file
-            // 3) Open using taglib and do a bare save
-            //
-
-            try
-            {
-                // Load into memory
-                var mp3Reader = new Mp3FileReader(fileName);
-                var stream = new MemoryStream();
-
-                // This may or may not repair the file as TagLib reads it. If not, then we'll use the NAudio create
-                // header tag methods.
-                MediaFoundationEncoder.EncodeToMp3(mp3Reader, stream);
-
-                var buffer = stream.GetBuffer();
-
-                mp3Reader.Close();
-                mp3Reader.Dispose();
-                mp3Reader = null;
-
-                stream.Dispose();
-                stream = null;
-
-                System.IO.File.WriteAllBytes(fileName, buffer);
-
-                buffer = null;
-
-                return TagLib.File.Create(fileName);
-            }
-            catch (Exception ex)
-            {
-                ApplicationHelpers.Log("Cannot rebuild mp3 file:  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
-                return null;
             }
         }
     }

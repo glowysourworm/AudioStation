@@ -62,11 +62,11 @@ namespace AudioStation.Core.Component
                 // Configuration
                 Serializer.Serialize(_configuration, configPath);
 
-                _outputController.Log("Configuration saved successfully: {0}", LogMessageType.General, LogLevel.Information, configPath);
+                _outputController.Log("Configuration saved successfully: {0}", LogMessageType.General, LogLevel.Information, null, configPath);
             }
             catch (Exception ex)
             {
-                _outputController.Log("Error saving configuration / data files:  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
+                _outputController.Log("Error saving configuration / data files:  {0}", LogMessageType.General, LogLevel.Error, ex, ex.Message);
             }
         }
         private Configuration Open(string configurationFile)
@@ -158,7 +158,7 @@ namespace AudioStation.Core.Component
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Error validating configuration:  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
+                ApplicationHelpers.Log("Error validating configuration:  {0}", LogMessageType.General, LogLevel.Error, ex, ex.Message);
                 return false;
             }
         }

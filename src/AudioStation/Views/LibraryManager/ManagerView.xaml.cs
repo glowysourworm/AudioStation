@@ -166,7 +166,7 @@ namespace AudioStation.Views.LibraryManager
                 }
                 else
                 {
-                    _outputController.Log("Music Brainz Client Failed:  {0}", LogMessageType.General, LogLevel.Information, tagFileViewModel.Name);
+                    _outputController.Log("Music Brainz Client Failed:  {0}", LogMessageType.General, LogLevel.Information, null, tagFileViewModel.Name);
                 }
             };
 

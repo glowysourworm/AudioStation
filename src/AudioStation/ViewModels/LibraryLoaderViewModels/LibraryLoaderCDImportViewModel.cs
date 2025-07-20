@@ -3,11 +3,12 @@ using System.IO;
 
 using AudioStation.Core.Component.CDPlayer;
 using AudioStation.Event;
-using AudioStation.EventHandler;
 using AudioStation.Service.Interface;
 
 using SimpleWpf.Extensions.Command;
 using SimpleWpf.IocFramework.EventAggregation;
+
+using static AudioStation.EventHandler.DialogEventHandlers;
 
 namespace AudioStation.ViewModels.LibraryLoaderViewModels
 {
@@ -94,9 +95,9 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
             }, () => this.Tracks.Count > 0 && this.CDPlayerLoaded);
         }
 
-        public override void Initialize(DialogProgressHandler progressHandler)
+        public override Task Initialize(DialogProgressHandler progressHandler)
         {
-            // TODO: CD DRIVE INITIALIZATION
+            return Task.CompletedTask;
         }
 
         public override void Dispose()
