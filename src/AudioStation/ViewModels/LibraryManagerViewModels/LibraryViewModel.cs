@@ -1,22 +1,22 @@
 ﻿using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
 
-using AudioStation.Component;
 using AudioStation.Component.Interface;
-using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Database.AudioStationDatabase;
 using AudioStation.Core.Model;
+using AudioStation.Core.Utility;
+using AudioStation.EventHandler;
+using AudioStation.Model;
 using AudioStation.ViewModels.LibraryViewModels;
+
+using Microsoft.Extensions.Logging;
 
 using SimpleWpf.Extensions;
 using SimpleWpf.Extensions.Command;
 using SimpleWpf.Extensions.ObservableCollection;
-using SimpleWpf.IocFramework.Application.Attribute;
 
 namespace AudioStation.ViewModels.LibraryManagerViewModels
 {
-    public class LibraryViewModel : ViewModelBase
+    public class LibraryViewModel : PrimaryViewModelBase
     {
         private readonly IViewModelLoader _viewModelLoader;
         private readonly int _libraryEntryPageSize = 100;
@@ -25,6 +25,7 @@ namespace AudioStation.ViewModels.LibraryManagerViewModels
         ObservableCollection<LibraryEntryViewModel> _libraryEntryTabItems;
         ObservableCollection<AlbumViewModel> _albums;
         ObservableCollection<ArtistViewModel> _artists;
+        ObservableCollection<ArtistViewModel> _artistsFull;
         ObservableCollection<GenreViewModel> _genres;
 
         int _totalArtistCount;
@@ -122,7 +123,7 @@ namespace AudioStation.ViewModels.LibraryManagerViewModels
         public string ArtistSearch
         {
             get { return _artistSearch; }
-            set { RaiseAndSetIfChanged(ref _artistSearch, value); }
+            set { RaiseAndSetIfChanged(ref _artistSearch, value); ExecuteArtistSearch(); }
         }
         public LibraryEntryViewModel LibraryEntrySearch
         {
@@ -190,6 +191,8 @@ namespace AudioStation.ViewModels.LibraryManagerViewModels
         {
             _viewModelLoader = viewModelLoader;
 
+            _artistsFull = new ObservableCollection<ArtistViewModel>();
+
             this.LibraryEntries = new ObservableCollection<LibraryEntryViewModel>();
             this.LibraryEntryTabItems = new ObservableCollection<LibraryEntryViewModel>();
             this.Albums = new ObservableCollection<AlbumViewModel>();
@@ -234,42 +237,45 @@ namespace AudioStation.ViewModels.LibraryManagerViewModels
                 ExecuteSearch(1);
             };
         }
-        public void LoadArtists(PageResult<ArtistViewModel> result, bool reset)
+
+        public override void Initialize(DialogProgressHandler progressHandler)
         {
-            if (reset)
-                this.Artists.Clear();
-
-            this.Artists.AddRange(result.Results);
-
-            this.TotalArtistCount = result.TotalRecordCount;
-            this.TotalArtistFilteredCount = result.TotalRecordCountFiltered;
-        }
-        public void LoadAlbums(PageResult<Mp3FileReferenceAlbum> result, bool reset)
-        {
-            if (reset)
-                this.Albums.Clear();
-
-            this.Albums.AddRange(result.Results.Select(album => new AlbumViewModel(album.Id)
+            // Load Searchable Data (except for the library entries)
+            try
             {
-                Album = album.Name
-            }));
+                var artists = _viewModelLoader.LoadArtists();
+                var albums = _viewModelLoader.LoadAlbums();
+                var genres = _viewModelLoader.LoadGenres();
 
-            this.TotalAlbumCount = result.TotalRecordCount;
-            this.TotalAlbumFilteredCount = result.TotalRecordCountFiltered;
-        }
-        public void LoadGenres(PageResult<Mp3FileReferenceGenre> result, bool reset)
-        {
-            if (reset)
-                this.Genres.Clear();
+                this.Artists.AddRange(artists);
+                this.Albums.AddRange(albums);
+                this.Genres.AddRange(genres);
 
-            this.Genres.AddRange(result.Results.Select(genre => new GenreViewModel(genre.Id)
+                // Backup for filtered searching
+                _artistsFull.AddRange(artists);
+            }
+            catch (Exception ex)
             {
-                Name = genre.Name
-            }));
-
-            this.TotalGenresCount = result.TotalRecordCount;
-            this.TotalGenresFilteredCount = result.TotalRecordCountFiltered;
+                ApplicationHelpers.Log("Error Loading Audio Station Entities:  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
+            }
         }
+
+        public override void Dispose()
+        {
+            
+        }
+
+        private void ExecuteArtistSearch()
+        {
+            this.Artists.Clear();
+
+            if (!string.IsNullOrWhiteSpace(this.ArtistSearch))
+                this.Artists.AddRange(_artistsFull.Where(artist => artist.Artist.Contains(this.ArtistSearch)));
+
+            else
+                this.Artists.AddRange(_artistsFull);
+        }
+
         public void LoadEntryPage(PageResult<LibraryEntryViewModel> result, bool reset)
         {
             if (reset)
@@ -279,7 +285,7 @@ namespace AudioStation.ViewModels.LibraryManagerViewModels
 
             this.LibraryEntryPage = result.PageNumber;
             this.LibraryEntryRequestPage = result.PageNumber;
-            this.LibraryEntriesPageBeginEntryNumber = (result.PageNumber - 1) * result.PageSize + 1;
+            this.LibraryEntriesPageBeginEntryNumber = ((result.PageNumber - 1) * result.PageSize) + 1;
             this.LibraryEntriesPageEndEntryNumber = result.PageNumber * result.PageSize;
             this.TotalLibraryEntriesCount = result.TotalRecordCount;
             this.TotalLibraryEntriesFilteredCount = result.TotalRecordCountFiltered;
@@ -295,7 +301,7 @@ namespace AudioStation.ViewModels.LibraryManagerViewModels
                 {
                     PageNumber = Math.Max(pageNumber, 0),
                     PageSize = _libraryEntryPageSize,
-                    WhereCallback = (entity) => { return FilterEntityFields(entity); } 
+                    WhereCallback = (entity) => { return FilterEntityFields(entity); }
                 });
             }
             else
@@ -307,7 +313,7 @@ namespace AudioStation.ViewModels.LibraryManagerViewModels
                     WhereCallback = (entity) => { return FilterEntityFields(entity) && FilterFileErrors(entity); }
                 });
             }
-            
+
             LoadEntryPage(result, true);
         }
 

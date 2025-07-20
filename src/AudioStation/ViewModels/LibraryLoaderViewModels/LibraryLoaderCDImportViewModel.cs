@@ -2,19 +2,16 @@
 using System.IO;
 
 using AudioStation.Core.Component.CDPlayer;
-using AudioStation.Core.Component.CDPlayer.Interface;
 using AudioStation.Event;
+using AudioStation.EventHandler;
 using AudioStation.Service.Interface;
 
-using SimpleWpf.Extensions;
 using SimpleWpf.Extensions.Command;
-using SimpleWpf.IocFramework.Application.Attribute;
 using SimpleWpf.IocFramework.EventAggregation;
 
 namespace AudioStation.ViewModels.LibraryLoaderViewModels
 {
-    [IocExportDefault]
-    public class LibraryLoaderCDImportViewModel : ViewModelBase
+    public class LibraryLoaderCDImportViewModel : PrimaryViewModelBase
     {
         private readonly ICDImportService _cdImportService;
 
@@ -70,8 +67,7 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
             set { this.RaiseAndSetIfChanged(ref _importCommand, value); }
         }
 
-        [IocImportingConstructor]
-        public LibraryLoaderCDImportViewModel(IIocEventAggregator eventAggregator, 
+        public LibraryLoaderCDImportViewModel(IIocEventAggregator eventAggregator,
                                               ICDImportService cdImportService)
         {
             _cdImportService = cdImportService;
@@ -96,6 +92,16 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
                 }
 
             }, () => this.Tracks.Count > 0 && this.CDPlayerLoaded);
+        }
+
+        public override void Initialize(DialogProgressHandler progressHandler)
+        {
+            // TODO: CD DRIVE INITIALIZATION
+        }
+
+        public override void Dispose()
+        {
+
         }
 
         private void OnCDPlayerRead(CDDataReadEventArgs args)

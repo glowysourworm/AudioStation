@@ -1,12 +1,8 @@
-﻿using System.ComponentModel;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Documents;
 using System.Windows.Input;
 
 using AudioStation.Component.Interface;
-using AudioStation.Core.Database.AudioStationDatabase;
-using AudioStation.Core.Model;
 using AudioStation.Event;
 using AudioStation.ViewModels.LibraryManagerViewModels;
 using AudioStation.ViewModels.LibraryViewModels;
@@ -45,19 +41,6 @@ namespace AudioStation.Views
             _nowPlayingViewModelLoader = nowPlayingViewModelLoader;
 
             InitializeComponent();
-
-            this.DataContextChanged += OnDataContextChanged;
-        }
-
-        private void OnDataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
-        {
-            var viewModel = this.DataContext as LibraryViewModel;
-
-            if (viewModel != null)
-            {
-                if (viewModel.Artists.Count == 0)
-                    LoadArtistPage(1, true);
-            }
         }
 
         protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)
@@ -67,46 +50,6 @@ namespace AudioStation.Views
             base.OnRenderSizeChanged(sizeInfo);
 
             _resizing = false;
-        }
-
-        private void LoadArtistPage(int pageNumber, bool reset)
-        {
-            // Don't load during resize
-            if (_resizing)
-                return;
-
-            _pageNumber = pageNumber;
-            _loading = true;
-
-            var viewModel = this.DataContext as LibraryViewModel;
-
-            if (viewModel != null)
-            {
-                var result = _viewModelLoader.LoadArtistPage(new PageRequest<Mp3FileReferenceArtist, string>()
-                {
-                    PageNumber = pageNumber,
-                    PageSize = 50,                              // TODO: Observable collections don't work w/ the view
-                    OrderByCallback = (entity) => entity.Name,
-                    WhereCallback = !string.IsNullOrWhiteSpace(viewModel.ArtistSearch) ? this.ArtistContainsCallback : null
-                });
-
-                if (result.Results.Any())
-                {
-                    viewModel.LoadArtists(result, reset);
-                }
-            }
-
-            _loading = false;
-        }
-
-        private bool ArtistContainsCallback(Mp3FileReferenceArtist artist)
-        {
-            var viewModel = this.DataContext as LibraryViewModel;
-
-            if (string.IsNullOrWhiteSpace(viewModel?.ArtistSearch))
-                return true;
-
-            return artist.Name.Contains(viewModel?.ArtistSearch, StringComparison.OrdinalIgnoreCase);
         }
 
         // Primary load method to send playlist to the main view model
@@ -129,29 +72,8 @@ namespace AudioStation.Views
             // Loading Finished
             _eventAggregator.GetEvent<DialogEvent>().Publish(DialogEventData.Dismiss(NavigationView.NowPlaying));
         }
-        private void OnArtistSearchChanged(object sender, TextChangedEventArgs e)
-        {
-            LoadArtistPage(1, true);
-        }
 
         #region Artist / Album (LHS)
-        private void ArtistLB_ScrollChanged(object sender, ScrollChangedEventArgs e)
-        {
-            if (_resizing || _loading)
-                return;
-
-            var scrollViewer = WpfVisualFinders.FindChild<ScrollViewer>(sender as DependencyObject);
-            var viewModel = this.DataContext as LibraryViewModel;
-
-            if (scrollViewer != null && viewModel != null)
-            {
-                if (scrollViewer.VerticalOffset >= (0.90 * scrollViewer.ScrollableHeight))
-                {
-                    LoadArtistPage(_pageNumber + 1, false);
-                }
-            }
-        }
-
         private async void AlbumsLB_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
             // Load Playlist for the whole album

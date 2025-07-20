@@ -9,6 +9,7 @@ using AudioStation.Core.Component.CDPlayer.Interface;
 using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Event;
 using AudioStation.Event;
+using AudioStation.EventHandler;
 using AudioStation.Model;
 using AudioStation.ViewModels.Controls;
 using AudioStation.ViewModels.LibraryManagerViewModels;
@@ -22,13 +23,8 @@ using SimpleWpf.IocFramework.EventAggregation;
 
 namespace AudioStation.ViewModels;
 
-[IocExportDefault]
-public partial class MainViewModel : ViewModelBase, IDisposable
+public class MainViewModel : PrimaryViewModelBase
 {
-    private readonly IDialogController _dialogController;
-    private readonly IAudioController _audioController;
-    private readonly IModelController _modelController;
-    private readonly IOutputController _outputController;
     private readonly IIocEventAggregator _eventAggregator;
 
     const int MAX_LOG_COUNT = 300;
@@ -171,15 +167,14 @@ public partial class MainViewModel : ViewModelBase, IDisposable
     }
     #endregion
 
-    [IocImportingConstructor]
     public MainViewModel(IConfigurationManager configurationManager,
-                         IDialogController dialogController,
+                         IDialogController dialogController,    
                          IAudioController audioController,
-                         IModelController modelController,
                          IIocEventAggregator eventAggregator,
                          ICDDrive cdDrive,
 
                          // View Models
+                         Configuration configuration,
                          LibraryManagerViewModel libraryManagerViewModel,
                          RadioViewModel radioViewModel,
                          LogViewModel logViewModel,
@@ -187,13 +182,10 @@ public partial class MainViewModel : ViewModelBase, IDisposable
                          NowPlayingViewModel nowPlayingViewModel,
                          BandcampViewModel bandcampViewModel)
     {
-        _dialogController = dialogController;
-        _audioController = audioController;
-        _modelController = modelController;
         _eventAggregator = eventAggregator;
 
         this.ConfigurationLocked = true;
-        this.Configuration = configurationManager.GetConfiguration();
+        this.Configuration = configuration;
         this.EqualizerValues = new ObservableCollection<float>();
         this.EqualizerViewModel = new ObservableCollection<EqualizerBandViewModel>()
         {
@@ -278,6 +270,11 @@ public partial class MainViewModel : ViewModelBase, IDisposable
         });
     }
 
+    public override void Initialize(DialogProgressHandler progressHandler)
+    {
+        
+    }
+
     private void OnLog(LogMessage message)
     {
         this.StatusMessage = message.Message;
@@ -316,17 +313,11 @@ public partial class MainViewModel : ViewModelBase, IDisposable
         this.NowPlaying.Playlist.CurrentTrack?.UpdateCurrentTime(currentTime);
     }
 
-    public void Dispose()
+    public override void Dispose()
     {
         if (!_disposed)
         {
             _disposed = true;
-
-            // Dispose of any threads / unmanaged resources / and managed hooks (if they hold memory!) (but, application is now likely finished)
-            _dialogController.Dispose();
-            _audioController.Dispose();
-
-            this.Configuration = null;
         }
     }
 }

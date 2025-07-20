@@ -160,6 +160,7 @@ namespace AudioStation.Views.LibraryLoaderViews
                 }));
 
                 selectedFile.ImportOutput.AcoustIDSuccess = selectedFile.ImportOutput.AcoustIDResults.Any();
+                selectedFile.ImportOutput.SelectedAcoustIDResult = selectedFile.ImportOutput.AcoustIDResults.FirstOrDefault();
 
                 // (Loading Close)
                 _eventAggregator.GetEvent<DialogEvent>().Publish(DialogEventData.Dismiss());
@@ -213,14 +214,25 @@ namespace AudioStation.Views.LibraryLoaderViews
             // Format AcoustID Output
             string format = "Id={0}\nScore={1:P2}\nMusic Brainz Id={2}";
 
-            _eventAggregator.GetEvent<DialogEvent>().Publish(new DialogEventData("Acoust ID Results (Min Score = 30%)",
-                                                                new DialogMessageListViewModel()
-                                                                {
-                                                                    MessageList = new ObservableCollection<string>(
-                                                                                  selectedFile.ImportOutput
-                                                                                              .AcoustIDResults
-                                                                                              .Select(x => string.Format(format, x.Id, x.Score, x.MusicBrainzRecordingId)))
-                                                                }));
+            var oldSelection = selectedFile.ImportOutput.SelectedAcoustIDResult;
+            var dialogViewModel = new DialogSelectionListViewModel()
+            {
+                SelectionMode = SelectionMode.Single,
+                SelectionList = new NotifyingObservableCollection<SelectionViewModel>(
+                                    selectedFile.ImportOutput
+                                                .AcoustIDResults
+                                                .Select(x => new SelectionViewModel(x, string.Format(format, x.Id, x.Score, x.MusicBrainzRecordingId), 
+                                                                                       x == selectedFile.ImportOutput.SelectedAcoustIDResult)))
+            };
+
+            // Show Dialog (MODAL)
+            _dialogController.ShowDialogWindowSync(new DialogEventData("Acoust ID Results (Min Score = 30%)", dialogViewModel));
+
+            // Take Selection
+            selectedFile.ImportOutput.SelectedAcoustIDResult = (LookupResultViewModel)dialogViewModel.SelectionList.Single(x => x.Selected).Item;
+
+            if (selectedFile.ImportOutput.SelectedAcoustIDResult != oldSelection)
+                selectedFile.ImportOutput.SelectedMusicBrainzRecordingMatch = null;
         }
 
         private void ShowMusicBrainzResults(LibraryLoaderImportFileViewModel selectedFile)
@@ -228,17 +240,33 @@ namespace AudioStation.Views.LibraryLoaderViews
             // Format Music Brainz Output
             string format = "Id={0}\nArtist={1}\nAlbum={2}\nTrack={3}";
 
-            _eventAggregator.GetEvent<DialogEvent>().Publish(new DialogEventData("Music Brainz Results",
-                                                                new DialogMessageListViewModel()
-                                                                {
-                                                                    MessageList = new ObservableCollection<string>(
-                                                                                  selectedFile.ImportOutput
-                                                                                              .MusicBrainzRecordingMatches
-                                                                                              .Select(x => string.Format(format, x.Id,
-                                                                                                                                 x.ArtistCredit?.FirstOrDefault()?.Name ?? string.Empty,
-                                                                                                                                 x.Releases?.FirstOrDefault()?.Title ?? string.Empty,
-                                                                                                                                 x.Title ?? string.Empty)))
-                                                                }));
+            var zippedCollections = selectedFile.ImportOutput
+                                                .AcoustIDResults
+                                                .Zip(selectedFile.ImportOutput.MusicBrainzRecordingMatches);
+
+            var dialogViewModel = new DialogSelectionListViewModel()
+            {
+                SelectionMode = SelectionMode.Single,
+                SelectionList = new NotifyingObservableCollection<SelectionViewModel>(
+                                    zippedCollections
+                                        .Select(x => x.Second)
+                                        .Select(x => new SelectionViewModel(x, string.Format(format, x.Id,
+                                                                                                    x.ArtistCredit?.FirstOrDefault()?.Name ?? string.Empty,
+                                                                                                    x.Releases?.FirstOrDefault()?.Title ?? string.Empty,
+                                                                                                    x.Title ?? string.Empty), 
+                                                                               x == selectedFile.ImportOutput.SelectedMusicBrainzRecordingMatch)))
+            };
+
+            // Show Dialog (MODAL)
+            _dialogController.ShowDialogWindowSync(new DialogEventData("Music Brainz Results", dialogViewModel));            
+
+            // Take Selection
+            var result = (MusicBrainzRecordingViewModel)dialogViewModel.SelectionList.Single(x => x.Selected).Item;
+            var acoustIDResult = zippedCollections.Where(x => x.Second == result).Select(z => z.First).Single();
+
+            // Select Both Records
+            selectedFile.ImportOutput.SelectedMusicBrainzRecordingMatch = result;
+            selectedFile.ImportOutput.SelectedAcoustIDResult = acoustIDResult;
         }
     }
 }

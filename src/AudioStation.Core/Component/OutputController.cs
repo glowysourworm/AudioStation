@@ -74,7 +74,7 @@ namespace AudioStation.Core.Component
         public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception?, string> formatter)
         {
             // Lets add these to "OtherComponent" logs
-            Log(formatter(state, exception), LogMessageType.OtherComponent);
+            //Log(formatter(state, exception), LogMessageType.OtherComponent);
         }
         public bool IsEnabled(LogLevel logLevel)
         {

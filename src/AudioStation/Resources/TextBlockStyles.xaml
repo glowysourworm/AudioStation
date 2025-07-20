@@ -19,6 +19,7 @@
     <Style TargetType="TextBlock" x:Key="LabelDetailTextBlock">
         <Setter Property="Foreground" Value="{StaticResource LabelForegroundDetail}" />
         <Setter Property="FontSize" Value="12" />
+        <Setter Property="FontStyle" Value="Italic" />
     </Style>
 
     <Style TargetType="TextBlock" x:Key="LabelPendingTextBlock">

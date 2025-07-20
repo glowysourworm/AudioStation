@@ -215,6 +215,7 @@ namespace AudioStation.Core.Component.Vendor
 
                     return response.Results
                                    .Where(x => x.Score >= (minScore / 100.0D))
+                                   .OrderByDescending(x => x.Score)
                                    .ToList();
                 }
                 catch (Exception ex)

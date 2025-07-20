@@ -1,4 +1,5 @@
-﻿using AudioStation.ViewModels;
+﻿using AudioStation.Event;
+using AudioStation.ViewModels;
 using AudioStation.ViewModels.Vendor.TagLibViewModel;
 
 namespace AudioStation.Controller.Interface
@@ -13,5 +14,11 @@ namespace AudioStation.Controller.Interface
 
         void ShowLogWindow(LogViewModel viewModel);
         void ShowTagWindow(TagFileGroupViewModel viewModel);
+
+        /// <summary>
+        /// Shows dialog window synchronously. This represents a parallel usage to the event aggregator! So,
+        /// use this when a dialog window is needed to be waited on; and the results returned immediately.
+        /// </summary>
+        void ShowDialogWindowSync(DialogEventData eventData);
     }
 }

@@ -7,10 +7,22 @@ namespace AudioStation.Component.Interface
     public interface IViewModelLoader
     {
         /// <summary>
-        /// Loads a collection of ArtistViewModel ordered by name; and translates the PageResult into 
+        /// Loads a collection of ArtistViewModel ordered by name; and translates them into 
         /// one for the ViewModel namespace.
         /// </summary>
-        PageResult<ArtistViewModel> LoadArtistPage(PageRequest<Mp3FileReferenceArtist, string> request);
+        IEnumerable<ArtistViewModel> LoadArtists();
+
+        /// <summary>
+        /// Loads a collection of GenreViewModel entities ordered by name from the database.
+        /// </summary>
+        /// <returns></returns>
+        IEnumerable<GenreViewModel> LoadGenres();
+
+        /// <summary>
+        /// Loads a collection of AlbumViewModel entities ordered by name from the database.
+        /// </summary>
+        /// <returns></returns>
+        IEnumerable<AlbumViewModel> LoadAlbums();
 
         /// <summary>
         /// Loads a collection of LibraryEntryViewModel ordered by ID; and translates the PageResult into 

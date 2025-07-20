@@ -1,0 +1,34 @@
+﻿<UserControl x:Class="AudioStation.Views.DialogViews.SelectionView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Width="700" Height="400">
+    <Grid>
+        <ListBox x:Name="TheLB" 
+                 ItemContainerStyle="{StaticResource HoverSelectItemContainerStyleWithAlternation}"
+                 HorizontalContentAlignment="Stretch"
+                 AlternationCount="2"
+                 ItemsSource="{Binding SelectionList}"
+                 SelectionMode="{Binding SelectionMode}"
+                 SelectionChanged="TheLB_SelectionChanged">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="100" />
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Text="{Binding ItemText}" Style="{StaticResource LabelTextBlock}" Margin="5" />
+                        <TextBlock Text="Selected" 
+                                   Grid.Column="1" 
+                                   Foreground="DodgerBlue"
+                                   HorizontalAlignment="Right"
+                                   Margin="5"
+                                   Visibility="{Binding Selected, Converter={StaticResource BoolVisibilityCollapseConverter}}"
+                                   Style="{StaticResource LabelDetailTextBlock}" />
+                    </Grid>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>                 
+    </Grid>
+</UserControl>

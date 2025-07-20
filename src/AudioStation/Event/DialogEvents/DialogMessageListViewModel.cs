@@ -21,5 +21,10 @@ namespace AudioStation.Event.DialogEvents
         {
             this.MessageList = new ObservableCollection<string>();
         }
+
+        protected override bool Validate()
+        {
+            return true;
+        }
     }
 }

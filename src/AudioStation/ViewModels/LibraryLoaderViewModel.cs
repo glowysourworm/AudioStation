@@ -1,29 +1,18 @@
 ﻿using System.Collections.ObjectModel;
-using System.IO;
 
-using AudioStation.Controller;
-using AudioStation.Core.Component;
 using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Component.LibraryLoaderComponent;
-using AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderLoad;
-using AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderOutput;
-using AudioStation.Core.Database.AudioStationDatabase;
-using AudioStation.Core.Model;
 using AudioStation.Core.Utility;
 using AudioStation.Event.LibraryLoaderEvent;
+using AudioStation.EventHandler;
 using AudioStation.ViewModels.LibraryLoaderViewModels;
-using AudioStation.ViewModels.LogViewModels;
 
-using SimpleWpf.Extensions;
-using SimpleWpf.Extensions.Command;
 using SimpleWpf.Extensions.ObservableCollection;
-using SimpleWpf.IocFramework.Application.Attribute;
 using SimpleWpf.IocFramework.EventAggregation;
 
 namespace AudioStation.ViewModels
 {
-    [IocExportDefault]
-    public class LibraryLoaderViewModel : ViewModelBase
+    public class LibraryLoaderViewModel : PrimaryViewModelBase
     {
         #region Backing Fields (private)
         LibraryLoaderCDImportViewModel _importCDViewModel;
@@ -77,10 +66,9 @@ namespace AudioStation.ViewModels
         }
         #endregion
 
-        [IocImportingConstructor]
-        public LibraryLoaderViewModel(IConfigurationManager configurationManager, 
+        public LibraryLoaderViewModel(IConfigurationManager configurationManager,
                                       IIocEventAggregator eventAggregator,
-                                      
+
                                       // View Models
                                       LibraryLoaderCDImportViewModel importCDViewModel,
                                       LibraryLoaderImportViewModel importViewModel,
@@ -151,6 +139,16 @@ namespace AudioStation.ViewModels
             //            throw new Exception("Unhandled LibraryLoadType:  LibraryLoaderViewModel.cs");
             //    }
             //});
+        }
+
+        public override void Initialize(DialogProgressHandler progressHandler)
+        {
+
+        }
+
+        public override void Dispose()
+        {
+
         }
     }
 }

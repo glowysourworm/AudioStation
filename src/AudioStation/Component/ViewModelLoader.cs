@@ -15,6 +15,7 @@ using NAudio.Lame;
 using NAudio.MediaFoundation;
 using NAudio.Wave;
 
+using SimpleWpf.Extensions.ObservableCollection;
 using SimpleWpf.IocFramework.Application.Attribute;
 using SimpleWpf.NativeIO.FastDirectory;
 
@@ -41,21 +42,15 @@ namespace AudioStation.Component
             };
         }
 
-        public PageResult<ArtistViewModel> LoadArtistPage(PageRequest<Mp3FileReferenceArtist, string> request)
+        public IEnumerable<ArtistViewModel> LoadArtists()
         {
-            var result = new PageResult<ArtistViewModel>();
             var resultCollection = new List<ArtistViewModel>();
 
             // Database:  Load the artist entities
-            var artistPage = _modelController.GetAudioStationPage(request);
-
-            result.PageNumber = request.PageNumber;
-            result.PageSize = request.PageSize;
-            result.TotalRecordCountFiltered = artistPage.TotalRecordCountFiltered;
-            result.TotalRecordCount = artistPage.TotalRecordCount;
+            var artistEntities = _modelController.GetAudioStationEntities<Mp3FileReferenceArtist>();
 
             // Load the album collection
-            foreach (var artist in artistPage.Results)
+            foreach (var artist in artistEntities.OrderBy(x => x.Name))
             {
                 // Database:  Load the album entities
                 var albums = _modelController.GetArtistAlbums(artist.Id, true);
@@ -80,25 +75,7 @@ namespace AudioStation.Component
                     var tracks = _modelController.GetAlbumTracks(album.Id);
 
                     // Create tracks for the album
-                    albumViewModel.Tracks.AddRange(tracks.Select(track =>
-                    {
-                        return new LibraryEntryViewModel(track.Id)
-                        {
-                            Album = album.Name,
-                            Disc = (uint)album.DiscNumber,
-                            FileName = track.FileName,
-                            PrimaryArtist = artist.Name,
-                            Title = track.Title ?? "Unknown",
-                            Track = (uint)(track.Track ?? 0),
-                            Duration = TimeSpan.FromMilliseconds(track.DurationMilliseconds ?? 0),
-                            FileCorruptMessage = track.FileCorruptMessage ?? "",
-                            FileLoadErrorMessage = track.FileErrorMessage ?? "",
-                            IsFileAvailable = track.IsFileAvailable,
-                            IsFileCorrupt = track.IsFileCorrupt,
-                            IsFileLoadError = track.IsFileLoadError,
-                            PrimaryGenre = track.PrimaryGenre?.Name ?? "Unknown"
-                        };
-                    }));
+                    albumViewModel.Tracks.AddRange(tracks.Select(MapTrack));
 
                     // Calculate the album duration
                     albumViewModel.Duration = TimeSpan.FromMilliseconds(albumViewModel.Tracks.Sum(track => track.Duration.TotalMilliseconds));
@@ -110,7 +87,56 @@ namespace AudioStation.Component
                 resultCollection.Add(artistViewModel);
             }
 
-            result.Results = resultCollection;
+            return resultCollection;
+        }
+
+        public IEnumerable<GenreViewModel> LoadGenres()
+        {
+            var result = new List<GenreViewModel>();
+
+            var genreEntities = _modelController.GetAudioStationEntities<Mp3FileReferenceGenre>();
+
+            foreach (var genre in genreEntities.OrderBy(x => x.Name))
+            {
+                result.Add(new GenreViewModel(genre.Id)
+                {
+                    Name = genre.Name                    
+                });
+            }
+
+            return result;
+        }
+
+        public IEnumerable<AlbumViewModel> LoadAlbums()
+        {
+            var result = new List<AlbumViewModel>();
+
+            var albumEntities = _modelController.GetAudioStationEntities<Mp3FileReferenceAlbum>();
+            var trackEntities = _modelController.GetAudioStationEntities<Mp3FileReference>();
+
+            foreach (var albumEntity in albumEntities.OrderBy(x => x.Name))
+            {
+                // Track Entities
+                var tracks = trackEntities.Where(track => track.AlbumId == albumEntity.Id);
+
+                // Primary Artist Id (TODO!!! MULTIPLE ARTISTS, VARYING PER TRACK!)
+                var artistId = tracks.Select(track => track.PrimaryArtistId)
+                                     .FirstOrDefault();
+
+                if (artistId == null)
+                {
+                    ApplicationHelpers.Log("Error loading album-artist:  AlbumId={0}", LogMessageType.General, LogLevel.Error, albumEntity.Id);
+                    continue;
+                }
+
+                // Artist Entity
+                var artist = _modelController.GetAudioStationEntity<Mp3FileReferenceArtist>((int)artistId);
+
+                // Album Result
+                var album = MapAlbum(artist, albumEntity, tracks);
+
+                result.Add(album);
+            }
 
             return result;
         }
@@ -126,24 +152,41 @@ namespace AudioStation.Component
             result.PageSize = request.PageSize;
             result.TotalRecordCountFiltered = entryPage.TotalRecordCountFiltered;
             result.TotalRecordCount = entryPage.TotalRecordCount;
-            result.Results = entryPage.Results.Select(entry => new LibraryEntryViewModel(entry.Id)
-            {
-                Album = entry.Album?.Name ?? "Unknown",
-                Disc = (uint)(entry.Album?.DiscNumber ?? 0),
-                Duration = TimeSpan.FromMilliseconds(entry.DurationMilliseconds ?? 0),
-                FileName = entry.FileName,
-                PrimaryArtist = entry.PrimaryArtist?.Name ?? "Unknown",
-                PrimaryGenre = entry.PrimaryGenre?.Name ?? "Unknown",
-                Title = entry.Title ?? "Unknown",
-                Track = (uint)(entry.Track ?? 0),
-                FileCorruptMessage = entry.FileCorruptMessage ?? "",
-                FileLoadErrorMessage = entry.FileErrorMessage ?? "",
-                IsFileAvailable = entry.IsFileAvailable,
-                IsFileLoadError = entry.IsFileLoadError,
-                IsFileCorrupt = entry.IsFileCorrupt
-            }).ToList();
+            result.Results = entryPage.Results.Select(MapTrack).ToList();
 
             return result;
+        }
+
+        public LibraryEntryViewModel MapTrack(Mp3FileReference track)
+        {
+            return new LibraryEntryViewModel(track.Id)
+            {
+                Album = track.Album?.Name ?? "Unknown",
+                Disc = (uint)(track.Album?.DiscNumber ?? 0),
+                Duration = TimeSpan.FromMilliseconds(track.DurationMilliseconds ?? 0),
+                FileName = track.FileName,
+                PrimaryArtist = track.PrimaryArtist?.Name ?? "Unknown",
+                PrimaryGenre = track.PrimaryGenre?.Name ?? "Unknown",
+                Title = track.Title ?? "Unknown",
+                Track = (uint)(track.Track ?? 0),
+                FileCorruptMessage = track.FileCorruptMessage ?? "",
+                FileLoadErrorMessage = track.FileErrorMessage ?? "",
+                IsFileAvailable = track.IsFileAvailable,
+                IsFileLoadError = track.IsFileLoadError,
+                IsFileCorrupt = track.IsFileCorrupt
+            };
+        }
+
+        public AlbumViewModel MapAlbum(Mp3FileReferenceArtist primaryArtist, Mp3FileReferenceAlbum albumEntity, IEnumerable<Mp3FileReference> tracks)
+        {
+            return new AlbumViewModel(albumEntity.Id)
+            {
+                Album = albumEntity.Name,
+                Duration = TimeSpan.FromMilliseconds((double)tracks.Sum(track => track.DurationMilliseconds)),
+                PrimaryArtist = primaryArtist.Name,
+                Tracks = new SortedObservableCollection<LibraryEntryViewModel>(tracks.Select(MapTrack)),
+                Year = (uint)albumEntity.Year
+            };
         }
 
         public IEnumerable<string> LoadNonConvertedFiles()

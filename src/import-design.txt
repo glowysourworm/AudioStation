@@ -1,0 +1,44 @@
+Import Design
+-------------
+
+	Purpose:  The importing of files is a multi-step process; and has a lot of pieces that can 1) go wrong, and
+			  2) require user intervention. So, each step will be defined as a "requirement" for the data to be
+			  "at that step".
+
+	Example:  The minimum requirement for an import is:
+
+				- Primary Album Artist
+				- Album
+				- Album Media Number
+				- Album Media Count
+				- Primary Album Genre	
+				- Track Number
+				- Track Title
+
+			  So, we'll define this minimum in the code and save it's validation routine as a service.
+
+	Import Steps:  The tag being ready does not depend on the import steps. The user may fill in tag data, or
+				   may not utilize the AcoustID / Music Brainz service to help fill out tag data.
+
+		Step 1:    (Optional) AcoustID Lookup / Selection
+		Step 2:    (Optional) Music Brainz Lookup / Selection
+		*Step 3:    (Optional) Music Brainz Detail Lookup		(This could be a sub-task after the basic import is done)
+		Step 3:    Save Tag Data From Lookup(s)
+		Step 4:	   Import Database Record
+		Step 5:    (Optional) Migrate File / Update Imported Record
+
+	Wait / Cancel: The async / await pattern may be used here with our dialog controller; and the cancel operation
+				   would be available between files to import.
+
+	Tag Editing:   The following changes to the tag editor need to be completed for simplifying the UI design:
+
+				   - Make a small dialog-friendly window
+				   - Put comments, lyrics, and artwork on their own tabs inside the dialog
+				   - Use a modal dialog style editing pattern
+
+				   - (Also) Add group editing of specific tag fields on the context menu for the list
+				   - (Also) Show relevant (and minimum) tag fields in the UI expander for the list
+
+	Options:	   The options tab for the import needs to be a dialog window before starting. These options will be
+				   assumed saved as they were just put for the last import. So, the user has a simple workflow to manage;
+				   and is not confused by the tabs.

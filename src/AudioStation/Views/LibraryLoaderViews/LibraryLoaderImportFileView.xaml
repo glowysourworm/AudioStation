@@ -165,10 +165,10 @@
                             <propertyGrid:PropertyLabelControl LabelColumnWidth="200" LabelText="File Name:" Value="{Binding FileFullPath}" ToolTip="{Binding FileFullPath}" />
                             <propertyGrid:PropertyLabelControl LabelColumnWidth="200" LabelText="File Name Migrated:" Value="{Binding FileMigrationFullPath}" ToolTip="{Binding FileMigrationFullPath}" />
                             <propertyGrid:PropertyLabelControl LabelColumnWidth="200" LabelText="Import Type:" Value="{Binding ImportAsType}" />
-                            <propertyGrid:PropertyLabelControl LabelColumnWidth="200" LabelText="Import Basic Valid:" Value="{Binding TagMinimumForImport}"
+                            <propertyGrid:PropertyLabelControl LabelColumnWidth="200" LabelText="Import Basic Valid:" Value="{Binding TagIssues}"
                                                                ToolTip="You can fill out the tag data here by selecting items; and editing their tags. This will allow Audio Station to fill in the required data. Other data may be entered later; and 3rd party services may be used at another time." />
-                            <propertyGrid:PropertyLabelControl LabelColumnWidth="200" LabelText="AcoustID Tested:" Value="{Binding ImportOutput.AcoustIDSuccess}" />
-                            <propertyGrid:PropertyLabelControl LabelColumnWidth="200" LabelText="Music Brainz Tested:" Value="{Binding ImportOutput.MusicBrainzRecordingMatchSuccess}" />
+                            <propertyGrid:PropertyLabelControl LabelColumnWidth="200" LabelText="AcoustID:" Value="{Binding ImportOutput.SelectedAcoustIDResult}" />
+                            <propertyGrid:PropertyLabelControl LabelColumnWidth="200" LabelText="Music Brainz:" Value="{Binding ImportOutput.SelectedMusicBrainzRecordingMatch}" />
                         </controls:NoScrollListBox>
                         
                     </Grid>

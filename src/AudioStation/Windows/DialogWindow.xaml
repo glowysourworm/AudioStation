@@ -40,7 +40,11 @@
                         HorizontalAlignment="Right" 
                         Margin="5">
                 
-                <Button x:Name="OkButton" Click="OkButton_Click" Style="{StaticResource UserControlButton}" Content="OK" Padding="5" Width="60" />
+                <Button x:Name="OkButton" 
+                        Click="OkButton_Click" 
+                        IsEnabled="{Binding ViewDataContext.ResultValid}"
+                        Style="{StaticResource UserControlButton}" 
+                        Content="OK" Padding="5" Width="60" />
                 
             </StackPanel>
         </Grid>

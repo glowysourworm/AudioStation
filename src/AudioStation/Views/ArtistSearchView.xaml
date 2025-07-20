@@ -42,7 +42,7 @@
                     </Grid.ColumnDefinitions>
                     
                     <TextBlock Text="Artist" Style="{StaticResource LargeInputLabelTextBlock}" />
-                    <TextBox Text="{Binding ArtistSearch, UpdateSourceTrigger=PropertyChanged}" TextChanged="OnArtistSearchChanged" Grid.Column="1" Style="{StaticResource LargeInputLabelTextBox}" />
+                    <TextBox Text="{Binding ArtistSearch, UpdateSourceTrigger=PropertyChanged}" Grid.Column="1" Style="{StaticResource LargeInputLabelTextBox}" />
                     
                     <!-- Artist Page Information -->                    
                     <TextBlock HorizontalAlignment="Right" Style="{StaticResource LabelDetailTextBlock}" Grid.Row="1" Grid.Column="1">
@@ -65,7 +65,6 @@
                      VirtualizingPanel.IsContainerVirtualizable="True"
                      VirtualizingPanel.CacheLength="1"
                      VirtualizingPanel.ScrollUnit="Pixel"                     
-                     ScrollViewer.ScrollChanged="ArtistLB_ScrollChanged"
                      HorizontalContentAlignment="Stretch"
                      ItemContainerStyle="{StaticResource HoverSelectItemContainerStyleWithAlternation}"
                      AlternationCount="2"

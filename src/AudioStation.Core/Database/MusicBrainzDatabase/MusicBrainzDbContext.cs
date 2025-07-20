@@ -150,12 +150,11 @@ namespace AudioStation.Core.Database.MusicBrainzDatabase
         /// </summary>
         private bool FilterLogging(EventId eventId, LogLevel level)
         {
-            //if (level >= LogLevel.Information)
-            //    return true;
+            return level >= LogLevel.Information;
 
             // Information level includes ALL select, and other DB statements (apparently), so we're going to allow
             // them all through; and do some selective output in the "Log" function
-            return true;
+            //return true;
         }
 
         /// <summary>

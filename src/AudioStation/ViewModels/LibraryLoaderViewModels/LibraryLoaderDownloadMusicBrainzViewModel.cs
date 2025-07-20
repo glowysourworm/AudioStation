@@ -3,6 +3,7 @@
 using AudioStation.Controller.Interface;
 using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Database.AudioStationDatabase;
+using AudioStation.EventHandler;
 
 using SimpleWpf.Extensions;
 using SimpleWpf.Extensions.Command;
@@ -10,8 +11,7 @@ using SimpleWpf.IocFramework.Application.Attribute;
 
 namespace AudioStation.ViewModels.LibraryLoaderViewModels
 {
-    [IocExportDefault]
-    public class LibraryLoaderDownloadMusicBrainzViewModel : ViewModelBase
+    public class LibraryLoaderDownloadMusicBrainzViewModel : PrimaryViewModelBase
     {
         ObservableCollection<Mp3FileReference> _entitiesStaged;
 
@@ -28,7 +28,6 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
             set { this.RaiseAndSetIfChanged(ref _runImportCommand, value); }
         }
 
-        [IocImportingConstructor]
         public LibraryLoaderDownloadMusicBrainzViewModel(IModelController modelController,
                                                          IConfigurationManager configurationManager,
                                                          IDialogController dialogController)
@@ -50,6 +49,16 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
                     //libraryLoader.Start();
                 }
             });
+        }
+
+        public override void Initialize(DialogProgressHandler progressHandler)
+        {
+            
+        }
+
+        public override void Dispose()
+        {
+            
         }
     }
 }

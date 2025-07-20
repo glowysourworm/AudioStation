@@ -1,11 +1,17 @@
 ﻿using System.Collections.ObjectModel;
 using System.Windows;
 
+using AudioStation.Component;
 using AudioStation.Component.Interface;
 using AudioStation.Controller.Interface;
+using AudioStation.Core.Utility;
 using AudioStation.Event;
 using AudioStation.Event.DialogEvents;
+using AudioStation.EventHandler;
+using AudioStation.Model;
 using AudioStation.ViewModels.LibraryManagerViewModels;
+
+using Microsoft.Extensions.Logging;
 
 using SimpleWpf.Extensions;
 using SimpleWpf.Extensions.Command;
@@ -15,9 +21,10 @@ using SimpleWpf.IocFramework.EventAggregation;
 
 namespace AudioStation.ViewModels
 {
-    [IocExportDefault]
-    public class LibraryManagerViewModel : ViewModelBase
+    public class LibraryManagerViewModel : PrimaryViewModelBase
     {
+        private readonly IViewModelLoader _viewModelLoader;
+
         LibraryViewModel _library;
 
         ObservableCollection<string> _nonConvertedFiles;
@@ -42,11 +49,12 @@ namespace AudioStation.ViewModels
             set { this.RaiseAndSetIfChanged(ref _convertCommand, value); }
         }
 
-        [IocImportingConstructor]
         public LibraryManagerViewModel(IViewModelLoader viewModelLoader, IIocEventAggregator eventAggregator)
         {
+            _viewModelLoader = viewModelLoader;
+
             this.Library = new LibraryViewModel(viewModelLoader);
-            this.NonConvertedFiles = new ObservableCollection<string>(viewModelLoader.LoadNonConvertedFiles());     // TODO: Initialize Pattern!
+            this.NonConvertedFiles = new ObservableCollection<string>();
 
             this.ConvertCommand = new SimpleCommand(async () =>
             {
@@ -76,6 +84,27 @@ namespace AudioStation.ViewModels
                 this.NonConvertedFiles.Clear();
                 this.NonConvertedFiles.AddRange(viewModelLoader.LoadNonConvertedFiles());
             });
+        }
+
+        public override void Initialize(DialogProgressHandler progressHandler)
+        {
+            try
+            {
+                this.NonConvertedFiles.AddRange(_viewModelLoader.LoadNonConvertedFiles());
+
+                // Load Artists / Albums / Genres
+                this.Library.Initialize(progressHandler);
+            }
+            catch (Exception ex)
+            {
+                ApplicationHelpers.Log("Error loading non-converted files:  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
+                this.NonConvertedFiles.Clear();
+            }
+        }
+
+        public override void Dispose()
+        {
+            
         }
     }
 }

@@ -33,5 +33,10 @@
             this.Message = string.Empty;
             this.Title = string.Empty;
         }
+
+        protected override bool Validate()
+        {
+            return true;
+        }
     }
 }

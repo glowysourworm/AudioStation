@@ -33,6 +33,7 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
 
         // Data available for the import (either cached here or in the database)
         bool _tagMinimumForImport;
+        string _tagIssues;
 
         LibraryEntryType _importAsType;
 
@@ -76,6 +77,11 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
         {
             get { return _tagMinimumForImport; }
             set { this.RaiseAndSetIfChanged(ref _tagMinimumForImport, value); InvalidateCommands(); }
+        }
+        public string TagIssues
+        {
+            get { return _tagIssues; }
+            set { this.RaiseAndSetIfChanged(ref _tagIssues, value); }
         }
         public TagFileViewModel TagFile
         {
@@ -165,10 +171,30 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
 
         public void UpdateMigrationDetails()
         {
-            this.TagMinimumForImport = !string.IsNullOrWhiteSpace(this.TagFile.Tag.FirstAlbumArtist) &&
-                                       !string.IsNullOrWhiteSpace(this.TagFile.Tag.Album) &&
-                                       !string.IsNullOrWhiteSpace(this.TagFile.Tag.Title) &&
-                                       this.TagFile.Tag.Track > 0;
+            this.TagIssues = string.Empty;
+
+            if (string.IsNullOrWhiteSpace(this.TagFile.Tag.FirstAlbumArtist))
+                this.TagIssues += "(Album Artist)";
+
+            if (string.IsNullOrWhiteSpace(this.TagFile.Tag.Album))
+                this.TagIssues += " (Album)";
+
+            if (string.IsNullOrWhiteSpace(this.TagFile.Tag.Title))
+                this.TagIssues += " (Title)";
+
+            if (string.IsNullOrWhiteSpace(this.TagFile.Tag.FirstGenre))
+                this.TagIssues += " (Genre)";
+
+            if (this.TagFile.Tag.Disc <= 0)
+                this.TagIssues += " (Disc)";
+
+            if (this.TagFile.Tag.DiscCount <= 0)
+                this.TagIssues += " (Disc Count)";
+
+            if (this.TagFile.Tag.Track <= 0)
+                this.TagIssues += " (Track)";
+
+            this.TagMinimumForImport = string.IsNullOrEmpty(this.TagIssues);
 
             if (this.TagMinimumForImport)
             {
@@ -196,6 +222,7 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
 
         private void ImportOutput_PropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
+            UpdateMigrationDetails();
             InvalidateCommands();
         }
 

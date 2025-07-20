@@ -7,7 +7,9 @@
     public interface IConfigurationManager
     {
         void Initialize(string? configurationFile);
+        Configuration GetValidConfiguration();
         Configuration GetConfiguration();
         void SaveConfiguration();
+        bool ValidateConfiguration();
     }
 }

@@ -25,7 +25,8 @@ namespace AudioStation.Event
     {
         Loading,
         SplashScreenLoading,
-        MessageList
+        MessageList,
+        SelectionList
     }
 
     public class DialogEventData
@@ -87,6 +88,10 @@ namespace AudioStation.Event
 
         public DialogEventData(string dialogTitle, DialogMessageListViewModel viewModel)
             : this(true, true, dialogTitle, MessageBoxButton.OK, DialogResult.Abort, NavigationView.None, DialogEventView.MessageList, viewModel)
+        { }
+
+        public DialogEventData(string dialogTitle, DialogSelectionListViewModel viewModel)
+            : this(true, true, dialogTitle, MessageBoxButton.OK, DialogResult.Abort, NavigationView.None, DialogEventView.SelectionList, viewModel)
         { }
 
         public DialogEventData(DialogSplashScreenViewModel viewModel)

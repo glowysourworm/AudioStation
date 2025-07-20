@@ -22,6 +22,9 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
         string _finalRecord;
         string _importedRecord;
 
+        LookupResultViewModel _selectedAcoustIDResult;
+        MusicBrainzRecordingViewModel _selectedMusicBrainzRecordingMatch;
+
         bool _acoustIDSuccess;
         bool _musicBrainzRecordingMatchSuccess;
         bool _musicBrainzCombinedRecordQuerySuccess;
@@ -58,6 +61,16 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
         {
             get { return _musicBrainzCombinedRecords; }
             set { this.RaiseAndSetIfChanged(ref _musicBrainzCombinedRecords, value); }
+        }
+        public LookupResultViewModel SelectedAcoustIDResult
+        {
+            get { return _selectedAcoustIDResult; }
+            set { this.RaiseAndSetIfChanged(ref _selectedAcoustIDResult, value); }
+        }
+        public MusicBrainzRecordingViewModel SelectedMusicBrainzRecordingMatch
+        {
+            get { return _selectedMusicBrainzRecordingMatch; }
+            set { this.RaiseAndSetIfChanged(ref _selectedMusicBrainzRecordingMatch, value); }
         }
         public string FinalRecord
         {

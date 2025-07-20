@@ -5,6 +5,7 @@ using System.Windows.Threading;
 using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Event;
 using AudioStation.Core.Utility;
+using AudioStation.EventHandler;
 using AudioStation.Model;
 using AudioStation.ViewModels.LogViewModels;
 
@@ -16,8 +17,7 @@ using SimpleWpf.IocFramework.EventAggregation;
 
 namespace AudioStation.ViewModels
 {
-    [IocExportDefault]
-    public class LogViewModel : ViewModelBase
+    public class LogViewModel : PrimaryViewModelBase
     {
         private readonly IOutputController _outputController;
 
@@ -29,7 +29,6 @@ namespace AudioStation.ViewModels
             set { this.RaiseAndSetIfChanged(ref _logs, value); }
         }
 
-        [IocImportingConstructor]
         public LogViewModel(IIocEventAggregator eventAggregator)
         {
             eventAggregator.GetEvent<LogEvent>().Subscribe(OnLog);
@@ -46,6 +45,15 @@ namespace AudioStation.ViewModels
                     Name = type.ToString()
                 });
             }
+        }
+
+        public override void Initialize(DialogProgressHandler progressHandler)
+        {
+            
+        }
+
+        public override void Dispose()
+        {
         }
 
         private void OnLog(LogMessage message)

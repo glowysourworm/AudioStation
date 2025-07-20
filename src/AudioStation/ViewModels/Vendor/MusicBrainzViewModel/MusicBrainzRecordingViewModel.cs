@@ -154,5 +154,22 @@ namespace AudioStation.ViewModels.Vendor.MusicBrainzViewModel
         {
 
         }
+
+        public override string ToString()
+        {
+            var artist = this.ArtistCredit?.FirstOrDefault()?.Name;
+            var release = this.Releases?.FirstOrDefault();
+            var media = release?.Media?.FirstOrDefault(x => x.Tracks != null && x.Tracks.Any(z => z.Title == this.Title));
+            var trackNumber = media?.Tracks?.FirstOrDefault(x => x.Title == this.Title)?.Position ?? 0;
+            var discNumber = media?.Discs?.Count() ?? 0;
+
+            return string.Format("Artist({0}) Album({1}) Title({2}) Genre({3}) Track({4}) Disc({5})", 
+                                 artist ?? string.Empty, 
+                                 release?.Title ?? string.Empty,
+                                 this.Title ?? string.Empty,
+                                 release?.Genres?.FirstOrDefault()?.Name ?? string.Empty,
+                                 trackNumber,
+                                 discNumber);
+        }
     }
 }

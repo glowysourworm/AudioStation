@@ -78,7 +78,7 @@ namespace AudioStation
         protected bool IsHeaderMouseDown { get; private set; }
         protected Point HeaderMouseDownPosition { get; private set; }
 
-        private readonly MainViewModel _mainViewModel;
+        private readonly IViewModelController _viewModelController;
         private readonly IDialogController _dialogController;
         private readonly IIocEventAggregator _eventAggregator;
 
@@ -108,16 +108,16 @@ namespace AudioStation
         [IocImportingConstructor]
         public MainWindow(IIocEventAggregator eventAggregator, 
                           IDialogController dialogController, 
-                          MainViewModel mainViewModel,
+                          IViewModelController viewModelController,
                           ICDDrive cdDrive)
         {
-            _mainViewModel = mainViewModel;
+            _viewModelController = viewModelController;
             _eventAggregator = eventAggregator;
             _dialogController = dialogController;
 
             InitializeComponent();
 
-            this.DataContext = mainViewModel;
+            this.DataContext = _viewModelController.GetMainViewModel();
 
             // Track position / size of "Normal" window state
             _positionNormal = new Point(this.Left, this.Top);
@@ -357,7 +357,7 @@ namespace AudioStation
                 {
                     this.UserMenuPopup.IsOpen = false;
 
-                    _dialogController.ShowLogWindow(_mainViewModel.Log);
+                    _dialogController.ShowLogWindow(_viewModelController.GetMainViewModel().Log);
 
                     //_mainViewModel.ShowOutputMessages = !_mainViewModel.ShowOutputMessages;
                 };

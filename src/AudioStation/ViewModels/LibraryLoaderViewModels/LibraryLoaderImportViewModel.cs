@@ -12,6 +12,7 @@ using AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderOutput;
 using AudioStation.Core.Model;
 using AudioStation.Core.Utility;
 using AudioStation.Event.LibraryLoaderEvent;
+using AudioStation.EventHandler;
 using AudioStation.Model;
 using AudioStation.Service.Interface;
 using AudioStation.ViewModels.Vendor.TagLibViewModel;
@@ -29,8 +30,7 @@ using SimpleWpf.IocFramework.EventAggregation;
 
 namespace AudioStation.ViewModels.LibraryLoaderViewModels
 {
-    [IocExportDefault]
-    public class LibraryLoaderImportViewModel : ViewModelBase
+    public class LibraryLoaderImportViewModel : PrimaryViewModelBase
     {
         private readonly IConfigurationManager _configurationManager;
         private readonly IDialogController _dialogController;
@@ -181,7 +181,6 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
             set { this.RaiseAndSetIfChanged(ref _runMusicBrainzLookupCommand, value); }
         }
 
-        [IocImportingConstructor]
         public LibraryLoaderImportViewModel(IConfigurationManager configurationManager,
                                             ILibraryLoaderService libraryLoaderService,
                                             IDialogController dialogController,
@@ -245,9 +244,17 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
                 }
             });
 
-            this.SourceFiles.ItemPropertyChanged += SourceFiles_ItemPropertyChanged;
+            this.SourceFiles.ItemPropertyChanged += SourceFiles_ItemPropertyChanged;            
+        }
 
-            RefreshImportFiles();            
+        public override void Initialize(DialogProgressHandler progressHandler)
+        {
+            RefreshImportFiles();
+        }
+
+        public override void Dispose()
+        {
+            ClearSourceFiles();
         }
 
         private void SourceFiles_ItemPropertyChanged(NotifyingObservableCollection<LibraryLoaderImportFileViewModel> item1, LibraryLoaderImportFileViewModel item2, PropertyChangedEventArgs item3)

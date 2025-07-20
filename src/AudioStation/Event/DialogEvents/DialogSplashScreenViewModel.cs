@@ -22,5 +22,10 @@ namespace AudioStation.Event.DialogEvents
         {
             this.Message = string.Empty;
         }
+
+        protected override bool Validate()
+        {
+            return true;
+        }
     }
 }

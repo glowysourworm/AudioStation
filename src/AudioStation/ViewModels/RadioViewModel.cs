@@ -6,6 +6,7 @@ using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Component.Vendor;
 using AudioStation.Core.Model;
 using AudioStation.Core.Utility;
+using AudioStation.EventHandler;
 using AudioStation.Model;
 using AudioStation.Service.Interface;
 using AudioStation.ViewModels.LibraryViewModels.Comparer;
@@ -20,11 +21,8 @@ using SimpleWpf.IocFramework.Application.Attribute;
 
 namespace AudioStation.ViewModels
 {
-    [IocExportDefault]
-    public class RadioViewModel : ViewModelBase
+    public class RadioViewModel : PrimaryViewModelBase
     {
-        private readonly IOutputController _outputController;
-
         // Our Primary Library Collections
         SortedObservableCollection<RadioEntryViewModel> _radioEntries;
         SortedObservableCollection<RadioStationViewModel> _radioBrowserSearchResults;
@@ -53,13 +51,9 @@ namespace AudioStation.ViewModels
             set { this.RaiseAndSetIfChanged(ref _importM3UCommand, value); }
         }
 
-        [IocImportingConstructor]
         public RadioViewModel(ILibraryLoaderService libraryLoaderService,
-                              IOutputController outputController,
                               IDialogController dialogController)
         {
-            _outputController = outputController;
-
             this.RadioEntries = new SortedObservableCollection<RadioEntryViewModel>(new PropertyComparer<string, RadioEntryViewModel>(x => x.Name));
             this.RadioBrowserSearchResults = new SortedObservableCollection<RadioStationViewModel>(new PropertyComparer<string, RadioStationViewModel>(x => x.Name));
 
@@ -75,6 +69,16 @@ namespace AudioStation.ViewModels
                     //libraryLoader.Start();
                 }
             });
+        }
+
+        public override void Initialize(DialogProgressHandler progressHandler)
+        {
+            
+        }
+
+        public override void Dispose()
+        {
+            
         }
 
         public async void SearchRadioBrowser(string search)
@@ -107,7 +111,7 @@ namespace AudioStation.ViewModels
             }
             catch (Exception ex)
             {
-                _outputController.Log("Error querying Radio Browser:  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
+                ApplicationHelpers.Log("Error querying Radio Browser:  {0}", LogMessageType.General, LogLevel.Error, ex.Message);
             }
         }
 

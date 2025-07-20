@@ -28,7 +28,7 @@ namespace AudioStation.Controller
             _eventAggregator = eventAggregator;
             _dialogWindow = null;
 
-            eventAggregator.GetEvent<DialogEvent>().Subscribe(OnLoadingChanged);
+            eventAggregator.GetEvent<DialogEvent>().Subscribe(payload => OnLoadingChanged(payload, false));
         }
 
         public void Initialize()
@@ -100,8 +100,16 @@ namespace AudioStation.Controller
             window.ShowDialog();
         }
 
-        private void OnLoadingChanged(DialogEventData data)
+        public void ShowDialogWindowSync(DialogEventData eventData)
         {
+            OnLoadingChanged(eventData, true);
+        }
+
+        private void OnLoadingChanged(DialogEventData data, bool showDialog)
+        {
+            if (!data.UserDismissalMode && showDialog)
+                throw new ArgumentException("For dialog (modal) mode, the user dismissal option must be set:  DialogController.cs");
+
             if (!data.ShowDialog)
             {
                 if (_dialogWindow != null)
@@ -152,6 +160,12 @@ namespace AudioStation.Controller
                         DataContext = data.DataContext
                     };
                     break;
+                case DialogEventView.SelectionList:
+                    _dialogWindow.DataContext = new SelectionView()
+                    {
+                        DataContext = data.DataContext
+                    };
+                    break;
                 default:
                     throw new Exception("Unhandled dialog view type:  DialogController.cs");
             }
@@ -167,7 +181,12 @@ namespace AudioStation.Controller
             // Can't show the loading screen as a dialog window; but the window will appear as
             // a non-closeable window.
             _dialogWindow.Owner = Application.Current.MainWindow;
-            _dialogWindow.Show();
+
+            if (!showDialog)
+                _dialogWindow.Show();
+
+            else
+                _dialogWindow.ShowDialog();
         }
 
         private void OnDialogResult(System.Windows.Forms.DialogResult sender)
