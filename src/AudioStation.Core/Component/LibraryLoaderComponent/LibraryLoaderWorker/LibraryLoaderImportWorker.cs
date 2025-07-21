@@ -13,7 +13,7 @@ using TagLib;
 
 namespace AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderWorker
 {
-    public class LibraryLoaderImportDetailWorker : LibraryWorkerThreadBase
+    public class LibraryLoaderImportWorker : LibraryWorkerThreadBase
     {
         private readonly IModelController _modelController;
         private readonly IMusicBrainzClient _musicBrainzClient;
@@ -26,14 +26,14 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderWorker
         private const int ACOUSTID_MIN_SCORE = 80;
         private const int MUSIC_BRAINZ_MIN_SCORE = 100;
 
-        private LibraryLoaderImportDetailLoad _workLoad;
-        private LibraryLoaderImportDetailOutput _workOutput;
+        private LibraryLoaderImportLoad _workLoad;
+        private LibraryLoaderImportOutput _workOutput;
 
         // Thread Contention (between work steps only)
         private int _workCurrentStep = 0;
         private object _lock = new object();
 
-        public LibraryLoaderImportDetailWorker(LibraryLoaderWorkItem workItem,
+        public LibraryLoaderImportWorker(LibraryLoaderWorkItem workItem,
                                          IModelController modelController,
                                          IAcoustIDClient acoustIDClient,
                                          IMusicBrainzClient musicBrainzClient,
@@ -42,8 +42,8 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderWorker
                                          IFileController fileController)
             : base(workItem)
         {
-            _workLoad = workItem.GetWorkItem() as LibraryLoaderImportDetailLoad;
-            _workOutput = workItem.GetOutputItem() as LibraryLoaderImportDetailOutput;
+            _workLoad = workItem.GetWorkItem() as LibraryLoaderImportLoad;
+            _workOutput = workItem.GetOutputItem() as LibraryLoaderImportOutput;
 
             _modelController = modelController;
             _acoustIDClient = acoustIDClient;
@@ -237,7 +237,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderWorker
             return _workOutput.Mp3FileMoveSuccess;
         }
 
-        public void GetAcoustIDResults(ref LibraryLoaderImportDetailOutput outputItem, string fileFullName)
+        public void GetAcoustIDResults(ref LibraryLoaderImportOutput outputItem, string fileFullName)
         {
             // Import:  Assume no tag data is filled out. Go with the best acoustID result you can
             //          get; and hope that it works right out of the box.
@@ -345,7 +345,6 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderWorker
                     var artistFolder = _fileController.MakeFriendlyPath(false, _workOutput.ImportedTagFile.Tag.FirstAlbumArtist);
                     var albumFolder = _fileController.MakeFriendlyPath(false, _workOutput.ImportedTagFile.Tag.Album);
 
-                    _workOutput.DestinationSubFolders = new string[] { artistFolder, Path.Combine(artistFolder, albumFolder) };
                     _workOutput.DestinationPathCalculated = Path.Combine(_workOutput.DestinationFolderBase,
                                                                         artistFolder,
                                                                         albumFolder,
@@ -357,10 +356,6 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderWorker
                     var artistFolder = _fileController.MakeFriendlyPath(false, _workOutput.ImportedTagFile.Tag.FirstAlbumArtist);
                     var albumFolder = _fileController.MakeFriendlyPath(false, _workOutput.ImportedTagFile.Tag.Album);
                     var genreFolder = _fileController.MakeFriendlyPath(false, _workOutput.ImportedTagFile.Tag.FirstGenre);
-
-                    _workOutput.DestinationSubFolders = new string[] { genreFolder,
-                                                                      Path.Combine(genreFolder, artistFolder),
-                                                                      Path.Combine(genreFolder, artistFolder, albumFolder)};
 
                     _workOutput.DestinationPathCalculated = Path.Combine(_workOutput.DestinationFolderBase,
                                                                         genreFolder,

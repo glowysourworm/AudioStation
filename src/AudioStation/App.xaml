@@ -20,6 +20,7 @@
         <converter:StringLengthConverter x:Key="StringLengthConverter" />
         <converter:ValidationForegroundConverter x:Key="ValidationForegroundConverter" />
         <converter:ValidationForegroundParameterConverter x:Key="ValidationForegroundParameterConverter" />
+        <converter:ImportStepForegroundParameterConverter x:Key="ImportStepForegroundParameterConverter" />
 
         <!-- SimpleWpf.UI Converters -->
         <simpleConverter:BoolInverseConverter x:Key="BoolInverseConverter" />

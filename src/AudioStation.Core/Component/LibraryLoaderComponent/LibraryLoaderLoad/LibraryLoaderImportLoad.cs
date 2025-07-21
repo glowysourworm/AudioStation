@@ -2,7 +2,7 @@
 
 namespace AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderLoad
 {
-    public class LibraryLoaderImportBasicLoad : LibraryLoaderLoadBase
+    public class LibraryLoaderImportLoad : LibraryLoaderLoadBase
     {
         public string SourceFile { get; set; }
         public string SourceFolder { get; set; }
@@ -16,17 +16,17 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderLoad
         public bool MigrationDeleteSourceFolders { get; set; }
         public bool MigrationOverwriteDestinationFiles { get; set; }
 
-        public LibraryLoaderImportBasicLoad(string sourceFolder,
-                                            string destinationFolder,
-                                            string sourceFile,
-                                            LibraryEntryGroupingType groupingType,
-                                            LibraryEntryNamingType namingType,
-                                            bool includeMusicBrainzDetail,
-                                            bool identifyUsingAcoustID,
-                                            bool importFileMigration,
-                                            bool migrationDeleteSourceFiles,
-                                            bool migrationDeleteSourceFolders,
-                                            bool migrationOverwriteDestinationFiles)
+        public LibraryLoaderImportLoad(string sourceFolder,
+                                           string destinationFolder,
+                                           string sourceFile,
+                                           LibraryEntryGroupingType groupingType,
+                                           LibraryEntryNamingType namingType,
+                                           bool includeMusicBrainzDetail,
+                                           bool identifyUsingAcoustID,
+                                           bool importFileMigration,
+                                           bool migrationDeleteSourceFiles,
+                                           bool migrationDeleteSourceFolders,
+                                           bool migrationOverwriteDestinationFiles)
         {
             this.SourceFolder = sourceFolder;
             this.DestinationFolder = destinationFolder;

@@ -74,13 +74,12 @@ namespace AudioStation.Core.Component
 
             switch (parameters.LoadType)
             {
-                case LibraryLoadType.ImportBasic:
+                case LibraryLoadType.Import:
                 {
-                    workItem = new LibraryLoaderWorkItem(_workItemIdCounter++, LibraryLoadType.ImportBasic);
-                    workItem.Initialize(LibraryWorkItemState.Pending, parameters.Load, new LibraryLoaderImportBasicOutput());
+                    workItem = new LibraryLoaderWorkItem(_workItemIdCounter++, LibraryLoadType.Import);
+                    workItem.Initialize(LibraryWorkItemState.Pending, parameters.Load, new LibraryLoaderImportOutput());
                 }
                 break;
-                case LibraryLoadType.ImportDetail:
                 case LibraryLoadType.ImportRadio:
                 case LibraryLoadType.DownloadMusicBrainz:
                 default:
@@ -113,9 +112,9 @@ namespace AudioStation.Core.Component
 
                 switch (workItem.GetLoadType())
                 {
-                    case LibraryLoadType.ImportBasic:
+                    case LibraryLoadType.Import:
                     {
-                        var thread = new LibraryLoaderImportBasicWorker(workItem,
+                        var thread = new LibraryLoaderImportWorker(workItem,
                                                                        _modelController,
                                                                        _acoustIDClient,
                                                                        _musicBrainzClient,
@@ -131,7 +130,6 @@ namespace AudioStation.Core.Component
                         _workerThreads.Add(thread);
                     }
                     break;
-                    case LibraryLoadType.ImportDetail:
                     case LibraryLoadType.ImportRadio:
                     case LibraryLoadType.DownloadMusicBrainz:
                     default:

@@ -21,9 +21,12 @@
 
         <!-- Control Panel -->
         <StackPanel Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Center" Orientation="Horizontal" Margin="5">
+
             <TextBlock Style="{StaticResource LabelTextBlock}" Margin="10">
-                <Run Text="Files to Run:  " />
-                <Run Text="{Binding SourceFileSelectedCount, Mode=OneWay}" />
+                <Run Text="Files to Run / Files Total:  " />
+                <Run Text="{Binding SourceFileSelectedCount, Mode=OneWay}" />                
+                <Run Text=" / " />
+                <Run Text="{Binding SourceFiles.Count, Mode=OneWay}" />
             </TextBlock>
 
             <Button Margin="0 5 5 0" Style="{StaticResource UserControlButton}" Command="{Binding EditTagsCommand}">

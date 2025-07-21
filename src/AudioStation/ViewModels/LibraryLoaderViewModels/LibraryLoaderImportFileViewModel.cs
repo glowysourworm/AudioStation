@@ -5,6 +5,7 @@ using System.IO;
 using AudioStation.Core.Component;
 using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Model;
+using AudioStation.Core.Model.Interface;
 using AudioStation.Core.Utility;
 using AudioStation.Model;
 using AudioStation.ViewModels.Vendor.TagLibViewModel;
@@ -24,9 +25,9 @@ using IRelease = MetaBrainz.MusicBrainz.Interfaces.Entities.IRelease;
 
 namespace AudioStation.ViewModels.LibraryLoaderViewModels
 {
-    public class LibraryLoaderImportFileViewModel : ViewModelBase
+    public class LibraryLoaderImportFileViewModel : ViewModelBase, ISimpleTag
     {
-        private readonly IFileController _fileController;
+        private readonly IModelFileService _modelFileService;
 
         public event SimpleEventHandler<LibraryLoaderImportFileViewModel> ImportBasicEvent;
         public event SimpleEventHandler<LibraryLoaderImportFileViewModel> SaveTagEvent;
@@ -45,6 +46,8 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
         string _tagIssues;
 
         LibraryEntryType _importAsType;
+        LibraryEntryNamingType _namingType;
+        LibraryEntryGroupingType _groupingType;
 
         TagFileViewModel _tagFile;
         LibraryLoaderImportOutputViewModel _importOutput;
@@ -104,23 +107,82 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
             get { return _importAsType; }
             set { this.RaiseAndSetIfChanged(ref _importAsType, value); }
         }
+        public LibraryEntryNamingType NamingType
+        {
+            get { return _namingType; }
+            set { this.RaiseAndSetIfChanged(ref _namingType, value); }
+        }
+        public LibraryEntryGroupingType GroupingType
+        {
+            get { return _groupingType; }
+            set { this.RaiseAndSetIfChanged(ref _groupingType, value); }
+        }
         public string DestinationDirectory
         {
             get { return _destinationDirectory; }
             set { this.RaiseAndSetIfChanged(ref _destinationDirectory, value); }
         }
 
-        public LibraryLoaderImportFileViewModel(string fileName, string destinationDirectory, LibraryEntryType importAsType)
+        #region ISimpleTag
+        public string Album
+        {
+            get { return GetAlbum(); }
+            set { }
+        }
+        public string FirstAlbumArtist
+        {
+            get { return GetPrimaryAlbumArtist(); }
+            set { }
+        }
+        public string Title 
+        { 
+            get { return GetTrackTitle(); }
+            set { } 
+        }
+        public string FirstGenre 
+        { 
+            get { return GetGenre(); }
+            set { }
+        }
+        public uint Track
+        {
+            get { return GetTrackNumber(); }
+            set { }
+        }
+        public uint TrackCount
+        {
+            get { return GetTrackCount(); }
+            set { }
+        }
+        public uint Disc
+        {
+            get { return GetDisc(); }
+            set { }
+        }
+        public uint DiscCount
+        {
+            get { return GetDiscCount(); }
+            set { }
+        }
+        #endregion
+
+        public LibraryLoaderImportFileViewModel(string fileName, 
+                                                string destinationDirectory, 
+                                                LibraryEntryType importAsType,
+                                                LibraryEntryNamingType namingType, 
+                                                LibraryEntryGroupingType groupingType)
         {
             try
             {
-                _fileController = IocContainer.Get<IFileController>();
+                _modelFileService = IocContainer.Get<IModelFileService>();
 
                 var tagCacheController = IocContainer.Get<ITagCacheController>();
 
                 this.FileFullPath = fileName;
                 this.FileName = Path.GetFileName(fileName);
                 this.ImportAsType = importAsType;
+                this.NamingType = namingType;
+                this.GroupingType = groupingType;
                 this.DestinationDirectory = destinationDirectory;
                 this.ImportOutput = new LibraryLoaderImportOutputViewModel();
                 this.ImportOutput.PropertyChanged += ImportOutput_PropertyChanged;
@@ -177,27 +239,13 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
 
             if (this.MinimumImportValid)
             {
-                this.FileMigrationName = CalculateFileName(GetTrackNumber(), GetPrimaryAlbumArtist(), GetTrackTitle(), LibraryEntryNamingType.Standard);
-                this.FileMigrationFullPath = _fileController.MakeFriendlyPath(true, this.DestinationDirectory, GetPrimaryAlbumArtist(), GetAlbum(), this.FileMigrationName);
+                var fileMigrationName = _modelFileService.CalculateFileName(this, this.NamingType);
+                var fileMigrationFolder = _modelFileService.CalculateFolderPath(this, this.DestinationDirectory, this.GroupingType);
+
+                this.FileMigrationName = fileMigrationName;
+                this.FileMigrationFullPath = Path.Combine(fileMigrationName, fileMigrationFolder);
 
                 this.TagIssues = "(None)";
-            }
-        }
-
-        private string CalculateFileName(uint track, string firstAlbumArtist, string trackTitle, LibraryEntryNamingType namingType)
-        {
-            switch (namingType)
-            {
-                case LibraryEntryNamingType.Standard:
-                {
-                    var format = "{0:##} {1}.mp3";
-                    var formattedTitle = string.Format(format, track, trackTitle);
-                    return _fileController.MakeFriendlyPath(true, formattedTitle);
-                }
-                case LibraryEntryNamingType.None:
-                case LibraryEntryNamingType.Descriptive:
-                default:
-                    throw new Exception("Unhandled naming type:  LibraryLoaderFileViewModel.cs");
             }
         }
 
@@ -336,6 +384,27 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
             if (result == 0)
             {
                 result = this.TagFile.Tag.Track;
+            }
+
+            return result;
+        }
+        public uint GetTrackCount()
+        {
+            uint result = 0;
+
+            if (this.ImportOutput.SelectedMusicBrainzRecordingMatch != null)
+            {
+                var medium = GetReleaseMedium();
+
+                if (medium != null)
+                {
+                    result = (uint)medium.Tracks.Count;
+                }
+            }
+
+            if (result == 0)
+            {
+                result = this.TagFile.Tag.TrackCount;
             }
 
             return result;

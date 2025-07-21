@@ -100,12 +100,12 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
             var configuration = configurationManager.GetConfiguration();
 
             this.SourceFiles = new NotifyingObservableCollection<LibraryLoaderImportFileViewModel>();
-            this.Options = new LibraryLoaderImportOptionsViewModel(dialogController);
+            this.Options = new LibraryLoaderImportOptionsViewModel(configurationManager, dialogController);
 
             // RunImport -> Complete
             eventAggregator.GetEvent<LibraryLoaderWorkItemCompleteEvent>().Subscribe(payload =>
             {
-                RefreshImportFiles();
+                RefreshImportFiles(true);
             });
 
             this.EditTagsCommand = new SimpleCommand(() =>
@@ -132,7 +132,7 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
             {
                 dialogController.ShowImportOptionsWindow(this.Options);
                 
-                RefreshImportFiles();
+                RefreshImportFiles(true);
             });
 
             this.SourceFiles.ItemPropertyChanged += SourceFiles_ItemPropertyChanged;
@@ -140,12 +140,27 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
 
         public override Task Initialize(DialogProgressHandler progressHandler)
         {
-            // Let this run in the background
-            ApplicationHelpers.InvokeDispatcher(() =>
-            {
-                RefreshImportFiles();
+            if (string.IsNullOrEmpty(this.Options.SourceFolder))
+                return Task.CompletedTask;
 
-            }, DispatcherPriority.Background);
+            // Task Thread Issue:  Calling back for the directory search - while inside the
+            //                     Dispatcher invoke - was taking a lot of extra time (4-5 seconds!)
+            //                  
+            //                     We're going to call the file system before entering the 
+            //                     invoke - and also use the native IO.
+            //
+            var sourceFiles = CalculateSourceFiles(true);
+
+            // Load UI:  Dispatcher Only
+            //
+            if (sourceFiles.Any())
+            {
+                ApplicationHelpers.InvokeDispatcher(() =>
+                {
+                    this.SourceFiles.AddRange(sourceFiles);
+
+                }, DispatcherPriority.Normal);
+            }
 
             return Task.CompletedTask;
         }
@@ -207,31 +222,17 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
             }
         }
 
-        private void RefreshImportFiles()
+        private void RefreshImportFiles(bool useNativeFileIO)
         {
-            var configuration = _configurationManager.GetConfiguration();
-
             if (!string.IsNullOrEmpty(this.Options.SourceFolder))
             {
-                var files = ApplicationHelpers.FastGetFiles(this.Options.SourceFolder, "*.mp3", SearchOption.AllDirectories);
+                // Calculate Source Files
+                //
+                var sourceFiles = CalculateSourceFiles(useNativeFileIO);
 
-                var directoryBase = configuration.DirectoryBase;
-                var subDirectory = this.Options.ImportAsType == LibraryEntryType.Music ? configuration.MusicSubDirectory :
-                                   this.Options.ImportAsType == LibraryEntryType.AudioBook ? configuration.AudioBooksSubDirectory :
-                                   string.Empty;
-
-                // Calculate base directory
-                var directory = Path.Combine(directoryBase, subDirectory);
-
-                ClearSourceFiles();
-
-                if (!string.IsNullOrWhiteSpace(this.Options.SourceFolderSearch))
-                    this.SourceFiles.AddRange(files.Where(x => StringHelpers.RegexMatchIC(this.Options.SourceFolderSearch, x))
-                                                   .Select(x => CreateSourceFile(x, directory, this.Options.ImportAsType)));
-                else
-                    this.SourceFiles.AddRange(files.Select(x => CreateSourceFile(x, directory, this.Options.ImportAsType)));
-
-
+                // Load UI:  Dispatcher Only
+                //
+                this.SourceFiles.AddRange(sourceFiles);
             }
             else
             {
@@ -241,9 +242,12 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
             //RefreshDestinationFiles();
         }
 
-        private LibraryLoaderImportFileViewModel CreateSourceFile(string fileName, string directory, LibraryEntryType importAsType)
+        private LibraryLoaderImportFileViewModel CreateSourceFile(string fileName, string directory)
         {
-            var viewModel = new LibraryLoaderImportFileViewModel(fileName, directory, importAsType);
+            var viewModel = new LibraryLoaderImportFileViewModel(fileName, directory, 
+                                                                 this.Options.ImportAsType, 
+                                                                 this.Options.NamingType, 
+                                                                 this.Options.GroupingType);
 
             // Hook event request
             viewModel.ImportBasicEvent += OnImportBasicRequest;
@@ -262,6 +266,48 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
             }
 
             this.SourceFiles.Clear();
+        }
+
+        private IEnumerable<LibraryLoaderImportFileViewModel> CalculateSourceFiles(bool useNativeFileIO)
+        {
+            // Must have a valid configuration
+            if (!_configurationManager.ValidateConfiguration())
+                return Enumerable.Empty<LibraryLoaderImportFileViewModel>();
+
+            // May be on task thread; but still ok.
+            var configuration = _configurationManager.GetConfiguration();
+
+            var result = new List<string>();
+
+            // Task Thread / Dispatcher Thread:  During loading, there is a task thread, which must have access to create
+            //                                   these files; but there may be a dispatcher invoke (to complicate matters).
+            //                                   The NativeIO (FastGetFiles) will have problems with loading; and will take
+            //                                   longer than the Dispatcher thread (managed version).
+            //
+            if (useNativeFileIO)
+            {
+                result.AddRange(ApplicationHelpers.FastGetFiles(this.Options.SourceFolder, "*.mp3", SearchOption.AllDirectories));
+            }
+            else
+            {
+                result.AddRange(Directory.GetFiles(this.Options.SourceFolder, "*.mp3", SearchOption.AllDirectories));
+            }
+
+            var directoryBase = configuration.DirectoryBase;
+            var subDirectory = this.Options.ImportAsType == LibraryEntryType.Music ? configuration.MusicSubDirectory :
+                               this.Options.ImportAsType == LibraryEntryType.AudioBook ? configuration.AudioBooksSubDirectory :
+                               string.Empty;
+
+            // Calculate base directory
+            var directory = Path.Combine(directoryBase, subDirectory);
+
+            ClearSourceFiles();
+
+            if (!string.IsNullOrWhiteSpace(this.Options.SourceFolderSearch))
+                return result.Where(x => StringHelpers.RegexMatchIC(this.Options.SourceFolderSearch, x))
+                                                      .Select(x => CreateSourceFile(x, directory));
+            else
+                return result.Select(x => CreateSourceFile(x, directory));
         }
 
         private void OnImportBasicRequest(LibraryLoaderImportFileViewModel sender)
@@ -330,7 +376,7 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
             var directory = Path.Combine(directoryBase, subDirectory);
 
             // Setup file load for the library loader
-            var inputLoad = new LibraryLoaderImportBasicLoad(this.Options.SourceFolder,
+            var inputLoad = new LibraryLoaderImportLoad(this.Options.SourceFolder,
                                                              directory,
                                                              fileFullPath,
                                                              LibraryEntryGroupingType.ArtistAlbum,

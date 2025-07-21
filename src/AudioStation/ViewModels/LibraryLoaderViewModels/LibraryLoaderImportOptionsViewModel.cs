@@ -1,4 +1,5 @@
 ﻿using AudioStation.Controller.Interface;
+using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Model;
 
 using SimpleWpf.Extensions;
@@ -120,9 +121,23 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
             set { this.RaiseAndSetIfChanged(ref _selectSourceFolderCommand, value); }
         }
 
-        public LibraryLoaderImportOptionsViewModel(IDialogController dialogController)
+        public LibraryLoaderImportOptionsViewModel(IConfigurationManager configurationManager, IDialogController dialogController)
         {
             _dialogController = dialogController;
+
+            var configuration = configurationManager.GetConfiguration();
+
+            this.SourceFolderSearch = string.Empty;
+            this.DestinationFolderSearch = string.Empty;
+
+            this.SourceFolder = configuration.DownloadFolder;
+            this.DestinationFolder = configuration.DirectoryBase;
+            this.DestinationMusicSubFolder = configuration.MusicSubDirectory;
+            this.DestinationAudioBooksSubFolder = configuration.AudioBooksSubDirectory;
+
+            this.ImportAsType = LibraryEntryType.Music;
+            this.GroupingType = LibraryEntryGroupingType.ArtistAlbum;
+            this.NamingType = LibraryEntryNamingType.Standard;
 
             this.SelectSourceFolderCommand = new SimpleCommand(() =>
             {

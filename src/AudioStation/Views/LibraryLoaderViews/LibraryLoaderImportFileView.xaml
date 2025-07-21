@@ -98,25 +98,27 @@
                         <StackPanel Orientation="Horizontal" Grid.Column="1">
 
                             <fa5:ImageAwesome Icon="Solid_Tag" 
-                                            Margin="3"
+                                            Margin="5"
                                             Style="{StaticResource FontAwesomeIconManagerViewPager}"
                                             ToolTip="Tag data is required to complete the import"                       
-                                            Foreground="{Binding TagMinimumForImport, Converter={StaticResource ValidationForegroundConverter}}" />
+                                            Foreground="{Binding MinimumImportValid, 
+                                                                 Converter={StaticResource ImportStepForegroundParameterConverter},
+                                                                 ConverterParameter={x:Static Brushes.LawnGreen}}" />
 
                             <fa5:ImageAwesome Icon="Solid_VolumeUp" 
-                                            Margin="3"
+                                            Margin="5"
                                             Style="{StaticResource FontAwesomeIconManagerViewPager}"
                                             ToolTip="AcoustID data may be downloaded prior to import; or after."
                                             Foreground="{Binding ImportOutput.AcoustIDSuccess, 
-                                                                    Converter={StaticResource ParameterProviderBoolConverter},
-                                                                    ConverterParameter={x:Static Brushes.DodgerBlue}}" />
+                                                                 Converter={StaticResource ImportStepForegroundParameterConverter},
+                                                                 ConverterParameter={x:Static Brushes.DodgerBlue}}" />
                             <fa5:ImageAwesome Icon="Solid_Music" 
-                                            Margin="3"
+                                            Margin="5"
                                             ToolTip="Music Brainz data may be downloaded prior to import; or after."              
                                             Style="{StaticResource FontAwesomeIconManagerViewPager}"
                                             Foreground="{Binding ImportOutput.MusicBrainzRecordingMatchSuccess, 
-                                                                    Converter={StaticResource ParameterProviderBoolConverter},
-                                                                    ConverterParameter={x:Static Brushes.DodgerBlue}}" />
+                                                                 Converter={StaticResource ImportStepForegroundParameterConverter},
+                                                                 ConverterParameter={x:Static Brushes.DodgerBlue}}" />
                         </StackPanel>
 
                         <!-- Import File Name -->

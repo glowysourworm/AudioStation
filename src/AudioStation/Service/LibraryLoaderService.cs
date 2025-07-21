@@ -38,20 +38,12 @@ namespace AudioStation.Service
             libraryLoader.WorkItemUpdate += LibraryLoader_WorkItemUpdate;
         }
 
-        public void RunLoaderTaskAsync(LibraryLoaderImportBasicLoad workLoad)
+        public void RunLoaderTaskAsync(LibraryLoaderImportLoad workLoad)
         {
             // Show Dialog
-            _eventAggregator.GetEvent<DialogEvent>().Publish(DialogEventData.ShowLoading("Importing Audio File (Basic)"));
+            _eventAggregator.GetEvent<DialogEvent>().Publish(DialogEventData.ShowLoading("Importing Audio File"));
 
-            _libraryLoader.RunLoaderTaskAsync(new LibraryLoaderParameters<LibraryLoaderImportBasicLoad>(LibraryLoadType.ImportBasic, workLoad));
-        }
-
-        public void RunLoaderTaskAsync(LibraryLoaderImportDetailLoad workLoad)
-        {
-            // Show Dialog
-            _eventAggregator.GetEvent<DialogEvent>().Publish(DialogEventData.ShowLoading("Importing Audio File (Detail)"));
-
-            _libraryLoader.RunLoaderTaskAsync(new LibraryLoaderParameters<LibraryLoaderImportDetailLoad>(LibraryLoadType.ImportDetail, workLoad));
+            _libraryLoader.RunLoaderTaskAsync(new LibraryLoaderParameters<LibraryLoaderImportLoad>(LibraryLoadType.Import, workLoad));
         }
 
         public void RunLoaderTaskAsync(LibraryLoaderEntityLoad workLoad)
@@ -93,7 +85,7 @@ namespace AudioStation.Service
             // Hide Dialog (if all tasks are complete)
             if (_libraryLoader.IsWorkCompleted())
             {
-                var workOutput = sender as LibraryLoaderImportBasicOutput;
+                var workOutput = sender as LibraryLoaderImportOutput;
 
                 _eventAggregator.GetEvent<DialogEvent>().Publish(DialogEventData.Dismiss());
                 _eventAggregator.GetEvent<LibraryLoaderWorkItemCompleteEvent>().Publish(new LibraryLoaderImportOutputViewModel()

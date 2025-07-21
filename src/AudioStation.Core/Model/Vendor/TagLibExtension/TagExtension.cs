@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using AudioStation.Core.Model.Interface;
 
 using SimpleWpf.RecursiveSerializer.Component.Interface;
 using SimpleWpf.RecursiveSerializer.Interface;
@@ -11,7 +7,7 @@ using TagLib;
 
 namespace AudioStation.Core.Model.Vendor.TagLibExtension
 {
-    public class TagExtension : TagLib.Tag, IRecursiveSerializable
+    public class TagExtension : TagLib.Tag, ITag, ISimpleTag, IRecursiveSerializable
     {
         TagTypes _tagTypes;
 
@@ -55,6 +51,11 @@ namespace AudioStation.Core.Model.Vendor.TagLibExtension
         public override IPicture[] Pictures { get; set; }
         public override string[] Artists { get; set; }
         public override bool IsEmpty { get; }
+
+        // Audio Station ITag / ISimpleTag
+        string ISimpleTag.FirstAlbumArtist { get; set; }
+        string ISimpleTag.FirstGenre { get; set; }
+        TagPicture[] ITag.Pictures { get; set; }
 
         public override void Clear()
         {

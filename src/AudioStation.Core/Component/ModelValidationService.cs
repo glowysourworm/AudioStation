@@ -1,4 +1,5 @@
 ﻿using AudioStation.Core.Component.Interface;
+using AudioStation.Core.Model.Interface;
 
 using MetaBrainz.MusicBrainz.Interfaces.Entities;
 
@@ -36,30 +37,58 @@ namespace AudioStation.Core.Component
                                                                        .TrackCount > 0;
         }
 
+        public bool ValidateTagImport(ISimpleTag simpleTag)
+        {
+            return ValidateImport(simpleTag.FirstAlbumArtist,
+                                  simpleTag.Album,
+                                  simpleTag.Title,
+                                  simpleTag.Track,
+                                  simpleTag.TrackCount,
+                                  simpleTag.Disc,
+                                  simpleTag.DiscCount);
+        }
+
         public bool ValidateTagImport(TagLib.File tagFile)
+        {
+            return ValidateImport(tagFile.Tag.FirstAlbumArtist,
+                                  tagFile.Tag.Album,
+                                  tagFile.Tag.Title,
+                                  tagFile.Tag.Track,
+                                  tagFile.Tag.TrackCount,
+                                  tagFile.Tag.Disc,
+                                  tagFile.Tag.DiscCount);
+        }
+
+        private bool ValidateImport(string firstAlbumArtist,
+                                    string album,
+                                    string title,
+                                    uint trackNumber,
+                                    uint trackCount,
+                                    uint discNumber,
+                                    uint discCount)
         {
             // Validated Fields
             var valid = true;
 
-            if (string.IsNullOrWhiteSpace(tagFile.Tag.FirstAlbumArtist))
+            if (string.IsNullOrWhiteSpace(firstAlbumArtist))
                 valid = false;
 
-            if (string.IsNullOrWhiteSpace(tagFile.Tag.Album))
+            if (string.IsNullOrWhiteSpace(album))
                 valid = false;
 
-            if (string.IsNullOrWhiteSpace(tagFile.Tag.Title))
+            if (string.IsNullOrWhiteSpace(title))
                 valid = false;
 
-            if (tagFile.Tag.Track <= 0)
+            if (trackNumber <= 0)
                 valid = false;
 
-            if (tagFile.Tag.TrackCount <= 0)
+            if (trackCount <= 0)
                 valid = false;
 
-            if (tagFile.Tag.Disc <= 0)
+            if (discNumber <= 0)
                 valid = false;
 
-            if (tagFile.Tag.DiscCount <= 0)
+            if (discCount <= 0)
                 valid = false;
 
             return valid;

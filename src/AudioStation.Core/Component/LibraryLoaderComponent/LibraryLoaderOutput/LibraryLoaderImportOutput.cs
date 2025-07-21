@@ -6,7 +6,7 @@ using AudioStation.Core.Model.Vendor;
 
 namespace AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderOutput
 {
-    public class LibraryLoaderImportBasicOutput : LibraryLoaderOutputBase
+    public class LibraryLoaderImportOutput : LibraryLoaderOutputBase
     {
         /// <summary>
         /// Destination folder based on configuration settings (DirectoryBase + (music / audio book / ...) + {calculated})
@@ -17,12 +17,6 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderOutput
         /// Mp3 file destination path (FULL PATH)
         /// </summary>
         public string DestinationPathCalculated { get; set; }
-
-        /// <summary>
-        /// Extra folders (based on the destination folder base) to create or make sure are
-        /// created before moving the file to its destination.
-        /// </summary>
-        public IEnumerable<string> DestinationSubFolders { get; set; }
 
         /// <summary>
         /// Results for AcoustID fingerprinting
@@ -74,5 +68,30 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderOutput
         /// Mp3 file successfully imported into the database
         /// </summary>
         public bool Mp3FileImportSuccess { get; set; }
+
+        /// <summary>
+        /// Front cover art recovered during the query process
+        /// </summary>
+        public MusicBrainzPicture? BestFrontCover { get; set; }
+
+        /// <summary>
+        /// Back cover art recovered during the query process
+        /// </summary>
+        public MusicBrainzPicture? BestBackCover { get; set; }
+
+        /// <summary>
+        /// Completed MusicBrainz records (expensive queries)
+        /// </summary>
+        public IEnumerable<MusicBrainzCombinedLibraryEntryRecord> MusicBrainzCombinedLibraryEntryRecords { get; set; }
+
+        /// <summary>
+        /// Final record selection for the entry
+        /// </summary>
+        public MusicBrainzCombinedLibraryEntryRecord FinalQueryRecord { get; set; }
+
+        /// <summary>
+        /// Music Brainz combined record was queried successfully
+        /// </summary>
+        public bool MusicBrainzCombinedRecordQuerySuccess { get; set; }
     }
 }
