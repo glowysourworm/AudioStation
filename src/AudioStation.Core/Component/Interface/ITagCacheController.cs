@@ -18,6 +18,16 @@
         void SetData(string fileName, TagLib.Tag tagData, bool save = true);
 
         /// <summary>
+        /// Verifies that the file exists and is valid
+        /// </summary>
+        bool Verify(string fileName);
+
+        /// <summary>
+        /// Removes a file from the cache. Please use this during any file move procedure.
+        /// </summary>
+        void Evict(string fileName);
+
+        /// <summary>
         /// Copy tag data to clipboard
         /// </summary>
         bool CopyToClipboard(TagLib.Tag tag);

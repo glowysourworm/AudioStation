@@ -109,6 +109,9 @@
     <Compile Update="Views\BandcampView.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Update="Windows\ImportOptionsWindow.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
   </ItemGroup>
 
   <ItemGroup>

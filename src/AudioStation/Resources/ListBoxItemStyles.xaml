@@ -112,11 +112,11 @@
             <!--Trigger Property="IsMouseOver" Value="True">
                 <Setter Property="Background" Value="{StaticResource HoverSelectBackgroundHover}" />
                 <Setter Property="Foreground" Value="{StaticResource HoverSelectForegroundSelect}" />
-            </Trigger>
+            </Trigger-->
             <Trigger Property="IsSelected" Value="True">
                 <Setter Property="Background" Value="{StaticResource HoverSelectBackgroundSelect}" />
                 <Setter Property="Foreground" Value="{StaticResource HoverSelectForegroundSelect}" />
-            </Trigger-->
+            </Trigger>
 
         </Style.Triggers>
     </Style>
@@ -261,6 +261,8 @@
         <Setter Property="VerticalContentAlignment" Value="{Binding VerticalContentAlignment, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"/>
         <Setter Property="Padding" Value="0" />
         <Setter Property="Margin" Value="0" />
+        <Setter Property="Background" Value="{StaticResource HoverSelectBackground_LibraryLoader}" />
+        <Setter Property="Foreground" Value="{StaticResource HoverSelectForeground_LibraryLoader}" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type ListBoxItem}">
@@ -291,7 +293,6 @@
             <!-- Trigger Precedence (these come after) -->
             <Trigger Property="IsMouseOver" Value="True">
                 <Setter Property="Background" Value="{StaticResource HoverSelectBackgroundHover_LibraryLoader}" />
-                <Setter Property="Foreground" Value="{StaticResource HoverSelectForegroundSelect_LibraryLoader}" />
             </Trigger>
             <Trigger Property="IsSelected" Value="True">
                 <Setter Property="Background" Value="{StaticResource HoverSelectBackgroundSelect_LibraryLoader}" />

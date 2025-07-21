@@ -21,15 +21,18 @@ namespace AudioStation.Core.Component.Vendor.Bandcamp
         private readonly IConfigurationManager _configurationManager;
         private readonly IOutputController _outputController;
         private readonly ILoggerFactory _loggerFactory;
+        private readonly IFileController _fileController;
 
         [IocImportingConstructor]
         public BandcampClient(IConfigurationManager configurationManager,
                               IOutputController outputController,
-                              ILoggerFactory loggerFactory)
+                              ILoggerFactory loggerFactory,
+                              IFileController fileController)
         {
             _configurationManager = configurationManager;
             _outputController = outputController;
             _loggerFactory = loggerFactory;
+            _fileController = fileController;
         }
 
         //public async Task Download(string artist)
@@ -89,8 +92,8 @@ namespace AudioStation.Core.Component.Vendor.Bandcamp
                     throw new Exception("Error reading data from Bandcamp API. Invalid or incomplete data set.");
 
                 var baseFolder = Path.Combine(_configurationManager.GetConfiguration().DownloadFolder, "Bandcamp");
-                var artistFolder = Path.Combine(baseFolder, StringHelpers.MakeFriendlyPath(false, album.Artist));
-                var albumFolder = Path.Combine(artistFolder, StringHelpers.MakeFriendlyPath(false, album.Title.Title));
+                var artistFolder = Path.Combine(baseFolder, _fileController.MakeFriendlyPath(false, album.Artist));
+                var albumFolder = Path.Combine(artistFolder, _fileController.MakeFriendlyPath(false, album.Title.Title));
 
                 if (!Path.Exists(baseFolder))
                     Directory.CreateDirectory(baseFolder);
@@ -101,7 +104,7 @@ namespace AudioStation.Core.Component.Vendor.Bandcamp
                 if (!Path.Exists(albumFolder))
                     Directory.CreateDirectory(albumFolder);
 
-                var bmpFile = StringHelpers.MakeFriendlyPath(true, string.Format("{0}-{1}.bmp", album.Title?.Title, album.Artist));
+                var bmpFile = _fileController.MakeFriendlyPath(true, string.Format("{0}-{1}.bmp", album.Title?.Title, album.Artist));
                 var bmpPath = Path.Combine(albumFolder, bmpFile);
 
                 // Write Album Art
@@ -115,7 +118,7 @@ namespace AudioStation.Core.Component.Vendor.Bandcamp
 
                     var fileFormat = "{0}-{1}-{2}.{3}";
 
-                    var mp3File = StringHelpers.MakeFriendlyPath(true, string.Format(fileFormat, track.Artist, album.Title?.Title, track.Title, "mp3"));
+                    var mp3File = _fileController.MakeFriendlyPath(true, string.Format(fileFormat, track.Artist, album.Title?.Title, track.Title, "mp3"));
                     var mp3Path = Path.Combine(albumFolder, mp3File);
 
                     // Write Mp3 to file

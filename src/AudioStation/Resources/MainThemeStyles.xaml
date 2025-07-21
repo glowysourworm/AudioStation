@@ -14,10 +14,18 @@
         <Setter Property="Height" Value="16" />
         <Setter Property="Foreground" Value="Gray" />
     </Style>
-    <Style TargetType="{x:Type fa5:SvgAwesome}" x:Key="FontAwesomeIconManagerViewPager">
-        <Setter Property="Width" Value="16" />
-        <Setter Property="Height" Value="16" />
+    <Style TargetType="{x:Type fa5:ImageAwesome}" x:Key="FontAwesomeIconManagerViewPager">
+        <Setter Property="Width" Value="14" />
+        <Setter Property="Height" Value="14" />
         <Setter Property="Foreground" Value="#FFAAAAAA" />
+
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Trigger.Setters>
+                    <Setter Property="Foreground" Value="#FF555555" />
+                </Trigger.Setters>
+            </Trigger>
+        </Style.Triggers>
     </Style>    
     <Style TargetType="{x:Type fa5:SvgAwesome}" x:Key="FontAwesomeIconControlPanelButton">
         <Setter Property="Width" Value="16" />

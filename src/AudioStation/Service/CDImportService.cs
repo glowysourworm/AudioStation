@@ -21,15 +21,18 @@ namespace AudioStation.Service
         private readonly IDialogController _dialogController;
         private readonly IConfigurationManager _configurationManager;
         private readonly ICDDrive _cdDrive;
+        private readonly IFileController _fileController;
 
         [IocImportingConstructor]
         public CDImportService(IConfigurationManager configurationManager, 
                                IDialogController dialogController,
-                               ICDDrive cdDrive)
+                               ICDDrive cdDrive,
+                               IFileController fileController)
         {
             _configurationManager = configurationManager;
             _dialogController = dialogController;
             _cdDrive = cdDrive;
+            _fileController = fileController;
         }
 
         public Task ImportTrack(int trackNumber, string artist, string album, int discNumber, int discCount, Action<double> progressCallback)
@@ -69,13 +72,13 @@ namespace AudioStation.Service
                 
 
                 var directory = configuration.DownloadFolder;
-                var artistFolder = StringHelpers.MakeFriendlyPath(false, artist);
-                var albumFolder = StringHelpers.MakeFriendlyPath(false, album);
+                var artistFolder = _fileController.MakeFriendlyPath(false, artist);
+                var albumFolder = _fileController.MakeFriendlyPath(false, album);
                 var hasDiscFolder = discCount > 1;
                 var discFolder = "Disc " + discNumber.ToString();
 
-                var filePath = hasDiscFolder ? StringHelpers.MakeFriendlyPath(true, directory, artistFolder, albumFolder, discFolder, "Track" + trackNumber + ".mp3") :
-                                               StringHelpers.MakeFriendlyPath(true, directory, artistFolder, albumFolder, "Track" + trackNumber + ".mp3");
+                var filePath = hasDiscFolder ? _fileController.MakeFriendlyPath(true, directory, artistFolder, albumFolder, discFolder, "Track" + trackNumber + ".mp3") :
+                                               _fileController.MakeFriendlyPath(true, directory, artistFolder, albumFolder, "Track" + trackNumber + ".mp3");
 
                 var artistDirectory = Path.Combine(directory, artistFolder);
                 var albumDirectory = Path.Combine(directory, artistFolder, albumFolder);

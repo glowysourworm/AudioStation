@@ -15,7 +15,7 @@ namespace AudioStation.Core.Component
 
         }
 
-        public bool ValidateMusicBrainzRecording_ImportBasic(IRecording recording)
+        public bool ValidateMusicBrainzRecordingImport(IRecording recording)
         {
             return recording != null &&
                    recording.ArtistCredit != null &&
@@ -34,6 +34,35 @@ namespace AudioStation.Core.Component
                                                    .First(x => x.Title == recording.Title).Position > 0 &&
                    recording.Releases.First().Media.First(x => x.Tracks.Any(z => z.Title == recording.Title))
                                                                        .TrackCount > 0;
+        }
+
+        public bool ValidateTagImport(TagLib.File tagFile)
+        {
+            // Validated Fields
+            var valid = true;
+
+            if (string.IsNullOrWhiteSpace(tagFile.Tag.FirstAlbumArtist))
+                valid = false;
+
+            if (string.IsNullOrWhiteSpace(tagFile.Tag.Album))
+                valid = false;
+
+            if (string.IsNullOrWhiteSpace(tagFile.Tag.Title))
+                valid = false;
+
+            if (tagFile.Tag.Track <= 0)
+                valid = false;
+
+            if (tagFile.Tag.TrackCount <= 0)
+                valid = false;
+
+            if (tagFile.Tag.Disc <= 0)
+                valid = false;
+
+            if (tagFile.Tag.DiscCount <= 0)
+                valid = false;
+
+            return valid;
         }
     }
 }

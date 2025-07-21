@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="AudioStation.Views.LibraryLoaderViews.LibraryLoaderImportOptionsTabView"
+﻿<UserControl x:Class="AudioStation.Views.DialogViews.LibraryLoaderImportOptionsView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:xceed="http://schemas.xceed.com/wpf/xaml/toolkit"

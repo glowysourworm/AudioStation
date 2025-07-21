@@ -22,6 +22,7 @@ namespace AudioStation.Core.Component
         private readonly IAcoustIDClient _acoustIDClient;
         private readonly ITagCacheController _tagCacheController;
         private readonly IModelValidationService _modelValidationService;
+        private readonly IFileController _fileController;
 
         // Cannot use multi threading on the database until we have proper 
         // table locking, or transactions!
@@ -44,20 +45,23 @@ namespace AudioStation.Core.Component
                              IMusicBrainzClient musicBrainzClient,
                              IAcoustIDClient acoustIDClient,
                              ITagCacheController tagCacheController,
-                             IModelValidationService modelValidationService)
+                             IModelValidationService modelValidationService,
+                             IFileController fileController )
         {
             _modelController = modelController;
             _musicBrainzClient = musicBrainzClient;
             _acoustIDClient = acoustIDClient;
             _tagCacheController = tagCacheController;
             _modelValidationService = modelValidationService;
+            _fileController = fileController;
 
             _workQueue = new Queue<LibraryLoaderWorkItem>();
             _workItemsWorking = new List<LibraryLoaderWorkItem>();
             _workItemHistory = new List<LibraryLoaderWorkItem>();
             _workerThreads = new List<LibraryWorkerThreadBase>();
 
-            _workItemIdCounter = 0;            
+            _workItemIdCounter = 0;
+            
         }
 
         public void RunLoaderTaskAsync<TIn>(LibraryLoaderParameters<TIn> parameters) where TIn : LibraryLoaderLoadBase
@@ -116,7 +120,8 @@ namespace AudioStation.Core.Component
                                                                        _acoustIDClient,
                                                                        _musicBrainzClient,
                                                                        _tagCacheController,
-                                                                       _modelValidationService);
+                                                                       _modelValidationService,
+                                                                       _fileController);
 
                         // Make sure to hook / unhook these events before start / after complete
                         thread.ReportWorkStepStarted += Worker_ReportWorkStepStarted;

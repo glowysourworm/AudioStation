@@ -3,6 +3,7 @@
 using AudioStation.Controller.Interface;
 using AudioStation.Event;
 using AudioStation.ViewModels;
+using AudioStation.ViewModels.LibraryLoaderViewModels;
 using AudioStation.ViewModels.Vendor.TagLibViewModel;
 using AudioStation.Views.DialogViews;
 using AudioStation.Windows;
@@ -96,6 +97,13 @@ namespace AudioStation.Controller
         public void ShowTagWindow(TagFileGroupViewModel viewModel)
         {
             var window = new TagWindow();
+            window.DataContext = viewModel;
+            window.ShowDialog();
+        }
+
+        public void ShowImportOptionsWindow(LibraryLoaderImportOptionsViewModel viewModel)
+        {
+            var window = new ImportOptionsWindow();
             window.DataContext = viewModel;
             window.ShowDialog();
         }
@@ -200,7 +208,11 @@ namespace AudioStation.Controller
 
         public void Dispose()
         {
-            // TODO
+            if (_dialogWindow != null)
+            {
+                _dialogWindow.Close();
+                _dialogWindow = null;
+            }
         }
     }
 }

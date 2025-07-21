@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.IO;
 
+using AudioStation.Core.Component;
 using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Model;
 using AudioStation.Core.Utility;
@@ -25,6 +26,8 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
 {
     public class LibraryLoaderImportFileViewModel : ViewModelBase
     {
+        private readonly IFileController _fileController;
+
         public event SimpleEventHandler<LibraryLoaderImportFileViewModel> ImportBasicEvent;
         public event SimpleEventHandler<LibraryLoaderImportFileViewModel> SaveTagEvent;
 
@@ -38,16 +41,13 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
         string _destinationDirectory;
 
         // Data available for the import (either cached here or in the database)
-        bool _tagMinimumForImport;
+        bool _minimumImportValid;
         string _tagIssues;
 
         LibraryEntryType _importAsType;
 
         TagFileViewModel _tagFile;
         LibraryLoaderImportOutputViewModel _importOutput;
-
-        SimpleCommand _importBasicCommand;
-        SimpleCommand _saveTagCommand;
 
         public bool IsSelected
         {
@@ -79,10 +79,10 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
             get { return _fileMigrationFullPath; }
             set { this.RaiseAndSetIfChanged(ref _fileMigrationFullPath, value); }
         }
-        public bool TagMinimumForImport
+        public bool MinimumImportValid
         {
-            get { return _tagMinimumForImport; }
-            set { this.RaiseAndSetIfChanged(ref _tagMinimumForImport, value); InvalidateCommands(); }
+            get { return _minimumImportValid; }
+            set { this.RaiseAndSetIfChanged(ref _minimumImportValid, value); }
         }
         public string TagIssues
         {
@@ -109,21 +109,13 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
             get { return _destinationDirectory; }
             set { this.RaiseAndSetIfChanged(ref _destinationDirectory, value); }
         }
-        public SimpleCommand ImportBasicCommand
-        {
-            get { return _importBasicCommand; }
-            set { this.RaiseAndSetIfChanged(ref _importBasicCommand, value); }
-        }
-        public SimpleCommand SaveTagCommand
-        {
-            get { return _saveTagCommand; }
-            set { this.RaiseAndSetIfChanged(ref _saveTagCommand, value); }
-        }
 
         public LibraryLoaderImportFileViewModel(string fileName, string destinationDirectory, LibraryEntryType importAsType)
         {
             try
             {
+                _fileController = IocContainer.Get<IFileController>();
+
                 var tagCacheController = IocContainer.Get<ITagCacheController>();
 
                 this.FileFullPath = fileName;
@@ -131,26 +123,7 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
                 this.ImportAsType = importAsType;
                 this.DestinationDirectory = destinationDirectory;
                 this.ImportOutput = new LibraryLoaderImportOutputViewModel();
-
-                this.ImportBasicCommand = new SimpleCommand(() =>
-                {
-                    if (this.ImportBasicEvent != null)
-                        this.ImportBasicEvent(this);
-
-                }, () => this.TagMinimumForImport);
-                this.SaveTagCommand = new SimpleCommand(() =>
-                {
-                    if (this.SaveTagEvent != null)
-                    {
-                        this.SaveTagEvent(this);
-                        UpdateMigrationDetails();
-                    }
-
-                }, () => this.ImportOutput.AcoustIDSuccess && 
-                         this.ImportOutput.MusicBrainzRecordingMatchSuccess);
-
                 this.ImportOutput.PropertyChanged += ImportOutput_PropertyChanged;
-
 
                 var file = tagCacheController.Get(fileName);
 
@@ -200,12 +173,12 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
             if (GetTrackNumber() <= 0)
                 this.TagIssues += " (Track)";
 
-            this.TagMinimumForImport = string.IsNullOrEmpty(this.TagIssues);
+            this.MinimumImportValid = string.IsNullOrEmpty(this.TagIssues);
 
-            if (this.TagMinimumForImport)
+            if (this.MinimumImportValid)
             {
                 this.FileMigrationName = CalculateFileName(GetTrackNumber(), GetPrimaryAlbumArtist(), GetTrackTitle(), LibraryEntryNamingType.Standard);
-                this.FileMigrationFullPath = StringHelpers.MakeFriendlyPath(true, this.DestinationDirectory, GetPrimaryAlbumArtist(), GetAlbum(), this.FileMigrationName);
+                this.FileMigrationFullPath = _fileController.MakeFriendlyPath(true, this.DestinationDirectory, GetPrimaryAlbumArtist(), GetAlbum(), this.FileMigrationName);
 
                 this.TagIssues = "(None)";
             }
@@ -219,7 +192,7 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
                 {
                     var format = "{0:##} {1}.mp3";
                     var formattedTitle = string.Format(format, track, trackTitle);
-                    return StringHelpers.MakeFriendlyPath(true, formattedTitle);
+                    return _fileController.MakeFriendlyPath(true, formattedTitle);
                 }
                 case LibraryEntryNamingType.None:
                 case LibraryEntryNamingType.Descriptive:
@@ -231,13 +204,6 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
         private void ImportOutput_PropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
             UpdateMigrationDetails();
-            InvalidateCommands();
-        }
-
-        private void InvalidateCommands()
-        {
-            this.ImportBasicCommand.RaiseCanExecuteChanged();
-            this.SaveTagCommand.RaiseCanExecuteChanged();
         }
 
         #region (private) Tag Data (resolved from AcoustID + Music Brainz + Tag

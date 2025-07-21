@@ -16,15 +16,10 @@
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <TabControl ItemContainerStyle="{StaticResource SimpleTabItemStyle}" Margin="5">
-            <TabItem Header="Options">
-                <loaderView:LibraryLoaderImportOptionsTabView />
-            </TabItem>
-            <TabItem Header="Import File(s)">
-                <region:IocRegion region:IocRegionManager.DefaultViewType="{x:Type loaderView:LibraryLoaderImportFileView}" />
-            </TabItem>
-        </TabControl>
+        <!-- Import Files -->
+        <region:IocRegion region:IocRegionManager.DefaultViewType="{x:Type loaderView:LibraryLoaderImportFileView}" />
 
+        <!-- Control Panel -->
         <StackPanel Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Center" Orientation="Horizontal" Margin="5">
             <TextBlock Style="{StaticResource LabelTextBlock}" Margin="10">
                 <Run Text="Files to Run:  " />
@@ -47,15 +42,15 @@
 
             <Button Margin="0 5 5 0" Style="{StaticResource UserControlButton}">
                 <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="Run Music Brainz (Detail)" Style="{StaticResource LabelTextBlock}" Margin="5" />
+                    <TextBlock Text="Run Music Brainz" Style="{StaticResource LabelTextBlock}" Margin="5" />
                     <fa5:SvgAwesome Icon="Solid_Music" Style="{StaticResource FontAwesomeIconDefault}" Margin="5" />
                 </StackPanel>
             </Button>
 
-            <Button Margin="0 5 0 0" Style="{StaticResource UserControlButton}"  ToolTip="Import audio file based on tag data only. This will not utilize 3rd party (external) services during import.">
+            <Button Margin="0 5 5 0" Style="{StaticResource UserControlButton}">
                 <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="Import (Basic)" Style="{StaticResource LabelTextBlock}" Margin="5" />
-                    <fa5:SvgAwesome Icon="Solid_Save" Style="{StaticResource FontAwesomeIconDefault}" Margin="5" />
+                    <TextBlock Text="Options" Style="{StaticResource LabelTextBlock}" Margin="5" />
+                    <fa5:SvgAwesome Icon="Solid_Sun" Style="{StaticResource FontAwesomeIconDefault}" Margin="5" />
                 </StackPanel>
             </Button>
 

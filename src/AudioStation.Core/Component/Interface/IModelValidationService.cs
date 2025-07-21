@@ -4,6 +4,7 @@ namespace AudioStation.Core.Component.Interface
 {
     public interface IModelValidationService
     {
-        bool ValidateMusicBrainzRecording_ImportBasic(IRecording recording);
+        bool ValidateTagImport(TagLib.File tagFile);
+        bool ValidateMusicBrainzRecordingImport(IRecording recording);
     }
 }

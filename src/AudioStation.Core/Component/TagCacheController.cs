@@ -64,6 +64,24 @@ namespace AudioStation.Core.Component
             }
         }
 
+        public bool Verify(string fileName)
+        {
+            try
+            {
+                if (_tagFiles.ContainsKey(fileName))
+                    return true;
+
+                Set(fileName);
+
+                return _tagFiles.ContainsKey(fileName);
+            }
+            catch (Exception ex)
+            {
+                ApplicationHelpers.Log("Tag data invalid:  {0}", LogMessageType.General, LogLevel.Warning, ex, fileName);
+                return false;
+            }
+        }
+
         public TagLib.File Get(string fileName)
         {
             try
@@ -101,6 +119,24 @@ namespace AudioStation.Core.Component
                 throw ex;
             }
         }
+
+        public void Evict(string fileName)
+        {
+            try
+            {
+                if (_tagFiles.ContainsKey(fileName))
+                    _tagFiles.Remove(fileName);
+
+                else
+                    throw new Exception("Trying to evict tag file that was not yet cached! Please use this controller to get / set all tag files!");
+            }
+            catch (Exception ex)
+            {
+                ApplicationHelpers.Log("Error evicting tag data:  {0}", LogMessageType.General, LogLevel.Error, ex, fileName);
+                throw ex;
+            }
+        }
+
         public void SetData(string fileName, Tag tagData, bool save = true)
         {
             if (!_tagFiles.ContainsKey(fileName))

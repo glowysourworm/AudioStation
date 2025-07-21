@@ -134,7 +134,7 @@
                         <Button.CommandParameter>
                             <system:Int32>5</system:Int32>
                         </Button.CommandParameter>
-                        <fa5:SvgAwesome Icon="Solid_AngleDoubleLeft" Style="{StaticResource FontAwesomeIconManagerViewPager}" />
+                        <fa5:ImageAwesome Icon="Solid_AngleDoubleLeft" Style="{StaticResource FontAwesomeIconManagerViewPager}" />
                     </Button>
 
                     <Button Style="{StaticResource ManagerViewPagerButton}" 
@@ -142,7 +142,7 @@
                         <Button.CommandParameter>
                             <system:Int32>1</system:Int32>
                         </Button.CommandParameter>
-                        <fa5:SvgAwesome Icon="Solid_AngleLeft" Style="{StaticResource FontAwesomeIconManagerViewPager}" />
+                        <fa5:ImageAwesome Icon="Solid_AngleLeft" Style="{StaticResource FontAwesomeIconManagerViewPager}" />
                     </Button>
 
                     <xceed:IntegerUpDown Value="{Binding LibraryEntryRequestPage}" Height="32"
@@ -157,7 +157,7 @@
                         <Button.CommandParameter>
                             <system:Int32>1</system:Int32>
                         </Button.CommandParameter>
-                        <fa5:SvgAwesome Icon="Solid_AngleRight" Style="{StaticResource FontAwesomeIconManagerViewPager}" />
+                        <fa5:ImageAwesome Icon="Solid_AngleRight" Style="{StaticResource FontAwesomeIconManagerViewPager}" />
                     </Button>
 
                     <Button Style="{StaticResource ManagerViewPagerButton}" 
@@ -165,7 +165,7 @@
                         <Button.CommandParameter>
                             <system:Int32>5</system:Int32>
                         </Button.CommandParameter>
-                        <fa5:SvgAwesome Icon="Solid_AngleDoubleRight" Style="{StaticResource FontAwesomeIconManagerViewPager}" />
+                        <fa5:ImageAwesome Icon="Solid_AngleDoubleRight" Style="{StaticResource FontAwesomeIconManagerViewPager}" />
                     </Button>
 
                     <Button Style="{StaticResource ManagerViewPagerButton}" 

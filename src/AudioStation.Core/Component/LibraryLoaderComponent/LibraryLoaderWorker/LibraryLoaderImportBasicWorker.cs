@@ -20,6 +20,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderWorker
         private readonly IAcoustIDClient _acoustIDClient;
         private readonly ITagCacheController _tagCacheController;
         private readonly IModelValidationService _modelValidationService;
+        private readonly IFileController _fileController;
 
         private const int WORK_STEPS = 5;
         private const int ACOUSTID_MIN_SCORE = 80;
@@ -37,7 +38,8 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderWorker
                                               IAcoustIDClient acoustIDClient,
                                               IMusicBrainzClient musicBrainzClient,
                                               ITagCacheController tagCacheController,
-                                              IModelValidationService modelValidationService)
+                                              IModelValidationService modelValidationService,
+                                              IFileController fileController)
             : base(workItem)
         {
             _workLoad = workItem.GetWorkItem() as LibraryLoaderImportBasicLoad;
@@ -48,6 +50,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderWorker
             _musicBrainzClient = musicBrainzClient;
             _tagCacheController = tagCacheController;
             _modelValidationService = modelValidationService;
+            _fileController = fileController;
         }
 
         public override int GetNumberOfWorkSteps()
@@ -228,7 +231,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderWorker
                                                                  .OrderByDescending(x => x.Score)
                                                                  .SelectMany(x => x.Recordings)
                                                                  .Select(x => _musicBrainzClient.GetRecordingById(new Guid(x.Id)).Result)
-                                                                 .Where(x => _modelValidationService.ValidateMusicBrainzRecording_ImportBasic(x))
+                                                                 .Where(x => _modelValidationService.ValidateMusicBrainzRecordingImport(x))
                                                                  .ToList();
             // Validate Results
             _workOutput.MusicBrainzRecordingMatchSuccess = _workOutput.MusicBrainzRecordingMatches.Any();
@@ -248,14 +251,14 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderWorker
                 {
                     var format = "{0:#} {1}.mp3";
                     var formattedTitle = string.Format(format, _workOutput.ImportedTagFile.Tag.Track, _workOutput.ImportedTagFile.Tag.Title);
-                    calculatedFileName = StringHelpers.MakeFriendlyPath(true, formattedTitle);
+                    calculatedFileName = _fileController.MakeFriendlyPath(true, formattedTitle);
                 }
                 break;
                 case LibraryEntryNamingType.Descriptive:
                 {
                     var format = "{0:#} {1}-{2}-{3}.mp3";
                     var formattedTitle = string.Format(format, _workOutput.ImportedTagFile.Tag.Track, _workOutput.ImportedTagFile.Tag.FirstGenre, _workOutput.ImportedTagFile.Tag.FirstAlbumArtist, _workOutput.ImportedTagFile.Tag.Track);
-                    calculatedFileName = StringHelpers.MakeFriendlyPath(true, formattedTitle);
+                    calculatedFileName = _fileController.MakeFriendlyPath(true, formattedTitle);
                 }
                 break;
                 default:
@@ -269,8 +272,8 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderWorker
                     break;
                 case LibraryEntryGroupingType.ArtistAlbum:
                 {
-                    var artistFolder = StringHelpers.MakeFriendlyPath(false, _workOutput.ImportedTagFile.Tag.FirstAlbumArtist);
-                    var albumFolder = StringHelpers.MakeFriendlyPath(false, _workOutput.ImportedTagFile.Tag.Album);
+                    var artistFolder = _fileController.MakeFriendlyPath(false, _workOutput.ImportedTagFile.Tag.FirstAlbumArtist);
+                    var albumFolder = _fileController.MakeFriendlyPath(false, _workOutput.ImportedTagFile.Tag.Album);
 
                     _workOutput.DestinationSubFolders = new string[] { artistFolder, Path.Combine(artistFolder, albumFolder) };
                     _workOutput.DestinationPathCalculated = Path.Combine(_workLoad.DestinationFolder,
@@ -281,9 +284,9 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderWorker
                 break;
                 case LibraryEntryGroupingType.GenreArtistAlbum:
                 {
-                    var artistFolder = StringHelpers.MakeFriendlyPath(false, _workOutput.ImportedTagFile.Tag.FirstAlbumArtist);
-                    var albumFolder = StringHelpers.MakeFriendlyPath(false, _workOutput.ImportedTagFile.Tag.Album);
-                    var genreFolder = StringHelpers.MakeFriendlyPath(false, _workOutput.ImportedTagFile.Tag.FirstGenre);
+                    var artistFolder = _fileController.MakeFriendlyPath(false, _workOutput.ImportedTagFile.Tag.FirstAlbumArtist);
+                    var albumFolder = _fileController.MakeFriendlyPath(false, _workOutput.ImportedTagFile.Tag.Album);
+                    var genreFolder = _fileController.MakeFriendlyPath(false, _workOutput.ImportedTagFile.Tag.FirstGenre);
 
                     _workOutput.DestinationSubFolders = new string[] { genreFolder,
                                                                       Path.Combine(genreFolder, artistFolder),
