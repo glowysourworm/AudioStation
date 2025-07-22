@@ -5,12 +5,13 @@ using System.Text;
 using System.Threading.Tasks;
 
 using SimpleWpf.Extensions;
+using SimpleWpf.Extensions.Interface;
 
 using TagLib;
 
 namespace AudioStation.ViewModels.Vendor.TagLibViewModel
 {
-    public class TagPictureViewModel : ViewModelBase, IPicture
+    public class TagPictureViewModel : ValidationViewModelBase, IPicture
     {
         string _mimeType;
         string _description;
@@ -41,6 +42,11 @@ namespace AudioStation.ViewModels.Vendor.TagLibViewModel
         public TagPictureViewModel()
         {
 
+        }
+
+        public override bool Validate(IValidationContext context)
+        {
+            return true;
         }
     }
 }

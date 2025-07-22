@@ -12,12 +12,13 @@ using Microsoft.Extensions.Logging;
 using SimpleWpf.Extensions;
 using SimpleWpf.Extensions.Collection;
 using SimpleWpf.Extensions.Command;
+using SimpleWpf.Extensions.Interface;
 using SimpleWpf.IocFramework.Application;
 using SimpleWpf.SimpleCollections.Collection;
 
 namespace AudioStation.ViewModels.Vendor.TagLibViewModel
 {
-    public class TagFileGroupViewModel : ViewModelBase
+    public class TagFileGroupViewModel : ValidationViewModelBase
     {
         SimpleDictionary<string, TagViewModel> _tagDict;
         TagGroupViewModel _tagGroup;
@@ -157,6 +158,11 @@ namespace AudioStation.ViewModels.Vendor.TagLibViewModel
                     ApplicationHelpers.Log("Error pasting tag data:  {0}", LogMessageType.LibraryLoader, LogLevel.Error, ex, ex.Message);
                 }
             }
+        }
+
+        public override bool Validate(IValidationContext context)
+        {
+            return true;
         }
     }
 }

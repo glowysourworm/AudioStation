@@ -1,14 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using AudioStation.Core.Utility;
-
-using AutoMapper;
+﻿using AudioStation.Core.Utility;
 
 using SimpleWpf.Extensions;
+using SimpleWpf.Extensions.Interface;
 
 using TagLib;
 
@@ -17,7 +10,7 @@ namespace AudioStation.ViewModels.Vendor.TagLibViewModel
     /// <summary>
     /// Represents the TagLib.Properties object
     /// </summary>
-    public class PropertiesViewModel : ViewModelBase, IAudioCodec, ICodec, IVideoCodec, IPhotoCodec
+    public class PropertiesViewModel : ValidationViewModelBase, IAudioCodec, ICodec, IVideoCodec, IPhotoCodec
     {
         int _photoWidth;
 
@@ -104,6 +97,11 @@ namespace AudioStation.ViewModels.Vendor.TagLibViewModel
         public PropertiesViewModel(TagLib.Properties properties)
         {
             ApplicationHelpers.MapOnto(properties, this);
+        }
+
+        public override bool Validate(IValidationContext context)
+        {
+            return true;
         }
     }
 }

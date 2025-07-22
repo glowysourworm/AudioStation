@@ -29,7 +29,7 @@ namespace AudioStation.Controller
             _eventAggregator = eventAggregator;
             _dialogWindow = null;
 
-            eventAggregator.GetEvent<DialogEvent>().Subscribe(payload => OnLoadingChanged(payload, false));
+            eventAggregator.GetEvent<DialogEvent>().Subscribe(payload => OnLoadingChanged(payload));
         }
 
         public void Initialize()
@@ -113,17 +113,42 @@ namespace AudioStation.Controller
             window.ShowDialog();
         }
 
-        public void ShowDialogWindowSync(DialogEventData eventData)
+        public bool ShowDialogWindowSync(DialogEventData eventData)
         {
-            OnLoadingChanged(eventData, true);
+            if (!eventData.UserDismissalMode)
+                throw new Exception("Must have user dismissal mode for synchronous dialog use");
+
+            var ready = LoadDialogWindow(eventData);
+
+            if (ready)
+            {
+                var result = _dialogWindow.ShowDialog() ?? false;
+
+                _dialogWindow.Close();
+                _dialogWindow = null;
+
+                return result;
+            }
+            else
+                throw new Exception("Synchronous use of dialog interrupted another dialog event. Must first dismiss the other dialog window.");
         }
 
-        private void OnLoadingChanged(DialogEventData data, bool showDialog)
+        private void OnLoadingChanged(DialogEventData data)
         {
-            if (!data.UserDismissalMode && showDialog)
-                throw new ArgumentException("For dialog (modal) mode, the user dismissal option must be set:  DialogController.cs");
+            // Create / Destroy
+            var ready = LoadDialogWindow(data);
 
-            if (!data.ShowDialog)
+            if (ready)
+            {
+                _dialogWindow.Show();
+            }
+        }
+
+        // Returns true if the dialog is ready to show
+        private bool LoadDialogWindow(DialogEventData data)
+        {
+            // Dismiss
+            if (!data.Show)
             {
                 if (_dialogWindow != null)
                 {
@@ -132,14 +157,15 @@ namespace AudioStation.Controller
                 }
 
                 // Finished with our task.
-                return;
+                return false;
             }
+
+            // Create Dialog
             else
             {
                 if (_dialogWindow == null)
                 {
                     _dialogWindow = new DialogWindow();
-                    _dialogWindow.DialogResultEvent += OnDialogResult;
                 }
 
                 else
@@ -201,20 +227,7 @@ namespace AudioStation.Controller
             // a non-closeable window.
             _dialogWindow.Owner = Application.Current.MainWindow;
 
-            if (!showDialog)
-                _dialogWindow.Show();
-
-            else
-                _dialogWindow.ShowDialog();
-        }
-
-        private void OnDialogResult(System.Windows.Forms.DialogResult sender)
-        {
-            // Design:  This could be done more cleanly; but lets go ahead and use our pattern
-            //          with the dialog event. Set the show dialog to false; and re-call our above 
-            //          code. The rest of the application will behave as if there was another sender
-            //          for a dialog response event.
-            _eventAggregator.GetEvent<DialogEvent>().Publish(DialogEventData.Dismiss());
+            return true;
         }
 
         public void Dispose()

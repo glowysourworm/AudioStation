@@ -29,7 +29,8 @@ namespace AudioStation.Event
         SplashScreenLoading,
         MessageList,
         SelectionList,
-        SmallAudioPlayer
+        SmallAudioPlayer,
+        TagView
     }
 
     public class DialogEventData
@@ -39,7 +40,7 @@ namespace AudioStation.Event
         /// dialog window will be dismissed by the user. For this, the message box buttons must
         /// be set; and only for certain dialog views.
         /// </summary>
-        public bool ShowDialog { get; set; }
+        public bool Show { get; set; }
 
         /// <summary>
         /// User Dismissal Mode:  Set in the event that the dialog window is used as a send / response
@@ -133,7 +134,7 @@ namespace AudioStation.Event
                 }
             }
 
-            this.ShowDialog = showDialog;
+            this.Show = showDialog;
             this.DialogResult = dialogResult;
             this.NavigationView = requestedView;
             this.EventView = eventView;

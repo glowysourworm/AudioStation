@@ -7,13 +7,14 @@ using Microsoft.Extensions.Logging;
 
 using SimpleWpf.Extensions;
 using SimpleWpf.Extensions.Command;
+using SimpleWpf.Extensions.Interface;
 using SimpleWpf.IocFramework.Application;
 
 using TagLib;
 
 namespace AudioStation.ViewModels.Vendor.TagLibViewModel
 {
-    public class TagFileViewModel : ViewModelBase
+    public class TagFileViewModel : ValidationViewModelBase
     {
         // User Control Parameters
         TagTypes _tagTypeUserSelect;                // User selects filter
@@ -221,6 +222,11 @@ namespace AudioStation.ViewModels.Vendor.TagLibViewModel
                     ApplicationHelpers.Log("Error pasting tag data:  {0}", LogMessageType.LibraryLoader, LogLevel.Error, ex, ex.Message);
                 }
             }
+        }
+
+        public override bool Validate(IValidationContext context)
+        {
+            return true;
         }
     }
 }

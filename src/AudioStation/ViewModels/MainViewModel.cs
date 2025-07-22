@@ -284,7 +284,7 @@ public class MainViewModel : PrimaryViewModelBase
 
     private void OnMainLoadingChanged(DialogEventData eventData)
     {
-        this.Loading = eventData.ShowDialog;
+        this.Loading = eventData.Show;
     }
 
     private void OnCurrentBandLevelsUpdated(EqualizerResultSet equalizerValues)
