@@ -1,12 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using AudioStation.Controller;
-using AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderLoad;
-using AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderOutput;
+﻿using AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderLoad.Interface;
+using AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderOutput.Interface;
 
 namespace AudioStation.Core.Component.Interface
 {
@@ -15,18 +8,18 @@ namespace AudioStation.Core.Component.Interface
     /// </summary>
     public interface ILibraryImporter
     {
-        public bool CanImportAcoustID(LibraryLoaderImportLoad workInput, LibraryLoaderImportOutput workOutput);
-        public bool CanImportMusicBrainzBasic(LibraryLoaderImportLoad workInput, LibraryLoaderImportOutput workOutput);
-        public bool CanImportMusicBrainzDetail(LibraryLoaderImportLoad workInput, LibraryLoaderImportOutput workOutput);
-        public bool CanImportEmbedTag(LibraryLoaderImportLoad workInput, LibraryLoaderImportOutput workOutput);
-        public bool CanImportEntity(LibraryLoaderImportLoad workInput, LibraryLoaderImportOutput workOutput);
-        public bool CanImportMigrateFile(LibraryLoaderImportLoad workInput, LibraryLoaderImportOutput workOutput);
+        public bool CanImportAcoustID(ILibraryLoaderImportLoad workInput, ILibraryLoaderImportOutput workOutput);
+        public bool CanImportMusicBrainzBasic(ILibraryLoaderImportLoad workInput, ILibraryLoaderImportOutput workOutput);
+        public bool CanImportMusicBrainzDetail(ILibraryLoaderImportLoad workInput, ILibraryLoaderImportOutput workOutput);
+        public bool CanImportEmbedTag(ILibraryLoaderImportLoad workInput, ILibraryLoaderImportOutput workOutput);
+        public bool CanImportEntity(ILibraryLoaderImportLoad workInput, ILibraryLoaderImportOutput workOutput);
+        public bool CanImportMigrateFile(ILibraryLoaderImportLoad workInput, ILibraryLoaderImportOutput workOutput);
 
-        Task<bool> WorkAcoustID(LibraryLoaderImportLoad workInput, LibraryLoaderImportOutput workOutput);
-        Task<bool> WorkMusicBrainzDetail(LibraryLoaderImportLoad workInput, LibraryLoaderImportOutput workOutput);
-        Task<bool> WorkMusicBrainzCompleteRecord(LibraryLoaderImportLoad workInput, LibraryLoaderImportOutput workOutput);
-        bool WorkEmbedTag(LibraryLoaderImportLoad workInput, LibraryLoaderImportOutput workOutput);
-        Task<bool> WorkImportEntity(LibraryLoaderImportLoad workInput, LibraryLoaderImportOutput workOutput);
-        Task<bool> WorkMigrateFile(LibraryLoaderImportLoad workInput, LibraryLoaderImportOutput workOutput);
+        Task<bool> WorkAcoustID(ILibraryLoaderImportLoad workInput, ILibraryLoaderImportOutput workOutput);
+        Task<bool> WorkMusicBrainzDetail(ILibraryLoaderImportLoad workInput, ILibraryLoaderImportOutput workOutput);
+        Task<bool> WorkMusicBrainzCompleteRecord(ILibraryLoaderImportLoad workInput, ILibraryLoaderImportOutput workOutput);
+        bool WorkEmbedTag(ILibraryLoaderImportLoad workInput, ILibraryLoaderImportOutput workOutput);
+        bool WorkImportEntity(ILibraryLoaderImportLoad workInput, ILibraryLoaderImportOutput workOutput);
+        bool WorkMigrateFile(ILibraryLoaderImportLoad workInput, ILibraryLoaderImportOutput workOutput);
     }
 }

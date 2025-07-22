@@ -99,7 +99,11 @@ namespace AudioStation.ViewModels.Vendor.TagLibViewModel
             set { this.RaiseAndSetIfChanged(ref _pasteCommand, value); }
         }
 
-        /*
+        public TagLib.File GetFile()
+        {
+            return IocContainer.Get<ITagCacheController>().Get(this.Name);
+        }
+
         public TagFileViewModel()
         {
             var dialogController = IocContainer.Get<IDialogController>();
@@ -122,7 +126,7 @@ namespace AudioStation.ViewModels.Vendor.TagLibViewModel
                 Paste(dialogController, tagCacheController);
             });
         }
-        */
+        
         public TagFileViewModel(TagLib.File tagLibFile)
         {
             var dialogController = IocContainer.Get<IDialogController>();

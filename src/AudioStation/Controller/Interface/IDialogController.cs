@@ -12,6 +12,7 @@ namespace AudioStation.Controller.Interface
         string ShowSaveFile();
         bool ShowConfirmation(string caption, params string[] messageLines);
         void ShowAlert(string caption, params string[] messageLines);
+        void ShowConfigurationAlert();
 
         void ShowLogWindow(LogViewModel viewModel);
         void ShowTagWindow(TagFileGroupViewModel viewModel);

@@ -87,6 +87,11 @@ namespace AudioStation.Controller
             MessageBox.Show(message, caption, MessageBoxButton.OK);
         }
 
+        public void ShowConfigurationAlert()
+        {
+            ShowAlert("Configuration Invalid", "Please fix configuration issues in the 'Configuration' tab.");
+        }
+
         public void ShowLogWindow(LogViewModel viewModel)
         {
             var window = new LogWindow();

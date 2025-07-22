@@ -1,8 +1,9 @@
-﻿using AudioStation.Core.Model;
+﻿using AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderLoad.Interface;
+using AudioStation.Core.Model;
 
 namespace AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderLoad
 {
-    public class LibraryLoaderImportLoad : LibraryLoaderLoadBase
+    public class LibraryLoaderImportLoad : LibraryLoaderLoadBase, ILibraryLoaderImportLoad
     {
         public string SourceFile { get; set; }
         public string SourceFolder { get; set; }

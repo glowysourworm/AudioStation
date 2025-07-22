@@ -7,7 +7,9 @@ using AudioStation.Core.Database.AudioStationDatabase;
 using AudioStation.Core.Model;
 using AudioStation.Core.Utility;
 using AudioStation.Model;
+using AudioStation.ViewModels.LibraryLoaderViewModels;
 using AudioStation.ViewModels.LibraryViewModels;
+using AudioStation.ViewModels.Vendor.TagLibViewModel;
 
 using Microsoft.Extensions.Logging;
 

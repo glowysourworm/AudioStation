@@ -24,8 +24,10 @@ namespace AudioStation.Core.Component
 
         public string CalculateFileName(ISimpleTag simpleTag, LibraryEntryNamingType namingType)
         {
-            if (!_modelValidationService.ValidateTagImport(simpleTag))
-                throw new ArgumentException("Invalid Tag File:  Not ready for migration. Must complete the tag minimum requirements.");
+            string message;
+
+            if (!_modelValidationService.ValidateTagImport(simpleTag, out message))
+                throw new ArgumentException("Invalid Tag File:  Not ready for migration. Must complete the tag minimum requirements: " + message);
 
             return CalculateFileName(namingType,
                                      simpleTag.Title,
@@ -37,8 +39,10 @@ namespace AudioStation.Core.Component
 
         public string CalculateFileName(TagLib.File tagFile, LibraryEntryNamingType namingType)
         {
-            if (!_modelValidationService.ValidateTagImport(tagFile))
-                throw new ArgumentException("Invalid Tag File:  Not ready for migration. Must complete the tag minimum requirements.");
+            string message;
+
+            if (!_modelValidationService.ValidateTagImport(tagFile, out message))
+                throw new ArgumentException("Invalid Tag File:  Not ready for migration. Must complete the tag minimum requirements: " + message);
 
             return CalculateFileName(namingType,
                                      tagFile.Tag.Title,
@@ -50,8 +54,10 @@ namespace AudioStation.Core.Component
 
         public string CalculateFolderPath(ISimpleTag simpleTag, string destinationFolderBase, LibraryEntryGroupingType groupingType)
         {
-            if (!_modelValidationService.ValidateTagImport(simpleTag))
-                throw new ArgumentException("Invalid Tag File:  Not ready for migration. Must complete the tag minimum requirements.");
+            string message;
+
+            if (!_modelValidationService.ValidateTagImport(simpleTag, out message))
+                throw new ArgumentException("Invalid Tag File:  Not ready for migration. Must complete the tag minimum requirements: " + message);
 
             return CalculateFolderPath(groupingType,
                                        destinationFolderBase,
@@ -62,8 +68,10 @@ namespace AudioStation.Core.Component
 
         public string CalculateFolderPath(TagLib.File tagFile, string destinationFolderBase, LibraryEntryGroupingType groupingType)
         {
-            if (!_modelValidationService.ValidateTagImport(tagFile))
-                throw new ArgumentException("Invalid Tag File:  Not ready for migration. Must complete the tag minimum requirements.");
+            string message;
+
+            if (!_modelValidationService.ValidateTagImport(tagFile, out message))
+                throw new ArgumentException("Invalid Tag File:  Not ready for migration. Must complete the tag minimum requirements: " + message);
 
             return CalculateFolderPath(groupingType,
                                        destinationFolderBase,

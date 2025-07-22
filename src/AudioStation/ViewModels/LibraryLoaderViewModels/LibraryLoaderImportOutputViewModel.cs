@@ -2,45 +2,56 @@
 
 using AcoustID.Web;
 
+using AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderOutput.Interface;
+using AudioStation.Core.Database.AudioStationDatabase;
 using AudioStation.Core.Database.MusicBrainzDatabase.Model;
 using AudioStation.Core.Model.Vendor;
+using AudioStation.Core.Utility;
 using AudioStation.ViewModels.Vendor.AcoustIDViewModel;
 using AudioStation.ViewModels.Vendor.MusicBrainzViewModel;
+using AudioStation.ViewModels.Vendor.TagLibViewModel;
 
 using SimpleWpf.Extensions;
+using SimpleWpf.Extensions.ObservableCollection;
 
 namespace AudioStation.ViewModels.LibraryLoaderViewModels
 {
-    public class LibraryLoaderImportOutputViewModel : ViewModelBase
+    public class LibraryLoaderImportOutputViewModel : ViewModelBase, ILibraryLoaderImportOutput
     {
-        string _importFileName;
-        string _outputFileName;
+        string _destinationFolderBase;
+        string _destinationPathCalculated;
         ObservableCollection<string> _logMessages;
         ObservableCollection<LookupResultViewModel> _acoustIDResults;
         ObservableCollection<MusicBrainzRecordingViewModel> _musicBrainzRecordingMatches;
         ObservableCollection<MusicBrainzCombinedLibraryEntryRecord> _musicBrainzCombinedRecords;
-        string _finalRecord;
-        string _importedRecord;
+        MusicBrainzCombinedLibraryEntryRecord _finalQueryRecord;
+        Mp3FileReference _importedRecord;
 
-        LookupResultViewModel _selectedAcoustIDResult;
-        MusicBrainzRecordingViewModel _selectedMusicBrainzRecordingMatch;
+        // Tag File Details
+        TagFileViewModel _importedTagFile;
+        bool _importedTagFileAvailable;
+        bool _importedTagFileLoadError;
+        string _importedTagFileErrorMessage;
+
+        MusicBrainzPicture? _bestFrontCover;
+        MusicBrainzPicture? _bestBackCover;
 
         bool _acoustIDSuccess;
         bool _musicBrainzRecordingMatchSuccess;
         bool _musicBrainzCombinedRecordQuerySuccess;
         bool _tagEmbeddingSuccess;
-        bool _importFileMoveSuccess;
-        bool _importSuccess;
+        bool _mp3FileMoveSuccess;
+        bool _mp3FileImportSuccess;
 
-        public string ImportFileName
+        public string DestinationFolderBase
         {
-            get { return _importFileName; }
-            set { this.RaiseAndSetIfChanged(ref _importFileName, value); }
+            get { return _destinationFolderBase; }
+            set { this.RaiseAndSetIfChanged(ref _destinationFolderBase, value); }
         }
-        public string OutputFileName
+        public string DestinationPathCalculated
         {
-            get { return _outputFileName; }
-            set { this.RaiseAndSetIfChanged(ref _outputFileName, value); }
+            get { return _destinationPathCalculated; }
+            set { this.RaiseAndSetIfChanged(ref _destinationPathCalculated, value); }
         }
         public ObservableCollection<string> LogMessages
         {
@@ -62,25 +73,40 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
             get { return _musicBrainzCombinedRecords; }
             set { this.RaiseAndSetIfChanged(ref _musicBrainzCombinedRecords, value); }
         }
-        public LookupResultViewModel SelectedAcoustIDResult
+        public MusicBrainzCombinedLibraryEntryRecord FinalQueryRecord
         {
-            get { return _selectedAcoustIDResult; }
-            set { this.RaiseAndSetIfChanged(ref _selectedAcoustIDResult, value); }
+            get { return _finalQueryRecord; }
+            set { this.RaiseAndSetIfChanged(ref _finalQueryRecord, value); }
         }
-        public MusicBrainzRecordingViewModel SelectedMusicBrainzRecordingMatch
-        {
-            get { return _selectedMusicBrainzRecordingMatch; }
-            set { this.RaiseAndSetIfChanged(ref _selectedMusicBrainzRecordingMatch, value); }
-        }
-        public string FinalRecord
-        {
-            get { return _finalRecord; }
-            set { this.RaiseAndSetIfChanged(ref _finalRecord, value); }
-        }
-        public string ImportedRecord
+        public Mp3FileReference ImportedRecord
         {
             get { return _importedRecord; }
             set { this.RaiseAndSetIfChanged(ref _importedRecord, value); }
+        }
+        public bool ImportedTagFileAvailable
+        {
+            get { return _importedTagFileAvailable; }
+            set { this.RaiseAndSetIfChanged(ref _importedTagFileAvailable, value); }
+        }
+        public bool ImportedTagFileLoadError
+        {
+            get { return _importedTagFileLoadError; }
+            set { this.RaiseAndSetIfChanged(ref _importedTagFileLoadError, value); }
+        }
+        public string ImportedTagFileErrorMessage
+        {
+            get { return _importedTagFileErrorMessage; }
+            set { this.RaiseAndSetIfChanged(ref _importedTagFileErrorMessage, value); }
+        }
+        public MusicBrainzPicture? BestFrontCover
+        {
+            get { return _bestFrontCover; }
+            set { this.RaiseAndSetIfChanged(ref _bestFrontCover, value); }
+        }
+        public MusicBrainzPicture? BestBackCover
+        {
+            get { return _bestBackCover; }
+            set { this.RaiseAndSetIfChanged(ref _bestBackCover, value); }
         }
         public bool AcoustIDSuccess
         {
@@ -102,24 +128,83 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
             get { return _tagEmbeddingSuccess; }
             set { this.RaiseAndSetIfChanged(ref _tagEmbeddingSuccess, value); }
         }
-        public bool ImportFileMoveSuccess
+        public bool Mp3FileMoveSuccess
         {
-            get { return _importFileMoveSuccess; }
-            set { this.RaiseAndSetIfChanged(ref _importFileMoveSuccess, value); }
+            get { return _mp3FileMoveSuccess; }
+            set { this.RaiseAndSetIfChanged(ref _mp3FileMoveSuccess, value); }
         }
-        public bool ImportSuccess
+        public bool Mp3FileImportSuccess
         {
-            get { return _importSuccess; }
-            set { this.RaiseAndSetIfChanged(ref _importSuccess, value); }
+            get { return _mp3FileImportSuccess; }
+            set { this.RaiseAndSetIfChanged(ref _mp3FileImportSuccess, value); }
         }
+
+
+        #region (private / public) ILibraryLoaderImportOutput properties
+        IEnumerable<LookupResult> ILibraryLoaderImportOutput.AcoustIDResults
+        {
+            get
+            {
+                return _acoustIDResults.Select(x => new LookupResult(x.Id.ToString(), x.Score, new Recording[]
+                {
+                    new Recording(0, x.MusicBrainzRecordingId.ToString(), string.Empty)
+
+                })).ToList();
+            }
+            set
+            {
+                _acoustIDResults.Clear();
+                foreach (var result in value)
+                {
+                    foreach (var recording in result.Recordings)
+                    {
+                        _acoustIDResults.Add(new LookupResultViewModel()
+                        {
+                            Id = new Guid(result.Id),
+                            MusicBrainzRecordingId = new Guid(recording.Id),
+                            Score = result.Score
+                        });
+                    }
+                }
+
+                OnPropertyChanged("AcoustIDResults");
+            }
+        }
+        IEnumerable<MusicBrainzRecording> ILibraryLoaderImportOutput.MusicBrainzRecordingMatches
+        {
+            get
+            {
+                return _musicBrainzRecordingMatches.Select(ApplicationHelpers.Map<MusicBrainzRecordingViewModel, MusicBrainzRecording>).ToList();
+            }
+            set
+            {
+                _musicBrainzRecordingMatches.Clear();
+                _musicBrainzRecordingMatches.AddRange(value.Select(ApplicationHelpers.Map<MusicBrainzRecording, MusicBrainzRecordingViewModel>));
+
+                OnPropertyChanged("MusicBrainzRecordingMatches");
+            }
+        }
+        IEnumerable<MusicBrainzCombinedLibraryEntryRecord> ILibraryLoaderImportOutput.MusicBrainzCombinedLibraryEntryRecords
+        {
+            get { return _musicBrainzCombinedRecords; }
+            set
+            {
+                _musicBrainzCombinedRecords.Clear();
+                _musicBrainzCombinedRecords.AddRange(value);
+
+                OnPropertyChanged("MusicBrainzCombinedLibraryEntryRecords");
+            }
+        }
+
+        public TagLib.File ImportedTagFile
+        {
+            get { return _importedTagFile.GetFile(); }
+            set { _importedTagFile = new TagFileViewModel(value); OnPropertyChanged(nameof(ImportedTagFile)); }
+        }
+        #endregion
 
         public LibraryLoaderImportOutputViewModel()
         {
-            this.ImportFileName = string.Empty;
-            this.OutputFileName = string.Empty;
-            this.FinalRecord = string.Empty;
-            this.ImportedRecord = string.Empty;
-
             this.AcoustIDResults = new ObservableCollection<LookupResultViewModel>();
             this.MusicBrainzCombinedRecords = new ObservableCollection<MusicBrainzCombinedLibraryEntryRecord>();
             this.MusicBrainzRecordingMatches = new ObservableCollection<MusicBrainzRecordingViewModel>();

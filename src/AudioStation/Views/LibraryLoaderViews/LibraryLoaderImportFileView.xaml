@@ -67,6 +67,7 @@
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
 
                         <Grid.RowDefinitions>
@@ -127,6 +128,47 @@
                                    VerticalAlignment="Center"
                                    FontSize="14"
                                    Grid.Column="2" />
+                        
+                        <!-- RHS Control Panel -->
+                        <StackPanel Orientation="Horizontal" Grid.Column="3" Margin="3">
+                            
+                            <!-- Current Selection -->
+                            <TextBlock Style="{StaticResource LabelDetailTextBlock}" Foreground="#FF555555" Margin="0"
+                                       VerticalAlignment="Center"
+                                       Visibility="{Binding SelectedAcoustIDResult, Converter={StaticResource NonNullVisibilityConverter}}">
+                                <Run Text="AcoutID (" />
+                                <Run Text="{Binding SelectedAcoustIDResult.Score, StringFormat=P2}" />
+                                <Run Text=")" />
+                            </TextBlock>
+                            
+                            <TextBlock Style="{StaticResource LabelDetailTextBlock}" Foreground="#FF555555" Margin="5 0 0 0"
+                                       VerticalAlignment="Center"
+                                       Visibility="{Binding SelectedMusicBrainzRecordingMatch, Converter={StaticResource NonNullVisibilityConverter}}">
+                                <Run Text="Music Brainz (" />
+                                <Run Text="{Binding SelectedMusicBrainzRecordingMatch.ShortString, Mode=OneWay}" />
+                                <Run Text=")" />
+                            </TextBlock>                            
+                            
+                            <!-- Select Buttons -->
+                            <Button Style="{StaticResource UserControlButton}" 
+                                    Command="{Binding SelectAcoustIDCommand}"
+                                    Margin="5 0 0 0"
+                                    Visibility="{Binding ImportOutput.AcoustIDSuccess, Converter={StaticResource BoolVisibilityCollapseConverter}}">
+                                <StackPanel Orientation="Horizontal" Margin="1" VerticalAlignment="Center">
+                                    <TextBlock Text="Select " VerticalAlignment="Center" FontSize="12" />
+                                    <fa5:ImageAwesome Icon="Solid_VolumeUp" Style="{StaticResource FontAwesomeIconManagerViewPager}" Margin="5 0 0 0" />
+                                </StackPanel>
+                            </Button>
+                            <Button Style="{StaticResource UserControlButton}" 
+                                    Command="{Binding SelectMusicBrainzCommand}"
+                                    Margin="5 0 0 0"
+                                    Visibility="{Binding ImportOutput.MusicBrainzRecordingMatchSuccess, Converter={StaticResource BoolVisibilityCollapseConverter}}">
+                                <StackPanel Orientation="Horizontal" Margin="1" VerticalAlignment="Center">
+                                    <TextBlock Text="Select " VerticalAlignment="Center" FontSize="12" />
+                                    <fa5:ImageAwesome Icon="Solid_Music" Style="{StaticResource FontAwesomeIconManagerViewPager}" Margin="5 0 0 0" />
+                                </StackPanel>
+                            </Button>
+                        </StackPanel>
 
                         <controls:NoScrollListBox Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="4"
                                                   Margin="0"

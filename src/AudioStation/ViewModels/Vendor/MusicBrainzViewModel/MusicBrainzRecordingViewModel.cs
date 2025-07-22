@@ -14,7 +14,7 @@ namespace AudioStation.ViewModels.Vendor.MusicBrainzViewModel
         public IReadOnlyList<INameCredit>? ArtistCredit
         {
             get { return _artistCredit; }
-            set { this.RaiseAndSetIfChanged(ref _artistCredit, value); }
+            set { this.RaiseAndSetIfChanged(ref _artistCredit, value); OnPropertyChanged("ShortString"); }
         }
         PartialDate? _firstReleaseDate;
 
@@ -42,7 +42,7 @@ namespace AudioStation.ViewModels.Vendor.MusicBrainzViewModel
         public IReadOnlyList<IRelease>? Releases
         {
             get { return _releases; }
-            set { this.RaiseAndSetIfChanged(ref _releases, value); }
+            set { this.RaiseAndSetIfChanged(ref _releases, value); OnPropertyChanged("ShortString"); }
         }
         bool _video;
 
@@ -149,6 +149,20 @@ namespace AudioStation.ViewModels.Vendor.MusicBrainzViewModel
         {
             get { return _unhandledProperties; }
             set { this.RaiseAndSetIfChanged(ref _unhandledProperties, value); }
+        }
+
+        public string ShortString
+        {
+            get
+            {
+                var artist = this.ArtistCredit?.FirstOrDefault()?.Name;
+                var release = this.Releases?.FirstOrDefault();
+
+                return string.Format("{0} / {1} / {2}",
+                                     this.Title ?? "Unknown Title",
+                                     release?.Title ?? "Unknown Album",
+                                     artist ?? "Unknown Artist");
+            }
         }
 
         public MusicBrainzRecordingViewModel()

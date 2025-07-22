@@ -99,12 +99,11 @@ namespace AudioStation.Service
                         Score = pair.Second.Score,
                         MusicBrainzRecordingId = new Guid(pair.First.Id)
                     })),
-                    AcoustIDSuccess = workOutput.AcoustIDSuccess,
-                    FinalRecord = null,
-                    ImportedRecord = workOutput.ImportedRecord.FileName,
-                    ImportFileMoveSuccess = workOutput.Mp3FileMoveSuccess,
-                    ImportFileName = workOutput.ImportedRecord.FileName,
-                    ImportSuccess = workOutput.Mp3FileImportSuccess,
+                    AcoustIDSuccess = workOutput.AcoustIDSuccess,                    
+                    FinalQueryRecord = null,
+                    ImportedRecord = workOutput.ImportedRecord,                    
+                    Mp3FileMoveSuccess = workOutput.Mp3FileMoveSuccess,
+                    Mp3FileImportSuccess = workOutput.Mp3FileImportSuccess,
                     LogMessages = new ObservableCollection<string>(workOutput.Log.Select(x => x.Message)),
                     MusicBrainzCombinedRecordQuerySuccess = false,
                     MusicBrainzCombinedRecords = null,
@@ -113,7 +112,6 @@ namespace AudioStation.Service
                                                               .Select(ApplicationHelpers.Map<MusicBrainzRecording, MusicBrainzRecordingViewModel>)),
 
                     MusicBrainzRecordingMatchSuccess = workOutput.MusicBrainzRecordingMatchSuccess,
-                    OutputFileName = workOutput.ImportedRecord.FileName,
                     TagEmbeddingSuccess = workOutput.TagEmbeddingSuccess
                 });
             }

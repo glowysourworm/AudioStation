@@ -4,7 +4,6 @@ using AudioStation.Core.Model;
 
 using SimpleWpf.Extensions;
 using SimpleWpf.Extensions.Command;
-using SimpleWpf.Extensions.ObservableCollection;
 
 namespace AudioStation.ViewModels.LibraryLoaderViewModels
 {
@@ -22,8 +21,6 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
         LibraryEntryType _importAsType;
         LibraryEntryGroupingType _groupingType;
         LibraryEntryNamingType _namingType;
-
-        NotifyingObservableCollection<LibraryLoaderImportFileViewModel> _sourceFiles;
 
         bool _includeMusicBrainzDetail;
         bool _identifyUsingAcoustID;
@@ -109,11 +106,6 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
         {
             get { return _migrationOverwriteDestinationFiles; }
             set { this.RaiseAndSetIfChanged(ref _migrationOverwriteDestinationFiles, value); }
-        }
-        public int SourceFileSelectedCount
-        {
-            get { return _sourceFiles.Count(x => x.IsSelected); }
-            set { OnPropertyChanged("SourceFileSelectedCount"); }
         }
         public SimpleCommand SelectSourceFolderCommand
         {

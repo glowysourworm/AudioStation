@@ -21,6 +21,9 @@ using SimpleWpf.Extensions.Collection;
 using TagLib;
 using AudioStation.Model;
 using Microsoft.Extensions.Logging;
+using AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderLoad.Interface;
+using AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderOutput.Interface;
+using AudioStation.Core.Model.Vendor;
 
 namespace AudioStation.Core.Component
 {
@@ -55,36 +58,38 @@ namespace AudioStation.Core.Component
             _fileController = fileController;
         }
 
-        public bool CanImportAcoustID(LibraryLoaderImportLoad workInput, LibraryLoaderImportOutput workOutput)
+        public bool CanImportAcoustID(ILibraryLoaderImportLoad workInput, ILibraryLoaderImportOutput workOutput)
         {
             return workInput.IdentifyUsingAcoustID;
         }
-        public bool CanImportMusicBrainzBasic(LibraryLoaderImportLoad workInput, LibraryLoaderImportOutput workOutput)
+        public bool CanImportMusicBrainzBasic(ILibraryLoaderImportLoad workInput, ILibraryLoaderImportOutput workOutput)
         {
             return CanImportAcoustID(workInput, workOutput) && workInput.IncludeMusicBrainzDetail;
         }
-        public bool CanImportMusicBrainzDetail(LibraryLoaderImportLoad workInput, LibraryLoaderImportOutput workOutput)
+        public bool CanImportMusicBrainzDetail(ILibraryLoaderImportLoad workInput, ILibraryLoaderImportOutput workOutput)
         {
             return CanImportMusicBrainzDetail(workInput, workOutput);
         }
-        public bool CanImportEmbedTag(LibraryLoaderImportLoad workInput, LibraryLoaderImportOutput workOutput)
+        public bool CanImportEmbedTag(ILibraryLoaderImportLoad workInput, ILibraryLoaderImportOutput workOutput)
         {
             return  !string.IsNullOrEmpty(workInput.SourceFile) &&
                     _tagCacheController.Verify(workInput.SourceFile) &&
                     workOutput.FinalQueryRecord != null;
         }
-        public bool CanImportEntity(LibraryLoaderImportLoad workInput, LibraryLoaderImportOutput workOutput)
+        public bool CanImportEntity(ILibraryLoaderImportLoad workInput, ILibraryLoaderImportOutput workOutput)
         {
-            return _modelValidationService.ValidateTagImport(workOutput.ImportedTagFile);
+            var message = string.Empty;
+
+            return _modelValidationService.ValidateTagImport(workOutput.ImportedTagFile, out message);
                    
         }
-        public bool CanImportMigrateFile(LibraryLoaderImportLoad workInput, LibraryLoaderImportOutput workOutput)
+        public bool CanImportMigrateFile(ILibraryLoaderImportLoad workInput, ILibraryLoaderImportOutput workOutput)
         {
             return workOutput.Mp3FileImportSuccess && _fileController.CanMigrateFile(workInput.SourceFile, workOutput.DestinationPathCalculated);
         }
 
 
-        public async Task<bool> WorkAcoustID(LibraryLoaderImportLoad workInput, LibraryLoaderImportOutput workOutput)
+        public async Task<bool> WorkAcoustID(ILibraryLoaderImportLoad workInput, ILibraryLoaderImportOutput workOutput)
         {
             var acoustIDResults = await _acoustIDClient.IdentifyFingerprint(workInput.SourceFile, ACOUSTID_MIN_SCORE);
 
@@ -94,66 +99,74 @@ namespace AudioStation.Core.Component
 
             return workOutput.AcoustIDSuccess;
         }
-        public Task<bool> WorkMusicBrainzDetail(LibraryLoaderImportLoad workInput, LibraryLoaderImportOutput workOutput)
+        public async Task<bool> WorkMusicBrainzDetail(ILibraryLoaderImportLoad workInput, ILibraryLoaderImportOutput workOutput)
         {
-            return Task.Run<bool>(() =>
-            {
-                // Output -> Music Brainz Recording Matches (heavy load)
-                workOutput.MusicBrainzRecordingMatches = workOutput.AcoustIDResults
-                                                                   .OrderByDescending(x => x.Score)
-                                                                   .SelectMany(x => x.Recordings)
-                                                                   .Select(x => _musicBrainzClient.GetRecordingById(new Guid(x.Id)).Result)
-                                                                   .Where(x => _modelValidationService.ValidateMusicBrainzRecordingImport(x))
-                                                                   .ToList();
-                // Validate Results
-                workOutput.MusicBrainzRecordingMatchSuccess = workOutput.MusicBrainzRecordingMatches.Any();
+            var acoustIDResults = workOutput.AcoustIDResults
+                                            .OrderByDescending(x => x.Score)
+                                            .SelectMany(x => x.Recordings)
+                                            .ToList();
 
-                return workOutput.MusicBrainzRecordingMatchSuccess;
-            });
+            var matches = new List<MusicBrainzRecording>();
+
+            foreach (var result in acoustIDResults)
+            {
+                // -> Music Brainz Recording Lookup
+                //
+                var recording = await _musicBrainzClient.GetRecordingById(new Guid(result.Id));
+
+                // Validation
+                if (_modelValidationService.ValidateMusicBrainzRecordingImport(recording))
+                {
+                    // Results
+                    matches.Add(recording);
+                }
+            }
+
+            // Output -> Music Brainz Recording Matches (heavy load)
+            workOutput.MusicBrainzRecordingMatches = matches;
+
+            // Validate Results
+            workOutput.MusicBrainzRecordingMatchSuccess = workOutput.MusicBrainzRecordingMatches.Any();
+
+            return workOutput.MusicBrainzRecordingMatchSuccess;
         }
-        public async Task<bool> WorkMusicBrainzCompleteRecord(LibraryLoaderImportLoad workInput, LibraryLoaderImportOutput workOutput)
+        public async Task<bool> WorkMusicBrainzCompleteRecord(ILibraryLoaderImportLoad workInput, ILibraryLoaderImportOutput workOutput)
         {
             await GetMusicBrainzCompletedRecord(workInput, workOutput);
 
             // Music Brainz Detail Result
             return workOutput.MusicBrainzCombinedRecordQuerySuccess;
         }
-        public bool WorkEmbedTag(LibraryLoaderImportLoad workInput, LibraryLoaderImportOutput workOutput)
+        public bool WorkEmbedTag(ILibraryLoaderImportLoad workInput, ILibraryLoaderImportOutput workOutput)
         {
             // Embed tag data into the SOURCE FILE
             return EmbedTagData(workInput, workOutput);
         }
-        public Task<bool> WorkImportEntity(LibraryLoaderImportLoad workInput, LibraryLoaderImportOutput workOutput)
+        public bool WorkImportEntity(ILibraryLoaderImportLoad workInput, ILibraryLoaderImportOutput workOutput)
         {
-            return Task.Run(() =>
-            {
-                // Calculate destination file name. Destination path is used no matter if there is a file migration or not.
-                CalculateFileName(workInput, workOutput);
+            // Calculate destination file name. Destination path is used no matter if there is a file migration or not.
+            CalculateFileName(workInput, workOutput);
 
-                // Import Record:  Save imported entity for output
-                workOutput.ImportedRecord = _modelController.AddUpdateLibraryEntry(workOutput.DestinationPathCalculated,
-                                                                                    workOutput.ImportedTagFileAvailable,
-                                                                                    workOutput.ImportedTagFileLoadError,
-                                                                                    workOutput.ImportedTagFileErrorMessage,
-                                                                                    workOutput.ImportedTagFile);
+            // Import Record:  Save imported entity for output
+            workOutput.ImportedRecord = _modelController.AddUpdateLibraryEntry(workOutput.DestinationPathCalculated,
+                                                                                workOutput.ImportedTagFileAvailable,
+                                                                                workOutput.ImportedTagFileLoadError,
+                                                                                workOutput.ImportedTagFileErrorMessage,
+                                                                                workOutput.ImportedTagFile);
 
-                workOutput.Mp3FileImportSuccess = workOutput.ImportedRecord != null;
+            workOutput.Mp3FileImportSuccess = workOutput.ImportedRecord != null;
 
-                return workOutput.Mp3FileImportSuccess;
-            });
+            return workOutput.Mp3FileImportSuccess;
         }
-        public Task<bool> WorkMigrateFile(LibraryLoaderImportLoad workInput, LibraryLoaderImportOutput workOutput)
+        public bool WorkMigrateFile(ILibraryLoaderImportLoad workInput, ILibraryLoaderImportOutput workOutput)
         {
-            return Task.Run(() =>
-            {
-                // Move File, and update the entity (database)
-                workOutput.Mp3FileMoveSuccess = MigrateFile(workInput, workOutput);
+            // Move File, and update the entity (database)
+            workOutput.Mp3FileMoveSuccess = MigrateFile(workInput, workOutput);
 
-                return workOutput.Mp3FileMoveSuccess;
-            });
+            return workOutput.Mp3FileMoveSuccess;
         }
 
-        private Task GetMusicBrainzCompletedRecord(LibraryLoaderImportLoad workInput, LibraryLoaderImportOutput workOutput)
+        private Task GetMusicBrainzCompletedRecord(ILibraryLoaderImportLoad workInput, ILibraryLoaderImportOutput workOutput)
         {
             return Task.Run(() =>
             {
@@ -204,7 +217,7 @@ namespace AudioStation.Core.Component
                 }
             });
         }
-        private void CalculateFileName(LibraryLoaderImportLoad workInput, LibraryLoaderImportOutput workOutput)
+        private void CalculateFileName(ILibraryLoaderImportLoad workInput, ILibraryLoaderImportOutput workOutput)
         {
             // Calculate standard file name for the import
             var calculatedFileName = _modelFileService.CalculateFileName(workOutput.ImportedTagFile, workInput.NamingType);
@@ -217,7 +230,7 @@ namespace AudioStation.Core.Component
             // Final Impot Path
             workOutput.DestinationPathCalculated = Path.Combine(destinationFolder, calculatedFileName);
         }
-        private void LoadTagData(LibraryLoaderImportLoad workInput, LibraryLoaderImportOutput workOutput)
+        private void LoadTagData(ILibraryLoaderImportLoad workInput, ILibraryLoaderImportOutput workOutput)
         {
             if (string.IsNullOrEmpty(workInput.SourceFile))
                 throw new ArgumentException("Invalid media file name");
@@ -247,7 +260,7 @@ namespace AudioStation.Core.Component
                 workOutput.ImportedTagFileLoadError = true;
             }
         }
-        private bool EmbedTagData(LibraryLoaderImportLoad workInput, LibraryLoaderImportOutput workOutput)
+        private bool EmbedTagData(ILibraryLoaderImportLoad workInput, ILibraryLoaderImportOutput workOutput)
         {
             if (string.IsNullOrEmpty(workInput.SourceFile))
                 throw new ArgumentException("Invalid media file name");
@@ -316,7 +329,7 @@ namespace AudioStation.Core.Component
                 return false;
             }
         }
-        private bool MigrateFile(LibraryLoaderImportLoad workInput, LibraryLoaderImportOutput workOutput)
+        private bool MigrateFile(ILibraryLoaderImportLoad workInput, ILibraryLoaderImportOutput workOutput)
         {
             try
             {
