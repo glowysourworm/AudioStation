@@ -22,25 +22,11 @@
 
         <Expander>
             <Expander.Header>
-                <Grid HorizontalAlignment="{Binding HorizontalAlignment, RelativeSource={RelativeSource AncestorType=ContentPresenter}, Mode=OneWayToSource}">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="Auto" />
-                    </Grid.ColumnDefinitions>
-
-                    <TextBlock Text="Tag Editor (show Mp3 file(s))" Style="{StaticResource LabelTextBlock}" FontSize="16" VerticalAlignment="Center" Margin="5" />
-
-                    <Border Background="LightGray" BorderBrush="Gray" BorderThickness="1" CornerRadius="5" Grid.Column="1">
-                        <StackPanel Orientation="Horizontal" Margin="5">
-                            <TextBlock Text="Control Panel" Style="{StaticResource LabelTextBlockInvert}" Margin="5" />
-                            <Button fa5:Awesome.Content="Solid_Save" ToolTip="Save To File(s)" Style="{StaticResource SmallControlButton}" Command="{Binding SaveCommand}" />
-                            <Button fa5:Awesome.Content="Solid_Copy" ToolTip="Copy Tag Data" Style="{StaticResource SmallControlButton}" Command="{Binding CopyCommand}" />
-                            <Button fa5:Awesome.Content="Solid_Paste" ToolTip="Paste Tag Data" Style="{StaticResource SmallControlButton}" Command="{Binding PasteCommand}" />
-                            <ToggleButton x:Name="ShowAdvancedButton" Click="ShowAdvancedButton_Click" fa5:Awesome.Content="Solid_Search" ToolTip="Show Advanced Editor" Style="{StaticResource SmallControlToggleButton}" />
-                            <ToggleButton x:Name="ShowArtworkButton" Click="ShowArtworkButton_Click" fa5:Awesome.Content="Solid_PaintBrush" ToolTip="Show Artwork Editor" Style="{StaticResource SmallControlToggleButton}" />
-                        </StackPanel>
-                    </Border>
-                </Grid>
+                <TextBlock Text="Tag Editor (show Mp3 file(s))" 
+                           Style="{StaticResource LabelTextBlock}" 
+                           FontSize="16" 
+                           VerticalAlignment="Center" 
+                           Margin="5" />
             </Expander.Header>
 
             <ListBox AlternationCount="2" 
@@ -55,103 +41,112 @@
             </ListBox>
         </Expander>
 
-        <ListBox DataContext="{Binding TagGroup}"
-                 ItemContainerStyle="{StaticResource PlainItemContainerStyleWithAlternation_AliceBlue}"
-                 Grid.Row="1"
-                 AlternationCount="2"
-                 HorizontalContentAlignment="Stretch"
-                 VirtualizingPanel.ScrollUnit="Pixel"
-                 ScrollViewer.HorizontalScrollBarVisibility="Hidden">
+        <TabControl DataContext="{Binding TagGroup}" Grid.Row="1">
 
-            <ListBox.ItemsPanel>
-                <ItemsPanelTemplate>
-                    <controls:ReactiveVerticalWrapPanel WrapColumnSize="600" IsItemsHost="True" />
-                </ItemsPanelTemplate>
-            </ListBox.ItemsPanel>
+            <TabItem Header="Basic">
+                <ListBox ItemContainerStyle="{StaticResource PlainItemContainerStyleWithAlternation_AliceBlue}"
+                         AlternationCount="2"
+                         HorizontalContentAlignment="Stretch"
+                         VirtualizingPanel.ScrollUnit="Pixel"
+                         ScrollViewer.HorizontalScrollBarVisibility="Hidden">
 
-            <propertyGrid:PropertyStringControl LabelColumnWidth="200" LabelText="Title" Value="{Binding Title, Mode=TwoWay}" IsReadOnly="False" />
-            <propertyGrid:PropertyStringControl LabelColumnWidth="200" LabelText="Album" Value="{Binding Album}" IsReadOnly="False" />
-            <propertyGrid:PropertyStringEnumerableControl LabelColumnWidth="200"
-                                                      LabelText="Artists" 
-                                                      Value="{Binding Artists, Converter={StaticResource ArrayToObservableCollectionParameterConverter}, ConverterParameter={x:Type system:String}}" IsReadOnly="False" />
+                    <propertyGrid:PropertyStringControl LabelColumnWidth="200" LabelText="Title" Value="{Binding Title, Mode=TwoWay}" IsReadOnly="False" />
+                    <propertyGrid:PropertyStringControl LabelColumnWidth="200" LabelText="Album" Value="{Binding Album, Mode=TwoWay}" IsReadOnly="False" />
 
-            <propertyGrid:PropertyStringEnumerableControl LabelColumnWidth="200"
-                                                      LabelText="Album Artists" 
-                                                      Value="{Binding AlbumArtists, Converter={StaticResource ArrayToObservableCollectionParameterConverter}, ConverterParameter={x:Type system:String}}" IsReadOnly="False" />
+                    <propertyGrid:PropertyStringEnumerableControl LabelColumnWidth="200"
+                                                                  LabelText="Album Artists" 
+                                                                  Value="{Binding AlbumArtists, Converter={StaticResource ArrayToObservableCollectionParameterConverter}, ConverterParameter={x:Type system:String}}" IsReadOnly="False" />
 
-            <propertyGrid:PropertyStringEnumerableControl LabelColumnWidth="200" LabelText="Performers" Value="{Binding Performers, Converter={StaticResource ArrayToObservableCollectionParameterConverter}, ConverterParameter={x:Type system:String}}" IsReadOnly="False" />
-            <propertyGrid:PropertyStringEnumerableControl LabelColumnWidth="200" LabelText="Composers" Value="{Binding Composers, Converter={StaticResource ArrayToObservableCollectionParameterConverter}, ConverterParameter={x:Type system:String}}" IsReadOnly="False" />
-            <propertyGrid:PropertyUIntControl LabelColumnWidth="200" LabelText="Beats Per Minute" Value="{Binding BeatsPerMinute}" IsReadOnly="False" />
-            <propertyGrid:PropertyStringControl LabelColumnWidth="200" LabelText="Conductor" Value="{Binding Conductor}" IsReadOnly="False" />
-            <propertyGrid:PropertyUIntControl LabelColumnWidth="200" LabelText="Year" Value="{Binding Year}" IsReadOnly="False" />
-            <propertyGrid:PropertyUIntControl LabelColumnWidth="200" LabelText="Track" Value="{Binding Track}" IsReadOnly="False" />
-            <propertyGrid:PropertyUIntControl LabelColumnWidth="200" LabelText="Track Count" Value="{Binding TrackCount}" IsReadOnly="False" />
-            <propertyGrid:PropertyUIntControl LabelColumnWidth="200" LabelText="Disc" Value="{Binding Disc}" IsReadOnly="False" />
-            <propertyGrid:PropertyUIntControl LabelColumnWidth="200" LabelText="Disc Count" Value="{Binding DiscCount}" IsReadOnly="False" />
-            <propertyGrid:PropertyStringEnumerableControl LabelColumnWidth="200" LabelText="Genres" Value="{Binding Genres, Converter={StaticResource ArrayToObservableCollectionParameterConverter}, ConverterParameter={x:Type system:String}}" IsReadOnly="False" />
-            <propertyGrid:PropertyStringControl LabelColumnWidth="200" LabelText="Grouping (Tags)" Value="{Binding Grouping}" IsReadOnly="False" />
-            <propertyGrid:PropertyStringControl LabelColumnWidth="200" LabelText="Copyright" Value="{Binding Copyright}" IsReadOnly="False" />
+                    <propertyGrid:PropertyUIntControl LabelColumnWidth="200" LabelText="Year" Value="{Binding Year, Mode=TwoWay}" IsReadOnly="False" />
+                    <propertyGrid:PropertyUIntControl LabelColumnWidth="200" LabelText="Track" Value="{Binding Track, Mode=TwoWay}" IsReadOnly="False" />
+                    <propertyGrid:PropertyUIntControl LabelColumnWidth="200" LabelText="Track Count" Value="{Binding TrackCount, Mode=TwoWay}" IsReadOnly="False" />
+                    <propertyGrid:PropertyUIntControl LabelColumnWidth="200" LabelText="Disc" Value="{Binding Disc, Mode=TwoWay}" IsReadOnly="False" />
+                    <propertyGrid:PropertyUIntControl LabelColumnWidth="200" LabelText="Disc Count" Value="{Binding DiscCount, Mode=TwoWay}" IsReadOnly="False" />
+                    <propertyGrid:PropertyStringEnumerableControl LabelColumnWidth="200" LabelText="Genres" Value="{Binding Genres, Converter={StaticResource ArrayToObservableCollectionParameterConverter}, ConverterParameter={x:Type system:String}}" IsReadOnly="False" />
 
+                </ListBox>
+            </TabItem>
 
-            <propertyGrid:PropertyStringControl LabelColumnWidth="200" LabelText="Title (Sort)" Value="{Binding TitleSort}" IsReadOnly="False" />
-            <propertyGrid:PropertyStringControl LabelColumnWidth="200" LabelText="Album (Sort)" Value="{Binding AlbumSort}" IsReadOnly="False" />
-            <propertyGrid:PropertyStringEnumerableControl LabelColumnWidth="200" LabelText="Album Artists (Sort)" Value="{Binding AlbumArtistsSort, Converter={StaticResource ArrayToObservableCollectionParameterConverter}, ConverterParameter={x:Type system:String}}" IsReadOnly="False" />
-            <propertyGrid:PropertyStringEnumerableControl LabelColumnWidth="200" LabelText="Performers (Sort)" Value="{Binding PerformersSort, Converter={StaticResource ArrayToObservableCollectionParameterConverter}, ConverterParameter={x:Type system:String}}" IsReadOnly="False" />
-            <propertyGrid:PropertyStringEnumerableControl LabelColumnWidth="200" LabelText="Composers (Sort)" Value="{Binding ComposersSort, Converter={StaticResource ArrayToObservableCollectionParameterConverter}, ConverterParameter={x:Type system:String}}" IsReadOnly="False" />
+            <TabItem Header="Detail">
+                
+                <ListBox ItemContainerStyle="{StaticResource PlainItemContainerStyleWithAlternation_AliceBlue}"
+                         AlternationCount="2"
+                         HorizontalContentAlignment="Stretch"
+                         VirtualizingPanel.ScrollUnit="Pixel"
+                         ScrollViewer.HorizontalScrollBarVisibility="Hidden">
 
-            <!-- Comments -->
-            <propertyGrid:PropertyStringControlMultiline Visibility="{Binding ShowAdvancedEditor, ElementName=TheTagView, Converter={StaticResource BoolVisibilityCollapseConverter}}" 
-                                                         Value="{Binding Comment}" LabelText="Comment" LabelColumnWidth="200" MaxLength="5000" MaxLines="10" />
+                    <propertyGrid:PropertyStringControl LabelColumnWidth="200" LabelText="Title" Value="{Binding Title, Mode=TwoWay}" IsReadOnly="False" />
+                    <propertyGrid:PropertyStringControl LabelColumnWidth="200" LabelText="Album" Value="{Binding Album}" IsReadOnly="False" />
 
-            <!-- Lyrics -->
-            <propertyGrid:PropertyStringControlMultiline Visibility="{Binding ShowAdvancedEditor, ElementName=TheTagView, Converter={StaticResource BoolVisibilityCollapseConverter}}"
-                                                         Value="{Binding Lyrics}" LabelText="Lyrics" LabelColumnWidth="200" MaxLength="5000" MaxLines="30" />
+                    <propertyGrid:PropertyStringEnumerableControl LabelColumnWidth="200"
+                                                                  LabelText="Album Artists" 
+                                                                  Value="{Binding AlbumArtists, Converter={StaticResource ArrayToObservableCollectionParameterConverter}, ConverterParameter={x:Type system:String}}" IsReadOnly="False" />
 
-            <propertyGrid:PropertyStringControl Visibility="{Binding ShowAdvancedEditor, ElementName=TheTagView, Converter={StaticResource BoolVisibilityCollapseConverter}}"
-                                                LabelColumnWidth="200" LabelText="Amazon Id" Value="{Binding AmazonId}" IsReadOnly="False" />
+                    <propertyGrid:PropertyStringEnumerableControl LabelColumnWidth="200" LabelText="Performers" Value="{Binding Performers, Converter={StaticResource ArrayToObservableCollectionParameterConverter}, ConverterParameter={x:Type system:String}}" IsReadOnly="False" />
+                    
+                    <propertyGrid:PropertyUIntControl LabelColumnWidth="200" LabelText="Year" Value="{Binding Year}" IsReadOnly="False" />
+                    <propertyGrid:PropertyUIntControl LabelColumnWidth="200" LabelText="Track" Value="{Binding Track}" IsReadOnly="False" />
+                    <propertyGrid:PropertyUIntControl LabelColumnWidth="200" LabelText="Track Count" Value="{Binding TrackCount}" IsReadOnly="False" />
+                    <propertyGrid:PropertyUIntControl LabelColumnWidth="200" LabelText="Disc" Value="{Binding Disc}" IsReadOnly="False" />
+                    <propertyGrid:PropertyUIntControl LabelColumnWidth="200" LabelText="Disc Count" Value="{Binding DiscCount}" IsReadOnly="False" />
+                    <propertyGrid:PropertyStringEnumerableControl LabelColumnWidth="200" LabelText="Genres" Value="{Binding Genres, Converter={StaticResource ArrayToObservableCollectionParameterConverter}, ConverterParameter={x:Type system:String}}" IsReadOnly="False" />
+                    <propertyGrid:PropertyStringControl LabelColumnWidth="200" LabelText="Grouping (Tags)" Value="{Binding Grouping}" IsReadOnly="False" />
+                    <propertyGrid:PropertyStringControl LabelColumnWidth="200" LabelText="Copyright" Value="{Binding Copyright}" IsReadOnly="False" />
 
-            <propertyGrid:PropertyStringControl Visibility="{Binding ShowAdvancedEditor, ElementName=TheTagView, Converter={StaticResource BoolVisibilityCollapseConverter}}"
-                                                LabelColumnWidth="200" LabelText="MusicIP Id" Value="{Binding MusicIpId}" IsReadOnly="False" />
+                    <propertyGrid:PropertyStringControl LabelColumnWidth="200" LabelText="Title (Sort)" Value="{Binding TitleSort}" IsReadOnly="False" />
+                    <propertyGrid:PropertyStringControl LabelColumnWidth="200" LabelText="Album (Sort)" Value="{Binding AlbumSort}" IsReadOnly="False" />
+                    <propertyGrid:PropertyStringEnumerableControl LabelColumnWidth="200" LabelText="Album Artists (Sort)" Value="{Binding AlbumArtistsSort, Converter={StaticResource ArrayToObservableCollectionParameterConverter}, ConverterParameter={x:Type system:String}}" IsReadOnly="False" />
+                    <propertyGrid:PropertyStringEnumerableControl LabelColumnWidth="200" LabelText="Performers (Sort)" Value="{Binding PerformersSort, Converter={StaticResource ArrayToObservableCollectionParameterConverter}, ConverterParameter={x:Type system:String}}" IsReadOnly="False" />
+                    <propertyGrid:PropertyStringEnumerableControl LabelColumnWidth="200" LabelText="Composers (Sort)" Value="{Binding ComposersSort, Converter={StaticResource ArrayToObservableCollectionParameterConverter}, ConverterParameter={x:Type system:String}}" IsReadOnly="False" />
 
-            <propertyGrid:PropertyStringControl Visibility="{Binding ShowAdvancedEditor, ElementName=TheTagView, Converter={StaticResource BoolVisibilityCollapseConverter}}"
-                                                LabelColumnWidth="200" LabelText="Music Brainz Track Id" Value="{Binding MusicBrainzTrackId}" IsReadOnly="False" />
+                </ListBox>
+            </TabItem>
 
-            <propertyGrid:PropertyStringControl Visibility="{Binding ShowAdvancedEditor, ElementName=TheTagView, Converter={StaticResource BoolVisibilityCollapseConverter}}"
-                                                LabelColumnWidth="200" LabelText="Music Brainz Artist Id" Value="{Binding MusicBrainzArtistId}" IsReadOnly="False" />
+            <TabItem Header="Comments">
+                <propertyGrid:PropertyStringControlMultiline Value="{Binding Comment}" LabelText="Comment" LabelColumnWidth="200" MaxLength="5000" MaxLines="10" />
+            </TabItem>
 
-            <propertyGrid:PropertyStringControl Visibility="{Binding ShowAdvancedEditor, ElementName=TheTagView, Converter={StaticResource BoolVisibilityCollapseConverter}}"
-                                                LabelColumnWidth="200" LabelText="Music Brainz Disc Id" Value="{Binding MusicBrainzDiscId}" IsReadOnly="False" />
+            <TabItem Header="Lyrics">
+                <propertyGrid:PropertyStringControlMultiline Value="{Binding Lyrics}" LabelText="Lyrics" LabelColumnWidth="200" MaxLength="5000" MaxLines="30" />
+            </TabItem>
 
-            <propertyGrid:PropertyStringControl Visibility="{Binding ShowAdvancedEditor, ElementName=TheTagView, Converter={StaticResource BoolVisibilityCollapseConverter}}"
-                                                LabelColumnWidth="200" LabelText="Music Brainz Release Id" Value="{Binding MusicBrainzReleaseId}" IsReadOnly="False" />
+            <TabItem Header="Composition">
+                <ListBox ItemContainerStyle="{StaticResource PlainItemContainerStyleWithAlternation_AliceBlue}"
+                         AlternationCount="2"
+                         HorizontalContentAlignment="Stretch"
+                         VirtualizingPanel.ScrollUnit="Pixel"
+                         ScrollViewer.HorizontalScrollBarVisibility="Hidden">
+                    <propertyGrid:PropertyStringEnumerableControl LabelColumnWidth="200" LabelText="Composers" Value="{Binding Composers, Converter={StaticResource ArrayToObservableCollectionParameterConverter}, ConverterParameter={x:Type system:String}}" IsReadOnly="False" />
+                    <propertyGrid:PropertyUIntControl LabelColumnWidth="200" LabelText="Beats Per Minute" Value="{Binding BeatsPerMinute}" IsReadOnly="False" />
+                    <propertyGrid:PropertyStringControl LabelColumnWidth="200" LabelText="Conductor" Value="{Binding Conductor}" IsReadOnly="False" />
+                </ListBox>
+            </TabItem>
 
-            <propertyGrid:PropertyStringControl Visibility="{Binding ShowAdvancedEditor, ElementName=TheTagView, Converter={StaticResource BoolVisibilityCollapseConverter}}"
-                                                LabelColumnWidth="200" LabelText="Music Brainz Release Artist Id" Value="{Binding MusicBrainzReleaseArtistId}" IsReadOnly="False" />
+            <TabItem Header="3rd Party">
+                <ListBox ItemContainerStyle="{StaticResource PlainItemContainerStyleWithAlternation_AliceBlue}"
+                         AlternationCount="2"
+                         HorizontalContentAlignment="Stretch"
+                         VirtualizingPanel.ScrollUnit="Pixel"
+                         ScrollViewer.HorizontalScrollBarVisibility="Hidden">
 
-            <propertyGrid:PropertyStringControl Visibility="{Binding ShowAdvancedEditor, ElementName=TheTagView, Converter={StaticResource BoolVisibilityCollapseConverter}}"
-                                                LabelColumnWidth="200" LabelText="Music Brainz Release Status" Value="{Binding MusicBrainzReleaseStatus}" IsReadOnly="False" />
+                    <propertyGrid:PropertyStringControl LabelColumnWidth="200" LabelText="Amazon Id" Value="{Binding AmazonId}" IsReadOnly="False" />
+                    <propertyGrid:PropertyStringControl LabelColumnWidth="200" LabelText="MusicIP Id" Value="{Binding MusicIpId}" IsReadOnly="False" />
+                    <propertyGrid:PropertyStringControl LabelColumnWidth="200" LabelText="Music Brainz Track Id" Value="{Binding MusicBrainzTrackId}" IsReadOnly="False" />
+                    <propertyGrid:PropertyStringControl LabelColumnWidth="200" LabelText="Music Brainz Artist Id" Value="{Binding MusicBrainzArtistId}" IsReadOnly="False" />
+                    <propertyGrid:PropertyStringControl LabelColumnWidth="200" LabelText="Music Brainz Disc Id" Value="{Binding MusicBrainzDiscId}" IsReadOnly="False" />
+                    <propertyGrid:PropertyStringControl LabelColumnWidth="200" LabelText="Music Brainz Release Id" Value="{Binding MusicBrainzReleaseId}" IsReadOnly="False" />
+                    <propertyGrid:PropertyStringControl LabelColumnWidth="200" LabelText="Music Brainz Release Artist Id" Value="{Binding MusicBrainzReleaseArtistId}" IsReadOnly="False" />
+                    <propertyGrid:PropertyStringControl LabelColumnWidth="200" LabelText="Music Brainz Release Status" Value="{Binding MusicBrainzReleaseStatus}" IsReadOnly="False" />
+                    <propertyGrid:PropertyStringControl LabelColumnWidth="200" LabelText="Music Brainz Release Type" Value="{Binding MusicBrainzReleaseType}" IsReadOnly="False" />
+                    <propertyGrid:PropertyStringControl LabelColumnWidth="200" LabelText="Music Brainz Release Country" Value="{Binding MusicBrainzReleaseCountry}" IsReadOnly="False" />
 
-            <propertyGrid:PropertyStringControl Visibility="{Binding ShowAdvancedEditor, ElementName=TheTagView, Converter={StaticResource BoolVisibilityCollapseConverter}}" 
-                                                LabelColumnWidth="200" LabelText="Music Brainz Release Type" Value="{Binding MusicBrainzReleaseType}" IsReadOnly="False" />
+                </ListBox>
+            </TabItem>
+            
+            <TabItem Header="Artwork">
+                <region:IocRegion region:IocRegionManager.DefaultViewType="{x:Type local:TagPictureView}" />
+            </TabItem>
 
-            <propertyGrid:PropertyStringControl Visibility="{Binding ShowAdvancedEditor, ElementName=TheTagView, Converter={StaticResource BoolVisibilityCollapseConverter}}"
-                                                LabelColumnWidth="200" LabelText="Music Brainz Release Country" Value="{Binding MusicBrainzReleaseCountry}" IsReadOnly="False" />
-
-            <propertyGrid:PropertyDoubleControl Visibility="{Binding ShowAdvancedEditor, ElementName=TheTagView, Converter={StaticResource BoolVisibilityCollapseConverter}}"
-                                                LabelColumnWidth="200" LabelText="ReplayGain Track Gain" ValueMin="0" ValueMax="1" ValueIncrement="0.01" Value="{Binding ReplayGainTrackGain}" IsReadOnly="False" />
-
-            <propertyGrid:PropertyDoubleControl Visibility="{Binding ShowAdvancedEditor, ElementName=TheTagView, Converter={StaticResource BoolVisibilityCollapseConverter}}"
-                                                LabelColumnWidth="200" LabelText="ReplayGain Track Peak" ValueMin="0" ValueMax="1" ValueIncrement="0.01" Value="{Binding ReplayGainTrackPeak}" IsReadOnly="False" />
-
-            <propertyGrid:PropertyDoubleControl Visibility="{Binding ShowAdvancedEditor, ElementName=TheTagView, Converter={StaticResource BoolVisibilityCollapseConverter}}"
-                                                LabelColumnWidth="200" LabelText="ReplayGain Album Gain" ValueMin="0" ValueMax="1" ValueIncrement="0.01" Value="{Binding ReplayGainAlbumGain}" IsReadOnly="False" />
-
-            <propertyGrid:PropertyDoubleControl Visibility="{Binding ShowAdvancedEditor, ElementName=TheTagView, Converter={StaticResource BoolVisibilityCollapseConverter}}"
-                                                LabelColumnWidth="200" LabelText="ReplayGain Album Peak" ValueMin="0" ValueMax="1" ValueIncrement="0.01" Value="{Binding ReplayGainAlbumPeak}" IsReadOnly="False" />
-
-            <!-- Artwork -->
-            <region:IocRegion region:IocRegionManager.DefaultViewType="{x:Type local:TagPictureView}"
-                              Visibility="{Binding ShowArtworkEditor, ElementName=TheTagView, Converter={StaticResource BoolVisibilityCollapseConverter}}" />
-        </ListBox>
+        </TabControl>            
     </Grid>
 </UserControl>

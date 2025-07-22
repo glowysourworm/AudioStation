@@ -211,38 +211,6 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
             this.RunMusicBrainzCommand.RaiseCanExecuteChanged();
         }
 
-        private void EditTags()
-        {
-            var inputFiles = _sourceFiles.Where(x => x.IsSelected).ToList();
-            var firstFile = inputFiles.FirstOrDefault();
-
-            if (firstFile == null)
-                return;
-
-            // Base the tag view model on the first input. Then, build a group tag
-            // from there.
-            //
-            try
-            {
-                var fileViewModels = new List<TagFileViewModel>();
-
-                foreach (var file in inputFiles)
-                {
-                    var tagFileViewModel = new TagFileViewModel(file.ImportOutput.ImportedTagFile);
-
-                    // Add tag to the group view model
-                    fileViewModels.Add(tagFileViewModel);
-                }
-
-                _dialogController.ShowTagWindow(new TagFileGroupViewModel(fileViewModels));
-            }
-            catch (Exception ex)
-            {
-                ApplicationHelpers.Log("Application error:  {0}", LogMessageType.General, LogLevel.Error, ex, ex.Message);
-                throw ex;
-            }
-        }
-
         private void RefreshImportFiles(bool useNativeFileIO)
         {
             if (!string.IsNullOrEmpty(this.Options.SourceFolder))
@@ -320,6 +288,38 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
                 this.SourceFiles[index].SelectMusicBrainzEvent -= ShowMusicBrainzResults;
                 this.SourceFiles[index].PlayAudioEvent -= ShowSmallAudioPlayer;
                 this.SourceFiles.RemoveAt(index);
+            }
+        }
+
+        private void EditTags()
+        {
+            var inputFiles = _sourceFiles.Where(x => x.IsSelected).ToList();
+            var firstFile = inputFiles.FirstOrDefault();
+
+            if (firstFile == null)
+                return;
+
+            // Base the tag view model on the first input. Then, build a group tag
+            // from there.
+            //
+            try
+            {
+                var fileViewModels = new List<TagFileViewModel>();
+
+                foreach (var file in inputFiles)
+                {
+                    var tagFileViewModel = new TagFileViewModel(file.ImportOutput.ImportedTagFile);
+
+                    // Add tag to the group view model
+                    fileViewModels.Add(tagFileViewModel);
+                }
+
+                _dialogController.ShowTagWindow(new TagFileGroupViewModel(fileViewModels));
+            }
+            catch (Exception ex)
+            {
+                ApplicationHelpers.Log("Application error:  {0}", LogMessageType.General, LogLevel.Error, ex, ex.Message);
+                throw ex;
             }
         }
 
