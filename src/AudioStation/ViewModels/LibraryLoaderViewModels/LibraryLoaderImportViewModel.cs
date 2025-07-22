@@ -5,6 +5,7 @@ using System.Windows.Threading;
 
 using AudioStation.Controller.Interface;
 using AudioStation.Core;
+using AudioStation.Core.Component;
 using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderLoad;
 using AudioStation.Core.Model;
@@ -306,6 +307,7 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
 
             viewModel.SelectAcoustIDEvent += ShowAcoustIDResults;
             viewModel.SelectMusicBrainzEvent += ShowMusicBrainzResults;
+            viewModel.PlayAudioEvent += ShowSmallAudioPlayer;
 
             return viewModel;
         }
@@ -316,6 +318,7 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
             {
                 this.SourceFiles[index].SelectAcoustIDEvent -= ShowAcoustIDResults;
                 this.SourceFiles[index].SelectMusicBrainzEvent -= ShowMusicBrainzResults;
+                this.SourceFiles[index].PlayAudioEvent -= ShowSmallAudioPlayer;
                 this.SourceFiles.RemoveAt(index);
             }
         }
@@ -536,6 +539,28 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
             // Select Both Records
             selectedFile.SelectedMusicBrainzRecordingMatch = result;
             selectedFile.SelectedAcoustIDResult = acoustIDResult;
+        }
+
+        private void ShowSmallAudioPlayer(LibraryLoaderImportFileViewModel selectedFile)
+        {
+            // Small Audio Player:  This follows the dialog pattern; but is self-dismissing!
+            //
+
+            var dialogViewModel = new DialogSmallAudioPlayerViewModel()
+            {
+                Album = selectedFile.Album,
+                Artist = selectedFile.FirstAlbumArtist,
+                CurrentTime = TimeSpan.Zero,
+                CurrentTimeRatio = 0,
+                Duration = selectedFile.ImportOutput.ImportedTagFile.Properties.Duration,
+                FileName = selectedFile.FileFullPath,
+                PlayState = PlayStopPause.Stop,
+                SourceType = StreamSourceType.File,
+                Track = selectedFile.Title
+            };
+
+            // Show Dialog (starts on load)
+            _dialogController.ShowDialogWindowSync(new DialogEventData(selectedFile.FileName, dialogViewModel));
         }
     }
 }

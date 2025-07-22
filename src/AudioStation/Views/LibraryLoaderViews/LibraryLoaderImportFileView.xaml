@@ -168,6 +168,13 @@
                                     <fa5:ImageAwesome Icon="Solid_Music" Style="{StaticResource FontAwesomeIconManagerViewPager}" Margin="5 0 0 0" />
                                 </StackPanel>
                             </Button>
+                            <Button Style="{StaticResource UserControlButton}" 
+                                    Command="{Binding PlayAudioCommand}"
+                                    Margin="5 0 0 0">
+                                <fa5:ImageAwesome Icon="Solid_PlayCircle" 
+                                                  Style="{StaticResource FontAwesomeIconManagerViewPager}" 
+                                                  Margin="1" />
+                            </Button>                            
                         </StackPanel>
 
                         <controls:NoScrollListBox Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="4"

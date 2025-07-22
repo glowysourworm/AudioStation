@@ -179,6 +179,12 @@ namespace AudioStation.Controller
                         DataContext = data.DataContext
                     };
                     break;
+                case DialogEventView.SmallAudioPlayer:
+                    _dialogWindow.DataContext = new SmallAudioPlayerView()
+                    {
+                        DataContext = data.DataContext
+                    };
+                    break;
                 default:
                     throw new Exception("Unhandled dialog view type:  DialogController.cs");
             }

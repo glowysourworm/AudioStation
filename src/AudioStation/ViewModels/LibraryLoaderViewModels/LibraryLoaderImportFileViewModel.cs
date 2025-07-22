@@ -36,6 +36,7 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
 
         public event SimpleEventHandler<LibraryLoaderImportFileViewModel> SelectMusicBrainzEvent;
         public event SimpleEventHandler<LibraryLoaderImportFileViewModel> SelectAcoustIDEvent;
+        public event SimpleEventHandler<LibraryLoaderImportFileViewModel> PlayAudioEvent;
 
         bool _isSelected;
         bool _isExpanded;
@@ -57,6 +58,7 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
 
         SimpleCommand _selectMusicBrainzCommand;
         SimpleCommand _selectAcoustIDCommand;
+        SimpleCommand _playAudioCommand;
 
         public bool IsSelected
         {
@@ -129,6 +131,11 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
         {
             get { return _selectAcoustIDCommand; }
             set { this.RaiseAndSetIfChanged(ref _selectAcoustIDCommand, value); }
+        }
+        public SimpleCommand PlayAudioCommand
+        {
+            get { return _playAudioCommand; }
+            set { this.RaiseAndSetIfChanged(ref _playAudioCommand, value); }
         }
 
         #region ISimpleTag
@@ -221,6 +228,12 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
                         this.SelectMusicBrainzEvent(this);
 
                 }, () => this.ImportOutput.MusicBrainzRecordingMatchSuccess);
+
+                this.PlayAudioCommand = new SimpleCommand(() =>
+                {
+                    if (this.PlayAudioEvent != null)
+                        this.PlayAudioEvent(this);
+                });
             }
             catch (Exception ex)
             {

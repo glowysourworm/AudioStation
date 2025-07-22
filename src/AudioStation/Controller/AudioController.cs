@@ -86,7 +86,7 @@ namespace AudioStation.Controller
             });
             eventAggregator.GetEvent<PlaybackPositionChangedEvent>().Subscribe(position =>
             {
-                _player?.SetPosition(position);
+                SetCurrentTime(position);
             });
         }
 
@@ -170,6 +170,11 @@ namespace AudioStation.Controller
                     State = PlayStopPause.Play
                 });
             }
+        }
+
+        public void SetCurrentTime(TimeSpan time)
+        {
+            _player?.SetPosition(time);
         }
 
         private void Resume()

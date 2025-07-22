@@ -23,6 +23,7 @@ namespace AudioStation.Controller.Interface
         void Play();
         void Stop();
         void Pause();
+        void SetCurrentTime(TimeSpan time);
         PlaybackState GetPlaybackState();
     }
 }
