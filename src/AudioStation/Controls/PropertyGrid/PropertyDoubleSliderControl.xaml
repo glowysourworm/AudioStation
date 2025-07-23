@@ -1,7 +1,8 @@
-﻿<UserControl x:Class="AudioStation.Controls.PropertyGrid.PropertyDoubleSliderControl"
+﻿<local:PropertyGridControl x:Class="AudioStation.Controls.PropertyGrid.PropertyDoubleSliderControl"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="clr-namespace:AudioStation.Controls"
+             xmlns:controls="clr-namespace:AudioStation.Controls"
+             xmlns:local="clr-namespace:AudioStation.Controls.PropertyGrid"
              Style="{StaticResource PropertyGridUserControl}">
     <Grid>
         <Grid.ColumnDefinitions>
@@ -12,8 +13,9 @@
         <TextBlock Text="{Binding LabelText, RelativeSource={RelativeSource AncestorType=UserControl}}" 
 				   Style="{StaticResource PropertyGridLabel}" />
 
-        <local:ScrubberControl Grid.Column="1" 
-				               ScrubbedRatio="{Binding Value, RelativeSource={RelativeSource AncestorType=UserControl}}" 
-				               IsEnabled="{Binding IsReadOnly, RelativeSource={RelativeSource AncestorType=UserControl}}" />
+        <controls:ScrubberControl Grid.Column="1" 
+				                   ScrubbedRatio="{Binding Value, RelativeSource={RelativeSource AncestorType=UserControl}}" 
+				                   IsEnabled="{Binding IsReadOnly, RelativeSource={RelativeSource AncestorType=UserControl}}" />
     </Grid>
-</UserControl>
+    
+</local:PropertyGridControl>

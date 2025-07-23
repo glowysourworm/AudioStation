@@ -4,7 +4,7 @@ using SimpleWpf.Extensions;
 
 namespace AudioStation.Event.DialogEvents
 {
-    public class DialogMessageListViewModel : DialogViewModelBase
+    public class DialogMessageListViewModel : ViewModelBase
     {
         public ObservableCollection<string> _messageList;
 
@@ -20,11 +20,6 @@ namespace AudioStation.Event.DialogEvents
         public DialogMessageListViewModel()
         {
             this.MessageList = new ObservableCollection<string>();
-        }
-
-        protected override bool Validate()
-        {
-            return true;
         }
     }
 }

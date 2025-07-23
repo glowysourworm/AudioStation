@@ -7,7 +7,7 @@
         <ResourceDictionary Source="/Resources/ButtonStyles.xaml" />
         <ResourceDictionary Source="/Resources/ThemeColorsAndBrushes.xaml" />
     </ResourceDictionary.MergedDictionaries>
-
+    
     <Style x:Key="PropertyGridLabel" TargetType="TextBlock">
         <Setter Property="FontSize" Value="14" />
         <Setter Property="Foreground" Value="#AF000000" />
@@ -28,6 +28,9 @@
         <Style.Triggers>
             <Trigger Property="IsEnabled" Value="False">
                 <Setter Property="Foreground" Value="#FFAAAAAA" />
+            </Trigger>
+            <Trigger Property="Validation.HasError" Value="true">
+                <Setter Property="BorderBrush" Value="Red" />
             </Trigger>
         </Style.Triggers>
     </Style>
@@ -57,6 +60,10 @@
     </Style>
 
     <Style x:Key="PropertyGridIntegerUpDownControl" TargetType="{x:Type xceed:IntegerUpDown}">
+        <Setter Property="CaretBrush" Value="{StaticResource LabelForeground}" />
+    </Style>
+
+    <Style x:Key="PropertyGridDoubleUpDownControl" TargetType="{x:Type xceed:DoubleUpDown}">
         <Setter Property="CaretBrush" Value="{StaticResource LabelForeground}" />
     </Style>
 

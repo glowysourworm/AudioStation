@@ -1,5 +1,4 @@
-﻿using System.Runtime.CompilerServices;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
 
 using EMA.ExtendedWPFVisualTreeHelper;
@@ -8,39 +7,15 @@ using Xceed.Wpf.Toolkit;
 
 namespace AudioStation.Controls.PropertyGrid
 {
-    public partial class PropertyStringEnumerableControl : UserControl
+    public partial class PropertyStringEnumerableControl : PropertyGridControl
     {
-        public static readonly DependencyProperty LabelTextProperty =
-            DependencyProperty.Register("LabelText", typeof(string), typeof(PropertyStringEnumerableControl));
-
-        public static readonly DependencyProperty LabelColumnWidthProperty =
-            DependencyProperty.Register("LabelColumnWidth", typeof(double), typeof(PropertyStringEnumerableControl), new PropertyMetadata(150.0D));
-
         public static readonly DependencyProperty ValueProperty =
             DependencyProperty.Register("Value", typeof(IList<string>), typeof(PropertyStringEnumerableControl), new PropertyMetadata(OnValueChanged));
 
-        public static readonly DependencyProperty IsReadOnlyProperty =
-            DependencyProperty.Register("IsReadOnly", typeof(bool), typeof(PropertyStringEnumerableControl));
-
-        public string LabelText
-        {
-            get { return (string)GetValue(LabelTextProperty); }
-            set { SetValue(LabelTextProperty, value); }
-        }
-        public double LabelColumnWidth
-        {
-            get { return (double)GetValue(LabelColumnWidthProperty); }
-            set { SetValue(LabelColumnWidthProperty, value); }
-        }
         public IList<string> Value
         {
             get { return (IList<string>)GetValue(ValueProperty); }
             set { SetValue(ValueProperty, value); }
-        }
-        public bool IsReadOnly
-        {
-            get { return (bool)GetValue(IsReadOnlyProperty); }
-            set { SetValue(IsReadOnlyProperty, value); }
         }
 
         public PropertyStringEnumerableControl()
@@ -92,6 +67,13 @@ namespace AudioStation.Controls.PropertyGrid
                     this.Value[index] = textBox.Text;
                 }
             }
+        }
+
+        protected override bool Validate()
+        {
+            return this.Value != null &&
+                   this.Value.Count > 0 &&
+                   this.Value.All(x => !string.IsNullOrWhiteSpace(x));
         }
     }
 }

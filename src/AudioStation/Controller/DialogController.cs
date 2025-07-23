@@ -6,6 +6,7 @@ using AudioStation.ViewModels;
 using AudioStation.ViewModels.LibraryLoaderViewModels;
 using AudioStation.ViewModels.Vendor.TagLibViewModel;
 using AudioStation.Views.DialogViews;
+using AudioStation.Views.VendorEntryViews;
 using AudioStation.Windows;
 
 using Microsoft.Win32;
@@ -179,38 +180,54 @@ namespace AudioStation.Controller
             //                              The inner data context is for the actual data for the view. This binding
             //                              should behave as normal.
             //
-            switch (data.EventView)
+            switch (data.View)
             {
-                case DialogEventView.Loading:
+                case DialogView.Loading:
                     _dialogWindow.DataContext = new LoadingView()
                     {
                         DataContext = data.DataContext
                     };
                     break;
-                case DialogEventView.SplashScreenLoading:
+                case DialogView.SplashScreenLoading:
                     _dialogWindow.DataContext = new LoadingView()
                     {
                         DataContext = data.DataContext
                     };
                     break;
-                case DialogEventView.MessageList:
+                case DialogView.MessageList:
                     _dialogWindow.DataContext = new MessageListView()
                     {
                         DataContext = data.DataContext
                     };
                     break;
-                case DialogEventView.SelectionList:
+                case DialogView.SelectionList:
                     _dialogWindow.DataContext = new SelectionView()
                     {
                         DataContext = data.DataContext
                     };
                     break;
-                case DialogEventView.SmallAudioPlayer:
+                case DialogView.SmallAudioPlayer:
                     _dialogWindow.DataContext = new SmallAudioPlayerView()
                     {
                         DataContext = data.DataContext
                     };
                     break;
+                case DialogView.EditorView:
+                {
+                    switch (data.EditorView)
+                    {
+                        case DialogEditorView.TagView:
+                            _dialogWindow.DataContext = new TagView()
+                            {
+                                DataContext = data.DataContext
+                            };
+                            break;
+                        case DialogEditorView.None:
+                        default:
+                            throw new Exception("Unhandled dialog editor view type:  DialogController.cs");
+                    }
+                }
+                break;
                 default:
                     throw new Exception("Unhandled dialog view type:  DialogController.cs");
             }
@@ -222,6 +239,8 @@ namespace AudioStation.Controller
             _dialogWindow.TitleTB.Text = data.DialogTitle;
             _dialogWindow.HeaderContainer.Visibility = string.IsNullOrEmpty(data.DialogTitle) ? Visibility.Collapsed : Visibility.Visible;
             _dialogWindow.ButtonPanel.Visibility = data.UserDismissalMode ? Visibility.Visible : Visibility.Collapsed;
+            _dialogWindow.Height = data.DialogHeight;
+            _dialogWindow.Width = data.DialogWidth;
 
             // Can't show the loading screen as a dialog window; but the window will appear as
             // a non-closeable window.

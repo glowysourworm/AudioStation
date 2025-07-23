@@ -14,29 +14,13 @@ using SimpleWpf.IocFramework.Application;
 
 namespace AudioStation.Controls.PropertyGrid
 {
-    public partial class PropertyImageControl : UserControl
+    public partial class PropertyImageControl : PropertyGridControl
     {
         private readonly IBitmapConverter _bitmapConverter;
-
-        public static readonly DependencyProperty LabelTextProperty =
-            DependencyProperty.Register("LabelText", typeof(string), typeof(PropertyImageControl));
-
-        public static readonly DependencyProperty LabelColumnWidthProperty =
-            DependencyProperty.Register("LabelColumnWidth", typeof(double), typeof(PropertyImageControl), new PropertyMetadata(150.0D));
 
         public static readonly DependencyProperty ValueProperty =
             DependencyProperty.Register("Value", typeof(ImageViewModel), typeof(PropertyImageControl), new PropertyMetadata(OnValueChanged));
 
-        public string LabelText
-        {
-            get { return (string)GetValue(LabelTextProperty); }
-            set { SetValue(LabelTextProperty, value); }
-        }
-        public double LabelColumnWidth
-        {
-            get { return (double)GetValue(LabelColumnWidthProperty); }
-            set { SetValue(LabelColumnWidthProperty, value); }
-        }
         public ImageViewModel Value
         {
             get { return (ImageViewModel)GetValue(ValueProperty); }
@@ -65,6 +49,11 @@ namespace AudioStation.Controls.PropertyGrid
             {
                 control.SetImage();   
             }
+        }
+
+        protected override bool Validate()
+        {
+            return this.Value != null;
         }
     }
 }

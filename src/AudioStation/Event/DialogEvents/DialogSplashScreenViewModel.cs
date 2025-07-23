@@ -2,7 +2,7 @@
 
 namespace AudioStation.Event.DialogEvents
 {
-    public class DialogSplashScreenViewModel : DialogViewModelBase
+    public class DialogSplashScreenViewModel : ViewModelBase
     {
         double _progress;
         string _message;
@@ -33,11 +33,6 @@ namespace AudioStation.Event.DialogEvents
         public DialogSplashScreenViewModel()
         {
             this.Message = string.Empty;
-        }
-
-        protected override bool Validate()
-        {
-            return true;
         }
     }
 }

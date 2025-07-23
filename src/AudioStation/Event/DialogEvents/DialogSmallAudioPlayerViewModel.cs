@@ -1,9 +1,11 @@
 ﻿using AudioStation.Core.Component;
 using AudioStation.Core.Model;
 
+using SimpleWpf.Extensions;
+
 namespace AudioStation.Event.DialogEvents
 {
-    public class DialogSmallAudioPlayerViewModel : DialogViewModelBase
+    public class DialogSmallAudioPlayerViewModel : ViewModelBase
     {
         string _fileName;
         StreamSourceType _sourceType;
@@ -72,11 +74,6 @@ namespace AudioStation.Event.DialogEvents
 
         public DialogSmallAudioPlayerViewModel()
         {
-        }
-
-        protected override bool Validate()
-        {
-            return true;
         }
     }
 }

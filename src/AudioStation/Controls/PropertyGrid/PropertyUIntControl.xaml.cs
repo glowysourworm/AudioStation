@@ -1,47 +1,42 @@
 ﻿using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Media;
 
 namespace AudioStation.Controls.PropertyGrid
 {
-    public partial class PropertyUIntControl : UserControl
+    public partial class PropertyUIntControl : PropertyGridControl
     {
-        public static readonly DependencyProperty LabelTextProperty =
-            DependencyProperty.Register("LabelText", typeof(string), typeof(PropertyUIntControl));
-
-        public static readonly DependencyProperty LabelColumnWidthProperty =
-            DependencyProperty.Register("LabelColumnWidth", typeof(double), typeof(PropertyUIntControl), new PropertyMetadata(150.0D));
-
         public static readonly DependencyProperty ValueProperty =
             DependencyProperty.Register("Value", typeof(uint), typeof(PropertyUIntControl));
 
-        public static readonly DependencyProperty IsReadOnlyProperty =
-            DependencyProperty.Register("IsReadOnly", typeof(bool), typeof(PropertyUIntControl));
+        public static readonly DependencyProperty ValueMinProperty =
+            DependencyProperty.Register("ValueMin", typeof(uint), typeof(PropertyUIntControl));
 
-        public string LabelText
+        public static readonly DependencyProperty ValueMaxProperty =
+            DependencyProperty.Register("ValueMax", typeof(uint), typeof(PropertyUIntControl));
+
+        public uint ValueMin
         {
-            get { return (string)GetValue(LabelTextProperty); }
-            set { SetValue(LabelTextProperty, value); }
+            get { return (uint)GetValue(ValueMinProperty); }
+            set { SetValue(ValueMinProperty, value); }
         }
-        public double LabelColumnWidth
+        public uint ValueMax
         {
-            get { return (double)GetValue(LabelColumnWidthProperty); }
-            set { SetValue(LabelColumnWidthProperty, value); }
+            get { return (uint)GetValue(ValueMaxProperty); }
+            set { SetValue(ValueMaxProperty, value); }
         }
         public uint Value
         {
             get { return (uint)GetValue(ValueProperty); }
             set { SetValue(ValueProperty, value); }
         }
-        public bool IsReadOnly
-        {
-            get { return (bool)GetValue(IsReadOnlyProperty); }
-            set { SetValue(IsReadOnlyProperty, value); }
-        }
 
         public PropertyUIntControl()
         {
             InitializeComponent();
+        }
+
+        protected override bool Validate()
+        {
+            return this.Value >= this.ValueMin && this.Value <= this.ValueMax;
         }
     }
 }

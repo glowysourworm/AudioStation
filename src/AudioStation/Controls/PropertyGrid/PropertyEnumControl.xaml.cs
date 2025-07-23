@@ -4,33 +4,14 @@ using System.Windows.Media;
 
 namespace AudioStation.Controls.PropertyGrid
 {
-    public partial class PropertyEnumControl : UserControl
+    public partial class PropertyEnumControl : PropertyGridControl
     {
-        public static readonly DependencyProperty LabelTextProperty =
-            DependencyProperty.Register("LabelText", typeof(string), typeof(PropertyEnumControl));
-
-        public static readonly DependencyProperty LabelColumnWidthProperty =
-            DependencyProperty.Register("LabelColumnWidth", typeof(double), typeof(PropertyEnumControl), new PropertyMetadata(150.0D));
-
         public static readonly DependencyProperty EnumTypeProperty =
             DependencyProperty.Register("EnumType", typeof(Type), typeof(PropertyEnumControl));
 
         public static readonly DependencyProperty ValueProperty =
             DependencyProperty.Register("Value", typeof(Enum), typeof(PropertyEnumControl));
 
-        public static readonly DependencyProperty IsReadOnlyProperty =
-            DependencyProperty.Register("IsReadOnly", typeof(bool), typeof(PropertyEnumControl));
-
-        public string LabelText
-        {
-            get { return (string)GetValue(LabelTextProperty); }
-            set { SetValue(LabelTextProperty, value); }
-        }
-        public double LabelColumnWidth
-        {
-            get { return (double)GetValue(LabelColumnWidthProperty); }
-            set { SetValue(LabelColumnWidthProperty, value); }
-        }
         public Type EnumType
         {
             get { return (Type)GetValue(EnumTypeProperty); }
@@ -41,15 +22,15 @@ namespace AudioStation.Controls.PropertyGrid
             get { return (Enum)GetValue(ValueProperty); }
             set { SetValue(ValueProperty, value); }
         }
-        public bool IsReadOnly
-        {
-            get { return (bool)GetValue(IsReadOnlyProperty); }
-            set { SetValue(IsReadOnlyProperty, value); }
-        }
 
         public PropertyEnumControl()
         {
             InitializeComponent();
+        }
+
+        protected override bool Validate()
+        {
+            return this.Value != null;
         }
     }
 }

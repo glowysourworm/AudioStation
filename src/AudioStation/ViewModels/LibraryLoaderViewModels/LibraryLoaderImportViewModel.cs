@@ -306,6 +306,7 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
             {
                 var fileViewModels = new List<TagFileViewModel>();
 
+                // Create View Model (for editor)(will write to memory)
                 foreach (var file in inputFiles)
                 {
                     var tagFileViewModel = new TagFileViewModel(file.ImportOutput.ImportedTagFile);
@@ -314,7 +315,15 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
                     fileViewModels.Add(tagFileViewModel);
                 }
 
-                _dialogController.ShowTagWindow(new TagFileGroupViewModel(fileViewModels));
+                var viewModel = new TagFileGroupViewModel(fileViewModels);
+
+                _dialogController.ShowDialogWindowSync(DialogEventData.ShowDialogEditor("Tag Editor", 600, 400, DialogEditorView.TagView, viewModel));
+
+                // Update Import File (view model)(still in memory only)
+                foreach (var file in inputFiles)
+                {
+                    file.UpdateMigrationDetails();
+                }
             }
             catch (Exception ex)
             {

@@ -1,10 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Runtime.CompilerServices;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Media;
 
 using SimpleWpf.Extensions;
 using SimpleWpf.UI.Controls.Model;
@@ -12,14 +9,8 @@ using SimpleWpf.UI.Converter;
 
 namespace AudioStation.Controls.PropertyGrid
 {
-    public partial class PropertyEnumListControl : UserControl
+    public partial class PropertyEnumListControl : PropertyGridControl
     {
-        public static readonly DependencyProperty LabelTextProperty =
-            DependencyProperty.Register("LabelText", typeof(string), typeof(PropertyEnumListControl));
-
-        public static readonly DependencyProperty LabelColumnWidthProperty =
-            DependencyProperty.Register("LabelColumnWidth", typeof(double), typeof(PropertyEnumListControl), new PropertyMetadata(150.0D));
-
         public static readonly DependencyProperty EnumTypeProperty =
             DependencyProperty.Register("EnumType", typeof(Type), typeof(PropertyEnumListControl), new PropertyMetadata(OnEnumChanged));
 
@@ -35,19 +26,6 @@ namespace AudioStation.Controls.PropertyGrid
         public static readonly DependencyProperty ShowZeroEnumProperty =
             DependencyProperty.Register("ShowZeroEnum", typeof(bool), typeof(PropertyEnumListControl));
 
-        public static readonly DependencyProperty IsReadOnlyProperty =
-            DependencyProperty.Register("IsReadOnly", typeof(bool), typeof(PropertyEnumListControl));
-
-        public string LabelText
-        {
-            get { return (string)GetValue(LabelTextProperty); }
-            set { SetValue(LabelTextProperty, value); }
-        }
-        public double LabelColumnWidth
-        {
-            get { return (double)GetValue(LabelColumnWidthProperty); }
-            set { SetValue(LabelColumnWidthProperty, value); }
-        }
         public Type EnumType
         {
             get { return (Type)GetValue(EnumTypeProperty); }
@@ -62,11 +40,6 @@ namespace AudioStation.Controls.PropertyGrid
         {
             get { return (Enum)GetValue(EnumValueProperty); }
             set { SetValue(EnumValueProperty, value); }
-        }
-        public bool IsReadOnly
-        {
-            get { return (bool)GetValue(IsReadOnlyProperty); }
-            set { SetValue(IsReadOnlyProperty, value); }
         }
         public bool ShowSetEnumValuesOnly
         {
@@ -101,7 +74,7 @@ namespace AudioStation.Controls.PropertyGrid
                 var enumCollection = new ObservableCollection<EnumItem>();
 
                 var typeConverter = new TypeConverter();
-                
+
                 // Filter the collection based on enum settings
                 foreach (var item in collection.Cast<EnumItem>())
                 {
@@ -122,7 +95,7 @@ namespace AudioStation.Controls.PropertyGrid
                         }
 
                         // Remove Zero Enum
-                        if (!control.ShowZeroEnum)                           
+                        if (!control.ShowZeroEnum)
                         {
                             if (Enum.GetUnderlyingType(control.EnumType) == typeof(int))
                             {
@@ -145,6 +118,11 @@ namespace AudioStation.Controls.PropertyGrid
 
                 control.EnumLB.ItemsSource = enumCollection;
             }
+        }
+
+        protected override bool Validate()
+        {
+            return this.EnumValue != null;
         }
     }
 }

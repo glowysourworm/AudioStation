@@ -4,17 +4,20 @@ using System.Windows.Media;
 
 namespace AudioStation.Views.Converter
 {
-    public class ValidationForegroundConverter : IValueConverter
+    /// <summary>
+    /// Applies a red brush when value is invalid
+    /// </summary>
+    public class ValidationBrushConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value == null)
+            if (value == null || parameter == null)
+                return Binding.DoNothing;
+
+            else if (!(bool)value)
                 return Brushes.Red;
 
-            else if ((bool)value)
-                return Brushes.LawnGreen;
-
-            return Brushes.Red;
+            return (Brush)parameter ?? Brushes.HotPink;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

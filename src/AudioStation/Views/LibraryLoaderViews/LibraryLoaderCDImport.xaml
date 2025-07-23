@@ -14,10 +14,10 @@
         <ItemsControl HorizontalContentAlignment="Stretch" Margin="5" >
             <propertyGrid:PropertyLabelControl LabelColumnWidth="200" LabelText="CD Drive" Value="{Binding CDPlayerDrive}" />
             <propertyGrid:PropertyLabelControl LabelColumnWidth="200" LabelText="CD Drive Ready" Value="{Binding CDPlayerLoaded}" />
-            <propertyGrid:PropertyStringControl LabelColumnWidth="200" LabelText="Artist" Value="{Binding Artist, Mode=TwoWay}" />
-            <propertyGrid:PropertyStringControl LabelColumnWidth="200" LabelText="Album" Value="{Binding Album, Mode=TwoWay}" />
-            <propertyGrid:PropertyIntControl LabelColumnWidth="200" LabelText="Disc Number" Value="{Binding DiscNumber, Mode=TwoWay}" />
-            <propertyGrid:PropertyIntControl LabelColumnWidth="200" LabelText="Disc Count" Value="{Binding DiscCount, Mode=TwoWay}" />
+            <propertyGrid:PropertyStringControl LabelColumnWidth="200" LabelText="Artist" Value="{Binding Artist, Mode=TwoWay}" IsRequired="True" />
+            <propertyGrid:PropertyStringControl LabelColumnWidth="200" LabelText="Album" Value="{Binding Album, Mode=TwoWay}" IsRequired="True" />
+            <propertyGrid:PropertyIntControl LabelColumnWidth="200" LabelText="Disc Number" Value="{Binding DiscNumber, Mode=TwoWay}" ValueMin="1" ValueMax="100" IsRequired="True" />
+            <propertyGrid:PropertyIntControl LabelColumnWidth="200" LabelText="Disc Count" Value="{Binding DiscCount, Mode=TwoWay}" ValueMin="1" ValueMax="100" IsRequired="True" />
         </ItemsControl>
 
         <ListBox ItemsSource="{Binding Tracks}" 

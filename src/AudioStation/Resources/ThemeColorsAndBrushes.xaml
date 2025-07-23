@@ -3,6 +3,8 @@
 
     <SolidColorBrush x:Key="LoadingBarFill">#FFAAAAAA</SolidColorBrush>
     <SolidColorBrush x:Key="LoadingBarStroke">#FFEEEEEE</SolidColorBrush>
+
+    <SolidColorBrush x:Key="PropertyGridControlDefaultBorder">#FFAAAAAA</SolidColorBrush>
     
     <SolidColorBrush x:Key="HeaderBackground">#FFEEEEEE</SolidColorBrush>
     <SolidColorBrush x:Key="HeaderTitleForeground">#FF555555</SolidColorBrush>

@@ -3,7 +3,7 @@ using System.Windows.Controls;
 
 namespace AudioStation.Controls.PropertyGrid
 {
-    public partial class PropertyHeader : UserControl
+    public partial class PropertyHeader : PropertyGridControl
     {
         public static readonly DependencyProperty ValueProperty =
             DependencyProperty.Register("Value", typeof(string), typeof(PropertyHeader));
@@ -17,6 +17,11 @@ namespace AudioStation.Controls.PropertyGrid
         public PropertyHeader()
         {
             InitializeComponent();
+        }
+
+        protected override bool Validate()
+        {
+            return true;
         }
     }
 }

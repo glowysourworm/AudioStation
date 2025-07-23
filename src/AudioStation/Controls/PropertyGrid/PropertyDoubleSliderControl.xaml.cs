@@ -4,44 +4,25 @@ using System.Windows.Media;
 
 namespace AudioStation.Controls.PropertyGrid
 {
-    public partial class PropertyDoubleSliderControl : UserControl
+    public partial class PropertyDoubleSliderControl : PropertyGridControl
     {
-        public static readonly DependencyProperty LabelTextProperty =
-            DependencyProperty.Register("LabelText", typeof(string), typeof(PropertyDoubleSliderControl));
-
-        public static readonly DependencyProperty LabelColumnWidthProperty =
-            DependencyProperty.Register("LabelColumnWidth", typeof(double), typeof(PropertyDoubleSliderControl), new PropertyMetadata(150.0D));
-
         public static readonly DependencyProperty ValueProperty =
             DependencyProperty.Register("Value", typeof(double), typeof(PropertyDoubleSliderControl));
-
-        public static readonly DependencyProperty IsReadOnlyProperty =
-            DependencyProperty.Register("IsReadOnly", typeof(bool), typeof(PropertyDoubleSliderControl));
-
-        public string LabelText
-        {
-            get { return (string)GetValue(LabelTextProperty); }
-            set { SetValue(LabelTextProperty, value); }
-        }
-        public double LabelColumnWidth
-        {
-            get { return (double)GetValue(LabelColumnWidthProperty); }
-            set { SetValue(LabelColumnWidthProperty, value); }
-        }
+        
         public double Value
         {
             get { return (double)GetValue(ValueProperty); }
             set { SetValue(ValueProperty, value); }
         }
-        public bool IsReadOnly
-        {
-            get { return (bool)GetValue(IsReadOnlyProperty); }
-            set { SetValue(IsReadOnlyProperty, value); }
-        }
 
         public PropertyDoubleSliderControl()
         {
             InitializeComponent();
+        }
+
+        protected override bool Validate()
+        {
+            return this.Value >= 0 && this.Value <= 1;
         }
     }
 }

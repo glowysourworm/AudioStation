@@ -18,7 +18,7 @@
         <converter:NowPlayingBoolConverter x:Key="NowPlayingBoolConverter" />
         <converter:NowPlayingPlaylistBoolConverter x:Key="NowPlayingPlaylistBoolConverter" />
         <converter:StringLengthConverter x:Key="StringLengthConverter" />
-        <converter:ValidationForegroundConverter x:Key="ValidationForegroundConverter" />
+        <converter:ValidationBrushConverter x:Key="ValidationBrushConverter" />
         <converter:ValidationForegroundParameterConverter x:Key="ValidationForegroundParameterConverter" />
         <converter:ImportStepForegroundParameterConverter x:Key="ImportStepForegroundParameterConverter" />
 
@@ -46,7 +46,7 @@
         <simpleConverter:BoolToWaitCursorConverter x:Key="BoolToWaitCursorConverter" />
         <simpleConverter:ArrayToObservableCollectionParameterConverter x:Key="ArrayToObservableCollectionParameterConverter" />
         <simpleConverter:IEnumerableToObservableCollectionParameterConverter x:Key="IEnumerableToObservableCollectionParameterConverter" />
-
+        
         <!-- Template Selectors -->
         <templateSelector:LogItemTemplateSelector x:Key="LogItemTemplateSelector" />
         <templateSelector:LibraryWorkItemContainerStyleSelector x:Key="LibraryWorkItemContainerStyleSelector" />

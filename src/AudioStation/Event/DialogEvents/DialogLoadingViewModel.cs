@@ -1,6 +1,8 @@
-﻿namespace AudioStation.Event.DialogEvents
+﻿using SimpleWpf.Extensions;
+
+namespace AudioStation.Event.DialogEvents
 {
-    public class DialogLoadingViewModel : DialogViewModelBase
+    public class DialogLoadingViewModel : ViewModelBase
     {
         bool _showProgressBar;
         double _progress;
@@ -32,11 +34,6 @@
         {
             this.Message = string.Empty;
             this.Title = string.Empty;
-        }
-
-        protected override bool Validate()
-        {
-            return true;
         }
     }
 }

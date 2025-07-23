@@ -1,11 +1,12 @@
 ﻿using System.ComponentModel;
 using System.Windows.Controls;
 
+using SimpleWpf.Extensions;
 using SimpleWpf.Extensions.ObservableCollection;
 
 namespace AudioStation.Event.DialogEvents
 {
-    public class DialogSelectionListViewModel : DialogViewModelBase
+    public class DialogSelectionListViewModel : ViewModelBase
     {
         SelectionMode _selectionMode;
         NotifyingObservableCollection<SelectionViewModel> _selectionList;
@@ -37,11 +38,6 @@ namespace AudioStation.Event.DialogEvents
                                                        PropertyChangedEventArgs item3)
         {
             OnPropertyChanged(nameof(SelectionList));
-        }
-
-        protected override bool Validate()
-        {
-            return this.SelectionList.Any(x => x.Selected);
         }
     }
 }

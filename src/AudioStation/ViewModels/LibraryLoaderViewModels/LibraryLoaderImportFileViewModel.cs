@@ -114,12 +114,12 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
         public LookupResultViewModel SelectedAcoustIDResult
         {
             get { return _selectedAcoustIDResult; }
-            set { this.RaiseAndSetIfChanged(ref _selectedAcoustIDResult, value); }
+            set { this.RaiseAndSetIfChanged(ref _selectedAcoustIDResult, value); UpdateMigrationDetails(); }
         }
         public MusicBrainzRecordingViewModel SelectedMusicBrainzRecordingMatch
         {
             get { return _selectedMusicBrainzRecordingMatch; }
-            set { this.RaiseAndSetIfChanged(ref _selectedMusicBrainzRecordingMatch, value); }
+            set { this.RaiseAndSetIfChanged(ref _selectedMusicBrainzRecordingMatch, value); UpdateMigrationDetails(); }
         }
 
         public SimpleCommand SelectMusicBrainzCommand

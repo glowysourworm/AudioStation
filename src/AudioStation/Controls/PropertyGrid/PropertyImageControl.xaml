@@ -1,8 +1,9 @@
-﻿<UserControl x:Class="AudioStation.Controls.PropertyGrid.PropertyImageControl"
+﻿<local:PropertyGridControl x:Class="AudioStation.Controls.PropertyGrid.PropertyImageControl"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:controls="clr-namespace:AudioStation.Controls"
-             xmlns:local="clr-namespace:AudioStation.Controls"
+             xmlns:local="clr-namespace:AudioStation.Controls.PropertyGrid"      
+             BorderBrush="{Binding IsValid, Converter={StaticResource ValidationBrushConverter},ConverterParameter={StaticResource PropertyGridControlDefaultBorder},  RelativeSource={RelativeSource AncestorType=UserControl}}"                           
              Style="{StaticResource PropertyGridLargeUserControl}">
     <Grid>
         <Grid.ColumnDefinitions>
@@ -13,6 +14,6 @@
         <TextBlock Text="{Binding LabelText, RelativeSource={RelativeSource AncestorType=UserControl}}" 
 				   Style="{StaticResource PropertyGridLargeLabel}" />
 
-        <Image Grid.Column="1" x:Name="ImageControl" />
+        <Image Grid.Column="1" x:Name="ImageControl"  />
     </Grid>
-</UserControl>
+</local:PropertyGridControl>

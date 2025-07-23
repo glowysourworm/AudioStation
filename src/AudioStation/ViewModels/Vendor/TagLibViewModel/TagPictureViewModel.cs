@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 using SimpleWpf.Extensions;
 using SimpleWpf.Extensions.Interface;
+using SimpleWpf.UI.ValidationRules;
 
 using TagLib;
 
