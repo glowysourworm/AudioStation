@@ -40,11 +40,6 @@ namespace AudioStation.Core.Model.Vendor.ATLExtension.Interface
         TimeSpan Duration { get; }
 
         /// <summary>
-        /// Name of software that embedded the file
-        /// </summary>
-        string Encoder { get; }
-
-        /// <summary>
         /// Collection of genres (Genre (singular) will be the first of this collection)
         /// </summary>
         IList<string> Genres { get; }

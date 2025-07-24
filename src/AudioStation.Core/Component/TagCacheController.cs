@@ -91,6 +91,27 @@ namespace AudioStation.Core.Component
                 // ATL -> AudioStation
                 var tagFile = ApplicationHelpers.Map<ATL.Track, AudioStationTag>(atlTrack);
 
+                // IAudioStationTag:  Additional Fields (taken from ATL.Track)
+                tagFile.AlbumArtists.Add(atlTrack.AlbumArtist);                     // NEEDS TO BE FINISHED
+                tagFile.AudioFormat = atlTrack.AudioFormat.Name;
+                tagFile.BitDepth = atlTrack.BitDepth;
+                tagFile.BitRate = atlTrack.Bitrate;
+                tagFile.Channels = atlTrack.ChannelsArrangement.NbChannels;
+                tagFile.Duration = TimeSpan.FromMilliseconds(atlTrack.DurationMs);
+                tagFile.Encoder = atlTrack.Encoder;
+
+                uint trackNumber = 0;
+                uint.TryParse(atlTrack.TrackNumberStr, out trackNumber);
+
+                // NEEDS TO BE FINISHED
+                if (!string.IsNullOrWhiteSpace(atlTrack.Genre))
+                    tagFile.Genres.Add(atlTrack.Genre);
+
+                tagFile.IsVariableBitRate = atlTrack.IsVBR;
+                tagFile.SampleRate = atlTrack.SampleRate;
+                tagFile.Track = trackNumber;
+                tagFile.Year = atlTrack.Year ?? atlTrack.Date?.Year ?? 0;
+
                 _tagFiles.Add(fileName, tagFile);
             }
             catch (Exception ex)
@@ -131,6 +152,17 @@ namespace AudioStation.Core.Component
 
                 // AudioStation -> ATL 
                 var atlTrack = ApplicationHelpers.Map<IAudioStationTag, ATL.Track>(tagData);
+
+                // IAudioStationTag:  Additional Fields (taken from ATL.Track)
+                //tagFile.AlbumArtists.Add(atlTrack.AlbumArtist);                     // NEEDS TO BE FINISHED
+                //tagFile.Encoder = atlTrack.Encoder;
+
+                // NEEDS TO BE FINISHED
+                //if (!string.IsNullOrWhiteSpace(atlTrack.Genre))
+                //    tagFile.Genres.Add(atlTrack.Genre);
+
+                atlTrack.TrackNumber = (int)tagData.Track;
+                atlTrack.TrackNumberStr = tagData.Track.ToString();
 
                 // ATL:  Save
                 atlTrack.SaveTo(fileName);

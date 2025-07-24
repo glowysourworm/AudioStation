@@ -11,7 +11,6 @@ using Microsoft.Extensions.Logging;
 
 using SimpleWpf.IocFramework.Application;
 using SimpleWpf.NativeIO.FastDirectory;
-using SimpleWpf.RecursiveSerializer.Shared;
 
 namespace AudioStation.Core.Utility
 {
@@ -86,14 +85,9 @@ namespace AudioStation.Core.Utility
         {
             try
             {
-                var config = new MapperConfiguration(cfg =>
-                {
-                    cfg.CreateMap<TSource, TDest>();
-
-                }, GetLoggerFactory());
-
-                var mapper = config.CreateMapper();
                 var destination = Activator.CreateInstance(typeof(TDest));
+
+                var mapper = GetMapper(source, destination);
 
                 return (TDest)mapper.Map(source, destination, typeof(TSource), typeof(TDest));
             }
@@ -108,6 +102,24 @@ namespace AudioStation.Core.Utility
         {
             try
             {
+                var mapper = GetMapper(source, dest);
+
+                mapper.Map(source, dest, typeof(TSource), typeof(TDest));
+            }
+            catch (Exception ex)
+            {
+                ApplicationHelpers.Log("Error mapping objects:  {0}", LogMessageType.General, LogLevel.Error, ex, ex.Message);
+                throw ex;
+            }
+        }
+
+        private static IMapper GetMapper<TSource, TDest>(TSource source, TDest dest)
+        {
+            if (ApplicationMapperCache.Has(typeof(TSource), typeof(TDest)))
+                return ApplicationMapperCache.Get(typeof(TSource), typeof(TDest));
+
+            try
+            {
                 var config = new MapperConfiguration(cfg =>
                 {
                     cfg.CreateMap<TSource, TDest>();
@@ -116,11 +128,13 @@ namespace AudioStation.Core.Utility
 
                 var mapper = config.CreateMapper();
 
-                mapper.Map(source, dest, typeof(TSource), typeof(TDest));
+                ApplicationMapperCache.Set(typeof(TSource), typeof(TDest), mapper);
+
+                return mapper;
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Error mapping objects:  {0}", LogMessageType.General, LogLevel.Error, ex, ex.Message);
+                Log("Error creating type mapper: {0}", LogMessageType.General, LogLevel.Error, ex, ex.Message);
                 throw ex;
             }
         }

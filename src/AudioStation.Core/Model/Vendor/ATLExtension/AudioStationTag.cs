@@ -10,7 +10,7 @@ namespace AudioStation.Core.Model.Vendor.ATLExtension
     public class AudioStationTag : IAudioStationTag
     {
         public IDictionary<string, string> AdditionalFields { get; set; }
-        public string AudioFormat { get; }
+        public string AudioFormat { get; set;  }
         public string Album { get; set; }
         public string AlbumArtist { get; set; }
         public IList<string> AlbumArtists { get; set; }
