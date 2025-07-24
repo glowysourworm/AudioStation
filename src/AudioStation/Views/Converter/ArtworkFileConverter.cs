@@ -31,9 +31,9 @@ namespace AudioStation.Views.Converter
             var fileRef = _tagCacheController.Get(fileName);
 
             // Creates IImage "source" for the Avalonia Image control
-            if (fileRef.Tag.Pictures.Any())
+            if (fileRef.EmbeddedPictures.Any())
             {
-                using (var stream = new MemoryStream(fileRef.Tag.Pictures.First().Data.Data))
+                using (var stream = new MemoryStream(fileRef.EmbeddedPictures.First().PictureData))
                 {
                     var decoder = BitmapDecoder.Create(stream, BitmapCreateOptions.PreservePixelFormat, BitmapCacheOption.Default);
                     return decoder.Frames[0];

@@ -10,7 +10,7 @@ using AudioStation.Core.Utility;
 
 using SimpleWpf.IocFramework.Application;
 
-using TagLib;
+using PictureType = ATL.PictureInfo.PIC_TYPE;
 
 namespace AudioStation.Controls
 {

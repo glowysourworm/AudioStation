@@ -4,6 +4,7 @@ using System.Windows.Threading;
 using AudioStation.Controller.Interface;
 using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Component.Vendor;
+using AudioStation.Core.Database.AudioStationDatabase;
 using AudioStation.Core.Model;
 using AudioStation.Core.Utility;
 using AudioStation.EventHandler;
@@ -118,7 +119,7 @@ namespace AudioStation.ViewModels
         }
 
         #region ILibraryLoader Events (some of these events are from the worker thread)
-        private void OnRadioEntryLoaded(RadioEntry radioEntry)
+        private void OnRadioEntryLoaded(RadioBrowserStation radioEntry)
         {
             if (ApplicationHelpers.IsDispatcher() == ApplicationIsDispatcherResult.False)
                 ApplicationHelpers.BeginInvokeDispatcher(OnRadioEntryLoaded, DispatcherPriority.ApplicationIdle, radioEntry);
@@ -135,16 +136,16 @@ namespace AudioStation.ViewModels
                         Name = radioEntry.Name,
                     };
 
-                    entry.Stations.AddRange(radioEntry.Streams.Select(x => new RadioStationViewModel()
-                    {
-                        Bitrate = x.Bitrate,
-                        Codec = x.Codec,
-                        Name = x.Name,
-                        Endpoint = x.Endpoint,
-                        Homepage = x.Homepage,
-                        LogoEndpoint = x.LogoEndpoint
+                    //entry.Stations.AddRange(radioEntry.Streams.Select(x => new RadioStationViewModel()
+                    //{
+                    //    Bitrate = x.Bitrate,
+                    //    Codec = x.Codec,
+                    //    Name = x.Name,
+                    //    Endpoint = x.Endpoint,
+                    //    Homepage = x.Homepage,
+                    //    LogoEndpoint = x.LogoEndpoint
 
-                    }));
+                    //}));
 
                     this.RadioEntries.Add(entry);
                 }
@@ -152,30 +153,30 @@ namespace AudioStation.ViewModels
                 // Update
                 else
                 {
-                    foreach (var station in radioEntry.Streams)
-                    {
-                        var radioStation = entry.Stations.FirstOrDefault(x => x.Name == station.Name);
+                    //foreach (var station in radioEntry.Streams)
+                    //{
+                    //    var radioStation = entry.Stations.FirstOrDefault(x => x.Name == station.Name);
 
-                        if (radioStation == null)
-                        {
-                            radioStation = new RadioStationViewModel()
-                            {
-                                Bitrate = station.Bitrate,
-                                Codec = station.Codec,
-                                Name = station.Name,
-                                Endpoint = station.Endpoint,
-                                Homepage = station.Homepage,
-                                LogoEndpoint = station.LogoEndpoint
-                            };
+                    //    if (radioStation == null)
+                    //    {
+                    //        radioStation = new RadioStationViewModel()
+                    //        {
+                    //            Bitrate = station.Bitrate,
+                    //            Codec = station.Codec,
+                    //            Name = station.Name,
+                    //            Endpoint = station.Endpoint,
+                    //            Homepage = station.Homepage,
+                    //            LogoEndpoint = station.LogoEndpoint
+                    //        };
 
-                            entry.Stations.Add(radioStation);
-                        }
-                        else
-                        {
-                            radioStation.Homepage = string.IsNullOrEmpty(radioStation.Homepage) ? station.Homepage : radioStation.Homepage;
-                            radioStation.LogoEndpoint = string.IsNullOrEmpty(radioStation.LogoEndpoint) ? station.LogoEndpoint : radioStation.LogoEndpoint;
-                        }
-                    }
+                    //        entry.Stations.Add(radioStation);
+                    //    }
+                    //    else
+                    //    {
+                    //        radioStation.Homepage = string.IsNullOrEmpty(radioStation.Homepage) ? station.Homepage : radioStation.Homepage;
+                    //        radioStation.LogoEndpoint = string.IsNullOrEmpty(radioStation.LogoEndpoint) ? station.LogoEndpoint : radioStation.LogoEndpoint;
+                    //    }
+                    //}
                 }
             }
         }

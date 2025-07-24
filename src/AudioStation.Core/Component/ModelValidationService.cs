@@ -1,5 +1,5 @@
 ﻿using AudioStation.Core.Component.Interface;
-using AudioStation.Core.Model.Interface;
+using AudioStation.Core.Model.Vendor.ATLExtension.Interface;
 
 using MetaBrainz.MusicBrainz.Interfaces.Entities;
 
@@ -37,26 +37,15 @@ namespace AudioStation.Core.Component
                                                                        .TrackCount > 0;
         }
 
-        public bool ValidateTagImport(ISimpleTag simpleTag, out string validationMessage)
+        public bool ValidateTagImport(IAudioStationTag simpleTag, out string validationMessage)
         {
-            return ValidateImport(simpleTag.FirstAlbumArtist,
+            return ValidateImport(simpleTag.AlbumArtist,
                                   simpleTag.Album,
                                   simpleTag.Title,
                                   simpleTag.Track,
-                                  simpleTag.TrackCount,
-                                  simpleTag.Disc,
-                                  simpleTag.DiscCount, out validationMessage);
-        }
-
-        public bool ValidateTagImport(TagLib.File tagFile, out string validationMessage)
-        {
-            return ValidateImport(tagFile.Tag.FirstAlbumArtist,
-                                  tagFile.Tag.Album,
-                                  tagFile.Tag.Title,
-                                  tagFile.Tag.Track,
-                                  tagFile.Tag.TrackCount,
-                                  tagFile.Tag.Disc,
-                                  tagFile.Tag.DiscCount, out validationMessage);
+                                  simpleTag.TrackTotal,
+                                  simpleTag.DiscNumber,
+                                  simpleTag.DiscTotal, out validationMessage);
         }
 
         private bool ValidateImport(string firstAlbumArtist,
@@ -75,64 +64,43 @@ namespace AudioStation.Core.Component
 
             if (string.IsNullOrWhiteSpace(firstAlbumArtist))
             {
-                if (validationMessage == string.Empty)
-                    validationMessage = "Invalid Fields: ";
-
                 valid = false;
                 validationMessage += "(Album Artist)";
             }
-                
+
 
             if (string.IsNullOrWhiteSpace(album))
             {
-                if (validationMessage == string.Empty)
-                    validationMessage = "Invalid Fields: ";
-
                 valid = false;
                 validationMessage += "(Album)";
             }
 
             if (string.IsNullOrWhiteSpace(title))
             {
-                if (validationMessage == string.Empty)
-                    validationMessage = "Invalid Fields: ";
-
                 valid = false;
                 validationMessage += "(Title)";
             }
 
             if (trackNumber <= 0)
             {
-                if (validationMessage == string.Empty)
-                    validationMessage = "Invalid Fields: ";
-
                 valid = false;
                 validationMessage += "(Track Number)";
             }
 
             if (trackCount <= 0)
             {
-                if (validationMessage == string.Empty)
-                    validationMessage = "Invalid Fields: ";
-
                 valid = false;
                 validationMessage += "(Track Count)";
             }
 
             if (discNumber <= 0)
             {
-                if (validationMessage == string.Empty)
-                    validationMessage = "Invalid Fields: ";
-
                 valid = false;
                 validationMessage += "(Disc)";
             }
 
             if (discCount <= 0)
             {
-                if (validationMessage == string.Empty)
-                    validationMessage = "Invalid Fields: ";
-
                 valid = false;
                 validationMessage += "(Disc Count)";
             }

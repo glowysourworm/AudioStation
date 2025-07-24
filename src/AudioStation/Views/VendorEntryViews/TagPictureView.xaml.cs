@@ -1,11 +1,16 @@
 ﻿using System.Windows.Controls;
 
+using ATL;
+
 using AudioStation.Controller.Interface;
 using AudioStation.Controller.Model;
+using AudioStation.Core.Utility;
+using AudioStation.Model;
+using AudioStation.ViewModels.Vendor.ATLViewModel;
+
+using Microsoft.Extensions.Logging;
 
 using SimpleWpf.IocFramework.Application.Attribute;
-
-using TagLib;
 
 namespace AudioStation.Views.VendorEntryViews
 {
@@ -24,19 +29,32 @@ namespace AudioStation.Views.VendorEntryViews
 
         private void AddButton_Click(object sender, System.Windows.RoutedEventArgs e)
         {
-            var viewModel = this.DataContext as TagLib.Tag;
+            var viewModel = this.DataContext as TagViewModel;
 
             if (viewModel != null)
             {
-                // Extend the picture array by one
-                var pictures = viewModel.Pictures;
-                viewModel.Pictures = new IPicture[viewModel.Pictures.Length + 1];
-                pictures.CopyTo(viewModel.Pictures, 0);
 
-                // Get default image for the IPicture
-                var defaultImage = _imageCacheController.GetDefaultImage(ImageCacheType.FullSize);
+                try
+                {
+                    // Get default image for the IPicture
+                    var defaultImage = _imageCacheController.GetDefaultImage(ImageCacheType.FullSize);
 
-                viewModel.Pictures[viewModel.Pictures.Length - 1] = new TagLib.Picture();
+                    // Create copy of the image buffer from a memory stream (using WPF API)
+                    var defaultImageBuffer = defaultImage.GetBuffer();
+
+                    // Create ATL PictureInfo from the buffer
+                    var pictureInfo = PictureInfo.fromBinaryData(defaultImageBuffer);
+
+                    // Extend the picture array by one
+                    viewModel.EmbeddedPictures.Add(pictureInfo);
+                }
+                catch (Exception ex)
+                {
+                    // Throwing exception to fix our default image
+                    //
+                    ApplicationHelpers.Log("Error creating default ATL picture:  {0}", LogMessageType.General, LogLevel.Error, ex, ex.Message);
+                    throw ex;
+                }
             }
         }
     }

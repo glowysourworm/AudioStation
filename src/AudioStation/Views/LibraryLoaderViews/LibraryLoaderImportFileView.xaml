@@ -126,6 +126,8 @@
                         <TextBlock Text="{Binding FileName}" 
                                    Margin="5"
                                    VerticalAlignment="Center"
+                                   TextWrapping="NoWrap"
+                                   TextTrimming="CharacterEllipsis"
                                    FontSize="14"
                                    Grid.Column="2" />
                         
@@ -169,12 +171,28 @@
                                 </StackPanel>
                             </Button>
                             <Button Style="{StaticResource UserControlButton}" 
-                                    Command="{Binding PlayAudioCommand}"
+                                    Command="{Binding SaveTagCommand}"
+                                    Visibility="{Binding IsTagDirty, Converter={StaticResource BoolVisibilityCollapseConverter}}"
                                     Margin="5 0 0 0">
-                                <fa5:ImageAwesome Icon="Solid_PlayCircle" 
+                                <fa5:ImageAwesome Icon="Solid_Save" 
+                                                  Style="{StaticResource FontAwesomeIconManagerViewPager}" 
+                                                  Margin="1" />
+                            </Button>
+                            <Button Style="{StaticResource UserControlButton}" 
+                                    Visibility="{Binding IsTagDirty, Converter={StaticResource BoolVisibilityCollapseConverter}}"
+                                    Command="{Binding RefreshCommand}"
+                                    Margin="5 0 0 0">
+                                <fa5:ImageAwesome Icon="Solid_Recycle" 
                                                   Style="{StaticResource FontAwesomeIconManagerViewPager}" 
                                                   Margin="1" />
                             </Button>                            
+                            <Button Style="{StaticResource UserControlButton}" 
+                                    Command="{Binding PlayAudioCommand}"
+                                    Margin="5 0 0 0">
+                                <fa5:ImageAwesome Icon="Solid_Play" 
+                                                  Style="{StaticResource FontAwesomeIconManagerViewPager}" 
+                                                  Margin="1" />
+                            </Button>
                         </StackPanel>
 
                         <controls:NoScrollListBox Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="4"

@@ -17,11 +17,7 @@ namespace AudioStation.Core.Component
     [IocExport(typeof(ILibraryLoader))]
     public class LibraryLoader : ILibraryLoader
     {
-        private readonly IModelController _modelController;
-        private readonly IMusicBrainzClient _musicBrainzClient;
-        private readonly IAcoustIDClient _acoustIDClient;
-        private readonly ITagCacheController _tagCacheController;
-        private readonly IModelValidationService _modelValidationService;
+        private readonly ILibraryImporter _libraryImporter;
         private readonly IFileController _fileController;
 
         // Cannot use multi threading on the database until we have proper 
@@ -41,18 +37,10 @@ namespace AudioStation.Core.Component
         private int _workItemIdCounter;
 
         [IocImportingConstructor]
-        public LibraryLoader(IModelController modelController,
-                             IMusicBrainzClient musicBrainzClient,
-                             IAcoustIDClient acoustIDClient,
-                             ITagCacheController tagCacheController,
-                             IModelValidationService modelValidationService,
-                             IFileController fileController )
+        public LibraryLoader(ILibraryImporter libraryImporter,
+                             IFileController fileController)
         {
-            _modelController = modelController;
-            _musicBrainzClient = musicBrainzClient;
-            _acoustIDClient = acoustIDClient;
-            _tagCacheController = tagCacheController;
-            _modelValidationService = modelValidationService;
+            _libraryImporter = libraryImporter;
             _fileController = fileController;
 
             _workQueue = new Queue<LibraryLoaderWorkItem>();
@@ -114,13 +102,7 @@ namespace AudioStation.Core.Component
                 {
                     case LibraryLoadType.Import:
                     {
-                        var thread = new LibraryLoaderImportWorker(workItem,
-                                                                       _modelController,
-                                                                       _acoustIDClient,
-                                                                       _musicBrainzClient,
-                                                                       _tagCacheController,
-                                                                       _modelValidationService,
-                                                                       _fileController);
+                        var thread = new LibraryLoaderImportWorker(workItem, _libraryImporter);
 
                         // Make sure to hook / unhook these events before start / after complete
                         thread.ReportWorkStepStarted += Worker_ReportWorkStepStarted;

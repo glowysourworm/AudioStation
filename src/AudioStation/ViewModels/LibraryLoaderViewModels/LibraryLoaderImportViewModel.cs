@@ -4,22 +4,16 @@ using System.Windows.Controls;
 using System.Windows.Threading;
 
 using AudioStation.Controller.Interface;
-using AudioStation.Core;
 using AudioStation.Core.Component;
 using AudioStation.Core.Component.Interface;
-using AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderLoad;
 using AudioStation.Core.Model;
-using AudioStation.Core.Model.Vendor;
 using AudioStation.Core.Utility;
 using AudioStation.Event;
 using AudioStation.Event.DialogEvents;
-using AudioStation.Event.LibraryLoaderEvent;
 using AudioStation.Model;
-using AudioStation.Service.Interface;
 using AudioStation.ViewModels.Vendor.AcoustIDViewModel;
+using AudioStation.ViewModels.Vendor.ATLViewModel;
 using AudioStation.ViewModels.Vendor.MusicBrainzViewModel;
-using AudioStation.ViewModels.Vendor.TagLibViewModel;
-using AudioStation.Windows;
 
 using Microsoft.Extensions.Logging;
 
@@ -38,13 +32,14 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
         private readonly IDialogController _dialogController;
         private readonly IIocEventAggregator _eventAggregator;
         private readonly ILibraryImporter _libraryImporter;
+        private readonly ITagCacheController _tagCacheController;
 
         LibraryLoaderImportOptionsViewModel _options;
 
         NotifyingObservableCollection<LibraryLoaderImportFileViewModel> _sourceFiles;
 
         SimpleCommand _editOptionsCommand;
-        SimpleCommand _editTagsCommand;
+        SimpleCommand _editTagCommand;
         SimpleCommand _runImportCommand;
         SimpleCommand _runAcoustIDCommand;
         SimpleCommand _runMusicBrainzCommand;
@@ -69,10 +64,10 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
             get { return _editOptionsCommand; }
             set { this.RaiseAndSetIfChanged(ref _editOptionsCommand, value); }
         }
-        public SimpleCommand EditTagsCommand
+        public SimpleCommand EditTagCommand
         {
-            get { return _editTagsCommand; }
-            set { this.RaiseAndSetIfChanged(ref _editTagsCommand, value); }
+            get { return _editTagCommand; }
+            set { this.RaiseAndSetIfChanged(ref _editTagCommand, value); }
         }
         public SimpleCommand RunImportCommand
         {
@@ -93,12 +88,14 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
         public LibraryLoaderImportViewModel(IConfigurationManager configurationManager,
                                             IDialogController dialogController,
                                             IIocEventAggregator eventAggregator,
-                                            ILibraryImporter libraryImporter)
+                                            ILibraryImporter libraryImporter,
+                                            ITagCacheController tagCacheController)
         {
             _configurationManager = configurationManager;
             _dialogController = dialogController;
             _libraryImporter = libraryImporter;
             _eventAggregator = eventAggregator;
+            _tagCacheController = tagCacheController;
 
             var configuration = configurationManager.GetConfiguration();
 
@@ -111,9 +108,9 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
             //    RefreshImportFiles(true);
             //});
 
-            this.EditTagsCommand = new SimpleCommand(() =>
+            this.EditTagCommand = new SimpleCommand(() =>
             {
-                EditTags();
+                EditTag();
 
             }, CanEditTags);
 
@@ -138,7 +135,7 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
             this.EditOptionsCommand = new SimpleCommand(() =>
             {
                 dialogController.ShowImportOptionsWindow(this.Options);
-                
+
                 RefreshImportFiles(true);
             });
 
@@ -178,7 +175,7 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
 
         private bool CanEditTags()
         {
-            return this.SourceFileSelectedCount > 0;
+            return this.SourceFileSelectedCount == 1;
         }
         private bool CanRunImport()
         {
@@ -199,13 +196,13 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
                        .All(x => x.ImportOutput.AcoustIDSuccess && x.SelectedAcoustIDResult != null);
         }
 
-        private void SourceFiles_ItemPropertyChanged(NotifyingObservableCollection<LibraryLoaderImportFileViewModel> item1, 
+        private void SourceFiles_ItemPropertyChanged(NotifyingObservableCollection<LibraryLoaderImportFileViewModel> item1,
                                                      LibraryLoaderImportFileViewModel item2, PropertyChangedEventArgs item3)
         {
             OnPropertyChanged("SourceFileSelectedCount");
 
             this.EditOptionsCommand.RaiseCanExecuteChanged();
-            this.EditTagsCommand.RaiseCanExecuteChanged();
+            this.EditTagCommand.RaiseCanExecuteChanged();
             this.RunImportCommand.RaiseCanExecuteChanged();
             this.RunAcoustIDCommand.RaiseCanExecuteChanged();
             this.RunMusicBrainzCommand.RaiseCanExecuteChanged();
@@ -291,7 +288,7 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
             }
         }
 
-        private void EditTags()
+        private void EditTag()
         {
             var inputFiles = _sourceFiles.Where(x => x.IsSelected).ToList();
             var firstFile = inputFiles.FirstOrDefault();
@@ -304,25 +301,20 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
             //
             try
             {
-                var fileViewModels = new List<TagFileViewModel>();
+                // Get the current working tag
+                var tag = firstFile.GetTagCopy();
 
-                // Create View Model (for editor)(will write to memory)
-                foreach (var file in inputFiles)
+                // Create view model for the data
+                var viewModel = new TagViewModel(tag);
+
+                // Show Tag Editor (ONLY UPDATES NEW VIEW-MODEL! WE MUST MAP THE RESULT BACK!)
+                var dialogResult = _dialogController.ShowDialogWindowSync(DialogEventData.ShowDialogEditor("Tag Editor", DialogEditorView.TagView, viewModel));
+
+                // User wishes to save the data
+                if (dialogResult)
                 {
-                    var tagFileViewModel = new TagFileViewModel(file.ImportOutput.ImportedTagFile);
-
-                    // Add tag to the group view model
-                    fileViewModels.Add(tagFileViewModel);
-                }
-
-                var viewModel = new TagFileGroupViewModel(fileViewModels);
-
-                _dialogController.ShowDialogWindowSync(DialogEventData.ShowDialogEditor("Tag Editor", 600, 400, DialogEditorView.TagView, viewModel));
-
-                // Update Import File (view model)(still in memory only)
-                foreach (var file in inputFiles)
-                {
-                    file.UpdateMigrationDetails();
+                    // Update Import File (view model)(still in new memory only)
+                    firstFile.SaveTagEdit(viewModel);
                 }
             }
             catch (Exception ex)
@@ -555,17 +547,19 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
             // Small Audio Player:  This follows the dialog pattern; but is self-dismissing!
             //
 
+            var tagFile = _tagCacheController.Get(selectedFile.FileFullPath);
+
             var dialogViewModel = new DialogSmallAudioPlayerViewModel()
             {
-                Album = selectedFile.Album,
-                Artist = selectedFile.FirstAlbumArtist,
+                Album = tagFile.Album,
+                Artist = tagFile.AlbumArtist,
                 CurrentTime = TimeSpan.Zero,
                 CurrentTimeRatio = 0,
-                Duration = selectedFile.ImportOutput.ImportedTagFile.Properties.Duration,
+                Duration = tagFile.Duration,
                 FileName = selectedFile.FileFullPath,
                 PlayState = PlayStopPause.Stop,
                 SourceType = StreamSourceType.File,
-                Track = selectedFile.Title
+                Track = tagFile.Title
             };
 
             // Show Dialog (starts on load)

@@ -2,10 +2,9 @@
 using AudioStation.Core.Database.AudioStationDatabase.Interface;
 using AudioStation.Core.Event;
 using AudioStation.Core.Model;
+using AudioStation.Core.Model.Vendor.ATLExtension.Interface;
 using AudioStation.Core.Utility;
 using AudioStation.Model;
-
-using MetaBrainz.MusicBrainz.Interfaces.Entities;
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -45,7 +44,7 @@ namespace AudioStation.Core.Database.AudioStationDatabase
             });
         }
 
-        public Mp3FileReference AddUpdateLibraryEntry(string fileName, bool fileAvailable, bool fileLoadError, string fileLoadErrorMessage, TagLib.File tagRef)
+        public Mp3FileReference AddUpdateLibraryEntry(string fileName, bool fileAvailable, bool fileLoadError, string fileLoadErrorMessage, IAudioStationTag tagRef)
         {
             try
             {
@@ -59,53 +58,53 @@ namespace AudioStation.Core.Database.AudioStationDatabase
                         entity = new Mp3FileReference()
                         {
                             FileName = fileName,
-                            Title = tagRef.Tag.Title?.Trim() ?? string.Empty,
-                            Track = (int)tagRef.Tag.Track,
-                            DurationMilliseconds = (int)tagRef.Properties.Duration.TotalMilliseconds,
-                            FileCorruptMessage = tagRef.CorruptionReasons?.Join(",", x => x) ?? string.Empty,
+                            Title = tagRef.Title?.Trim() ?? string.Empty,
+                            Track = (int)tagRef.Track,
+                            DurationMilliseconds = (int)tagRef.Duration.TotalMilliseconds,
+                            FileCorruptMessage = string.Empty,
                             FileErrorMessage = fileLoadErrorMessage,
-                            IsFileCorrupt = tagRef.PossiblyCorrupt,
+                            IsFileCorrupt = !fileAvailable || fileLoadError,
                             IsFileAvailable = fileAvailable,
                             IsFileLoadError = fileLoadError,
-                            MusicBrainzTrackId = tagRef.Tag.MusicBrainzTrackId ?? string.Empty
+                            MusicBrainzTrackId = string.Empty
                         };
                         newEntity = true;
                     }
 
                     // There could be Null / Empty / or Unknown data. Assume there is.
-                    var existingAlbum = tagRef.Tag.Album == null ? null : context.Mp3FileReferenceAlbums.FirstOrDefault(x => x.Name == tagRef.Tag.Album.Trim());
-                    var existingArtist = tagRef.Tag.FirstAlbumArtist == null ? null : context.Mp3FileReferenceArtists.FirstOrDefault(x => x.Name == tagRef.Tag.FirstAlbumArtist.Trim());
-                    var existingGenre = tagRef.Tag.FirstGenre == null ? null : context.Mp3FileReferenceGenres.FirstOrDefault(x => x.Name == tagRef.Tag.FirstGenre.Trim());
+                    var existingAlbum = tagRef.Album == null ? null : context.Mp3FileReferenceAlbums.FirstOrDefault(x => x.Name == tagRef.AlbumArtist.Trim());
+                    var existingArtist = tagRef.AlbumArtist == null ? null : context.Mp3FileReferenceArtists.FirstOrDefault(x => x.Name == tagRef.AlbumArtist.Trim());
+                    var existingGenre = tagRef.Genre == null ? null : context.Mp3FileReferenceGenres.FirstOrDefault(x => x.Name == tagRef.Genre.Trim());
 
                     // Just check for null or white space
-                    if (existingAlbum == null && !string.IsNullOrWhiteSpace(tagRef.Tag.Album))
+                    if (existingAlbum == null && !string.IsNullOrWhiteSpace(tagRef.Album))
                     {
                         existingAlbum = new Mp3FileReferenceAlbum()
                         {
-                            DiscCount = (int)tagRef.Tag.DiscCount,
-                            DiscNumber = (int)tagRef.Tag.Disc,
-                            Year = (int)tagRef.Tag.Year,
-                            Name = tagRef.Tag.Album.Trim(),
-                            MusicBrainzReleaseId = tagRef.Tag.MusicBrainzReleaseId ?? string.Empty
+                            DiscCount = (int)tagRef.DiscTotal,
+                            DiscNumber = (int)tagRef.DiscNumber,
+                            Year = (int)tagRef.Year,
+                            Name = tagRef.Album.Trim(),
+                            MusicBrainzReleaseId = string.Empty
                         };
 
                         context.Mp3FileReferenceAlbums.Add(existingAlbum);
                     }
-                    if (existingArtist == null && !string.IsNullOrWhiteSpace(tagRef.Tag.FirstAlbumArtist))
+                    if (existingArtist == null && !string.IsNullOrWhiteSpace(tagRef.AlbumArtist))
                     {
                         existingArtist = new Mp3FileReferenceArtist()
                         {
-                            Name = tagRef.Tag.FirstAlbumArtist.Trim(),
-                            MusicBrainzArtistId = tagRef.Tag.MusicBrainzArtistId ?? string.Empty
+                            Name = tagRef.AlbumArtist.Trim(),
+                            MusicBrainzArtistId = tagRef.AlbumArtist ?? string.Empty
                         };
 
                         context.Mp3FileReferenceArtists.Add(existingArtist);
                     }
-                    if (existingGenre == null && !string.IsNullOrWhiteSpace(tagRef.Tag.FirstGenre))
+                    if (existingGenre == null && !string.IsNullOrWhiteSpace(tagRef.Genre))
                     {
                         existingGenre = new Mp3FileReferenceGenre()
                         {
-                            Name = tagRef.Tag.FirstGenre.Trim()
+                            Name = tagRef.Genre.Trim()
                         };
 
                         context.Mp3FileReferenceGenres.Add(existingGenre);
@@ -126,7 +125,7 @@ namespace AudioStation.Core.Database.AudioStationDatabase
                     var lastEntity = context.Mp3FileReferences.First(x => x.FileName == fileName);
 
                     // Artist Map(s)
-                    foreach (var artist in tagRef.Tag.AlbumArtists.Where(x => !string.IsNullOrWhiteSpace(x)).Select(x => x.Trim()))
+                    foreach (var artist in tagRef.AlbumArtists.Where(x => !string.IsNullOrWhiteSpace(x)).Select(x => x.Trim()))
                     {
                         var artistEntity = context.Mp3FileReferenceArtists
                                                   .FirstOrDefault(x => x.Name == artist);
@@ -158,7 +157,7 @@ namespace AudioStation.Core.Database.AudioStationDatabase
                     }
 
                     // Genre Map(s)
-                    foreach (var genre in tagRef.Tag.Genres.Where(x => !string.IsNullOrWhiteSpace(x)).Select(x => x.Trim()))
+                    foreach (var genre in tagRef.Genres.Where(x => !string.IsNullOrWhiteSpace(x)).Select(x => x.Trim()))
                     {
                         var genreEntity = context.Mp3FileReferenceGenres
                                                  .FirstOrDefault(x => x.Name == genre);
@@ -339,7 +338,7 @@ namespace AudioStation.Core.Database.AudioStationDatabase
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Error in IModelController (AddLibraryEntry):  {0}", LogMessageType.Database, LogLevel.Error,    ex, ex.Message);
+                ApplicationHelpers.Log("Error in IModelController (AddLibraryEntry):  {0}", LogMessageType.Database, LogLevel.Error, ex, ex.Message);
                 throw ex;
             }
         }

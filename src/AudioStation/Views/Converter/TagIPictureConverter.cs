@@ -2,12 +2,14 @@
 using System.Windows.Data;
 using System.Windows.Media.Imaging;
 
+using ATL;
+
 using AudioStation.Component.Interface;
 using AudioStation.Controller.Model;
 
 using SimpleWpf.IocFramework.Application;
 
-using TagLib;
+using PictureType = ATL.PictureInfo.PIC_TYPE;
 
 namespace AudioStation.Views.Converter
 {
@@ -28,13 +30,13 @@ namespace AudioStation.Views.Converter
             if (value == null)
                 return Binding.DoNothing;
 
-            var picture = value as IPicture;
+            var picture = value as PictureInfo;
             var cacheType = (ImageCacheType)parameter;
 
             if (picture == null)
                 return Binding.DoNothing;
 
-            return _bitmapConverter.BitmapDataToBitmapSource(picture.Data.Data, new ImageSize(cacheType), picture.MimeType);
+            return _bitmapConverter.BitmapDataToBitmapSource(picture.PictureData, new ImageSize(cacheType), picture.MimeType);
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

@@ -10,7 +10,6 @@
              xmlns:propertyGrid="clr-namespace:AudioStation.Controls.PropertyGrid"
              xmlns:controls="clr-namespace:AudioStation.Controls"
              xmlns:system="clr-namespace:System;assembly=System"
-             xmlns:tagLib="clr-namespace:TagLib;assembly=taglib-sharp"
              xmlns:region="clr-namespace:SimpleWpf.IocFramework.RegionManagement;assembly=SimpleWpf.IocFramework"
              xmlns:controllerModel="clr-namespace:AudioStation.Controller.Model"
              Width="600" Height="400">

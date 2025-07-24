@@ -51,8 +51,13 @@ namespace AudioStation.Controller
             _configurationManager = configurationManager;
 
             _libraryLoaderCDImportViewModel = new LibraryLoaderCDImportViewModel(eventAggregator, importService);
+
             _libraryLoaderImportViewModel = new LibraryLoaderImportViewModel(configurationManager, 
-                                                                             dialogController, eventAggregator, libraryImporter);
+                                                                             dialogController, 
+                                                                             eventAggregator, 
+                                                                             libraryImporter,
+                                                                             tagCacheController);
+
             _libraryLoaderImportRadioViewModel = new LibraryLoaderImportRadioViewModel(configurationManager, dialogController);
             _libraryLoaderDownloadMusicBrainzViewModel = new LibraryLoaderDownloadMusicBrainzViewModel(modelController, configurationManager, dialogController);
 

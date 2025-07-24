@@ -1,9 +1,6 @@
 ﻿using System.IO;
 using System.Net.Http;
 using System.Reflection;
-using System.Windows;
-using System.Windows.Media;
-using System.Windows.Threading;
 
 using AudioStation.Component.Interface;
 using AudioStation.Component.Model;
@@ -18,7 +15,7 @@ using Microsoft.Extensions.Logging;
 using SimpleWpf.IocFramework.Application.Attribute;
 using SimpleWpf.SimpleCollections.Collection;
 
-using TagLib;
+using PictureType = ATL.PictureInfo.PIC_TYPE;
 
 namespace AudioStation.Controller
 {
@@ -97,7 +94,7 @@ namespace AudioStation.Controller
             //
             using (var stream = Assembly.GetAssembly(typeof(ImageCacheController)).GetManifestResourceStream("AudioStation.Resources.Images.placeholder_FullSized.png"))
             {
-                using (var memoryStream =  new MemoryStream())
+                using (var memoryStream = new MemoryStream())
                 {
                     stream.CopyTo(memoryStream);
                     memoryStream.Seek(0, SeekOrigin.Begin);
@@ -175,7 +172,7 @@ namespace AudioStation.Controller
             try
             {
                 // TASK THREAD ONLY!
-                lock(_webLock)
+                lock (_webLock)
                 {
                     if (this.WebImageCacheSet.GetCache(cacheAsType).Contains(endpoint))
                         return this.WebImageCacheSet.GetCache(cacheAsType).Get(endpoint).GetFirstImage();
@@ -187,15 +184,15 @@ namespace AudioStation.Controller
                     return this.DefaultImageCache[cacheAsType];
 
                 var imageSource = _bitmapConverter.BitmapDataToBitmapSource(data, new ImageSize(cacheAsType), null);
-                
+
                 // Two threads may have entered the critical section before this point
                 //
-                lock(_webLock)
+                lock (_webLock)
                 {
                     if (!this.WebImageCacheSet.GetCache(cacheAsType).Contains(endpoint))
                         this.WebImageCacheSet.GetCache(cacheAsType).Add(endpoint, new ImageCacheItem(cacheType, imageSource));
                 }
-                
+
 
                 return imageSource;
             }
@@ -228,7 +225,7 @@ namespace AudioStation.Controller
 
             if (forArtist)
             {
-                lock(_artistLock)
+                lock (_artistLock)
                 {
                     if (this.ArtistCacheSet.GetCache(cacheAsType).Contains(cacheKey))
                         return this.ArtistCacheSet.GetCache(cacheAsType).Get(cacheKey).GetArtistImage();
@@ -236,7 +233,7 @@ namespace AudioStation.Controller
             }
             else
             {
-                lock(_albumLock)
+                lock (_albumLock)
                 {
                     if (this.AlbumCacheSet.GetCache(cacheAsType).Contains(cacheKey))
                         return this.AlbumCacheSet.GetCache(cacheAsType).Get(cacheKey).GetAlbumImage();
@@ -249,23 +246,22 @@ namespace AudioStation.Controller
             // Take all the artwork - consolidating the images
             var images = files.Select(entity => _tagCacheController.Get(entity.FileName))
                               .Where(tagRef => tagRef != null)                              // TODO: Application Level Validation (Library Maintenance)
-                              .Where(tagRef => !tagRef.PossiblyCorrupt)
-                              .SelectMany(tagRef => tagRef.Tag.Pictures)
-                              .DistinctBy(picture => picture.Type);                         // See Enumeration
+                              .SelectMany(tagRef => tagRef.EmbeddedPictures)
+                              .DistinctBy(picture => picture.PicType);                         // See Enumeration
 
             // Convert all images
             Dictionary<PictureType, BitmapImageData> imageSources;
 
             // Contention for web image loading (Task)
-            imageSources = images.ToDictionary(picture => picture.Type,
-                                                picture => (BitmapImageData)_bitmapConverter.BitmapDataToBitmapSource(picture.Data.Data, new ImageSize(cacheAsType), picture.MimeType));
+            imageSources = images.ToDictionary(picture => picture.PicType,
+                                               picture => (BitmapImageData)_bitmapConverter.BitmapDataToBitmapSource(picture.PictureData, new ImageSize(cacheAsType), picture.MimeType));
 
             var cacheItem = new ImageCacheItem(imageSources);
 
             // Cache the result
             if (forArtist)
             {
-                lock(_artistLock)
+                lock (_artistLock)
                 {
                     if (!this.ArtistCacheSet.GetCache(cacheAsType).Contains(cacheKey))
                         this.ArtistCacheSet.GetCache(cacheAsType).Add(cacheKey, cacheItem);
@@ -273,11 +269,11 @@ namespace AudioStation.Controller
             }
             else
             {
-                lock(_albumLock)
+                lock (_albumLock)
                 {
                     if (!this.AlbumCacheSet.GetCache(cacheAsType).Contains(cacheKey))
                         this.AlbumCacheSet.GetCache(cacheAsType).Add(cacheKey, cacheItem);
-                }                
+                }
             }
 
             return forArtist ? cacheItem.GetArtistImage() : cacheItem.GetAlbumImage();

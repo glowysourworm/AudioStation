@@ -4,7 +4,7 @@ using AudioStation.Controller.Interface;
 using AudioStation.Event;
 using AudioStation.ViewModels;
 using AudioStation.ViewModels.LibraryLoaderViewModels;
-using AudioStation.ViewModels.Vendor.TagLibViewModel;
+using AudioStation.ViewModels.Vendor.ATLViewModel;
 using AudioStation.Views.DialogViews;
 using AudioStation.Views.VendorEntryViews;
 using AudioStation.Windows;
@@ -100,7 +100,7 @@ namespace AudioStation.Controller
             window.Show();
         }
 
-        public void ShowTagWindow(TagFileGroupViewModel viewModel)
+        public void ShowTagWindow(TagViewModel viewModel)
         {
             var window = new TagWindow();
             window.DataContext = viewModel;

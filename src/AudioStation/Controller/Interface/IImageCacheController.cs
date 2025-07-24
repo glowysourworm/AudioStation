@@ -3,7 +3,7 @@
 using AudioStation.Component.Model;
 using AudioStation.Controller.Model;
 
-using TagLib;
+using PictureType = ATL.PictureInfo.PIC_TYPE;
 
 namespace AudioStation.Controller.Interface
 {

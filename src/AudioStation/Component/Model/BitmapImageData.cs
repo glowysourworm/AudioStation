@@ -30,6 +30,20 @@ namespace AudioStation.Component.Model
             }
         }
 
+        public byte[] GetBuffer()
+        {
+            // See above comment...
+            using (var memoryStream = new MemoryStream())
+            {
+                var encoder = new BmpBitmapEncoder();
+                var frame = BitmapFrame.Create(this.Source);
+                encoder.Frames.Add(frame);
+                encoder.Save(memoryStream);
+
+                return memoryStream.GetBuffer();
+            }
+        }
+
         public void Dispose()
         {
             this.Source = null;

@@ -1,7 +1,7 @@
 ﻿using AudioStation.Event;
 using AudioStation.ViewModels;
 using AudioStation.ViewModels.LibraryLoaderViewModels;
-using AudioStation.ViewModels.Vendor.TagLibViewModel;
+using AudioStation.ViewModels.Vendor.ATLViewModel;
 
 namespace AudioStation.Controller.Interface
 {
@@ -15,7 +15,7 @@ namespace AudioStation.Controller.Interface
         void ShowConfigurationAlert();
 
         void ShowLogWindow(LogViewModel viewModel);
-        void ShowTagWindow(TagFileGroupViewModel viewModel);
+        void ShowTagWindow(TagViewModel viewModel);
         void ShowImportOptionsWindow(LibraryLoaderImportOptionsViewModel viewModel);
 
         /// <summary>

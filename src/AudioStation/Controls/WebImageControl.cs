@@ -8,7 +8,7 @@ using AudioStation.Core.Utility;
 
 using SimpleWpf.IocFramework.Application;
 
-using TagLib;
+using PictureType = ATL.PictureInfo.PIC_TYPE;
 
 namespace AudioStation.Controls
 {
@@ -36,7 +36,7 @@ namespace AudioStation.Controls
             _cacheController = IocContainer.Get<IImageCacheController>();
 
             // This may help to detail web images for some services that deal with mp3 tags
-            _cacheType = PictureType.FrontCover;
+            _cacheType = PictureType.Front;
 
             this.Unloaded += WebImageControl_Unloaded;
             this.Loaded += WebImageControl_Loaded;
@@ -97,7 +97,7 @@ namespace AudioStation.Controls
 
                 switch (_cacheType)
                 {
-                    case PictureType.FrontCover:
+                    case PictureType.Front:
                         this.Source = (await _cacheController.GetFromEndpoint(this.ImageEndpoint, _cacheType, this.ImageSize))?.Source;
                         break;
                     default:

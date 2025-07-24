@@ -6,7 +6,7 @@ using AudioStation.Component.Model;
 using SimpleWpf.SimpleCollections.Collection;
 using SimpleWpf.SimpleCollections.Extension;
 
-using TagLib;
+using PictureType = ATL.PictureInfo.PIC_TYPE;
 
 namespace AudioStation.Controller.Model
 {
@@ -20,7 +20,7 @@ namespace AudioStation.Controller.Model
                    this.Images.GetValue(PictureType.Artist) ??
                    this.Images.GetValue(PictureType.Band) ??
                    this.Images.GetValue(PictureType.Composer) ??
-                   this.Images.GetValue(PictureType.FrontCover) ?? null;
+                   this.Images.GetValue(PictureType.Front) ?? null;
         }
 
         public BitmapImageData GetFirstImage()
@@ -30,7 +30,7 @@ namespace AudioStation.Controller.Model
 
         public BitmapImageData GetAlbumImage()
         {
-            return this.Images.GetValue(PictureType.FrontCover) ?? null;
+            return this.Images.GetValue(PictureType.Front) ?? null;
         }
 
         public ImageCacheItem(PictureType type, BitmapImageData image)

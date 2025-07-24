@@ -11,6 +11,7 @@ using Microsoft.Extensions.Logging;
 
 using SimpleWpf.IocFramework.Application;
 using SimpleWpf.NativeIO.FastDirectory;
+using SimpleWpf.RecursiveSerializer.Shared;
 
 namespace AudioStation.Core.Utility
 {

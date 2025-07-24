@@ -1,67 +1,28 @@
 ﻿using System.IO;
-using System.Windows;
 
 using AudioStation.Core.Component.Interface;
-using AudioStation.Core.Model.Vendor.TagLibExtension;
+using AudioStation.Core.Model.Vendor.ATLExtension;
+using AudioStation.Core.Model.Vendor.ATLExtension.Interface;
 using AudioStation.Core.Utility;
 using AudioStation.Model;
 
 using Microsoft.Extensions.Logging;
 
-using NAudio.Wave;
-
 using SimpleWpf.IocFramework.Application.Attribute;
 using SimpleWpf.RecursiveSerializer.Shared;
 using SimpleWpf.SimpleCollections.Collection;
-
-using TagLib;
 
 namespace AudioStation.Core.Component
 {
     [IocExport(typeof(ITagCacheController))]
     public class TagCacheController : ITagCacheController
     {
-        SimpleDictionary<string, TagLib.File> _tagFiles;
+        SimpleDictionary<string, AudioStationTag> _tagFiles;
 
         [IocImportingConstructor]
         public TagCacheController()
         {
-            _tagFiles = new SimpleDictionary<string, TagLib.File>();
-        }
-
-        public TagLib.Tag CopyFromClipboard()
-        {
-            try
-            {
-                var buffer = (byte[])Clipboard.GetDataObject().GetData(typeof(byte[]));
-                var tagExtension = (TagExtension)Deserialize(buffer);
-
-                return tagExtension as TagLib.Tag;
-            }
-            catch (Exception ex)
-            {
-                ApplicationHelpers.Log("Error pasting tag data:  {0}", LogMessageType.LibraryLoader, LogLevel.Error, ex, ex.Message);
-                return null;
-            }
-        }
-
-        public bool CopyToClipboard(TagLib.Tag tag)
-        {
-            try
-            {
-                // Map to our tag extension class and serialize
-                var tagExtension = ApplicationHelpers.Map<TagLib.Tag, TagExtension>(tag);
-                var buffer = Serialize(tagExtension);
-
-                Clipboard.SetDataObject(buffer);
-
-                return true;
-            }
-            catch (Exception ex)
-            {
-                ApplicationHelpers.Log("Error copying tag data:  {0}", LogMessageType.General, LogLevel.Error, ex, ex.Message);
-                return false;
-            }
+            _tagFiles = new SimpleDictionary<string, AudioStationTag>();
         }
 
         public bool Verify(string fileName)
@@ -82,7 +43,7 @@ namespace AudioStation.Core.Component
             }
         }
 
-        public TagLib.File Get(string fileName)
+        public AudioStationTag Get(string fileName)
         {
             try
             {
@@ -102,6 +63,21 @@ namespace AudioStation.Core.Component
                 throw ex;
             }
         }
+        public AudioStationTag GetCopy(string fileName)
+        {
+            try
+            {
+                // ATL Interface
+                var atlTrack = new ATL.Track(fileName);
+
+                return ApplicationHelpers.Map<ATL.Track, AudioStationTag>(atlTrack);
+            }
+            catch (Exception ex)
+            {
+                ApplicationHelpers.Log("Error initializing tag data:  {0}", LogMessageType.General, LogLevel.Error, ex, ex.Message);
+                throw ex;
+            }
+        }
         public void Set(string fileName)
         {
             try
@@ -109,7 +85,11 @@ namespace AudioStation.Core.Component
                 if (_tagFiles.ContainsKey(fileName))
                     _tagFiles.Remove(fileName);
 
-                var tagFile = TagLib.File.Create(fileName);
+                // ATL Interface
+                var atlTrack = new ATL.Track(fileName);
+
+                // ATL -> AudioStation
+                var tagFile = ApplicationHelpers.Map<ATL.Track, AudioStationTag>(atlTrack);
 
                 _tagFiles.Add(fileName, tagFile);
             }
@@ -137,7 +117,7 @@ namespace AudioStation.Core.Component
             }
         }
 
-        public void SetData(string fileName, Tag tagData, bool save = true)
+        public void SetData(string fileName, IAudioStationTag tagData, bool save = true)
         {
             if (!_tagFiles.ContainsKey(fileName))
                 Set(fileName);
@@ -146,10 +126,14 @@ namespace AudioStation.Core.Component
             {
                 var existingFile = Get(fileName);
 
-                ApplicationHelpers.MapOnto(tagData, existingFile.Tag);
+                // Copy data onto existing tag
+                ApplicationHelpers.MapOnto(tagData, existingFile);
 
-                if (save)
-                    existingFile.Save();
+                // AudioStation -> ATL 
+                var atlTrack = ApplicationHelpers.Map<IAudioStationTag, ATL.Track>(tagData);
+
+                // ATL:  Save
+                atlTrack.SaveTo(fileName);
             }
             catch (Exception ex)
             {
@@ -157,11 +141,11 @@ namespace AudioStation.Core.Component
                 throw ex;
             }
         }
-        public byte[] Serialize(TagExtension serializableTag)
+        public byte[] Serialize(AudioStationTag serializableTag)
         {
             using (var stream = new MemoryStream())
             {
-                var serializer = new RecursiveSerializer<TagLib.Tag>(new RecursiveSerializerConfiguration()
+                var serializer = new RecursiveSerializer<AudioStationTag>(new RecursiveSerializerConfiguration()
                 {
                     IgnoreRemovedProperties = false,
                     PreviewRemovedProperties = false
@@ -172,11 +156,11 @@ namespace AudioStation.Core.Component
                 return stream.GetBuffer();
             }
         }
-        public TagExtension Deserialize(byte[] buffer)
+        public AudioStationTag Deserialize(byte[] buffer)
         {
             using (var stream = new MemoryStream(buffer))
             {
-                var serializer = new RecursiveSerializer<TagExtension>(new RecursiveSerializerConfiguration()
+                var serializer = new RecursiveSerializer<AudioStationTag>(new RecursiveSerializerConfiguration()
                 {
                     IgnoreRemovedProperties = false,
                     PreviewRemovedProperties = false

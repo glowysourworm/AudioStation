@@ -11,7 +11,6 @@
         </TabItem>
 
         <TabItem Header="File (Combined Tag)">
-            <vendorView:TagFileView x:Name="TagFileView" />
         </TabItem>
 
         <TabItem Header="File (Id3v1)">

@@ -1,29 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
+﻿using System.IO;
 
-using AudioStation.Controller;
+using ATL;
+
 using AudioStation.Core.Component.Interface;
-using AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderLoad;
-using AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderOutput;
-using AudioStation.Core.Component.Vendor.Interface;
-using AudioStation.Core.Database.MusicBrainzDatabase.Model;
-using AudioStation.Core.Model;
-using AudioStation.Core.Utility;
-
-using SimpleWpf.IocFramework.Application.Attribute;
-using SimpleWpf.Extensions.Collection;
-
-using TagLib;
-using AudioStation.Model;
-using Microsoft.Extensions.Logging;
 using AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderLoad.Interface;
 using AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderOutput.Interface;
+using AudioStation.Core.Component.Vendor.Interface;
+using AudioStation.Core.Database.MusicBrainzDatabase.Model;
 using AudioStation.Core.Model.Vendor;
+using AudioStation.Core.Utility;
+using AudioStation.Model;
+
+using Microsoft.Extensions.Logging;
+
+using SimpleWpf.Extensions.Collection;
+using SimpleWpf.IocFramework.Application.Attribute;
+
+using PictureType = ATL.PictureInfo.PIC_TYPE;
 
 namespace AudioStation.Core.Component
 {
@@ -41,16 +34,16 @@ namespace AudioStation.Core.Component
         private const int ACOUSTID_MIN_SCORE = 0;
 
         [IocImportingConstructor]
-        public LibraryImporter(IAcoustIDClient acoustIDClient, 
+        public LibraryImporter(IAcoustIDClient acoustIDClient,
                                IMusicBrainzClient musicBrainzClient,
                                IModelValidationService modelValidationService,
                                IModelFileService modelFileService,
                                IModelController modelController,
                                ITagCacheController tagCacheController,
-                               IFileController fileController) 
+                               IFileController fileController)
         {
             _acoustIDClient = acoustIDClient;
-            _musicBrainzClient  = musicBrainzClient;
+            _musicBrainzClient = musicBrainzClient;
             _modelValidationService = modelValidationService;
             _modelFileService = modelFileService;
             _modelController = modelController;
@@ -72,7 +65,7 @@ namespace AudioStation.Core.Component
         }
         public bool CanImportEmbedTag(ILibraryLoaderImportLoad workInput, ILibraryLoaderImportOutput workOutput)
         {
-            return  !string.IsNullOrEmpty(workInput.SourceFile) &&
+            return !string.IsNullOrEmpty(workInput.SourceFile) &&
                     _tagCacheController.Verify(workInput.SourceFile) &&
                     workOutput.FinalQueryRecord != null;
         }
@@ -80,8 +73,10 @@ namespace AudioStation.Core.Component
         {
             var message = string.Empty;
 
-            return _modelValidationService.ValidateTagImport(workOutput.ImportedTagFile, out message);
-                   
+            var tagFile = _tagCacheController.Get(workInput.SourceFile);
+
+            return _modelValidationService.ValidateTagImport(tagFile, out message);
+
         }
         public bool CanImportMigrateFile(ILibraryLoaderImportLoad workInput, ILibraryLoaderImportOutput workOutput)
         {
@@ -140,19 +135,16 @@ namespace AudioStation.Core.Component
         public bool WorkEmbedTag(ILibraryLoaderImportLoad workInput, ILibraryLoaderImportOutput workOutput)
         {
             // Embed tag data into the SOURCE FILE
-            return EmbedTagData(workInput, workOutput);
+            workOutput.TagEmbeddingSuccess = EmbedTagData(workInput, workOutput);
+
+            return workOutput.TagEmbeddingSuccess;
         }
         public bool WorkImportEntity(ILibraryLoaderImportLoad workInput, ILibraryLoaderImportOutput workOutput)
         {
-            // Calculate destination file name. Destination path is used no matter if there is a file migration or not.
-            CalculateFileName(workInput, workOutput);
+            var tagFile = _tagCacheController.Get(workInput.SourceFile);
 
             // Import Record:  Save imported entity for output
-            workOutput.ImportedRecord = _modelController.AddUpdateLibraryEntry(workOutput.DestinationPathCalculated,
-                                                                                workOutput.ImportedTagFileAvailable,
-                                                                                workOutput.ImportedTagFileLoadError,
-                                                                                workOutput.ImportedTagFileErrorMessage,
-                                                                                workOutput.ImportedTagFile);
+            workOutput.ImportedRecord = _modelController.AddUpdateLibraryEntry(workInput.SourceFile, tagFile);
 
             workOutput.Mp3FileImportSuccess = workOutput.ImportedRecord != null;
 
@@ -160,6 +152,9 @@ namespace AudioStation.Core.Component
         }
         public bool WorkMigrateFile(ILibraryLoaderImportLoad workInput, ILibraryLoaderImportOutput workOutput)
         {
+            // Calculate destination file name. Destination path is used no matter if there is a file migration or not.
+            CalculateFileName(workInput, workOutput);
+
             // Move File, and update the entity (database)
             workOutput.Mp3FileMoveSuccess = MigrateFile(workInput, workOutput);
 
@@ -197,13 +192,13 @@ namespace AudioStation.Core.Component
                             var artwork = workOutput.MusicBrainzCombinedLibraryEntryRecords.SelectMany(x => x.ReleasePictures).ToList();
 
                             // Scrape any artwork that is already downloaded from the results
-                            var front = record.ReleasePictures.Any(x => x.Type == PictureType.FrontCover) ?
-                                        record.ReleasePictures.First(x => x.Type == PictureType.FrontCover) :
-                                        artwork.FirstOrDefault(x => x.Type == PictureType.FrontCover);
+                            var front = record.ReleasePictures.Any(x => x.PicType == PictureType.Front) ?
+                                        record.ReleasePictures.First(x => x.PicType == PictureType.Front) :
+                                        artwork.FirstOrDefault(x => x.PicType == PictureType.Front);
 
-                            var back = record.ReleasePictures.Any(x => x.Type == PictureType.BackCover) ?
-                                       record.ReleasePictures.First(x => x.Type == PictureType.BackCover) :
-                                       artwork.FirstOrDefault(x => x.Type == PictureType.BackCover);
+                            var back = record.ReleasePictures.Any(x => x.PicType == PictureType.Back) ?
+                                       record.ReleasePictures.First(x => x.PicType == PictureType.Back) :
+                                       artwork.FirstOrDefault(x => x.PicType == PictureType.Back);
 
                             // Store artwork
                             workOutput.BestBackCover = back;
@@ -219,46 +214,18 @@ namespace AudioStation.Core.Component
         }
         private void CalculateFileName(ILibraryLoaderImportLoad workInput, ILibraryLoaderImportOutput workOutput)
         {
+            var tagFile = _tagCacheController.Get(workInput.SourceFile);
+
             // Calculate standard file name for the import
-            var calculatedFileName = _modelFileService.CalculateFileName(workOutput.ImportedTagFile, workInput.NamingType);
+            var calculatedFileName = _modelFileService.CalculateFileName(tagFile, workInput.NamingType);
 
             // All groupings are based on the destination file folder (base)
-            var destinationFolder = _modelFileService.CalculateFolderPath(workOutput.ImportedTagFile, 
-                                                                          workOutput.DestinationFolderBase, 
+            var destinationFolder = _modelFileService.CalculateFolderPath(tagFile,
+                                                                          workOutput.DestinationFolderBase,
                                                                           workInput.GroupingType);
 
             // Final Impot Path
             workOutput.DestinationPathCalculated = Path.Combine(destinationFolder, calculatedFileName);
-        }
-        private void LoadTagData(ILibraryLoaderImportLoad workInput, ILibraryLoaderImportOutput workOutput)
-        {
-            if (string.IsNullOrEmpty(workInput.SourceFile))
-                throw new ArgumentException("Invalid media file name");
-
-            // File load parameters
-            workOutput.ImportedTagFileAvailable = Path.Exists(workInput.SourceFile);
-            workOutput.ImportedTagFileLoadError = false;
-            workOutput.ImportedTagFileErrorMessage = string.Empty;
-
-            TagLib.File fileRef = null;
-
-            try
-            {
-                fileRef = _tagCacheController.Get(workInput.SourceFile);
-
-                if (fileRef == null)
-                {
-                    workOutput.ImportedTagFileErrorMessage = "Unable to load tag from file";
-                    workOutput.ImportedTagFileLoadError = true;
-                }
-
-                workOutput.ImportedTagFile = fileRef;
-            }
-            catch (Exception ex)
-            {
-                workOutput.ImportedTagFileErrorMessage = ex.Message;
-                workOutput.ImportedTagFileLoadError = true;
-            }
         }
         private bool EmbedTagData(ILibraryLoaderImportLoad workInput, ILibraryLoaderImportOutput workOutput)
         {
@@ -270,62 +237,47 @@ namespace AudioStation.Core.Component
 
             try
             {
-                workOutput.ImportedTagFileAvailable = System.IO.File.Exists(workInput.SourceFile);
-                workOutput.ImportedTagFileLoadError = false;
-                workOutput.ImportedTagFileErrorMessage = string.Empty;
-
                 var fileRef = _tagCacheController.Get(workInput.SourceFile);
 
                 if (fileRef == null)
                     return false;
 
-                fileRef.Tag.Album = workOutput.FinalQueryRecord.Release.Title;
-                fileRef.Tag.AlbumArtists = workOutput.FinalQueryRecord.Artists.Select(x => x.Name).ToArray();
-                fileRef.Tag.AlbumArtistsSort = workOutput.FinalQueryRecord.Artists.Select(x => x.SortName).ToArray();
-                fileRef.Tag.AmazonId = workOutput.FinalQueryRecord.Release.Asin;
-                fileRef.Tag.Artists = workOutput.FinalQueryRecord.Artists.Select(x => x.Name).ToArray();
-                fileRef.Tag.Comment = workOutput.FinalQueryRecord.Recording.Annotation;
-                fileRef.Tag.Disc = (uint)(workOutput.FinalQueryRecord.Release.Media.IndexOf(x => x.Id == workOutput.FinalQueryRecord.Medium.Id) + 1);
-                fileRef.Tag.DiscCount = (uint)workOutput.FinalQueryRecord.Release.Media.Count;
-                fileRef.Tag.Genres = workOutput.FinalQueryRecord.RecordingGenres.Select(x => x.Name).ToArray();
-                fileRef.Tag.MusicBrainzArtistId = workOutput.FinalQueryRecord.Artists.FirstOrDefault()?.Id.ToString() ?? string.Empty;
-                fileRef.Tag.MusicBrainzReleaseArtistId = workOutput.FinalQueryRecord.Artists.FirstOrDefault()?.Id.ToString() ?? string.Empty;
-                fileRef.Tag.MusicBrainzReleaseCountry = workOutput.FinalQueryRecord.Release.Country;
-                fileRef.Tag.MusicBrainzReleaseId = workOutput.FinalQueryRecord.Release.Id.ToString();
-                fileRef.Tag.MusicBrainzReleaseStatus = workOutput.FinalQueryRecord.Release.Status;
-                fileRef.Tag.MusicBrainzTrackId = workOutput.FinalQueryRecord.Track.Id.ToString();
-                fileRef.Tag.Performers = workOutput.FinalQueryRecord.Artists.Select(x => x.Name).ToArray();
-                fileRef.Tag.PerformersSort = workOutput.FinalQueryRecord.Artists.Select(x => x.SortName).ToArray();
-
-                var pictures = new List<IPicture>();
-
-                if (workOutput.BestFrontCover != null)
-                    pictures.Add(workOutput.BestFrontCover);
-
-                if (workOutput.BestBackCover != null)
-                    pictures.Add(workOutput.BestBackCover);
+                fileRef.Album = workOutput.FinalQueryRecord.Release.Title;
+                fileRef.AlbumArtists = workOutput.FinalQueryRecord.Artists.Select(x => x.Name).ToArray();
+                fileRef.Comment = workOutput.FinalQueryRecord.Recording.Annotation;
+                fileRef.DiscNumber = (ushort)(workOutput.FinalQueryRecord.Release.Media.IndexOf(x => x.Id == workOutput.FinalQueryRecord.Medium.Id) + 1);
+                fileRef.DiscTotal = (ushort)workOutput.FinalQueryRecord.Release.Media.Count;
+                fileRef.Genres = workOutput.FinalQueryRecord.RecordingGenres.Select(x => x.Name).ToArray();
+                //fileRef.Tag.MusicBrainzArtistId = workOutput.FinalQueryRecord.Artists.FirstOrDefault()?.Id.ToString() ?? string.Empty;
+                //fileRef.Tag.MusicBrainzReleaseArtistId = workOutput.FinalQueryRecord.Artists.FirstOrDefault()?.Id.ToString() ?? string.Empty;
+                //fileRef.Tag.MusicBrainzReleaseCountry = workOutput.FinalQueryRecord.Release.Country;
+                //fileRef.Tag.MusicBrainzReleaseId = workOutput.FinalQueryRecord.Release.Id.ToString();
+                //fileRef.Tag.MusicBrainzReleaseStatus = workOutput.FinalQueryRecord.Release.Status;
+                //fileRef.Tag.MusicBrainzTrackId = workOutput.FinalQueryRecord.Track.Id.ToString();
+                //fileRef.Tag.Performers = workOutput.FinalQueryRecord.Artists.Select(x => x.Name).ToArray();
+                //fileRef.Tag.PerformersSort = workOutput.FinalQueryRecord.Artists.Select(x => x.SortName).ToArray();
 
                 // COVER ART!
-                fileRef.Tag.Pictures = pictures.ToArray();
+                if (workOutput.BestFrontCover != null)
+                    fileRef.EmbeddedPictures.Add(workOutput.BestFrontCover);
 
-                fileRef.Tag.Title = workOutput.FinalQueryRecord.Track.Title;
-                fileRef.Tag.Track = (uint)(workOutput.FinalQueryRecord.Track.Position ?? 0);
-                fileRef.Tag.TrackCount = (uint)workOutput.FinalQueryRecord.Medium.TrackCount;
-                fileRef.Tag.Year = (uint)(workOutput.FinalQueryRecord.Release?.Date?.Year ?? 0);
+                if (workOutput.BestBackCover != null)
+                    fileRef.EmbeddedPictures.Add(workOutput.BestBackCover);
 
-                fileRef.Save();
+                fileRef.Title = workOutput.FinalQueryRecord.Track.Title;
+                fileRef.Track = (uint)(workOutput.FinalQueryRecord.Track.Position ?? 0);
+                fileRef.TrackTotal = (ushort)workOutput.FinalQueryRecord.Medium.TrackCount;
+                fileRef.Date = workOutput.FinalQueryRecord.Release?.Date ?? DateTime.MinValue;
+                fileRef.PublishingDate = workOutput.FinalQueryRecord.Release?.Date ?? DateTime.MinValue;
+                fileRef.Year = (int)(workOutput.FinalQueryRecord.Release?.Date?.Year ?? 0);
 
-                // Set Output
-                workOutput.ImportedTagFile = fileRef;
+                // Save tag data to file
+                _tagCacheController.SetData(workInput.SourceFile, fileRef, true);
 
                 return true;
             }
             catch (Exception ex)
             {
-                workOutput.ImportedTagFileAvailable = true;
-                workOutput.ImportedTagFileLoadError = true;
-                workOutput.ImportedTagFileErrorMessage = ex.Message;
-
                 return false;
             }
         }

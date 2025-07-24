@@ -15,14 +15,14 @@ namespace AudioStation.Views.VendorEntryViews
 
         private void OnMusicBrainzResultsChanged(object? sender, SelectionChangedEventArgs e)
         {
-            if (e.AddedItems.Count > 0)
-            {
-                var entry = this.DataContext as LibraryEntry;
-                var record = e.AddedItems[0] as MusicBrainzRecordingViewModel;
+            //if (e.AddedItems.Count > 0)
+            //{
+            //    var entry = this.DataContext as LibraryEntry;
+            //    var record = e.AddedItems[0] as MusicBrainzRecordingViewModel;
 
-                // Set selected record in the primary LibraryEntry
-                //entry.MusicBrainzRecord = record;
-            }
+            //    // Set selected record in the primary LibraryEntry
+            //    //entry.MusicBrainzRecord = record;
+            //}
         }
     }
 }

@@ -1,4 +1,6 @@
-﻿using MetaBrainz.MusicBrainz.Interfaces.Entities;
+﻿using ATL;
+
+using MetaBrainz.MusicBrainz.Interfaces.Entities;
 
 namespace AudioStation.Core.Model.Vendor
 {
@@ -11,8 +13,8 @@ namespace AudioStation.Core.Model.Vendor
         public string Asin { get; set; }
         public string Barcode { get; set; }
         public string ReleaseCountry { get; set; }
-        public Image FrontCover { get; set; }
-        public Image BackCover { get; set; }
+        public PictureInfo FrontCover { get; set; }
+        public PictureInfo BackCover { get; set; }
         public string LabelCatalogNumber { get; set; }
         public int LabelCode { get; set; }
         public string LabelName { get; set; }

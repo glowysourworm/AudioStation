@@ -337,8 +337,6 @@ namespace AudioStation.ViewModels.LibraryManagerViewModels
                     return entity.IsFileLoadError;
                 case LibraryManagerErrorFilterType.FileUnavailable:
                     return !entity.IsFileAvailable;
-                case LibraryManagerErrorFilterType.FilePossiblyCorrupt:
-                    return entity.IsFileCorrupt;
                 default:
                     throw new Exception("Unhandled LibraryManagerErrorFilterType:  LibraryViewModel.cs");
             }

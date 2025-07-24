@@ -1,4 +1,5 @@
 ﻿using AudioStation.Core.Model;
+using AudioStation.Core.Model.Vendor.ATLExtension.Interface;
 
 namespace AudioStation.Core.Database.AudioStationDatabase.Interface
 {
@@ -8,7 +9,7 @@ namespace AudioStation.Core.Database.AudioStationDatabase.Interface
         /// Adds LibraryEntry to database. Does NOT update any existing, similar, entry. The tag data
         /// is also used to initialize the LibraryEntry, adding supporting data to the database.
         /// </summary>
-        Mp3FileReference AddUpdateLibraryEntry(string fileName, bool fileAvailable, bool fileLoadError, string fileLoadErrorMessage, TagLib.File tagRef);
+        Mp3FileReference AddUpdateLibraryEntry(string fileName, bool fileAvailable, bool fileLoadError, string fileLoadErrorMessage, IAudioStationTag tagRef);
 
         /// <summary>
         /// Add / Update M3UStream based on unique Id, and Name

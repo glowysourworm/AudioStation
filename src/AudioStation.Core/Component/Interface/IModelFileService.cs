@@ -1,5 +1,5 @@
 ﻿using AudioStation.Core.Model;
-using AudioStation.Core.Model.Interface;
+using AudioStation.Core.Model.Vendor.ATLExtension.Interface;
 
 namespace AudioStation.Core.Component.Interface
 {
@@ -13,21 +13,11 @@ namespace AudioStation.Core.Component.Interface
         /// <summary>
         /// Calculates the file name of the tag's library file. This should be the file name stored in the database, also.
         /// </summary>
-        string CalculateFileName(ISimpleTag simpleTag, LibraryEntryNamingType namingType);
+        string CalculateFileName(IAudioStationTag tagFile, LibraryEntryNamingType namingType);
 
         /// <summary>
         /// Calculates the folder path of a tag's library folder.
         /// </summary>
-        string CalculateFolderPath(ISimpleTag simpleTag, string destinationFolderBase, LibraryEntryGroupingType groupingType);
-
-        /// <summary>
-        /// Calculates the file name of the tag's library file. This should be the file name stored in the database, also.
-        /// </summary>
-        string CalculateFileName(TagLib.File tagFile, LibraryEntryNamingType namingType);
-
-        /// <summary>
-        /// Calculates the folder path of a tag's library folder.
-        /// </summary>
-        string CalculateFolderPath(TagLib.File tagFile, string destinationFolderBase, LibraryEntryGroupingType groupingType);
+        string CalculateFolderPath(IAudioStationTag tagFile, string destinationFolderBase, LibraryEntryGroupingType groupingType);
     }
 }

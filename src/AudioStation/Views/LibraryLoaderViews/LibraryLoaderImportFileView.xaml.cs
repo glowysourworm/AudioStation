@@ -1,28 +1,11 @@
-﻿using System.Collections.ObjectModel;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 
-using AudioStation.Controller.Interface;
-using AudioStation.Core.Component.Vendor.Interface;
-using AudioStation.Core.Model.Vendor;
-using AudioStation.Core.Utility;
-using AudioStation.Event;
-using AudioStation.Event.DialogEvents;
-using AudioStation.Model;
 using AudioStation.ViewModels.LibraryLoaderViewModels;
-using AudioStation.ViewModels.Vendor.AcoustIDViewModel;
-using AudioStation.ViewModels.Vendor.MusicBrainzViewModel;
-using AudioStation.ViewModels.Vendor.TagLibViewModel;
 
-using EMA.ExtendedWPFVisualTreeHelper;
-
-using Microsoft.Extensions.Logging;
-
-using SimpleWpf.Extensions.ObservableCollection;
 using SimpleWpf.IocFramework.Application.Attribute;
-using SimpleWpf.IocFramework.EventAggregation;
 
 namespace AudioStation.Views.LibraryLoaderViews
 {

@@ -1,6 +1,9 @@
 ﻿using System.IO;
 using System.Windows.Forms;
 
+using ATL;
+using ATL.AudioData;
+
 using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Component.Vendor.Interface;
 using AudioStation.Core.Database.MusicBrainzDatabase.Model;
@@ -236,8 +239,8 @@ namespace AudioStation.Core.Component.Vendor
                     var frontArt = release.CoverArtArchive?.Front ?? false ? coverArtClient.FetchFront(releaseId) : null;
                     var backArt = release.CoverArtArchive?.Back ?? false ? coverArtClient.FetchBack(releaseId) : null;
 
-                    var front = frontArt != null ? new Image(frontArt.Data, frontArt.ContentType ?? string.Empty) : null;
-                    var bacK = backArt != null ? new Image(backArt.Data, backArt.ContentType ?? string.Empty) : null;
+                    var front = frontArt != null ? ConvertImage(frontArt, PictureInfo.PIC_TYPE.Front) : null;
+                    var bacK = backArt != null ? ConvertImage(backArt, PictureInfo.PIC_TYPE.Back) : null;
 
                     if (release == null || artist == null)
                     {
@@ -479,7 +482,7 @@ namespace AudioStation.Core.Component.Vendor
                     {
                         var front = await coverArtClient.FetchFrontAsync(musicBrainzReleaseId);
                         if (front != null)
-                            coverArt.Add(front);
+                            result.Add(ConvertImage(front, PictureInfo.PIC_TYPE.Front));
                     }
 
                     if (release.CoverArtArchive.Back)
@@ -487,28 +490,6 @@ namespace AudioStation.Core.Component.Vendor
                         var back = await coverArtClient.FetchBackAsync(musicBrainzReleaseId);
                         if (back != null)
                             coverArt.Add(back);
-                    }
-
-
-                    var index = 0;
-
-                    foreach (var art in coverArt)
-                    {
-                        byte[] buffer = null;
-
-                        using (var stream = new MemoryStream())
-                        {
-                            art.Data.CopyTo(stream);
-                            buffer = stream.GetBuffer();
-                        }
-
-                        result.Add(new MusicBrainzPicture()
-                        {
-                            Description = string.Empty,
-                            MimeType = art.ContentType,
-                            Type = index == 0 && release.CoverArtArchive.Front ? TagLib.PictureType.FrontCover : TagLib.PictureType.BackCover,
-                            Data = new TagLib.ByteVector(buffer, buffer.Length)
-                        });
                     }
 
                     return result;
@@ -715,5 +696,17 @@ namespace AudioStation.Core.Component.Vendor
         }
 
         #endregion
+
+        private MusicBrainzPicture ConvertImage(CoverArtImage musicBrainzArt, PictureInfo.PIC_TYPE type)
+        {
+            using (var stream =  new MemoryStream())
+            {
+                musicBrainzArt.Data.CopyTo(stream);
+
+                var pictureInfo = PictureInfo.fromBinaryData(stream.GetBuffer(), type);
+
+                return new MusicBrainzPicture(pictureInfo, false);
+            }
+        }
     }
 }

@@ -32,10 +32,10 @@
             <!-- Edit Tag(s) -->
             <Button Margin="0 5 5 0" 
                     Style="{StaticResource UserControlButton}" 
-                    Command="{Binding EditTagsCommand}"
-                    Visibility="{Binding EditTagsCommand.IsReady, Converter={StaticResource BoolVisibilityCollapseConverter}}">
+                    Command="{Binding EditTagCommand}"
+                    Visibility="{Binding EditTagCommand.IsReady, Converter={StaticResource BoolVisibilityCollapseConverter}}">
                 <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="Edit Tag(s)" Style="{StaticResource LabelTextBlock}" Margin="5" />
+                    <TextBlock Text="Edit Tag" Style="{StaticResource LabelTextBlock}" Margin="5" />
                     <fa5:SvgAwesome Icon="Solid_Tag" Style="{StaticResource FontAwesomeIconDefault}" Margin="5" />
                 </StackPanel>
             </Button>

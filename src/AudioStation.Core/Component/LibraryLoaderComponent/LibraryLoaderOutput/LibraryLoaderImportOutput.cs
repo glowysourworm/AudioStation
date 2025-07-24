@@ -35,17 +35,6 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderOutput
         public Mp3FileReference ImportedRecord { get; set; }
 
         /// <summary>
-        /// Mp3 file used during the import. This would represent the final tag file
-        /// imported into the library.
-        /// </summary>
-        public TagLib.File ImportedTagFile { get; set; }
-
-        // These need to be worked out (some refactoring)
-        public bool ImportedTagFileAvailable { get; set; }
-        public bool ImportedTagFileLoadError { get; set; }
-        public string ImportedTagFileErrorMessage { get; set; }
-
-        /// <summary>
         /// AcoustID fingerprinting successful
         /// </summary>
         public bool AcoustIDSuccess { get; set; }

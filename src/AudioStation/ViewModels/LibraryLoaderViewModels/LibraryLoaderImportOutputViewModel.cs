@@ -9,7 +9,6 @@ using AudioStation.Core.Model.Vendor;
 using AudioStation.Core.Utility;
 using AudioStation.ViewModels.Vendor.AcoustIDViewModel;
 using AudioStation.ViewModels.Vendor.MusicBrainzViewModel;
-using AudioStation.ViewModels.Vendor.TagLibViewModel;
 
 using SimpleWpf.Extensions;
 using SimpleWpf.Extensions.ObservableCollection;
@@ -26,12 +25,6 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
         ObservableCollection<MusicBrainzCombinedLibraryEntryRecord> _musicBrainzCombinedRecords;
         MusicBrainzCombinedLibraryEntryRecord _finalQueryRecord;
         Mp3FileReference _importedRecord;
-
-        // Tag File Details
-        TagFileViewModel _importedTagFile;
-        bool _importedTagFileAvailable;
-        bool _importedTagFileLoadError;
-        string _importedTagFileErrorMessage;
 
         MusicBrainzPicture? _bestFrontCover;
         MusicBrainzPicture? _bestBackCover;
@@ -82,21 +75,6 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
         {
             get { return _importedRecord; }
             set { this.RaiseAndSetIfChanged(ref _importedRecord, value); }
-        }
-        public bool ImportedTagFileAvailable
-        {
-            get { return _importedTagFileAvailable; }
-            set { this.RaiseAndSetIfChanged(ref _importedTagFileAvailable, value); }
-        }
-        public bool ImportedTagFileLoadError
-        {
-            get { return _importedTagFileLoadError; }
-            set { this.RaiseAndSetIfChanged(ref _importedTagFileLoadError, value); }
-        }
-        public string ImportedTagFileErrorMessage
-        {
-            get { return _importedTagFileErrorMessage; }
-            set { this.RaiseAndSetIfChanged(ref _importedTagFileErrorMessage, value); }
         }
         public MusicBrainzPicture? BestFrontCover
         {
@@ -194,12 +172,6 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
 
                 OnPropertyChanged("MusicBrainzCombinedLibraryEntryRecords");
             }
-        }
-
-        public TagLib.File ImportedTagFile
-        {
-            get { return _importedTagFile.GetFile(); }
-            set { _importedTagFile = new TagFileViewModel(value); OnPropertyChanged(nameof(ImportedTagFile)); }
         }
         #endregion
 

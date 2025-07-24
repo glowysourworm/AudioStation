@@ -11,6 +11,7 @@ using AudioStation.Core.Database.MusicBrainzDatabase.Model;
 using AudioStation.Core.Event;
 using AudioStation.Core.Model;
 using AudioStation.Core.Model.Vendor;
+using AudioStation.Core.Model.Vendor.ATLExtension.Interface;
 using AudioStation.Core.Utility;
 using AudioStation.Model;
 
@@ -19,6 +20,7 @@ using MetaBrainz.MusicBrainz.Interfaces.Entities;
 
 using Microsoft.Extensions.Logging;
 
+using SimpleWpf.Extensions.Collection;
 using SimpleWpf.IocFramework.Application.Attribute;
 using SimpleWpf.IocFramework.EventAggregation;
 
@@ -62,11 +64,13 @@ namespace AudioStation.Controller
         }
 
         #region Audio Station Database Methods
-        public Mp3FileReference AddUpdateLibraryEntry(string fileName, bool fileAvailable, bool fileLoadError, string fileLoadErrorMessage, TagLib.File tagRef)
+        public Mp3FileReference AddUpdateLibraryEntry(string fileName, IAudioStationTag tagRef)
         {
             try
             {
-                return _audioStationDbClient.AddUpdateLibraryEntry(fileName, fileAvailable, fileLoadError, fileLoadErrorMessage, tagRef);
+                var fileExists = Path.Exists(fileName);
+
+                return _audioStationDbClient.AddUpdateLibraryEntry(fileName, fileExists, false, string.Empty, tagRef);
             }
             catch (Exception ex)
             {

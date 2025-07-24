@@ -10,15 +10,13 @@ using AudioStation.Core.Component.Vendor.Interface;
 using AudioStation.Model;
 using AudioStation.ViewModels.LibraryManagerViewModels;
 using AudioStation.ViewModels.LibraryViewModels;
-using AudioStation.ViewModels.Vendor.TagLibViewModel;
+using AudioStation.ViewModels.Vendor.ATLViewModel;
 using AudioStation.Views.LibraryEntryViews;
 
 using Microsoft.Extensions.Logging;
 
 using SimpleWpf.Extensions.Command;
 using SimpleWpf.IocFramework.Application.Attribute;
-
-using TagLib;
 
 namespace AudioStation.Views.LibraryManager
 {
@@ -33,8 +31,8 @@ namespace AudioStation.Views.LibraryManager
         private ObservableCollection<TabItemPressable> _tabItems;
 
         [IocImportingConstructor]
-        public ManagerView(IMusicBrainzClient musicBrainzClient, 
-                           IOutputController outputController, 
+        public ManagerView(IMusicBrainzClient musicBrainzClient,
+                           IOutputController outputController,
                            IDialogController dialogController,
                            ITagCacheController tagCacheController)
         {
@@ -131,44 +129,43 @@ namespace AudioStation.Views.LibraryManager
             var view = new EntryView();
 
             // Replicate TagLib's tag into our data structure
-            var tagFile = _tagCacheController.Get(viewModel.FileName);
-            var tag = tagFile.Tag;
-            var tagFileViewModel = new TagFileViewModel(tagFile);
+            //var tag = _tagCacheController.Get(viewModel.FileName);
+            //var viewModel = new TagViewModel(tag);
 
             // Hand off the tag data to the view
-            view.TagFileView.DataContext = tagFileViewModel;                                     // Entire File (combined tag)
-            view.Id3v1TagView.DataContext = new TagViewModel(tagFile.GetTag(TagTypes.Id3v1));    // Tag piece (will have to sync data)
-            view.Id3v2TagView.DataContext = new TagViewModel(tagFile.GetTag(TagTypes.Id3v2));    // Tag piece (will have to sync data)
+            //view.TagFileView.DataContext = tagFileViewModel;                                     // Entire File (combined tag)
+            //view.Id3v1TagView.DataContext = new TagViewModel(tagFile.GetTag(TagTypes.Id3v1));    // Tag piece (will have to sync data)
+            //view.Id3v2TagView.DataContext = new TagViewModel(tagFile.GetTag(TagTypes.Id3v2));    // Tag piece (will have to sync data)
 
             // Listen for Music Brainz Query
-            view.TagFileView.FindOnMusicBrainzEvent += async () =>
-            {
-                if (tagFileViewModel.Tag.MusicBrainzArtistId == null ||
-                    tagFileViewModel.Tag.MusicBrainzReleaseId == null)
-                    return;
+            //view.TagFileView.FindOnMusicBrainzEvent += async () =>
+            //{
+            //    if (tagFileViewModel.Tag.MusicBrainzArtistId == null ||
+            //        tagFileViewModel.Tag.MusicBrainzReleaseId == null)
+            //        return;
 
-                var artistId = new Guid(tagFileViewModel.Tag.MusicBrainzArtistId);
-                var releaseId = new Guid(tagFileViewModel.Tag.MusicBrainzReleaseId);
-                var trackId = new Guid(tagFileViewModel.Tag.MusicBrainzTrackId);
+            //    var artistId = new Guid(tagFileViewModel.Tag.MusicBrainzArtistId);
+            //    var releaseId = new Guid(tagFileViewModel.Tag.MusicBrainzReleaseId);
+            //    var trackId = new Guid(tagFileViewModel.Tag.MusicBrainzTrackId);
 
-                var musicBrainzViewModel = await _musicBrainzClient.GetCombinedData(releaseId, artistId, trackId, tagFileViewModel.Tag.Title);
+            //    var musicBrainzViewModel = await _musicBrainzClient.GetCombinedData(releaseId, artistId, trackId, tagFileViewModel.Tag.Title);
 
-                if (musicBrainzViewModel != null)
-                {
-                    // Music Brainz API:  Artist URL relationships have many different links to browse. Also, ASIN is the
-                    //                    Amazon Id (also), or some part of their API.
-                    //
-                    //                    Found a Track Id that was out of date. The artist / recording Ids may be ok to 
-                    //                    update the tag information with.
+            //    if (musicBrainzViewModel != null)
+            //    {
+            //        // Music Brainz API:  Artist URL relationships have many different links to browse. Also, ASIN is the
+            //        //                    Amazon Id (also), or some part of their API.
+            //        //
+            //        //                    Found a Track Id that was out of date. The artist / recording Ids may be ok to 
+            //        //                    update the tag information with.
 
-                    view.MusicBrainzTab.IsEnabled = true;
-                    view.MusicBrainzView.DataContext = musicBrainzViewModel;
-                }
-                else
-                {
-                    _outputController.Log("Music Brainz Client Failed:  {0}", LogMessageType.General, LogLevel.Information, null, tagFileViewModel.Name);
-                }
-            };
+            //        view.MusicBrainzTab.IsEnabled = true;
+            //        view.MusicBrainzView.DataContext = musicBrainzViewModel;
+            //    }
+            //    else
+            //    {
+            //        _outputController.Log("Music Brainz Client Failed:  {0}", LogMessageType.General, LogLevel.Information, null, tagFileViewModel.Name);
+            //    }
+            //};
 
 
             tabItem.Content = view;

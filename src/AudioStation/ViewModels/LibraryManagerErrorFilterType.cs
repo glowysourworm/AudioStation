@@ -11,9 +11,6 @@ namespace AudioStation.ViewModels
         FileLoadError,
 
         [Display(Name = "File Un-Available", Description = "Search only for entries that have a missing file")]
-        FileUnavailable,
-
-        [Display(Name = "Possibly Corrupt", Description = "Search for files whose TagLib entry has a possibly corrupt status")]
-        FilePossiblyCorrupt
+        FileUnavailable
     }
 }

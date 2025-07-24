@@ -33,7 +33,7 @@
     <PackageReference Include="SimpleWpf" Version="0.0.1" />
     <PackageReference Include="SimpleWpf.IocFramework" Version="0.0.1" />
     <PackageReference Include="SpotifyAPI.Web" Version="7.2.1" />
-    <PackageReference Include="taglib-sharp-netstandard2.0" Version="2.1.0" />
+    <PackageReference Include="z440.atl.core" Version="7.1.0" />
   </ItemGroup>
 
 </Project>
