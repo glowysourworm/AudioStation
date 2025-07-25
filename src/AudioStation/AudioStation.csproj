@@ -43,6 +43,7 @@
     <PackageReference Include="FontAwesome5" Version="2.1.11" />
     <PackageReference Include="Inflatable.Lastfm" Version="1.2.0" />
     <PackageReference Include="iTunesSearch" Version="1.0.44" />
+    <PackageReference Include="MathNet.Numerics" Version="5.0.0" />
     <PackageReference Include="MetaBrainz.MusicBrainz" Version="6.1.0" />
     <PackageReference Include="MetaBrainz.MusicBrainz.CoverArt" Version="6.0.0" />
     <PackageReference Include="MetaBrainz.MusicBrainz.DiscId" Version="4.0.0" />

@@ -1,10 +1,14 @@
 ﻿using System.IO;
 
+using ATL;
+
 using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Model.Vendor.ATLExtension;
 using AudioStation.Core.Model.Vendor.ATLExtension.Interface;
 using AudioStation.Core.Utility;
 using AudioStation.Model;
+
+using FanartTv.Types;
 
 using Microsoft.Extensions.Logging;
 
@@ -65,60 +69,18 @@ namespace AudioStation.Core.Component
         }
         public AudioStationTag GetCopy(string fileName)
         {
-            try
-            {
-                // ATL Interface
-                var atlTrack = new ATL.Track(fileName);
-
-                return ApplicationHelpers.Map<ATL.Track, AudioStationTag>(atlTrack);
-            }
-            catch (Exception ex)
-            {
-                ApplicationHelpers.Log("Error initializing tag data:  {0}", LogMessageType.General, LogLevel.Error, ex, ex.Message);
-                throw ex;
-            }
+            // ATL -> AudioStation
+            return FromFile(fileName);
         }
         public void Set(string fileName)
         {
-            try
-            {
-                if (_tagFiles.ContainsKey(fileName))
-                    _tagFiles.Remove(fileName);
+            if (_tagFiles.ContainsKey(fileName))
+                _tagFiles.Remove(fileName);
 
-                // ATL Interface
-                var atlTrack = new ATL.Track(fileName);
+            // ATL -> AudioStation
+            var tagFile = FromFile(fileName);
 
-                // ATL -> AudioStation
-                var tagFile = ApplicationHelpers.Map<ATL.Track, AudioStationTag>(atlTrack);
-
-                // IAudioStationTag:  Additional Fields (taken from ATL.Track)
-                tagFile.AlbumArtists.Add(atlTrack.AlbumArtist);                     // NEEDS TO BE FINISHED
-                tagFile.AudioFormat = atlTrack.AudioFormat.Name;
-                tagFile.BitDepth = atlTrack.BitDepth;
-                tagFile.BitRate = atlTrack.Bitrate;
-                tagFile.Channels = atlTrack.ChannelsArrangement.NbChannels;
-                tagFile.Duration = TimeSpan.FromMilliseconds(atlTrack.DurationMs);
-                tagFile.Encoder = atlTrack.Encoder;
-
-                uint trackNumber = 0;
-                uint.TryParse(atlTrack.TrackNumberStr, out trackNumber);
-
-                // NEEDS TO BE FINISHED
-                if (!string.IsNullOrWhiteSpace(atlTrack.Genre))
-                    tagFile.Genres.Add(atlTrack.Genre);
-
-                tagFile.IsVariableBitRate = atlTrack.IsVBR;
-                tagFile.SampleRate = atlTrack.SampleRate;
-                tagFile.Track = trackNumber;
-                tagFile.Year = atlTrack.Year ?? atlTrack.Date?.Year ?? 0;
-
-                _tagFiles.Add(fileName, tagFile);
-            }
-            catch (Exception ex)
-            {
-                ApplicationHelpers.Log("Error reading tag data (rebuilding Mp3 file):  {0}", LogMessageType.General, LogLevel.Error, ex, ex.Message);
-                throw ex;
-            }
+            _tagFiles.Add(fileName, tagFile);
         }
 
         public void Evict(string fileName)
@@ -143,35 +105,7 @@ namespace AudioStation.Core.Component
             if (!_tagFiles.ContainsKey(fileName))
                 Set(fileName);
 
-            try
-            {
-                var existingFile = Get(fileName);
-
-                // Copy data onto existing tag
-                ApplicationHelpers.MapOnto(tagData, existingFile);
-
-                // AudioStation -> ATL 
-                var atlTrack = ApplicationHelpers.Map<IAudioStationTag, ATL.Track>(tagData);
-
-                // IAudioStationTag:  Additional Fields (taken from ATL.Track)
-                //tagFile.AlbumArtists.Add(atlTrack.AlbumArtist);                     // NEEDS TO BE FINISHED
-                //tagFile.Encoder = atlTrack.Encoder;
-
-                // NEEDS TO BE FINISHED
-                //if (!string.IsNullOrWhiteSpace(atlTrack.Genre))
-                //    tagFile.Genres.Add(atlTrack.Genre);
-
-                atlTrack.TrackNumber = (int)tagData.Track;
-                atlTrack.TrackNumberStr = tagData.Track.ToString();
-
-                // ATL:  Save
-                atlTrack.SaveTo(fileName);
-            }
-            catch (Exception ex)
-            {
-                ApplicationHelpers.Log("Error saving tag data:  {0}", LogMessageType.General, LogLevel.Error, ex, ex.Message);
-                throw ex;
-            }
+            ToFile(fileName, tagData);
         }
         public byte[] Serialize(AudioStationTag serializableTag)
         {
@@ -201,6 +135,79 @@ namespace AudioStation.Core.Component
                 stream.Seek(0, SeekOrigin.Begin);
 
                 return serializer.Deserialize(stream);
+            }
+        }
+
+        private void ToFile(string fileName, IAudioStationTag tag)
+        {
+            try
+            {
+                var existingFile = Get(fileName);
+
+                // Copy data onto existing tag
+                ApplicationHelpers.MapOnto(tag, existingFile);
+
+                // AudioStation -> ATL 
+                var atlTrack = ApplicationHelpers.Map<IAudioStationTag, ATL.Track>(tag);
+
+                // IAudioStationTag:  Additional Fields (taken from ATL.Track)
+                atlTrack.AlbumArtist = tag.AlbumArtists.FirstOrDefault() ?? string.Empty;
+                atlTrack.Genre = tag.Genres.FirstOrDefault() ?? string.Empty;
+
+                // NEEDS TO BE FINISHED:  Figure out how to store multiple artists / genres
+
+                atlTrack.TrackNumber = (int)tag.Track;
+                atlTrack.TrackNumberStr = tag.Track.ToString();
+
+                // ATL:  Save
+                atlTrack.SaveTo(fileName);
+            }
+            catch (Exception ex)
+            {
+                ApplicationHelpers.Log("Error saving tag data:  {0}", LogMessageType.General, LogLevel.Error, ex, ex.Message);
+                throw ex;
+            }
+        }
+
+        private AudioStationTag FromFile(string fileName)
+        {
+            try
+            {
+                // ATL Interface
+                var atlTrack = new ATL.Track(fileName);
+
+                // ATL -> AudioStation
+                var tagFile = ApplicationHelpers.Map<ATL.Track, AudioStationTag>(atlTrack);
+
+                // IAudioStationTag:  Additional Fields (taken from ATL.Track)
+                if (!string.IsNullOrEmpty(atlTrack.AlbumArtist))
+                    tagFile.AlbumArtists.Add(atlTrack.AlbumArtist);                     // NEEDS TO BE FINISHED
+
+                tagFile.AudioFormat = atlTrack.AudioFormat.Name;
+                tagFile.BitDepth = atlTrack.BitDepth;
+                tagFile.BitRate = atlTrack.Bitrate;
+                tagFile.Channels = atlTrack.ChannelsArrangement.NbChannels;
+                tagFile.Duration = TimeSpan.FromMilliseconds(atlTrack.DurationMs);
+                tagFile.Encoder = atlTrack.Encoder;
+
+                uint trackNumber = 0;
+                uint.TryParse(atlTrack.TrackNumberStr, out trackNumber);
+
+                // NEEDS TO BE FINISHED
+                if (!string.IsNullOrWhiteSpace(atlTrack.Genre))
+                    tagFile.Genres.Add(atlTrack.Genre);
+
+                tagFile.IsVariableBitRate = atlTrack.IsVBR;
+                tagFile.SampleRate = atlTrack.SampleRate;
+                tagFile.Track = trackNumber;
+                tagFile.Year = atlTrack.Year ?? atlTrack.Date?.Year ?? 0;
+
+                return tagFile;
+            }
+            catch (Exception ex)
+            {
+                ApplicationHelpers.Log("Error reading tag data (rebuilding Mp3 file):  {0}", LogMessageType.General, LogLevel.Error, ex, ex.Message);
+                throw ex;
             }
         }
     }

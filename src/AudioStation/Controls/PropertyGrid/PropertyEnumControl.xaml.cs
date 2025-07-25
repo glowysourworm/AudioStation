@@ -28,9 +28,13 @@ namespace AudioStation.Controls.PropertyGrid
             InitializeComponent();
         }
 
-        protected override bool Validate()
+        public override bool Validate()
         {
             return this.Value != null;
+        }
+        public override void CommitChanges()
+        {
+
         }
     }
 }

@@ -20,11 +20,15 @@ namespace AudioStation.Controls.PropertyGrid
             InitializeComponent();
         }
 
-        protected override bool Validate()
+        public override bool Validate()
         {
             return this.Value != null &&
                    this.Value.Any() &&
                    this.Value.All(x => !string.IsNullOrWhiteSpace(x));
+        }
+        public override void CommitChanges()
+        {
+
         }
     }
 }

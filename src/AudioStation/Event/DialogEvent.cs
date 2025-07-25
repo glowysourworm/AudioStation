@@ -1,5 +1,5 @@
-﻿using System.Windows;
-using System.Windows.Forms;
+﻿using System.Runtime.CompilerServices;
+using System.Windows;
 
 using AudioStation.Event.DialogEvents;
 
@@ -39,8 +39,8 @@ namespace AudioStation.Event
 
     public class DialogEventData
     {
-        private const int DialogDefaultHeight = 400;
-        private const int DialogDefaultWidth = 600;
+        private static readonly int DialogDefaultHeight = 400;
+        private static readonly int DialogDefaultWidth = 600;
 
         /// <summary>
         /// Signals that the dialog is to be displayed to the user. This does NOT imply that the
@@ -89,12 +89,6 @@ namespace AudioStation.Event
         public MessageBoxButton MessageBoxButtons { get; set; }
 
         /// <summary>
-        /// User Dismissal Mode:  This dialog result will be set in the event that the user has input a response
-        ///                       to the dialog.
-        /// </summary>
-        public DialogResult DialogResult { get; set; }
-
-        /// <summary>
         /// View for user navigation (this usually takes place after the dialog event is finished)
         /// </summary>
         public NavigationView NavigationView { get; set; }
@@ -104,28 +98,35 @@ namespace AudioStation.Event
         /// </summary>
         public ViewModelBase DataContext { get; set; }
 
+        // Could use a better way to set this (globally)
+        static DialogEventData()
+        {
+            DialogDefaultHeight = (int)(2 * SystemParameters.MaximizedPrimaryScreenHeight / 3);
+            DialogDefaultWidth = (int)(2 * SystemParameters.MaximizedPrimaryScreenWidth / 3);
+        }
+
         public DialogEventData(bool showDialog = false)
-            : this(showDialog, false, string.Empty, DialogDefaultWidth, DialogDefaultHeight, MessageBoxButton.OK, DialogResult.Abort, NavigationView.None, DialogView.Loading, DialogEditorView.None, null)
+            : this(showDialog, false, string.Empty, DialogDefaultWidth, DialogDefaultHeight, MessageBoxButton.OK, NavigationView.None, DialogView.Loading, DialogEditorView.None, null)
         { }
 
         public DialogEventData(DialogLoadingViewModel viewModel)
-            : this(true, false, string.Empty, DialogDefaultWidth, DialogDefaultHeight, MessageBoxButton.OK, DialogResult.Abort, NavigationView.None, DialogView.Loading, DialogEditorView.None, viewModel)
+            : this(true, false, string.Empty, DialogDefaultWidth, DialogDefaultHeight, MessageBoxButton.OK, NavigationView.None, DialogView.Loading, DialogEditorView.None, viewModel)
         { }
 
         public DialogEventData(string dialogTitle, DialogSmallAudioPlayerViewModel viewModel)
-            : this(true, true, dialogTitle, DialogDefaultWidth, DialogDefaultHeight, MessageBoxButton.OK, DialogResult.Abort, NavigationView.None, DialogView.SmallAudioPlayer, DialogEditorView.None, viewModel)
+            : this(true, true, dialogTitle, DialogDefaultWidth, DialogDefaultHeight, MessageBoxButton.OK, NavigationView.None, DialogView.SmallAudioPlayer, DialogEditorView.None, viewModel)
         { }
 
         public DialogEventData(string dialogTitle, DialogMessageListViewModel viewModel)
-            : this(true, true, dialogTitle, DialogDefaultWidth, DialogDefaultHeight, MessageBoxButton.OK, DialogResult.Abort, NavigationView.None, DialogView.MessageList, DialogEditorView.None, viewModel)
+            : this(true, true, dialogTitle, DialogDefaultWidth, DialogDefaultHeight, MessageBoxButton.OK, NavigationView.None, DialogView.MessageList, DialogEditorView.None, viewModel)
         { }
 
         public DialogEventData(string dialogTitle, DialogSelectionListViewModel viewModel)
-            : this(true, true, dialogTitle, DialogDefaultWidth, DialogDefaultHeight, MessageBoxButton.OK, DialogResult.Abort, NavigationView.None, DialogView.SelectionList, DialogEditorView.None, viewModel)
+            : this(true, true, dialogTitle, DialogDefaultWidth, DialogDefaultHeight, MessageBoxButton.OK, NavigationView.None, DialogView.SelectionList, DialogEditorView.None, viewModel)
         { }
 
         public DialogEventData(DialogSplashScreenViewModel viewModel)
-            : this(true, false, string.Empty, DialogDefaultWidth, DialogDefaultHeight, MessageBoxButton.OK, DialogResult.Abort, NavigationView.None, DialogView.SplashScreenLoading, DialogEditorView.None, viewModel)
+            : this(true, false, string.Empty, DialogDefaultWidth, DialogDefaultHeight, MessageBoxButton.OK, NavigationView.None, DialogView.SplashScreenLoading, DialogEditorView.None, viewModel)
         { }
 
         private DialogEventData(bool showDialog,
@@ -134,7 +135,6 @@ namespace AudioStation.Event
                                 int dialogWidth,
                                 int dialogHeight,
                                 MessageBoxButton userDismissalButtons,
-                                DialogResult dialogResult,
                                 NavigationView requestedView,
                                 DialogView eventView,
                                 DialogEditorView editorView,
@@ -162,7 +162,6 @@ namespace AudioStation.Event
             }
 
             this.Show = showDialog;
-            this.DialogResult = dialogResult;
             this.NavigationView = requestedView;
             this.View = eventView;
             this.DataContext = viewDataContext;
@@ -177,7 +176,7 @@ namespace AudioStation.Event
         /// </summary>
         public static DialogEventData Dismiss(NavigationView nextView = NavigationView.None)
         {
-            return new DialogEventData(false, false, string.Empty, DialogDefaultWidth, DialogDefaultHeight, MessageBoxButton.OK, DialogResult.Abort, nextView, DialogView.Loading, DialogEditorView.None, null);
+            return new DialogEventData(false, false, string.Empty, DialogDefaultWidth, DialogDefaultHeight, MessageBoxButton.OK, nextView, DialogView.Loading, DialogEditorView.None, null);
         }
 
         public static DialogEventData ShowLoading(string title)
@@ -202,7 +201,6 @@ namespace AudioStation.Event
                                        DialogDefaultWidth, 
                                        DialogDefaultHeight,
                                        MessageBoxButton.OKCancel,
-                                       DialogResult.OK,
                                        NavigationView.None,
                                        DialogView.EditorView,
                                        editorView,
@@ -224,7 +222,6 @@ namespace AudioStation.Event
                                        dialogWidth,
                                        dialogHeight,
                                        MessageBoxButton.OKCancel,
-                                       DialogResult.OK,
                                        NavigationView.None,
                                        DialogView.EditorView,
                                        editorView,

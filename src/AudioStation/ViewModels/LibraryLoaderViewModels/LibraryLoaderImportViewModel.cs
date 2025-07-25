@@ -308,7 +308,7 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
                 var viewModel = new TagViewModel(tag);
 
                 // Show Tag Editor (ONLY UPDATES NEW VIEW-MODEL! WE MUST MAP THE RESULT BACK!)
-                var dialogResult = _dialogController.ShowDialogWindowSync(DialogEventData.ShowDialogEditor("Tag Editor", DialogEditorView.TagView, viewModel));
+                var dialogResult = _dialogController.ShowDialogWindowSync(DialogEventData.ShowDialogEditor("Tag Editor (" + firstFile.FileName + ")", DialogEditorView.TagView, viewModel));
 
                 // User wishes to save the data
                 if (dialogResult)

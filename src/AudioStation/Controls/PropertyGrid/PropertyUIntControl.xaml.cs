@@ -34,9 +34,13 @@ namespace AudioStation.Controls.PropertyGrid
             InitializeComponent();
         }
 
-        protected override bool Validate()
+        public override bool Validate()
         {
             return this.Value >= this.ValueMin && this.Value <= this.ValueMax;
+        }
+        public override void CommitChanges()
+        {
+
         }
     }
 }

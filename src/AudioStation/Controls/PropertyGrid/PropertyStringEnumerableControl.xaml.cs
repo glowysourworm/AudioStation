@@ -10,12 +10,20 @@ namespace AudioStation.Controls.PropertyGrid
     public partial class PropertyStringEnumerableControl : PropertyGridControl
     {
         public static readonly DependencyProperty ValueProperty =
-            DependencyProperty.Register("Value", typeof(IList<string>), typeof(PropertyStringEnumerableControl), new PropertyMetadata(OnValueChanged));
+            DependencyProperty.Register("Value", typeof(IList<string>), typeof(PropertyStringEnumerableControl));
+
+        public static readonly DependencyProperty DefaultNewValueProperty =
+            DependencyProperty.Register("DefaultNewValue", typeof(string), typeof(PropertyStringEnumerableControl), new PropertyMetadata("New Value"));
 
         public IList<string> Value
         {
             get { return (IList<string>)GetValue(ValueProperty); }
             set { SetValue(ValueProperty, value); }
+        }
+        public string DefaultNewValue
+        {
+            get { return (string)GetValue(DefaultNewValueProperty); }
+            set { SetValue(DefaultNewValueProperty, value); }
         }
 
         public PropertyStringEnumerableControl()
@@ -23,21 +31,9 @@ namespace AudioStation.Controls.PropertyGrid
             InitializeComponent();
         }
 
-        private static void OnValueChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            var control = (PropertyStringEnumerableControl)d;
-
-            if (control != null &&
-                e.NewValue != null &&
-                e.NewValue is IList<string>)
-            {
-
-            }
-        }
-
         private void AddButton_Click(object sender, RoutedEventArgs e)
         {
-            this.Value?.Add(string.Empty);
+            this.Value?.Add(this.DefaultNewValue);
         }
 
         private void RemoveButton_Click(object sender, RoutedEventArgs e)
@@ -48,7 +44,7 @@ namespace AudioStation.Controls.PropertyGrid
             if (this.Value != null &&
                 textBox != null)
             {
-                this.Value.Remove(textBox.Text);
+                this.Value.Remove(textBox.Text);                
             }
         }
 
@@ -69,11 +65,16 @@ namespace AudioStation.Controls.PropertyGrid
             }
         }
 
-        protected override bool Validate()
+        public override bool Validate()
         {
             return this.Value != null &&
                    this.Value.Count > 0 &&
                    this.Value.All(x => !string.IsNullOrWhiteSpace(x));
+        }
+
+        public override void CommitChanges()
+        {
+            GetBindingExpression(ValueProperty).UpdateSource();
         }
     }
 }

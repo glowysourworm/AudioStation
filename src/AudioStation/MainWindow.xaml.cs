@@ -120,6 +120,14 @@ namespace AudioStation
 
             this.DataContext = _viewModelController.GetMainViewModel();
 
+            // Set to maximized "mode"
+            this.Height = SystemParameters.MaximizedPrimaryScreenHeight - _DPIMargin.Top - _DPIMargin.Bottom;
+            this.Width = SystemParameters.MaximizedPrimaryScreenWidth - _DPIMargin.Left - _DPIMargin.Right;
+
+            this.Left = 0;
+            this.Top = 0;
+            //-----------
+
             // Track position / size of "Normal" window state
             _positionNormal = new Point(this.Left, this.Top);
             _sizeNormal = new Size(this.Width, this.Height);                // These must be set in the markup, or initialized here!

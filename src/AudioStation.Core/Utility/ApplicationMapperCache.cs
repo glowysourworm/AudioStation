@@ -1,37 +1,38 @@
-﻿using AutoMapper;
+﻿using System.Collections.Concurrent;
+
+using AutoMapper;
 
 using SimpleWpf.RecursiveSerializer.Shared;
-using SimpleWpf.SimpleCollections.Collection;
 
 namespace AudioStation.Core.Utility
 {
     internal static class ApplicationMapperCache
     {
-        private static SimpleDictionary<int, IMapper> Cache;
+        private static ConcurrentDictionary<int, IMapper> Cache;
 
         static ApplicationMapperCache()
         {
-            Cache = new SimpleDictionary<int, IMapper>();
+            Cache = new ConcurrentDictionary<int, IMapper>();
         }
 
-        internal static void Set(Type sourceType, Type destinationType, IMapper mapper)
+        internal static void Set<TSource, TDest>(IMapper mapper)
         {
-            var hashCode = CreateHashCode(sourceType, destinationType);
+            var hashCode = CreateHashCode(typeof(TSource), typeof(TDest));
 
             if (!Cache.ContainsKey(hashCode))
-                Cache.Add(hashCode, mapper);
+                Cache.AddOrUpdate(hashCode, mapper, (x, y) => y);
         }
 
-        internal static bool Has(Type sourceType, Type destinationType)
+        internal static bool Has<TSource, TDest>()
         {
-            var hashCode = CreateHashCode(sourceType, destinationType);
+            var hashCode = CreateHashCode(typeof(TSource), typeof(TDest));
 
             return Cache.ContainsKey(hashCode);
         }
 
-        internal static IMapper Get(Type sourceType, Type destinationType)
+        internal static IMapper Get<TSource, TDest>()
         {
-            var hashCode = CreateHashCode(sourceType, destinationType);
+            var hashCode = CreateHashCode(typeof(TSource), typeof(TDest));
 
             if (Cache.ContainsKey(hashCode))
                 return Cache[hashCode];

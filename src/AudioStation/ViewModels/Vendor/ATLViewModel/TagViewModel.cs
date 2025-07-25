@@ -2,6 +2,7 @@
 
 using AudioStation.Core.Model.Vendor.ATLExtension.Interface;
 using AudioStation.Core.Utility;
+using AudioStation.Core.Utility.RecursiveComparer.Attribute;
 
 using SimpleWpf.Extensions;
 
@@ -55,7 +56,6 @@ namespace AudioStation.ViewModels.Vendor.ATLViewModel
         string _originalArtist;
         string _originalAlbum;
         DateTime _originalReleaseDate;
-        string _path;
         float? _popularity;
         string _productId;
         string _publisher;
@@ -264,6 +264,8 @@ namespace AudioStation.ViewModels.Vendor.ATLViewModel
             get { return _lyrics; }
             set { this.RaiseAndSetIfChanged(ref _lyrics, value); }
         }
+
+        [RecursiveCompareIgnore]
         public IList<Format> MetadataFormats
         {
             get { return _metadataFormats; }
@@ -367,8 +369,15 @@ namespace AudioStation.ViewModels.Vendor.ATLViewModel
 
         public TagViewModel()
         {
+            this.AlbumArtists = new List<string>();
+            this.Chapters = new List<ChapterInfo>();
+            this.EmbeddedPictures = new List<PictureInfo>();
+            this.Genres = new List<string>();
+            this.Lyrics = new List<LyricsInfo>();
+            this.MetadataFormats = new List<Format>();
         }
         public TagViewModel(IAudioStationTag tag)
+            : this()
         {
             ApplicationHelpers.MapOnto(tag, this);
         }

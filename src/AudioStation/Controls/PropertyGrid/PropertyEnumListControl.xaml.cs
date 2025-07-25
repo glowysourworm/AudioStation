@@ -120,9 +120,13 @@ namespace AudioStation.Controls.PropertyGrid
             }
         }
 
-        protected override bool Validate()
+        public override bool Validate()
         {
             return this.EnumValue != null;
+        }
+        public override void CommitChanges()
+        {
+
         }
     }
 }

@@ -57,7 +57,28 @@ namespace AudioStation.Controls.PropertyGrid
             set { SetValue(IsValidProperty, value); }
         }
 
-        protected abstract bool Validate();
+        /// <summary>
+        /// Causes the control to validate against the data source
+        /// </summary>
+        public abstract bool Validate();
+
+        /// <summary>
+        /// Causes the control to commit changes, if any are needed (against the binding), 
+        /// to complete the data cycle.
+        /// </summary>
+        public abstract void CommitChanges();
+
+        public PropertyGridControl()
+        {
+            this.Unloaded += PropertyGridControl_Unloaded;
+        }
+
+        private void PropertyGridControl_Unloaded(object sender, RoutedEventArgs e)
+        {
+            // Force Commit: The data cycle has to be completed. There are problems with lazy loading tabs
+            //               and control bindings for collections.
+            CommitChanges();
+        }
 
         protected override void OnPropertyChanged(DependencyPropertyChangedEventArgs e)
         {

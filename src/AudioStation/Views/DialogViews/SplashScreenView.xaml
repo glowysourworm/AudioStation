@@ -11,7 +11,7 @@
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <Canvas Grid.RowSpan="3" Height="200" Width="300">
+        <Canvas x:Name="BarCanvas" Grid.RowSpan="3" Height="200" Width="300">
             <!--Canvas.OpacityMask>
                 <RadialGradientBrush Center="0.5, 0.5" RadiusX="1" RadiusY="1.5">
                     <GradientStop Offset="0" Color="White" />
@@ -36,17 +36,17 @@
                     <GradientStop Offset="0.95" Color="White" />
                     <GradientStop Offset="1" Color="#AFFFFFFF" />                    
                 </RadialGradientBrush>
-            </Canvas.OpacityMask-->
-            <Rectangle Canvas.Left="0" Canvas.Top="80" Width="30" Height="120"  Stroke="{StaticResource LoadingBarStroke}" StrokeThickness="1" Fill="{StaticResource LoadingBarFill}" />
-            <Rectangle Canvas.Left="30" Canvas.Top="30" Width="30" Height="170" Stroke="{StaticResource LoadingBarStroke}" StrokeThickness="1" Fill="{StaticResource LoadingBarFill}" />
-            <Rectangle Canvas.Left="60" Canvas.Top="160" Width="30" Height="40" Stroke="{StaticResource LoadingBarStroke}" StrokeThickness="1" Fill="{StaticResource LoadingBarFill}" />
-            <Rectangle Canvas.Left="90" Canvas.Top="140" Width="30" Height="60" Stroke="{StaticResource LoadingBarStroke}" StrokeThickness="1" Fill="{StaticResource LoadingBarFill}" />
-            <Rectangle Canvas.Left="120" Canvas.Top="120" Width="30" Height="80" Stroke="{StaticResource LoadingBarStroke}" StrokeThickness="1" Fill="{StaticResource LoadingBarFill}" />
-            <Rectangle Canvas.Left="150" Canvas.Top="160" Width="30" Height="40" Stroke="{StaticResource LoadingBarStroke}" StrokeThickness="1" Fill="{StaticResource LoadingBarFill}" />
-            <Rectangle Canvas.Left="180" Canvas.Top="20" Width="30" Height="180" Stroke="{StaticResource LoadingBarStroke}" StrokeThickness="1" Fill="{StaticResource LoadingBarFill}" />
-            <Rectangle Canvas.Left="210" Canvas.Top="70" Width="30" Height="130" Stroke="{StaticResource LoadingBarStroke}" StrokeThickness="1" Fill="{StaticResource LoadingBarFill}" />
-            <Rectangle Canvas.Left="240" Canvas.Top="50" Width="30" Height="150" Stroke="{StaticResource LoadingBarStroke}" StrokeThickness="1" Fill="{StaticResource LoadingBarFill}" />
-            <Rectangle Canvas.Left="270" Canvas.Top="160" Width="30" Height="40" Stroke="{StaticResource LoadingBarStroke}" StrokeThickness="1" Fill="{StaticResource LoadingBarFill}" />
+            </Canvas.OpacityMask>
+            <Rectangle Canvas.Left="0" Canvas.Top="51" Width="30" Height="149"  Stroke="{StaticResource LoadingBarStroke}" StrokeThickness="1" Fill="{StaticResource LoadingBarFill}" />
+            <Rectangle Canvas.Left="30" Canvas.Top="61" Width="30" Height="139" Stroke="{StaticResource LoadingBarStroke}" StrokeThickness="1" Fill="{StaticResource LoadingBarFill}" />
+            <Rectangle Canvas.Left="60" Canvas.Top="74" Width="30" Height="126" Stroke="{StaticResource LoadingBarStroke}" StrokeThickness="1" Fill="{StaticResource LoadingBarFill}" />
+            <Rectangle Canvas.Left="90" Canvas.Top="88" Width="30" Height="112" Stroke="{StaticResource LoadingBarStroke}" StrokeThickness="1" Fill="{StaticResource LoadingBarFill}" />
+            <Rectangle Canvas.Left="120" Canvas.Top="100" Width="30" Height="100" Stroke="{StaticResource LoadingBarStroke}" StrokeThickness="1" Fill="{StaticResource LoadingBarFill}" />
+            <Rectangle Canvas.Left="150" Canvas.Top="110" Width="30" Height="90" Stroke="{StaticResource LoadingBarStroke}" StrokeThickness="1" Fill="{StaticResource LoadingBarFill}" />
+            <Rectangle Canvas.Left="180" Canvas.Top="117" Width="30" Height="83" Stroke="{StaticResource LoadingBarStroke}" StrokeThickness="1" Fill="{StaticResource LoadingBarFill}" />
+            <Rectangle Canvas.Left="210" Canvas.Top="121" Width="30" Height="79" Stroke="{StaticResource LoadingBarStroke}" StrokeThickness="1" Fill="{StaticResource LoadingBarFill}" />
+            <Rectangle Canvas.Left="240" Canvas.Top="123" Width="30" Height="77" Stroke="{StaticResource LoadingBarStroke}" StrokeThickness="1" Fill="{StaticResource LoadingBarFill}" />
+            <Rectangle Canvas.Left="270" Canvas.Top="125" Width="30" Height="75" Stroke="{StaticResource LoadingBarStroke}" StrokeThickness="1" Fill="{StaticResource LoadingBarFill}" /-->
         </Canvas>
 
         <TextBlock FontSize="18" Margin="10" Grid.Row="0"

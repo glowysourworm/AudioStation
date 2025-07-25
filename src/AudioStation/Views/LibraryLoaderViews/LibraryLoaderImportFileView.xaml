@@ -46,7 +46,9 @@
                                         </Button.Tag>
                                     </Button>
                                     <Button Style="{StaticResource UserMenuButtonStyle}" Content="Import (Detail)" />
-                                    <Button Style="{StaticResource UserMenuButtonStyle}" Command="{Binding EditTagsCommand}" Content="Edit Tag(s)" />
+                                    <Button Style="{StaticResource UserMenuButtonStyle}" 
+                                            Command="{Binding EditTagCommand}" 
+                                            Content="Edit Tag" />
                                     <Button Style="{StaticResource UserMenuButtonStyle}" Content="Run AcoustID" />
                                     <Button Style="{StaticResource UserMenuButtonStyle}" Content="Run Music Brainz (Detail)">
                                         <Button.Tag>

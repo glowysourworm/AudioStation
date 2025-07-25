@@ -3,6 +3,7 @@ using System.Windows;
 using System.Windows.Threading;
 
 using AudioStation.Core.Component.Interface;
+using AudioStation.Core.Utility.RecursiveComparer;
 using AudioStation.Model;
 
 using AutoMapper;
@@ -16,6 +17,13 @@ namespace AudioStation.Core.Utility
 {
     public static class ApplicationHelpers
     {
+        private readonly static SimpleRecursiveComparer Comparer;
+
+        static ApplicationHelpers()
+        {
+            Comparer = new SimpleRecursiveComparer();
+        }
+
         private static IOutputController GetOutputController()
         {
             return IocContainer.Get<IOutputController>();
@@ -87,7 +95,7 @@ namespace AudioStation.Core.Utility
             {
                 var destination = Activator.CreateInstance(typeof(TDest));
 
-                var mapper = GetMapper(source, destination);
+                var mapper = GetMapper<TSource, TDest>();
 
                 return (TDest)mapper.Map(source, destination, typeof(TSource), typeof(TDest));
             }
@@ -102,7 +110,7 @@ namespace AudioStation.Core.Utility
         {
             try
             {
-                var mapper = GetMapper(source, dest);
+                var mapper = GetMapper<TSource, TDest>();
 
                 mapper.Map(source, dest, typeof(TSource), typeof(TDest));
             }
@@ -113,10 +121,25 @@ namespace AudioStation.Core.Utility
             }
         }
 
-        private static IMapper GetMapper<TSource, TDest>(TSource source, TDest dest)
+        public static bool Compare<T>(T object1, T object2)
         {
-            if (ApplicationMapperCache.Has(typeof(TSource), typeof(TDest)))
-                return ApplicationMapperCache.Get(typeof(TSource), typeof(TDest));
+            var message = string.Empty;
+
+            try
+            {
+                return Comparer.Compare<T>(object1, object2, out message);
+            }
+            catch (Exception ex)
+            {
+                ApplicationHelpers.Log("Error comparing objects:  {0}", LogMessageType.General, LogLevel.Error, ex, message);
+                throw ex;
+            }
+        }
+
+        private static IMapper GetMapper<TSource, TDest>()
+        {
+            if (ApplicationMapperCache.Has<TSource, TDest>())
+                return ApplicationMapperCache.Get<TSource, TDest>();
 
             try
             {
@@ -128,7 +151,7 @@ namespace AudioStation.Core.Utility
 
                 var mapper = config.CreateMapper();
 
-                ApplicationMapperCache.Set(typeof(TSource), typeof(TDest), mapper);
+                ApplicationMapperCache.Set<TSource, TDest>(mapper);
 
                 return mapper;
             }

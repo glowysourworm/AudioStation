@@ -43,9 +43,13 @@ namespace AudioStation.Controls.PropertyGrid
                 //control.GetBindingExpression(ValueProperty).UpdateTarget();
             }
         }
-        protected override bool Validate()
+        public override bool Validate()
         {
             return !string.IsNullOrWhiteSpace(this.Value) && this.Value.Length <= this.MaxLength;
+        }
+        public override void CommitChanges()
+        {
+
         }
     }
 }

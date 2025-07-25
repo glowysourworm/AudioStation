@@ -316,8 +316,6 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
                 this.InError = true;
                 return;
             }
-
-            Update();
         }
 
         /// <summary>
@@ -336,7 +334,7 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
         {
             ApplicationHelpers.MapOnto(tagEdit, _tagDirty);
 
-            this.IsTagDirty = _tagClean.GetHashCode() != _tagDirty.GetHashCode();
+            this.IsTagDirty = !ApplicationHelpers.Compare(_tagClean, _tagDirty);
         }
 
         private void UpdateDirtyTag()
@@ -352,7 +350,7 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
             _tagDirty.DiscNumber = (ushort)GetDisc();
             _tagDirty.DiscTotal = (ushort)GetDiscCount();
 
-            this.IsTagDirty = _tagClean.GetHashCode() != _tagDirty.GetHashCode();
+            this.IsTagDirty = !ApplicationHelpers.Compare(_tagClean, _tagDirty);
         }
 
         private void ImportOutput_PropertyChanged(object? sender, PropertyChangedEventArgs e)

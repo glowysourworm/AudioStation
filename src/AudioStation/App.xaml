@@ -7,6 +7,9 @@
              xmlns:templateSelector="clr-namespace:AudioStation.Views.TemplateSelector">
     <Application.Resources>
 
+        <!-- TEST CONVERTERS (go to simple library) -->
+        <converter:ListConverter x:Key="ListConverter" />
+
         <!-- Local Converters -->
         <converter:AlternationIndexBackgroundConverter x:Key="AlternationIndexBackgroundConverter" />
         <converter:StringArrayConverter x:Key="StringArrayConverter" />
@@ -48,7 +51,8 @@
         <simpleConverter:BoolToWaitCursorConverter x:Key="BoolToWaitCursorConverter" />
         <simpleConverter:ArrayToObservableCollectionParameterConverter x:Key="ArrayToObservableCollectionParameterConverter" />
         <simpleConverter:IEnumerableToObservableCollectionParameterConverter x:Key="IEnumerableToObservableCollectionParameterConverter" />
-        
+        <simpleConverter:ListToObservableCollectionParameterConverter x:Key="ListToObservableCollectionParameterConverter" />
+
         <!-- Template Selectors -->
         <templateSelector:LogItemTemplateSelector x:Key="LogItemTemplateSelector" />
         <templateSelector:LibraryWorkItemContainerStyleSelector x:Key="LibraryWorkItemContainerStyleSelector" />

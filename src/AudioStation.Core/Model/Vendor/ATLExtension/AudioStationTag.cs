@@ -2,6 +2,7 @@
 
 using AudioStation.Core.Model.Vendor.ATLExtension.Interface;
 using AudioStation.Core.Utility;
+using AudioStation.Core.Utility.RecursiveComparer.Attribute;
 
 using SimpleWpf.RecursiveSerializer.Shared;
 
@@ -47,6 +48,8 @@ namespace AudioStation.Core.Model.Vendor.ATLExtension
         public string LongDescription { get; set; }
         public string Lyricist { get; set; }
         public IList<LyricsInfo> Lyrics { get; set; }
+
+        [RecursiveCompareIgnore]
         public IList<Format> MetadataFormats { get; set; }
         public string OriginalArtist { get; set; }
         public string OriginalAlbum { get; set; }
@@ -76,69 +79,6 @@ namespace AudioStation.Core.Model.Vendor.ATLExtension
         public AudioStationTag(IAudioStationTag tag)
         {
             ApplicationHelpers.MapOnto(tag, this);
-        }
-
-        public override int GetHashCode()
-        {
-            // In Order of Serialization
-            return RecursiveSerializerHashGenerator.CreateSimpleHash(this.AdditionalFields,
-                                                                        this.AudioFormat,
-                                                                        this.Album,
-                                                                        this.AlbumArtist,
-                                                                        this.AlbumArtists,
-                                                                        this.Artist,
-                                                                        this.AudioSourceUrl,
-                                                                        this.BitDepth,
-                                                                        this.BitRate,
-                                                                        this.BPM,
-                                                                        this.CatalogNumber,
-                                                                        this.Channels,
-                                                                        this.Chapters,
-                                                                        this.ChaptersTableDescription,
-                                                                        this.Comment,
-                                                                        this.Composer,
-                                                                        this.Conductor,
-                                                                        this.Copyright,
-                                                                        this.Date,
-                                                                        this.DiscNumber,
-                                                                        this.DiscTotal,
-                                                                        this.Duration,
-                                                                        this.EmbeddedPictures,
-                                                                        this.EncodedBy,
-                                                                        this.Encoder,
-                                                                        this.GeneralDescription,
-                                                                        this.Genre,
-                                                                        this.Genres,
-                                                                        this.Group,
-                                                                        this.InvolvedPeople,
-                                                                        this.IsDateYearOnly,
-                                                                        this.IsVariableBitRate,
-                                                                        this.IsOriginalReleaseDateYearOnly,
-                                                                        this.ISRC,
-                                                                        this.Language,
-                                                                        this.LongDescription,
-                                                                        this.Lyricist,
-                                                                        this.Lyrics,
-                                                                        this.MetadataFormats,
-                                                                        this.OriginalArtist,
-                                                                        this.OriginalAlbum,
-                                                                        this.OriginalReleaseDate,
-                                                                        this.Popularity,
-                                                                        this.ProductId,
-                                                                        this.Publisher,
-                                                                        this.PublishingDate,
-                                                                        this.SampleRate,
-                                                                        this.SeriesPart,
-                                                                        this.SeriesTitle,
-                                                                        this.SortAlbum,
-                                                                        this.SortAlbumArtist,
-                                                                        this.SortArtist,
-                                                                        this.SortTitle,
-                                                                        this.Title,
-                                                                        this.Track,
-                                                                        this.TrackNumber,
-                                                                        this.TrackTotal,
-                                                                        this.Year);
         }
     }
 }
