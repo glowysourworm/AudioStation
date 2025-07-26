@@ -41,7 +41,8 @@ namespace AudioStation.Core.Component
         {
             return ValidateImport(simpleTag.AlbumArtist,
                                   simpleTag.Album,
-                                  simpleTag.Title,
+                                  simpleTag.Title, 
+                                  simpleTag.Genre,
                                   simpleTag.Track,
                                   simpleTag.TrackTotal,
                                   simpleTag.DiscNumber,
@@ -51,6 +52,7 @@ namespace AudioStation.Core.Component
         private bool ValidateImport(string firstAlbumArtist,
                                     string album,
                                     string title,
+                                    string genre,
                                     uint trackNumber,
                                     uint trackCount,
                                     uint discNumber,
@@ -81,13 +83,19 @@ namespace AudioStation.Core.Component
                 validationMessage += "(Title)";
             }
 
-            if (trackNumber <= 0)
+            if (string.IsNullOrWhiteSpace(genre))
+            {
+                valid = false;
+                validationMessage += "(Genre)";
+            }
+
+            if (trackNumber <= 0 || trackNumber > trackCount)
             {
                 valid = false;
                 validationMessage += "(Track Number)";
             }
 
-            if (trackCount <= 0)
+            if (trackCount <= 0 || trackCount < trackNumber)
             {
                 valid = false;
                 validationMessage += "(Track Count)";

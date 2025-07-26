@@ -5,7 +5,7 @@
                              xmlns:system="clr-namespace:System;assembly=System"
                              xmlns:xceed="http://schemas.xceed.com/wpf/xaml/toolkit"
                              xmlns:local="clr-namespace:AudioStation.Controls.PropertyGrid"
-                             Style="{StaticResource PropertyGridUserControl}" BorderThickness="0">             
+                             BorderThickness="0">             
     <Grid>
 
         <Grid.RowDefinitions>

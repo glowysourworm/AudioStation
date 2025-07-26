@@ -1,7 +1,5 @@
 ﻿using System.Collections;
 using System.Reflection;
-using System.Security.Cryptography.X509Certificates;
-using System.Windows.Forms;
 
 using AudioStation.Core.Utility.RecursiveComparer.Attribute;
 using AudioStation.Core.Utility.RecursiveComparer.Interface;
@@ -10,10 +8,6 @@ using AudioStation.Model;
 using AutoMapper.Internal;
 
 using Microsoft.Extensions.Logging;
-
-using NAudio.MediaFoundation;
-
-using Newtonsoft.Json.Linq;
 
 using SimpleWpf.Extensions;
 
@@ -25,9 +19,8 @@ namespace AudioStation.Core.Utility.RecursiveComparer
         {
         }
 
-        public bool Compare<T>(T object1, T object2, out string message)
+        public bool Compare<T>(T object1, T object2)
         {
-            message = string.Empty;
             var result = true;
 
             // Check Recursion:  This may be a recursion leaf. So, check to see if we've finished.
@@ -60,7 +53,7 @@ namespace AudioStation.Core.Utility.RecursiveComparer
                 if (property.CustomAttributes.Any(x => x.AttributeType == typeof(RecursiveCompareIgnoreAttribute)))
                     continue;
 
-                result &= CompareRecurse(object1, object2, property, out message);
+                result &= CompareRecurse(object1, object2, property);
 
                 if (!result)
                     break;
@@ -69,7 +62,7 @@ namespace AudioStation.Core.Utility.RecursiveComparer
             return result;
         }
 
-        public bool CompareRecurse<T>(T object1, T object2, PropertyInfo property, out string message)
+        public bool CompareRecurse<T>(T object1, T object2, PropertyInfo property)
         {
             // Best to enumerate these types. MSFT's Type (System.Runtime.Type) is not easy to pick apart; and
             // there are properties that don't make sense. IsPrimitive, for example, will miss some of these 
@@ -78,26 +71,78 @@ namespace AudioStation.Core.Utility.RecursiveComparer
 
             // Nullable
             if (IsNullable(property.PropertyType))
-                return CompareNullable(object1, object2, property, out message);
+                return CompareNullable(object1, object2, property);
 
             // Primitives
             else if (IsPrimitive(property.PropertyType))
-                return ComparePrimitive(object1, object2, property, out message);
+                return ComparePrimitive(object1, object2, property);
+
+            // string (also, non-primitive) (TODO)
+            else if (property.PropertyType == typeof(string))
+                return ComparePrimitive(object1, object2, property);
 
             // Any IComparable
             else if (property.PropertyType.HasInterface<IComparable>())
-                return CompareIComparable<T>(object1, object2, property, out message);
+                return CompareIComparable<T>(object1, object2, property);
 
             // Collections
             else if (property.PropertyType.HasInterface<IEnumerable>())
-                return CompareCollection(object1, object2, property, out message);
+                return CompareCollection(object1, object2, property);
 
             else if (property.PropertyType.HasInterface<IDictionary>())
-                return CompareCollection(object1, object2, property, out message);
+                return CompareCollection(object1, object2, property);
 
             // Complex Types
             else
-                return CompareReference(object1, object2, property, out message);
+                return CompareReference(object1, object2, property);
+        }
+
+        public bool CompareDirectly<T>(T object1, T object2)
+        {
+            // Compare Directly:  This is used to iterate an object by inspecting its type, where we need 
+            //                    information before calling our recursive entry point. (which we can avoid doing).
+            //
+            // CompareRecurse (see above)
+            //
+
+            // VERIFY REFERENCES!
+            var bothNulls = false;
+
+            if (!VerifyReferences(object1, object2, out bothNulls))
+                return false;
+
+            if (bothNulls)
+                return true;
+
+            // Get "property" type
+            var type = object1.GetType();
+
+            // Nullable (Go ahead and recurse)
+            if (IsNullable(type))
+                return MakeGenericCompareCall(object1, object2);
+
+            // Primitives
+            else if (IsPrimitive(type))
+                return object1.Equals(object2);
+
+            // string (also, non-primitive) (TODO)
+            else if (type == typeof(string))
+                return object1.Equals(object2);
+
+            // Any IComparable
+            else if (type.HasInterface<IComparable>())
+                return MakeGenericCompareCall(object1, object2);
+
+            // Collections
+            else if (type.HasInterface<IEnumerable>())
+                return MakeGenericCompareCall(object1, object2);
+
+            else if (type.HasInterface<IDictionary>())
+                return MakeGenericCompareCall(object1, object2);
+
+            // Complex Types
+            else
+                return MakeGenericCompareCall(object1, object2);
         }
 
         private bool IsNullable(Type type)
@@ -146,10 +191,10 @@ namespace AudioStation.Core.Utility.RecursiveComparer
             return false;
         }
 
-        private bool CompareNullable<TObject>(TObject object1, TObject object2, PropertyInfo propertyInfo, out string message)
+        private bool CompareNullable<TObject>(TObject object1, TObject object2, PropertyInfo propertyInfo)
         {
-            var nullable1 = ReflectReference<TObject>(object1, propertyInfo, out message);
-            var nullable2 = ReflectReference<TObject>(object2, propertyInfo, out message);
+            var nullable1 = ReflectReference<TObject>(object1, propertyInfo);
+            var nullable2 = ReflectReference<TObject>(object2, propertyInfo);
             var bothNulls = false;
 
             if (!VerifyReferences(nullable1, nullable2, out bothNulls))
@@ -163,20 +208,29 @@ namespace AudioStation.Core.Utility.RecursiveComparer
                 return nullable1.Equals(nullable2);
 
             // Recurse (will compare Nullable sub-properties)
-            return Compare(nullable1, nullable2, out message);
+            return Compare(nullable1, nullable2);
         }
-        private bool ComparePrimitive<TObject>(TObject object1, TObject object2, PropertyInfo propertyInfo, out string message)
+        private bool ComparePrimitive<TObject>(TObject object1, TObject object2, PropertyInfo propertyInfo)
         {
-            var value1 = ReflectPrimitive<TObject>(object1, propertyInfo, out message);
-            var value2 = ReflectPrimitive<TObject>(object2, propertyInfo, out message);
+            var value1 = ReflectPrimitive<TObject>(object1, propertyInfo);
+            var value2 = ReflectPrimitive<TObject>(object2, propertyInfo);
+
+            // VERIFY STRING "PRIMITIVE" NULL REFERENCES! (this can't hurt; but there's obviously some badly needed type grouping)
+            var bothNulls = false;
+
+            if (!VerifyReferences(value1, value2, out bothNulls))
+                return false;
+
+            if (bothNulls)
+                return true;
 
             return value1.Equals(value2);
         }
 
-        private bool CompareReference<TObject>(TObject object1, TObject object2, PropertyInfo propertyInfo, out string message)
+        private bool CompareReference<TObject>(TObject object1, TObject object2, PropertyInfo propertyInfo)
         {
-            var value1 = ReflectReference<TObject>(object1, propertyInfo, out message);
-            var value2 = ReflectReference<TObject>(object2, propertyInfo, out message);
+            var value1 = ReflectReference<TObject>(object1, propertyInfo);
+            var value2 = ReflectReference<TObject>(object2, propertyInfo);
             var bothNulls = false;
 
             if (!VerifyReferences(value1, value2, out bothNulls))
@@ -186,13 +240,13 @@ namespace AudioStation.Core.Utility.RecursiveComparer
                 return true;
 
             // Recurse
-            return Compare(value1, value2, out message);
+            return Compare(value1, value2);
         }
 
-        private bool CompareIComparable<TObject>(TObject object1, TObject object2, PropertyInfo propertyInfo, out string message)
+        private bool CompareIComparable<TObject>(TObject object1, TObject object2, PropertyInfo propertyInfo)
         {
-            var value1 = (IComparable)ReflectReference<TObject>(object1, propertyInfo, out message);
-            var value2 = (IComparable)ReflectReference<TObject>(object2, propertyInfo, out message);
+            var value1 = (IComparable)ReflectReference<TObject>(object1, propertyInfo);
+            var value2 = (IComparable)ReflectReference<TObject>(object2, propertyInfo);
             var bothNulls = false;
 
             if (!VerifyReferences(value1, value2, out bothNulls))
@@ -204,10 +258,10 @@ namespace AudioStation.Core.Utility.RecursiveComparer
             return value1.CompareTo(value2) == 0;
         }
 
-        private bool CompareCollection<TObject>(TObject object1, TObject object2, PropertyInfo propertyInfo, out string message)
+        private bool CompareCollection<TObject>(TObject object1, TObject object2, PropertyInfo propertyInfo)
         {
-            var value1 = (IEnumerable)ReflectReference<TObject>(object1, propertyInfo, out message);
-            var value2 = (IEnumerable)ReflectReference<TObject>(object2, propertyInfo, out message);
+            var value1 = (IEnumerable)ReflectReference<TObject>(object1, propertyInfo);
+            var value2 = (IEnumerable)ReflectReference<TObject>(object2, propertyInfo);
             var bothNulls = false;
 
             if (!VerifyReferences(value1, value2, out bothNulls))
@@ -240,8 +294,12 @@ namespace AudioStation.Core.Utility.RecursiveComparer
                 var item1 = value1Copy[value2Count - 1];
                 var item2 = value2Copy[value2Count - 1];
 
-                // Recurse
-                var itemCompare = Compare(item1, item2, out message);
+                // Recurse:  Must add type information to this recursive invoke statement. The "template"
+                //           type is not seen by the CLR as "string" (for example). It will see "object".
+                //
+                //           So, recurse using CompareDirectly, which will handle this inspection.
+                //
+                var itemCompare = CompareDirectly(item1, item2);
 
                 if (!itemCompare)
                     return false;
@@ -263,7 +321,7 @@ namespace AudioStation.Core.Utility.RecursiveComparer
                 bothNulls = true;
                 return true;
             }
-                
+
             else if (object1 != null && object2 == null)
                 return false;
 
@@ -273,28 +331,23 @@ namespace AudioStation.Core.Utility.RecursiveComparer
             return true;
         }
 
-        private object ReflectPrimitive<TObject>(TObject theObject, PropertyInfo propertyInfo, out string message)
+        private object ReflectPrimitive<TObject>(TObject theObject, PropertyInfo propertyInfo)
         {
             try
             {
-                message = string.Empty;
-
                 return propertyInfo.GetValue(theObject);
             }
             catch (Exception ex)
             {
-                message = ex.Message;
                 ApplicationHelpers.Log("Error reflecting property:  {0}", LogMessageType.General, LogLevel.Error, ex, propertyInfo.Name);
                 throw ex;
             }
         }
 
-        private object ReflectReference<TObject>(TObject theObject, PropertyInfo propertyInfo, out string message)
+        private object ReflectReference<TObject>(TObject theObject, PropertyInfo propertyInfo)
         {
             try
             {
-                message = string.Empty;
-
                 if (theObject == null)
                     return default;
 
@@ -302,9 +355,35 @@ namespace AudioStation.Core.Utility.RecursiveComparer
             }
             catch (Exception ex)
             {
-                message = ex.Message;
                 ApplicationHelpers.Log("Error reflecting property:  {0}", LogMessageType.General, LogLevel.Error, ex, propertyInfo.Name);
                 throw ex;
+            }
+        }
+
+        /// <summary>
+        /// Recursively invokes the primary input method "Compare" using reflection to make a generic call
+        /// based on object type
+        /// </summary>
+        private bool MakeGenericCompareCall(object object1, object object2)
+        {
+            try
+            {
+                var bothNulls = false;
+
+                if (!VerifyReferences(object1, object2, out bothNulls))
+                    return false;
+
+                if (bothNulls)
+                    return true;
+
+                var methodInfo = this.GetType().GetMethod("Compare");
+                var genericMethod = methodInfo.MakeGenericMethod(object1.GetType());
+
+                return (bool)genericMethod.Invoke(this, new object[] { object1, object2 });
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error trying to recure into comparer:  " + ex.Message, ex);
             }
         }
     }

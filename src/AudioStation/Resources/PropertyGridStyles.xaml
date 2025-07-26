@@ -8,27 +8,50 @@
         <ResourceDictionary Source="/Resources/ThemeColorsAndBrushes.xaml" />
     </ResourceDictionary.MergedDictionaries>
     
-    <Style x:Key="PropertyGridLabel" TargetType="TextBlock">
+    <!-- Try to inherit font-related settings from the user control; and we'll set them all from the top down (see styles) -->
+
+    <!-- User Control (Blanket Properties) -->
+    <Style x:Key="PropertyGridUserControl" TargetType="UserControl">
+        
         <Setter Property="FontSize" Value="14" />
-        <Setter Property="Foreground" Value="#AF000000" />
-        <Setter Property="Margin" Value="5" />
+        <Setter Property="Foreground" Value="#FF555555" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="BorderBrush" Value="Transparent" />
+        <Setter Property="Margin" Value="1" />
+
+        <!-- Blanket IsEnabled -->
+        <Style.Triggers>
+            <Trigger Property="IsEnabled" Value="False">
+                <Setter Property="Foreground" Value="#FFAAAAAA" />
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <!-- User Control Detail -->
+    <Style x:Key="PropertyGridDetailUserControl" TargetType="UserControl" BasedOn="{StaticResource PropertyGridUserControl}">
+        <Setter Property="FontSize" Value="12" />
+    </Style>
+
+    <!-- User Control Large -->
+    <Style x:Key="PropertyGridLargeUserControl" TargetType="UserControl" BasedOn="{StaticResource PropertyGridUserControl}">
+        <Setter Property="FontSize" Value="16" />
+    </Style>
+
+    <Style x:Key="PropertyGridLabel" TargetType="TextBlock">
+        <Setter Property="Margin" Value="2" />
         <Setter Property="HorizontalAlignment" Value="Left" />
         <Setter Property="VerticalAlignment" Value="Top" />
     </Style>
 
     <Style x:Key="PropertyGridLargeLabel" TargetType="TextBlock" BasedOn="{StaticResource PropertyGridLabel}">
         <Setter Property="FontSize" Value="18" />
-    </Style>    
-    
+    </Style>
+
     <Style x:Key="PropertyGridTextBox" TargetType="TextBox">
-        <Setter Property="FontSize" Value="14" />
-        <Setter Property="Foreground" Value="#FF555555" />
         <Setter Property="VerticalContentAlignment" Value="Center" />
 
         <Style.Triggers>
-            <Trigger Property="IsEnabled" Value="False">
-                <Setter Property="Foreground" Value="#FFAAAAAA" />
-            </Trigger>
             <Trigger Property="Validation.HasError" Value="true">
                 <Setter Property="BorderBrush" Value="Red" />
             </Trigger>
@@ -36,27 +59,7 @@
     </Style>
 
     <Style x:Key="PropertyGridWatermarkTextBox" TargetType="{x:Type xceed:WatermarkTextBox}">
-        <Setter Property="FontSize" Value="14" />
-        <Setter Property="Foreground" Value="#FF555555" />
         <Setter Property="VerticalContentAlignment" Value="Center" />
-
-        <Style.Triggers>
-            <Trigger Property="IsEnabled" Value="False">
-                <Setter Property="Foreground" Value="#FFAAAAAA" />
-            </Trigger>
-        </Style.Triggers>
-    </Style>
-
-    <Style x:Key="PropertyGridUserControl" TargetType="UserControl">
-        <Setter Property="Background" Value="Transparent" />
-        <Setter Property="BorderThickness" Value="0" />
-        <Setter Property="BorderBrush" Value="Transparent" />
-        <Setter Property="Margin" Value="1" />
-    </Style>
-
-    <Style x:Key="PropertyGridLargeUserControl" TargetType="UserControl" BasedOn="{StaticResource PropertyGridUserControl}">
-        <Setter Property="BorderBrush" Value="Gray" />
-        <Setter Property="BorderThickness" Value="1" />
     </Style>
 
     <Style x:Key="PropertyGridIntegerUpDownControl" TargetType="{x:Type xceed:IntegerUpDown}">

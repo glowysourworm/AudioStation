@@ -77,6 +77,7 @@
                             <RowDefinition Height="*" />
                         </Grid.RowDefinitions>
 
+                        <!-- Expander -->
                         <ToggleButton x:Name="InputFileExpanderButton"
                                       Click="InputFileExpanderButton_Click"
                                       IsChecked="{Binding IsExpanded, Mode=TwoWay}">
@@ -103,10 +104,15 @@
                             <fa5:ImageAwesome Icon="Solid_Tag" 
                                             Margin="5"
                                             Style="{StaticResource FontAwesomeIconManagerViewPager}"
-                                            ToolTip="Tag data is required to complete the import"                       
-                                            Foreground="{Binding MinimumImportValid, 
-                                                                 Converter={StaticResource ImportStepForegroundParameterConverter},
-                                                                 ConverterParameter={x:Static Brushes.LawnGreen}}" />
+                                            ToolTip="Tag data is required to complete the import">
+                                <fa5:ImageAwesome.Foreground>
+                                    <MultiBinding Converter="{StaticResource LibraryLoaderImportTagForegroundConverter}">
+                                        <Binding Path="IsTagDirty" />
+                                        <Binding Path="MinimumImportValid" />
+                                        <Binding Path="InError" />
+                                    </MultiBinding>
+                                </fa5:ImageAwesome.Foreground>
+                            </fa5:ImageAwesome>
 
                             <fa5:ImageAwesome Icon="Solid_VolumeUp" 
                                             Margin="5"
@@ -158,7 +164,7 @@
                                     Command="{Binding SelectAcoustIDCommand}"
                                     Margin="5 0 0 0"
                                     Visibility="{Binding ImportOutput.AcoustIDSuccess, Converter={StaticResource BoolVisibilityCollapseConverter}}">
-                                <StackPanel Orientation="Horizontal" Margin="1" VerticalAlignment="Center">
+                                <StackPanel Orientation="Horizontal" Margin="3 1" VerticalAlignment="Center">
                                     <TextBlock Text="Select " VerticalAlignment="Center" FontSize="12" />
                                     <fa5:ImageAwesome Icon="Solid_VolumeUp" Style="{StaticResource FontAwesomeIconManagerViewPager}" Margin="5 0 0 0" />
                                 </StackPanel>
@@ -167,27 +173,11 @@
                                     Command="{Binding SelectMusicBrainzCommand}"
                                     Margin="5 0 0 0"
                                     Visibility="{Binding ImportOutput.MusicBrainzRecordingMatchSuccess, Converter={StaticResource BoolVisibilityCollapseConverter}}">
-                                <StackPanel Orientation="Horizontal" Margin="1" VerticalAlignment="Center">
+                                <StackPanel Orientation="Horizontal" Margin="3 1" VerticalAlignment="Center">
                                     <TextBlock Text="Select " VerticalAlignment="Center" FontSize="12" />
                                     <fa5:ImageAwesome Icon="Solid_Music" Style="{StaticResource FontAwesomeIconManagerViewPager}" Margin="5 0 0 0" />
                                 </StackPanel>
                             </Button>
-                            <Button Style="{StaticResource UserControlButton}" 
-                                    Command="{Binding SaveTagCommand}"
-                                    Visibility="{Binding IsTagDirty, Converter={StaticResource BoolVisibilityCollapseConverter}}"
-                                    Margin="5 0 0 0">
-                                <fa5:ImageAwesome Icon="Solid_Save" 
-                                                  Style="{StaticResource FontAwesomeIconManagerViewPager}" 
-                                                  Margin="1" />
-                            </Button>
-                            <Button Style="{StaticResource UserControlButton}" 
-                                    Visibility="{Binding IsTagDirty, Converter={StaticResource BoolVisibilityCollapseConverter}}"
-                                    Command="{Binding RefreshCommand}"
-                                    Margin="5 0 0 0">
-                                <fa5:ImageAwesome Icon="Solid_Recycle" 
-                                                  Style="{StaticResource FontAwesomeIconManagerViewPager}" 
-                                                  Margin="1" />
-                            </Button>                            
                             <Button Style="{StaticResource UserControlButton}" 
                                     Command="{Binding PlayAudioCommand}"
                                     Margin="5 0 0 0">
@@ -197,32 +187,105 @@
                             </Button>
                         </StackPanel>
 
-                        <controls:NoScrollListBox Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="4"
-                                                  Margin="0"
-                                                  AlternationCount="2" 
-                                                  BorderThickness="1" 
-                                                  ItemContainerStyle="{StaticResource PlainItemContainerStyleWithAlternation_LightGray}"
-                                                  Visibility="{Binding IsExpanded, Converter={StaticResource BoolVisibilityCollapseConverter}}">
-                            
-                            <propertyGrid:PropertyLabelControl Margin="23 0 0 0" LabelColumnWidth="200" LabelText="File Name:" Value="{Binding FileFullPath}" ToolTip="{Binding FileFullPath}" />
+                        <!-- Expander Content -->
+                        <Border Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="4" Margin="0" 
+                                Background="White"
+                                BorderBrush="Gray" BorderThickness="1"
+                                Visibility="{Binding IsExpanded, Converter={StaticResource BoolVisibilityCollapseConverter}}">
+                            <Grid Margin="23 5 5 5">
 
-                            <propertyGrid:PropertyLabelControl Margin="23 0 0 0" LabelColumnWidth="200" LabelText="File Name Migrated:" Value="{Binding FileMigrationFullPath}" 
-                                                               Foreground="{Binding TagMinimumForImport, Converter={StaticResource ValidationForegroundParameterConverter}, ConverterParameter={StaticResource LabelForeground}}"
-                                                               ToolTip="{Binding FileMigrationFullPath}" />
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
 
-                            <propertyGrid:PropertyLabelControl Margin="23 0 0 0" LabelColumnWidth="200" LabelText="Import Type:" Value="{Binding ImportAsType}" />
+                                <!-- Import File Properties -->
+                                <propertyGrid:PropertyLabelControl Grid.Row="0" LabelColumnWidth="200" LabelText="Source File:" 
+                                                                   Value="{Binding FileFullPath}" ToolTip="{Binding FileFullPath}"
+                                                                   Style="{StaticResource PropertyGridDetailUserControl}" />
 
-                            <propertyGrid:PropertyLabelControl Margin="23 0 0 0" LabelColumnWidth="200" LabelText="Import Issues:" Value="{Binding TagIssues}"
-                                                               Foreground="{Binding TagMinimumForImport, Converter={StaticResource ValidationForegroundParameterConverter}, ConverterParameter={StaticResource LabelForeground}}"
-                                                               ToolTip="You can fill out the tag data here by selecting items; and editing their tags. This will allow Audio Station to fill in the required data. Other data may be entered later; and 3rd party services may be used at another time." />
+                                <propertyGrid:PropertyLabelControl Grid.Row="1" LabelColumnWidth="200" LabelText="Migrated File:" 
+                                                                   Style="{StaticResource PropertyGridDetailUserControl}"
+                                                                   Value="{Binding FileMigrationFullPath}" ToolTip="{Binding FileMigrationFullPath}"
+                                                                   Foreground="{Binding MinimumImportValid, Converter={StaticResource ValidationForegroundParameterConverter}, ConverterParameter={StaticResource LabelForeground}}" />
 
-                            <propertyGrid:PropertyLabelControl Margin="23 0 0 0" LabelColumnWidth="200" LabelText="AcoustID:" Value="{Binding ImportOutput.SelectedAcoustIDResult}"
-                                                               Foreground="{Binding ImportOutput.AcoustIDSuccess, Converter={StaticResource ValidationForegroundParameterConverter}, ConverterParameter={StaticResource LabelForeground}}" />
+                                <propertyGrid:PropertyLabelControl Grid.Row="2" LabelColumnWidth="200" LabelText="Import Options:" 
+                                                                   Style="{StaticResource PropertyGridDetailUserControl}" 
+                                                                   Value="{Binding ImportOptions}" />
 
-                            <propertyGrid:PropertyLabelControl Margin="23 0 0 0" LabelColumnWidth="200" LabelText="Music Brainz:" Value="{Binding ImportOutput.SelectedMusicBrainzRecordingMatch}"
-                                                               Foreground="{Binding ImportOutput.MusicBrainzRecordingMatchSuccess, Converter={StaticResource ValidationForegroundParameterConverter}, ConverterParameter={StaticResource LabelForeground}}" />
-                        </controls:NoScrollListBox>
-                        
+                                <propertyGrid:PropertyLabelControl Grid.Row="3" LabelColumnWidth="200" LabelText="Import Issues:" 
+                                                                   Value="{Binding TagIssues}" Style="{StaticResource PropertyGridDetailUserControl}"
+                                                                   Foreground="{Binding MinimumImportValid, Converter={StaticResource ValidationForegroundParameterConverter}, ConverterParameter={StaticResource LabelForeground}}"
+                                                                   ToolTip="You can fill out the tag data here by selecting items; and editing their tags. This will allow Audio Station to fill in the required data. Other data may be entered later; and 3rd party services may be used at another time." />
+
+                                <propertyGrid:PropertyLabelControl Grid.Row="4" LabelColumnWidth="200" LabelText="AcoustID:" 
+                                                                   Value="{Binding SelectedAcoustIDResult}" Style="{StaticResource PropertyGridDetailUserControl}"
+                                                                   Foreground="{Binding ImportOutput.AcoustIDSuccess, Converter={StaticResource ValidationForegroundParameterConverter}, ConverterParameter={StaticResource LabelForeground}}" />
+
+                                <propertyGrid:PropertyLabelControl Grid.Row="5" LabelColumnWidth="200" LabelText="Music Brainz:" 
+                                                                   Value="{Binding SelectedMusicBrainzRecordingMatch}" Style="{StaticResource PropertyGridDetailUserControl}"
+                                                                   Foreground="{Binding ImportOutput.MusicBrainzRecordingMatchSuccess, Converter={StaticResource ValidationForegroundParameterConverter}, ConverterParameter={StaticResource LabelForeground}}" />
+
+                                <propertyGrid:PropertyLabelControl Grid.Row="6" LabelColumnWidth="200" LabelText="Final Import:" Style="{StaticResource PropertyGridDetailUserControl}"
+                                                                   Value="{Binding FinalImportDetail}" />
+
+                                <!-- Control Panel -->
+                                <StackPanel Orientation="Horizontal" 
+                                            HorizontalAlignment="Right"
+                                            Grid.Column="1"
+                                            Grid.Row="6">
+
+                                    <!-- Select Buttons -->
+                                    <Button Style="{StaticResource UserControlButton}" 
+                                            Command="{Binding CopyMusicBrainzToTagCommand}"
+                                            ToolTip="Copy Music Brainz Data To Tag"
+                                            Visibility="{Binding ImportOutput.MusicBrainzRecordingMatchSuccess, Converter={StaticResource BoolVisibilityCollapseConverter}}"
+                                            Margin="5 0 0 0">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="Copy" Margin="3 1" FontSize="12" />
+                                            <fa5:ImageAwesome Icon="Solid_Music" 
+                                                              Style="{StaticResource FontAwesomeIconManagerViewPager}" 
+                                                              Margin="1" />                                            
+                                        </StackPanel>
+                                    </Button>                                    
+                                    <Button Style="{StaticResource UserControlButton}" 
+                                            Command="{Binding SaveTagCommand}"
+                                            ToolTip="Save Tag To Disk"
+                                            Visibility="{Binding IsTagDirty, Converter={StaticResource BoolVisibilityCollapseConverter}}"
+                                            Margin="5 0 0 0">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="Save" Margin="3 1" FontSize="12" />
+                                            <fa5:ImageAwesome Icon="Solid_Save" 
+                                                          Style="{StaticResource FontAwesomeIconManagerViewPager}" 
+                                                          Margin="1" />
+                                        </StackPanel>                                        
+                                    </Button>
+                                    <Button Style="{StaticResource UserControlButton}" 
+                                            Command="{Binding RefreshCommand}"
+                                            ToolTip="Clear All Imported Data And Restart"
+                                            Margin="5 0 0 0">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="Clear" Margin="3 1" FontSize="12" />
+                                            <fa5:ImageAwesome Icon="Solid_Recycle" 
+                                                  Style="{StaticResource FontAwesomeIconManagerViewPager}" 
+                                                  Margin="1" />
+                                        </StackPanel>
+
+                                    </Button>
+                                </StackPanel>
+
+                            </Grid>
+                        </Border>
                     </Grid>
                 </DataTemplate>
             </ListBox.ItemTemplate>

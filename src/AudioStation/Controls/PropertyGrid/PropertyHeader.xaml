@@ -1,8 +1,7 @@
 ﻿<local:PropertyGridControl x:Class="AudioStation.Controls.PropertyGrid.PropertyHeader"
                              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                             xmlns:local="clr-namespace:AudioStation.Controls.PropertyGrid"
-                             Style="{StaticResource PropertyGridUserControl}">
+                             xmlns:local="clr-namespace:AudioStation.Controls.PropertyGrid">
     <Grid>
         <TextBlock Text="{Binding Value, RelativeSource={RelativeSource AncestorType=UserControl}}" 
 				   Style="{StaticResource PropertyGridLabel}" />

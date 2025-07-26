@@ -9,6 +9,16 @@ namespace AudioStation.Core.Model.Vendor.ATLExtension.Interface
     public interface IAudioStationTag : IMetaData
     {
         /// <summary>
+        /// Updates calculated files that aren't set by the edit process
+        /// </summary>
+        void UpdateAfterEdit();
+
+        /// <summary>
+        /// Updates fields that aren't going to be set by the edit process
+        /// </summary>
+        void UpdateBeforeEdit();
+
+        /// <summary>
         /// Collection of album artists (AlbumArtist (singular) will be the first of this collection)
         /// </summary>
         IList<string> AlbumArtists { get; }

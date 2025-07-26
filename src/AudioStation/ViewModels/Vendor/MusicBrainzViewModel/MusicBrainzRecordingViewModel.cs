@@ -176,6 +176,7 @@ namespace AudioStation.ViewModels.Vendor.MusicBrainzViewModel
             var release = this.Releases?.FirstOrDefault();
             var media = release?.Media?.FirstOrDefault(x => x.Tracks != null && x.Tracks.Any(z => z.Title == this.Title));
             var trackNumber = media?.Tracks?.FirstOrDefault(x => x.Title == this.Title)?.Position ?? 0;
+            var trackCount = media?.TrackCount;
             var discCount = release?.Media?.Count ?? 0;
             var discIndex = release?.Media?.IndexOf(media);
             var disc = 0;
@@ -187,12 +188,13 @@ namespace AudioStation.ViewModels.Vendor.MusicBrainzViewModel
                 media != null)
                 disc = discIndex.Value + 1;
 
-            return string.Format("Artist({0}) Album({1}) Title({2}) Genre({3}) Track({4}) Disc({5}) DiscCount({6})", 
+            return string.Format("Artist ({0}) Album ({1}) Title ({2}) Genre ({3}) Track ({4} of {5}) Disc ({6} of {7})", 
                                  artist ?? string.Empty, 
                                  release?.Title ?? string.Empty,
                                  this.Title ?? string.Empty,
                                  this.Genres?.FirstOrDefault()?.Name ?? string.Empty,
                                  trackNumber,
+                                 trackCount,
                                  disc,
                                  discCount);
         }

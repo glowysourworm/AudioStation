@@ -26,6 +26,7 @@
         <converter:ValidationBrushConverter x:Key="ValidationBrushConverter" />
         <converter:ValidationForegroundParameterConverter x:Key="ValidationForegroundParameterConverter" />
         <converter:ImportStepForegroundParameterConverter x:Key="ImportStepForegroundParameterConverter" />
+        <converter:LibraryLoaderImportTagForegroundConverter x:Key="LibraryLoaderImportTagForegroundConverter" />
 
         <!-- SimpleWpf.UI Converters -->
         <simpleConverter:BoolInverseConverter x:Key="BoolInverseConverter" />

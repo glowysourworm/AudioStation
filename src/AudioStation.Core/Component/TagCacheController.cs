@@ -102,9 +102,10 @@ namespace AudioStation.Core.Component
 
         public void SetData(string fileName, IAudioStationTag tagData, bool save = true)
         {
-            if (!_tagFiles.ContainsKey(fileName))
-                Set(fileName);
+            // Evict the cache before setting the data (no problem re-fetching)
+            Evict(fileName);
 
+            // Set directly to disk
             ToFile(fileName, tagData);
         }
         public byte[] Serialize(AudioStationTag serializableTag)
@@ -142,25 +143,13 @@ namespace AudioStation.Core.Component
         {
             try
             {
-                var existingFile = Get(fileName);
+                // AudioStation -> ATL:  Some properties are ready only. All fields have been put in their proper place by
+                //                       this point. (see IAudioStationTag)
+                //
+                var atlTrack = TagMapper.MapTo(tag, fileName);
 
-                // Copy data onto existing tag
-                ApplicationHelpers.MapOnto(tag, existingFile);
-
-                // AudioStation -> ATL 
-                var atlTrack = ApplicationHelpers.Map<IAudioStationTag, ATL.Track>(tag);
-
-                // IAudioStationTag:  Additional Fields (taken from ATL.Track)
-                atlTrack.AlbumArtist = tag.AlbumArtists.FirstOrDefault() ?? string.Empty;
-                atlTrack.Genre = tag.Genres.FirstOrDefault() ?? string.Empty;
-
-                // NEEDS TO BE FINISHED:  Figure out how to store multiple artists / genres
-
-                atlTrack.TrackNumber = (int)tag.Track;
-                atlTrack.TrackNumberStr = tag.Track.ToString();
-
-                // ATL:  Save
-                atlTrack.SaveTo(fileName);
+                // ATL:  Save (to ATL.Track.Path = fileName)
+                atlTrack.Save();
             }
             catch (Exception ex)
             {
@@ -177,30 +166,7 @@ namespace AudioStation.Core.Component
                 var atlTrack = new ATL.Track(fileName);
 
                 // ATL -> AudioStation
-                var tagFile = ApplicationHelpers.Map<ATL.Track, AudioStationTag>(atlTrack);
-
-                // IAudioStationTag:  Additional Fields (taken from ATL.Track)
-                if (!string.IsNullOrEmpty(atlTrack.AlbumArtist))
-                    tagFile.AlbumArtists.Add(atlTrack.AlbumArtist);                     // NEEDS TO BE FINISHED
-
-                tagFile.AudioFormat = atlTrack.AudioFormat.Name;
-                tagFile.BitDepth = atlTrack.BitDepth;
-                tagFile.BitRate = atlTrack.Bitrate;
-                tagFile.Channels = atlTrack.ChannelsArrangement.NbChannels;
-                tagFile.Duration = TimeSpan.FromMilliseconds(atlTrack.DurationMs);
-                tagFile.Encoder = atlTrack.Encoder;
-
-                uint trackNumber = 0;
-                uint.TryParse(atlTrack.TrackNumberStr, out trackNumber);
-
-                // NEEDS TO BE FINISHED
-                if (!string.IsNullOrWhiteSpace(atlTrack.Genre))
-                    tagFile.Genres.Add(atlTrack.Genre);
-
-                tagFile.IsVariableBitRate = atlTrack.IsVBR;
-                tagFile.SampleRate = atlTrack.SampleRate;
-                tagFile.Track = trackNumber;
-                tagFile.Year = atlTrack.Year ?? atlTrack.Date?.Year ?? 0;
+                var tagFile = TagMapper.MapFrom(atlTrack);
 
                 return tagFile;
             }

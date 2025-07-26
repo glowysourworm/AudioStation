@@ -8,6 +8,6 @@ namespace AudioStation.Core.Utility.RecursiveComparer.Interface
 {
     public interface IRecursiveComparer
     {
-        bool Compare<T>(T object1, T object2, out string message);
+        bool Compare<T>(T object1, T object2);
     }
 }

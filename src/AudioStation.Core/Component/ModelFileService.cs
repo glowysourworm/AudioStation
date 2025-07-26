@@ -63,13 +63,13 @@ namespace AudioStation.Core.Component
                 case LibraryEntryNamingType.Standard:
                 {
                     var format = "{0:#} of {1:#} {2}.mp3";
-                    var formattedTitle = string.Format(format, trackNumber, trackTitle);
+                    var formattedTitle = string.Format(format, trackNumber, trackCount, trackTitle);
                     return _fileController.MakeFriendlyPath(true, formattedTitle);
                 }
                 case LibraryEntryNamingType.Descriptive:
                 {
-                    var format = "{0:#} {1}-{2}-{3}.mp3";
-                    var formattedTitle = string.Format(format, trackNumber, primaryAlbumArtist, album, trackTitle);
+                    var format = "{0:#} of {1:#} {2}-{3}-{4}.mp3";
+                    var formattedTitle = string.Format(format, trackNumber, trackCount, primaryAlbumArtist, album, trackTitle);
                     return _fileController.MakeFriendlyPath(true, formattedTitle);
                 }
                 default:

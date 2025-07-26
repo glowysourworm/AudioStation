@@ -4,14 +4,14 @@ using AudioStation.Core.Model.Vendor.ATLExtension.Interface;
 using AudioStation.Core.Utility;
 using AudioStation.Core.Utility.RecursiveComparer.Attribute;
 
-using SimpleWpf.RecursiveSerializer.Shared;
+using AutoMapper.Configuration.Annotations;
 
 namespace AudioStation.Core.Model.Vendor.ATLExtension
 {
     public class AudioStationTag : IAudioStationTag
     {
         public IDictionary<string, string> AdditionalFields { get; set; }
-        public string AudioFormat { get; set;  }
+        public string AudioFormat { get; set; }
         public string Album { get; set; }
         public string AlbumArtist { get; set; }
         public IList<string> AlbumArtists { get; set; }
@@ -66,7 +66,7 @@ namespace AudioStation.Core.Model.Vendor.ATLExtension
         public string SortArtist { get; set; }
         public string SortTitle { get; set; }
         public string Title { get; set; }
-        public uint Track { get; set;  }
+        public uint Track { get; set; }
         public string TrackNumber { get; set; }
         public ushort TrackTotal { get; set; }
         public int Year { get; set; }
@@ -79,6 +79,42 @@ namespace AudioStation.Core.Model.Vendor.ATLExtension
         public AudioStationTag(IAudioStationTag tag)
         {
             ApplicationHelpers.MapOnto(tag, this);
+        }
+
+        public void UpdateAfterEdit()
+        {
+            // AlbumArtist
+            this.AlbumArtist = this.AlbumArtists.Any() ? this.AlbumArtists[0] : string.Empty;
+
+            // Genre
+            this.Genre = this.Genres.Any() ? this.Genres[0] : string.Empty;
+
+            // TrackNumber (string)
+            this.TrackNumber = this.Track.ToString();
+
+            // Date
+            this.Date = new DateTime(this.Year, 1, 1);
+        }
+
+        public void UpdateBeforeEdit()
+        {
+            // AlbumArtist Collection
+            if (!string.IsNullOrWhiteSpace(this.AlbumArtist) &&
+                !this.AlbumArtists.Contains(this.AlbumArtist))
+                this.AlbumArtists.Add(this.AlbumArtist);
+
+            // Genre Collection
+            if (!string.IsNullOrWhiteSpace(this.Genre) &&
+                !this.Genres.Contains(this.Genre))
+                this.Genres.Add(this.Genre);
+
+            // Track
+            uint track = 0;
+            if (uint.TryParse(this.TrackNumber, out track))
+                this.Track = track;
+
+            // Year
+            this.Year = this.Date.Year;
         }
     }
 }

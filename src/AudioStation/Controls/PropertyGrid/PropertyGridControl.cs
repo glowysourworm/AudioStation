@@ -70,7 +70,16 @@ namespace AudioStation.Controls.PropertyGrid
 
         public PropertyGridControl()
         {
+            this.Loaded += PropertyGridControl_Loaded;
             this.Unloaded += PropertyGridControl_Unloaded;
+        }
+
+        private void PropertyGridControl_Loaded(object sender, RoutedEventArgs e)
+        {
+            // Default Style (have to set this here due to style override issues)
+            //
+            if (this.Style == null)
+                this.Style = this.FindResource("PropertyGridUserControl") as Style;
         }
 
         private void PropertyGridControl_Unloaded(object sender, RoutedEventArgs e)

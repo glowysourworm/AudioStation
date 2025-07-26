@@ -18,7 +18,7 @@ namespace AudioStation.ViewModels.Vendor.ATLViewModel
         string _album;
         string _albumArtist;
         IList<string> _albumArtists;
-        string _artist;        
+        string _artist;
         string _audioFormat;
         string _audioSourceUrl;
         int _bitDepth;
@@ -380,6 +380,42 @@ namespace AudioStation.ViewModels.Vendor.ATLViewModel
             : this()
         {
             ApplicationHelpers.MapOnto(tag, this);
+        }
+
+        public void UpdateAfterEdit()
+        {
+            // AlbumArtist
+            this.AlbumArtist = this.AlbumArtists.Any() ? this.AlbumArtists[0] : string.Empty;
+
+            // Genre
+            this.Genre = this.Genres.Any() ? this.Genres[0] : string.Empty;
+
+            // TrackNumber (string)
+            this.TrackNumber = this.Track.ToString();
+
+            // Date
+            this.Date = new DateTime(this.Year, 1, 1);
+        }
+
+        public void UpdateBeforeEdit()
+        {
+            // AlbumArtist Collection
+            if (!string.IsNullOrWhiteSpace(this.AlbumArtist) &&
+                !this.AlbumArtists.Contains(this.AlbumArtist))
+                this.AlbumArtists.Add(this.AlbumArtist);
+
+            // Genre Collection
+            if (!string.IsNullOrWhiteSpace(this.Genre) &&
+                !this.Genres.Contains(this.Genre))
+                this.Genres.Add(this.Genre);
+
+            // Track
+            uint track = 0;
+            uint.TryParse(this.TrackNumber, out track);
+            this.Track = track;
+
+            // Year
+            this.Year = this.Date.Year;
         }
     }
 }

@@ -123,15 +123,13 @@ namespace AudioStation.Core.Utility
 
         public static bool Compare<T>(T object1, T object2)
         {
-            var message = string.Empty;
-
             try
             {
-                return Comparer.Compare<T>(object1, object2, out message);
+                return Comparer.Compare<T>(object1, object2);
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Error comparing objects:  {0}", LogMessageType.General, LogLevel.Error, ex, message);
+                ApplicationHelpers.Log("Error comparing objects:  {0}", LogMessageType.General, LogLevel.Error, ex, ex.Message);
                 throw ex;
             }
         }
@@ -145,7 +143,7 @@ namespace AudioStation.Core.Utility
             {
                 var config = new MapperConfiguration(cfg =>
                 {
-                    cfg.CreateMap<TSource, TDest>();
+                    var map = cfg.CreateMap<TSource, TDest>();
 
                 }, GetLoggerFactory());
 

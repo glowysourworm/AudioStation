@@ -2,8 +2,7 @@
                              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                              xmlns:tokenizingTB="http://iterate.ch/controls"
-                             xmlns:local="clr-namespace:AudioStation.Controls.PropertyGrid"
-                             Style="{StaticResource PropertyGridLargeUserControl}">
+                             xmlns:local="clr-namespace:AudioStation.Controls.PropertyGrid">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="{Binding LabelColumnWidth, RelativeSource={RelativeSource AncestorType=UserControl}}" />

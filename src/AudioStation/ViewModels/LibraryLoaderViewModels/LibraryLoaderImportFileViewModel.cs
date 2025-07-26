@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using System.IO;
+using System.Runtime.CompilerServices;
 
 using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Model.Vendor.ATLExtension;
@@ -8,6 +9,8 @@ using AudioStation.Core.Utility;
 using AudioStation.Model;
 using AudioStation.ViewModels.Vendor.AcoustIDViewModel;
 using AudioStation.ViewModels.Vendor.MusicBrainzViewModel;
+
+using IF.Lastfm.Core.Api.Enums;
 
 using MetaBrainz.MusicBrainz.Interfaces.Entities;
 
@@ -48,6 +51,9 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
         bool _minimumImportValid;
         string _tagIssues;
 
+        // UI-only property (set in the constructor)
+        string _importOptions;
+
         AudioStationTag _tagClean;
         AudioStationTag _tagDirty;
 
@@ -61,7 +67,29 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
         SimpleCommand _selectAcoustIDCommand;
         SimpleCommand _playAudioCommand;
         SimpleCommand _saveTagCommand;
+        SimpleCommand _copyMusicBrainzToTagCommand;
         SimpleCommand _refreshCommand;
+
+        #region (public) Calculated UI Properties
+        public string FinalImportDetail
+        {
+            get 
+            {
+                var format = "Artist ({0}) Album ({1}) Title ({2}) Genre ({3}) Track ({4} of {5}) Disc ({6} of {7})";
+                var result = string.Format(format, _tagDirty.AlbumArtist, _tagDirty.Album,
+                                                   _tagDirty.Title, _tagDirty.Genre,
+                                                   _tagDirty.Track, _tagDirty.TrackTotal,
+                                                   _tagDirty.DiscNumber, _tagDirty.DiscTotal);
+
+                return result;
+            }
+        }
+        public string ImportOptions
+        {
+            get { return _importOptions; }
+            set { this.RaiseAndSetIfChanged(ref _importOptions, value); }
+        }
+        #endregion
 
         public bool IsSelected
         {
@@ -155,11 +183,18 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
             get { return _saveTagCommand; }
             set { this.RaiseAndSetIfChanged(ref _saveTagCommand, value); }
         }
+        public SimpleCommand CopyMusicBrainzToTagCommand
+        {
+            get { return _copyMusicBrainzToTagCommand; }
+            set { this.RaiseAndSetIfChanged(ref _copyMusicBrainzToTagCommand, value); }
+        }
         public SimpleCommand RefreshCommand
         {
             get { return _refreshCommand; }
             set { this.RaiseAndSetIfChanged(ref _refreshCommand, value); }
         }
+
+        bool _updating;
 
         public LibraryLoaderImportFileViewModel(string fileName,
                                                 string destinationDirectory,
@@ -171,6 +206,8 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
                 _modelFileService = IocContainer.Get<IModelFileService>();
                 _libraryImporter = IocContainer.Get<ILibraryImporter>();
                 _tagCacheController = IocContainer.Get<ITagCacheController>();
+
+                _updating = false;
 
                 this.FileFullPath = fileName;
                 this.FileName = Path.GetFileName(fileName);
@@ -188,9 +225,7 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
                     SourceFolder = options.SourceFolder,
                     SourceFile = fileName
                 };
-
-                // Initializes the import output
-                Reload();
+                this.ImportOptions = CreateOptionsUI(options);
 
                 this.SelectAcoustIDCommand = new SimpleCommand(() =>
                 {
@@ -212,15 +247,25 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
                         this.PlayAudioEvent(this);
                 });
 
+                this.CopyMusicBrainzToTagCommand = new SimpleCommand(() =>
+                {
+                    CopyMusicBrainzToTag();
+
+                }, () => this.ImportOutput.MusicBrainzRecordingMatchSuccess);
+
                 this.SaveTagCommand = new SimpleCommand(() =>
                 {
                     Save();
+
                 });
 
                 this.RefreshCommand = new SimpleCommand(() =>
                 {
                     Reload();
                 });
+
+                // Initializes the import output
+                Reload();
             }
             catch (Exception ex)
             {
@@ -229,17 +274,49 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
             }
         }
 
+        private string CreateOptionsUI(LibraryLoaderImportOptionsViewModel options)
+        {
+            var result = string.Empty;
+
+            result += options.ImportAsType.ToString();
+            result += " / " + options.NamingType.ToString();
+            result += " / " + options.GroupingType.ToString();
+
+            if (options.IdentifyUsingAcoustID && options.IncludeMusicBrainzDetail)
+                result += " / Use Acoustic Fingerprinting";
+
+            if (options.ImportFileMigration)
+            {
+                if (options.MigrationDeleteSourceFiles)
+                    result += " / Delete Source File(s)";
+
+                if (options.MigrationDeleteSourceFolders)
+                    result += " / Delete Source Folder(s)";
+
+                if (options.MigrationOverwriteDestinationFiles)
+                    result += " / Overwrite Destination";
+            }
+
+            return result;
+        }
+
         /// <summary>
         /// Updates properties associated with the migration:  Tag Issues, Minimum Import Status
         /// </summary>
         public void Update()
         {
+            if (_updating)
+                return;
+
+            _updating = true;
+
             var validationMessage = string.Empty;
 
             // Validate Tag (also gives validation message)
             _modelValidationService.ValidateTagImport(_tagDirty, out validationMessage);
 
-            this.TagIssues = validationMessage;
+            this.TagIssues = validationMessage == string.Empty ? "(None)" : validationMessage;
+
             this.MinimumImportValid = !this.InError && _libraryImporter.CanImportEntity(this.ImportLoad, this.ImportOutput);
 
             if (this.MinimumImportValid)
@@ -248,12 +325,26 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
                 var fileMigrationFolder = _modelFileService.CalculateFolderPath(_tagDirty, this.ImportLoad.DestinationFolder, this.ImportLoad.GroupingType);
 
                 this.FileMigrationName = fileMigrationName;
-                this.FileMigrationFullPath = Path.Combine(fileMigrationName, fileMigrationFolder);
+                this.FileMigrationFullPath = Path.Combine(fileMigrationFolder, fileMigrationName);
 
                 this.TagIssues = "(None)";
             }
 
-            UpdateDirtyTag();
+            // Commands update
+            this.SelectAcoustIDCommand.RaiseCanExecuteChanged();
+            this.SelectMusicBrainzCommand.RaiseCanExecuteChanged();
+            this.CopyMusicBrainzToTagCommand.RaiseCanExecuteChanged();
+            this.PlayAudioCommand.RaiseCanExecuteChanged();
+            this.RefreshCommand.RaiseCanExecuteChanged();
+            this.SaveTagCommand.RaiseCanExecuteChanged();
+
+            // Tag Dirty Flag
+            this.IsTagDirty = !ApplicationHelpers.Compare(_tagClean, _tagDirty);
+
+            // Update some UI properties
+            OnPropertyChanged("FinalImportDetail");
+
+            _updating = false;
         }
 
         /// <summary>
@@ -262,9 +353,6 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
         /// <exception cref="Exception">Minimum import requirements have not been met</exception>
         public void Save()
         {
-            if (!this.MinimumImportValid)
-                throw new Exception("Trying to save migration detail to tag before it has been validated");
-
             try
             {
                 // Save tag data to (source) file
@@ -272,15 +360,15 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
 
                 // Update Clean Tag
                 _tagClean = _tagCacheController.GetCopy(this.FileFullPath);
-                _tagDirty = _tagCacheController.Get(this.FileFullPath);             // Technically, this is the same reference as above
-
-                this.IsTagDirty = false;
+                _tagDirty = _tagCacheController.GetCopy(this.FileFullPath);
             }
             catch (Exception ex)
             {
                 ApplicationHelpers.Log("Error saving import tag:  {0}", LogMessageType.General, LogLevel.Error, ex, this.FileFullPath);
                 this.InError = true;
             }
+
+            Update();
         }
 
         /// <summary>
@@ -288,10 +376,16 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
         /// </summary>
         public void Reload()
         {
+            _updating = true;
+
             // Piggy-backing code in the constructor (watch for nulls)
             //
             try
             {
+                // Get clean copy of the tag
+                _tagClean = _tagCacheController.GetCopy(this.FileFullPath);
+                _tagDirty = _tagCacheController.GetCopy(this.FileFullPath);
+
                 // Unhook Events
                 if (this.ImportOutput != null)
                     this.ImportOutput.PropertyChanged -= this.ImportOutput_PropertyChanged;
@@ -299,23 +393,29 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
                 // Reload Working Data
                 this.ImportOutput = new LibraryLoaderImportOutputViewModel();
 
-                // Get clean copy of the tag
-                _tagClean = _tagCacheController.GetCopy(this.FileFullPath);
-                _tagDirty = _tagCacheController.Get(this.FileFullPath);
+                // Unload Selected Data
+                this.SelectedMusicBrainzRecordingMatch = null;
+                this.SelectedAcoustIDResult = null;
 
                 // Hook Events
                 this.ImportOutput.PropertyChanged += ImportOutput_PropertyChanged;
 
                 // Reset Error Flag
                 this.InError = false;
-                this.IsTagDirty = false;
             }
             catch (Exception ex)
             {
                 ApplicationHelpers.Log("Error refreshing import tag:  {0}", LogMessageType.General, LogLevel.Error, ex, this.FileFullPath);
                 this.InError = true;
+                _updating = false;
                 return;
             }
+
+            _updating = false;
+
+            // Also, sets the updating flag
+            //
+            Update();
         }
 
         /// <summary>
@@ -332,12 +432,15 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
         /// </summary>
         public void SaveTagEdit(IAudioStationTag tagEdit)
         {
+            // Sets calculated fields for the tag
+            tagEdit.UpdateAfterEdit();
+
             ApplicationHelpers.MapOnto(tagEdit, _tagDirty);
 
-            this.IsTagDirty = !ApplicationHelpers.Compare(_tagClean, _tagDirty);
+            Update();
         }
 
-        private void UpdateDirtyTag()
+        private void CopyMusicBrainzToTag()
         {
             // Update our dirty copy of the tag
             //
@@ -350,15 +453,15 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
             _tagDirty.DiscNumber = (ushort)GetDisc();
             _tagDirty.DiscTotal = (ushort)GetDiscCount();
 
-            this.IsTagDirty = !ApplicationHelpers.Compare(_tagClean, _tagDirty);
+            // Sets calculated fields for the tag
+            _tagDirty.UpdateBeforeEdit();
+
+            Update();
         }
 
         private void ImportOutput_PropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
             Update();
-
-            this.SelectAcoustIDCommand.RaiseCanExecuteChanged();
-            this.SelectMusicBrainzCommand.RaiseCanExecuteChanged();
         }
 
         #region (private) Tag Data (resolved from AcoustID + Music Brainz + Tag)
@@ -372,11 +475,6 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
                              .ArtistCredit?
                              .Where(x => !string.IsNullOrWhiteSpace(x.Name))
                              .FirstOrDefault()?.Name ?? string.Empty;
-            }
-
-            if (result == string.Empty)
-            {
-                result = _tagDirty.AlbumArtist ?? string.Empty;
             }
 
             return result;
@@ -395,11 +493,6 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
                 }
             }
 
-            if (result == string.Empty)
-            {
-                result = _tagDirty.Album ?? string.Empty;
-            }
-
             return result;
         }
         public string GetTrackTitle()
@@ -409,11 +502,6 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
             if (this.SelectedMusicBrainzRecordingMatch != null)
             {
                 result = this.SelectedMusicBrainzRecordingMatch.Title ?? string.Empty;
-            }
-
-            if (result == string.Empty)
-            {
-                result = _tagDirty.Title ?? string.Empty;
             }
 
             return result;
@@ -430,16 +518,11 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
                              .FirstOrDefault()?.Name ?? string.Empty;
             }
 
-            if (result == string.Empty)
-            {
-                result = _tagDirty.Genre ?? string.Empty;
-            }
-
             return result;
         }
         public int GetDisc()
         {
-            int result = 0;
+            int result = _tagDirty.DiscNumber;
 
             if (this.SelectedMusicBrainzRecordingMatch != null)
             {
@@ -452,16 +535,11 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
                 }
             }
 
-            if (result == 0)
-            {
-                result = _tagDirty.DiscNumber;
-            }
-
             return result;
         }
         public int GetDiscCount()
         {
-            int result = 0;
+            int result = _tagDirty.DiscTotal;
 
             if (this.SelectedMusicBrainzRecordingMatch != null)
             {
@@ -472,17 +550,12 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
                     result = (int)release.Media.Count;
                 }
             }
-
-            if (result == 0)
-            {
-                result = _tagDirty.DiscTotal;
-            }
-
+            
             return result;
         }
         public uint GetTrackNumber()
         {
-            uint result = 0;
+            uint result = _tagDirty.Track;
 
             if (this.SelectedMusicBrainzRecordingMatch != null)
             {
@@ -494,16 +567,11 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
                 }
             }
 
-            if (result == 0)
-            {
-                result = _tagDirty.Track;
-            }
-
             return result;
         }
         public uint GetTrackCount()
         {
-            uint result = 0;
+            uint result = _tagDirty.TrackTotal;
 
             if (this.SelectedMusicBrainzRecordingMatch != null)
             {
@@ -511,13 +579,8 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
 
                 if (medium != null)
                 {
-                    result = (uint)medium.Tracks.Count;
+                    result = (uint)medium.TrackCount;
                 }
-            }
-
-            if (result == 0)
-            {
-                result = _tagDirty.TrackTotal;
             }
 
             return result;
@@ -526,16 +589,8 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
         {
             if (this.SelectedMusicBrainzRecordingMatch != null)
             {
-                var album = _tagDirty.Album ?? string.Empty;
-
-                if (album == string.Empty)
-                {
-                    return this.SelectedMusicBrainzRecordingMatch?.Releases?.FirstOrDefault();
-                }
-                else
-                {
-                    return this.SelectedMusicBrainzRecordingMatch?.Releases?.FirstOrDefault(x => x.Title == album);
-                }
+                // ISSUES! Can't match release here against the tag! Since, we're trying to pull from music brainz.
+                return this.SelectedMusicBrainzRecordingMatch?.Releases?.FirstOrDefault();
             }
 
             return null;
