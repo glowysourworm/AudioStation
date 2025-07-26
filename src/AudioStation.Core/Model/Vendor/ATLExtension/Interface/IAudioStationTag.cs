@@ -11,12 +11,12 @@ namespace AudioStation.Core.Model.Vendor.ATLExtension.Interface
         /// <summary>
         /// Updates calculated files that aren't set by the edit process
         /// </summary>
-        void UpdateAfterEdit();
+        void ToATL();
 
         /// <summary>
         /// Updates fields that aren't going to be set by the edit process
         /// </summary>
-        void UpdateBeforeEdit();
+        void FromATL();
 
         /// <summary>
         /// Collection of album artists (AlbumArtist (singular) will be the first of this collection)

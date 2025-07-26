@@ -81,7 +81,7 @@ namespace AudioStation.Core.Model.Vendor.ATLExtension
             ApplicationHelpers.MapOnto(tag, this);
         }
 
-        public void UpdateAfterEdit()
+        public void ToATL()
         {
             // AlbumArtist
             this.AlbumArtist = this.AlbumArtists.Any() ? this.AlbumArtists[0] : string.Empty;
@@ -96,7 +96,7 @@ namespace AudioStation.Core.Model.Vendor.ATLExtension
             this.Date = new DateTime(this.Year, 1, 1);
         }
 
-        public void UpdateBeforeEdit()
+        public void FromATL()
         {
             // AlbumArtist Collection
             if (!string.IsNullOrWhiteSpace(this.AlbumArtist) &&

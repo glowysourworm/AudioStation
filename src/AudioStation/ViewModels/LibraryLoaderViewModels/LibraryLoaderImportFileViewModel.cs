@@ -84,6 +84,19 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
                 return result;
             }
         }
+        public string TagDetail
+        {
+            get
+            {
+                var format = "Artist ({0}) Album ({1}) Title ({2}) Genre ({3}) Track ({4} of {5}) Disc ({6} of {7})";
+                var result = string.Format(format, _tagClean.AlbumArtist, _tagClean.Album,
+                                                   _tagClean.Title, _tagClean.Genre,
+                                                   _tagClean.Track, _tagClean.TrackTotal,
+                                                   _tagClean.DiscNumber, _tagClean.DiscTotal);
+
+                return result;
+            }
+        }
         public string ImportOptions
         {
             get { return _importOptions; }
@@ -315,7 +328,7 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
             // Validate Tag (also gives validation message)
             _modelValidationService.ValidateTagImport(_tagDirty, out validationMessage);
 
-            this.TagIssues = validationMessage == string.Empty ? "(None)" : validationMessage;
+            this.TagIssues = validationMessage == string.Empty ? "(None - Save Tag (Disk))" : validationMessage;
 
             this.MinimumImportValid = !this.InError && _libraryImporter.CanImportEntity(this.ImportLoad, this.ImportOutput);
 
@@ -343,6 +356,7 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
 
             // Update some UI properties
             OnPropertyChanged("FinalImportDetail");
+            OnPropertyChanged("TagDetail");
 
             _updating = false;
         }
@@ -433,7 +447,7 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
         public void SaveTagEdit(IAudioStationTag tagEdit)
         {
             // Sets calculated fields for the tag
-            tagEdit.UpdateAfterEdit();
+            tagEdit.ToATL();
 
             ApplicationHelpers.MapOnto(tagEdit, _tagDirty);
 
@@ -447,14 +461,22 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
             _tagDirty.Album = GetAlbum();
             _tagDirty.AlbumArtist = GetAlbumArtist();
             _tagDirty.Title = GetTrackTitle();
-            _tagDirty.Genre = GetGenres();
+            _tagDirty.Genre = GetGenre();
             _tagDirty.Track = (uint)GetTrackNumber();
             _tagDirty.TrackTotal = (ushort)GetTrackCount();
             _tagDirty.DiscNumber = (ushort)GetDisc();
             _tagDirty.DiscTotal = (ushort)GetDiscCount();
 
-            // Sets calculated fields for the tag
-            _tagDirty.UpdateBeforeEdit();
+            // ATL FIELD UPDATES
+            _tagDirty.TrackNumber = _tagDirty.Track.ToString();
+            _tagDirty.AlbumArtists.Clear();
+            _tagDirty.Genres.Clear();
+
+            if (!string.IsNullOrEmpty(_tagDirty.AlbumArtist))
+                _tagDirty.AlbumArtists.Add(_tagDirty.AlbumArtist);
+
+            if (!string.IsNullOrEmpty(_tagDirty.Genre))
+                _tagDirty.Genres.Add(_tagDirty.Genre);
 
             Update();
         }
@@ -506,7 +528,7 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
 
             return result;
         }
-        public string GetGenres()
+        public string GetGenre()
         {
             var result = string.Empty;
 

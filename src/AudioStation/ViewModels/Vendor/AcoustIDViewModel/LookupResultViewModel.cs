@@ -34,7 +34,7 @@ namespace AudioStation.ViewModels.Vendor.AcoustIDViewModel
 
         public override string ToString()
         {
-            return string.Format("Id({0}) Score({1:P2})", this.Id, this.Score);
+            return string.Format("Score({1:P2})", this.Id, this.Score);
         }
     }
 }
