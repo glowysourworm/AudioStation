@@ -33,32 +33,52 @@
                  VirtualizingPanel.CacheLength="3">
             <ListBox.ContextMenu>
                 <ContextMenu>
-                    <ContextMenu.Template>
-                        <ControlTemplate>
-                            <Border CornerRadius="10"
-                                    BorderBrush="Gray"
-                                    BorderThickness="3"
-                                    Background="White">
-                                <StackPanel>
-                                    <Button Style="{StaticResource UserMenuButtonStyle}" Content="Import (Basic)">
-                                        <Button.Tag>
-                                            <CornerRadius TopLeft="10" TopRight="10" />
-                                        </Button.Tag>
-                                    </Button>
-                                    <Button Style="{StaticResource UserMenuButtonStyle}" Content="Import (Detail)" />
-                                    <Button Style="{StaticResource UserMenuButtonStyle}" 
-                                            Command="{Binding EditTagCommand}" 
-                                            Content="Edit Tag" />
-                                    <Button Style="{StaticResource UserMenuButtonStyle}" Content="Run AcoustID" />
-                                    <Button Style="{StaticResource UserMenuButtonStyle}" Content="Run Music Brainz (Detail)">
-                                        <Button.Tag>
-                                            <CornerRadius BottomLeft="10" BottomRight="10" />
-                                        </Button.Tag>
-                                    </Button>
-                                </StackPanel>
-                            </Border>
-                        </ControlTemplate>
-                    </ContextMenu.Template>
+
+                    <!-- Header -->
+                    <MenuItem Style="{StaticResource UserMenuItemStyle}" BorderBrush="Gray" BorderThickness="0 0 0 1">
+                        <MenuItem.Header>
+                            <StackPanel Orientation="Horizontal">
+                                <Image Source="/Resources/Images/icon.bmp" Width="20" Height="20"  />
+                                <TextBlock Text="Library Importer" Margin="5 0 0 0" />
+                            </StackPanel>
+                        </MenuItem.Header>
+                    </MenuItem>
+
+                    <!-- Import -->
+                    <MenuItem Style="{StaticResource UserMenuItemStyle}" Header="Import" Command="{Binding RunImportCommand}"
+                              IsEnabled="{Binding RunImportCommand.IsReady, Converter={StaticResource BoolVisibilityCollapseConverter}}" />
+
+                    <!-- Edit Tag -->
+                    <MenuItem Style="{StaticResource UserMenuItemStyle}" Header="Edit Tag" Command="{Binding EditTagCommand}"
+                              IsEnabled="{Binding EditTagCommand.IsReady, Converter={StaticResource BoolVisibilityCollapseConverter}}" />
+
+                    <!-- Edit Tag (Group) -->
+                    <MenuItem x:Name="EditTagGroupMI" 
+                              Style="{StaticResource UserMenuItemStyle}" 
+                              Header="Edit Tag (Group)" 
+                              Command="{Binding EditTagGroupCommand}"
+                              IsEnabled="{Binding EditTagGroupCommand.IsReady}">
+
+                        <MenuItem Style="{StaticResource UserMenuItemStyle}" BorderBrush="Gray" BorderThickness="0 0 0 1">
+                            <MenuItem.Header>
+                                <TextBlock Text="Tag (Group) Fields" Margin="5 0 0 0" />
+                            </MenuItem.Header>
+                        </MenuItem>
+                        <MenuItem Header="Artist" Command="{Binding EditTagGroupCommand}" CommandParameter="AlbumArtists" Style="{StaticResource UserMenuItemStyle}"  />
+                        <MenuItem Header="Album" Command="{Binding EditTagGroupCommand}" CommandParameter="Album" Style="{StaticResource UserMenuItemStyle}" />
+                        <MenuItem Header="Genre" Command="{Binding EditTagGroupCommand}" CommandParameter="Genres" Style="{StaticResource UserMenuItemStyle}" />
+                        <MenuItem Header="Track Count" Command="{Binding EditTagGroupCommand}" CommandParameter="TrackCount" Style="{StaticResource UserMenuItemStyle}" />
+                        <MenuItem Header="Disc Count" Command="{Binding EditTagGroupCommand}" CommandParameter="DiscCount" Style="{StaticResource UserMenuItemStyle}" />
+                        <MenuItem Header="Artwork" Command="{Binding EditTagGroupCommand}" CommandParameter="Artwork" Style="{StaticResource UserMenuItemStyle}" />
+                    </MenuItem>
+
+                    <!-- Save Tag -->
+                    <MenuItem Style="{StaticResource UserMenuItemStyle}" Header="Save Tag" Command="{Binding SaveTagCommand}"
+                              IsEnabled="{Binding SaveTagCommand.IsReady, Converter={StaticResource BoolVisibilityCollapseConverter}}" />
+
+                    <!-- Run AcoustID / Music Brainz -->
+                    <MenuItem Style="{StaticResource UserMenuItemStyle}" Header="Run Music Brainz" Command="{Binding RunAcousticFingerprintCommand}"
+                              IsEnabled="{Binding RunAcousticFingerprintCommand.IsReady}"/>
                 </ContextMenu>
             </ListBox.ContextMenu>
             <ListBox.ItemTemplate>
@@ -114,13 +134,13 @@
                                 </fa5:ImageAwesome.Foreground>
                             </fa5:ImageAwesome>
 
-                            <fa5:ImageAwesome Icon="Solid_VolumeUp" 
+                            <!--fa5:ImageAwesome Icon="Solid_VolumeUp" 
                                             Margin="5"
                                             Style="{StaticResource FontAwesomeIconManagerViewPager}"
                                             ToolTip="AcoustID data may be downloaded prior to import; or after."
                                             Foreground="{Binding ImportOutput.AcoustIDSuccess, 
                                                                  Converter={StaticResource ImportStepForegroundParameterConverter},
-                                                                 ConverterParameter={x:Static Brushes.DodgerBlue}}" />
+                                                                 ConverterParameter={x:Static Brushes.DodgerBlue}}" /-->
                             <fa5:ImageAwesome Icon="Solid_Music" 
                                             Margin="5"
                                             ToolTip="Music Brainz data may be downloaded prior to import; or after."              

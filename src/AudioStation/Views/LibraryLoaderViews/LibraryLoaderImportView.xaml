@@ -40,24 +40,13 @@
                 </StackPanel>
             </Button>
 
-            <!-- Run Acoust ID -->
+            <!-- Run AcoustID / Music Brainz -->
             <Button Margin="0 5 5 0" 
                     Style="{StaticResource UserControlButton}"
-                    Command="{Binding RunAcoustIDCommand}"
-                    Visibility="{Binding RunAcoustIDCommand.IsReady, Converter={StaticResource BoolVisibilityCollapseConverter}}">
+                    Command="{Binding RunAcousticFingerprintCommand}"
+                    Visibility="{Binding RunAcousticFingerprintCommand.IsReady, Converter={StaticResource BoolVisibilityCollapseConverter}}">
                 <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="Run AcoustID" Style="{StaticResource LabelTextBlock}" Margin="5" />
-                    <fa5:SvgAwesome Icon="Solid_VolumeUp" Style="{StaticResource FontAwesomeIconDefault}" Margin="5" />
-                </StackPanel>
-            </Button>
-
-            <!-- Run Music Brainz -->
-            <Button Margin="0 5 5 0" 
-                    Style="{StaticResource UserControlButton}"
-                    Command="{Binding RunMusicBrainzCommand}"
-                    Visibility="{Binding RunMusicBrainzCommand.IsReady, Converter={StaticResource BoolVisibilityCollapseConverter}}">
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="Run Music Brainz" Style="{StaticResource LabelTextBlock}" Margin="5" />
+                    <TextBlock Text="Run Acoustic Fingerprint " Style="{StaticResource LabelTextBlock}" Margin="5" />
                     <fa5:SvgAwesome Icon="Solid_Music" Style="{StaticResource FontAwesomeIconDefault}" Margin="5" />
                 </StackPanel>
             </Button>

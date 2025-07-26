@@ -4,10 +4,10 @@
         xmlns:views="clr-namespace:AudioStation.Views"
         xmlns:controls="clr-namespace:AudioStation.Controls"
         xmlns:region="clr-namespace:SimpleWpf.IocFramework.RegionManagement;assembly=SimpleWpf.IocFramework"        
-        Style="{StaticResource MainWindowStyle}"
         WindowState="Minimized"
         WindowStartupLocation="CenterOwner"
-        Title="Audio Station" Height="800" Width="1200">
+        Title="Audio Station" Height="800" Width="1200"
+        Icon="/Resources/Images/icon.bmp">
     <Grid>
 
         <Grid.ColumnDefinitions>
@@ -16,13 +16,14 @@
         </Grid.ColumnDefinitions>
         
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="28" />
         </Grid.RowDefinitions>
 
         <!-- Background -->
-        <Grid Grid.RowSpan="3" 
+        <Grid Grid.RowSpan="4" 
               Grid.ColumnSpan="2" 
               IsEnabled="{Binding Loading, Converter={StaticResource BoolInverseConverter}}"
               DataContext="{Binding NowPlaying}">
@@ -46,13 +47,27 @@
             </controls:WebImageControl>
         </Grid>
 
+        <!-- Menu -->
+        <Menu Grid.ColumnSpan="2" Background="White" BorderBrush="LightGray" BorderThickness="1">
+            <MenuItem Header="_File" Style="{StaticResource UserMenuItemStyle}">
+                <MenuItem Header="_Configuration" Style="{StaticResource UserMenuItemStyle}" />
+            </MenuItem>
+            <MenuItem Header="_View" Style="{StaticResource UserMenuItemStyle}">
+                <MenuItem Header="_Log" Style="{StaticResource UserMenuItemStyle}" />
+            </MenuItem>
+            <MenuItem Header="_Help" Style="{StaticResource UserMenuItemStyle}">
+                <MenuItem Header="_About" Style="{StaticResource UserMenuItemStyle}" />
+            </MenuItem>            
+        </Menu>
+
         <!-- Main View (Manager) / (Playlist) -->
-        <region:IocRegion region:IocRegionManager.RegionName="MainRegion"
+        <region:IocRegion region:IocRegionManager.RegionName="MainRegion" Margin="5"
                           IsEnabled="{Binding Loading, Converter={StaticResource BoolInverseConverter}}"
-                          Grid.ColumnSpan="2" />
+                          Grid.ColumnSpan="2" Grid.Row="1" />
         
         <!-- Audio Control Panel: Equalizer, Volume -->
         <Border Grid.Column="1" 
+                Grid.Row="1"
                 IsEnabled="{Binding Loading, Converter={StaticResource BoolInverseConverter}}"
                 HorizontalAlignment="Right" 
                 VerticalAlignment="Bottom" 
@@ -64,7 +79,7 @@
         <!-- Playlist Controller (Panel) (Bound to MainViewModel -> (Playlist)) -->
         <Border x:Name="PlaylistControllerPanel" 
                 IsEnabled="{Binding Loading, Converter={StaticResource BoolInverseConverter}}"
-                Grid.Row="1"
+                Grid.Row="2"
                 Grid.ColumnSpan="2"
                 Visibility="{Binding NowPlaying.Playlist.CurrentTrack, Converter={StaticResource NonNullVisibilityConverter}}"
                 Background="Transparent" 
@@ -78,7 +93,7 @@
         </Border>
 
         <!-- Status Bar (Footer) -->
-        <Border x:Name="StatusBorder" Grid.Row="2" Grid.ColumnSpan="2" Background="#EEEEEE">
+        <Border x:Name="StatusBorder" Grid.Row="3" Grid.ColumnSpan="2" Background="#EEEEEE">
             <TextBlock x:Name="StatusMessageTB" 
 					   Text="{Binding StatusMessage}" 
 					   FontSize="14" Margin="5" 

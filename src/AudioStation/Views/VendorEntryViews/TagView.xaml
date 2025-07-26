@@ -132,7 +132,7 @@
             </TabItem>
 
             <TabItem Header="Artwork">
-                <region:IocRegion region:IocRegionManager.DefaultViewType="{x:Type local:TagPictureView}" />
+                <local:TagPictureView />
             </TabItem>
 
         </propertyGrid:PropertyGridTabControl>            

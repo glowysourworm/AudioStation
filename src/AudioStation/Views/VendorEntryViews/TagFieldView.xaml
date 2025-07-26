@@ -1,0 +1,79 @@
+﻿<UserControl x:Class="AudioStation.Views.VendorEntryViews.TagFieldView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:AudioStation.Views.VendorEntryViews"
+             xmlns:propertyGrid="clr-namespace:AudioStation.Controls.PropertyGrid"
+             xmlns:system="clr-namespace:System;assembly=system"
+             xmlns:region="clr-namespace:SimpleWpf.IocFramework.RegionManagement;assembly=SimpleWpf.IocFramework"
+             Width="600">
+    <Grid>
+        <ListBox ItemContainerStyle="{StaticResource PlainItemContainerStyleWithAlternation_AliceBlue}"
+                    AlternationCount="2"
+                    HorizontalContentAlignment="Stretch"
+                    VirtualizingPanel.ScrollUnit="Pixel"
+                    ScrollViewer.HorizontalScrollBarVisibility="Hidden">
+
+            <propertyGrid:PropertyStringControl x:Name="AlbumEditor" LabelColumnWidth="200" LabelText="Album" Value="{Binding Tag.Album, Mode=TwoWay}" IsReadOnly="False" IsRequired="True">
+                <propertyGrid:PropertyStringControl.Visibility>
+                    <Binding Path="TagFieldName" 
+                             Converter="{StaticResource ParameterVisibilityCollapsedConverter}">
+                        <Binding.ConverterParameter>Album</Binding.ConverterParameter>
+                    </Binding>
+                </propertyGrid:PropertyStringControl.Visibility>                
+            </propertyGrid:PropertyStringControl>
+
+            <propertyGrid:PropertyStringEnumerableControl x:Name="ArtistEditor" 
+                                                          LabelColumnWidth="200"
+                                                          LabelText="Album Artists" IsRequired="True"
+                                                          Value="{Binding Tag.AlbumArtists, 
+                                                                          Mode=TwoWay, 
+                                                                          Converter={StaticResource ListConverter}, 
+                                                                          ConverterParameter={x:Type system:String}}" 
+                                                          IsReadOnly="False">
+                <propertyGrid:PropertyStringEnumerableControl.Visibility>
+                    <Binding Path="TagFieldName" 
+                             Converter="{StaticResource ParameterVisibilityCollapsedConverter}">
+                        <Binding.ConverterParameter>AlbumArtists</Binding.ConverterParameter>
+                    </Binding>
+                </propertyGrid:PropertyStringEnumerableControl.Visibility>
+            </propertyGrid:PropertyStringEnumerableControl>
+
+            <propertyGrid:PropertyUIntControl x:Name="TrackCountEditor" LabelColumnWidth="200" ValueMin="1" ValueMax="100" LabelText="Track Count" Value="{Binding Tag.TrackTotal, Mode=TwoWay}" IsReadOnly="False" IsRequired="True">
+                <propertyGrid:PropertyUIntControl.Visibility>
+                    <Binding Path="TagFieldName" 
+                             Converter="{StaticResource ParameterVisibilityCollapsedConverter}">
+                        <Binding.ConverterParameter>TrackCount</Binding.ConverterParameter>
+                    </Binding>
+                </propertyGrid:PropertyUIntControl.Visibility>                
+            </propertyGrid:PropertyUIntControl>
+
+            <propertyGrid:PropertyUIntControl x:Name="DiscCountEditor" LabelColumnWidth="200" ValueMin="1" ValueMax="100" LabelText="Disc Count" Value="{Binding Tag.DiscTotal, Mode=TwoWay}" IsReadOnly="False" IsRequired="True">
+                <propertyGrid:PropertyUIntControl.Visibility>
+                    <Binding Path="TagFieldName" 
+                             Converter="{StaticResource ParameterVisibilityCollapsedConverter}">
+                        <Binding.ConverterParameter>DiscCount</Binding.ConverterParameter>
+                    </Binding>
+                </propertyGrid:PropertyUIntControl.Visibility>                
+            </propertyGrid:PropertyUIntControl>
+
+
+            <propertyGrid:PropertyStringEnumerableControl x:Name="GenreEditor" 
+                                                          LabelColumnWidth="200" LabelText="Genres" 
+                                                          Value="{Binding Tag.Genres, Mode=TwoWay, Converter={StaticResource ListToObservableCollectionParameterConverter}, ConverterParameter={x:Type system:String}}" 
+                                                          IsReadOnly="False" IsRequired="True">
+                <propertyGrid:PropertyStringEnumerableControl.Visibility>
+                    <Binding Path="TagFieldName" 
+                             Converter="{StaticResource ParameterVisibilityCollapsedConverter}">
+                        <Binding.ConverterParameter>Genres</Binding.ConverterParameter>
+                    </Binding>
+                </propertyGrid:PropertyStringEnumerableControl.Visibility>                
+            </propertyGrid:PropertyStringEnumerableControl>
+
+            <local:TagPictureView x:Name="ArtworkEditor" 
+                                  Visibility="{Binding TagFieldName, 
+                                                       Converter={StaticResource ParameterVisibilityCollapsedConverter},
+                                                       ConverterParameter=Artwork}" />
+
+        </ListBox>
+    </Grid>
+</UserControl>

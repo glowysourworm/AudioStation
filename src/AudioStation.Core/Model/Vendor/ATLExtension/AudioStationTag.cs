@@ -93,7 +93,11 @@ namespace AudioStation.Core.Model.Vendor.ATLExtension
             this.TrackNumber = this.Track.ToString();
 
             // Date
-            this.Date = new DateTime(this.Year, 1, 1);
+            if (this.Year >= DateTime.MinValue.Year)
+                this.Date = new DateTime(this.Year, 1, 1);
+
+            else
+                this.Date = DateTime.MinValue;
         }
 
         public void FromATL()

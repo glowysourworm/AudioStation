@@ -9,5 +9,50 @@
     <Style TargetType="MenuItem" x:Key="MainMenuSubItemStyle">
         <Setter Property="Background" Value="White" />
         <Setter Property="Margin" Value="0" />
-    </Style>    
+    </Style>
+
+    <Style TargetType="Menu" x:Key="UserContextMenuStyle">
+        <Setter Property="Background" Value="White" />
+        <Setter Property="BorderBrush" Value="Gray" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="ItemsPanel">
+            <Setter.Value>
+                <ItemsPanelTemplate>
+                    <StackPanel IsItemsHost="True" />
+                </ItemsPanelTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="GridSplitter" x:Key="GridSplitterStyle">
+        <Setter Property="Height" Value="5" />
+        <Setter Property="Background" Value="Gray" />
+        <Setter Property="BorderBrush" Value="Gray" />
+        <Setter Property="BorderThickness" Value="1" />
+    </Style>
+
+    <Style x:Key="UserMenuItemStyle" TargetType="MenuItem">
+
+        <Setter Property="Background" Value="White" />
+        <Setter Property="Foreground" Value="Gray" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="BorderBrush" Value="Transparent" />
+        <Setter Property="Padding" Value="5" />
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="HorizontalContentAlignment" Value="Left" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+
+        <Style.Triggers>
+            <Trigger Property="IsPressed" Value="True">
+                <Setter Property="Background" Value="#EEDDDDFF" />
+            </Trigger>
+        </Style.Triggers>
+
+    </Style>
+
+    <Style x:Key="UserMenuSeparatorStyle" TargetType="Separator">
+        <Setter Property="Height" Value="1" />
+        <Setter Property="Background" Value="Gray" />
+        <Setter Property="Margin" Value="0 3" />
+    </Style>
 </ResourceDictionary>

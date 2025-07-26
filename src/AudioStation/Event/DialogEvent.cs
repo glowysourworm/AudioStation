@@ -34,7 +34,8 @@ namespace AudioStation.Event
     public enum DialogEditorView
     {
         None,
-        TagView
+        TagView,
+        TagFieldView,
     }
 
     public class DialogEventData

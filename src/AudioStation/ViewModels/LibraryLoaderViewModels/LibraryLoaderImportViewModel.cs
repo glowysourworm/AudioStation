@@ -40,9 +40,9 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
 
         SimpleCommand _editOptionsCommand;
         SimpleCommand _editTagCommand;
+        SimpleCommand<string> _editTagGroupCommand;
         SimpleCommand _runImportCommand;
-        SimpleCommand _runAcoustIDCommand;
-        SimpleCommand _runMusicBrainzCommand;
+        SimpleCommand _runChromaprintLookupCommand;
 
         public LibraryLoaderImportOptionsViewModel Options
         {
@@ -69,20 +69,20 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
             get { return _editTagCommand; }
             set { this.RaiseAndSetIfChanged(ref _editTagCommand, value); }
         }
+        public SimpleCommand<string> EditTagGroupCommand
+        {
+            get { return _editTagGroupCommand; }
+            set { this.RaiseAndSetIfChanged(ref _editTagGroupCommand, value); }
+        }
         public SimpleCommand RunImportCommand
         {
             get { return _runImportCommand; }
             set { this.RaiseAndSetIfChanged(ref _runImportCommand, value); }
         }
-        public SimpleCommand RunAcoustIDCommand
+        public SimpleCommand RunAcousticFingerprintCommand
         {
-            get { return _runAcoustIDCommand; }
-            set { this.RaiseAndSetIfChanged(ref _runAcoustIDCommand, value); }
-        }
-        public SimpleCommand RunMusicBrainzCommand
-        {
-            get { return _runMusicBrainzCommand; }
-            set { this.RaiseAndSetIfChanged(ref _runMusicBrainzCommand, value); }
+            get { return _runChromaprintLookupCommand; }
+            set { this.RaiseAndSetIfChanged(ref _runChromaprintLookupCommand, value); }
         }
 
         public LibraryLoaderImportViewModel(IConfigurationManager configurationManager,
@@ -112,7 +112,13 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
             {
                 EditTag();
 
-            }, CanEditTags);
+            }, CanEditTag);
+
+            this.EditTagGroupCommand = new SimpleCommand<string>((fieldName) =>
+            {
+                EditTagGroup(fieldName);
+
+            }, CanEditTagGroup);
 
             this.RunImportCommand = new SimpleCommand(async () =>
             {
@@ -120,17 +126,14 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
 
             }, CanRunImport);
 
-            this.RunAcoustIDCommand = new SimpleCommand(async () =>
+            this.RunAcousticFingerprintCommand = new SimpleCommand(async () =>
             {
                 await RunAcoustID();
 
+                if (CanRunMusicBrainz())
+                    await RunMusicBrainz();
+
             }, CanRunAcoustID);
-
-            this.RunMusicBrainzCommand = new SimpleCommand(async () =>
-            {
-                await RunMusicBrainz();
-
-            }, CanRunMusicBrainz);
 
             this.EditOptionsCommand = new SimpleCommand(() =>
             {
@@ -173,9 +176,13 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
             ClearSourceFiles();
         }
 
-        private bool CanEditTags()
+        private bool CanEditTag()
         {
             return this.SourceFileSelectedCount == 1;
+        }
+        private bool CanEditTagGroup(string fieldName)
+        {
+            return this.SourceFileSelectedCount > 1;
         }
         private bool CanRunImport()
         {
@@ -203,9 +210,9 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
 
             this.EditOptionsCommand.RaiseCanExecuteChanged();
             this.EditTagCommand.RaiseCanExecuteChanged();
+            this.EditTagGroupCommand.RaiseCanExecuteChanged(string.Empty);
             this.RunImportCommand.RaiseCanExecuteChanged();
-            this.RunAcoustIDCommand.RaiseCanExecuteChanged();
-            this.RunMusicBrainzCommand.RaiseCanExecuteChanged();
+            this.RunAcousticFingerprintCommand.RaiseCanExecuteChanged();
         }
 
         private void RefreshImportFiles(bool useNativeFileIO)
@@ -315,6 +322,45 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
                 {
                     // Update Import File (view model)(still in new memory only)
                     firstFile.SaveTagEdit(viewModel);
+                }
+            }
+            catch (Exception ex)
+            {
+                ApplicationHelpers.Log("Application error:  {0}", LogMessageType.General, LogLevel.Error, ex, ex.Message);
+                throw ex;
+            }
+        }
+
+        private void EditTagGroup(string fieldName)
+        {
+            var inputFiles = _sourceFiles.Where(x => x.IsSelected).ToList();
+            var firstFile = inputFiles.FirstOrDefault();
+
+            if (firstFile == null)
+                return;
+
+            // Base the tag view model on the first input. Then, build a group tag
+            // from there.
+            //
+            try
+            {
+                // Create view model for editing
+                var viewModel = new DialogTagFieldEditorViewModel()
+                {
+                    TagFieldName = fieldName
+                };
+
+                // Show Tag Editor (ONLY UPDATES NEW VIEW-MODEL! WE MUST MAP THE RESULT BACK!)
+                var dialogResult = _dialogController.ShowDialogWindowSync(DialogEventData.ShowDialogEditor("Tag Editor (Group)", DialogEditorView.TagFieldView, viewModel));
+
+                // User wishes to save the data
+                if (dialogResult)
+                {
+                    foreach (var file in inputFiles)
+                    {
+                        // Update Import File:  Group Fields Only (view model) (still in new memory only)
+                        file.SaveTagFieldEdit(fieldName, viewModel.Tag);
+                    }
                 }
             }
             catch (Exception ex)

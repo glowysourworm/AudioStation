@@ -454,6 +454,47 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
             Update();
         }
 
+        public void SaveTagFieldEdit(string fieldName, IAudioStationTag editTag)
+        {
+            switch (fieldName)
+            {
+                case "AlbumArtists":
+                    _tagDirty.AlbumArtists = editTag.AlbumArtists;
+                    break;
+                case "Album":
+                    if (!string.IsNullOrWhiteSpace(editTag.Album))
+                    {
+                        _tagDirty.Album = editTag.Album;
+                    }
+                    break;
+                case "Genres":
+                    _tagDirty.Genres = editTag.Genres;
+                    break;
+                case "TrackCount":
+                    if (editTag.TrackTotal > 0)
+                    {
+                        _tagDirty.TrackTotal = editTag.TrackTotal;
+                    }
+                    break;
+                case "DiscCount":
+                    if (editTag.DiscTotal > 0)
+                    {
+                        _tagDirty.DiscTotal = editTag.DiscTotal;
+                    }
+                    break;
+                case "Artwork":
+                    _tagDirty.EmbeddedPictures = editTag.EmbeddedPictures;
+                    break;
+                default:
+                    throw new Exception("Unhandled group tag edit field name:  LibraryLoaderImportViewModel.cs");
+            }
+
+            // Set ATL Fields
+            _tagDirty.ToATL();
+
+            Update();
+        }
+
         private void CopyMusicBrainzToTag()
         {
             // Update our dirty copy of the tag

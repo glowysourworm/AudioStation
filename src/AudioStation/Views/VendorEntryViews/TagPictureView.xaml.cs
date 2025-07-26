@@ -10,19 +10,17 @@ using AudioStation.ViewModels.Vendor.ATLViewModel;
 
 using Microsoft.Extensions.Logging;
 
-using SimpleWpf.IocFramework.Application.Attribute;
+using SimpleWpf.IocFramework.Application;
 
 namespace AudioStation.Views.VendorEntryViews
 {
-    [IocExportDefault]
     public partial class TagPictureView : UserControl
     {
         readonly IImageCacheController _imageCacheController;
 
-        [IocImportingConstructor]
-        public TagPictureView(IImageCacheController imageCacheController)
+        public TagPictureView()
         {
-            _imageCacheController = imageCacheController;
+            _imageCacheController = IocContainer.Get<IImageCacheController>();
 
             InitializeComponent();
         }

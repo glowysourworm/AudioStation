@@ -222,6 +222,12 @@ namespace AudioStation.Controller
                                 DataContext = data.DataContext
                             };
                             break;
+                        case DialogEditorView.TagFieldView:
+                            _dialogWindow.DataContext = new TagFieldView()
+                            {
+                                DataContext = data.DataContext
+                            };
+                            break;
                         case DialogEditorView.None:
                         default:
                             throw new Exception("Unhandled dialog editor view type:  DialogController.cs");
