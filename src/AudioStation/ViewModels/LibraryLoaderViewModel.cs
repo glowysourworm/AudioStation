@@ -5,6 +5,7 @@ using AudioStation.Core.Component.LibraryLoaderComponent;
 using AudioStation.Core.Utility;
 using AudioStation.Event.LibraryLoaderEvent;
 using AudioStation.ViewModels.LibraryLoaderViewModels;
+using AudioStation.ViewModels.LibraryLoaderViewModels.Import;
 
 using SimpleWpf.Extensions.ObservableCollection;
 using SimpleWpf.IocFramework.EventAggregation;

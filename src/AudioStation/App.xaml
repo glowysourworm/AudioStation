@@ -1,70 +1,27 @@
 ﻿<Application x:Class="AudioStation.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="clr-namespace:AudioStation"             
-			 xmlns:converter="clr-namespace:AudioStation.Views.Converter"             
-             xmlns:simpleConverter="clr-namespace:SimpleWpf.UI.Converter;assembly=SimpleWpf.UI"
-             xmlns:templateSelector="clr-namespace:AudioStation.Views.TemplateSelector">
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    
     <Application.Resources>
-
-        <!-- TEST CONVERTERS (go to simple library) -->
-        <converter:ListConverter x:Key="ListConverter" />
-
-        <!-- Local Converters -->
-        <converter:AlternationIndexBackgroundConverter x:Key="AlternationIndexBackgroundConverter" />
-        <converter:StringArrayConverter x:Key="StringArrayConverter" />
-        <converter:MusicBrainzValidColorConverter x:Key="MusicBrainzValidColorConverter" />
-        <converter:ArtworkFileConverter x:Key="ArtworkFileConverter" />
-        <converter:MusicBrainzConverter x:Key="MusicBrainzConverter" />
-        <converter:MetaEntryConverter x:Key="MetaEntryConverter" />
-        <converter:TagIPictureConverter x:Key="TagIPictureConverter" />
-        <converter:PlayStopPauseParameterBoolConverter x:Key="PlayStopPauseParameterBoolConverter" />
-        <converter:RatioParameterConverter x:Key="RatioParameterConverter" />
-        <converter:NowPlayingBoolConverter x:Key="NowPlayingBoolConverter" />
-        <converter:NowPlayingPlaylistBoolConverter x:Key="NowPlayingPlaylistBoolConverter" />
-        <converter:StringLengthConverter x:Key="StringLengthConverter" />
-        <converter:ValidationBrushConverter x:Key="ValidationBrushConverter" />
-        <converter:ValidationForegroundParameterConverter x:Key="ValidationForegroundParameterConverter" />
-        <converter:ImportStepForegroundParameterConverter x:Key="ImportStepForegroundParameterConverter" />
-        <converter:LibraryLoaderImportTagForegroundConverter x:Key="LibraryLoaderImportTagForegroundConverter" />
-
-        <!-- SimpleWpf.UI Converters -->
-        <simpleConverter:BoolInverseConverter x:Key="BoolInverseConverter" />
-        <simpleConverter:BoolVisibilityCollapseConverter x:Key="BoolVisibilityCollapseConverter" />
-        <simpleConverter:BoolInverseVisibilityCollapseConverter x:Key="BoolInverseVisibilityCollapseConverter" />
-        <simpleConverter:EnumFilterParameterConverter x:Key="EnumFilterParameterConverter" />
-        <simpleConverter:EnumObservableCollectionConverter x:Key="EnumObservableCollectionConverter" />
-        <simpleConverter:NonNullVisibilityConverter x:Key="NonNullVisibilityConverter" />
-        <simpleConverter:NullVisibilityConverter x:Key="NullVisibilityConverter" />
-        <simpleConverter:ParameterEqualityBoolConverter x:Key="ParameterEqualityBoolConverter" />
-        <simpleConverter:ParameterProviderBoolConverter x:Key="ParameterProviderBoolConverter" />
-        <simpleConverter:ParameterProviderBoolInverseConverter x:Key="ParameterProviderBoolInverseConverter" />
-        <simpleConverter:ParameterVisibilityCollapsedConverter x:Key="ParameterVisibilityCollapsedConverter" />
-        <simpleConverter:ParameterVisibilityCollapsedInverseConverter x:Key="ParameterVisibilityCollapsedInverseConverter" />
-        <simpleConverter:TimeSpanMillisecondsConverter x:Key="TimeSpanMillisecondsConverter" />
-        <simpleConverter:TimeSpanRatioParameterConverter x:Key="TimeSpanRatioParameterConverter" />
-
-        <simpleConverter:BoolORMultiConverter x:Key="BoolORMultiConverter" />
-        <simpleConverter:BoolANDMultiConverter x:Key="BoolANDMultiConverter" />
-        <simpleConverter:BoolANDParameterMultiConverter x:Key="BoolANDParameterMultiConverter" />
-        <simpleConverter:BoolANDVisibilityMultiConverter x:Key="BoolANDVisibilityMultiConverter" />
-        <simpleConverter:BoolORParameterMultiConverter x:Key="BoolORParameterMultiConverter" />
-        <simpleConverter:BoolToWaitCursorConverter x:Key="BoolToWaitCursorConverter" />
-        <simpleConverter:ArrayToObservableCollectionParameterConverter x:Key="ArrayToObservableCollectionParameterConverter" />
-        <simpleConverter:IEnumerableToObservableCollectionParameterConverter x:Key="IEnumerableToObservableCollectionParameterConverter" />
-        <simpleConverter:ListToObservableCollectionParameterConverter x:Key="ListToObservableCollectionParameterConverter" />
-
-        <!-- Template Selectors -->
-        <templateSelector:LogItemTemplateSelector x:Key="LogItemTemplateSelector" />
-        <templateSelector:LibraryWorkItemContainerStyleSelector x:Key="LibraryWorkItemContainerStyleSelector" />
-        <templateSelector:LogItemContainerStyleSelector x:Key="LogItemContainerStyleSelector" />
-
-        <ResourceDictionary x:Key="StyleResources">
+        <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="pack://application:,,,/AudioStation;Component/Resources/TransparentItemContainerStyle.xaml" />
+                <ResourceDictionary Source="/Resources/MainComponentResources.xaml" />
+                <ResourceDictionary Source="/Resources/ThemeColorsAndBrushes.xaml" />
+                <ResourceDictionary Source="/Resources/ListBoxItemStyles.xaml" />
+                <ResourceDictionary Source="/Resources/ButtonStyles.xaml" />
+                <ResourceDictionary Source="/Resources/TextBlockStyles.xaml" />
+                <ResourceDictionary Source="/Resources/MenuControlStyles.xaml" />
+                <ResourceDictionary Source="/Resources/TabControlStyles.xaml" />
+                <ResourceDictionary Source="/Resources/TextBoxStyles.xaml" />
+                <ResourceDictionary Source="/Resources/ComboBoxStyles.xaml" />
+                <ResourceDictionary Source="/Resources/LibraryWorkItemDataTemplates.xaml" />
+                <ResourceDictionary Source="/Resources/LogDataTemplates.xaml" />
+                <ResourceDictionary Source="/Resources/DataGridStyles.xaml" />
+                <ResourceDictionary Source="/Resources/MainThemeStyles.xaml" />
+                <ResourceDictionary Source="/Resources/PropertyGridStyles.xaml" />
+                <ResourceDictionary Source="/Resources/LibraryLoaderImportFileTemplates.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
-
     </Application.Resources>
    
 </Application>

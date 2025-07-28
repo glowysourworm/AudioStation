@@ -1,6 +1,6 @@
 ﻿using AudioStation.Core.Database.AudioStationDatabase;
 using AudioStation.Core.Model;
-using AudioStation.EventHandler;
+using AudioStation.ViewModels.LibraryLoaderViewModels.Import;
 using AudioStation.ViewModels.LibraryViewModels;
 
 using static AudioStation.EventHandler.DialogEventHandlers;
@@ -42,6 +42,12 @@ namespace AudioStation.Component.Interface
         /// <summary>
         /// Converts any non-mp3 files to mp3 files and puts them in a special staging folder to be imported.
         /// </summary>
-        Task ConvertFiles(IEnumerable<string> convertibleFiles, Action<double, string> progressCallback); 
+        Task ConvertFiles(IEnumerable<string> convertibleFiles, Action<double, string> progressCallback);
+
+        /// <summary>
+        /// Loads a import directory tree (recursively) and returns the base directory
+        /// </summary>
+        Task<LibraryLoaderImportTreeViewModel?> LoadImportFiles(LibraryLoaderImportOptionsViewModel options,
+                                                                DialogProgressHandler progressHandler);
     }
 }

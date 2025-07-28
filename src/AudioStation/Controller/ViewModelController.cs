@@ -6,6 +6,7 @@ using AudioStation.Core.Component.Vendor.Bandcamp.Interface;
 using AudioStation.Service.Interface;
 using AudioStation.ViewModels;
 using AudioStation.ViewModels.LibraryLoaderViewModels;
+using AudioStation.ViewModels.LibraryLoaderViewModels.Import;
 using AudioStation.ViewModels.Vendor;
 
 using SimpleWpf.IocFramework.Application.Attribute;
@@ -56,7 +57,8 @@ namespace AudioStation.Controller
                                                                              dialogController, 
                                                                              eventAggregator, 
                                                                              libraryImporter,
-                                                                             tagCacheController);
+                                                                             tagCacheController, 
+                                                                             viewModelLoader);
 
             _libraryLoaderImportRadioViewModel = new LibraryLoaderImportRadioViewModel(configurationManager, dialogController);
             _libraryLoaderDownloadMusicBrainzViewModel = new LibraryLoaderDownloadMusicBrainzViewModel(modelController, configurationManager, dialogController);

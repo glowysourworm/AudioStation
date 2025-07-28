@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 using SimpleWpf.Extensions;
+using SimpleWpf.ViewModel;
 
 namespace AudioStation.ViewModels.LibraryLoaderViewModels
 {

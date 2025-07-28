@@ -1,7 +1,7 @@
 ﻿using AudioStation.Core.Component;
 using AudioStation.Core.Model;
 
-using SimpleWpf.Extensions;
+using SimpleWpf.ViewModel;
 
 namespace AudioStation.Event.DialogEvents
 {

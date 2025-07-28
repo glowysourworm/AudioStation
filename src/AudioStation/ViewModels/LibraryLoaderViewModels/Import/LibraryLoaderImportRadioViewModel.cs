@@ -1,24 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 using AudioStation.Controller.Interface;
 using AudioStation.Core.Component.Interface;
-using AudioStation.Core.Model;
 using AudioStation.Core.Utility;
-using AudioStation.EventHandler;
 
-using SimpleWpf.Extensions;
 using SimpleWpf.Extensions.Command;
-using SimpleWpf.IocFramework.Application.Attribute;
 
 using static AudioStation.EventHandler.DialogEventHandlers;
 
-namespace AudioStation.ViewModels.LibraryLoaderViewModels
+namespace AudioStation.ViewModels.LibraryLoaderViewModels.Import
 {
     public class LibraryLoaderImportRadioViewModel : PrimaryViewModelBase
     {
@@ -30,17 +21,17 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
         public ObservableCollection<string> ImportFilesStaged
         {
             get { return _importFilesStaged; }
-            set { this.RaiseAndSetIfChanged(ref _importFilesStaged, value); }
+            set { RaiseAndSetIfChanged(ref _importFilesStaged, value); }
         }
         public string ImportDirectory
         {
             get { return _importDirectory; }
-            set { this.RaiseAndSetIfChanged(ref _importDirectory, value); }
+            set { RaiseAndSetIfChanged(ref _importDirectory, value); }
         }
         public SimpleCommand RunImportCommand
         {
             get { return _runImportCommand; }
-            set { this.RaiseAndSetIfChanged(ref _runImportCommand, value); }
+            set { RaiseAndSetIfChanged(ref _runImportCommand, value); }
         }
 
         public LibraryLoaderImportRadioViewModel(IConfigurationManager configurationManager, IDialogController dialogController)
@@ -80,7 +71,7 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
 
         public override void Dispose()
         {
-            
+
         }
     }
 }

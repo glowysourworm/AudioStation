@@ -1,0 +1,60 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"			 
+                    xmlns:converter="clr-namespace:AudioStation.Views.Converter"             
+                    xmlns:simpleConverter="clr-namespace:SimpleWpf.UI.Converter;assembly=SimpleWpf.UI"
+                    xmlns:templateSelector="clr-namespace:AudioStation.Views.TemplateSelector">
+    
+    <!-- TEST CONVERTERS (go to simple library) -->
+    <converter:ListConverter x:Key="ListConverter" />
+
+    <!-- Local Converters -->
+    <converter:AlternationIndexBackgroundConverter x:Key="AlternationIndexBackgroundConverter" />
+    <converter:StringArrayConverter x:Key="StringArrayConverter" />
+    <converter:MusicBrainzValidColorConverter x:Key="MusicBrainzValidColorConverter" />
+    <converter:ArtworkFileConverter x:Key="ArtworkFileConverter" />
+    <converter:MusicBrainzConverter x:Key="MusicBrainzConverter" />
+    <converter:MetaEntryConverter x:Key="MetaEntryConverter" />
+    <converter:TagIPictureConverter x:Key="TagIPictureConverter" />
+    <converter:PlayStopPauseParameterBoolConverter x:Key="PlayStopPauseParameterBoolConverter" />
+    <converter:RatioParameterConverter x:Key="RatioParameterConverter" />
+    <converter:NowPlayingBoolConverter x:Key="NowPlayingBoolConverter" />
+    <converter:NowPlayingPlaylistBoolConverter x:Key="NowPlayingPlaylistBoolConverter" />
+    <converter:StringLengthConverter x:Key="StringLengthConverter" />
+    <converter:ValidationBrushConverter x:Key="ValidationBrushConverter" />
+    <converter:ValidationForegroundParameterConverter x:Key="ValidationForegroundParameterConverter" />
+    <converter:ImportStepForegroundParameterConverter x:Key="ImportStepForegroundParameterConverter" />
+    <converter:LibraryLoaderImportTagForegroundConverter x:Key="LibraryLoaderImportTagForegroundConverter" />
+
+    <!-- SimpleWpf.UI Converters -->
+    <simpleConverter:BoolInverseConverter x:Key="BoolInverseConverter" />
+    <simpleConverter:BoolVisibilityCollapseConverter x:Key="BoolVisibilityCollapseConverter" />
+    <simpleConverter:BoolInverseVisibilityCollapseConverter x:Key="BoolInverseVisibilityCollapseConverter" />
+    <simpleConverter:EnumFilterParameterConverter x:Key="EnumFilterParameterConverter" />
+    <simpleConverter:EnumObservableCollectionConverter x:Key="EnumObservableCollectionConverter" />
+    <simpleConverter:NonNullVisibilityConverter x:Key="NonNullVisibilityConverter" />
+    <simpleConverter:NullVisibilityConverter x:Key="NullVisibilityConverter" />
+    <simpleConverter:ParameterEqualityBoolConverter x:Key="ParameterEqualityBoolConverter" />
+    <simpleConverter:ParameterProviderBoolConverter x:Key="ParameterProviderBoolConverter" />
+    <simpleConverter:ParameterProviderBoolInverseConverter x:Key="ParameterProviderBoolInverseConverter" />
+    <simpleConverter:ParameterVisibilityCollapsedConverter x:Key="ParameterVisibilityCollapsedConverter" />
+    <simpleConverter:ParameterVisibilityCollapsedInverseConverter x:Key="ParameterVisibilityCollapsedInverseConverter" />
+    <simpleConverter:TimeSpanMillisecondsConverter x:Key="TimeSpanMillisecondsConverter" />
+    <simpleConverter:TimeSpanRatioParameterConverter x:Key="TimeSpanRatioParameterConverter" />
+
+    <simpleConverter:BoolORMultiConverter x:Key="BoolORMultiConverter" />
+    <simpleConverter:BoolANDMultiConverter x:Key="BoolANDMultiConverter" />
+    <simpleConverter:BoolANDParameterMultiConverter x:Key="BoolANDParameterMultiConverter" />
+    <simpleConverter:BoolANDVisibilityMultiConverter x:Key="BoolANDVisibilityMultiConverter" />
+    <simpleConverter:BoolORParameterMultiConverter x:Key="BoolORParameterMultiConverter" />
+    <simpleConverter:BoolToWaitCursorConverter x:Key="BoolToWaitCursorConverter" />
+    <simpleConverter:ArrayToObservableCollectionParameterConverter x:Key="ArrayToObservableCollectionParameterConverter" />
+    <simpleConverter:IEnumerableToObservableCollectionParameterConverter x:Key="IEnumerableToObservableCollectionParameterConverter" />
+    <simpleConverter:ListToObservableCollectionParameterConverter x:Key="ListToObservableCollectionParameterConverter" />
+
+    <!-- Template Selectors -->
+    <templateSelector:LogItemTemplateSelector x:Key="LogItemTemplateSelector" />
+    <templateSelector:LibraryWorkItemContainerStyleSelector x:Key="LibraryWorkItemContainerStyleSelector" />
+    <templateSelector:LogItemContainerStyleSelector x:Key="LogItemContainerStyleSelector" />
+    <templateSelector:LibraryLoaderImportFileTemplateSelector x:Key="LibraryLoaderImportFileTemplateSelector" />
+    
+</ResourceDictionary>

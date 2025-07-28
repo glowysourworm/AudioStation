@@ -5,6 +5,7 @@ using AudioStation.ViewModels.LibraryLoaderViewModels;
 using AudioStation.ViewModels.LogViewModels;
 
 using SimpleWpf.Extensions;
+using SimpleWpf.ViewModel;
 
 namespace AudioStation.ViewModels
 {

@@ -12,8 +12,9 @@ using AudioStation.ViewModels.Vendor.MusicBrainzViewModel;
 
 using SimpleWpf.Extensions;
 using SimpleWpf.Extensions.ObservableCollection;
+using SimpleWpf.ViewModel;
 
-namespace AudioStation.ViewModels.LibraryLoaderViewModels
+namespace AudioStation.ViewModels.LibraryLoaderViewModels.Import
 {
     public class LibraryLoaderImportOutputViewModel : ViewModelBase, ILibraryLoaderImportOutput
     {
@@ -39,82 +40,82 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
         public string DestinationFolderBase
         {
             get { return _destinationFolderBase; }
-            set { this.RaiseAndSetIfChanged(ref _destinationFolderBase, value); }
+            set { RaiseAndSetIfChanged(ref _destinationFolderBase, value); }
         }
         public string DestinationPathCalculated
         {
             get { return _destinationPathCalculated; }
-            set { this.RaiseAndSetIfChanged(ref _destinationPathCalculated, value); }
+            set { RaiseAndSetIfChanged(ref _destinationPathCalculated, value); }
         }
         public ObservableCollection<string> LogMessages
         {
             get { return _logMessages; }
-            set { this.RaiseAndSetIfChanged(ref _logMessages, value); }
+            set { RaiseAndSetIfChanged(ref _logMessages, value); }
         }
         public ObservableCollection<LookupResultViewModel> AcoustIDResults
         {
             get { return _acoustIDResults; }
-            set { this.RaiseAndSetIfChanged(ref _acoustIDResults, value); }
+            set { RaiseAndSetIfChanged(ref _acoustIDResults, value); }
         }
         public ObservableCollection<MusicBrainzRecordingViewModel> MusicBrainzRecordingMatches
         {
             get { return _musicBrainzRecordingMatches; }
-            set { this.RaiseAndSetIfChanged(ref _musicBrainzRecordingMatches, value); }
+            set { RaiseAndSetIfChanged(ref _musicBrainzRecordingMatches, value); }
         }
         public ObservableCollection<MusicBrainzCombinedLibraryEntryRecord> MusicBrainzCombinedRecords
         {
             get { return _musicBrainzCombinedRecords; }
-            set { this.RaiseAndSetIfChanged(ref _musicBrainzCombinedRecords, value); }
+            set { RaiseAndSetIfChanged(ref _musicBrainzCombinedRecords, value); }
         }
         public MusicBrainzCombinedLibraryEntryRecord FinalQueryRecord
         {
             get { return _finalQueryRecord; }
-            set { this.RaiseAndSetIfChanged(ref _finalQueryRecord, value); }
+            set { RaiseAndSetIfChanged(ref _finalQueryRecord, value); }
         }
         public Mp3FileReference ImportedRecord
         {
             get { return _importedRecord; }
-            set { this.RaiseAndSetIfChanged(ref _importedRecord, value); }
+            set { RaiseAndSetIfChanged(ref _importedRecord, value); }
         }
         public MusicBrainzPicture? BestFrontCover
         {
             get { return _bestFrontCover; }
-            set { this.RaiseAndSetIfChanged(ref _bestFrontCover, value); }
+            set { RaiseAndSetIfChanged(ref _bestFrontCover, value); }
         }
         public MusicBrainzPicture? BestBackCover
         {
             get { return _bestBackCover; }
-            set { this.RaiseAndSetIfChanged(ref _bestBackCover, value); }
+            set { RaiseAndSetIfChanged(ref _bestBackCover, value); }
         }
         public bool AcoustIDSuccess
         {
             get { return _acoustIDSuccess; }
-            set { this.RaiseAndSetIfChanged(ref _acoustIDSuccess, value); }
+            set { RaiseAndSetIfChanged(ref _acoustIDSuccess, value); }
         }
         public bool MusicBrainzRecordingMatchSuccess
         {
             get { return _musicBrainzRecordingMatchSuccess; }
-            set { this.RaiseAndSetIfChanged(ref _musicBrainzRecordingMatchSuccess, value); }
+            set { RaiseAndSetIfChanged(ref _musicBrainzRecordingMatchSuccess, value); }
         }
         public bool MusicBrainzCombinedRecordQuerySuccess
         {
             get { return _musicBrainzCombinedRecordQuerySuccess; }
-            set { this.RaiseAndSetIfChanged(ref _musicBrainzCombinedRecordQuerySuccess, value); }
+            set { RaiseAndSetIfChanged(ref _musicBrainzCombinedRecordQuerySuccess, value); }
         }
         public bool TagEmbeddingSuccess
         {
             get { return _tagEmbeddingSuccess; }
-            set { this.RaiseAndSetIfChanged(ref _tagEmbeddingSuccess, value); }
+            set { RaiseAndSetIfChanged(ref _tagEmbeddingSuccess, value); }
         }
         public bool Mp3FileMoveSuccess
         {
             get { return _mp3FileMoveSuccess; }
-            set { this.RaiseAndSetIfChanged(ref _mp3FileMoveSuccess, value); }
+            set { RaiseAndSetIfChanged(ref _mp3FileMoveSuccess, value); }
         }
         public bool Mp3FileImportSuccess
         {
             get { return _mp3FileImportSuccess; }
-            set { this.RaiseAndSetIfChanged(ref _mp3FileImportSuccess, value); }
+            set { RaiseAndSetIfChanged(ref _mp3FileImportSuccess, value); }
         }
 
 

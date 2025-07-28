@@ -1,4 +1,5 @@
 ﻿using SimpleWpf.Extensions;
+using SimpleWpf.ViewModel;
 
 namespace AudioStation.ViewModels.Controls
 {

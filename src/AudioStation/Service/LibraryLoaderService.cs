@@ -12,6 +12,7 @@ using AudioStation.Event.LibraryLoaderEvent;
 using AudioStation.Service.Interface;
 using AudioStation.ViewModels;
 using AudioStation.ViewModels.LibraryLoaderViewModels;
+using AudioStation.ViewModels.LibraryLoaderViewModels.Import;
 using AudioStation.ViewModels.LogViewModels;
 using AudioStation.ViewModels.Vendor.AcoustIDViewModel;
 using AudioStation.ViewModels.Vendor.MusicBrainzViewModel;

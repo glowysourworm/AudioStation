@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using AudioStation.Core.Model;
 
 using SimpleWpf.Extensions;
+using SimpleWpf.ViewModel;
 
 namespace AudioStation.ViewModels
 {

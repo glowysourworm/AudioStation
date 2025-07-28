@@ -1,8 +1,10 @@
 ﻿using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Windows.Controls;
 using System.Windows.Threading;
 
+using AudioStation.Component.Interface;
 using AudioStation.Controller.Interface;
 using AudioStation.Core.Component;
 using AudioStation.Core.Component.Interface;
@@ -17,6 +19,8 @@ using AudioStation.ViewModels.Vendor.MusicBrainzViewModel;
 
 using Microsoft.Extensions.Logging;
 
+using NAudio.Lame;
+
 using SimpleWpf.Extensions.Collection;
 using SimpleWpf.Extensions.Command;
 using SimpleWpf.Extensions.ObservableCollection;
@@ -24,7 +28,7 @@ using SimpleWpf.IocFramework.EventAggregation;
 
 using static AudioStation.EventHandler.DialogEventHandlers;
 
-namespace AudioStation.ViewModels.LibraryLoaderViewModels
+namespace AudioStation.ViewModels.LibraryLoaderViewModels.Import
 {
     public class LibraryLoaderImportViewModel : PrimaryViewModelBase
     {
@@ -33,10 +37,11 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
         private readonly IIocEventAggregator _eventAggregator;
         private readonly ILibraryImporter _libraryImporter;
         private readonly ITagCacheController _tagCacheController;
+        private readonly IViewModelLoader _viewModelLoader;
 
         LibraryLoaderImportOptionsViewModel _options;
 
-        NotifyingObservableCollection<LibraryLoaderImportFileViewModel> _sourceFiles;
+        LibraryLoaderImportTreeViewModel _sourceDirectory;
 
         SimpleCommand _editOptionsCommand;
         SimpleCommand _editTagCommand;
@@ -47,60 +52,62 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
         public LibraryLoaderImportOptionsViewModel Options
         {
             get { return _options; }
-            set { this.RaiseAndSetIfChanged(ref _options, value); }
+            set { RaiseAndSetIfChanged(ref _options, value); }
         }
-        public NotifyingObservableCollection<LibraryLoaderImportFileViewModel> SourceFiles
+        public LibraryLoaderImportTreeViewModel SourceDirectory
         {
-            get { return _sourceFiles; }
-            set { this.RaiseAndSetIfChanged(ref _sourceFiles, value); }
+            get { return _sourceDirectory; }
+            set { RaiseAndSetIfChanged(ref _sourceDirectory, value); }
         }
         public int SourceFileSelectedCount
         {
-            get { return _sourceFiles.Count(x => x.IsSelected); }
+            get { return _sourceDirectory == null ? 0 : _sourceDirectory.Count(x => x.IsSelected); }
             set { OnPropertyChanged("SourceFileSelectedCount"); }
         }
         public SimpleCommand EditOptionsCommand
         {
             get { return _editOptionsCommand; }
-            set { this.RaiseAndSetIfChanged(ref _editOptionsCommand, value); }
+            set { RaiseAndSetIfChanged(ref _editOptionsCommand, value); }
         }
         public SimpleCommand EditTagCommand
         {
             get { return _editTagCommand; }
-            set { this.RaiseAndSetIfChanged(ref _editTagCommand, value); }
+            set { RaiseAndSetIfChanged(ref _editTagCommand, value); }
         }
         public SimpleCommand<string> EditTagGroupCommand
         {
             get { return _editTagGroupCommand; }
-            set { this.RaiseAndSetIfChanged(ref _editTagGroupCommand, value); }
+            set { RaiseAndSetIfChanged(ref _editTagGroupCommand, value); }
         }
         public SimpleCommand RunImportCommand
         {
             get { return _runImportCommand; }
-            set { this.RaiseAndSetIfChanged(ref _runImportCommand, value); }
+            set { RaiseAndSetIfChanged(ref _runImportCommand, value); }
         }
         public SimpleCommand RunAcousticFingerprintCommand
         {
             get { return _runChromaprintLookupCommand; }
-            set { this.RaiseAndSetIfChanged(ref _runChromaprintLookupCommand, value); }
+            set { RaiseAndSetIfChanged(ref _runChromaprintLookupCommand, value); }
         }
 
         public LibraryLoaderImportViewModel(IConfigurationManager configurationManager,
                                             IDialogController dialogController,
                                             IIocEventAggregator eventAggregator,
                                             ILibraryImporter libraryImporter,
-                                            ITagCacheController tagCacheController)
+                                            ITagCacheController tagCacheController,
+                                            IViewModelLoader viewModelLoader)
         {
             _configurationManager = configurationManager;
             _dialogController = dialogController;
             _libraryImporter = libraryImporter;
             _eventAggregator = eventAggregator;
             _tagCacheController = tagCacheController;
+            _viewModelLoader = viewModelLoader;
 
             var configuration = configurationManager.GetConfiguration();
 
-            this.SourceFiles = new NotifyingObservableCollection<LibraryLoaderImportFileViewModel>();
             this.Options = new LibraryLoaderImportOptionsViewModel(configurationManager, dialogController);
+            this.SourceDirectory = null;
 
             // RunImport -> Complete
             //eventAggregator.GetEvent<LibraryLoaderWorkItemCompleteEvent>().Subscribe(payload =>
@@ -135,41 +142,34 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
 
             }, CanRunAcoustID);
 
-            this.EditOptionsCommand = new SimpleCommand(() =>
+            this.EditOptionsCommand = new SimpleCommand(async () =>
             {
+                // Synchronous
                 dialogController.ShowImportOptionsWindow(this.Options);
 
-                RefreshImportFiles(true);
-            });
+                // Show Loading
+                var loadingViewModel = new DialogLoadingViewModel()
+                {
+                    Message = "Loading Import Files",
+                    Progress = 0,
+                    ShowProgressBar = true
+                };
 
-            this.SourceFiles.ItemPropertyChanged += SourceFiles_ItemPropertyChanged;
+                eventAggregator.GetEvent<DialogEvent>().Publish(new DialogEventData(loadingViewModel));
+
+                await RefreshImportFiles((count,current, errorCount, message) => 
+                {
+                    loadingViewModel.Message = message;
+                    loadingViewModel.Progress = current / (double)count;
+                });
+
+                eventAggregator.GetEvent<DialogEvent>().Publish(DialogEventData.Dismiss());
+            });
         }
 
-        public override Task Initialize(DialogProgressHandler progressHandler)
+        public override async Task Initialize(DialogProgressHandler progressHandler)
         {
-            if (string.IsNullOrEmpty(this.Options.SourceFolder))
-                return Task.CompletedTask;
-
-            // Task Thread Issue:  Calling back for the directory search - while inside the
-            //                     Dispatcher invoke - was taking a lot of extra time (4-5 seconds!)
-            //                  
-            //                     We're going to call the file system before entering the 
-            //                     invoke - and also use the native IO.
-            //
-            var sourceFiles = CalculateSourceFiles(true);
-
-            // Load UI:  Dispatcher Only
-            //
-            if (sourceFiles.Any())
-            {
-                ApplicationHelpers.InvokeDispatcher(() =>
-                {
-                    this.SourceFiles.AddRange(sourceFiles);
-
-                }, DispatcherPriority.Normal);
-            }
-
-            return Task.CompletedTask;
+            await RefreshImportFiles(progressHandler);
         }
         public override void Dispose()
         {
@@ -187,8 +187,9 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
         private bool CanRunImport()
         {
             return this.SourceFileSelectedCount > 0 &&
-                   this.SourceFiles
-                       .Where(x => x.IsSelected)
+                   this.SourceDirectory
+                       .Where(x => x.IsSelected && !x.IsDirectory)
+                       .Cast<LibraryLoaderImportFileViewModel>()
                        .All(x => x.MinimumImportValid);
         }
         private bool CanRunAcoustID()
@@ -198,13 +199,13 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
         private bool CanRunMusicBrainz()
         {
             return this.SourceFileSelectedCount > 0 &&
-                   this.SourceFiles
-                       .Where(x => x.IsSelected)
+                   this.SourceDirectory
+                       .Where(x => x.IsSelected && !x.IsDirectory)
+                       .Cast<LibraryLoaderImportFileViewModel>()
                        .All(x => x.ImportOutput.AcoustIDSuccess && x.SelectedAcoustIDResult != null);
         }
 
-        private void SourceFiles_ItemPropertyChanged(NotifyingObservableCollection<LibraryLoaderImportFileViewModel> item1,
-                                                     LibraryLoaderImportFileViewModel item2, PropertyChangedEventArgs item3)
+        private void SourceDirectory_ItemPropertyChanged(PathViewModelUI item, PropertyChangedEventArgs eventArgs)
         {
             OnPropertyChanged("SourceFileSelectedCount");
 
@@ -215,89 +216,54 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
             this.RunAcousticFingerprintCommand.RaiseCanExecuteChanged();
         }
 
-        private void RefreshImportFiles(bool useNativeFileIO)
+        private async Task RefreshImportFiles(DialogProgressHandler progressHandler)
         {
-            if (!string.IsNullOrEmpty(this.Options.SourceFolder))
-            {
-                // Calculate Source Files
-                //
-                var sourceFiles = CalculateSourceFiles(useNativeFileIO);
-
-                // Load UI:  Dispatcher Only
-                //
-                this.SourceFiles.AddRange(sourceFiles);
-            }
-            else
-            {
-                ClearSourceFiles();
-            }
-        }
-
-        private IEnumerable<LibraryLoaderImportFileViewModel> CalculateSourceFiles(bool useNativeFileIO)
-        {
-            // Must have a valid configuration
-            if (!_configurationManager.ValidateConfiguration())
-                return Enumerable.Empty<LibraryLoaderImportFileViewModel>();
-
-            // May be on task thread; but still ok.
-            var configuration = _configurationManager.GetConfiguration();
-
-            var result = new List<string>();
-
-            // Task Thread / Dispatcher Thread:  During loading, there is a task thread, which must have access to create
-            //                                   these files; but there may be a dispatcher invoke (to complicate matters).
-            //                                   The NativeIO (FastGetFiles) will have problems with loading; and will take
-            //                                   longer than the Dispatcher thread (managed version).
+            // Initialization:     This task is run during initialization.
+            // 
+            // Task / Dispatcher:  We have to invoke the dispatcher from here so that the view model
+            //                     bindings to the UI don't throw exceptions.
             //
-            if (useNativeFileIO)
+            await ApplicationHelpers.BeginInvokeDispatcherAsync(async () =>
             {
-                result.AddRange(ApplicationHelpers.FastGetFiles(this.Options.SourceFolder, "*.mp3", SearchOption.AllDirectories));
-            }
-            else
-            {
-                result.AddRange(Directory.GetFiles(this.Options.SourceFolder, "*.mp3", SearchOption.AllDirectories));
-            }
+                if (!string.IsNullOrEmpty(this.Options.SourceFolder))
+                {
+                    // IViewModelLoader -> LoadImportFiles -> LibraryLoaderImportFileViewModel(...)
+                    //
+                    var importDirectory = await _viewModelLoader.LoadImportFiles(this.Options, progressHandler);
 
-            var directoryBase = configuration.DirectoryBase;
-            var subDirectory = this.Options.ImportAsType == LibraryEntryType.Music ? configuration.MusicSubDirectory :
-                               this.Options.ImportAsType == LibraryEntryType.AudioBook ? configuration.AudioBooksSubDirectory :
-                               string.Empty;
+                    if (importDirectory == null)
+                        return;
 
-            // Calculate base directory
-            var directory = Path.Combine(directoryBase, subDirectory);
+                    // Hook Events (Recursively)
+                    foreach (var sourceFile in  importDirectory.Where(x => !x.IsDirectory).Cast<LibraryLoaderImportFileViewModel>())
+                    {
+                        sourceFile.SelectAcoustIDEvent += ShowAcoustIDResults;
+                        sourceFile.SelectMusicBrainzEvent += ShowMusicBrainzResults;
+                        sourceFile.PlayAudioEvent += ShowSmallAudioPlayer;
+                    }
 
-            if (!string.IsNullOrWhiteSpace(this.Options.SourceFolderSearch))
-                return result.Where(x => StringHelpers.RegexMatchIC(this.Options.SourceFolderSearch, x))
-                                                      .Select(x => CreateSourceFile(x, directory));
-            else
-                return result.Select(x => CreateSourceFile(x, directory));
-        }
+                    // Set View Model
+                    this.SourceDirectory = importDirectory;
+                    this.SourceDirectory.ItemPropertyChanged += SourceDirectory_ItemPropertyChanged;
+                }
 
-        private LibraryLoaderImportFileViewModel CreateSourceFile(string fileName, string destinationDirectoryBase)
-        {
-            var viewModel = new LibraryLoaderImportFileViewModel(fileName, destinationDirectoryBase, this.Options);
-
-            viewModel.SelectAcoustIDEvent += ShowAcoustIDResults;
-            viewModel.SelectMusicBrainzEvent += ShowMusicBrainzResults;
-            viewModel.PlayAudioEvent += ShowSmallAudioPlayer;
-
-            return viewModel;
+            }, DispatcherPriority.Normal);
         }
 
         private void ClearSourceFiles()
         {
-            for (int index = this.SourceFiles.Count - 1; index >= 0; index--)
+            // Un-Hook Events (Recursively)
+            foreach (var file in this.SourceDirectory.Where(x => !x.IsDirectory).Cast<LibraryLoaderImportFileViewModel>())
             {
-                this.SourceFiles[index].SelectAcoustIDEvent -= ShowAcoustIDResults;
-                this.SourceFiles[index].SelectMusicBrainzEvent -= ShowMusicBrainzResults;
-                this.SourceFiles[index].PlayAudioEvent -= ShowSmallAudioPlayer;
-                this.SourceFiles.RemoveAt(index);
+                file.PlayAudioEvent -= ShowSmallAudioPlayer;
+                file.SelectAcoustIDEvent -= ShowAcoustIDResults;
+                file.SelectMusicBrainzEvent -= ShowMusicBrainzResults;
             }
         }
 
         private void EditTag()
         {
-            var inputFiles = _sourceFiles.Where(x => x.IsSelected).ToList();
+            var inputFiles = this.SourceDirectory.Where(x => !x.IsDirectory && x.IsSelected).Cast<LibraryLoaderImportFileViewModel>().ToList();
             var firstFile = inputFiles.FirstOrDefault();
 
             if (firstFile == null)
@@ -333,7 +299,7 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
 
         private void EditTagGroup(string fieldName)
         {
-            var inputFiles = _sourceFiles.Where(x => x.IsSelected).ToList();
+            var inputFiles = this.SourceDirectory.Where(x => !x.IsDirectory && x.IsSelected).Cast<LibraryLoaderImportFileViewModel>().ToList();
             var firstFile = inputFiles.FirstOrDefault();
 
             if (firstFile == null)
@@ -387,12 +353,12 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
                 ShowProgressBar = true
             };
             var progressCounter = 0;
-            var progressTotal = this.SourceFiles.Where(x => x.IsSelected).Count();
+            var progressTotal = this.SourceDirectory.Where(x => !x.IsDirectory && x.IsSelected).Count();
 
             // Show Loading...
             _eventAggregator.GetEvent<DialogEvent>().Publish(new DialogEventData(loadingViewModel));
 
-            foreach (var file in this.SourceFiles.Where(x => x.IsSelected))
+            foreach (var file in this.SourceDirectory.Where(x => !x.IsDirectory && x.IsSelected).Cast<LibraryLoaderImportFileViewModel>())
             {
                 loadingViewModel.Message = "Importing " + file.FileName;
 
@@ -421,7 +387,7 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
                     }
                 }
 
-                loadingViewModel.Progress = (++progressCounter) / (double)progressTotal;
+                loadingViewModel.Progress = ++progressCounter / (double)progressTotal;
             }
 
             // Dismiss
@@ -438,7 +404,7 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
             //
 
             var progressCounter = 0;
-            var progressTotal = this.SourceFiles.Where(x => x.IsSelected).Count();
+            var progressTotal = this.SourceDirectory.Where(x => !x.IsDirectory && x.IsSelected).Count();
 
             var loadingViewModel = new DialogLoadingViewModel()
             {
@@ -451,7 +417,7 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
             // Show Loading...
             _eventAggregator.GetEvent<DialogEvent>().Publish(new DialogEventData(loadingViewModel));
 
-            foreach (var selectedFile in this.SourceFiles.Where(x => x.IsSelected))
+            foreach (var selectedFile in this.SourceDirectory.Where(x => !x.IsDirectory && x.IsSelected).Cast<LibraryLoaderImportFileViewModel>())
             {
                 // Double Check (existing results)
                 if (!selectedFile.ImportOutput.AcoustIDSuccess)
@@ -471,7 +437,7 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
                     }
                 }
 
-                loadingViewModel.Progress = (++progressCounter) / (double)progressTotal;
+                loadingViewModel.Progress = ++progressCounter / (double)progressTotal;
             }
 
             // Dismiss
@@ -487,7 +453,7 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
             // 2) Run source files that are selected using ILibraryImporter
             //
             var progressCounter = 0;
-            var progressTotal = this.SourceFiles.Where(x => x.IsSelected).Count();
+            var progressTotal = this.SourceDirectory.Where(x => !x.IsDirectory && x.IsSelected).Count();
 
             var loadingViewModel = new DialogLoadingViewModel()
             {
@@ -500,7 +466,7 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
             // Show Loading...
             _eventAggregator.GetEvent<DialogEvent>().Publish(new DialogEventData(loadingViewModel));
 
-            foreach (var selectedFile in this.SourceFiles.Where(x => x.IsSelected))
+            foreach (var selectedFile in this.SourceDirectory.Where(x => !x.IsDirectory && x.IsSelected).Cast<LibraryLoaderImportFileViewModel>())
             {
                 // Double Check (existing records)
                 //
@@ -521,7 +487,7 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
                     }
                 }
 
-                loadingViewModel.Progress = (++progressCounter) / (double)progressTotal;
+                loadingViewModel.Progress = ++progressCounter / (double)progressTotal;
             }
 
             // Dismiss
@@ -531,7 +497,7 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
         private void ShowAcoustIDResults(LibraryLoaderImportFileViewModel selectedFile)
         {
             // Format AcoustID Output
-            string format = "Id={0}\nScore={1:P2}\nMusic Brainz Id={2}";
+            var format = "Id={0}\nScore={1:P2}\nMusic Brainz Id={2}";
 
             var oldSelection = selectedFile.SelectedAcoustIDResult;
             var dialogViewModel = new DialogSelectionListViewModel()
@@ -557,7 +523,7 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
         private void ShowMusicBrainzResults(LibraryLoaderImportFileViewModel selectedFile)
         {
             // Format Music Brainz Output
-            string format = "Id={0}\nArtist={1}\nAlbum={2}\nTrack={3}";
+            var format = "Id={0}\nArtist={1}\nAlbum={2}\nTrack={3}";
 
             var zippedCollections = selectedFile.ImportOutput
                                                 .AcoustIDResults

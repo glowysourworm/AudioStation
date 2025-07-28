@@ -3,6 +3,7 @@ using MetaBrainz.MusicBrainz.Interfaces.Entities;
 
 using SimpleWpf.Extensions;
 using SimpleWpf.Extensions.Collection;
+using SimpleWpf.ViewModel;
 
 namespace AudioStation.ViewModels.Vendor.MusicBrainzViewModel
 {

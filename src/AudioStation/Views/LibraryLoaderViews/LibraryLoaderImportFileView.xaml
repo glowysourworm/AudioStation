@@ -6,6 +6,7 @@
              xmlns:propertyGrid="clr-namespace:AudioStation.Controls.PropertyGrid"
              xmlns:controls="clr-namespace:AudioStation.Controls"
              xmlns:coreModel="clr-namespace:AudioStation.Core.Model;assembly=AudioStation.Core"
+             xmlns:viewModel="clr-namespace:AudioStation.ViewModels.LibraryLoaderViewModels"
              xmlns:simpleUI="clr-namespace:SimpleWpf.UI.Controls;assembly=SimpleWpf.UI">
     <Grid>
         <Grid.RowDefinitions>
@@ -21,16 +22,18 @@
 
         <ListBox Grid.Row="1" Margin="5" x:Name="ImportLB"
                  ItemsSource="{Binding SourceFiles}"
+                 ItemTemplateSelector="{StaticResource LibraryLoaderImportFileTemplateSelector}"
+                 ItemContainerStyle="{StaticResource HoverSelectItemContainerStyleWithAlternation_LibraryLoader}"
                  MouseDoubleClick="ImportLB_MouseDoubleClick"
                  SelectedValuePath="IsSelected"
                  SelectionChanged="ImportLB_SelectionChanged"
                  SelectionMode="Extended"
-                 AlternationCount="2"
-                 ItemContainerStyle="{StaticResource HoverSelectItemContainerStyleWithAlternation_LibraryLoader}"
+                 AlternationCount="2"                 
                  HorizontalContentAlignment="Stretch"
                  VirtualizingPanel.IsVirtualizing="True"
                  VirtualizingPanel.VirtualizationMode="Recycling"
                  VirtualizingPanel.CacheLength="3">
+            
             <ListBox.ContextMenu>
                 <ContextMenu>
 
@@ -81,243 +84,7 @@
                               IsEnabled="{Binding RunAcousticFingerprintCommand.IsReady}"/>
                 </ContextMenu>
             </ListBox.ContextMenu>
-            <ListBox.ItemTemplate>
-                <DataTemplate>
-                    
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
-                        </Grid.ColumnDefinitions>
-
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="*" />
-                        </Grid.RowDefinitions>
-
-                        <!-- Expander -->
-                        <ToggleButton x:Name="InputFileExpanderButton"
-                                      Click="InputFileExpanderButton_Click"
-                                      IsChecked="{Binding IsExpanded, Mode=TwoWay}">
-                            <ToggleButton.Template>
-                                <ControlTemplate TargetType="ToggleButton">
-                                    <Grid Background="Transparent">
-                                        <fa5:ImageAwesome Icon="Solid_PlusSquare"                                                     
-                                                    Style="{StaticResource FontAwesomeIconManagerViewPager}"
-                                                    Margin="3"
-                                                    Visibility="{Binding IsExpanded, Converter={StaticResource BoolInverseVisibilityCollapseConverter}}" />
-
-                                        <fa5:ImageAwesome Icon="Solid_MinusSquare"                                                     
-                                                    Style="{StaticResource FontAwesomeIconManagerViewPager}"
-                                                    Margin="3"
-                                                    Visibility="{Binding IsExpanded, Converter={StaticResource BoolVisibilityCollapseConverter}}" />
-                                    </Grid>
-                                </ControlTemplate>
-                            </ToggleButton.Template>
-                        </ToggleButton>                                      
-
-                        <!-- Import Indicators -->
-                        <StackPanel Orientation="Horizontal" Grid.Column="1">
-
-                            <fa5:ImageAwesome Icon="Solid_Tag" 
-                                            Margin="5"
-                                            Style="{StaticResource FontAwesomeIconManagerViewPager}"
-                                            ToolTip="Tag data is required to complete the import">
-                                <fa5:ImageAwesome.Foreground>
-                                    <MultiBinding Converter="{StaticResource LibraryLoaderImportTagForegroundConverter}">
-                                        <Binding Path="IsTagDirty" />
-                                        <Binding Path="MinimumImportValid" />
-                                        <Binding Path="InError" />
-                                    </MultiBinding>
-                                </fa5:ImageAwesome.Foreground>
-                            </fa5:ImageAwesome>
-
-                            <!--fa5:ImageAwesome Icon="Solid_VolumeUp" 
-                                            Margin="5"
-                                            Style="{StaticResource FontAwesomeIconManagerViewPager}"
-                                            ToolTip="AcoustID data may be downloaded prior to import; or after."
-                                            Foreground="{Binding ImportOutput.AcoustIDSuccess, 
-                                                                 Converter={StaticResource ImportStepForegroundParameterConverter},
-                                                                 ConverterParameter={x:Static Brushes.DodgerBlue}}" /-->
-                            <fa5:ImageAwesome Icon="Solid_Music" 
-                                            Margin="5"
-                                            ToolTip="Music Brainz data may be downloaded prior to import; or after."              
-                                            Style="{StaticResource FontAwesomeIconManagerViewPager}"
-                                            Foreground="{Binding ImportOutput.MusicBrainzRecordingMatchSuccess, 
-                                                                 Converter={StaticResource ImportStepForegroundParameterConverter},
-                                                                 ConverterParameter={x:Static Brushes.DodgerBlue}}" />
-                        </StackPanel>
-
-                        <!-- Import File Name -->
-                        <TextBlock Text="{Binding FileName}" 
-                                   Margin="5"
-                                   VerticalAlignment="Center"
-                                   TextWrapping="NoWrap"
-                                   TextTrimming="CharacterEllipsis"
-                                   FontSize="14"
-                                   Grid.Column="2" />
-                        
-                        <!-- RHS Control Panel -->
-                        <StackPanel Orientation="Horizontal" Grid.Column="3" Margin="3">
-                            
-                            <!-- Current Selection -->
-                            <TextBlock Style="{StaticResource LabelDetailTextBlock}" Foreground="#FF555555" Margin="0"
-                                       VerticalAlignment="Center"
-                                       Visibility="{Binding SelectedAcoustIDResult, Converter={StaticResource NonNullVisibilityConverter}}">
-                                <Run Text="AcoutID (" />
-                                <Run Text="{Binding SelectedAcoustIDResult.Score, StringFormat=P2}" />
-                                <Run Text=")" />
-                            </TextBlock>
-                            
-                            <TextBlock Style="{StaticResource LabelDetailTextBlock}" Foreground="#FF555555" Margin="5 0 0 0"
-                                       VerticalAlignment="Center"
-                                       Visibility="{Binding SelectedMusicBrainzRecordingMatch, Converter={StaticResource NonNullVisibilityConverter}}">
-                                <Run Text="Music Brainz (" />
-                                <Run Text="{Binding SelectedMusicBrainzRecordingMatch.ShortString, Mode=OneWay}" />
-                                <Run Text=")" />
-                            </TextBlock>                            
-                            
-                            <!-- Select Buttons -->
-                            <Button Style="{StaticResource UserControlButton}" 
-                                    Command="{Binding SelectMusicBrainzCommand}"
-                                    Margin="5 0 0 0"
-                                    Visibility="{Binding ImportOutput.MusicBrainzRecordingMatchSuccess, Converter={StaticResource BoolVisibilityCollapseConverter}}">
-                                <StackPanel Orientation="Horizontal" Margin="3 1" VerticalAlignment="Center">
-                                    <TextBlock Text="Select " VerticalAlignment="Center" FontSize="12" />
-                                    <fa5:ImageAwesome Icon="Solid_Music" Style="{StaticResource FontAwesomeIconManagerViewPager}" Margin="5 0 0 0" />
-                                </StackPanel>
-                            </Button>
-                            <Button Style="{StaticResource UserControlButton}" 
-                                    Command="{Binding PlayAudioCommand}"
-                                    Margin="5 0 0 0">
-                                <fa5:ImageAwesome Icon="Solid_Play" 
-                                                  Style="{StaticResource FontAwesomeIconManagerViewPager}" 
-                                                  Margin="1" />
-                            </Button>
-                        </StackPanel>
-
-                        <!-- Expander Content -->
-                        <Border Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="4" Margin="0" 
-                                Background="White"
-                                BorderBrush="Gray" BorderThickness="1"
-                                Visibility="{Binding IsExpanded, Converter={StaticResource BoolVisibilityCollapseConverter}}">
-                            <Grid Margin="3">
-
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="Auto" />
-                                </Grid.ColumnDefinitions>
-                                
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto" />
-                                    <RowDefinition Height="Auto" />
-                                    <RowDefinition Height="Auto" />
-                                    <RowDefinition Height="Auto" />
-                                    <RowDefinition Height="Auto" />
-                                    <RowDefinition Height="Auto" />
-                                    <RowDefinition Height="Auto" />
-                                    <RowDefinition Height="Auto" />
-                                </Grid.RowDefinitions>
-
-                                <!-- Import File Properties -->
-                                <propertyGrid:PropertyLabelControl Grid.Row="0" Margin="3" LabelColumnWidth="100" LabelText="Source File:" 
-                                                                   Value="{Binding FileFullPath}" ToolTip="{Binding FileFullPath}"
-                                                                   Style="{StaticResource PropertyGridDetailUserControl}" />
-
-                                <propertyGrid:PropertyLabelControl Grid.Row="1" Margin="3" LabelColumnWidth="100" LabelText="Migrated File:" 
-                                                                   Style="{StaticResource PropertyGridDetailUserControl}"
-                                                                   Value="{Binding FileMigrationFullPath}" ToolTip="{Binding FileMigrationFullPath}"
-                                                                   Foreground="{Binding MinimumImportValid, Converter={StaticResource ValidationForegroundParameterConverter}, ConverterParameter={StaticResource LabelForeground}}" />
-
-                                <propertyGrid:PropertyLabelControl Grid.Row="2" Margin="3" LabelColumnWidth="100" LabelText="Import Options:" 
-                                                                   Style="{StaticResource PropertyGridDetailUserControl}" 
-                                                                   Value="{Binding ImportOptions}" />
-
-                                <propertyGrid:PropertyLabelControl Grid.Row="3" Margin="3" LabelColumnWidth="100" LabelText="Import Issues:" 
-                                                                   Value="{Binding TagIssues}" Style="{StaticResource PropertyGridDetailUserControl}"
-                                                                   Foreground="{Binding MinimumImportValid, Converter={StaticResource ValidationForegroundParameterConverter}, ConverterParameter={StaticResource LabelForeground}}"
-                                                                   ToolTip="You can fill out the tag data here by selecting items; and editing their tags. This will allow Audio Station to fill in the required data. Other data may be entered later; and 3rd party services may be used at another time." />
-
-                                <propertyGrid:PropertyLabelControl Grid.Row="4" Margin="3" LabelColumnWidth="100" LabelText="AcoustID:" 
-                                                                   Value="{Binding SelectedAcoustIDResult}" Style="{StaticResource PropertyGridDetailUserControl}"
-                                                                   Foreground="{Binding ImportOutput.AcoustIDSuccess, Converter={StaticResource ValidationForegroundParameterConverter}, ConverterParameter={StaticResource LabelForeground}}" />
-
-                                <propertyGrid:PropertyLabelControl Grid.Row="5" Margin="3" LabelColumnWidth="100" LabelText="Music Brainz:" 
-                                                                   Value="{Binding SelectedMusicBrainzRecordingMatch}" Style="{StaticResource PropertyGridDetailUserControl}"
-                                                                   Foreground="{Binding ImportOutput.MusicBrainzRecordingMatchSuccess, Converter={StaticResource ValidationForegroundParameterConverter}, ConverterParameter={StaticResource LabelForeground}}" />
-
-                                <propertyGrid:PropertyLabelControl Grid.Row="6" Margin="3" LabelColumnWidth="100" LabelText="Import:" Style="{StaticResource PropertyGridDetailUserControl}"
-                                                                   Value="{Binding FinalImportDetail}" />
-
-                                <!-- Final Tag Import -->
-                                <Border Grid.Row="7" Background="AliceBlue" BorderBrush="LightGray" BorderThickness="1">
-
-                                    <Grid>
-
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="*" />
-                                            <ColumnDefinition Width="Auto" />
-                                        </Grid.ColumnDefinitions>
-
-                                        <propertyGrid:PropertyLabelControl Margin="3" LabelColumnWidth="100" LabelText="Tag (Disk):" 
-                                                                           VerticalAlignment="Center"
-                                                                           Style="{StaticResource PropertyGridDetailUserControl}"
-                                                                           Value="{Binding TagDetail}" />
-
-                                        <!-- Control Panel -->
-                                        <StackPanel Orientation="Horizontal" 
-                                                    HorizontalAlignment="Right" Margin="3" 
-                                                    VerticalAlignment="Center"
-                                                    Grid.Column="1">
-
-                                            <!-- Select Buttons -->
-                                            <Button Style="{StaticResource UserControlButton}" 
-                                                    Command="{Binding CopyMusicBrainzToTagCommand}"
-                                                    ToolTip="Copy Music Brainz Data To Tag"
-                                                    Visibility="{Binding ImportOutput.MusicBrainzRecordingMatchSuccess, Converter={StaticResource BoolVisibilityCollapseConverter}}"
-                                                    Margin="5 0 0 0">
-                                                <StackPanel Orientation="Horizontal">
-                                                    <TextBlock Text="Copy" Margin="3 1" FontSize="12" />
-                                                    <fa5:ImageAwesome Icon="Solid_Music" 
-                                                                      Style="{StaticResource FontAwesomeIconManagerViewPager}" 
-                                                                      Margin="1" />
-                                                </StackPanel>
-                                            </Button>
-                                            <Button Style="{StaticResource UserControlButton}" 
-                                                    Command="{Binding SaveTagCommand}"
-                                                    ToolTip="Save Tag To Disk"
-                                                    Visibility="{Binding IsTagDirty, Converter={StaticResource BoolVisibilityCollapseConverter}}"
-                                                    Margin="5 0 0 0">
-                                                        <StackPanel Orientation="Horizontal">
-                                                            <TextBlock Text="Save" Margin="3 1" FontSize="12" />
-                                                            <fa5:ImageAwesome Icon="Solid_Save" 
-                                                                  Style="{StaticResource FontAwesomeIconManagerViewPager}" 
-                                                                  Margin="1" />
-                                                        </StackPanel>
-                                            </Button>
-                                            <Button Style="{StaticResource UserControlButton}" 
-                                                    Command="{Binding RefreshCommand}"
-                                                    ToolTip="Clear All Imported Data And Restart"
-                                                    Margin="5 0 0 0">
-                                                        <StackPanel Orientation="Horizontal">
-                                                            <TextBlock Text="Clear" Margin="3 1" FontSize="12" />
-                                                            <fa5:ImageAwesome Icon="Solid_Recycle" 
-                                                          Style="{StaticResource FontAwesomeIconManagerViewPager}" 
-                                                          Margin="1" />
-                                                        </StackPanel>
-
-                                            </Button>
-                                        </StackPanel>
-                                    </Grid>
-                                </Border>
-
-                            </Grid>
-                        </Border>
-                    </Grid>
-                </DataTemplate>
-            </ListBox.ItemTemplate>
+            
         </ListBox>
 
     </Grid>

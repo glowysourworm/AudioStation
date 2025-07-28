@@ -3,7 +3,7 @@ using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 
-using AudioStation.ViewModels.LibraryLoaderViewModels;
+using AudioStation.ViewModels.LibraryLoaderViewModels.Import;
 
 using SimpleWpf.IocFramework.Application.Attribute;
 
@@ -34,7 +34,7 @@ namespace AudioStation.Views.LibraryLoaderViews
 
             if (viewModel != null)
             {
-                foreach (var item in viewModel.SourceFiles)
+                foreach (var item in viewModel.SourceDirectory)
                 {
                     item.IsSelected = this.ImportLB.SelectedItems.Contains(item);
 
@@ -53,7 +53,7 @@ namespace AudioStation.Views.LibraryLoaderViews
             {
                 var selectedFile = button.DataContext as LibraryLoaderImportFileViewModel;
 
-                foreach (var item in viewModel.SourceFiles)
+                foreach (var item in viewModel.SourceDirectory)
                 {
                     item.IsExpanded = (selectedFile == item) && selectedFile.IsExpanded;
                 }

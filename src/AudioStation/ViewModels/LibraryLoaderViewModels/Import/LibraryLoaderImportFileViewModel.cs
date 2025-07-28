@@ -1,6 +1,4 @@
 ﻿using System.ComponentModel;
-using System.IO;
-using System.Runtime.CompilerServices;
 
 using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Model.Vendor.ATLExtension;
@@ -10,13 +8,10 @@ using AudioStation.Model;
 using AudioStation.ViewModels.Vendor.AcoustIDViewModel;
 using AudioStation.ViewModels.Vendor.MusicBrainzViewModel;
 
-using IF.Lastfm.Core.Api.Enums;
-
 using MetaBrainz.MusicBrainz.Interfaces.Entities;
 
 using Microsoft.Extensions.Logging;
 
-using SimpleWpf.Extensions;
 using SimpleWpf.Extensions.Collection;
 using SimpleWpf.Extensions.Command;
 using SimpleWpf.Extensions.Event;
@@ -24,9 +19,13 @@ using SimpleWpf.IocFramework.Application;
 
 using IRelease = MetaBrainz.MusicBrainz.Interfaces.Entities.IRelease;
 
-namespace AudioStation.ViewModels.LibraryLoaderViewModels
+namespace AudioStation.ViewModels.LibraryLoaderViewModels.Import
 {
-    public class LibraryLoaderImportFileViewModel : ViewModelBase
+    /// <summary>
+    /// PathViewModel provides the node VALUE for the recursive directory structure. The "Path" view model is essentially
+    /// the container for this value.
+    /// </summary>
+    public class LibraryLoaderImportFileViewModel : PathViewModelUI
     {
         private readonly IModelValidationService _modelValidationService;
         private readonly IModelFileService _modelFileService;
@@ -37,8 +36,6 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
         public event SimpleEventHandler<LibraryLoaderImportFileViewModel> SelectAcoustIDEvent;
         public event SimpleEventHandler<LibraryLoaderImportFileViewModel> PlayAudioEvent;
 
-        bool _isSelected;
-        bool _isExpanded;
         bool _inError;
         bool _isTagDirty;
 
@@ -73,7 +70,7 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
         #region (public) Calculated UI Properties
         public string FinalImportDetail
         {
-            get 
+            get
             {
                 var format = "Artist ({0}) Album ({1}) Title ({2}) Genre ({3}) Track ({4} of {5}) Disc ({6} of {7})";
                 var result = string.Format(format, _tagDirty.AlbumArtist, _tagDirty.Album,
@@ -100,191 +97,178 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
         public string ImportOptions
         {
             get { return _importOptions; }
-            set { this.RaiseAndSetIfChanged(ref _importOptions, value); }
+            set { RaiseAndSetIfChanged(ref _importOptions, value); }
         }
         #endregion
 
-        public bool IsSelected
-        {
-            get { return _isSelected; }
-            set { this.RaiseAndSetIfChanged(ref _isSelected, value); }
-        }
-        public bool IsExpanded
-        {
-            get { return _isExpanded; }
-            set { this.RaiseAndSetIfChanged(ref _isExpanded, value); }
-        }
         public bool InError
         {
             get { return _inError; }
-            set { this.RaiseAndSetIfChanged(ref _inError, value); }
+            set { RaiseAndSetIfChanged(ref _inError, value); }
         }
         public bool IsTagDirty
         {
             get { return _isTagDirty; }
-            set { this.RaiseAndSetIfChanged(ref _isTagDirty, value); }
+            set { RaiseAndSetIfChanged(ref _isTagDirty, value); }
         }
         public string FileName
         {
             get { return _fileName; }
-            set { this.RaiseAndSetIfChanged(ref _fileName, value); }
+            set { RaiseAndSetIfChanged(ref _fileName, value); }
         }
         public string FileFullPath
         {
             get { return _fileFullPath; }
-            set { this.RaiseAndSetIfChanged(ref _fileFullPath, value); }
+            set { RaiseAndSetIfChanged(ref _fileFullPath, value); }
         }
         public string FileMigrationName
         {
             get { return _fileMigrationName; }
-            set { this.RaiseAndSetIfChanged(ref _fileMigrationName, value); }
+            set { RaiseAndSetIfChanged(ref _fileMigrationName, value); }
         }
         public string FileMigrationFullPath
         {
             get { return _fileMigrationFullPath; }
-            set { this.RaiseAndSetIfChanged(ref _fileMigrationFullPath, value); }
+            set { RaiseAndSetIfChanged(ref _fileMigrationFullPath, value); }
         }
         public bool MinimumImportValid
         {
             get { return _minimumImportValid; }
-            set { this.RaiseAndSetIfChanged(ref _minimumImportValid, value); }
+            set { RaiseAndSetIfChanged(ref _minimumImportValid, value); }
         }
         public string TagIssues
         {
             get { return _tagIssues; }
-            set { this.RaiseAndSetIfChanged(ref _tagIssues, value); }
+            set { RaiseAndSetIfChanged(ref _tagIssues, value); }
         }
         public LibraryLoaderImportOutputViewModel ImportOutput
         {
             get { return _importOutput; }
-            set { this.RaiseAndSetIfChanged(ref _importOutput, value); }
+            set { RaiseAndSetIfChanged(ref _importOutput, value); }
         }
         public LibraryLoaderImportLoadViewModel ImportLoad
         {
             get { return _importLoad; }
-            set { this.RaiseAndSetIfChanged(ref _importLoad, value); }
+            set { RaiseAndSetIfChanged(ref _importLoad, value); }
         }
 
         public LookupResultViewModel SelectedAcoustIDResult
         {
             get { return _selectedAcoustIDResult; }
-            set { this.RaiseAndSetIfChanged(ref _selectedAcoustIDResult, value); Update(); }
+            set { RaiseAndSetIfChanged(ref _selectedAcoustIDResult, value); Update(); }
         }
         public MusicBrainzRecordingViewModel SelectedMusicBrainzRecordingMatch
         {
             get { return _selectedMusicBrainzRecordingMatch; }
-            set { this.RaiseAndSetIfChanged(ref _selectedMusicBrainzRecordingMatch, value); Update(); }
+            set { RaiseAndSetIfChanged(ref _selectedMusicBrainzRecordingMatch, value); Update(); }
         }
 
         public SimpleCommand SelectMusicBrainzCommand
         {
             get { return _selectMusicBrainzCommand; }
-            set { this.RaiseAndSetIfChanged(ref _selectMusicBrainzCommand, value); }
+            set { RaiseAndSetIfChanged(ref _selectMusicBrainzCommand, value); }
         }
         public SimpleCommand SelectAcoustIDCommand
         {
             get { return _selectAcoustIDCommand; }
-            set { this.RaiseAndSetIfChanged(ref _selectAcoustIDCommand, value); }
+            set { RaiseAndSetIfChanged(ref _selectAcoustIDCommand, value); }
         }
         public SimpleCommand PlayAudioCommand
         {
             get { return _playAudioCommand; }
-            set { this.RaiseAndSetIfChanged(ref _playAudioCommand, value); }
+            set { RaiseAndSetIfChanged(ref _playAudioCommand, value); }
         }
         public SimpleCommand SaveTagCommand
         {
             get { return _saveTagCommand; }
-            set { this.RaiseAndSetIfChanged(ref _saveTagCommand, value); }
+            set { RaiseAndSetIfChanged(ref _saveTagCommand, value); }
         }
         public SimpleCommand CopyMusicBrainzToTagCommand
         {
             get { return _copyMusicBrainzToTagCommand; }
-            set { this.RaiseAndSetIfChanged(ref _copyMusicBrainzToTagCommand, value); }
+            set { RaiseAndSetIfChanged(ref _copyMusicBrainzToTagCommand, value); }
         }
         public SimpleCommand RefreshCommand
         {
             get { return _refreshCommand; }
-            set { this.RaiseAndSetIfChanged(ref _refreshCommand, value); }
+            set { RaiseAndSetIfChanged(ref _refreshCommand, value); }
         }
 
         bool _updating;
 
-        public LibraryLoaderImportFileViewModel(string fileName,
+        /// <summary>
+        /// Constructor for an import file view model. This may represent either a file or a directory.
+        /// </summary>
+        public LibraryLoaderImportFileViewModel(string fullPath,
+                                                bool isDirectory,
                                                 string destinationDirectory,
                                                 LibraryLoaderImportOptionsViewModel options)
+            : base(options.SourceFolder, fullPath)
         {
-            try
+            _modelValidationService = IocContainer.Get<IModelValidationService>();
+            _modelFileService = IocContainer.Get<IModelFileService>();
+            _libraryImporter = IocContainer.Get<ILibraryImporter>();
+            _tagCacheController = IocContainer.Get<ITagCacheController>();
+
+            _updating = false;
+
+            this.FileFullPath = fullPath;
+            this.FileName = System.IO.Path.GetFileName(fullPath);
+            this.ImportLoad = new LibraryLoaderImportLoadViewModel()
             {
-                _modelValidationService = IocContainer.Get<IModelValidationService>();
-                _modelFileService = IocContainer.Get<IModelFileService>();
-                _libraryImporter = IocContainer.Get<ILibraryImporter>();
-                _tagCacheController = IocContainer.Get<ITagCacheController>();
+                DestinationFolder = destinationDirectory,
+                GroupingType = options.GroupingType,
+                IdentifyUsingAcoustID = options.IdentifyUsingAcoustID,
+                ImportFileMigration = options.ImportFileMigration,
+                IncludeMusicBrainzDetail = options.IncludeMusicBrainzDetail,
+                MigrationDeleteSourceFiles = options.MigrationDeleteSourceFiles,
+                MigrationDeleteSourceFolders = options.MigrationDeleteSourceFolders,
+                MigrationOverwriteDestinationFiles = options.MigrationOverwriteDestinationFiles,
+                NamingType = options.NamingType,
+                SourceFolder = options.SourceFolder,
+                SourceFile = fullPath
+            };
+            this.ImportOptions = CreateOptionsUI(options);
 
-                _updating = false;
+            this.SelectAcoustIDCommand = new SimpleCommand(() =>
+            {
+                if (this.SelectAcoustIDEvent != null)
+                    this.SelectAcoustIDEvent(this);
 
-                this.FileFullPath = fileName;
-                this.FileName = Path.GetFileName(fileName);
-                this.ImportLoad = new LibraryLoaderImportLoadViewModel()
-                {
-                    DestinationFolder = destinationDirectory,
-                    GroupingType = options.GroupingType,
-                    IdentifyUsingAcoustID = options.IdentifyUsingAcoustID,
-                    ImportFileMigration = options.ImportFileMigration,
-                    IncludeMusicBrainzDetail = options.IncludeMusicBrainzDetail,
-                    MigrationDeleteSourceFiles = options.MigrationDeleteSourceFiles,
-                    MigrationDeleteSourceFolders = options.MigrationDeleteSourceFolders,
-                    MigrationOverwriteDestinationFiles = options.MigrationOverwriteDestinationFiles,
-                    NamingType = options.NamingType,
-                    SourceFolder = options.SourceFolder,
-                    SourceFile = fileName
-                };
-                this.ImportOptions = CreateOptionsUI(options);
+            }, () => this.ImportOutput.AcoustIDSuccess);
 
-                this.SelectAcoustIDCommand = new SimpleCommand(() =>
-                {
-                    if (this.SelectAcoustIDEvent != null)
-                        this.SelectAcoustIDEvent(this);
+            this.SelectMusicBrainzCommand = new SimpleCommand(() =>
+            {
+                if (this.SelectMusicBrainzEvent != null)
+                    this.SelectMusicBrainzEvent(this);
 
-                }, () => this.ImportOutput.AcoustIDSuccess);
+            }, () => this.ImportOutput.MusicBrainzRecordingMatchSuccess);
 
-                this.SelectMusicBrainzCommand = new SimpleCommand(() =>
-                {
-                    if (this.SelectMusicBrainzEvent != null)
-                        this.SelectMusicBrainzEvent(this);
+            this.PlayAudioCommand = new SimpleCommand(() =>
+            {
+                if (this.PlayAudioEvent != null)
+                    this.PlayAudioEvent(this);
+            });
 
-                }, () => this.ImportOutput.MusicBrainzRecordingMatchSuccess);
+            this.CopyMusicBrainzToTagCommand = new SimpleCommand(() =>
+            {
+                CopyMusicBrainzToTag();
 
-                this.PlayAudioCommand = new SimpleCommand(() =>
-                {
-                    if (this.PlayAudioEvent != null)
-                        this.PlayAudioEvent(this);
-                });
+            }, () => this.ImportOutput.MusicBrainzRecordingMatchSuccess);
 
-                this.CopyMusicBrainzToTagCommand = new SimpleCommand(() =>
-                {
-                    CopyMusicBrainzToTag();
+            this.SaveTagCommand = new SimpleCommand(() =>
+            {
+                Save();
 
-                }, () => this.ImportOutput.MusicBrainzRecordingMatchSuccess);
+            });
 
-                this.SaveTagCommand = new SimpleCommand(() =>
-                {
-                    Save();
-
-                });
-
-                this.RefreshCommand = new SimpleCommand(() =>
-                {
-                    Reload();
-                });
-
-                // Initializes the import output
+            this.RefreshCommand = new SimpleCommand(() =>
+            {
                 Reload();
-            }
-            catch (Exception ex)
-            {
-                ApplicationHelpers.Log("Error loading tag file:  {0}, {1}", LogMessageType.LibraryLoader, LogLevel.Error, ex, fileName, ex.Message);
-                this.InError = true;
-            }
+            });
+
+            // Initializes the import output
+            Reload();
         }
 
         private string CreateOptionsUI(LibraryLoaderImportOptionsViewModel options)
@@ -338,7 +322,7 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
                 var fileMigrationFolder = _modelFileService.CalculateFolderPath(_tagDirty, this.ImportLoad.DestinationFolder, this.ImportLoad.GroupingType);
 
                 this.FileMigrationName = fileMigrationName;
-                this.FileMigrationFullPath = Path.Combine(fileMigrationFolder, fileMigrationName);
+                this.FileMigrationFullPath = System.IO.Path.Combine(fileMigrationFolder, fileMigrationName);
 
                 this.TagIssues = "(None)";
             }
@@ -402,7 +386,7 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
 
                 // Unhook Events
                 if (this.ImportOutput != null)
-                    this.ImportOutput.PropertyChanged -= this.ImportOutput_PropertyChanged;
+                    this.ImportOutput.PropertyChanged -= ImportOutput_PropertyChanged;
 
                 // Reload Working Data
                 this.ImportOutput = new LibraryLoaderImportOutputViewModel();
@@ -503,7 +487,7 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
             _tagDirty.AlbumArtist = GetAlbumArtist();
             _tagDirty.Title = GetTrackTitle();
             _tagDirty.Genre = GetGenre();
-            _tagDirty.Track = (uint)GetTrackNumber();
+            _tagDirty.Track = GetTrackNumber();
             _tagDirty.TrackTotal = (ushort)GetTrackCount();
             _tagDirty.DiscNumber = (ushort)GetDisc();
             _tagDirty.DiscTotal = (ushort)GetDiscCount();
@@ -610,15 +594,15 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
 
                 if (release != null && release.Media != null)
                 {
-                    result = (int)release.Media.Count;
+                    result = release.Media.Count;
                 }
             }
-            
+
             return result;
         }
         public uint GetTrackNumber()
         {
-            uint result = _tagDirty.Track;
+            var result = _tagDirty.Track;
 
             if (this.SelectedMusicBrainzRecordingMatch != null)
             {

@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel;
 using System.Windows.Controls;
 
-using SimpleWpf.Extensions;
 using SimpleWpf.Extensions.ObservableCollection;
+using SimpleWpf.ViewModel;
 
 namespace AudioStation.Event.DialogEvents
 {
@@ -33,8 +33,7 @@ namespace AudioStation.Event.DialogEvents
             this.SelectionList.ItemPropertyChanged += SelectionList_ItemPropertyChanged;
         }
 
-        private void SelectionList_ItemPropertyChanged(NotifyingObservableCollection<SelectionViewModel> item1,
-                                                       SelectionViewModel item2,
+        private void SelectionList_ItemPropertyChanged(SelectionViewModel item2,
                                                        PropertyChangedEventArgs item3)
         {
             OnPropertyChanged(nameof(SelectionList));

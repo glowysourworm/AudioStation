@@ -1,15 +1,11 @@
-﻿using System.IO;
-using System.IO.MemoryMappedFiles;
-using System.Text;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 
 using AudioStation.Core.Model.M3U;
 
-using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.Extensions.Logging;
 
 using SimpleWpf.Extensions.Event;
-using SimpleWpf.NativeIO;
+using SimpleWpf.Native.IO;
 
 namespace AudioStation.Core.Component
 {

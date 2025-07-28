@@ -1,5 +1,7 @@
 ﻿
+using System;
 using System.IO;
+using System.Windows.Shapes;
 
 using AudioStation.Component.Interface;
 using AudioStation.Core.Component.Interface;
@@ -7,6 +9,7 @@ using AudioStation.Core.Database.AudioStationDatabase;
 using AudioStation.Core.Model;
 using AudioStation.Core.Utility;
 using AudioStation.Model;
+using AudioStation.ViewModels.LibraryLoaderViewModels.Import;
 using AudioStation.ViewModels.LibraryViewModels;
 
 using Microsoft.Extensions.Logging;
@@ -16,7 +19,6 @@ using NAudio.Wave;
 
 using SimpleWpf.Extensions.ObservableCollection;
 using SimpleWpf.IocFramework.Application.Attribute;
-using SimpleWpf.NativeIO.FastDirectory;
 
 using static AudioStation.EventHandler.DialogEventHandlers;
 
@@ -212,7 +214,7 @@ namespace AudioStation.Component
 
             try
             {
-                var allFiles = FastDirectoryEnumerator.GetFiles(configuration.DirectoryBase, "*.*", System.IO.SearchOption.AllDirectories);
+                var allFiles = ApplicationHelpers.FastGetFileData(configuration.DirectoryBase, "*.*", System.IO.SearchOption.AllDirectories);
 
                 return allFiles.Where(x => CONVERTIBLE_FILE_EXT.Any(z => x.Path.EndsWith(z)))
                                .Select(x => x.Path)
@@ -233,7 +235,7 @@ namespace AudioStation.Component
             {
                 try
                 {
-                    var directory = Path.Combine(configuration.DownloadFolder, CONVERT_OUTPUT_FOLDER);
+                    var directory = System.IO.Path.Combine(configuration.DownloadFolder, CONVERT_OUTPUT_FOLDER);
 
                     if (!Directory.Exists(directory))
                         Directory.CreateDirectory(directory);
@@ -243,8 +245,8 @@ namespace AudioStation.Component
 
                     foreach (var filePath in convertibleFiles)
                     {
-                        var fileName = Path.GetFileName(filePath);
-                        var name = Path.GetFileNameWithoutExtension(fileName);
+                        var fileName = System.IO.Path.GetFileName(filePath);
+                        var name = System.IO.Path.GetFileNameWithoutExtension(fileName);
 
                         // Strip other library folders, and the file name, to get the proper sub-folders
                         //
@@ -258,7 +260,7 @@ namespace AudioStation.Component
                         if (!Directory.Exists(stagingDirectory))
                             Directory.CreateDirectory(stagingDirectory);
 
-                        var destinationFile = Path.Combine(stagingDirectory, name + ".mp3");
+                        var destinationFile = System.IO.Path.Combine(stagingDirectory, name + ".mp3");
                         var success = false;
 
                         try
@@ -293,6 +295,77 @@ namespace AudioStation.Component
                 {
                     ApplicationHelpers.Log("Error converted files:  {0}", LogMessageType.General, LogLevel.Error, ex, ex.Message);
                     throw ex;
+                }
+            });
+        }
+
+        public Task<LibraryLoaderImportTreeViewModel?> LoadImportFiles(LibraryLoaderImportOptionsViewModel options,
+                                                                       DialogProgressHandler progressHandler)
+        {
+            if (!_configurationManager.ValidateConfiguration())
+                return Task.FromResult<LibraryLoaderImportTreeViewModel?>(null);
+
+            // Configuration:  Calculate base directory from staging
+            //
+            var configuration = _configurationManager.GetConfiguration();
+
+            var directoryBase = configuration.DirectoryBase;
+            var subDirectory = options.ImportAsType == LibraryEntryType.Music ? configuration.MusicSubDirectory :
+                               options.ImportAsType == LibraryEntryType.AudioBook ? configuration.AudioBooksSubDirectory :
+                               string.Empty;
+
+            // Calculate Migration (destination) Directory
+            var destinationDirectory = System.IO.Path.Combine(directoryBase, subDirectory);
+
+            return Task.Run(() =>
+            {
+                try
+                {
+                    // Directory (Root -> NodeValue)
+                    var rootValue = new LibraryLoaderImportDirectoryViewModel(destinationDirectory, options);
+
+                    // File Tree (Recursive Node Container)
+                    var root = new LibraryLoaderImportTreeViewModel(rootValue);
+
+                    // Recurse through files using a while loop
+                    var directories = new Stack<LibraryLoaderImportTreeViewModel>();                    
+
+                    // Start (stack)
+                    directories.Push(root);
+
+                    while (directories.Count > 0)
+                    {
+                        var currentDirectory = directories.Pop();
+
+                        // Current Directory
+                        var fileData = ApplicationHelpers.FastGetFileData(currentDirectory.NodeValue.Path, "*.mp3", SearchOption.TopDirectoryOnly);
+                        var fileCount = fileData.Count();
+                        var fileIndex = 0;
+
+                        foreach (var file in fileData)
+                        {
+                            progressHandler(fileCount, fileIndex++, 0, "Loading Import Files");
+
+                            // Directory (stack)
+                            if (file.IsDirectory)
+                            {
+                                var nodeValue = new LibraryLoaderImportDirectoryViewModel(file.Path, options);
+
+                                // Push (NodeValue, Parent)
+                                directories.Push(new LibraryLoaderImportTreeViewModel(nodeValue, currentDirectory));
+                            }
+
+                            else
+                                currentDirectory.Add(new LibraryLoaderImportFileViewModel(file.Path, false, destinationDirectory, options));
+                        }
+                    }
+
+                    return root;
+                }
+                catch (Exception ex)
+                {
+                    ApplicationHelpers.Log("Error loading import files:  {0}", LogMessageType.General, LogLevel.Error, ex, ex.Message);
+                    return null;
                 }
             });
         }

@@ -3,7 +3,7 @@
 using AudioStation.Controller.Interface;
 using AudioStation.Event;
 using AudioStation.ViewModels;
-using AudioStation.ViewModels.LibraryLoaderViewModels;
+using AudioStation.ViewModels.LibraryLoaderViewModels.Import;
 using AudioStation.ViewModels.Vendor.ATLViewModel;
 using AudioStation.Views.DialogViews;
 using AudioStation.Views.VendorEntryViews;

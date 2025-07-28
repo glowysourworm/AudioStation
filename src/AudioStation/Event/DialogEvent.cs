@@ -5,6 +5,7 @@ using AudioStation.Event.DialogEvents;
 
 using SimpleWpf.Extensions;
 using SimpleWpf.IocFramework.EventAggregation;
+using SimpleWpf.ViewModel;
 
 namespace AudioStation.Event
 {

@@ -2,6 +2,7 @@
 
 using SimpleWpf.Extensions;
 using SimpleWpf.Extensions.ObservableCollection;
+using SimpleWpf.ViewModel;
 
 namespace AudioStation.ViewModels.RadioViewModels
 {

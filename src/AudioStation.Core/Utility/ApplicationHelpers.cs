@@ -11,7 +11,7 @@ using AutoMapper;
 using Microsoft.Extensions.Logging;
 
 using SimpleWpf.IocFramework.Application;
-using SimpleWpf.NativeIO.FastDirectory;
+using SimpleWpf.Native.IO;
 
 namespace AudioStation.Core.Utility
 {
@@ -36,10 +36,24 @@ namespace AudioStation.Core.Utility
         public static IEnumerable<string> FastGetFiles(string baseDirectory, string searchPattern, SearchOption option)
         {
             // Scan directories for files (Use NativeIO for much faster iteration. Less managed memory loading)
-            var files = FastDirectoryEnumerator.GetFiles(baseDirectory, searchPattern, option);
+            using (var fastDirectory = new FastDirectoryIO(baseDirectory, searchPattern, option))
+            {
+                return fastDirectory.GetFiles()
+                                    .Where(x => !x.IsDirectory)
+                                    .Select(x => x.Path)
+                                    .ToList();
+            }
+        }
 
-            // Create the file load for the next work item
-            return new List<string>(files.Select(x => x.Path));
+        public static IEnumerable<FastDirectoryResult> FastGetFileData(string baseDirectory, string searchPattern, SearchOption option)
+        {
+            // Scan directories for files (Use NativeIO for much faster iteration. Less managed memory loading)
+            using (var fastDirectory = new FastDirectoryIO(baseDirectory, searchPattern, option))
+            {
+                return fastDirectory.GetFiles()
+                                    .Where(x => !x.IsDirectory)
+                                    .ToList();
+            }
         }
 
         /// <summary>
@@ -61,6 +75,16 @@ namespace AudioStation.Core.Utility
         {
             if (IsDispatcher() == ApplicationIsDispatcherResult.False)
                 Application.Current.Dispatcher.BeginInvoke(method, priority, parameters);
+
+            // Dispatcher (SYNCHRONOUS!)
+            else
+                method.DynamicInvoke(parameters);
+        }
+
+        public static async Task BeginInvokeDispatcherAsync(Delegate method, DispatcherPriority priority, params object[] parameters)
+        {
+            if (IsDispatcher() == ApplicationIsDispatcherResult.False)
+                await Application.Current.Dispatcher.BeginInvoke(method, priority, parameters);
 
             // Dispatcher (SYNCHRONOUS!)
             else

@@ -4,6 +4,7 @@ using MetaBrainz.MusicBrainz.CoverArt;
 using MetaBrainz.MusicBrainz.Interfaces.Entities;
 
 using SimpleWpf.Extensions;
+using SimpleWpf.ViewModel;
 
 namespace AudioStation.ViewModels.Vendor.MusicBrainzViewModel
 {

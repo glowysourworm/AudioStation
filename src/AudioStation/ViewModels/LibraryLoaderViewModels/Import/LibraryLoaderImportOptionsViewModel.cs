@@ -4,8 +4,9 @@ using AudioStation.Core.Model;
 
 using SimpleWpf.Extensions;
 using SimpleWpf.Extensions.Command;
+using SimpleWpf.ViewModel;
 
-namespace AudioStation.ViewModels.LibraryLoaderViewModels
+namespace AudioStation.ViewModels.LibraryLoaderViewModels.Import
 {
     public class LibraryLoaderImportOptionsViewModel : ViewModelBase
     {
@@ -35,82 +36,82 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
         public string SourceFolderSearch
         {
             get { return _sourceFolderSearch; }
-            set { this.RaiseAndSetIfChanged(ref _sourceFolderSearch, value); }
+            set { RaiseAndSetIfChanged(ref _sourceFolderSearch, value); }
         }
         public string SourceFolder
         {
             get { return _sourceFolder; }
-            set { this.RaiseAndSetIfChanged(ref _sourceFolder, value); }
+            set { RaiseAndSetIfChanged(ref _sourceFolder, value); }
         }
         public string DestinationFolderSearch
         {
             get { return _destinationFolderSearch; }
-            set { this.RaiseAndSetIfChanged(ref _destinationFolderSearch, value); }
+            set { RaiseAndSetIfChanged(ref _destinationFolderSearch, value); }
         }
         public string DestinationFolder
         {
             get { return _destinationFolder; }
-            set { this.RaiseAndSetIfChanged(ref _destinationFolder, value); }
+            set { RaiseAndSetIfChanged(ref _destinationFolder, value); }
         }
         public string DestinationMusicSubFolder
         {
             get { return _destinationMusicSubFolder; }
-            set { this.RaiseAndSetIfChanged(ref _destinationMusicSubFolder, value); }
+            set { RaiseAndSetIfChanged(ref _destinationMusicSubFolder, value); }
         }
         public string DestinationAudioBooksSubFolder
         {
             get { return _destinationAudioBooksSubFolder; }
-            set { this.RaiseAndSetIfChanged(ref _destinationAudioBooksSubFolder, value); }
+            set { RaiseAndSetIfChanged(ref _destinationAudioBooksSubFolder, value); }
         }
         public LibraryEntryType ImportAsType
         {
             get { return _importAsType; }
-            set { this.RaiseAndSetIfChanged(ref _importAsType, value); }
+            set { RaiseAndSetIfChanged(ref _importAsType, value); }
         }
         public LibraryEntryGroupingType GroupingType
         {
             get { return _groupingType; }
-            set { this.RaiseAndSetIfChanged(ref _groupingType, value); }
+            set { RaiseAndSetIfChanged(ref _groupingType, value); }
         }
         public LibraryEntryNamingType NamingType
         {
             get { return _namingType; }
-            set { this.RaiseAndSetIfChanged(ref _namingType, value); }
+            set { RaiseAndSetIfChanged(ref _namingType, value); }
         }
         public bool IncludeMusicBrainzDetail
         {
             get { return _includeMusicBrainzDetail; }
-            set { this.RaiseAndSetIfChanged(ref _includeMusicBrainzDetail, value); }
+            set { RaiseAndSetIfChanged(ref _includeMusicBrainzDetail, value); }
         }
         public bool IdentifyUsingAcoustID
         {
             get { return _identifyUsingAcoustID; }
-            set { this.RaiseAndSetIfChanged(ref _identifyUsingAcoustID, value); }
+            set { RaiseAndSetIfChanged(ref _identifyUsingAcoustID, value); }
         }
         public bool ImportFileMigration
         {
             get { return _importFileMigration; }
-            set { this.RaiseAndSetIfChanged(ref _importFileMigration, value); }
+            set { RaiseAndSetIfChanged(ref _importFileMigration, value); }
         }
         public bool MigrationDeleteSourceFiles
         {
             get { return _migrationDeleteSourceFiles; }
-            set { this.RaiseAndSetIfChanged(ref _migrationDeleteSourceFiles, value); }
+            set { RaiseAndSetIfChanged(ref _migrationDeleteSourceFiles, value); }
         }
         public bool MigrationDeleteSourceFolders
         {
             get { return _migrationDeleteSourceFolders; }
-            set { this.RaiseAndSetIfChanged(ref _migrationDeleteSourceFolders, value); }
+            set { RaiseAndSetIfChanged(ref _migrationDeleteSourceFolders, value); }
         }
         public bool MigrationOverwriteDestinationFiles
         {
             get { return _migrationOverwriteDestinationFiles; }
-            set { this.RaiseAndSetIfChanged(ref _migrationOverwriteDestinationFiles, value); }
+            set { RaiseAndSetIfChanged(ref _migrationOverwriteDestinationFiles, value); }
         }
         public SimpleCommand SelectSourceFolderCommand
         {
             get { return _selectSourceFolderCommand; }
-            set { this.RaiseAndSetIfChanged(ref _selectSourceFolderCommand, value); }
+            set { RaiseAndSetIfChanged(ref _selectSourceFolderCommand, value); }
         }
 
         public LibraryLoaderImportOptionsViewModel(IConfigurationManager configurationManager, IDialogController dialogController)

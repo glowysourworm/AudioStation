@@ -1,6 +1,7 @@
 ﻿using ParkSquare.Discogs;
 
 using SimpleWpf.Extensions;
+using SimpleWpf.ViewModel;
 
 namespace AudioStation.Core.Component.Vendor
 {

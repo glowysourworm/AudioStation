@@ -3,6 +3,7 @@ using AudioStation.ViewModels.LibraryViewModels;
 using AudioStation.ViewModels.PlaylistViewModels.Interface;
 
 using SimpleWpf.Extensions;
+using SimpleWpf.ViewModel;
 
 namespace AudioStation.ViewModels.PlaylistViewModels
 {

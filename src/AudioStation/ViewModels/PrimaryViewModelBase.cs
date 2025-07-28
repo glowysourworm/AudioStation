@@ -1,4 +1,5 @@
 ﻿using SimpleWpf.Extensions;
+using SimpleWpf.ViewModel;
 
 using static AudioStation.EventHandler.DialogEventHandlers;
 
