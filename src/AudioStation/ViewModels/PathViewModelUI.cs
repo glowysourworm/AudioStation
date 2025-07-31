@@ -30,7 +30,7 @@ namespace AudioStation.ViewModels
 
         public override string ToString()
         {
-            return this.Path;
+            return this.ShortPath;
         }
     }
 }

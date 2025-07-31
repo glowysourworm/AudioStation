@@ -13,12 +13,12 @@ namespace AudioStation.Views.TemplateSelector
 
         public override DataTemplate SelectTemplate(object item, DependencyObject container)
         {
-            var viewModel = item as LibraryLoaderImportFileViewModel;
-            var contentPresenter = container as ContentPresenter;
+            var viewModel = item as LibraryLoaderImportTreeViewModel;
+            var contentPresenter = container as FrameworkElement;
 
             if (viewModel != null && contentPresenter != null)
             {
-                if (viewModel.IsDirectory)
+                if (viewModel.NodeValue.IsDirectory)
                     return contentPresenter.FindResource("LibraryLoaderImportDirectoryTemplate") as DataTemplate;
 
                 else

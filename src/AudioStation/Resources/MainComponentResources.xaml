@@ -2,6 +2,7 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"			 
                     xmlns:converter="clr-namespace:AudioStation.Views.Converter"             
                     xmlns:simpleConverter="clr-namespace:SimpleWpf.UI.Converter;assembly=SimpleWpf.UI"
+                    xmlns:styleSelector="clr-namespace:AudioStation.Views.StyleSelectors"
                     xmlns:templateSelector="clr-namespace:AudioStation.Views.TemplateSelector">
     
     <!-- TEST CONVERTERS (go to simple library) -->
@@ -53,8 +54,10 @@
 
     <!-- Template Selectors -->
     <templateSelector:LogItemTemplateSelector x:Key="LogItemTemplateSelector" />
-    <templateSelector:LibraryWorkItemContainerStyleSelector x:Key="LibraryWorkItemContainerStyleSelector" />
-    <templateSelector:LogItemContainerStyleSelector x:Key="LogItemContainerStyleSelector" />
     <templateSelector:LibraryLoaderImportFileTemplateSelector x:Key="LibraryLoaderImportFileTemplateSelector" />
     
+    <!-- Style Selectors -->
+    <styleSelector:LibraryWorkItemContainerStyleSelector x:Key="LibraryWorkItemContainerStyleSelector" />
+    <styleSelector:LogItemContainerStyleSelector x:Key="LogItemContainerStyleSelector" />
+    <styleSelector:LibraryLoaderImportTreeStyleSelector x:Key="LibraryLoaderImportTreeStyleSelector" />
 </ResourceDictionary>

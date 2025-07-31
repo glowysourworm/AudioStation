@@ -16,6 +16,7 @@ using SimpleWpf.Extensions.Collection;
 using SimpleWpf.Extensions.Command;
 using SimpleWpf.Extensions.Event;
 using SimpleWpf.IocFramework.Application;
+using SimpleWpf.ViewModel;
 
 using IRelease = MetaBrainz.MusicBrainz.Interfaces.Entities.IRelease;
 
@@ -111,16 +112,6 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels.Import
             get { return _isTagDirty; }
             set { RaiseAndSetIfChanged(ref _isTagDirty, value); }
         }
-        public string FileName
-        {
-            get { return _fileName; }
-            set { RaiseAndSetIfChanged(ref _fileName, value); }
-        }
-        public string FileFullPath
-        {
-            get { return _fileFullPath; }
-            set { RaiseAndSetIfChanged(ref _fileFullPath, value); }
-        }
         public string FileMigrationName
         {
             get { return _fileMigrationName; }
@@ -212,8 +203,6 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels.Import
 
             _updating = false;
 
-            this.FileFullPath = fullPath;
-            this.FileName = System.IO.Path.GetFileName(fullPath);
             this.ImportLoad = new LibraryLoaderImportLoadViewModel()
             {
                 DestinationFolder = destinationDirectory,
@@ -354,15 +343,15 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels.Import
             try
             {
                 // Save tag data to (source) file
-                _tagCacheController.SetData(this.FileFullPath, _tagDirty, true);
+                _tagCacheController.SetData(this.FullPath, _tagDirty, true);
 
                 // Update Clean Tag
-                _tagClean = _tagCacheController.GetCopy(this.FileFullPath);
-                _tagDirty = _tagCacheController.GetCopy(this.FileFullPath);
+                _tagClean = _tagCacheController.GetCopy(this.FullPath);
+                _tagDirty = _tagCacheController.GetCopy(this.FullPath);
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Error saving import tag:  {0}", LogMessageType.General, LogLevel.Error, ex, this.FileFullPath);
+                ApplicationHelpers.Log("Error saving import tag:  {0}", LogMessageType.General, LogLevel.Error, ex, this.FullPath);
                 this.InError = true;
             }
 
@@ -381,8 +370,8 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels.Import
             try
             {
                 // Get clean copy of the tag
-                _tagClean = _tagCacheController.GetCopy(this.FileFullPath);
-                _tagDirty = _tagCacheController.GetCopy(this.FileFullPath);
+                _tagClean = _tagCacheController.GetCopy(this.FullPath);
+                _tagDirty = _tagCacheController.GetCopy(this.FullPath);
 
                 // Unhook Events
                 if (this.ImportOutput != null)
@@ -403,7 +392,7 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels.Import
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Error refreshing import tag:  {0}", LogMessageType.General, LogLevel.Error, ex, this.FileFullPath);
+                ApplicationHelpers.Log("Error refreshing import tag:  {0}", LogMessageType.General, LogLevel.Error, ex, this.FullPath);
                 this.InError = true;
                 _updating = false;
                 return;
@@ -658,7 +647,7 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels.Import
 
         public override string ToString()
         {
-            return this.FileFullPath;
+            return this.FullPath;
         }
     }
 }

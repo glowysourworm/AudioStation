@@ -4,7 +4,7 @@ using System.Windows.Controls;
 using AudioStation.Core.Component.LibraryLoaderComponent;
 using AudioStation.ViewModels;
 
-namespace AudioStation.Views.TemplateSelector
+namespace AudioStation.Views.StyleSelectors
 {
     public class LibraryWorkItemContainerStyleSelector : StyleSelector
     {

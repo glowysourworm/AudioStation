@@ -5,7 +5,7 @@ using AudioStation.ViewModels.LogViewModels;
 
 using Microsoft.Extensions.Logging;
 
-namespace AudioStation.Views.TemplateSelector
+namespace AudioStation.Views.StyleSelectors
 {
     public class LogItemContainerStyleSelector : StyleSelector
     {

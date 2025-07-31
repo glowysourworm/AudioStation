@@ -338,7 +338,7 @@ namespace AudioStation.Component
                         var currentDirectory = directories.Pop();
 
                         // Current Directory
-                        var fileData = ApplicationHelpers.FastGetFileData(currentDirectory.NodeValue.Path, "*.mp3", true, SearchOption.TopDirectoryOnly);
+                        var fileData = ApplicationHelpers.FastGetFileData(currentDirectory.NodeValue.FullPath, "*.mp3", true, SearchOption.TopDirectoryOnly);
                         var fileCount = fileData.Count();
                         var fileIndex = 0;
 

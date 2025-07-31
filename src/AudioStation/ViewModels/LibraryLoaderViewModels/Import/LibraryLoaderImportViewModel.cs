@@ -25,6 +25,7 @@ using SimpleWpf.Extensions.Collection;
 using SimpleWpf.Extensions.Command;
 using SimpleWpf.Extensions.ObservableCollection;
 using SimpleWpf.IocFramework.EventAggregation;
+using SimpleWpf.ViewModel;
 
 using static AudioStation.EventHandler.DialogEventHandlers;
 
@@ -205,7 +206,7 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels.Import
                        .All(x => x.ImportOutput.AcoustIDSuccess && x.SelectedAcoustIDResult != null);
         }
 
-        private void SourceDirectory_ItemPropertyChanged(PathViewModelUI item, PropertyChangedEventArgs eventArgs)
+        private void SourceDirectory_ItemPropertyChanged(PathViewModel item, PropertyChangedEventArgs eventArgs)
         {
             OnPropertyChanged("SourceFileSelectedCount");
 
@@ -281,7 +282,7 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels.Import
                 var viewModel = new TagViewModel(tag);
 
                 // Show Tag Editor (ONLY UPDATES NEW VIEW-MODEL! WE MUST MAP THE RESULT BACK!)
-                var dialogResult = _dialogController.ShowDialogWindowSync(DialogEventData.ShowDialogEditor("Tag Editor (" + firstFile.FileName + ")", DialogEditorView.TagView, viewModel));
+                var dialogResult = _dialogController.ShowDialogWindowSync(DialogEventData.ShowDialogEditor("Tag Editor (" + firstFile.ShortPath + ")", DialogEditorView.TagView, viewModel));
 
                 // User wishes to save the data
                 if (dialogResult)
@@ -360,7 +361,7 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels.Import
 
             foreach (var file in this.SourceDirectory.RecursiveWhere(x => !x.IsDirectory && x.IsSelected).Cast<LibraryLoaderImportFileViewModel>())
             {
-                loadingViewModel.Message = "Importing " + file.FileName;
+                loadingViewModel.Message = "Importing " + file.ShortPath;
 
                 // -> Import to Database
                 var success = _libraryImporter.WorkImportEntity(file.ImportLoad, file.ImportOutput);
@@ -422,7 +423,7 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels.Import
                 // Double Check (existing results)
                 if (!selectedFile.ImportOutput.AcoustIDSuccess)
                 {
-                    loadingViewModel.Message = "AcoustID: " + selectedFile.FileName;
+                    loadingViewModel.Message = "AcoustID: " + selectedFile.ShortPath;
 
                     var success = await _libraryImporter.WorkAcoustID(selectedFile.ImportLoad, selectedFile.ImportOutput);
 
@@ -472,7 +473,7 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels.Import
                 //
                 if (!selectedFile.ImportOutput.MusicBrainzRecordingMatchSuccess)
                 {
-                    loadingViewModel.Message = "Music Brainz Lookup:  " + selectedFile.FileName;
+                    loadingViewModel.Message = "Music Brainz Lookup:  " + selectedFile.ShortPath;
 
                     var success = await _libraryImporter.WorkMusicBrainzDetail(selectedFile.ImportLoad, selectedFile.ImportOutput);
 
@@ -559,7 +560,7 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels.Import
             // Small Audio Player:  This follows the dialog pattern; but is self-dismissing!
             //
 
-            var tagFile = _tagCacheController.Get(selectedFile.FileFullPath);
+            var tagFile = _tagCacheController.Get(selectedFile.FullPath);
 
             var dialogViewModel = new DialogSmallAudioPlayerViewModel()
             {
@@ -568,14 +569,14 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels.Import
                 CurrentTime = TimeSpan.Zero,
                 CurrentTimeRatio = 0,
                 Duration = tagFile.Duration,
-                FileName = selectedFile.FileFullPath,
+                FileName = selectedFile.FullPath,
                 PlayState = PlayStopPause.Stop,
                 SourceType = StreamSourceType.File,
                 Track = tagFile.Title
             };
 
             // Show Dialog (starts on load)
-            _dialogController.ShowDialogWindowSync(new DialogEventData(selectedFile.FileName, dialogViewModel));
+            _dialogController.ShowDialogWindowSync(new DialogEventData(selectedFile.ShortPath, dialogViewModel));
         }
     }
 }
