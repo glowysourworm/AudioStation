@@ -27,5 +27,10 @@ namespace AudioStation.ViewModels
         public PathViewModelUI(string baseDirectory, string path) : base(baseDirectory, path)
         {
         }
+
+        public override string ToString()
+        {
+            return this.Path;
+        }
     }
 }

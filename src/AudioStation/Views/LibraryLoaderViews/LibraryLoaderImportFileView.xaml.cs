@@ -30,18 +30,18 @@ namespace AudioStation.Views.LibraryLoaderViews
 
         private void SetSelection(bool expand)
         {
-            var viewModel = this.DataContext as LibraryLoaderImportViewModel;
+            //var viewModel = this.DataContext as LibraryLoaderImportViewModel;
 
-            if (viewModel != null)
-            {
-                foreach (var item in viewModel.SourceDirectory)
-                {
-                    item.IsSelected = this.ImportLB.SelectedItems.Contains(item);
+            //if (viewModel != null)
+            //{
+            //    foreach (var item in viewModel.SourceDirectory)
+            //    {
+            //        item.IsSelected = this.ImportLB.SelectedItems.Contains(item);
 
-                    if (expand)
-                        item.IsExpanded = !item.IsExpanded && item.IsSelected;
-                }
-            }
+            //        if (expand)
+            //            item.IsExpanded = !item.IsExpanded && item.IsSelected;
+            //    }
+            //}
         }
 
         private void InputFileExpanderButton_Click(object sender, RoutedEventArgs e)
@@ -53,10 +53,10 @@ namespace AudioStation.Views.LibraryLoaderViews
             {
                 var selectedFile = button.DataContext as LibraryLoaderImportFileViewModel;
 
-                foreach (var item in viewModel.SourceDirectory)
+                viewModel.SourceDirectory.RecursiveForEach(item =>
                 {
                     item.IsExpanded = (selectedFile == item) && selectedFile.IsExpanded;
-                }
+                });
             }
         }
     }

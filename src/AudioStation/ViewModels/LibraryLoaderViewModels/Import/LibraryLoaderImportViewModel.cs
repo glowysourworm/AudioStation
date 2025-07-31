@@ -61,7 +61,7 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels.Import
         }
         public int SourceFileSelectedCount
         {
-            get { return _sourceDirectory == null ? 0 : _sourceDirectory.Count(x => x.IsSelected); }
+            get { return _sourceDirectory == null ? 0 : _sourceDirectory.RecursiveCount(x => !x.IsDirectory && x.IsSelected); }
             set { OnPropertyChanged("SourceFileSelectedCount"); }
         }
         public SimpleCommand EditOptionsCommand
@@ -188,7 +188,7 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels.Import
         {
             return this.SourceFileSelectedCount > 0 &&
                    this.SourceDirectory
-                       .Where(x => x.IsSelected && !x.IsDirectory)
+                       .RecursiveWhere(x => x.IsSelected && !x.IsDirectory)
                        .Cast<LibraryLoaderImportFileViewModel>()
                        .All(x => x.MinimumImportValid);
         }
@@ -200,7 +200,7 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels.Import
         {
             return this.SourceFileSelectedCount > 0 &&
                    this.SourceDirectory
-                       .Where(x => x.IsSelected && !x.IsDirectory)
+                       .RecursiveWhere(x => x.IsSelected && !x.IsDirectory)
                        .Cast<LibraryLoaderImportFileViewModel>()
                        .All(x => x.ImportOutput.AcoustIDSuccess && x.SelectedAcoustIDResult != null);
         }
@@ -235,7 +235,7 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels.Import
                         return;
 
                     // Hook Events (Recursively)
-                    foreach (var sourceFile in  importDirectory.Where(x => !x.IsDirectory).Cast<LibraryLoaderImportFileViewModel>())
+                    foreach (var sourceFile in  importDirectory.RecursiveWhere(x => !x.IsDirectory).Cast<LibraryLoaderImportFileViewModel>())
                     {
                         sourceFile.SelectAcoustIDEvent += ShowAcoustIDResults;
                         sourceFile.SelectMusicBrainzEvent += ShowMusicBrainzResults;
@@ -247,13 +247,13 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels.Import
                     this.SourceDirectory.ItemPropertyChanged += SourceDirectory_ItemPropertyChanged;
                 }
 
-            }, DispatcherPriority.Normal);
+            }, DispatcherPriority.Background);
         }
 
         private void ClearSourceFiles()
         {
             // Un-Hook Events (Recursively)
-            foreach (var file in this.SourceDirectory.Where(x => !x.IsDirectory).Cast<LibraryLoaderImportFileViewModel>())
+            foreach (var file in this.SourceDirectory.RecursiveWhere(x => !x.IsDirectory).Cast<LibraryLoaderImportFileViewModel>())
             {
                 file.PlayAudioEvent -= ShowSmallAudioPlayer;
                 file.SelectAcoustIDEvent -= ShowAcoustIDResults;
@@ -263,7 +263,7 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels.Import
 
         private void EditTag()
         {
-            var inputFiles = this.SourceDirectory.Where(x => !x.IsDirectory && x.IsSelected).Cast<LibraryLoaderImportFileViewModel>().ToList();
+            var inputFiles = this.SourceDirectory.RecursiveWhere(x => !x.IsDirectory && x.IsSelected).Cast<LibraryLoaderImportFileViewModel>().ToList();
             var firstFile = inputFiles.FirstOrDefault();
 
             if (firstFile == null)
@@ -299,7 +299,7 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels.Import
 
         private void EditTagGroup(string fieldName)
         {
-            var inputFiles = this.SourceDirectory.Where(x => !x.IsDirectory && x.IsSelected).Cast<LibraryLoaderImportFileViewModel>().ToList();
+            var inputFiles = this.SourceDirectory.RecursiveWhere(x => !x.IsDirectory && x.IsSelected).Cast<LibraryLoaderImportFileViewModel>().ToList();
             var firstFile = inputFiles.FirstOrDefault();
 
             if (firstFile == null)
@@ -353,12 +353,12 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels.Import
                 ShowProgressBar = true
             };
             var progressCounter = 0;
-            var progressTotal = this.SourceDirectory.Where(x => !x.IsDirectory && x.IsSelected).Count();
+            var progressTotal = this.SourceDirectory.RecursiveWhere(x => !x.IsDirectory && x.IsSelected).Count();
 
             // Show Loading...
             _eventAggregator.GetEvent<DialogEvent>().Publish(new DialogEventData(loadingViewModel));
 
-            foreach (var file in this.SourceDirectory.Where(x => !x.IsDirectory && x.IsSelected).Cast<LibraryLoaderImportFileViewModel>())
+            foreach (var file in this.SourceDirectory.RecursiveWhere(x => !x.IsDirectory && x.IsSelected).Cast<LibraryLoaderImportFileViewModel>())
             {
                 loadingViewModel.Message = "Importing " + file.FileName;
 
@@ -404,7 +404,7 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels.Import
             //
 
             var progressCounter = 0;
-            var progressTotal = this.SourceDirectory.Where(x => !x.IsDirectory && x.IsSelected).Count();
+            var progressTotal = this.SourceDirectory.RecursiveWhere(x => !x.IsDirectory && x.IsSelected).Count();
 
             var loadingViewModel = new DialogLoadingViewModel()
             {
@@ -417,7 +417,7 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels.Import
             // Show Loading...
             _eventAggregator.GetEvent<DialogEvent>().Publish(new DialogEventData(loadingViewModel));
 
-            foreach (var selectedFile in this.SourceDirectory.Where(x => !x.IsDirectory && x.IsSelected).Cast<LibraryLoaderImportFileViewModel>())
+            foreach (var selectedFile in this.SourceDirectory.RecursiveWhere(x => !x.IsDirectory && x.IsSelected).Cast<LibraryLoaderImportFileViewModel>())
             {
                 // Double Check (existing results)
                 if (!selectedFile.ImportOutput.AcoustIDSuccess)
@@ -453,7 +453,7 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels.Import
             // 2) Run source files that are selected using ILibraryImporter
             //
             var progressCounter = 0;
-            var progressTotal = this.SourceDirectory.Where(x => !x.IsDirectory && x.IsSelected).Count();
+            var progressTotal = this.SourceDirectory.RecursiveWhere(x => !x.IsDirectory && x.IsSelected).Count();
 
             var loadingViewModel = new DialogLoadingViewModel()
             {
@@ -466,7 +466,7 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels.Import
             // Show Loading...
             _eventAggregator.GetEvent<DialogEvent>().Publish(new DialogEventData(loadingViewModel));
 
-            foreach (var selectedFile in this.SourceDirectory.Where(x => !x.IsDirectory && x.IsSelected).Cast<LibraryLoaderImportFileViewModel>())
+            foreach (var selectedFile in this.SourceDirectory.RecursiveWhere(x => !x.IsDirectory && x.IsSelected).Cast<LibraryLoaderImportFileViewModel>())
             {
                 // Double Check (existing records)
                 //

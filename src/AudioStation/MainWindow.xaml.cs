@@ -166,6 +166,11 @@ namespace AudioStation
             _eventAggregator.GetEvent<CDPlayerLoadEvent>().Publish(args);
         }
 
+        private void ShowLogButton_Click(object sender, RoutedEventArgs e)
+        {
+            _dialogController.ShowLogWindow(_viewModelController.GetMainViewModel().Log);
+        }
+
         protected override void OnClosing(CancelEventArgs e)
         {
             var viewModel = this.DataContext as MainViewModel;

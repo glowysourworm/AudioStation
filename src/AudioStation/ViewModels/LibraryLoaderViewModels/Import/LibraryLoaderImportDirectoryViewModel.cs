@@ -31,5 +31,10 @@
             : base(options.SourceFolder, fullDirectoryPath)
         {
         }
+
+        public override string ToString()
+        {
+            return this.Path;
+        }
     }
 }

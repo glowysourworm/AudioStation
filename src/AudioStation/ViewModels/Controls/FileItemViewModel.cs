@@ -89,7 +89,7 @@ namespace AudioStation.ViewModels.Controls
                 this.FileNameOrDirectoryName = Path.GetRelativePath(directoryName, fullPathBase);
 
                 // Recurse
-                foreach (var path in ApplicationHelpers.FastGetFileData(fullPath, searchPattern, SearchOption.AllDirectories))
+                foreach (var path in ApplicationHelpers.FastGetFileData(fullPath, searchPattern, true, SearchOption.AllDirectories))
                 {
                     this.DirectoryFiles.Add(new FileItemViewModel(path.Path, path.Attributes.HasFlag(FileAttributes.Directory), searchPattern));
                 }

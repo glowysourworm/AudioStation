@@ -655,5 +655,10 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels.Import
             return null;
         }
         #endregion
+
+        public override string ToString()
+        {
+            return this.FileFullPath;
+        }
     }
 }

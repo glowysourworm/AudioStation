@@ -13,8 +13,7 @@
         <Border x:Name="OutputMessagesContainer"
                 Background="White"
                 BorderBrush="LightGray"
-                BorderThickness="1"                
-                Visibility="{Binding ShowOutputMessages, Converter={StaticResource BoolVisibilityCollapseConverter}}">
+                BorderThickness="1">
 
             <TabControl x:Name="OutputTabControl" 
                         ItemsSource="{Binding Logs}"

@@ -20,7 +20,20 @@
                                 Watermark="Search Import Files..." 
                                 HorizontalAlignment="Stretch" />
 
-        <ListBox Grid.Row="1" Margin="5" x:Name="ImportLB"
+        <TreeView Grid.Row="1" Margin="5" x:Name="ImportTV"
+                  HorizontalAlignment="Stretch"
+                  HorizontalContentAlignment="Stretch">
+            <TreeViewItem Header="{Binding SourceDirectory.NodeValue.Path}"
+                          ItemsSource="{Binding SourceDirectory.Children}">
+                <TreeViewItem.ItemTemplate>
+                    <HierarchicalDataTemplate ItemsSource="{Binding Children}">
+                        <TextBlock Text="{Binding NodeValue.Path}" />
+                    </HierarchicalDataTemplate>
+                </TreeViewItem.ItemTemplate>
+            </TreeViewItem>                          
+        </TreeView>
+
+        <!--ListBox Grid.Row="1" Margin="5" x:Name="ImportLB"
                  ItemsSource="{Binding SourceFiles}"
                  ItemTemplateSelector="{StaticResource LibraryLoaderImportFileTemplateSelector}"
                  ItemContainerStyle="{StaticResource HoverSelectItemContainerStyleWithAlternation_LibraryLoader}"
@@ -37,7 +50,6 @@
             <ListBox.ContextMenu>
                 <ContextMenu>
 
-                    <!-- Header -->
                     <MenuItem Style="{StaticResource UserMenuItemStyle}" BorderBrush="Gray" BorderThickness="0 0 0 1">
                         <MenuItem.Header>
                             <StackPanel Orientation="Horizontal">
@@ -47,15 +59,12 @@
                         </MenuItem.Header>
                     </MenuItem>
 
-                    <!-- Import -->
                     <MenuItem Style="{StaticResource UserMenuItemStyle}" Header="Import" Command="{Binding RunImportCommand}"
                               IsEnabled="{Binding RunImportCommand.IsReady, Converter={StaticResource BoolVisibilityCollapseConverter}}" />
 
-                    <!-- Edit Tag -->
                     <MenuItem Style="{StaticResource UserMenuItemStyle}" Header="Edit Tag" Command="{Binding EditTagCommand}"
                               IsEnabled="{Binding EditTagCommand.IsReady, Converter={StaticResource BoolVisibilityCollapseConverter}}" />
 
-                    <!-- Edit Tag (Group) -->
                     <MenuItem x:Name="EditTagGroupMI" 
                               Style="{StaticResource UserMenuItemStyle}" 
                               Header="Edit Tag (Group)" 
@@ -75,17 +84,15 @@
                         <MenuItem Header="Artwork" Command="{Binding EditTagGroupCommand}" CommandParameter="Artwork" Style="{StaticResource UserMenuItemStyle}" />
                     </MenuItem>
 
-                    <!-- Save Tag -->
                     <MenuItem Style="{StaticResource UserMenuItemStyle}" Header="Save Tag" Command="{Binding SaveTagCommand}"
                               IsEnabled="{Binding SaveTagCommand.IsReady, Converter={StaticResource BoolVisibilityCollapseConverter}}" />
 
-                    <!-- Run AcoustID / Music Brainz -->
                     <MenuItem Style="{StaticResource UserMenuItemStyle}" Header="Run Music Brainz" Command="{Binding RunAcousticFingerprintCommand}"
                               IsEnabled="{Binding RunAcousticFingerprintCommand.IsReady}"/>
                 </ContextMenu>
             </ListBox.ContextMenu>
             
-        </ListBox>
+        </ListBox-->
 
     </Grid>
 </UserControl>

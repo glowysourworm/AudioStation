@@ -45,13 +45,13 @@ namespace AudioStation.Core.Utility
             }
         }
 
-        public static IEnumerable<FastDirectoryResult> FastGetFileData(string baseDirectory, string searchPattern, SearchOption option)
+        public static IEnumerable<FastDirectoryResult> FastGetFileData(string baseDirectory, string searchPattern, bool includeDirectories, SearchOption option)
         {
             // Scan directories for files (Use NativeIO for much faster iteration. Less managed memory loading)
             using (var fastDirectory = new FastDirectoryIO(baseDirectory, searchPattern, option))
             {
                 return fastDirectory.GetFiles()
-                                    .Where(x => !x.IsDirectory)
+                                    .Where(x => !x.IsDirectory || includeDirectories)
                                     .ToList();
             }
         }
