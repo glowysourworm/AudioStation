@@ -16,14 +16,12 @@
     <SolidColorBrush x:Key="LibraryImportTreeItemHoverBackground">#0F33AAFF</SolidColorBrush>
     <SolidColorBrush x:Key="LibraryImportTreeItemSelectBackground">#2F33AAFF</SolidColorBrush>
     
-    <!-- Import Directory -->
-    <Style TargetType="TreeViewItem" x:Key="LibraryImportTreeDirectoryItemContainerStyle">
-        <Setter Property="ItemsSource" Value="{Binding Children}" />
-        <Setter Property="VirtualizingPanel.IsVirtualizing" Value="True" />
+    <!-- Import Directory (Children) -->
+    <Style TargetType="ListBoxItem" x:Key="LibraryImportTreeDirectoryItemContainerStyle">
 
         <Setter Property="Template">
             <Setter.Value>
-                <ControlTemplate TargetType="TreeViewItem">
+                <ControlTemplate TargetType="ListBoxItem">
 
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsSelected" Value="True">
@@ -32,15 +30,15 @@
                         <Trigger Property="IsMouseOver" Value="True">
                             <Setter Property="Background" Value="{StaticResource LibraryImportTreeItemHoverBackground}" />
                         </Trigger>
-                    </ControlTemplate.Triggers>                    
-                    
-                    <Border Background="{TemplateBinding Background}"
-                            BorderBrush="{TemplateBinding BorderBrush}"
-                            BorderThickness="{TemplateBinding BorderThickness}"
-                            Padding="{TemplateBinding Padding}"
-                            Margin="{TemplateBinding Margin}">
+                    </ControlTemplate.Triggers>
 
-                        <Grid DataContext="{Binding NodeValue}">
+                    <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                Padding="{TemplateBinding Padding}"
+                                Margin="{TemplateBinding Margin}">
+
+                        <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto" />
                                 <ColumnDefinition Width="*" />
@@ -54,26 +52,26 @@
                             <!-- Expander -->
                             <ToggleButton x:Name="InputFileExpanderButton"
                                       ClickMode="Press"
-                                      IsChecked="{Binding IsExpanded, Mode=TwoWay}">
+                                      IsChecked="{Binding NodeValue.IsExpanded, Mode=TwoWay}">
                                 <ToggleButton.Template>
                                     <ControlTemplate TargetType="ToggleButton">
                                         <Grid Background="Transparent">
                                             <fa5:ImageAwesome Icon="Solid_PlusSquare"                                                     
                                                                 Style="{StaticResource FontAwesomeIconManagerViewPager}"
                                                                 Margin="3"
-                                                                Visibility="{Binding IsExpanded, Converter={StaticResource BoolInverseVisibilityCollapseConverter}}" />
+                                                                Visibility="{Binding NodeValue.IsExpanded, Converter={StaticResource BoolInverseVisibilityCollapseConverter}}" />
 
                                             <fa5:ImageAwesome Icon="Solid_MinusSquare"                                                     
                                                                 Style="{StaticResource FontAwesomeIconManagerViewPager}"
                                                                 Margin="3"
-                                                                Visibility="{Binding IsExpanded, Converter={StaticResource BoolVisibilityCollapseConverter}}" />
+                                                                Visibility="{Binding NodeValue.IsExpanded, Converter={StaticResource BoolVisibilityCollapseConverter}}" />
                                         </Grid>
                                     </ControlTemplate>
                                 </ToggleButton.Template>
                             </ToggleButton>
 
                             <!-- Header -->
-                            <TextBlock Text="{Binding ShortPath}" 
+                            <TextBlock Text="{Binding NodeValue.ShortPath}" 
                                       Margin="5"
                                       VerticalAlignment="Center"
                                       TextWrapping="NoWrap"
@@ -82,8 +80,96 @@
                                       Grid.Column="1" />
 
                             <!-- Items -->
-                            <ItemsPresenter Grid.Row="1" Grid.Column="1"
-                                            Visibility="{Binding IsExpanded, Converter={StaticResource BoolVisibilityCollapseConverter}}" />
+                            <ListBox Grid.Row="1" Grid.Column="1"
+                                    ItemContainerStyleSelector="{StaticResource LibraryLoaderImportTreeStyleSelector}"
+                                    BorderThickness="0"
+                                     SelectionMode="Extended"
+                                    VirtualizingPanel.IsVirtualizing="True"
+                                    ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                    ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                                    ItemsSource="{Binding Children}"
+                                    Visibility="{Binding NodeValue.IsExpanded, Converter={StaticResource BoolVisibilityCollapseConverter}}" />
+                        </Grid>
+                    </Border>
+
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+
+    </Style>
+
+    <!-- Import Directory (No Children) -->
+    <Style TargetType="ListBoxItem" x:Key="LibraryImportTreeDirectoryLeafItemContainerStyle">
+
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ListBoxItem">
+
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter Property="Background" Value="{StaticResource LibraryImportTreeItemSelectBackground}" />
+                        </Trigger>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Background" Value="{StaticResource LibraryImportTreeItemHoverBackground}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+
+                    <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                Padding="{TemplateBinding Padding}"
+                                Margin="{TemplateBinding Margin}">
+
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+
+                            <!-- Expander -->
+                            <ToggleButton x:Name="InputFileExpanderButton"
+                                      ClickMode="Press"
+                                      IsChecked="{Binding NodeValue.IsExpanded, Mode=TwoWay}">
+                                <ToggleButton.Template>
+                                    <ControlTemplate TargetType="ToggleButton">
+                                        <Grid Background="Transparent">
+                                            <fa5:ImageAwesome Icon="Solid_PlusSquare"                                                     
+                                                                Style="{StaticResource FontAwesomeIconManagerViewPager}"
+                                                                Margin="3"
+                                                                Visibility="{Binding NodeValue.IsExpanded, Converter={StaticResource BoolInverseVisibilityCollapseConverter}}" />
+
+                                            <fa5:ImageAwesome Icon="Solid_MinusSquare"                                                     
+                                                                Style="{StaticResource FontAwesomeIconManagerViewPager}"
+                                                                Margin="3"
+                                                                Visibility="{Binding NodeValue.IsExpanded, Converter={StaticResource BoolVisibilityCollapseConverter}}" />
+                                        </Grid>
+                                    </ControlTemplate>
+                                </ToggleButton.Template>
+                            </ToggleButton>
+
+                            <!-- Header -->
+                            <TextBlock Text="{Binding NodeValue.ShortPath}" 
+                                      Margin="5"
+                                      VerticalAlignment="Center"
+                                      TextWrapping="NoWrap"
+                                      TextTrimming="CharacterEllipsis"
+                                      FontSize="14"
+                                      Grid.Column="1" />
+
+                            <!-- Items -->
+                            <ListBox Grid.Row="1" Grid.Column="1"
+                                    ItemContainerStyleSelector="{StaticResource LibraryLoaderImportTreeStyleSelector}"
+                                    BorderThickness="0"
+                                    VirtualizingPanel.IsVirtualizing="True"
+                                    ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                    ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                                    ItemsSource="{Binding Children}"
+                                    Visibility="{Binding NodeValue.IsExpanded, Converter={StaticResource BoolVisibilityCollapseConverter}}" />
                         </Grid>
                     </Border>
 
@@ -94,10 +180,10 @@
     </Style>
 
     <!-- Import File -->
-    <Style TargetType="TreeViewItem" x:Key="LibraryImportTreeFileItemContainerStyle">
+    <Style TargetType="ListBoxItem" x:Key="LibraryImportTreeFileItemContainerStyle">
         <Setter Property="Template">
             <Setter.Value>
-                <ControlTemplate TargetType="TreeViewItem">
+                <ControlTemplate TargetType="ListBoxItem">
 
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsSelected" Value="True">

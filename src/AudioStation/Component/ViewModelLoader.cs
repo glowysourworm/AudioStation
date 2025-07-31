@@ -299,11 +299,11 @@ namespace AudioStation.Component
             });
         }
 
-        public Task<LibraryLoaderImportTreeViewModel?> LoadImportFiles(LibraryLoaderImportOptionsViewModel options,
+        public LibraryLoaderImportTreeViewModel? LoadImportFiles(LibraryLoaderImportOptionsViewModel options,
                                                                        DialogProgressHandler progressHandler)
         {
             if (!_configurationManager.ValidateConfiguration())
-                return Task.FromResult<LibraryLoaderImportTreeViewModel?>(null);
+                return null;
 
             // Configuration:  Calculate base directory from staging
             //
@@ -317,61 +317,58 @@ namespace AudioStation.Component
             // Calculate Migration (destination) Directory
             var destinationDirectory = System.IO.Path.Combine(directoryBase, subDirectory);
 
-            return Task.Run(() =>
+            try
             {
-                try
+                // Directory (Root -> NodeValue)
+                var rootValue = new LibraryLoaderImportDirectoryViewModel(options.SourceFolder, options);
+
+                // File Tree (Recursive Node Container)
+                var root = new LibraryLoaderImportTreeViewModel(rootValue);
+
+                // Recurse through files using a while loop
+                var directories = new Stack<LibraryLoaderImportTreeViewModel>();
+
+                // Start (stack)
+                directories.Push(root);
+
+                while (directories.Count > 0)
                 {
-                    // Directory (Root -> NodeValue)
-                    var rootValue = new LibraryLoaderImportDirectoryViewModel(options.SourceFolder, options);
+                    var currentDirectory = directories.Pop();
 
-                    // File Tree (Recursive Node Container)
-                    var root = new LibraryLoaderImportTreeViewModel(rootValue);
+                    // Current Directory
+                    var fileData = ApplicationHelpers.FastGetFileData(currentDirectory.NodeValue.FullPath, "*.mp3", true, SearchOption.TopDirectoryOnly);
+                    var fileCount = fileData.Count();
+                    var fileIndex = 0;
 
-                    // Recurse through files using a while loop
-                    var directories = new Stack<LibraryLoaderImportTreeViewModel>();                    
-
-                    // Start (stack)
-                    directories.Push(root);
-
-                    while (directories.Count > 0)
+                    foreach (var file in fileData)
                     {
-                        var currentDirectory = directories.Pop();
+                        //progressHandler(fileCount, fileIndex++, 0, "Loading Import Files");
 
-                        // Current Directory
-                        var fileData = ApplicationHelpers.FastGetFileData(currentDirectory.NodeValue.FullPath, "*.mp3", true, SearchOption.TopDirectoryOnly);
-                        var fileCount = fileData.Count();
-                        var fileIndex = 0;
-
-                        foreach (var file in fileData)
+                        // Directory (stack)
+                        if (file.IsDirectory)
                         {
-                            //progressHandler(fileCount, fileIndex++, 0, "Loading Import Files");
+                            // Next Directory
+                            var nodeValue = new LibraryLoaderImportDirectoryViewModel(file.Path, options);
 
-                            // Directory (stack)
-                            if (file.IsDirectory)
-                            {
-                                // Next Directory
-                                var nodeValue = new LibraryLoaderImportDirectoryViewModel(file.Path, options);
+                            // Current -> Next (adds parent)
+                            var nextDirectory = currentDirectory.Add(nodeValue) as LibraryLoaderImportTreeViewModel;
 
-                                // Current -> Next (adds parent)
-                                var nextDirectory = currentDirectory.Add(nodeValue) as LibraryLoaderImportTreeViewModel;
-
-                                // Push (NodeValue, Parent)
-                                directories.Push(nextDirectory);
-                            }
-
-                            else
-                                currentDirectory.Add(new LibraryLoaderImportFileViewModel(file.Path, false, destinationDirectory, options));
+                            // Push (NodeValue, Parent)
+                            directories.Push(nextDirectory);
                         }
-                    }
 
-                    return root;
+                        else
+                            currentDirectory.Add(new LibraryLoaderImportFileViewModel(file.Path, false, destinationDirectory, options));
+                    }
                 }
-                catch (Exception ex)
-                {
-                    ApplicationHelpers.Log("Error loading import files:  {0}", LogMessageType.General, LogLevel.Error, ex, ex.Message);
-                    return null;
-                }
-            });
+
+                return root;
+            }
+            catch (Exception ex)
+            {
+                ApplicationHelpers.Log("Error loading import files:  {0}", LogMessageType.General, LogLevel.Error, ex, ex.Message);
+                return null;
+            }
         }
     }
 }

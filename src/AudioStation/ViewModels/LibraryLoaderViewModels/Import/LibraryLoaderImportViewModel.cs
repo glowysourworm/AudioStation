@@ -1,6 +1,8 @@
 ﻿using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
+using System.Runtime.InteropServices;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Threading;
 
@@ -230,13 +232,13 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels.Import
                 {
                     // IViewModelLoader -> LoadImportFiles -> LibraryLoaderImportFileViewModel(...)
                     //
-                    var importDirectory = await _viewModelLoader.LoadImportFiles(this.Options, progressHandler);
+                    var importDirectory = _viewModelLoader.LoadImportFiles(this.Options, progressHandler);
 
                     if (importDirectory == null)
                         return;
 
                     // Hook Events (Recursively)
-                    foreach (var sourceFile in  importDirectory.RecursiveWhere(x => !x.IsDirectory).Cast<LibraryLoaderImportFileViewModel>())
+                    foreach (var sourceFile in importDirectory.RecursiveWhere(x => !x.IsDirectory).Cast<LibraryLoaderImportFileViewModel>())
                     {
                         sourceFile.SelectAcoustIDEvent += ShowAcoustIDResults;
                         sourceFile.SelectMusicBrainzEvent += ShowMusicBrainzResults;

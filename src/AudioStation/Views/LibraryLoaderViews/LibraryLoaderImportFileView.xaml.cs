@@ -20,28 +20,18 @@ namespace AudioStation.Views.LibraryLoaderViews
 
         private void ImportLB_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            SetSelection(false);
-        }
+            var viewModel = this.DataContext as LibraryLoaderImportViewModel;
+            var selectedViewModel = (e.OriginalSource as FrameworkElement).DataContext as LibraryLoaderImportTreeViewModel;
 
-        private void ImportLB_MouseDoubleClick(object sender, MouseButtonEventArgs e)
-        {
-            SetSelection(true);
-        }
-
-        private void SetSelection(bool expand)
-        {
-            //var viewModel = this.DataContext as LibraryLoaderImportViewModel;
-
-            //if (viewModel != null)
-            //{
-            //    foreach (var item in viewModel.SourceDirectory)
-            //    {
-            //        item.IsSelected = this.ImportLB.SelectedItems.Contains(item);
-
-            //        if (expand)
-            //            item.IsExpanded = !item.IsExpanded && item.IsSelected;
-            //    }
-            //}
+            if (viewModel != null)
+            {
+                // Reset Selection
+                viewModel.SourceDirectory.RecurseForEachNode(node =>
+                {
+                    // Shared Directory
+                    node.NodeValue.IsSelected = selectedViewModel.Parent == node.Parent;
+                });
+            }
         }
 
         private void InputFileExpanderButton_Click(object sender, RoutedEventArgs e)

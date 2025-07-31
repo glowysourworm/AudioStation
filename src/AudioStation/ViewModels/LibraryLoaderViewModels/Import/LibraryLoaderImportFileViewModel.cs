@@ -26,7 +26,7 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels.Import
     /// PathViewModel provides the node VALUE for the recursive directory structure. The "Path" view model is essentially
     /// the container for this value.
     /// </summary>
-    public class LibraryLoaderImportFileViewModel : PathViewModelUI
+    public class LibraryLoaderImportFileViewModel : PathViewModel
     {
         private readonly IModelValidationService _modelValidationService;
         private readonly IModelFileService _modelFileService;
@@ -40,8 +40,6 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels.Import
         bool _inError;
         bool _isTagDirty;
 
-        string _fileName;
-        string _fileFullPath;
         string _fileMigrationName;
         string _fileMigrationFullPath;
 

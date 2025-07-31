@@ -12,21 +12,24 @@ namespace AudioStation.Views.StyleSelectors
     {
         public override Style SelectStyle(object item, DependencyObject container)
         {
-            var treeViewItem = container as TreeViewItem;
+            var listBoxItem = container as ListBoxItem;
 
-            if (treeViewItem == null)
+            if (listBoxItem == null)
                 throw new NullReferenceException("Improper handling of LibraryLoaderImportTreeStyleSelector");
 
-            var viewModel = treeViewItem.DataContext as LibraryLoaderImportTreeViewModel;
+            var viewModel = listBoxItem.DataContext as LibraryLoaderImportTreeViewModel;
 
             if (viewModel == null)
-                throw new NullReferenceException("Improper data binding for LibraryLoaderImportTreeStyleSelector");
+                return null;
 
             if (viewModel.NodeValue.IsDirectory)
-                return treeViewItem.FindResource("LibraryImportTreeDirectoryItemContainerStyle") as Style;
+            {
+                return listBoxItem.FindResource("LibraryImportTreeDirectoryItemContainerStyle") as Style;
+            }
+                
 
             else
-                return treeViewItem.FindResource("LibraryImportTreeFileItemContainerStyle") as Style;
+                return listBoxItem.FindResource("LibraryImportTreeFileItemContainerStyle") as Style;
         }
     }
 }
