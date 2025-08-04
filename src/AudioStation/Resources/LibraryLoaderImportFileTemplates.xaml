@@ -27,9 +27,6 @@
                         <Trigger Property="IsSelected" Value="True">
                             <Setter Property="Background" Value="{StaticResource LibraryImportTreeItemSelectBackground}" />
                         </Trigger>
-                        <Trigger Property="IsMouseOver" Value="True">
-                            <Setter Property="Background" Value="{StaticResource LibraryImportTreeItemHoverBackground}" />
-                        </Trigger>
                     </ControlTemplate.Triggers>
 
                     <Border Background="{TemplateBinding Background}"
@@ -80,15 +77,15 @@
                                       Grid.Column="1" />
 
                             <!-- Items -->
-                            <ListBox Grid.Row="1" Grid.Column="1"
-                                    ItemContainerStyleSelector="{StaticResource LibraryLoaderImportTreeStyleSelector}"
-                                    BorderThickness="0"
-                                     SelectionMode="Extended"
-                                    VirtualizingPanel.IsVirtualizing="True"
-                                    ScrollViewer.VerticalScrollBarVisibility="Auto"
-                                    ScrollViewer.HorizontalScrollBarVisibility="Auto"
-                                    ItemsSource="{Binding Children}"
-                                    Visibility="{Binding NodeValue.IsExpanded, Converter={StaticResource BoolVisibilityCollapseConverter}}" />
+                            <controls:PathViewModelListBox Grid.Row="1" Grid.Column="1"
+                                                           ItemContainerStyleSelector="{StaticResource LibraryLoaderImportTreeStyleSelector}"
+                                                           BorderThickness="0"
+                                                           SelectionMode="Extended"
+                                                           VirtualizingPanel.IsVirtualizing="True"
+                                                           ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                                           ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                                                           ItemsSource="{Binding Children}"
+                                                           Visibility="{Binding NodeValue.IsExpanded, Converter={StaticResource BoolVisibilityCollapseConverter}}" />
                         </Grid>
                     </Border>
 
@@ -109,9 +106,6 @@
                         <Trigger Property="IsSelected" Value="True">
                             <Setter Property="Background" Value="{StaticResource LibraryImportTreeItemSelectBackground}" />
                         </Trigger>
-                        <Trigger Property="IsMouseOver" Value="True">
-                            <Setter Property="Background" Value="{StaticResource LibraryImportTreeItemHoverBackground}" />
-                        </Trigger>
                     </ControlTemplate.Triggers>
 
                     <Border Background="{TemplateBinding Background}"
@@ -162,14 +156,14 @@
                                       Grid.Column="1" />
 
                             <!-- Items -->
-                            <ListBox Grid.Row="1" Grid.Column="1"
-                                    ItemContainerStyleSelector="{StaticResource LibraryLoaderImportTreeStyleSelector}"
-                                    BorderThickness="0"
-                                    VirtualizingPanel.IsVirtualizing="True"
-                                    ScrollViewer.VerticalScrollBarVisibility="Auto"
-                                    ScrollViewer.HorizontalScrollBarVisibility="Auto"
-                                    ItemsSource="{Binding Children}"
-                                    Visibility="{Binding NodeValue.IsExpanded, Converter={StaticResource BoolVisibilityCollapseConverter}}" />
+                            <controls:PathViewModelListBox Grid.Row="1" Grid.Column="1"
+                                                           ItemContainerStyleSelector="{StaticResource LibraryLoaderImportTreeStyleSelector}"
+                                                           BorderThickness="0"
+                                                           VirtualizingPanel.IsVirtualizing="True"
+                                                           ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                                           ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                                                           ItemsSource="{Binding Children}"
+                                                           Visibility="{Binding NodeValue.IsExpanded, Converter={StaticResource BoolVisibilityCollapseConverter}}" />
                         </Grid>
                     </Border>
 
@@ -181,6 +175,7 @@
 
     <!-- Import File -->
     <Style TargetType="ListBoxItem" x:Key="LibraryImportTreeFileItemContainerStyle">
+
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="ListBoxItem">
@@ -188,9 +183,6 @@
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsSelected" Value="True">
                             <Setter Property="Background" Value="{StaticResource LibraryImportTreeItemSelectBackground}" />
-                        </Trigger>
-                        <Trigger Property="IsMouseOver" Value="True">
-                            <Setter Property="Background" Value="{StaticResource LibraryImportTreeItemHoverBackground}" />
                         </Trigger>
                     </ControlTemplate.Triggers>
 
@@ -215,7 +207,7 @@
 
                             <!-- Expander -->
                             <ToggleButton x:Name="InputFileExpanderButton"
-                            IsChecked="{Binding IsExpanded, Mode=TwoWay}">
+                                          IsChecked="{Binding IsExpanded, Mode=TwoWay}">
                                 <ToggleButton.Template>
                                     <ControlTemplate TargetType="ToggleButton">
                                         <Grid Background="Transparent">
@@ -338,7 +330,7 @@
 
                                     <!-- Import File Properties -->
                                     <propertyGrid:PropertyLabelControl Grid.Row="0" Margin="3" LabelColumnWidth="100" LabelText="Source File:" 
-                                                                   Value="{Binding FileFullPath}" ToolTip="{Binding FileFullPath}"
+                                                                   Value="{Binding FullPath}" ToolTip="{Binding FullPath}"
                                                                    Style="{StaticResource PropertyGridDetailUserControl}" />
 
                                     <propertyGrid:PropertyLabelControl Grid.Row="1" Margin="3" LabelColumnWidth="100" LabelText="Migrated File:" 

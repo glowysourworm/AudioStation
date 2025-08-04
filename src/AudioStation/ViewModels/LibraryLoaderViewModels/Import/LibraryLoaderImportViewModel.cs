@@ -67,6 +67,11 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels.Import
             get { return _sourceDirectory == null ? 0 : _sourceDirectory.RecursiveCount(x => !x.IsDirectory && x.IsSelected); }
             set { OnPropertyChanged("SourceFileSelectedCount"); }
         }
+        public int SourceFileCount
+        {
+            get { return _sourceDirectory == null ? 0 : _sourceDirectory.RecursiveCount(x => !x.IsDirectory); }
+            set { OnPropertyChanged("SourceFileCount"); }
+        }
         public SimpleCommand EditOptionsCommand
         {
             get { return _editOptionsCommand; }
@@ -208,17 +213,6 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels.Import
                        .All(x => x.ImportOutput.AcoustIDSuccess && x.SelectedAcoustIDResult != null);
         }
 
-        private void SourceDirectory_ItemPropertyChanged(PathViewModel item, PropertyChangedEventArgs eventArgs)
-        {
-            OnPropertyChanged("SourceFileSelectedCount");
-
-            this.EditOptionsCommand.RaiseCanExecuteChanged();
-            this.EditTagCommand.RaiseCanExecuteChanged();
-            this.EditTagGroupCommand.RaiseCanExecuteChanged(string.Empty);
-            this.RunImportCommand.RaiseCanExecuteChanged();
-            this.RunAcousticFingerprintCommand.RaiseCanExecuteChanged();
-        }
-
         private async Task RefreshImportFiles(DialogProgressHandler progressHandler)
         {
             // Initialization:     This task is run during initialization.
@@ -243,6 +237,7 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels.Import
                         sourceFile.SelectAcoustIDEvent += ShowAcoustIDResults;
                         sourceFile.SelectMusicBrainzEvent += ShowMusicBrainzResults;
                         sourceFile.PlayAudioEvent += ShowSmallAudioPlayer;
+                        sourceFile.PropertyChanged += SourceFile_PropertyChanged;
                     }
 
                     // Set View Model
@@ -253,6 +248,27 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels.Import
             }, DispatcherPriority.Background);
         }
 
+        private void SourceDirectory_ItemPropertyChanged(PathViewModel item, PropertyChangedEventArgs propertyArgs)
+        {
+            SourceTreeNotify();
+        }
+        private void SourceFile_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            SourceTreeNotify();
+        }
+
+        private void SourceTreeNotify()
+        {
+            OnPropertyChanged("SourceFileSelectedCount");
+            OnPropertyChanged("SourceFileCount");
+
+            this.EditOptionsCommand.RaiseCanExecuteChanged();
+            this.EditTagCommand.RaiseCanExecuteChanged();
+            this.EditTagGroupCommand.RaiseCanExecuteChanged(string.Empty);
+            this.RunImportCommand.RaiseCanExecuteChanged();
+            this.RunAcousticFingerprintCommand.RaiseCanExecuteChanged();
+        }
+
         private void ClearSourceFiles()
         {
             // Un-Hook Events (Recursively)
@@ -261,7 +277,10 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels.Import
                 file.PlayAudioEvent -= ShowSmallAudioPlayer;
                 file.SelectAcoustIDEvent -= ShowAcoustIDResults;
                 file.SelectMusicBrainzEvent -= ShowMusicBrainzResults;
+                file.PropertyChanged -= SourceFile_PropertyChanged;
             }
+            // Nodes have list properties
+            this.SourceDirectory.ItemPropertyChanged -= SourceDirectory_ItemPropertyChanged;
         }
 
         private void EditTag()

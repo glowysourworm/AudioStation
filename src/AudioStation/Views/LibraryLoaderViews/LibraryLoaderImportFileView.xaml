@@ -21,14 +21,14 @@
                                 HorizontalAlignment="Stretch" />
 
         <ScrollViewer Grid.Row="1" Margin="5" VerticalScrollBarVisibility="Auto">
-            <ListBox x:Name="ImportLB"
-                     SelectionChanged="ImportLB_SelectionChanged"
-                     VirtualizingPanel.IsVirtualizing="True"
-                     SelectionMode="Extended"
-                     ItemContainerStyleSelector="{StaticResource LibraryLoaderImportTreeStyleSelector}"
-                     HorizontalAlignment="Stretch"
-                     HorizontalContentAlignment="Stretch">
-                <ListBox.ContextMenu>
+            <controls:PathViewModelListBox x:Name="ImportLB"
+                                           SelectionChanged="ImportLB_SelectionChanged"
+                                           VirtualizingPanel.IsVirtualizing="True"
+                                           SelectionMode="Extended"
+                                           ItemContainerStyleSelector="{StaticResource LibraryLoaderImportTreeStyleSelector}"
+                                           HorizontalAlignment="Stretch"
+                                           HorizontalContentAlignment="Stretch">
+                <controls:PathViewModelListBox.ContextMenu>
                     <ContextMenu>
 
                         <MenuItem Style="{StaticResource UserMenuItemStyle}" BorderBrush="Gray" BorderThickness="0 0 0 1">
@@ -71,10 +71,10 @@
                         <MenuItem Style="{StaticResource UserMenuItemStyle}" Header="Run Music Brainz" Command="{Binding RunAcousticFingerprintCommand}"
                               IsEnabled="{Binding RunAcousticFingerprintCommand.IsReady}"/>
                     </ContextMenu>
-                </ListBox.ContextMenu>
+                </controls:PathViewModelListBox.ContextMenu>
 
                 <ListBoxItem DataContext="{Binding SourceDirectory}" />
-            </ListBox>
+            </controls:PathViewModelListBox>
         </ScrollViewer>
 
         <!--ListBox Grid.Row="1" Margin="5" x:Name="ImportLB"

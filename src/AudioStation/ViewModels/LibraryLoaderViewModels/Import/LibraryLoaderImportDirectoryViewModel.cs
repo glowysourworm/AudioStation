@@ -15,17 +15,17 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels.Import
         public bool InError
         {
             get { return _inError; }
-            set { RaiseAndSetIfChanged(ref _inError, value); }
+            set { SetValueOverride(ref _inError, value); }
         }
         public bool AreTagsDirty
         {
             get { return _areTagsDirty; }
-            set { RaiseAndSetIfChanged(ref _areTagsDirty, value); }
+            set { SetValueOverride(ref _areTagsDirty, value); }
         }
         public bool AreAllMinimumImportsValid
         {
             get { return _areAllMinimumImportsValid; }
-            set { RaiseAndSetIfChanged(ref _areAllMinimumImportsValid, value); }
+            set { SetValueOverride(ref _areAllMinimumImportsValid, value); }
         }
 
         public LibraryLoaderImportDirectoryViewModel(string fullDirectoryPath,

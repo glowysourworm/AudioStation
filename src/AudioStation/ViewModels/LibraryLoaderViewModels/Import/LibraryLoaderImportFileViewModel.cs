@@ -96,91 +96,91 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels.Import
         public string ImportOptions
         {
             get { return _importOptions; }
-            set { RaiseAndSetIfChanged(ref _importOptions, value); }
+            set { SetValueOverride(ref _importOptions, value); }
         }
         #endregion
 
         public bool InError
         {
             get { return _inError; }
-            set { RaiseAndSetIfChanged(ref _inError, value); }
+            set { SetValueOverride(ref _inError, value); }
         }
         public bool IsTagDirty
         {
             get { return _isTagDirty; }
-            set { RaiseAndSetIfChanged(ref _isTagDirty, value); }
+            set { SetValueOverride(ref _isTagDirty, value); }
         }
         public string FileMigrationName
         {
             get { return _fileMigrationName; }
-            set { RaiseAndSetIfChanged(ref _fileMigrationName, value); }
+            set { SetValueOverride(ref _fileMigrationName, value); }
         }
         public string FileMigrationFullPath
         {
             get { return _fileMigrationFullPath; }
-            set { RaiseAndSetIfChanged(ref _fileMigrationFullPath, value); }
+            set { SetValueOverride(ref _fileMigrationFullPath, value); }
         }
         public bool MinimumImportValid
         {
             get { return _minimumImportValid; }
-            set { RaiseAndSetIfChanged(ref _minimumImportValid, value); }
+            set { SetValueOverride(ref _minimumImportValid, value); }
         }
         public string TagIssues
         {
             get { return _tagIssues; }
-            set { RaiseAndSetIfChanged(ref _tagIssues, value); }
+            set { SetValueOverride(ref _tagIssues, value); }
         }
         public LibraryLoaderImportOutputViewModel ImportOutput
         {
             get { return _importOutput; }
-            set { RaiseAndSetIfChanged(ref _importOutput, value); }
+            set { SetValueOverride(ref _importOutput, value); }
         }
         public LibraryLoaderImportLoadViewModel ImportLoad
         {
             get { return _importLoad; }
-            set { RaiseAndSetIfChanged(ref _importLoad, value); }
+            set { SetValueOverride(ref _importLoad, value); }
         }
 
         public LookupResultViewModel SelectedAcoustIDResult
         {
             get { return _selectedAcoustIDResult; }
-            set { RaiseAndSetIfChanged(ref _selectedAcoustIDResult, value); Update(); }
+            set { SetValueOverride(ref _selectedAcoustIDResult, value); Update(); }
         }
         public MusicBrainzRecordingViewModel SelectedMusicBrainzRecordingMatch
         {
             get { return _selectedMusicBrainzRecordingMatch; }
-            set { RaiseAndSetIfChanged(ref _selectedMusicBrainzRecordingMatch, value); Update(); }
+            set { SetValueOverride(ref _selectedMusicBrainzRecordingMatch, value); Update(); }
         }
 
         public SimpleCommand SelectMusicBrainzCommand
         {
             get { return _selectMusicBrainzCommand; }
-            set { RaiseAndSetIfChanged(ref _selectMusicBrainzCommand, value); }
+            set { SetValueOverride(ref _selectMusicBrainzCommand, value); }
         }
         public SimpleCommand SelectAcoustIDCommand
         {
             get { return _selectAcoustIDCommand; }
-            set { RaiseAndSetIfChanged(ref _selectAcoustIDCommand, value); }
+            set { SetValueOverride(ref _selectAcoustIDCommand, value); }
         }
         public SimpleCommand PlayAudioCommand
         {
             get { return _playAudioCommand; }
-            set { RaiseAndSetIfChanged(ref _playAudioCommand, value); }
+            set { SetValueOverride(ref _playAudioCommand, value); }
         }
         public SimpleCommand SaveTagCommand
         {
             get { return _saveTagCommand; }
-            set { RaiseAndSetIfChanged(ref _saveTagCommand, value); }
+            set { SetValueOverride(ref _saveTagCommand, value); }
         }
         public SimpleCommand CopyMusicBrainzToTagCommand
         {
             get { return _copyMusicBrainzToTagCommand; }
-            set { RaiseAndSetIfChanged(ref _copyMusicBrainzToTagCommand, value); }
+            set { SetValueOverride(ref _copyMusicBrainzToTagCommand, value); }
         }
         public SimpleCommand RefreshCommand
         {
             get { return _refreshCommand; }
-            set { RaiseAndSetIfChanged(ref _refreshCommand, value); }
+            set { SetValueOverride(ref _refreshCommand, value); }
         }
 
         bool _updating;

@@ -26,7 +26,7 @@
                 <Run Text="Files to Run / Files Total:  " />
                 <Run Text="{Binding SourceFileSelectedCount, Mode=OneWay}" />                
                 <Run Text=" / " />
-                <Run Text="{Binding SourceFiles.Count, Mode=OneWay}" />
+                <Run Text="{Binding SourceFileCount, Mode=OneWay}" />
             </TextBlock>
 
             <!-- Edit Tag(s) -->

@@ -20,18 +20,18 @@ namespace AudioStation.Views.LibraryLoaderViews
 
         private void ImportLB_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            var viewModel = this.DataContext as LibraryLoaderImportViewModel;
-            var selectedViewModel = (e.OriginalSource as FrameworkElement).DataContext as LibraryLoaderImportTreeViewModel;
+            //var viewModel = this.DataContext as LibraryLoaderImportViewModel;
+            //var selectedViewModel = (e.OriginalSource as FrameworkElement).DataContext as LibraryLoaderImportTreeViewModel;
 
-            if (viewModel != null)
-            {
-                // Reset Selection
-                viewModel.SourceDirectory.RecurseForEachNode(node =>
-                {
-                    // Shared Directory
-                    node.NodeValue.IsSelected = selectedViewModel.Parent == node.Parent;
-                });
-            }
+            //if (viewModel != null)
+            //{
+            //    // Reset Selection
+            //    viewModel.SourceDirectory.RecurseForEach(node =>
+            //    {
+            //        // Shared Directory
+            //        node.NodeValue.IsSelected = selectedViewModel.Parent == node.Parent;
+            //    });
+            //}
         }
 
         private void InputFileExpanderButton_Click(object sender, RoutedEventArgs e)
@@ -43,9 +43,9 @@ namespace AudioStation.Views.LibraryLoaderViews
             {
                 var selectedFile = button.DataContext as LibraryLoaderImportFileViewModel;
 
-                viewModel.SourceDirectory.RecursiveForEach(item =>
+                viewModel.SourceDirectory.RecurseForEach(item =>
                 {
-                    item.IsExpanded = (selectedFile == item) && selectedFile.IsExpanded;
+                    item.NodeValue.IsExpanded = (selectedFile == item.NodeValue) && selectedFile.IsExpanded;
                 });
             }
         }
