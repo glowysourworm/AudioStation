@@ -1,8 +1,12 @@
-﻿using AudioStation.Component.Interface;
+﻿using System.Runtime.CompilerServices;
+
+using AudioStation.Component.Interface;
 using AudioStation.Controller.Interface;
 using AudioStation.Core.Component.CDPlayer.Interface;
 using AudioStation.Core.Component.Interface;
+using AudioStation.Core.Component.Vendor;
 using AudioStation.Core.Component.Vendor.Bandcamp.Interface;
+using AudioStation.Core.Component.Vendor.Interface;
 using AudioStation.Service.Interface;
 using AudioStation.ViewModels;
 using AudioStation.ViewModels.LibraryLoaderViewModels;
@@ -34,17 +38,40 @@ namespace AudioStation.Controller
         private readonly NowPlayingViewModel _nowPlayingViewModel;
         private readonly BandcampViewModel _bandcampViewModel;
 
+        // IAudioStationComponent
+        private readonly IOutputController _outputController;
+        private readonly IAudioController _audioController;
+        private readonly IAcoustIDClient _acoustIDClient;
+        private readonly IBandcampClient _bandcampClient;
+        private readonly IDiscogsClient _discogsClient;
+        private readonly IFanartClient _fanartClient;
+        private readonly IITunesClient _iTunesClient;
+        private readonly ILastFmClient _lastFmClient;
+        private readonly IMusicBrainzClient _musicBrainzClient;
+        private readonly ISpotifyClient _spotifyClient;
+
         [IocImportingConstructor]
         public ViewModelController(IConfigurationManager configurationManager,
                                    IModelController modelController,
                                    IDialogController dialogController,
-                                   IAudioController audioController,
                                    ITagCacheController tagCacheController,
                                    IViewModelLoader viewModelLoader,
                                    ILibraryImporter libraryImporter,
                                    ILibraryLoaderService libraryLoaderService,
                                    IModelValidationService modelValidationService,
+
+                                   // IAudioStationComponent
+                                   IAudioController audioController,
+                                   IOutputController outputController,
+                                   IAcoustIDClient acoustIDClient,
                                    IBandcampClient bandcampClient,
+                                   IDiscogsClient discogsClient,
+                                   IFanartClient fanartClient,
+                                   IITunesClient itunesClient,
+                                   ILastFmClient lastFmClient,
+                                   IMusicBrainzClient musicBrainzClient,
+                                   ISpotifyClient spotifyClient,
+
                                    IIocEventAggregator eventAggregator,
                                    ICDImportService importService,
                                    ICDDrive cdDrive)
@@ -75,11 +102,27 @@ namespace AudioStation.Controller
                                                                  _libraryLoaderImportRadioViewModel, _libraryLoaderDownloadMusicBrainzViewModel);
 
             _mainViewModel = new MainViewModel(configurationManager, dialogController,
-                                               audioController, eventAggregator, cdDrive,
+                                               eventAggregator, cdDrive, audioController, 
+                                               outputController, acoustIDClient, bandcampClient, 
+                                               discogsClient, fanartClient, itunesClient, 
+                                               lastFmClient, musicBrainzClient, spotifyClient,
                                                configurationManager.GetConfiguration(),
                                                _libraryManagerViewModel, _radioViewModel,
                                                _logViewModel, _libraryLoaderViewModel,
                                                _nowPlayingViewModel, _bandcampViewModel);
+
+
+            // IAudioStationComponent
+            _audioController = audioController;
+            _outputController = outputController;
+            _acoustIDClient = acoustIDClient;
+            _bandcampClient = bandcampClient;
+            _discogsClient = discogsClient;
+            _fanartClient = fanartClient;
+            _iTunesClient = itunesClient;
+            _lastFmClient = lastFmClient;
+            _musicBrainzClient = musicBrainzClient;
+            _spotifyClient = spotifyClient;
         }
 
         public MainViewModel GetMainViewModel()
@@ -98,41 +141,76 @@ namespace AudioStation.Controller
             // 2) Report between view models
             //
 
-            progressHandler(10, 0, 0, "Initializing Bandcamp Client...");
+            var taskCount = 19;
+            var task = 0;
+
+            progressHandler(taskCount, task++, 0, "Initializing Bandcamp Client...");
             await _bandcampViewModel.Initialize(progressHandler);
 
-            progressHandler(10, 1, 0, "Initializing Now Playing...");
+            progressHandler(taskCount, task++, 0, "Initializing Now Playing...");
             await _nowPlayingViewModel.Initialize(progressHandler);
 
-            progressHandler(10, 2, 0, "Initializing CD Importer...");
+            progressHandler(taskCount, task++, 0, "Initializing CD Importer...");
             await _libraryLoaderCDImportViewModel.Initialize(progressHandler);
 
-            progressHandler(10, 3, 0, "Initializing Music Brainz...");
+            progressHandler(taskCount, task++, 0, "Initializing Music Brainz...");
             await _libraryLoaderDownloadMusicBrainzViewModel.Initialize(progressHandler);
 
-            progressHandler(10, 4, 0, "Initializing Radio Importer...");
+            progressHandler(taskCount, task++, 0, "Initializing Radio Importer...");
             await _libraryLoaderImportRadioViewModel.Initialize(progressHandler);
 
-            progressHandler(10, 5, 0, "Initializing Importer...");
+            progressHandler(taskCount, task++, 0, "Initializing Importer...");
             await _libraryLoaderImportViewModel.Initialize(progressHandler);
 
-            progressHandler(10, 6, 0, "Initializing Library Loader...");
+            progressHandler(taskCount, task++, 0, "Initializing Library Loader...");
             await _libraryLoaderViewModel.Initialize(progressHandler);
 
-            progressHandler(10, 7, 0, "Initializing Logger...");
+            progressHandler(taskCount, task++, 0, "Initializing Logger...");
             await _logViewModel.Initialize(progressHandler);
 
-            progressHandler(10, 8, 0, "Initializing Radio...");
+            progressHandler(taskCount, task++, 0, "Initializing Radio...");
             await _radioViewModel.Initialize(progressHandler);
+
+            // IAudioStationComponent (these display their status on the status bar)
+            //
+            progressHandler(taskCount, task++, 0, string.Format("Initializing {0}", _outputController.GetDisplayName()));
+            await _outputController.Initialize();
+
+            progressHandler(taskCount, task++, 0, string.Format("Initializing {0}", _audioController.GetDisplayName()));
+            await _audioController.Initialize();
+
+            progressHandler(taskCount, task++, 0, string.Format("Initializing {0}", _bandcampClient.GetDisplayName()));
+            await _bandcampClient.Initialize();
+
+            progressHandler(taskCount, task++, 0, string.Format("Initializing {0}", _acoustIDClient.GetDisplayName()));
+            await _acoustIDClient.Initialize();
+
+            progressHandler(taskCount, task++, 0, string.Format("Initializing {0}", _discogsClient.GetDisplayName()));
+            await _discogsClient.Initialize();
+
+            progressHandler(taskCount, task++, 0, string.Format("Initializing {0}", _fanartClient.GetDisplayName()));
+            await _fanartClient.Initialize();
+
+            progressHandler(taskCount, task++, 0, string.Format("Initializing {0}", _iTunesClient.GetDisplayName()));
+            await _iTunesClient.Initialize();
+
+            progressHandler(taskCount, task++, 0, string.Format("Initializing {0}", _lastFmClient.GetDisplayName()));
+            await _lastFmClient.Initialize();
+
+            progressHandler(taskCount, task++, 0, string.Format("Initializing {0}", _musicBrainzClient.GetDisplayName()));
+            await _musicBrainzClient.Initialize();
+
+            progressHandler(taskCount, task++, 0, string.Format("Initializing {0}", _spotifyClient.GetDisplayName()));
+            await _spotifyClient.Initialize();
 
             // Primary Loading... There would then be navigation to the first "task" for the user:  Configuration Errors, 
             //                    Library Maintenance; or even Now Playing :)
             //
 
-            progressHandler(10, 9, 0, "Initializing Library...");
+            progressHandler(taskCount, task++, 0, "Initializing Library...");
             await _libraryManagerViewModel.Initialize(progressHandler);
 
-            progressHandler(10, 10, 0, "Initializing User Interface...");
+            progressHandler(taskCount, task, 0, "Initializing User Interface...");
             await _mainViewModel.Initialize(progressHandler);
         }
     }

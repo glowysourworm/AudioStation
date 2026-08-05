@@ -9,6 +9,7 @@ using AudioStation.Model;
 
 using Microsoft.Extensions.Logging;
 
+using SimpleWpf.Extensions.Event;
 using SimpleWpf.IocFramework.Application.Attribute;
 
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.StartPanel;
@@ -22,6 +23,10 @@ namespace AudioStation.Core.Component.Vendor.Bandcamp
         private readonly IOutputController _outputController;
         private readonly ILoggerFactory _loggerFactory;
         private readonly IFileController _fileController;
+
+        // IAudioStationComponent
+        //
+        public event SimpleEventHandler<IAudioStationComponent, IAudioStationComponent.Status> StatusChangeEvent;
 
         [IocImportingConstructor]
         public BandcampClient(IConfigurationManager configurationManager,
@@ -132,5 +137,30 @@ namespace AudioStation.Core.Component.Vendor.Bandcamp
                 ApplicationHelpers.Log("Error connecting to Bandcamp:  {0}", LogMessageType.General, LogLevel.Error, ex, ex.Message);
             }
         }
+
+        #region (public) IAudioStationComponent Methods
+        public string GetName()
+        {
+            return "Bandcamp Client";
+        }
+        public string GetDisplayName()
+        {
+            return "Bandcamp Client";
+        }
+        public IAudioStationComponent.Status GetStatus()
+        {
+            // TODO
+            return IAudioStationComponent.Status.Idle;
+        }
+        public async Task<IAudioStationComponent.Status> Initialize()
+        {
+            // TODO
+            return IAudioStationComponent.Status.Idle;
+        }
+        public string GetStatusMessage()
+        {
+            return "TODO (Bandcamp Client)";
+        }
+        #endregion
     }
 }

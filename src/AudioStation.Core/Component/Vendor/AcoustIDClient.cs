@@ -17,6 +17,7 @@ using Microsoft.Extensions.Logging;
 
 using NAudio.Wave;
 
+using SimpleWpf.Extensions.Event;
 using SimpleWpf.IocFramework.Application.Attribute;
 
 namespace AudioStation.Core.Component.Vendor
@@ -163,9 +164,13 @@ namespace AudioStation.Core.Component.Vendor
     }
 
     [IocExport(typeof(IAcoustIDClient))]
-    public class AcoustIDClient : IAcoustIDClient
+    public class AcoustIDClient : IAcoustIDClient, IAudioStationComponent
     {
         private readonly IConfigurationManager _configurationManager;
+
+        // IAudioStationComponent
+        //
+        public event SimpleEventHandler<IAudioStationComponent, IAudioStationComponent.Status> StatusChangeEvent;
 
         [IocImportingConstructor]
         public AcoustIDClient(IConfigurationManager configurationManager)
@@ -232,5 +237,30 @@ namespace AudioStation.Core.Component.Vendor
         {
             AcoustID.Configuration.ClientKey = _configurationManager.GetConfiguration().AcoustIDAPIKey;
         }
+
+        #region (public) IAudioStationComponent Methods
+        public string GetName()
+        {
+            return "Acoust ID Client";
+        }
+        public string GetDisplayName()
+        {
+            return "Acoust ID Client";
+        }
+        public IAudioStationComponent.Status GetStatus()
+        {
+            // TODO
+            return IAudioStationComponent.Status.Idle;
+        }
+        public async Task<IAudioStationComponent.Status> Initialize()
+        {
+            // TODO
+            return IAudioStationComponent.Status.Idle;
+        }
+        public string GetStatusMessage()
+        {
+            return "TODO (Acoust ID Client)";
+        }
+        #endregion
     }
 }

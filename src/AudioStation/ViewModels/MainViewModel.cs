@@ -7,6 +7,8 @@ using AudioStation.Core;
 using AudioStation.Core.Component;
 using AudioStation.Core.Component.CDPlayer.Interface;
 using AudioStation.Core.Component.Interface;
+using AudioStation.Core.Component.Vendor.Bandcamp.Interface;
+using AudioStation.Core.Component.Vendor.Interface;
 using AudioStation.Core.Event;
 using AudioStation.Event;
 using AudioStation.EventHandler;
@@ -28,6 +30,7 @@ namespace AudioStation.ViewModels;
 public class MainViewModel : PrimaryViewModelBase
 {
     private readonly IIocEventAggregator _eventAggregator;
+    private readonly IOutputController _outputController;
 
     const int MAX_LOG_COUNT = 300;
 
@@ -171,9 +174,20 @@ public class MainViewModel : PrimaryViewModelBase
 
     public MainViewModel(IConfigurationManager configurationManager,
                          IDialogController dialogController,    
-                         IAudioController audioController,
                          IIocEventAggregator eventAggregator,
                          ICDDrive cdDrive,
+
+                         // IAudioStationComponent
+                         IAudioController audioController,
+                         IOutputController outputController,
+                         IAcoustIDClient acoustIDClient,
+                         IBandcampClient bandcampClient,
+                         IDiscogsClient discogsClient,
+                         IFanartClient fanartClient,
+                         IITunesClient itunesClient,
+                         ILastFmClient lastFmClient,
+                         IMusicBrainzClient musicBrainzClient,
+                         ISpotifyClient spotifyClient,
 
                          // View Models
                          Configuration configuration,
@@ -185,6 +199,7 @@ public class MainViewModel : PrimaryViewModelBase
                          BandcampViewModel bandcampViewModel)
     {
         _eventAggregator = eventAggregator;
+        _outputController = outputController;
 
         this.ConfigurationLocked = true;
         this.Configuration = configuration;
@@ -213,9 +228,20 @@ public class MainViewModel : PrimaryViewModelBase
         this.Volume = 1.0f;
         this.Loading = false;
 
-        // IAudioController playback tick event
+        // IAudioStationComponent
+        audioController.StatusChangeEvent += IAudioStationComponent_StatusChangeEvent;
         audioController.CurrentTimeUpdated += OnCurrentTimeUpdated;
         audioController.CurrentBandLevelsUpdated += OnCurrentBandLevelsUpdated;
+
+        outputController.StatusChangeEvent += IAudioStationComponent_StatusChangeEvent;
+        acoustIDClient.StatusChangeEvent += IAudioStationComponent_StatusChangeEvent;
+        bandcampClient.StatusChangeEvent += IAudioStationComponent_StatusChangeEvent;
+        discogsClient.StatusChangeEvent += IAudioStationComponent_StatusChangeEvent;
+        fanartClient.StatusChangeEvent += IAudioStationComponent_StatusChangeEvent;
+        itunesClient.StatusChangeEvent += IAudioStationComponent_StatusChangeEvent;
+        lastFmClient.StatusChangeEvent += IAudioStationComponent_StatusChangeEvent;
+        musicBrainzClient.StatusChangeEvent += IAudioStationComponent_StatusChangeEvent;
+        spotifyClient.StatusChangeEvent += IAudioStationComponent_StatusChangeEvent;
 
         // Event Aggregator
         eventAggregator.GetEvent<LogEvent>().Subscribe(OnLog);
@@ -272,6 +298,11 @@ public class MainViewModel : PrimaryViewModelBase
         });
     }
 
+    private void OutputController_StatusChangeEvent(IAudioStationComponent item1, IAudioStationComponent.Status item2)
+    {
+        throw new NotImplementedException();
+    }
+
     public override Task Initialize(DialogProgressHandler progressHandler)
     {
         return Task.CompletedTask;
@@ -279,7 +310,11 @@ public class MainViewModel : PrimaryViewModelBase
 
     private void OnLog(LogMessage message)
     {
-        this.StatusMessage = message.Message;
+        // --> IOuptutController (IAudioStationComponent)      
+    }
+    private void IAudioStationComponent_StatusChangeEvent(IAudioStationComponent sender, IAudioStationComponent.Status status)
+    {
+
     }
 
     private void OnMainLoadingChanged(DialogEventData eventData)

@@ -1,5 +1,6 @@
 ﻿
 using System;
+using System.Collections;
 using System.IO;
 using System.Windows.Shapes;
 
@@ -214,6 +215,10 @@ namespace AudioStation.Component
 
             try
             {
+                // TODO: CHECK CONFIGURATION!
+                if (!System.IO.Path.Exists(configuration.DirectoryBase))
+                    return new string[] { };
+
                 var allFiles = ApplicationHelpers.FastGetFileData(configuration.DirectoryBase, "*.*", false, System.IO.SearchOption.AllDirectories);
 
                 return allFiles.Where(x => CONVERTIBLE_FILE_EXT.Any(z => x.Path.EndsWith(z)))

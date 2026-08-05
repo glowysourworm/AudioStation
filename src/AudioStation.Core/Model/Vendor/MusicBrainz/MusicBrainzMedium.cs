@@ -17,7 +17,7 @@ namespace AudioStation.Core.Model.Vendor
         public int? TrackOffset { get; set; }
         public IReadOnlyList<ITrack>? Tracks { get; set; }
         public IReadOnlyDictionary<string, object?>? UnhandledProperties { get; set; }
-
+        public Guid? Id { get; set;  }
 
         public MusicBrainzMedium()
         {

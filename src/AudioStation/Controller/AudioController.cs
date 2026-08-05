@@ -6,6 +6,7 @@ using AudioStation.Component.AudioProcessing;
 using AudioStation.Component.AudioProcessing.Interface;
 using AudioStation.Controller.Interface;
 using AudioStation.Core.Component;
+using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Model;
 using AudioStation.Core.Utility;
 using AudioStation.Event;
@@ -29,6 +30,10 @@ namespace AudioStation.Controller
         private string _streamSource;
         private StreamSourceType _streamSourceType;
         private bool _userStopped;
+
+        // IAudioStationComponent
+        //
+        public event SimpleEventHandler<IAudioStationComponent, IAudioStationComponent.Status> StatusChangeEvent;
 
         [IocImportingConstructor]
         public AudioController(IIocEventAggregator eventAggregator)
@@ -252,5 +257,30 @@ namespace AudioStation.Controller
 
             _streamSource = null;
         }
+
+        #region (public) IAudioStationComponent Methods
+        public string GetName()
+        {
+            return "Audio Controller";
+        }
+        public string GetDisplayName()
+        {
+            return "Audio Player";
+        }
+        public IAudioStationComponent.Status GetStatus()
+        {
+            // TODO
+            return IAudioStationComponent.Status.Idle;
+        }
+        public async Task<IAudioStationComponent.Status> Initialize()
+        {
+            // TODO
+            return IAudioStationComponent.Status.Idle;
+        }
+        public string GetStatusMessage()
+        {
+            return "TODO (Audio Player)";
+        }
+        #endregion
     }
 }

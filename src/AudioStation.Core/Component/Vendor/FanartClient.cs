@@ -5,6 +5,7 @@ using AudioStation.Model;
 
 using Microsoft.Extensions.Logging;
 
+using SimpleWpf.Extensions.Event;
 using SimpleWpf.IocFramework.Application.Attribute;
 
 namespace AudioStation.Core.Component.Vendor
@@ -12,6 +13,10 @@ namespace AudioStation.Core.Component.Vendor
     [IocExport(typeof(IFanartClient))]
     public class FanartClient : IFanartClient
     {
+        // IAudioStationComponent
+        //
+        public event SimpleEventHandler<IAudioStationComponent, IAudioStationComponent.Status> StatusChangeEvent;
+
         [IocImportingConstructor]
         public FanartClient(IConfigurationManager confiugrationManager)
         {
@@ -54,5 +59,30 @@ namespace AudioStation.Core.Component.Vendor
                 }
             });
         }
+
+        #region (public) IAudioStationComponent Methods
+        public string GetName()
+        {
+            return "Fanart Client";
+        }
+        public string GetDisplayName()
+        {
+            return "Fanart Client";
+        }
+        public IAudioStationComponent.Status GetStatus()
+        {
+            // TODO
+            return IAudioStationComponent.Status.Idle;
+        }
+        public async Task<IAudioStationComponent.Status> Initialize()
+        {
+            // TODO
+            return IAudioStationComponent.Status.Idle;
+        }
+        public string GetStatusMessage()
+        {
+            return "TODO (Fanart Client)";
+        }
+        #endregion
     }
 }

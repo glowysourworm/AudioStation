@@ -34,6 +34,11 @@ namespace AudioStation.Core.Component
             return _log.Where(log => log.Level >= level).Take(count);
         }
 
+        public int GetLogCount()
+        {
+            return _log.Count;
+        }
+
         public void Clear()
         {
             _log.Clear();

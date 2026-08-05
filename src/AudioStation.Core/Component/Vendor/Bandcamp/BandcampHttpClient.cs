@@ -4,6 +4,7 @@ using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
 
+using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Component.Vendor.Bandcamp.Model;
 
 using Microsoft.Extensions.Logging;
@@ -227,6 +228,29 @@ namespace AudioStation.Core.Component.Vendor.Bandcamp
 
             return dictionary;
         }
+
+        #region (public) IAudioStationComponent Methods
+        public string GetName()
+        {
+            throw new NotImplementedException();
+        }
+        public string GetDisplayName()
+        {
+            throw new NotImplementedException();
+        }
+        public IAudioStationComponent.Status GetStatus()
+        {
+            throw new NotImplementedException();
+        }
+        public Task<IAudioStationComponent.Status> Initialize()
+        {
+            throw new NotImplementedException();
+        }
+        public string GetStatusMessage()
+        {
+            throw new NotImplementedException();
+        }
+        #endregion
 
         public void Dispose()
         {

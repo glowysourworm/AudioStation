@@ -4,6 +4,7 @@ using AudioStation.Model;
 
 using Microsoft.Extensions.Logging;
 
+using SimpleWpf.Extensions.Event;
 using SimpleWpf.IocFramework.Application.Attribute;
 using SimpleWpf.IocFramework.EventAggregation;
 using SimpleWpf.SimpleCollections.Collection;
@@ -20,6 +21,10 @@ namespace AudioStation.Core.Component
         // Log message types have buckets here - one for each, with a max message count set in the 
         // constructor. (LibraryLoaderWorkItem logs should mostly be "specific"; but it's up to the user end)
         SimpleDictionary<LogMessageType, LogComponent> _logs;
+
+        // IAudioStationComponent
+        //
+        public event SimpleEventHandler<IAudioStationComponent, IAudioStationComponent.Status> StatusChangeEvent;
 
         [IocImportingConstructor]
         public OutputController(IIocEventAggregator eventAggregator)
@@ -83,6 +88,33 @@ namespace AudioStation.Core.Component
         public IDisposable? BeginScope<TState>(TState state) where TState : notnull
         {
             return null;
+        }
+        #endregion
+
+        #region (public) IAudioStationComponent Methods
+        public string GetName()
+        {
+            return "Output Controller";
+        }
+        public string GetDisplayName()
+        {
+            return "Log";
+        }
+        public IAudioStationComponent.Status GetStatus()
+        {
+            // TODO: This status should maintain the "new log" / "logs viewed" status.
+
+            return IAudioStationComponent.Status.Idle;
+        }
+        public async Task<IAudioStationComponent.Status> Initialize()
+        {
+            return IAudioStationComponent.Status.Idle;
+        }
+        public string GetStatusMessage()
+        {
+            // TODO: This can break down logs by type; but we'll probably recomponentize later
+
+            return string.Format("Log count:  {0}", _logs.Sum(x => x.Value.GetLogCount()));
         }
         #endregion
     }

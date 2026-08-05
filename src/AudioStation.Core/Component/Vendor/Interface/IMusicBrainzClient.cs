@@ -1,4 +1,5 @@
-﻿using AudioStation.Core.Database.MusicBrainzDatabase.Model;
+﻿using AudioStation.Core.Component.Interface;
+using AudioStation.Core.Database.MusicBrainzDatabase.Model;
 using AudioStation.Core.Model.Vendor;
 
 using MetaBrainz.MusicBrainz.CoverArt;
@@ -6,7 +7,7 @@ using MetaBrainz.MusicBrainz.Interfaces.Entities;
 
 namespace AudioStation.Core.Component.Vendor.Interface
 {
-    public interface IMusicBrainzClient
+    public interface IMusicBrainzClient : IAudioStationComponent
     {
 
 

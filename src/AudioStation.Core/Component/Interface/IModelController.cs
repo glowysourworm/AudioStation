@@ -22,7 +22,6 @@ namespace AudioStation.Core.Component.Interface
         /// Adds LibraryEntry to database. Does NOT update any existing, similar, entry. The tag data
         /// is also used to initialize the LibraryEntry, adding supporting data to the database.
         /// </summary>
-
         Mp3FileReference AddUpdateLibraryEntry(string fileName, IAudioStationTag tagRef);
 
         /// <summary>

@@ -5,6 +5,7 @@ using AudioStation.Model;
 
 using Microsoft.Extensions.Logging;
 
+using SimpleWpf.Extensions.Event;
 using SimpleWpf.IocFramework.Application.Attribute;
 
 using SpotifyAPI.Web;
@@ -21,6 +22,10 @@ namespace AudioStation.Core.Component.Vendor
         private readonly IOutputController _outputController;
 
         private const string SPOTIFY_WEB_SEARCH = "https://api.spotify.com/v1/search";
+
+        // IAudioStationComponent
+        //
+        public event SimpleEventHandler<IAudioStationComponent, IAudioStationComponent.Status> StatusChangeEvent;
 
         [IocImportingConstructor]
         public SpotifyClient(IConfigurationManager configurationManager, IOutputController outputController)
@@ -77,5 +82,30 @@ namespace AudioStation.Core.Component.Vendor
                 }
             });
         }
+
+        #region (public) IAudioStationComponent Methods
+        public string GetName()
+        {
+            return "Spotify Client";
+        }
+        public string GetDisplayName()
+        {
+            return "Spotify Client";
+        }
+        public IAudioStationComponent.Status GetStatus()
+        {
+            // TODO
+            return IAudioStationComponent.Status.Idle;
+        }
+        public async Task<IAudioStationComponent.Status> Initialize()
+        {
+            // TODO
+            return IAudioStationComponent.Status.Idle;
+        }
+        public string GetStatusMessage()
+        {
+            return "TODO (Spotify Client)";
+        }
+        #endregion
     }
 }

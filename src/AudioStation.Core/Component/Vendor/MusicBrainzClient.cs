@@ -21,6 +21,7 @@ using MetaBrainz.MusicBrainz.Interfaces.Entities;
 using Microsoft.Extensions.Logging;
 
 using SimpleWpf.Extensions.Collection;
+using SimpleWpf.Extensions.Event;
 using SimpleWpf.IocFramework.Application.Attribute;
 
 namespace AudioStation.Core.Component.Vendor
@@ -28,6 +29,10 @@ namespace AudioStation.Core.Component.Vendor
     [IocExport(typeof(IMusicBrainzClient))]
     public class MusicBrainzClient : IMusicBrainzClient
     {
+        // IAudioStationComponent
+        //
+        public event SimpleEventHandler<IAudioStationComponent, IAudioStationComponent.Status> StatusChangeEvent;
+
         [IocImportingConstructor]
         public MusicBrainzClient()
         {
@@ -236,8 +241,8 @@ namespace AudioStation.Core.Component.Vendor
                     var media = release.Media?.FirstOrDefault(x => x.Tracks?.Any(z => z.Id == trackId || z.Title == trackName) ?? false);
 
                     var coverArtClient = new CoverArt();
-                    var frontArt = release.CoverArtArchive?.Front ?? false ? coverArtClient.FetchFront(releaseId) : null;
-                    var backArt = release.CoverArtArchive?.Back ?? false ? coverArtClient.FetchBack(releaseId) : null;
+                    var frontArt = release.CoverArtArchive?.Front ?? false ? await coverArtClient.FetchFrontAsync(releaseId) : null;
+                    var backArt = release.CoverArtArchive?.Back ?? false ? await coverArtClient.FetchBackAsync(releaseId) : null;
 
                     var front = frontArt != null ? ConvertImage(frontArt, PictureInfo.PIC_TYPE.Front) : null;
                     var bacK = backArt != null ? ConvertImage(backArt, PictureInfo.PIC_TYPE.Back) : null;
@@ -708,5 +713,30 @@ namespace AudioStation.Core.Component.Vendor
                 return new MusicBrainzPicture(pictureInfo, false);
             }
         }
+
+        #region (public) IAudioStationComponent Methods
+        public string GetName()
+        {
+            return "Music Brainz Client";
+        }
+        public string GetDisplayName()
+        {
+            return "Music Brainz Client";
+        }
+        public IAudioStationComponent.Status GetStatus()
+        {
+            // TODO
+            return IAudioStationComponent.Status.Idle;
+        }
+        public async Task<IAudioStationComponent.Status> Initialize()
+        {
+            // TODO
+            return IAudioStationComponent.Status.Idle;
+        }
+        public string GetStatusMessage()
+        {
+            return "TODO (Music Brainz Client)";
+        }
+        #endregion
     }
 }

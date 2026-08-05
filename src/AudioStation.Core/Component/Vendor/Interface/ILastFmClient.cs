@@ -1,8 +1,9 @@
-﻿using AudioStation.Core.Model.Vendor;
+﻿using AudioStation.Core.Component.Interface;
+using AudioStation.Core.Model.Vendor;
 
 namespace AudioStation.Core.Component.Vendor.Interface
 {
-    public interface ILastFmClient
+    public interface ILastFmClient : IAudioStationComponent
     {
         Task<LastFmNowPlaying> GetNowPlayingInfo(string artist, string album);
     }

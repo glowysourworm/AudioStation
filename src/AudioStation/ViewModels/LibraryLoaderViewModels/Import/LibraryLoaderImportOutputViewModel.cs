@@ -10,7 +10,6 @@ using AudioStation.Core.Utility;
 using AudioStation.ViewModels.Vendor.AcoustIDViewModel;
 using AudioStation.ViewModels.Vendor.MusicBrainzViewModel;
 
-using SimpleWpf.Extensions;
 using SimpleWpf.Extensions.ObservableCollection;
 using SimpleWpf.ViewModel;
 

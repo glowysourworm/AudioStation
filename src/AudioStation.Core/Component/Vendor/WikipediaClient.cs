@@ -39,12 +39,12 @@ namespace AudioStation.Core.Component.Vendor
             try
             {
                 var result = await _httpClient.GetAsync(string.Format(URL_REQUEST_SUMMARY_FORMAT, artistName));
-                var json = result.GetStringContent();
+                var json = await result.GetStringContentAsync();
 
                 var summary = JObject.Parse(json).Descendants().First(x => x.Path.Contains("extract")).First().Value<string>();
 
                 result = await _httpClient.GetAsync(string.Format(URL_REQUEST_BODY_FORMAT, artistName));
-                json = result.GetStringContent();
+                json = await result.GetStringContentAsync();
 
                 var body = JObject.Parse(json).Descendants().First(x => x.Path.Contains("extract")).First().Value<string>();
 

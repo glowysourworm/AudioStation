@@ -3,6 +3,8 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Shapes;
 
+using SimpleWpf.Extensions;
+
 namespace AudioStation.Controls
 {
     public class ScrubberRectangle : Shape
@@ -85,6 +87,9 @@ namespace AudioStation.Controls
             //base.OnRender(drawingContext);
 
             Rect scrubbedRect, nonScrubbedRect;
+
+            // BUG:  The ScrubbedRatio can get a value of greater than 1 - making the height (and/or) width negative!
+            this.ScrubbedRatio.Clip(0, 1);
 
             if (this.Orientation == Orientation.Horizontal)
             {

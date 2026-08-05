@@ -28,7 +28,7 @@ namespace AudioStation
     /// </summary>
     public class AudioStationBootstrapper : IocWindowBootstrapper
     {
-        public AudioStationBootstrapper()
+        public AudioStationBootstrapper() : base(false)
         {
 
         }
@@ -84,6 +84,7 @@ namespace AudioStation
             // (see DialogEventHandlers.cs)
             await viewModelController.Initialize((taskCount, tasksComplete, tasksError, message) =>
             {
+                // Update the status bar during initialization
                 ApplicationHelpers.InvokeDispatcher(() =>
                 {
                     dialogViewModel.Progress = tasksComplete / (double)taskCount;

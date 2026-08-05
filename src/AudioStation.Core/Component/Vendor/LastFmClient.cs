@@ -11,6 +11,7 @@ using IF.Lastfm.Core.Api.Enums;
 
 using Microsoft.Extensions.Logging;
 
+using SimpleWpf.Extensions.Event;
 using SimpleWpf.IocFramework.Application.Attribute;
 
 namespace AudioStation.Core.Component.Vendor
@@ -18,6 +19,10 @@ namespace AudioStation.Core.Component.Vendor
     [IocExport(typeof(ILastFmClient))]
     public class LastFmClient : ILastFmClient
     {
+        // IAudioStationComponent
+        //
+        public event SimpleEventHandler<IAudioStationComponent, IAudioStationComponent.Status> StatusChangeEvent;
+
         private readonly IConfigurationManager _configurationManager;
         private readonly IOutputController _outputController;
 
@@ -76,5 +81,30 @@ namespace AudioStation.Core.Component.Vendor
                 return null;
             }
         }
+
+        #region (public) IAudioStationComponent Methods
+        public string GetName()
+        {
+            return "LastFm Client";
+        }
+        public string GetDisplayName()
+        {
+            return "LastFm Client";
+        }
+        public IAudioStationComponent.Status GetStatus()
+        {
+            // TODO
+            return IAudioStationComponent.Status.Idle;
+        }
+        public async Task<IAudioStationComponent.Status> Initialize()
+        {
+            // TODO
+            return IAudioStationComponent.Status.Idle;
+        }
+        public string GetStatusMessage()
+        {
+            return "TODO (LastFm Client)";
+        }
+        #endregion
     }
 }
