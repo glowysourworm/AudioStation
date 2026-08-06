@@ -18,6 +18,20 @@ namespace AudioStation.Core.Component.Interface
             Error = 3
         }
 
+        static string GetDefaultStatusMessage(Status status)
+        {
+            switch (status)
+            {
+                case Status.Disabled:
+                case Status.Idle:
+                case Status.Working:
+                case Status.Error:
+                    return status.ToString();
+                default:
+                    throw new Exception("Unhandled IAudioStationComponent.Status type");
+            }
+        }
+
         /// <summary>
         /// Gets name of component
         /// </summary>

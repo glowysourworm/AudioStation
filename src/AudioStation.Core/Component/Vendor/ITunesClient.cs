@@ -14,6 +14,8 @@ namespace AudioStation.Core.Component.Vendor
         //
         public event SimpleEventHandler<IAudioStationComponent, IAudioStationComponent.Status> StatusChangeEvent;
 
+        private IAudioStationComponent.Status _status;
+
         public async Task<ITunesNowPlaying> SearchArtist(string artistName, string albumName)
         {
             return null;
@@ -30,17 +32,26 @@ namespace AudioStation.Core.Component.Vendor
         }
         public IAudioStationComponent.Status GetStatus()
         {
-            // TODO
-            return IAudioStationComponent.Status.Idle;
+            return _status;
         }
         public async Task<IAudioStationComponent.Status> Initialize()
         {
-            // TODO
-            return IAudioStationComponent.Status.Idle;
+            // -> Idle
+            OnStatusChanged(IAudioStationComponent.Status.Disabled);
+
+            return _status;
         }
         public string GetStatusMessage()
         {
-            return "TODO (ITunes Client)";
+            return this.GetDisplayName() + " " + IAudioStationComponent.GetDefaultStatusMessage(_status);
+        }
+
+        private void OnStatusChanged(IAudioStationComponent.Status status)
+        {
+            _status = status;
+
+            if (this.StatusChangeEvent != null)
+                this.StatusChangeEvent(this, _status);
         }
         #endregion
     }

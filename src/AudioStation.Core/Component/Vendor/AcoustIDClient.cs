@@ -168,10 +168,13 @@ namespace AudioStation.Core.Component.Vendor
         //
         public event SimpleEventHandler<IAudioStationComponent, IAudioStationComponent.Status> StatusChangeEvent;
 
+        private IAudioStationComponent.Status _status;
+
         [IocImportingConstructor]
         public AcoustIDClient(IConfigurationManager configurationManager)
         {
             _configurationManager = configurationManager;
+            _status = IAudioStationComponent.Status.Disabled;
         }
 
         /// <summary>
@@ -179,13 +182,13 @@ namespace AudioStation.Core.Component.Vendor
         /// </summary>
         public Task<IEnumerable<LookupResult>> IdentifyFingerprint(string fileName, int minScore)
         {
-            // Setup Static Configuration
-            SetConfiguration();
-
             return Task<IEnumerable<LookupResult>>.Run(async () =>
             {
                 try
                 {
+                    // -> Working
+                    OnStatusChanged(IAudioStationComponent.Status.Working);
+
                     var context = new AcoustID.ChromaContext();
                     var buffer = new short[1000000];
                     var length = 0;
@@ -214,6 +217,9 @@ namespace AudioStation.Core.Component.Vendor
 
                     var response = await service.GetAsync(fingerPrint, length, availableMeta);
 
+                    // -> Idle
+                    OnStatusChanged(IAudioStationComponent.Status.Idle);
+
                     return response.Results
                                    .Where(x => x.Score >= (minScore / 100.0D))
                                    .Where(x => x.Recordings != null && x.Recordings.Any())
@@ -229,11 +235,6 @@ namespace AudioStation.Core.Component.Vendor
             });
         }
 
-        private void SetConfiguration()
-        {
-            AcoustID.Configuration.ClientKey = _configurationManager.GetConfiguration().AcoustIDAPIKey;
-        }
-
         #region (public) IAudioStationComponent Methods
         public string GetName()
         {
@@ -245,17 +246,32 @@ namespace AudioStation.Core.Component.Vendor
         }
         public IAudioStationComponent.Status GetStatus()
         {
-            // TODO
-            return IAudioStationComponent.Status.Working;
+            return _status;
         }
         public async Task<IAudioStationComponent.Status> Initialize()
         {
-            // TODO
-            return IAudioStationComponent.Status.Working;
+            if (string.IsNullOrWhiteSpace(_configurationManager.GetConfiguration().AcoustIDAPIKey))
+                return _status;
+
+            // Setup Static Configuration
+            AcoustID.Configuration.ClientKey = _configurationManager.GetConfiguration().AcoustIDAPIKey;
+
+            // -> Idle
+            OnStatusChanged(IAudioStationComponent.Status.Idle);
+
+            return _status;
         }
         public string GetStatusMessage()
         {
-            return "TODO (Acoust ID Client)";
+            return this.GetDisplayName() + " " + IAudioStationComponent.GetDefaultStatusMessage(_status);
+        }
+
+        private void OnStatusChanged(IAudioStationComponent.Status status)
+        {
+            _status = status;
+
+            if (this.StatusChangeEvent != null)
+                this.StatusChangeEvent(this, _status);
         }
         #endregion
     }

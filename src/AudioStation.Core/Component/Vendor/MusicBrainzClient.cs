@@ -1,18 +1,13 @@
 ﻿using System.IO;
-using System.Windows.Forms;
 
 using ATL;
-using ATL.AudioData;
 
 using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Component.Vendor.Interface;
 using AudioStation.Core.Database.MusicBrainzDatabase.Model;
-using AudioStation.Core.Model;
 using AudioStation.Core.Model.Vendor;
 using AudioStation.Core.Utility;
 using AudioStation.Model;
-
-using AutoMapper;
 
 using MetaBrainz.MusicBrainz;
 using MetaBrainz.MusicBrainz.CoverArt;
@@ -32,6 +27,8 @@ namespace AudioStation.Core.Component.Vendor
         // IAudioStationComponent
         //
         public event SimpleEventHandler<IAudioStationComponent, IAudioStationComponent.Status> StatusChangeEvent;
+
+        private IAudioStationComponent.Status _status;
 
         [IocImportingConstructor]
         public MusicBrainzClient()
@@ -162,7 +159,7 @@ namespace AudioStation.Core.Component.Vendor
                         {
                             var track = media.Tracks?.First(x => x.Id.ToString() == trackId.ToString());
 
-                            return ApplicationHelpers.Map<ITrack,MusicBrainzTrack>(track);
+                            return ApplicationHelpers.Map<ITrack, MusicBrainzTrack>(track);
                         }
                     }
                 }
@@ -704,7 +701,7 @@ namespace AudioStation.Core.Component.Vendor
 
         private MusicBrainzPicture ConvertImage(CoverArtImage musicBrainzArt, PictureInfo.PIC_TYPE type)
         {
-            using (var stream =  new MemoryStream())
+            using (var stream = new MemoryStream())
             {
                 musicBrainzArt.Data.CopyTo(stream);
 
@@ -712,6 +709,37 @@ namespace AudioStation.Core.Component.Vendor
 
                 return new MusicBrainzPicture(pictureInfo, false);
             }
+        }
+
+        protected Task<bool> Authenticate()
+        {
+            // There is no application identification for MusicBrainz, so most of the normal 
+            // authentication data is not required to establish a connection. We'll just run
+            // a simple query to verify
+
+            return Task.Run(() =>
+            {
+                try
+                {
+                    OnStatusChanged(IAudioStationComponent.Status.Working);
+
+                    // Initialize MetaBrainz.MusicBrainz client
+                    var query = new Query();
+                    var searchResults = query.FindAllArtists("artist:Coldplay", 1);
+
+                    OnStatusChanged(IAudioStationComponent.Status.Idle);
+
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    ApplicationHelpers.Log("Music Brainz Client Error:  {0}", LogMessageType.Vendor, LogLevel.Error, ex, ex.Message);
+
+                    OnStatusChanged(IAudioStationComponent.Status.Error);
+
+                    return false;
+                }
+            });
         }
 
         #region (public) IAudioStationComponent Methods
@@ -725,17 +753,25 @@ namespace AudioStation.Core.Component.Vendor
         }
         public IAudioStationComponent.Status GetStatus()
         {
-            // TODO
-            return IAudioStationComponent.Status.Idle;
+            return _status;
         }
         public async Task<IAudioStationComponent.Status> Initialize()
         {
-            // TODO
-            return IAudioStationComponent.Status.Idle;
+            await Authenticate();
+
+            return _status;
         }
         public string GetStatusMessage()
         {
-            return "TODO (Music Brainz Client)";
+            return this.GetDisplayName() + " " + IAudioStationComponent.GetDefaultStatusMessage(_status);
+        }
+
+        private void OnStatusChanged(IAudioStationComponent.Status status)
+        {
+            _status = status;
+
+            if (this.StatusChangeEvent != null)
+                this.StatusChangeEvent(this, _status);
         }
         #endregion
     }

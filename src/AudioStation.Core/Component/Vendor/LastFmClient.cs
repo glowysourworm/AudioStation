@@ -1,6 +1,4 @@
-﻿using System.Collections.ObjectModel;
-
-using AudioStation.Core.Component.Interface;
+﻿using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Component.Vendor.Interface;
 using AudioStation.Core.Model.Vendor;
 using AudioStation.Core.Utility;
@@ -19,6 +17,9 @@ namespace AudioStation.Core.Component.Vendor
     [IocExport(typeof(ILastFmClient))]
     public class LastFmClient : ILastFmClient
     {
+        // Last FM:  Primary client
+        private LastfmClient? _client;
+
         // IAudioStationComponent
         //
         public event SimpleEventHandler<IAudioStationComponent, IAudioStationComponent.Status> StatusChangeEvent;
@@ -26,25 +27,26 @@ namespace AudioStation.Core.Component.Vendor
         private readonly IConfigurationManager _configurationManager;
         private readonly IOutputController _outputController;
 
+        private IAudioStationComponent.Status _status;
+
         [IocImportingConstructor]
         public LastFmClient(IConfigurationManager configurationManager, IOutputController outputController)
         {
             _outputController = outputController;
             _configurationManager = configurationManager;
+            _client = null;
         }
 
         public async Task<LastFmNowPlaying> GetNowPlayingInfo(string artist, string album)
         {
+            if (_client == null)
+                return null;
+
             try
             {
-                var configuration = _configurationManager.GetConfiguration();
-
-                // Last FM API
-                var client = new LastfmClient(configuration.LastFmAPIKey, configuration.LastFmAPISecret);
-
                 // Album / Artist Detail
-                var albumResponse = await client.Album.GetInfoAsync(artist, album, false);
-                var artistResponse = await client.Artist.GetInfoAsync(artist);
+                var albumResponse = await _client.Album.GetInfoAsync(artist, album, false);
+                var artistResponse = await _client.Artist.GetInfoAsync(artist);
 
                 // Status OK -> Create bitmap image from the url
                 if (albumResponse.Status == LastResponseStatus.Successful &&
@@ -82,6 +84,38 @@ namespace AudioStation.Core.Component.Vendor
             }
         }
 
+        protected Task<LastfmClient?> Authenticate()
+        {
+            return Task.Run(() =>
+            {
+                try
+                {
+                    OnStatusChanged(IAudioStationComponent.Status.Working);
+
+                    var configuration = _configurationManager.GetConfiguration();
+
+                    // Last FM API
+                    var client = new LastfmClient(configuration.LastFmAPIKey, configuration.LastFmAPISecret);
+
+                    if (!client.Auth.Authenticated)
+                        OnStatusChanged(IAudioStationComponent.Status.Error);
+
+                    else
+                        OnStatusChanged(IAudioStationComponent.Status.Idle);
+
+                    return client;
+                }
+                catch (Exception ex)
+                {
+                    ApplicationHelpers.Log("Music Brainz Client Error:  {0}", LogMessageType.Vendor, LogLevel.Error, ex, ex.Message);
+
+                    OnStatusChanged(IAudioStationComponent.Status.Error);
+
+                    return null;
+                }
+            });
+        }
+
         #region (public) IAudioStationComponent Methods
         public string GetName()
         {
@@ -93,17 +127,25 @@ namespace AudioStation.Core.Component.Vendor
         }
         public IAudioStationComponent.Status GetStatus()
         {
-            // TODO
-            return IAudioStationComponent.Status.Idle;
+            return _status;
         }
         public async Task<IAudioStationComponent.Status> Initialize()
         {
-            // TODO
-            return IAudioStationComponent.Status.Idle;
+            _client = await Authenticate();
+
+            return _status;
         }
         public string GetStatusMessage()
         {
-            return "TODO (LastFm Client)";
+            return this.GetDisplayName() + " " + IAudioStationComponent.GetDefaultStatusMessage(_status);
+        }
+
+        private void OnStatusChanged(IAudioStationComponent.Status status)
+        {
+            _status = status;
+
+            if (this.StatusChangeEvent != null)
+                this.StatusChangeEvent(this, _status);
         }
         #endregion
     }

@@ -290,38 +290,43 @@ public class MainViewModel : PrimaryViewModelBase
     }
     private void IAudioStationComponent_StatusChangeEvent(IAudioStationComponent sender, IAudioStationComponent.Status status)
     {
+        StatusIconViewModel viewModel = null;
+
         if (sender is IOutputController)
-            this.StatusViewModel.OutputControllerStatus.Status = status;
+            viewModel = this.StatusViewModel.OutputControllerStatus;
 
         else if (sender is IAudioController)
-            this.StatusViewModel.AudioPlayerStatus.Status = status;
+            viewModel = this.StatusViewModel.AudioPlayerStatus;
 
         else if (sender is IAcoustIDClient)
-            this.StatusViewModel.AcoustIDClient.Status = status;
+            viewModel = this.StatusViewModel.AcoustIDClient;
 
         else if (sender is IBandcampClient)
-            this.StatusViewModel.BandcampClient.Status = status;
+            viewModel = this.StatusViewModel.BandcampClient;
 
         else if (sender is IDiscogsClient)
-            this.StatusViewModel.DiscogsClient.Status = status;
+            viewModel = this.StatusViewModel.DiscogsClient;
 
         else if (sender is IFanartClient)
-            this.StatusViewModel.FanartClient.Status = status;
+            viewModel = this.StatusViewModel.FanartClient;
 
         else if (sender is IITunesClient)
-            this.StatusViewModel.ITunesClient.Status = status;
+            viewModel = this.StatusViewModel.ITunesClient;
 
         else if (sender is ILastFmClient)
-            this.StatusViewModel.LastFmClient.Status = status;
+            viewModel = this.StatusViewModel.LastFmClient;
 
         else if (sender is IMusicBrainzClient)
-            this.StatusViewModel.MusicBrainzClient.Status = status;
+            viewModel = this.StatusViewModel.MusicBrainzClient;
 
         else if (sender is ISpotifyClient)
-            this.StatusViewModel.SpotifyClient.Status = status;
+            viewModel = this.StatusViewModel.SpotifyClient;
 
         else
             throw new Exception("Unhandled IAudioStationComponent type");
+
+        viewModel.Status = status;
+        viewModel.Message = sender.GetStatusMessage();
     }
 
     private void OnMainLoadingChanged(DialogEventData eventData)

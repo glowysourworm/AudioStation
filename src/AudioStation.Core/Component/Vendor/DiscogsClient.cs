@@ -1,7 +1,6 @@
 ﻿using System.Net.Http;
 
 using AudioStation.Core.Component.Interface;
-using AudioStation.Core.Component.Vendor.Interface;
 using AudioStation.Core.Model.Vendor;
 
 using ParkSquare.Discogs;
@@ -21,6 +20,8 @@ namespace AudioStation.Core.Component.Vendor
         // IAudioStationComponent
         //
         public event SimpleEventHandler<IAudioStationComponent, IAudioStationComponent.Status> StatusChangeEvent;
+
+        private IAudioStationComponent.Status _status;
 
         public DiscogsClient()
         {
@@ -56,19 +57,33 @@ namespace AudioStation.Core.Component.Vendor
         {
             return "Discogs Client";
         }
-        public IAudioStationComponent.Status GetStatus()
-        {
-            // TODO
-            return IAudioStationComponent.Status.Idle;
-        }
         public async Task<IAudioStationComponent.Status> Initialize()
         {
-            // TODO
-            return IAudioStationComponent.Status.Idle;
+            //if (string.IsNullOrWhiteSpace(_configurationManager.GetConfiguration().AcoustIDAPIKey))
+            //    return _status;
+
+
+            // -> Idle
+            OnStatusChanged(IAudioStationComponent.Status.Idle);
+
+            return _status;
         }
         public string GetStatusMessage()
         {
-            return "TODO (Discogs Client)";
+            return this.GetDisplayName() + " " + IAudioStationComponent.GetDefaultStatusMessage(_status);
+        }
+
+        private void OnStatusChanged(IAudioStationComponent.Status status)
+        {
+            _status = status;
+
+            if (this.StatusChangeEvent != null)
+                this.StatusChangeEvent(this, _status);
+        }
+
+        public IAudioStationComponent.Status GetStatus()
+        {
+            return _status;
         }
         #endregion
     }
