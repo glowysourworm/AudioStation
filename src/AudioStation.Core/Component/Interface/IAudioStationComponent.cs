@@ -16,9 +16,10 @@ namespace AudioStation.Core.Component.Interface
     {
         public enum Status
         {
-            Idle = 0,
-            Working = 1,
-            Error = 2
+            Disabled = 0,
+            Idle = 1,
+            Working = 2,
+            Error = 3
         }
 
         /// <summary>

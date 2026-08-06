@@ -4,10 +4,12 @@
         xmlns:views="clr-namespace:AudioStation.Views"
         xmlns:controls="clr-namespace:AudioStation.Controls"
         xmlns:region="clr-namespace:SimpleWpf.IocFramework.RegionManagement;assembly=SimpleWpf.IocFramework"        
+        xmlns:fa5assembly="clr-namespace:FontAwesome5;assembly=FontAwesome5"
         WindowState="Minimized"
         WindowStartupLocation="CenterOwner"
         Title="Audio Station" Height="800" Width="1200"
         Icon="/Resources/Images/icon.bmp">
+    
     <Grid>
 
         <Grid.ColumnDefinitions>
@@ -94,10 +96,22 @@
 
         <!-- Status Bar (Footer) -->
         <Border x:Name="StatusBorder" Grid.Row="3" Grid.ColumnSpan="2" Background="#EEEEEE">
-            <TextBlock x:Name="StatusMessageTB" 
-					   Text="{Binding StatusMessage}" 
-					   FontSize="14" Margin="5" 
-					   Foreground="#555555" VerticalAlignment="Center" />
+            <Grid ColumnDefinitions="Auto, *, Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto">
+
+                <Button DataContext="{Binding StatusViewModel.AudioPlayerStatus}" Style="{StaticResource FontAwesomeStatusIcon}" Tag="{x:Static fa5assembly:EFontAwesomeIcon.Solid_Music}" Grid.Column="0" />
+
+                <TextBlock Style="{StaticResource LabelTextBlock}" Text="{Binding StatusViewModel.PrimaryMessage}" Grid.Column="1" />
+
+                <Button DataContext="{Binding StatusViewModel.OutputControllerStatus}" Style="{StaticResource FontAwesomeStatusIcon}" Tag="{x:Static fa5assembly:EFontAwesomeIcon.Regular_FileWord}" Grid.Column="2" />
+                <Button DataContext="{Binding StatusViewModel.BandcampClient}" BorderThickness="1 0 0 0" Style="{StaticResource FontAwesomeStatusIcon}" Tag="{x:Static fa5assembly:EFontAwesomeIcon.Brands_Bandcamp}" Grid.Column="3" />
+                <Button DataContext="{Binding StatusViewModel.AcoustIDClient}" BorderThickness="1 0 0 0" Style="{StaticResource FontAwesomeStatusIcon}" Tag="{x:Static fa5assembly:EFontAwesomeIcon.Solid_IdBadge}" Grid.Column="4" />
+                <Button DataContext="{Binding StatusViewModel.DiscogsClient}" BorderThickness="1 0 0 0" Style="{StaticResource FontAwesomeStatusIcon}" Tag="{x:Static fa5assembly:EFontAwesomeIcon.Solid_RecordVinyl}" Grid.Column="5" />
+                <Button DataContext="{Binding StatusViewModel.FanartClient}" BorderThickness="1 0 0 0" Style="{StaticResource FontAwesomeStatusIcon}" Tag="{x:Static fa5assembly:EFontAwesomeIcon.Solid_Music}" Grid.Column="6" />
+                <Button DataContext="{Binding StatusViewModel.ITunesClient}" BorderThickness="1 0 0 0" Style="{StaticResource FontAwesomeStatusIcon}" Tag="{x:Static fa5assembly:EFontAwesomeIcon.Brands_Itunes}" Grid.Column="7" />
+                <Button DataContext="{Binding StatusViewModel.LastFmClient}" BorderThickness="1 0 1 0" Style="{StaticResource FontAwesomeStatusIcon}" Tag="{x:Static fa5assembly:EFontAwesomeIcon.Brands_Lastfm}" Grid.Column="8" />
+                <Button DataContext="{Binding StatusViewModel.MusicBrainzClient}" Style="{StaticResource FontAwesomeStatusIcon}" Tag="{x:Static fa5assembly:EFontAwesomeIcon.Solid_Music}" Grid.Column="9" />
+
+            </Grid>
         </Border>
 
     </Grid>

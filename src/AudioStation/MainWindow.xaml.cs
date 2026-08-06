@@ -1,16 +1,11 @@
 ﻿using System.ComponentModel;
 using System.Runtime.InteropServices;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
-using System.Windows.Input;
 using System.Windows.Interop;
-using System.Windows.Threading;
 
 using AudioStation.Controller.Interface;
 using AudioStation.Core.Component.CDPlayer;
 using AudioStation.Core.Component.CDPlayer.Interface;
-using AudioStation.Core.Utility;
 using AudioStation.Event;
 using AudioStation.ViewModels;
 
@@ -77,8 +72,8 @@ namespace AudioStation
         }
 
         [IocImportingConstructor]
-        public MainWindow(IIocEventAggregator eventAggregator, 
-                          IDialogController dialogController, 
+        public MainWindow(IIocEventAggregator eventAggregator,
+                          IDialogController dialogController,
                           IViewModelController viewModelController,
                           ICDDrive cdDrive)
         {
@@ -99,7 +94,7 @@ namespace AudioStation
         {
             base.OnSourceInitialized(e);
             HwndSource source = PresentationSource.FromVisual(this) as HwndSource;
-            source.AddHook(WndProc);            
+            source.AddHook(WndProc);
         }
 
         private IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)

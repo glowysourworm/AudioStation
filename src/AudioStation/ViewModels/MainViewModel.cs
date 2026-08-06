@@ -11,16 +11,12 @@ using AudioStation.Core.Component.Vendor.Bandcamp.Interface;
 using AudioStation.Core.Component.Vendor.Interface;
 using AudioStation.Core.Event;
 using AudioStation.Event;
-using AudioStation.EventHandler;
 using AudioStation.Model;
 using AudioStation.ViewModels.Controls;
-using AudioStation.ViewModels.LibraryManagerViewModels;
 using AudioStation.ViewModels.Vendor;
 
-using SimpleWpf.Extensions;
 using SimpleWpf.Extensions.Collection;
 using SimpleWpf.Extensions.Command;
-using SimpleWpf.IocFramework.Application.Attribute;
 using SimpleWpf.IocFramework.EventAggregation;
 
 using static AudioStation.EventHandler.DialogEventHandlers;
@@ -38,13 +34,13 @@ public class MainViewModel : PrimaryViewModelBase
 
     #region Backing Fields
     Configuration _configuration;
-    string _statusMessage;
     bool _loadedFromConfiguration;
     float _volume;
     bool _loading;
     bool _configurationLocked;
 
     LibraryManagerViewModel _libraryManager;
+    StatusViewModel _statusViewModel;
     RadioViewModel _radio;
     LogViewModel _log;
     NowPlayingViewModel _nowPlaying;
@@ -70,10 +66,10 @@ public class MainViewModel : PrimaryViewModelBase
         get { return _configuration; }
         set { this.RaiseAndSetIfChanged(ref _configuration, value); }
     }
-    public string StatusMessage
+    public StatusViewModel StatusViewModel
     {
-        get { return _statusMessage; }
-        set { this.RaiseAndSetIfChanged(ref _statusMessage, value); }
+        get { return _statusViewModel; }
+        set { this.RaiseAndSetIfChanged(ref _statusViewModel, value); }
     }
     public bool LoadedFromConfiguration
     {
@@ -173,7 +169,7 @@ public class MainViewModel : PrimaryViewModelBase
     #endregion
 
     public MainViewModel(IConfigurationManager configurationManager,
-                         IDialogController dialogController,    
+                         IDialogController dialogController,
                          IIocEventAggregator eventAggregator,
                          ICDDrive cdDrive,
 
@@ -192,6 +188,7 @@ public class MainViewModel : PrimaryViewModelBase
                          // View Models
                          Configuration configuration,
                          LibraryManagerViewModel libraryManagerViewModel,
+                         StatusViewModel statusViewModel,
                          RadioViewModel radioViewModel,
                          LogViewModel logViewModel,
                          LibraryLoaderViewModel libraryLoaderViewModel,
@@ -222,6 +219,7 @@ public class MainViewModel : PrimaryViewModelBase
         this.NowPlaying = nowPlayingViewModel;
         this.PlayState = PlayStopPause.Stop;
         this.LibraryManager = libraryManagerViewModel;
+        this.StatusViewModel = statusViewModel;
         this.Radio = radioViewModel;
         this.LibraryLoader = libraryLoaderViewModel;
         this.Bandcamp = bandcampViewModel;
@@ -296,11 +294,6 @@ public class MainViewModel : PrimaryViewModelBase
         {
             this.ConfigurationLocked = false;
         });
-    }
-
-    private void OutputController_StatusChangeEvent(IAudioStationComponent item1, IAudioStationComponent.Status item2)
-    {
-        throw new NotImplementedException();
     }
 
     public override Task Initialize(DialogProgressHandler progressHandler)

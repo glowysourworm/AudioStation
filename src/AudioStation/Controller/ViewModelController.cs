@@ -28,6 +28,7 @@ namespace AudioStation.Controller
         private readonly MainViewModel _mainViewModel;
 
         private readonly LibraryManagerViewModel _libraryManagerViewModel;
+        private readonly StatusViewModel _statusViewModel;
         private readonly RadioViewModel _radioViewModel;
         private readonly LogViewModel _logViewModel;
         private readonly LibraryLoaderViewModel _libraryLoaderViewModel;
@@ -91,6 +92,7 @@ namespace AudioStation.Controller
             _libraryLoaderDownloadMusicBrainzViewModel = new LibraryLoaderDownloadMusicBrainzViewModel(modelController, configurationManager, dialogController);
 
             _libraryManagerViewModel = new LibraryManagerViewModel(viewModelLoader, eventAggregator);
+            _statusViewModel = new StatusViewModel();
             _radioViewModel = new RadioViewModel(libraryLoaderService, dialogController);
             _logViewModel = new LogViewModel(eventAggregator);
             _nowPlayingViewModel = new NowPlayingViewModel(eventAggregator);
@@ -107,7 +109,7 @@ namespace AudioStation.Controller
                                                discogsClient, fanartClient, itunesClient, 
                                                lastFmClient, musicBrainzClient, spotifyClient,
                                                configurationManager.GetConfiguration(),
-                                               _libraryManagerViewModel, _radioViewModel,
+                                               _libraryManagerViewModel, _statusViewModel, _radioViewModel,
                                                _logViewModel, _libraryLoaderViewModel,
                                                _nowPlayingViewModel, _bandcampViewModel);
 
@@ -141,8 +143,11 @@ namespace AudioStation.Controller
             // 2) Report between view models
             //
 
-            var taskCount = 19;
+            var taskCount = 20;
             var task = 0;
+
+            progressHandler(taskCount, task++, 0, "Initializing Status Component...");
+            await _bandcampViewModel.Initialize(progressHandler);
 
             progressHandler(taskCount, task++, 0, "Initializing Bandcamp Client...");
             await _bandcampViewModel.Initialize(progressHandler);
