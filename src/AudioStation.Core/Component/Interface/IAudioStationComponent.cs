@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-using SimpleWpf.Extensions.Event;
+﻿using SimpleWpf.Extensions.Event;
 
 namespace AudioStation.Core.Component.Interface
 {

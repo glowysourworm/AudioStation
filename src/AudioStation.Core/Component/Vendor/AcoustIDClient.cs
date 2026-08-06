@@ -1,7 +1,5 @@
-﻿using System;
-using System.Buffers;
+﻿using System.Buffers;
 using System.IO;
-using System.Text;
 
 using AcoustID.Audio;
 using AcoustID.Web;
@@ -10,8 +8,6 @@ using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Component.Vendor.Interface;
 using AudioStation.Core.Utility;
 using AudioStation.Model;
-
-using MetaBrainz.MusicBrainz.Interfaces.Entities;
 
 using Microsoft.Extensions.Logging;
 
@@ -60,7 +56,7 @@ namespace AudioStation.Core.Component.Vendor
 
         public double TotalSeconds
         {
-            get { return  totalSeconds; }
+            get { return totalSeconds; }
         }
 
         ~AudioDecoder() => Dispose(false);
@@ -210,10 +206,10 @@ namespace AudioStation.Core.Component.Vendor
                                                       "releases",
                                                       "releaseids",
                                                       "releasegroups",
-                                                      "releasegroupids", 
-                                                      "tracks", 
-                                                      "compress", 
-                                                      "usermeta", 
+                                                      "releasegroupids",
+                                                      "tracks",
+                                                      "compress",
+                                                      "usermeta",
                                                       "sources" };
 
                     var response = await service.GetAsync(fingerPrint, length, availableMeta);
@@ -250,12 +246,12 @@ namespace AudioStation.Core.Component.Vendor
         public IAudioStationComponent.Status GetStatus()
         {
             // TODO
-            return IAudioStationComponent.Status.Idle;
+            return IAudioStationComponent.Status.Working;
         }
         public async Task<IAudioStationComponent.Status> Initialize()
         {
             // TODO
-            return IAudioStationComponent.Status.Idle;
+            return IAudioStationComponent.Status.Working;
         }
         public string GetStatusMessage()
         {

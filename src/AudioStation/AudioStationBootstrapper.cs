@@ -1,5 +1,4 @@
 ﻿using System.Windows;
-using System.Windows.Media;
 using System.Windows.Threading;
 
 using AudioStation.Controller.Interface;
@@ -8,12 +7,10 @@ using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Utility;
 using AudioStation.Event;
 using AudioStation.Event.DialogEvents;
-using AudioStation.EventHandler;
 using AudioStation.Views.DialogViews;
 using AudioStation.Windows;
 
 using SimpleWpf.IocFramework.Application;
-using SimpleWpf.IocFramework.EventAggregation;
 
 namespace AudioStation
 {
@@ -61,10 +58,10 @@ namespace AudioStation
             var dialogWindow = new DialogWindow();
             var dialogViewModel = new DialogSplashScreenViewModel()
             {
-                 Message = "(Initializing Components)",
-                 Progress = 0,
-                 ShowProgressBar = false,
-                 ShowProgressMessage = true                 
+                Message = "(Initializing Components)",
+                Progress = 0,
+                ShowProgressBar = false,
+                ShowProgressMessage = true
             };
             var dialogEventData = new DialogEventData(dialogViewModel);
 
@@ -80,9 +77,23 @@ namespace AudioStation
 
             // Initialize View Model Data
             var viewModelController = IocContainer.Get<IViewModelController>();
+            var componentController = IocContainer.Get<IAudioStationComponentController>();
 
             // (see DialogEventHandlers.cs)
             await viewModelController.Initialize((taskCount, tasksComplete, tasksError, message) =>
+            {
+                // Update the status bar during initialization
+                ApplicationHelpers.InvokeDispatcher(() =>
+                {
+                    dialogViewModel.Progress = tasksComplete / (double)taskCount;
+                    dialogViewModel.Message = message;
+                    dialogViewModel.ShowProgressMessage = (message != string.Empty);
+                    dialogViewModel.ShowProgressBar = dialogViewModel.Progress > 0;
+
+                }, DispatcherPriority.Normal);
+            });
+
+            await componentController.Initialize((taskCount, tasksComplete, tasksError, message) =>
             {
                 // Update the status bar during initialization
                 ApplicationHelpers.InvokeDispatcher(() =>

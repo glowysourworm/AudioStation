@@ -169,21 +169,10 @@ public class MainViewModel : PrimaryViewModelBase
     #endregion
 
     public MainViewModel(IConfigurationManager configurationManager,
+                         IAudioStationComponentController componentController,
                          IDialogController dialogController,
                          IIocEventAggregator eventAggregator,
                          ICDDrive cdDrive,
-
-                         // IAudioStationComponent
-                         IAudioController audioController,
-                         IOutputController outputController,
-                         IAcoustIDClient acoustIDClient,
-                         IBandcampClient bandcampClient,
-                         IDiscogsClient discogsClient,
-                         IFanartClient fanartClient,
-                         IITunesClient itunesClient,
-                         ILastFmClient lastFmClient,
-                         IMusicBrainzClient musicBrainzClient,
-                         ISpotifyClient spotifyClient,
 
                          // View Models
                          Configuration configuration,
@@ -196,7 +185,7 @@ public class MainViewModel : PrimaryViewModelBase
                          BandcampViewModel bandcampViewModel)
     {
         _eventAggregator = eventAggregator;
-        _outputController = outputController;
+        _outputController = componentController.GetComponent<IOutputController>();
 
         this.ConfigurationLocked = true;
         this.Configuration = configuration;
@@ -227,19 +216,13 @@ public class MainViewModel : PrimaryViewModelBase
         this.Loading = false;
 
         // IAudioStationComponent
-        audioController.StatusChangeEvent += IAudioStationComponent_StatusChangeEvent;
+        var audioController = componentController.GetComponent<IAudioController>();
+
         audioController.CurrentTimeUpdated += OnCurrentTimeUpdated;
         audioController.CurrentBandLevelsUpdated += OnCurrentBandLevelsUpdated;
 
-        outputController.StatusChangeEvent += IAudioStationComponent_StatusChangeEvent;
-        acoustIDClient.StatusChangeEvent += IAudioStationComponent_StatusChangeEvent;
-        bandcampClient.StatusChangeEvent += IAudioStationComponent_StatusChangeEvent;
-        discogsClient.StatusChangeEvent += IAudioStationComponent_StatusChangeEvent;
-        fanartClient.StatusChangeEvent += IAudioStationComponent_StatusChangeEvent;
-        itunesClient.StatusChangeEvent += IAudioStationComponent_StatusChangeEvent;
-        lastFmClient.StatusChangeEvent += IAudioStationComponent_StatusChangeEvent;
-        musicBrainzClient.StatusChangeEvent += IAudioStationComponent_StatusChangeEvent;
-        spotifyClient.StatusChangeEvent += IAudioStationComponent_StatusChangeEvent;
+        componentController.ComponentInitializedEvent += IAudioStationComponent_StatusChangeEvent;
+        componentController.ComponentStatusChangedEvent += IAudioStationComponent_StatusChangeEvent;
 
         // Event Aggregator
         eventAggregator.GetEvent<LogEvent>().Subscribe(OnLog);
@@ -307,7 +290,38 @@ public class MainViewModel : PrimaryViewModelBase
     }
     private void IAudioStationComponent_StatusChangeEvent(IAudioStationComponent sender, IAudioStationComponent.Status status)
     {
+        if (sender is IOutputController)
+            this.StatusViewModel.OutputControllerStatus.Status = status;
 
+        else if (sender is IAudioController)
+            this.StatusViewModel.AudioPlayerStatus.Status = status;
+
+        else if (sender is IAcoustIDClient)
+            this.StatusViewModel.AcoustIDClient.Status = status;
+
+        else if (sender is IBandcampClient)
+            this.StatusViewModel.BandcampClient.Status = status;
+
+        else if (sender is IDiscogsClient)
+            this.StatusViewModel.DiscogsClient.Status = status;
+
+        else if (sender is IFanartClient)
+            this.StatusViewModel.FanartClient.Status = status;
+
+        else if (sender is IITunesClient)
+            this.StatusViewModel.ITunesClient.Status = status;
+
+        else if (sender is ILastFmClient)
+            this.StatusViewModel.LastFmClient.Status = status;
+
+        else if (sender is IMusicBrainzClient)
+            this.StatusViewModel.MusicBrainzClient.Status = status;
+
+        else if (sender is ISpotifyClient)
+            this.StatusViewModel.SpotifyClient.Status = status;
+
+        else
+            throw new Exception("Unhandled IAudioStationComponent type");
     }
 
     private void OnMainLoadingChanged(DialogEventData eventData)
