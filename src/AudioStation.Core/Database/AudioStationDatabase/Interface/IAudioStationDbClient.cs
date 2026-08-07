@@ -1,9 +1,10 @@
 ﻿using AudioStation.Core.Model;
 using AudioStation.Core.Model.Vendor.ATLExtension.Interface;
+using AudioStation.Core.Service.Interface;
 
 namespace AudioStation.Core.Database.AudioStationDatabase.Interface
 {
-    public interface IAudioStationDbClient
+    public interface IAudioStationDbClient : IAudioStationService
     {
         /// <summary>
         /// Adds LibraryEntry to database. Does NOT update any existing, similar, entry. The tag data

@@ -147,7 +147,7 @@ namespace AudioStation.Core.Database.AudioStationDatabase
                                                                              eventData.EventId.Name);
 
 
-            ApplicationHelpers.Log(message, LogMessageType.Database, eventData.LogLevel, null);
+            ApplicationHelpers.Log(message, LogMessageDbType.AudioStation, eventData.LogLevel, null);
         }
 
         public override void Dispose()

@@ -1,9 +1,8 @@
-﻿using System.Linq.Expressions;
-
-using AudioStation.Core.Component.Interface;
+﻿using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Database.MusicBrainzDatabase.Interface;
 using AudioStation.Core.Event;
 using AudioStation.Core.Model;
+using AudioStation.Core.Service.Interface;
 using AudioStation.Core.Utility;
 using AudioStation.Model;
 
@@ -11,6 +10,7 @@ using MetaBrainz.MusicBrainz;
 
 using Microsoft.Extensions.Logging;
 
+using SimpleWpf.Extensions.Event;
 using SimpleWpf.IocFramework.Application.Attribute;
 using SimpleWpf.IocFramework.EventAggregation;
 
@@ -23,6 +23,12 @@ namespace AudioStation.Core.Database.MusicBrainzDatabase
 
         LogLevel _currentLogLevel;
         bool _currentLogVerbosity;
+
+        // IAudioStationComponent
+        //
+        public event SimpleEventHandler<IAudioStationService, IAudioStationService.Status> StatusChangeEvent;
+
+        private IAudioStationService.Status _status;
 
         [IocImportingConstructor]
         public MusicBrainzDbClient(IConfigurationManager configurationManager, IIocEventAggregator eventAggregator)
@@ -62,14 +68,14 @@ namespace AudioStation.Core.Database.MusicBrainzDatabase
                             MusicBrainzUrlId = entity.Id,
                         });
                     }
-                    
+
 
                     context.SaveChanges();
                 }
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Error saving data:  " + ex.Message, LogMessageType.Database, LogLevel.Error, ex);
+                ApplicationHelpers.Log("Error saving data:  " + ex.Message, LogMessageDbType.MusicBrainz, LogLevel.Error, ex);
                 throw ex;
             }
         }
@@ -102,7 +108,7 @@ namespace AudioStation.Core.Database.MusicBrainzDatabase
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Error saving data:  " + ex.Message, LogMessageType.Database, LogLevel.Error, ex);
+                ApplicationHelpers.Log("Error saving data:  " + ex.Message, LogMessageDbType.MusicBrainz, LogLevel.Error, ex);
                 throw ex;
             }
         }
@@ -135,7 +141,7 @@ namespace AudioStation.Core.Database.MusicBrainzDatabase
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Error saving data:  " + ex.Message, LogMessageType.Database, LogLevel.Error, ex);
+                ApplicationHelpers.Log("Error saving data:  " + ex.Message, LogMessageDbType.MusicBrainz, LogLevel.Error, ex);
                 throw ex;
             }
         }
@@ -183,7 +189,7 @@ namespace AudioStation.Core.Database.MusicBrainzDatabase
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Error retrieving data page:  " + ex.Message, LogMessageType.Database, LogLevel.Error, ex);
+                ApplicationHelpers.Log("Error retrieving data page:  " + ex.Message, LogMessageDbType.MusicBrainz, LogLevel.Error, ex);
                 throw ex;
             }
         }
@@ -199,7 +205,7 @@ namespace AudioStation.Core.Database.MusicBrainzDatabase
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Error retrieving data page:  " + ex.Message, LogMessageType.Database, LogLevel.Error, ex);
+                ApplicationHelpers.Log("Error retrieving data page:  " + ex.Message, LogMessageDbType.MusicBrainz, LogLevel.Error, ex);
                 throw ex;
             }
         }
@@ -215,7 +221,7 @@ namespace AudioStation.Core.Database.MusicBrainzDatabase
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Error retrieving data page:  " + ex.Message, LogMessageType.Database, LogLevel.Error, ex);
+                ApplicationHelpers.Log("Error retrieving data page:  " + ex.Message, LogMessageDbType.MusicBrainz, LogLevel.Error, ex);
                 throw ex;
             }
         }
@@ -231,7 +237,7 @@ namespace AudioStation.Core.Database.MusicBrainzDatabase
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Error retrieving data:  " + ex.Message, LogMessageType.Database, LogLevel.Error, ex);
+                ApplicationHelpers.Log("Error retrieving data:  " + ex.Message, LogMessageDbType.MusicBrainz, LogLevel.Error, ex);
                 throw ex;
             }
         }
@@ -248,7 +254,7 @@ namespace AudioStation.Core.Database.MusicBrainzDatabase
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Error retrieving data:  " + ex.Message, LogMessageType.Database, LogLevel.Error , ex);
+                ApplicationHelpers.Log("Error retrieving data:  " + ex.Message, LogMessageDbType.MusicBrainz, LogLevel.Error, ex);
                 throw ex;
             }
         }
@@ -267,7 +273,7 @@ namespace AudioStation.Core.Database.MusicBrainzDatabase
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Error saving entity data:  " + ex.Message, LogMessageType.Database, LogLevel.Error, ex);
+                ApplicationHelpers.Log("Error saving entity data:  " + ex.Message, LogMessageDbType.MusicBrainz, LogLevel.Error, ex);
                 throw ex;
             }
         }
@@ -283,7 +289,7 @@ namespace AudioStation.Core.Database.MusicBrainzDatabase
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Error saving entity data:  " + ex.Message, LogMessageType.Database, LogLevel.Error, ex);
+                ApplicationHelpers.Log("Error saving entity data:  " + ex.Message, LogMessageDbType.MusicBrainz, LogLevel.Error, ex);
                 throw ex;
             }
         }
@@ -299,7 +305,7 @@ namespace AudioStation.Core.Database.MusicBrainzDatabase
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Error querying entity data:  " + ex.Message, LogMessageType.Database, LogLevel.Error, ex);
+                ApplicationHelpers.Log("Error querying entity data:  " + ex.Message, LogMessageDbType.MusicBrainz, LogLevel.Error, ex);
                 throw ex;
             }
         }
@@ -361,5 +367,30 @@ namespace AudioStation.Core.Database.MusicBrainzDatabase
 
             return context;
         }
+
+        #region (public) IAudioStationComponent Methods
+        public string GetName()
+        {
+            return "Music Brainz Database";
+        }
+        public string GetDisplayName()
+        {
+            return "Music Brainz Database";
+        }
+        public IAudioStationService.Status GetStatus()
+        {
+            // TODO: This status should maintain the "new log" / "logs viewed" status.
+
+            return IAudioStationService.Status.Idle;
+        }
+        public async Task<IAudioStationService.Status> Initialize()
+        {
+            return IAudioStationService.Status.Idle;
+        }
+        public string GetStatusMessage()
+        {
+            return "";
+        }
+        #endregion
     }
 }

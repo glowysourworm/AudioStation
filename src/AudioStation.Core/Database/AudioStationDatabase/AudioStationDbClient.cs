@@ -3,6 +3,7 @@ using AudioStation.Core.Database.AudioStationDatabase.Interface;
 using AudioStation.Core.Event;
 using AudioStation.Core.Model;
 using AudioStation.Core.Model.Vendor.ATLExtension.Interface;
+using AudioStation.Core.Service.Interface;
 using AudioStation.Core.Utility;
 using AudioStation.Model;
 
@@ -10,6 +11,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 using SimpleWpf.Extensions.Collection;
+using SimpleWpf.Extensions.Event;
 using SimpleWpf.IocFramework.Application.Attribute;
 using SimpleWpf.IocFramework.EventAggregation;
 
@@ -24,6 +26,13 @@ namespace AudioStation.Core.Database.AudioStationDatabase
         LogLevel _currentLogLevel;
         bool _currentLogVerbosity;
 
+        // IAudioStationService
+        //
+        public event SimpleEventHandler<IAudioStationService, IAudioStationService.Status> StatusChangeEvent;
+
+        private IAudioStationService.Status _status;
+        private string _statusMessage;
+
         [IocImportingConstructor]
         public AudioStationDbClient(IConfigurationManager configurationManager,
                                     IIocEventAggregator eventAggregator)
@@ -32,6 +41,9 @@ namespace AudioStation.Core.Database.AudioStationDatabase
             _eventAggregator = eventAggregator;
             _currentLogLevel = LogLevel.Trace;
             _currentLogVerbosity = true;
+
+            _status = IAudioStationService.Status.Disabled;
+            _statusMessage = "Not Initialized";
 
             // Update log output configuration
             _eventAggregator.GetEvent<LogConfigurationChangedEvent>().Subscribe(payload =>
@@ -195,7 +207,7 @@ namespace AudioStation.Core.Database.AudioStationDatabase
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Error in IModelController (AddLibraryEntry):  {0}", LogMessageType.Database, LogLevel.Error, ex, ex.Message);
+                ApplicationHelpers.Log("Error in IModelController (AddLibraryEntry):  {0}", LogMessageDbType.AudioStation, LogLevel.Error, ex, ex.Message);
                 throw ex;
             }
         }
@@ -237,7 +249,7 @@ namespace AudioStation.Core.Database.AudioStationDatabase
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Error in IModelController (AddLibraryEntry):  {0}", LogMessageType.Database, LogLevel.Error, ex, ex.Message);
+                ApplicationHelpers.Log("Error in IModelController (AddLibraryEntry):  {0}", LogMessageDbType.AudioStation, LogLevel.Error, ex, ex.Message);
                 throw ex;
             }
         }
@@ -280,7 +292,7 @@ namespace AudioStation.Core.Database.AudioStationDatabase
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Error in IModelController (AddLibraryEntry):  {0}", LogMessageType.Database, LogLevel.Error, ex, ex.Message);
+                ApplicationHelpers.Log("Error in IModelController (AddLibraryEntry):  {0}", LogMessageDbType.AudioStation, LogLevel.Error, ex, ex.Message);
                 throw ex;
             }
         }
@@ -298,7 +310,7 @@ namespace AudioStation.Core.Database.AudioStationDatabase
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Error in IModelController (AddLibraryEntry):  {0}", LogMessageType.Database, LogLevel.Error, ex, ex.Message);
+                ApplicationHelpers.Log("Error in IModelController (AddLibraryEntry):  {0}", LogMessageDbType.AudioStation, LogLevel.Error, ex, ex.Message);
                 throw ex;
             }
         }
@@ -320,7 +332,7 @@ namespace AudioStation.Core.Database.AudioStationDatabase
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Error in IModelController (AddLibraryEntry):  {0}", LogMessageType.Database, LogLevel.Error, ex, ex.Message);
+                ApplicationHelpers.Log("Error in IModelController (AddLibraryEntry):  {0}", LogMessageDbType.AudioStation, LogLevel.Error, ex, ex.Message);
                 throw ex;
             }
         }
@@ -338,7 +350,7 @@ namespace AudioStation.Core.Database.AudioStationDatabase
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Error in IModelController (AddLibraryEntry):  {0}", LogMessageType.Database, LogLevel.Error, ex, ex.Message);
+                ApplicationHelpers.Log("Error in IModelController (AddLibraryEntry):  {0}", LogMessageDbType.AudioStation, LogLevel.Error, ex, ex.Message);
                 throw ex;
             }
         }
@@ -386,7 +398,7 @@ namespace AudioStation.Core.Database.AudioStationDatabase
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Error retrieving data page:  " + ex.Message, LogMessageType.Database, LogLevel.Error, ex);
+                ApplicationHelpers.Log("Error retrieving data page:  " + ex.Message, LogMessageDbType.AudioStation, LogLevel.Error, ex);
                 throw ex;
             }
         }
@@ -402,7 +414,7 @@ namespace AudioStation.Core.Database.AudioStationDatabase
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Error retrieving data page:  " + ex.Message, LogMessageType.Database, LogLevel.Error, ex);
+                ApplicationHelpers.Log("Error retrieving data page:  " + ex.Message, LogMessageDbType.AudioStation, LogLevel.Error, ex);
                 throw ex;
             }
         }
@@ -418,7 +430,7 @@ namespace AudioStation.Core.Database.AudioStationDatabase
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Error retrieving data:  " + ex.Message, LogMessageType.Database, LogLevel.Error, ex);
+                ApplicationHelpers.Log("Error retrieving data:  " + ex.Message, LogMessageDbType.AudioStation, LogLevel.Error, ex);
                 throw ex;
             }
         }
@@ -437,7 +449,7 @@ namespace AudioStation.Core.Database.AudioStationDatabase
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Error saving entity data:  " + ex.Message, LogMessageType.Database, LogLevel.Error, ex);
+                ApplicationHelpers.Log("Error saving entity data:  " + ex.Message, LogMessageDbType.AudioStation, LogLevel.Error, ex);
                 throw ex;
             }
         }
@@ -484,6 +496,69 @@ namespace AudioStation.Core.Database.AudioStationDatabase
 
             return context;
         }
+
+        #region (public) IAudioStationComponent Methods
+        public string GetName()
+        {
+            return "Audio Station Database";
+        }
+        public string GetDisplayName()
+        {
+            return "Audio Station Database";
+        }
+        public IAudioStationService.Status GetStatus()
+        {
+            return _status;
+        }
+        public async Task<IAudioStationService.Status> Initialize()
+        {
+            var configuration = _configurationManager.GetConfiguration();
+
+            if (string.IsNullOrWhiteSpace(configuration.DatabaseHost))
+                OnStatusChanged(IAudioStationService.Status.Error, "database host not specified");
+
+            else if (string.IsNullOrWhiteSpace(configuration.DatabaseName))
+                OnStatusChanged(IAudioStationService.Status.Error, "database name not specified");
+
+            else if (string.IsNullOrWhiteSpace(configuration.DatabaseUser))
+                OnStatusChanged(IAudioStationService.Status.Error, "database user not specified");
+
+            else if (string.IsNullOrWhiteSpace(configuration.DatabasePassword))
+                OnStatusChanged(IAudioStationService.Status.Error, "database password not specified");
+
+            else
+                OnStatusChanged(IAudioStationService.Status.Idle, "database configuration OK!");
+
+            // Test Connection
+            try
+            {
+                using (var context = CreateContext())
+                {
+                    // No-op
+                }
+            }
+            catch (Exception ex)
+            {
+                OnStatusChanged(IAudioStationService.Status.Error, "database connection failed!");
+                //ApplicationHelpers.Log("Database connection failed!", LogMessageType.)
+            }
+
+            return _status;
+        }
+        public string GetStatusMessage()
+        {
+            return this.GetDisplayName() + ": " + _statusMessage;
+        }
+
+        private void OnStatusChanged(IAudioStationService.Status status, string message)
+        {
+            _status = status;
+            _statusMessage = message;
+
+            if (this.StatusChangeEvent != null)
+                this.StatusChangeEvent(this, _status);
+        }
+        #endregion
 
         public void Dispose()
         {

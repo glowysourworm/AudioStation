@@ -5,7 +5,6 @@ using System.Text;
 
 using AudioStation.Core.Controller.Interface;
 using AudioStation.Core.Utility;
-using AudioStation.Model;
 
 using Microsoft.Extensions.Logging;
 
@@ -98,7 +97,7 @@ namespace AudioStation.Core.Component
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Error Migrating File:  {0}", LogMessageType.General, LogLevel.Error, ex, sourcePath);
+                ApplicationHelpers.Log("Error Migrating File:  {0}", LogLevel.Error, ex, sourcePath);
                 throw ex;
             }
         }

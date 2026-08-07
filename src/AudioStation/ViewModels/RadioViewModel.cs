@@ -1,24 +1,17 @@
-﻿using System.Windows;
-using System.Windows.Threading;
+﻿using System.Windows.Threading;
 
 using AudioStation.Controller.Interface;
-using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Database.AudioStationDatabase;
-using AudioStation.Core.Model;
 using AudioStation.Core.Service.Vendor;
 using AudioStation.Core.Utility;
-using AudioStation.EventHandler;
-using AudioStation.Model;
 using AudioStation.Service.Interface;
 using AudioStation.ViewModels.LibraryViewModels.Comparer;
 using AudioStation.ViewModels.RadioViewModels;
 
 using Microsoft.Extensions.Logging;
 
-using SimpleWpf.Extensions;
 using SimpleWpf.Extensions.Command;
 using SimpleWpf.Extensions.ObservableCollection;
-using SimpleWpf.IocFramework.Application.Attribute;
 
 using static AudioStation.EventHandler.DialogEventHandlers;
 
@@ -81,7 +74,7 @@ namespace AudioStation.ViewModels
 
         public override void Dispose()
         {
-            
+
         }
 
         public async void SearchRadioBrowser(string search)
@@ -114,7 +107,7 @@ namespace AudioStation.ViewModels
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Error querying Radio Browser:  {0}", LogMessageType.General, LogLevel.Error, ex,  ex.Message);
+                ApplicationHelpers.Log("Error querying Radio Browser:  {0}", LogLevel.Error, ex, ex.Message);
             }
         }
 

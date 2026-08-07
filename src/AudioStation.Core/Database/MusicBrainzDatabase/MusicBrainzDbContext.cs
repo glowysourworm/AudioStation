@@ -1,6 +1,4 @@
-﻿using AudioStation.Core.Component.Interface;
-using AudioStation.Core.Database.AudioStationDatabase;
-using AudioStation.Core.Utility;
+﻿using AudioStation.Core.Utility;
 using AudioStation.Model;
 
 using Microsoft.EntityFrameworkCore;
@@ -171,7 +169,7 @@ namespace AudioStation.Core.Database.MusicBrainzDatabase
                                                                              eventData.EventIdCode,
                                                                              eventData.EventId.Name);
 
-            ApplicationHelpers.Log(message, LogMessageType.Database, eventData.LogLevel, null);
+            ApplicationHelpers.Log(message, LogMessageDbType.MusicBrainz, eventData.LogLevel, null);
         }
 
         public override void Dispose()

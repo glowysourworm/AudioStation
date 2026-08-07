@@ -1,18 +1,14 @@
 ﻿using System.Collections.ObjectModel;
-using System.Windows;
 using System.Windows.Threading;
 
 using AudioStation.Core.Controller.Interface;
 using AudioStation.Core.Event;
 using AudioStation.Core.Utility;
-using AudioStation.EventHandler;
 using AudioStation.Model;
 using AudioStation.ViewModels.LogViewModels;
 
 using Microsoft.Extensions.Logging;
 
-using SimpleWpf.Extensions;
-using SimpleWpf.IocFramework.Application.Attribute;
 using SimpleWpf.IocFramework.EventAggregation;
 
 using static AudioStation.EventHandler.DialogEventHandlers;
@@ -65,20 +61,20 @@ namespace AudioStation.ViewModels
 
             else
             {
-                if (!_logs.Any(log => log.Id.Equals(message.LogComponentId)))
+                if (!_logs.Any(log => log.Id.Equals(message.LogId)))
                 {
                     _logs.Add(new LogComponentViewModel()
                     {
-                        Id = message.LogComponentId,
+                        Id = message.LogId,
                         LogLevel = LogLevel.None,               // This is a user input (for filtering)
-                        Name = message.IsSeparatedLog ? "Separate Log #" + message.LogComponentId.ToString() : message.Type.ToString()
+                        Name = message.Type.ToString()
                     });
                 }
 
-                var log = _logs.First(x => x.Id.Equals(message.LogComponentId));
+                var log = _logs.First(x => x.Id.Equals(message.LogId));
 
                 log.Messages.Insert(0, new LogMessageViewModel()
-                {                    
+                {
                     Level = message.Level,
                     Message = message.Message,
                     Type = message.Type,

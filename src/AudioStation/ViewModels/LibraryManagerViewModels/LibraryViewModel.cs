@@ -5,13 +5,10 @@ using AudioStation.Component.Interface;
 using AudioStation.Core.Database.AudioStationDatabase;
 using AudioStation.Core.Model;
 using AudioStation.Core.Utility;
-using AudioStation.EventHandler;
-using AudioStation.Model;
 using AudioStation.ViewModels.LibraryViewModels;
 
 using Microsoft.Extensions.Logging;
 
-using SimpleWpf.Extensions;
 using SimpleWpf.Extensions.Command;
 using SimpleWpf.Extensions.ObservableCollection;
 
@@ -265,14 +262,14 @@ namespace AudioStation.ViewModels.LibraryManagerViewModels
                 }
                 catch (Exception ex)
                 {
-                    ApplicationHelpers.Log("Error Loading Audio Station Entities:  {0}", LogMessageType.General, LogLevel.Error, ex, ex.Message);
+                    ApplicationHelpers.Log("Error Loading Audio Station Entities:  {0}", LogLevel.Error, ex, ex.Message);
                 }
             });
         }
 
         public override void Dispose()
         {
-            
+
         }
 
         private void ExecuteArtistSearch()

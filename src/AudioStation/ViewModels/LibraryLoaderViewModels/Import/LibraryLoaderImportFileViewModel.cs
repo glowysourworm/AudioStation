@@ -5,7 +5,6 @@ using AudioStation.Core.Controller.Interface;
 using AudioStation.Core.Model.Vendor.ATLExtension;
 using AudioStation.Core.Model.Vendor.ATLExtension.Interface;
 using AudioStation.Core.Utility;
-using AudioStation.Model;
 using AudioStation.ViewModels.Vendor.AcoustIDViewModel;
 using AudioStation.ViewModels.Vendor.MusicBrainzViewModel;
 
@@ -350,7 +349,7 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels.Import
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Error saving import tag:  {0}", LogMessageType.General, LogLevel.Error, ex, this.FullPath);
+                ApplicationHelpers.Log("Error saving import tag:  {0}", LogLevel.Error, ex, this.FullPath);
                 this.InError = true;
             }
 
@@ -391,7 +390,7 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels.Import
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Error refreshing import tag:  {0}", LogMessageType.General, LogLevel.Error, ex, this.FullPath);
+                ApplicationHelpers.Log("Error refreshing import tag:  {0}", LogLevel.Error, ex, this.FullPath);
                 this.InError = true;
                 _updating = false;
                 return;

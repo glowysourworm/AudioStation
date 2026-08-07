@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using AudioStation.Model;
+﻿using AudioStation.Model;
 
 using Microsoft.Extensions.Logging;
 
@@ -29,7 +23,7 @@ namespace AudioStation.Core.Component
                 _log.RemoveAt(_log.Count - 1);
         }
 
-        public IEnumerable<LogMessage> GetLatestLogs(LogMessageType type, LogLevel level, int count)
+        public IEnumerable<LogMessage> GetLatestLogs(LogLevel level, int count)
         {
             return _log.Where(log => log.Level >= level).Take(count);
         }

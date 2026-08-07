@@ -1,8 +1,4 @@
 ﻿using System.ComponentModel;
-using System.Diagnostics;
-using System.IO;
-using System.Runtime.InteropServices;
-using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Threading;
 
@@ -15,14 +11,11 @@ using AudioStation.Core.Model;
 using AudioStation.Core.Utility;
 using AudioStation.Event;
 using AudioStation.Event.DialogEvents;
-using AudioStation.Model;
 using AudioStation.ViewModels.Vendor.AcoustIDViewModel;
 using AudioStation.ViewModels.Vendor.ATLViewModel;
 using AudioStation.ViewModels.Vendor.MusicBrainzViewModel;
 
 using Microsoft.Extensions.Logging;
-
-using NAudio.Lame;
 
 using SimpleWpf.Extensions.Collection;
 using SimpleWpf.Extensions.Command;
@@ -166,7 +159,7 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels.Import
 
                 eventAggregator.GetEvent<DialogEvent>().Publish(new DialogEventData(loadingViewModel));
 
-                await RefreshImportFiles((count,current, errorCount, message) => 
+                await RefreshImportFiles((count, current, errorCount, message) =>
                 {
                     loadingViewModel.Message = message;
                     loadingViewModel.Progress = current / (double)count;
@@ -315,7 +308,7 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels.Import
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Application error:  {0}", LogMessageType.General, LogLevel.Error, ex, ex.Message);
+                ApplicationHelpers.Log("Application error:  {0}", LogLevel.Error, ex, ex.Message);
                 throw ex;
             }
         }
@@ -354,7 +347,7 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels.Import
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Application error:  {0}", LogMessageType.General, LogLevel.Error, ex, ex.Message);
+                ApplicationHelpers.Log("Application error:  {0}", LogLevel.Error, ex, ex.Message);
                 throw ex;
             }
         }

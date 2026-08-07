@@ -104,13 +104,69 @@ namespace AudioStation.Core.Utility
         /// <summary>
         /// Sends a log request to the dispatcher to log with the output controller
         /// </summary>
-        public static void Log(string message, LogMessageType type, LogLevel level, Exception? exception, params object[] parameters)
+        public static void Log(string message, LogLevel level, Exception? exception, params object[] parameters)
+        {
+            LogImpl(message, LogMessageType.General, level, LogMessageComponentType.None, LogMessageServiceType.None, LogMessageDbType.None, exception, parameters);
+        }
+
+        /// <summary>
+        /// Sends a log request to the dispatcher to log with the output controller
+        /// </summary>
+        public static void Log(string message, LogMessageComponentType componentType, LogLevel level, Exception? exception, params object[] parameters)
+        {
+            LogImpl(message, LogMessageType.Component, level, componentType, LogMessageServiceType.None, LogMessageDbType.None, exception, parameters);
+        }
+
+        /// <summary>
+        /// Sends a log request to the dispatcher to log with the output controller
+        /// </summary>
+        public static void Log(string message, LogMessageServiceType serviceType, LogLevel level, Exception? exception, params object[] parameters)
+        {
+            LogImpl(message, LogMessageType.Service, level, LogMessageComponentType.None, serviceType, LogMessageDbType.None, exception, parameters);
+        }
+
+        /// <summary>
+        /// Sends a log request to the dispatcher to log with the output controller
+        /// </summary>
+        public static void Log(string message, LogMessageDbType dbType, LogLevel level, Exception? exception, params object[] parameters)
+        {
+            LogImpl(message, LogMessageType.Database, level, LogMessageComponentType.None, LogMessageServiceType.None, dbType, exception, parameters);
+        }
+
+        private static void LogImpl(string message,
+                                    LogMessageType type,
+                                    LogLevel level,
+                                    LogMessageComponentType componentType,
+                                    LogMessageServiceType serviceType,
+                                    LogMessageDbType dbType,
+                                    Exception? exception,
+                                    params object[] parameters)
         {
             if (IsDispatcher() == ApplicationIsDispatcherResult.False)
-                Application.Current.Dispatcher.BeginInvoke(Log, DispatcherPriority.Background, message, type, level, exception, parameters);
+                Application.Current.Dispatcher.BeginInvoke(LogImpl, DispatcherPriority.Background, message, type, level, componentType, serviceType, dbType, exception, parameters);
 
             else
-                GetOutputController().Log(message, type, level, exception, parameters);
+            {
+                switch (type)
+                {
+                    case LogMessageType.General:
+                    case LogMessageType.OtherComponent:
+                        GetOutputController().Log(message, level, type, exception, parameters);
+                        break;
+                    case LogMessageType.Component:
+                        GetOutputController().Log(message, componentType, level, exception, parameters);
+                        break;
+                    case LogMessageType.Service:
+                        GetOutputController().Log(message, serviceType, level, exception, parameters);
+                        break;
+                    case LogMessageType.Database:
+                        GetOutputController().Log(message, dbType, level, exception, parameters);
+                        break;
+
+                    default:
+                        throw new Exception("Unhandled log message type");
+                }
+            }
         }
 
         public static TDest Map<TSource, TDest>(TSource source)
@@ -125,7 +181,7 @@ namespace AudioStation.Core.Utility
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Error mapping objects:  {0}", LogMessageType.General, LogLevel.Error, ex, ex.Message);
+                ApplicationHelpers.Log("Error mapping objects:  {0}", LogLevel.Error, ex, ex.Message);
                 throw ex;
             }
         }
@@ -140,7 +196,7 @@ namespace AudioStation.Core.Utility
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Error mapping objects:  {0}", LogMessageType.General, LogLevel.Error, ex, ex.Message);
+                ApplicationHelpers.Log("Error mapping objects:  {0}", LogLevel.Error, ex, ex.Message);
                 throw ex;
             }
         }
@@ -153,7 +209,7 @@ namespace AudioStation.Core.Utility
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Error comparing objects:  {0}", LogMessageType.General, LogLevel.Error, ex, ex.Message);
+                ApplicationHelpers.Log("Error comparing objects:  {0}", LogLevel.Error, ex, ex.Message);
                 throw ex;
             }
         }
@@ -179,7 +235,7 @@ namespace AudioStation.Core.Utility
             }
             catch (Exception ex)
             {
-                Log("Error creating type mapper: {0}", LogMessageType.General, LogLevel.Error, ex, ex.Message);
+                Log("Error creating type mapper: {0}", LogLevel.Error, ex, ex.Message);
                 throw ex;
             }
         }

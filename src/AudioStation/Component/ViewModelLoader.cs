@@ -6,7 +6,6 @@ using AudioStation.Core.Controller.Interface;
 using AudioStation.Core.Database.AudioStationDatabase;
 using AudioStation.Core.Model;
 using AudioStation.Core.Utility;
-using AudioStation.Model;
 using AudioStation.ViewModels.LibraryLoaderViewModels.Import;
 using AudioStation.ViewModels.LibraryViewModels;
 
@@ -139,7 +138,7 @@ namespace AudioStation.Component
 
                 if (artistId == null)
                 {
-                    ApplicationHelpers.Log("Error loading album-artist:  AlbumId={0}", LogMessageType.General, LogLevel.Error, null, albumEntity.Id);
+                    ApplicationHelpers.Log("Error loading album-artist:  AlbumId={0}", LogLevel.Error, null, albumEntity.Id);
                     continue;
                 }
 
@@ -224,7 +223,7 @@ namespace AudioStation.Component
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Error getting non-converted files:  {0}", LogMessageType.General, LogLevel.Error, ex, ex.Message);
+                ApplicationHelpers.Log("Error getting non-converted files:  {0}", LogLevel.Error, ex, ex.Message);
                 throw ex;
             }
         }
@@ -281,7 +280,7 @@ namespace AudioStation.Component
                         }
                         catch (Exception ex)
                         {
-                            ApplicationHelpers.Log("Error converting file: {0}, {1}", LogMessageType.General, LogLevel.Error, ex, fileName, ex.Message);
+                            ApplicationHelpers.Log("Error converting file: {0}, {1}", LogLevel.Error, ex, fileName, ex.Message);
                         }
 
 
@@ -295,7 +294,7 @@ namespace AudioStation.Component
                 }
                 catch (Exception ex)
                 {
-                    ApplicationHelpers.Log("Error converted files:  {0}", LogMessageType.General, LogLevel.Error, ex, ex.Message);
+                    ApplicationHelpers.Log("Error converted files:  {0}", LogLevel.Error, ex, ex.Message);
                     throw ex;
                 }
             });
@@ -371,7 +370,7 @@ namespace AudioStation.Component
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Error loading import files:  {0}", LogMessageType.General, LogLevel.Error, ex, ex.Message);
+                ApplicationHelpers.Log("Error loading import files:  {0}", LogLevel.Error, ex, ex.Message);
                 return null;
             }
         }

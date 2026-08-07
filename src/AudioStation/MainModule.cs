@@ -1,7 +1,4 @@
-﻿using AudioStation.Controls;
-using AudioStation.Core.Utility;
-using AudioStation.Event;
-using AudioStation.Model;
+﻿using AudioStation.Core.Utility;
 using AudioStation.Views;
 
 using Microsoft.Extensions.Logging;
@@ -26,11 +23,11 @@ namespace AudioStation
 
             //eventAggregator.GetEvent<NowPlayingExpandedViewEvent>().Subscribe(showExpanded =>
             //{
-                //if (!showExpanded)
-                //    regionManager.LoadNamedInstance(MAIN_REGION, typeof(MainView));
-                //else
-                //    regionManager.LoadNamedInstance(MAIN_REGION, typeof(NowPlayingView));
-           // });
+            //if (!showExpanded)
+            //    regionManager.LoadNamedInstance(MAIN_REGION, typeof(MainView));
+            //else
+            //    regionManager.LoadNamedInstance(MAIN_REGION, typeof(NowPlayingView));
+            // });
         }
 
         public override void Initialize()
@@ -50,7 +47,7 @@ namespace AudioStation
         {
             base.Run();
 
-            ApplicationHelpers.Log("Welcome to Audio Station!", LogMessageType.General, LogLevel.Information, null);
+            ApplicationHelpers.Log("Welcome to Audio Station!", LogLevel.Information, null);
         }
     }
 }

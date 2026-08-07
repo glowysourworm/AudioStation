@@ -4,7 +4,6 @@ using AudioStation.Core.Controller.Interface;
 using AudioStation.Core.Model.Vendor.ATLExtension;
 using AudioStation.Core.Model.Vendor.ATLExtension.Interface;
 using AudioStation.Core.Utility;
-using AudioStation.Model;
 
 using Microsoft.Extensions.Logging;
 
@@ -38,7 +37,7 @@ namespace AudioStation.Core.Controller
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Tag data invalid:  {0}", LogMessageType.General, LogLevel.Warning, ex, fileName);
+                ApplicationHelpers.Log("Tag data invalid:  {0}", LogLevel.Warning, ex, fileName);
                 return false;
             }
         }
@@ -59,7 +58,7 @@ namespace AudioStation.Core.Controller
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Error initializing tag data:  {0}", LogMessageType.General, LogLevel.Error, ex, ex.Message);
+                ApplicationHelpers.Log("Error initializing tag data:  {0}", LogLevel.Error, ex, ex.Message);
                 throw ex;
             }
         }
@@ -91,7 +90,7 @@ namespace AudioStation.Core.Controller
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Error evicting tag data:  {0}", LogMessageType.General, LogLevel.Error, ex, fileName);
+                ApplicationHelpers.Log("Error evicting tag data:  {0}", LogLevel.Error, ex, fileName);
                 throw ex;
             }
         }
@@ -149,7 +148,7 @@ namespace AudioStation.Core.Controller
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Error saving tag data:  {0}", LogMessageType.General, LogLevel.Error, ex, ex.Message);
+                ApplicationHelpers.Log("Error saving tag data:  {0}", LogLevel.Error, ex, ex.Message);
                 throw ex;
             }
         }
@@ -168,7 +167,7 @@ namespace AudioStation.Core.Controller
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Error reading tag data (rebuilding Mp3 file):  {0}", LogMessageType.General, LogLevel.Error, ex, ex.Message);
+                ApplicationHelpers.Log("Error reading tag data (rebuilding Mp3 file):  {0}", LogLevel.Error, ex, ex.Message);
                 throw ex;
             }
         }

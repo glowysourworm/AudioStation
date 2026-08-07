@@ -3,7 +3,6 @@ using AudioStation.Component.Model;
 using AudioStation.Core.Controller.Interface;
 using AudioStation.Core.Service.Vendor.Interface;
 using AudioStation.Core.Utility;
-using AudioStation.Model;
 using AudioStation.ViewModels.LibraryViewModels;
 using AudioStation.ViewModels.PlaylistViewModels;
 
@@ -20,7 +19,6 @@ namespace AudioStation.Component
         private readonly ISpotifyClient _spotifyClient;
         private readonly IMusicBrainzClient _musicBrainzClient;
         private readonly IFanartClient _fanartClient;
-        private readonly IWikipediaClient _wikipediaClient;
         private readonly IOutputController _outputController;
 
         [IocImportingConstructor]
@@ -28,14 +26,12 @@ namespace AudioStation.Component
                                          ISpotifyClient spotifyClient,
                                          IMusicBrainzClient musicBrainzClient,
                                          IFanartClient fanartClient,
-                                         IWikipediaClient wikipediaClient,
                                          IOutputController outputController)
         {
             _lastFmClient = lastFmClient;
             _spotifyClient = spotifyClient;
             _musicBrainzClient = musicBrainzClient;
             _fanartClient = fanartClient;
-            _wikipediaClient = wikipediaClient;
             _outputController = outputController;
         }
 
@@ -43,7 +39,6 @@ namespace AudioStation.Component
         {
             try
             {
-                var wikipediaResponse = await _wikipediaClient.GetExcerpt(artist.Artist);
                 var lastFmResponse = await _lastFmClient.GetNowPlayingInfo(artist.Artist, album.Album);
                 var spotifyResponse = await _spotifyClient.CreateNowPlaying(artist.Artist, album.Album);
                 var musicBrainzResponse = await _musicBrainzClient.QueryArtist(artist.Artist);
@@ -62,8 +57,8 @@ namespace AudioStation.Component
 
                 return new NowPlayingData()
                 {
-                    ArtistArticle = wikipediaResponse?.ExtractBody ?? lastFmResponse?.BioContent ?? string.Empty,
-                    ArtistSummary = wikipediaResponse?.ExtractSummary ?? lastFmResponse?.BioSummary ?? string.Empty,
+                    ArtistArticle = lastFmResponse?.BioContent ?? string.Empty,
+                    ArtistSummary = lastFmResponse?.BioSummary ?? string.Empty,
                     BestImage = spotifyResponse?.CombinedImages?.FirstOrDefault() ?? lastFmResponse?.AlbumImage ?? lastFmResponse?.ArtistMainImage ?? string.Empty,
                     ArtistImages = fanartArtistThumbs ?? Enumerable.Empty<string>(),
                     BackgroundImages = fanartBackgrounds ?? Enumerable.Empty<string>(),
@@ -77,7 +72,7 @@ namespace AudioStation.Component
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Error gathering external resources:  {0}", LogMessageType.General, LogLevel.Error, ex, ex.Message);
+                ApplicationHelpers.Log("Error gathering external resources:  {0}", LogLevel.Error, ex, ex.Message);
                 return null;
             }
         }

@@ -63,11 +63,11 @@ namespace AudioStation.Core.Component
                 // Configuration
                 Serializer.Serialize(_configuration, configPath);
 
-                _outputController.Log("Configuration saved successfully: {0}", LogMessageType.General, LogLevel.Information, null, configPath);
+                _outputController.Log("Configuration saved successfully: {0}", LogMessageType.General, configPath);
             }
             catch (Exception ex)
             {
-                _outputController.Log("Error saving configuration / data files:  {0}", LogMessageType.General, LogLevel.Error, ex, ex.Message);
+                _outputController.Log("Error saving configuration / data files:  {0}", LogLevel.Error, LogMessageType.General, ex, ex.Message);
             }
         }
         private Configuration Open(string configurationFile)
@@ -78,8 +78,8 @@ namespace AudioStation.Core.Component
             }
             catch (Exception ex)
             {
-                _outputController.Log(new LogMessage("Error reading configuration file. Please try saving the working configuration first and then restarting.", LogMessageType.General, LogLevel.Error));
-                _outputController.Log(new LogMessage("Creating default configuration.", LogMessageType.General, LogLevel.Error));
+                _outputController.Log("Error reading configuration file. Please try saving the working configuration first and then restarting.", LogLevel.Error, LogMessageType.General, ex);
+                _outputController.Log("Creating default configuration.");
 
                 return new Configuration();
             }
@@ -159,7 +159,7 @@ namespace AudioStation.Core.Component
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Error validating configuration:  {0}", LogMessageType.General, LogLevel.Error, ex, ex.Message);
+                ApplicationHelpers.Log("Error validating configuration:  {0}", LogMessageComponentType.ConfigurationManager, LogLevel.Error, ex, ex.Message);
                 return false;
             }
         }

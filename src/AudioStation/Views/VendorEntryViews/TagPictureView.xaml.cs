@@ -5,7 +5,6 @@ using ATL;
 using AudioStation.Controller.Interface;
 using AudioStation.Controller.Model;
 using AudioStation.Core.Utility;
-using AudioStation.Model;
 using AudioStation.ViewModels.Vendor.ATLViewModel;
 
 using Microsoft.Extensions.Logging;
@@ -50,7 +49,7 @@ namespace AudioStation.Views.VendorEntryViews
                 {
                     // Throwing exception to fix our default image
                     //
-                    ApplicationHelpers.Log("Error creating default ATL picture:  {0}", LogMessageType.General, LogLevel.Error, ex, ex.Message);
+                    ApplicationHelpers.Log("Error creating default ATL picture:  {0}", LogLevel.Error, ex, ex.Message);
                     throw ex;
                 }
             }

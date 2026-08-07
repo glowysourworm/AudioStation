@@ -8,7 +8,6 @@ using AudioStation.Core.Database.MusicBrainzDatabase.Model;
 using AudioStation.Core.Model.Vendor;
 using AudioStation.Core.Service.Vendor.Interface;
 using AudioStation.Core.Utility;
-using AudioStation.Model;
 
 using Microsoft.Extensions.Logging;
 
@@ -298,7 +297,7 @@ namespace AudioStation.Core.Component
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Error migrating file:  {0} to {1}", LogMessageType.General, LogLevel.Error, ex, workInput.SourceFile, workOutput.DestinationPathCalculated);
+                ApplicationHelpers.Log("Error migrating file:  {0} to {1}", LogLevel.Error, ex, workInput.SourceFile, workOutput.DestinationPathCalculated);
                 return false;
             }
         }

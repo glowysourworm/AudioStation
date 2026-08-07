@@ -71,7 +71,7 @@ namespace AudioStation.Core.Controller
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Error in IModelController (AddLibraryEntry):  {0}", LogMessageType.Database, LogLevel.Error, ex, ex.Message);
+                ApplicationHelpers.Log("Error in IModelController (AddLibraryEntry):  {0}", LogMessageDbType.AudioStation, LogLevel.Error, ex, ex.Message);
                 return null;
             }
         }
@@ -88,7 +88,7 @@ namespace AudioStation.Core.Controller
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Error in IModelController (AddLibraryEntry):  {0}", LogMessageType.Database, LogLevel.Error, ex, ex.Message);
+                ApplicationHelpers.Log("Error in IModelController (AddLibraryEntry):  {0}", LogMessageDbType.AudioStation, LogLevel.Error, ex, ex.Message);
                 return false;
             }
         }
@@ -101,7 +101,7 @@ namespace AudioStation.Core.Controller
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Error in IModelController (AddLibraryEntry):  {0}", LogMessageType.Database, LogLevel.Error, ex, ex.Message);
+                ApplicationHelpers.Log("Error in IModelController (AddLibraryEntry):  {0}", LogMessageDbType.AudioStation, LogLevel.Error, ex, ex.Message);
                 return false;
             }
         }
@@ -113,7 +113,7 @@ namespace AudioStation.Core.Controller
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Error in IModelController (AddLibraryEntry):  {0}", LogMessageType.Database, LogLevel.Error, ex, ex.Message);
+                ApplicationHelpers.Log("Error in IModelController (AddLibraryEntry):  {0}", LogMessageDbType.AudioStation, LogLevel.Error, ex, ex.Message);
             }
 
             return Enumerable.Empty<Mp3FileReference>();
@@ -126,7 +126,7 @@ namespace AudioStation.Core.Controller
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Error in IModelController (AddLibraryEntry):  {0}", LogMessageType.Database, LogLevel.Error, ex, ex.Message);
+                ApplicationHelpers.Log("Error in IModelController (AddLibraryEntry):  {0}", LogMessageDbType.AudioStation, LogLevel.Error, ex, ex.Message);
             }
 
             return Enumerable.Empty<Mp3FileReferenceAlbum>();
@@ -139,7 +139,7 @@ namespace AudioStation.Core.Controller
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Error in IModelController (AddLibraryEntry):  {0}", LogMessageType.Database, LogLevel.Error, ex, ex.Message);
+                ApplicationHelpers.Log("Error in IModelController (AddLibraryEntry):  {0}", LogMessageDbType.AudioStation, LogLevel.Error, ex, ex.Message);
             }
 
             return Enumerable.Empty<Mp3FileReference>();
@@ -155,7 +155,7 @@ namespace AudioStation.Core.Controller
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Error retrieving data page:  " + ex.Message, LogMessageType.Database, LogLevel.Error, ex);
+                ApplicationHelpers.Log("Error retrieving data page:  " + ex.Message, LogMessageDbType.AudioStation, LogLevel.Error, ex);
             }
 
             return PageResult<TEntity>.GetDefault();
@@ -168,7 +168,7 @@ namespace AudioStation.Core.Controller
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Error retrieving data page:  " + ex.Message, LogMessageType.Database, LogLevel.Error, ex);
+                ApplicationHelpers.Log("Error retrieving data page:  " + ex.Message, LogMessageDbType.AudioStation, LogLevel.Error, ex);
             }
 
             return Enumerable.Empty<TEntity>();
@@ -181,7 +181,7 @@ namespace AudioStation.Core.Controller
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Error retrieving data:  " + ex.Message, LogMessageType.Database, LogLevel.Error, ex);
+                ApplicationHelpers.Log("Error retrieving data:  " + ex.Message, LogMessageDbType.AudioStation, LogLevel.Error, ex);
             }
 
             return null;
@@ -194,7 +194,7 @@ namespace AudioStation.Core.Controller
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Error saving entity data:  " + ex.Message, LogMessageType.Database, LogLevel.Error, ex);
+                ApplicationHelpers.Log("Error saving entity data:  " + ex.Message, LogMessageDbType.AudioStation, LogLevel.Error, ex);
                 return false;
             }
         }
@@ -206,7 +206,7 @@ namespace AudioStation.Core.Controller
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Error retrieving data page:  " + ex.Message, LogMessageType.Database, LogLevel.Error, ex);
+                ApplicationHelpers.Log("Error retrieving data page:  " + ex.Message, LogMessageDbType.MusicBrainz, LogLevel.Error, ex);
             }
 
             return PageResult<TEntity>.GetDefault();
@@ -219,7 +219,7 @@ namespace AudioStation.Core.Controller
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Error retrieving data page:  " + ex.Message, LogMessageType.Database, LogLevel.Error, ex);
+                ApplicationHelpers.Log("Error retrieving data page:  " + ex.Message, LogMessageDbType.MusicBrainz, LogLevel.Error, ex);
             }
 
             return Enumerable.Empty<TEntity>();
@@ -232,7 +232,7 @@ namespace AudioStation.Core.Controller
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Error retrieving data:  " + ex.Message, LogMessageType.Database, LogLevel.Error, ex);
+                ApplicationHelpers.Log("Error retrieving data:  " + ex.Message, LogMessageDbType.MusicBrainz, LogLevel.Error, ex);
             }
 
             return null;
@@ -245,7 +245,7 @@ namespace AudioStation.Core.Controller
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Error saving entity data:  " + ex.Message, LogMessageType.Database, LogLevel.Error, ex);
+                ApplicationHelpers.Log("Error saving entity data:  " + ex.Message, LogMessageDbType.MusicBrainz, LogLevel.Error, ex);
                 return false;
             }
         }
@@ -278,7 +278,7 @@ namespace AudioStation.Core.Controller
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Error saving entity data:  " + ex.Message, LogMessageType.Database, LogLevel.Error, ex);
+                ApplicationHelpers.Log("Error saving entity data:  " + ex.Message, LogMessageDbType.AudioStation, LogLevel.Error, ex);
                 return null;
             }
         }
@@ -307,7 +307,7 @@ namespace AudioStation.Core.Controller
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Error saving entity data:  " + ex.Message, LogMessageType.Database, LogLevel.Error, ex);
+                ApplicationHelpers.Log("Error saving entity data:  " + ex.Message, LogMessageDbType.AudioStation, LogLevel.Error, ex);
                 return null;
             }
         }
@@ -342,7 +342,7 @@ namespace AudioStation.Core.Controller
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Error saving entity data:  " + ex.Message, LogMessageType.Database, LogLevel.Error, ex);
+                ApplicationHelpers.Log("Error saving entity data:  " + ex.Message, LogMessageDbType.AudioStation, LogLevel.Error, ex);
                 return null;
             }
         }
@@ -372,7 +372,7 @@ namespace AudioStation.Core.Controller
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Error saving entity data:  " + ex.Message, LogMessageType.Database, LogLevel.Error, ex);
+                ApplicationHelpers.Log("Error saving entity data:  " + ex.Message, LogMessageDbType.AudioStation, LogLevel.Error, ex);
                 return null;
             }
         }
@@ -393,7 +393,7 @@ namespace AudioStation.Core.Controller
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Error saving entity data:  " + ex.Message, LogMessageType.Database, LogLevel.Error, ex);
+                ApplicationHelpers.Log("Error saving entity data:  " + ex.Message, LogMessageDbType.AudioStation, LogLevel.Error, ex);
                 return null;
             }
         }
@@ -414,7 +414,7 @@ namespace AudioStation.Core.Controller
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Error saving entity data:  " + ex.Message, LogMessageType.Database, LogLevel.Error, ex);
+                ApplicationHelpers.Log("Error saving entity data:  " + ex.Message, LogMessageDbType.AudioStation, LogLevel.Error, ex);
                 return null;
             }
         }
@@ -435,7 +435,7 @@ namespace AudioStation.Core.Controller
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Error saving entity data:  " + ex.Message, LogMessageType.Database, LogLevel.Error, ex);
+                ApplicationHelpers.Log("Error saving entity data:  " + ex.Message, LogMessageDbType.AudioStation, LogLevel.Error, ex);
                 return null;
             }
         }
@@ -466,7 +466,7 @@ namespace AudioStation.Core.Controller
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Error saving entity data:  " + ex.Message, LogMessageType.Database, LogLevel.Error, ex);
+                ApplicationHelpers.Log("Error saving entity data:  " + ex.Message, LogMessageDbType.AudioStation, LogLevel.Error, ex);
                 return null;
             }
         }
@@ -498,7 +498,7 @@ namespace AudioStation.Core.Controller
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Error saving entity data:  " + ex.Message, LogMessageType.Database, LogLevel.Error, ex);
+                ApplicationHelpers.Log("Error saving entity data:  " + ex.Message, LogMessageDbType.AudioStation, LogLevel.Error, ex);
                 return null;
             }
         }
@@ -529,7 +529,7 @@ namespace AudioStation.Core.Controller
 
                     if (artistEntity == null)
                     {
-                        ApplicationHelpers.Log("Music Brainz Artist Not Found:  " + musicBrainzId.Value, LogMessageType.Vendor, LogLevel.Error, null);
+                        ApplicationHelpers.Log("Music Brainz Artist Not Found:  " + musicBrainzId.Value, LogMessageDbType.MusicBrainz, LogLevel.Error, null);
                         return null;
                     }
 
@@ -554,14 +554,14 @@ namespace AudioStation.Core.Controller
 
                     else
                     {
-                        ApplicationHelpers.Log("Music Brainz Artist Not Found:  " + artistName, LogMessageType.Vendor, LogLevel.Error, null);
+                        ApplicationHelpers.Log("Music Brainz Artist Not Found:  " + artistName, LogMessageDbType.MusicBrainz, LogLevel.Error, null);
                         return null;
                     }
                 }
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Error saving entity data:  " + ex.Message, LogMessageType.Database, LogLevel.Error, ex);
+                ApplicationHelpers.Log("Error saving entity data:  " + ex.Message, LogMessageDbType.MusicBrainz, LogLevel.Error, ex);
                 return null;
             }
         }
@@ -591,7 +591,7 @@ namespace AudioStation.Core.Controller
 
                     if (recordingEntity == null)
                     {
-                        ApplicationHelpers.Log("Music Brainz Recording Not Found:  " + musicBrainzId.Value, LogMessageType.Vendor, LogLevel.Error, null);
+                        ApplicationHelpers.Log("Music Brainz Recording Not Found:  " + musicBrainzId.Value, LogMessageDbType.MusicBrainz, LogLevel.Error, null);
                         return null;
                     }
 
@@ -616,14 +616,14 @@ namespace AudioStation.Core.Controller
 
                     else
                     {
-                        ApplicationHelpers.Log("Music Brainz Artist Not Found:  " + artistName, LogMessageType.Vendor, LogLevel.Error, null);
+                        ApplicationHelpers.Log("Music Brainz Artist Not Found:  " + artistName, LogMessageDbType.MusicBrainz, LogLevel.Error, null);
                         return null;
                     }
                 }
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Error saving entity data:  " + ex.Message, LogMessageType.Database, LogLevel.Error, ex);
+                ApplicationHelpers.Log("Error saving entity data:  " + ex.Message, LogMessageDbType.MusicBrainz, LogLevel.Error, ex);
                 return null;
             }
         }
@@ -653,7 +653,7 @@ namespace AudioStation.Core.Controller
 
                     if (releaseEntity == null)
                     {
-                        ApplicationHelpers.Log("Music Brainz Release Not Found:  " + musicBrainzId.Value, LogMessageType.Vendor, LogLevel.Error, null);
+                        ApplicationHelpers.Log("Music Brainz Release Not Found:  " + musicBrainzId.Value, LogMessageDbType.MusicBrainz, LogLevel.Error, null);
                         return null;
                     }
 
@@ -678,14 +678,14 @@ namespace AudioStation.Core.Controller
 
                     else
                     {
-                        ApplicationHelpers.Log("Music Brainz Artist Not Found:  " + artistName, LogMessageType.Vendor, LogLevel.Error, null);
+                        ApplicationHelpers.Log("Music Brainz Artist Not Found:  " + artistName, LogMessageDbType.MusicBrainz, LogLevel.Error, null);
                         return null;
                     }
                 }
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Error saving entity data:  " + ex.Message, LogMessageType.Database, LogLevel.Error, ex);
+                ApplicationHelpers.Log("Error saving entity data:  " + ex.Message, LogMessageDbType.MusicBrainz, LogLevel.Error, ex);
                 return null;
             }
         }
@@ -715,7 +715,7 @@ namespace AudioStation.Core.Controller
 
                     if (trackEntity == null)
                     {
-                        ApplicationHelpers.Log("Music Brainz Track Not Found:  " + musicBrainzId.Value, LogMessageType.Vendor, LogLevel.Error, null);
+                        ApplicationHelpers.Log("Music Brainz Track Not Found:  " + musicBrainzId.Value, LogMessageDbType.MusicBrainz, LogLevel.Error, null);
                         return null;
                     }
 
@@ -737,14 +737,14 @@ namespace AudioStation.Core.Controller
 
                     else
                     {
-                        ApplicationHelpers.Log("Music Brainz Track Not Found:  " + artistName, LogMessageType.Vendor, LogLevel.Error, null);
+                        ApplicationHelpers.Log("Music Brainz Track Not Found:  " + artistName, LogMessageDbType.MusicBrainz, LogLevel.Error, null);
                         return null;
                     }
                 }
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Error saving entity data:  " + ex.Message, LogMessageType.Database, LogLevel.Error, ex);
+                ApplicationHelpers.Log("Error saving entity data:  " + ex.Message, LogMessageDbType.MusicBrainz, LogLevel.Error, ex);
                 return null;
             }
         }
@@ -764,7 +764,7 @@ namespace AudioStation.Core.Controller
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Error saving entity data:  " + ex.Message, LogMessageType.Database, LogLevel.Error, ex);
+                ApplicationHelpers.Log("Error saving entity data:  " + ex.Message, LogMessageDbType.MusicBrainz, LogLevel.Error, ex);
                 return null;
             }
         }
@@ -784,7 +784,7 @@ namespace AudioStation.Core.Controller
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Error saving entity data:  " + ex.Message, LogMessageType.Database, LogLevel.Error, ex);
+                ApplicationHelpers.Log("Error saving entity data:  " + ex.Message, LogMessageDbType.MusicBrainz, LogLevel.Error, ex);
                 return null;
             }
         }
@@ -814,7 +814,7 @@ namespace AudioStation.Core.Controller
 
                     if (labelEntity == null)
                     {
-                        ApplicationHelpers.Log("Music Brainz Label Not Found:  " + musicBrainzId.Value, LogMessageType.Vendor, LogLevel.Error, null);
+                        ApplicationHelpers.Log("Music Brainz Label Not Found:  " + musicBrainzId.Value, LogMessageDbType.MusicBrainz, LogLevel.Error, null);
                         return null;
                     }
 
@@ -839,14 +839,14 @@ namespace AudioStation.Core.Controller
 
                     else
                     {
-                        ApplicationHelpers.Log("Music Brainz Label Not Found:  " + artistName, LogMessageType.Vendor, LogLevel.Error, null);
+                        ApplicationHelpers.Log("Music Brainz Label Not Found:  " + artistName, LogMessageDbType.MusicBrainz, LogLevel.Error, null);
                         return null;
                     }
                 }
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Error saving entity data:  " + ex.Message, LogMessageType.Database, LogLevel.Error, ex);
+                ApplicationHelpers.Log("Error saving entity data:  " + ex.Message, LogMessageDbType.MusicBrainz, LogLevel.Error, ex);
                 return null;
             }
         }
@@ -865,7 +865,7 @@ namespace AudioStation.Core.Controller
 
                 if (relatedEntity == null)
                 {
-                    ApplicationHelpers.Log("Music Brainz Entity Not Found:  " + musicBrainzEntityId, LogMessageType.Vendor, LogLevel.Error, null);
+                    ApplicationHelpers.Log("Music Brainz Entity Not Found:  " + musicBrainzEntityId, LogMessageDbType.MusicBrainz, LogLevel.Error, null);
                     return Enumerable.Empty<MusicBrainzUrlEntity>();
                 }
 
@@ -885,13 +885,13 @@ namespace AudioStation.Core.Controller
 
                 else
                 {
-                    ApplicationHelpers.Log("Error retrieving music brainz url's for:  " + musicBrainzEntityId, LogMessageType.Database, LogLevel.Error, null);
+                    ApplicationHelpers.Log("Error retrieving music brainz url's for:  " + musicBrainzEntityId, LogLevel.Error, null);
                     return Enumerable.Empty<MusicBrainzUrlEntity>();
                 }
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Error saving entity data:  " + ex.Message, LogMessageType.Database, LogLevel.Error, ex);
+                ApplicationHelpers.Log("Error saving entity data:  " + ex.Message, LogMessageDbType.MusicBrainz, LogLevel.Error, ex);
                 return Enumerable.Empty<MusicBrainzUrlEntity>();
             }
         }
@@ -918,7 +918,7 @@ namespace AudioStation.Core.Controller
 
                 if (!releaseMedia.Any())
                 {
-                    ApplicationHelpers.Log("Music Brainz Release Media Not Found:  " + musicBrainzReleaseId, LogMessageType.Vendor, LogLevel.Error, null);
+                    ApplicationHelpers.Log("Music Brainz Release Media Not Found:  " + musicBrainzReleaseId, LogMessageDbType.MusicBrainz, LogLevel.Error, null);
                     return Enumerable.Empty<MusicBrainzMediumEntity>();
                 }
 
@@ -926,7 +926,7 @@ namespace AudioStation.Core.Controller
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Error saving entity data:  " + ex.Message, LogMessageType.Database, LogLevel.Error, ex);
+                ApplicationHelpers.Log("Error saving entity data:  " + ex.Message, LogMessageDbType.MusicBrainz, LogLevel.Error, ex);
                 return Enumerable.Empty<MusicBrainzMediumEntity>();
             }
         }
@@ -1312,7 +1312,7 @@ namespace AudioStation.Core.Controller
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Error saving entity data:  " + ex.Message, LogMessageType.Database, LogLevel.Error, ex);
+                ApplicationHelpers.Log("Error saving entity data:  " + ex.Message, LogMessageDbType.MusicBrainz, LogLevel.Error, ex);
                 return Enumerable.Empty<MusicBrainzCombinedLibraryEntryRecord>();
             }
         }

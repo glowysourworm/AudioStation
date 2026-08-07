@@ -1,8 +1,9 @@
 ﻿using AudioStation.Core.Model;
+using AudioStation.Core.Service.Interface;
 
 namespace AudioStation.Core.Database.MusicBrainzDatabase.Interface
 {
-    public interface IMusicBrainzDbClient
+    public interface IMusicBrainzDbClient : IAudioStationService
     {
         /// <summary>
         /// Adds Url + Related Entity mapping for a music brainz Url

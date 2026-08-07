@@ -22,59 +22,183 @@ namespace AudioStation.Core.Controller
 
         // Log message types have buckets here - one for each, with a max message count set in the 
         // constructor. (LibraryLoaderWorkItem logs should mostly be "specific"; but it's up to the user end)
-        SimpleDictionary<LogMessageType, LogComponent> _logs;
+        SimpleDictionary<int, LogComponent> _logs;
 
         // IAudioStationComponent
         //
         public event SimpleEventHandler<IAudioStationService, IAudioStationService.Status> StatusChangeEvent;
+
+        private IAudioStationService.Status _status;
 
         [IocImportingConstructor]
         public OutputController(IIocEventAggregator eventAggregator)
         {
             _eventAggregator = eventAggregator;
 
-            _logs = new SimpleDictionary<LogMessageType, LogComponent>();
-
-            foreach (var value in Enum.GetValues(typeof(LogMessageType)))
-            {
-                _logs.Add((LogMessageType)value, new LogComponent(MAX_LOG_SIZE));
-            }
+            _logs = new SimpleDictionary<int, LogComponent>();
         }
 
+        #region (public) Log Methods
         public void Log(LogMessage message)
         {
-            if (!_logs.ContainsKey(message.Type))
-                _logs.Add(message.Type, new LogComponent(MAX_LOG_SIZE));
-
-            _logs[message.Type].Add(message);
-            _eventAggregator.GetEvent<LogEvent>().Publish(message);
+            // Re-create message using our validation (and to keep a single implementation function)
+            LogImpl(message.Message, message.Level, message.Type, message.ComponentType, message.ServiceType, message.DatabaseType, message.Exception);
         }
-        public void Log(string message, LogMessageType type)
-        {
-            var logMessage = new LogMessage(message, type);
 
-            this.Log(logMessage);
-        }
-        public void Log(string message, LogMessageType type, LogLevel severity, Exception? exception, params object[] parameters)
+        public void Log(string message, LogMessageType type = LogMessageType.General)
         {
-            var logMessage = new LogMessage(string.Format(message, parameters), type, severity, exception);
+            Log(message, LogLevel.Information, type, null, Enumerable.Empty<object>());
+        }
+        public void Log(string message, LogMessageType type = LogMessageType.General, params object[] parameters)
+        {
+            Log(message, LogLevel.Information, type, null, parameters);
+        }
+        public void Log(string message, LogMessageComponentType componentType)
+        {
+            Log(message, componentType, LogLevel.Information, null, Enumerable.Empty<object>());
+        }
+        public void Log(string message, LogMessageServiceType serviceType)
+        {
+            Log(message, serviceType, LogLevel.Information, null, Enumerable.Empty<object>());
+        }
+        public void Log(string message, LogMessageDbType dbType)
+        {
+            Log(message, dbType, LogLevel.Information, null, Enumerable.Empty<object>());
+        }
 
-            this.Log(logMessage);
-        }
-        public IEnumerable<LogMessage> GetLatestLogs(LogMessageType type, LogLevel level, int count)
+        public void Log(string message, LogLevel level, LogMessageType type = LogMessageType.General, Exception? exception = null)
         {
-            return _logs[type].GetLatestLogs(type, level, count);
+            Log(message, level, type, exception, Enumerable.Empty<object>());
+        }
+        public void Log(string message, LogMessageComponentType componentType, LogLevel level, Exception? exception = null)
+        {
+            Log(message, componentType, level, exception, Enumerable.Empty<object>());
+        }
+        public void Log(string message, LogMessageServiceType serviceType, LogLevel level, Exception? exception = null)
+        {
+            Log(message, serviceType, level, exception, Enumerable.Empty<object>());
+        }
+        public void Log(string message, LogMessageDbType dbType, LogLevel level, Exception? exception = null)
+        {
+            Log(message, dbType, level, exception, Enumerable.Empty<object>());
+        }
+
+
+        public void Log(string message, LogLevel level, LogMessageType type, Exception? exception, params object[] parameters)
+        {
+            switch (type)
+            {
+                case LogMessageType.General:
+                case LogMessageType.OtherComponent:
+                    LogImpl(message, level, type, LogMessageComponentType.None, LogMessageServiceType.None, LogMessageDbType.None, exception, parameters);
+                    break;
+                case LogMessageType.Component:
+                case LogMessageType.Service:
+                case LogMessageType.Database:
+                    throw new Exception("Unspecified log message sub-type");
+                default:
+                    throw new Exception("Unhandled log message type");
+            }
+        }
+        public void Log(string message, LogMessageComponentType componentType, LogLevel level, Exception? exception, params object[] parameters)
+        {
+            LogImpl(message, level, LogMessageType.Component, componentType, LogMessageServiceType.None, LogMessageDbType.None, exception, parameters);
+        }
+        public void Log(string message, LogMessageServiceType serviceType, LogLevel level, Exception? exception, params object[] parameters)
+        {
+            LogImpl(message, level, LogMessageType.Service, LogMessageComponentType.None, serviceType, LogMessageDbType.None, exception, parameters);
+        }
+        public void Log(string message, LogMessageDbType dbType, LogLevel level, Exception? exception, params object[] parameters)
+        {
+            LogImpl(message, level, LogMessageType.Database, LogMessageComponentType.None, LogMessageServiceType.None, dbType, exception, parameters);
+        }
+        #endregion
+
+        private void LogImpl(string message,
+                             LogLevel level,
+                             LogMessageType type,
+                             LogMessageComponentType componentType,
+                             LogMessageServiceType serviceType,
+                             LogMessageDbType dbType,
+                             Exception? exception = null,
+                             params object[] parameters)
+        {
+            var formattedMessage = message;
+
+            // Validate
+            if (string.IsNullOrWhiteSpace(message))
+                throw new ArgumentException("Message body of log message must be filled out");
+
+            // Format
+            if (parameters != null &&
+                parameters.Any())
+                formattedMessage = string.Format(message, parameters);
+
+            // Full Constructor (with argument checks)
+            var logMessage = new LogMessage(message, type, componentType, serviceType, dbType, level, exception);
+
+            // Log Hash Key
+            var logKey = GetLogKey(logMessage);
+
+            if (!_logs.ContainsKey(logKey))
+                _logs.Add(logKey, new LogComponent(MAX_LOG_SIZE));
+
+            else
+                _logs[logKey].Add(logMessage);
+
+            _eventAggregator.GetEvent<LogEvent>().Publish(logMessage);
+        }
+
+        public IEnumerable<LogMessage> GetLatestLogs(LogMessageType type,
+                                                     LogMessageComponentType componentType,
+                                                     LogMessageServiceType serviceType,
+                                                     LogMessageDbType dbType,
+                                                     LogLevel level,
+                                                     int count)
+        {
+            var key = GetLogKey(type, componentType, serviceType, dbType);
+
+            if (_logs.ContainsKey(key))
+                return _logs[key].GetLatestLogs(level, count);
+
+            else
+                return Enumerable.Empty<LogMessage>();
         }
         public void ClearLogs(LogMessageType type)
         {
-            _logs[type].Clear();
+            var key = GetLogKey(type);
 
-            _eventAggregator.GetEvent<LogClearedEvent>().Publish(type);
+            if (_logs.ContainsKey(key))
+            {
+                _logs[key].Clear();
+                _eventAggregator.GetEvent<LogClearedEvent>().Publish(type);
+            }
         }
 
         public void Dispose()
         {
             _logs.Clear();
+        }
+
+        protected int GetLogKey(LogMessage message)
+        {
+            return GetLogKey(message.Type, message.ComponentType, message.ServiceType, message.DatabaseType);
+        }
+        protected int GetLogKey(LogMessageType type)
+        {
+            return GetLogKey(type, LogMessageComponentType.None);
+        }
+        protected int GetLogKey(LogMessageType type, LogMessageComponentType componentType)
+        {
+            return GetLogKey(type, componentType, LogMessageServiceType.None);
+        }
+        protected int GetLogKey(LogMessageType type, LogMessageComponentType componentType, LogMessageServiceType serviceType)
+        {
+            return GetLogKey(type, componentType, serviceType, LogMessageDbType.None);
+        }
+        protected int GetLogKey(LogMessageType type, LogMessageComponentType componentType, LogMessageServiceType serviceType, LogMessageDbType dbType)
+        {
+            return HashCode.Combine(type, componentType, serviceType, dbType);
         }
 
         #region (public) ILogger (MSFT Design. This came about in two places:  AutoMapper, and Npgsql/EF database logging)

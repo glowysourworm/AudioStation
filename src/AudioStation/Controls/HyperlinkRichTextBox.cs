@@ -4,11 +4,9 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Navigation;
-using System.Windows.Threading;
 
 using AudioStation.Core.Controller.Interface;
 using AudioStation.Core.Utility;
-using AudioStation.Model;
 
 using Microsoft.Extensions.Logging;
 
@@ -18,7 +16,7 @@ namespace AudioStation.Controls
 {
     public class HyperlinkRichTextBox : RichTextBox
     {
-        public static readonly DependencyProperty TextProperty 
+        public static readonly DependencyProperty TextProperty
             = DependencyProperty.Register("Text", typeof(string), typeof(HyperlinkRichTextBox), new PropertyMetadata(string.Empty, OnTextChanged));
 
         public string Text
@@ -74,14 +72,14 @@ namespace AudioStation.Controls
                     // Other Character
                     else
                     {*/
-                        if (paragraph[index] == ' ')
-                        {
-                            documentParagraph.Inlines.Add(lastWord);
-                            documentParagraph.Inlines.Add(" ");
-                            lastWord = string.Empty;
-                        }
-                        else
-                            lastWord += paragraph[index];
+                    if (paragraph[index] == ' ')
+                    {
+                        documentParagraph.Inlines.Add(lastWord);
+                        documentParagraph.Inlines.Add(" ");
+                        lastWord = string.Empty;
+                    }
+                    else
+                        lastWord += paragraph[index];
                     //}
                 }
 
@@ -103,7 +101,7 @@ namespace AudioStation.Controls
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Error navigating to URL:  {0}", LogMessageType.General, LogLevel.Error, ex, ex.Message);
+                ApplicationHelpers.Log("Error navigating to URL:  {0}", LogLevel.Error, ex, ex.Message);
             }
         }
 

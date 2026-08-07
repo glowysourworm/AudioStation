@@ -8,7 +8,6 @@ using AudioStation.Controller.Interface;
 using AudioStation.Controller.Model;
 using AudioStation.Core.Controller.Interface;
 using AudioStation.Core.Utility;
-using AudioStation.Model;
 
 using Microsoft.Extensions.Logging;
 
@@ -142,7 +141,7 @@ namespace AudioStation.Controller
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Error loading bitmaps for artist:  {0}", LogMessageType.General, LogLevel.Error, ex, ex.Message);
+                ApplicationHelpers.Log("Error loading bitmaps for artist:  {0}", LogLevel.Error, ex, ex.Message);
             }
 
             return this.DefaultImageCache[cacheAsType];
@@ -156,7 +155,7 @@ namespace AudioStation.Controller
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Error loading bitmaps for album:  {0}", LogMessageType.General, LogLevel.Error, ex, ex.Message);
+                ApplicationHelpers.Log("Error loading bitmaps for album:  {0}", LogLevel.Error, ex, ex.Message);
             }
 
             return this.DefaultImageCache[cacheAsType];
@@ -198,7 +197,7 @@ namespace AudioStation.Controller
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Error loading web image:  {0}", LogMessageType.General, LogLevel.Error, ex, ex.Message);
+                ApplicationHelpers.Log("Error loading web image:  {0}", LogLevel.Error, ex, ex.Message);
             }
 
             return this.DefaultImageCache[cacheAsType];
@@ -212,8 +211,8 @@ namespace AudioStation.Controller
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Error connecting to web image:  {0}", LogMessageType.General, LogLevel.Error, ex, endpoint);
-                ApplicationHelpers.Log("Error trying to get web image:  {0}", LogMessageType.General, LogLevel.Error, ex, ex.Message);
+                ApplicationHelpers.Log("Error connecting to web image:  {0}", LogLevel.Error, ex, endpoint);
+                ApplicationHelpers.Log("Error trying to get web image:  {0}", LogLevel.Error, ex, ex.Message);
             }
 
             return null;

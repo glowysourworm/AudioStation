@@ -3,7 +3,6 @@ using System.Reflection;
 
 using AudioStation.Core.Utility.RecursiveComparer.Attribute;
 using AudioStation.Core.Utility.RecursiveComparer.Interface;
-using AudioStation.Model;
 
 using AutoMapper.Internal;
 
@@ -339,7 +338,7 @@ namespace AudioStation.Core.Utility.RecursiveComparer
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Error reflecting property:  {0}", LogMessageType.General, LogLevel.Error, ex, propertyInfo.Name);
+                ApplicationHelpers.Log("Error reflecting property:  {0}", LogLevel.Error, ex, propertyInfo.Name);
                 throw ex;
             }
         }
@@ -355,7 +354,7 @@ namespace AudioStation.Core.Utility.RecursiveComparer
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Error reflecting property:  {0}", LogMessageType.General, LogLevel.Error, ex, propertyInfo.Name);
+                ApplicationHelpers.Log("Error reflecting property:  {0}", LogLevel.Error, ex, propertyInfo.Name);
                 throw ex;
             }
         }

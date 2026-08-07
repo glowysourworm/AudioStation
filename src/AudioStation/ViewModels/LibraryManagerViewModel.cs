@@ -1,23 +1,16 @@
 ﻿using System.Collections.ObjectModel;
-using System.Windows;
 using System.Windows.Threading;
 
-using AudioStation.Component;
 using AudioStation.Component.Interface;
-using AudioStation.Controller.Interface;
 using AudioStation.Core.Utility;
 using AudioStation.Event;
 using AudioStation.Event.DialogEvents;
-using AudioStation.EventHandler;
-using AudioStation.Model;
 using AudioStation.ViewModels.LibraryManagerViewModels;
 
 using Microsoft.Extensions.Logging;
 
-using SimpleWpf.Extensions;
 using SimpleWpf.Extensions.Command;
 using SimpleWpf.Extensions.ObservableCollection;
-using SimpleWpf.IocFramework.Application.Attribute;
 using SimpleWpf.IocFramework.EventAggregation;
 
 using static AudioStation.EventHandler.DialogEventHandlers;
@@ -105,14 +98,14 @@ namespace AudioStation.ViewModels
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Error loading non-converted files:  {0}", LogMessageType.General, LogLevel.Error, ex, ex.Message);
+                ApplicationHelpers.Log("Error loading non-converted files:  {0}", LogLevel.Error, ex, ex.Message);
                 this.NonConvertedFiles.Clear();
             }
         }
 
         public override void Dispose()
         {
-            
+
         }
     }
 }

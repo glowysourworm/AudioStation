@@ -80,7 +80,7 @@ namespace AudioStation.Core.Service.Vendor
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Error contacting LastFm:  {0}", LogMessageType.General, LogLevel.Error, ex, ex.Message);
+                ApplicationHelpers.Log("Error contacting LastFm:  {0}", LogMessageServiceType.LastFm, LogLevel.Error, ex, ex.Message);
 
                 return null;
             }
@@ -109,7 +109,7 @@ namespace AudioStation.Core.Service.Vendor
                 }
                 catch (Exception ex)
                 {
-                    ApplicationHelpers.Log("Music Brainz Client Error:  {0}", LogMessageType.Vendor, LogLevel.Error, ex, ex.Message);
+                    ApplicationHelpers.Log("Music Brainz Client Error:  {0}", LogMessageServiceType.LastFm, LogLevel.Error, ex, ex.Message);
 
                     OnStatusChanged(IAudioStationService.Status.Error);
 
