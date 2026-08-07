@@ -2,7 +2,7 @@
 using System.Windows.Controls;
 
 using AudioStation.Controller.Interface;
-using AudioStation.Core.Component.Interface;
+using AudioStation.Core.Controller.Interface;
 using AudioStation.Model;
 using AudioStation.ViewModels.Controls;
 

@@ -140,7 +140,7 @@ namespace AudioStation.ViewModels
             //        default:
             //            throw new Exception("Unhandled LibraryLoadType:  LibraryLoaderViewModel.cs");
             //    }
-            //});
+            //}); 
         }
 
         public override Task Initialize(DialogProgressHandler progressHandler)

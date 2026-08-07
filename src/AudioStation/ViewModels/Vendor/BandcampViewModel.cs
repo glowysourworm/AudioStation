@@ -1,4 +1,4 @@
-﻿using AudioStation.Core.Component.Vendor.Bandcamp.Interface;
+﻿using AudioStation.Core.Service.Vendor.Bandcamp.Interface;
 using AudioStation.Event;
 
 using SimpleWpf.Extensions.Command;

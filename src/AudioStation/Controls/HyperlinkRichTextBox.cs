@@ -6,7 +6,7 @@ using System.Windows.Documents;
 using System.Windows.Navigation;
 using System.Windows.Threading;
 
-using AudioStation.Core.Component.Interface;
+using AudioStation.Core.Controller.Interface;
 using AudioStation.Core.Utility;
 using AudioStation.Model;
 

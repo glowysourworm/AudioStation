@@ -7,9 +7,11 @@ using AudioStation.Core;
 using AudioStation.Core.Component;
 using AudioStation.Core.Component.CDPlayer.Interface;
 using AudioStation.Core.Component.Interface;
-using AudioStation.Core.Component.Vendor.Bandcamp.Interface;
-using AudioStation.Core.Component.Vendor.Interface;
+using AudioStation.Core.Controller.Interface;
 using AudioStation.Core.Event;
+using AudioStation.Core.Service.Interface;
+using AudioStation.Core.Service.Vendor.Bandcamp.Interface;
+using AudioStation.Core.Service.Vendor.Interface;
 using AudioStation.Event;
 using AudioStation.Model;
 using AudioStation.ViewModels.Controls;
@@ -288,7 +290,7 @@ public class MainViewModel : PrimaryViewModelBase
     {
         // --> IOuptutController (IAudioStationComponent)      
     }
-    private void IAudioStationComponent_StatusChangeEvent(IAudioStationComponent sender, IAudioStationComponent.Status status)
+    private void IAudioStationComponent_StatusChangeEvent(IAudioStationService sender, IAudioStationService.Status status)
     {
         StatusIconViewModel viewModel = null;
 
@@ -327,6 +329,9 @@ public class MainViewModel : PrimaryViewModelBase
 
         viewModel.Status = status;
         viewModel.Message = sender.GetStatusMessage();
+
+        // Primary status bar message
+        this.StatusViewModel.PrimaryMessage = viewModel.Message;
     }
 
     private void OnMainLoadingChanged(DialogEventData eventData)

@@ -1,6 +1,6 @@
 ﻿using System.IO;
 
-using SimpleWpf.RecursiveSerializer.Shared;
+using Newtonsoft.Json;
 
 namespace AudioStation.Core.Component
 {
@@ -11,18 +11,17 @@ namespace AudioStation.Core.Component
         /// </summary>
         public static void Serialize<T>(T graph, string file)
         {
-            var serializer = new RecursiveSerializer<T>(new RecursiveSerializerConfiguration()
-            {
-                IgnoreRemovedProperties = false,
-                PreviewRemovedProperties = false
-            });
+            var serializer = CreateSerializer();
 
             if (File.Exists(file))
                 File.Delete(file);
 
             using (var stream = File.OpenWrite(file))
             {
-                serializer.Serialize(stream, graph);
+                using (var writer = new StreamWriter(stream))
+                {
+                    serializer.Serialize(writer, graph);
+                }
             }
         }
 
@@ -31,13 +30,12 @@ namespace AudioStation.Core.Component
         /// </summary>
         public static void Serialize<T>(T graph, Stream stream)
         {
-            var serializer = new RecursiveSerializer<T>(new RecursiveSerializerConfiguration()
-            {
-                IgnoreRemovedProperties = false,
-                PreviewRemovedProperties = false
-            });
+            var serializer = CreateSerializer();
 
-            serializer.Serialize(stream, graph);
+            using (var writer = new StreamWriter(stream))
+            {
+                serializer.Serialize(writer, graph);
+            }
         }
 
         /// <summary>
@@ -45,15 +43,14 @@ namespace AudioStation.Core.Component
         /// </summary>
         public static T Deserialize<T>(string file)
         {
-            var serializer = new RecursiveSerializer<T>(new RecursiveSerializerConfiguration()
-            {
-                IgnoreRemovedProperties = false,
-                PreviewRemovedProperties = false
-            });
+            var serializer = CreateSerializer();
 
             using (var stream = File.OpenRead(file))
             {
-                return (T)serializer.Deserialize(stream);
+                using (var reader = new StreamReader(stream))
+                {
+                    return (T)serializer.Deserialize(reader, typeof(T));
+                }
             }
         }
 
@@ -62,13 +59,12 @@ namespace AudioStation.Core.Component
         /// </summary>
         public static T Deserialize<T>(Stream stream)
         {
-            var serializer = new RecursiveSerializer<T>(new RecursiveSerializerConfiguration()
-            {
-                IgnoreRemovedProperties = false,
-                PreviewRemovedProperties = false
-            });
+            var serializer = CreateSerializer();
 
-            return (T)serializer.Deserialize(stream);
+            using (var reader = new StreamReader(stream))
+            {
+                return (T)serializer.Deserialize(reader, typeof(T));
+            }
         }
 
         /// <summary>
@@ -76,17 +72,24 @@ namespace AudioStation.Core.Component
         /// </summary>
         public static T Deserialize<T>(byte[] buffer)
         {
-            var serializer = new RecursiveSerializer<T>(new RecursiveSerializerConfiguration()
-            {
-                IgnoreRemovedProperties = false,
-                PreviewRemovedProperties = false
-            });
+            var serializer = CreateSerializer();
 
             using (var stream = new MemoryStream(buffer))
             {
-                return (T)serializer.Deserialize(stream);
+                using (var reader = new StreamReader(stream))
+                {
+                    return (T)serializer.Deserialize(reader, typeof(T));
+                }
             }
         }
 
+
+        private static JsonSerializer CreateSerializer()
+        {
+            return new JsonSerializer()
+            {
+                Formatting = Formatting.Indented
+            };
+        }
     }
 }

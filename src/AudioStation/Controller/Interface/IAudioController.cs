@@ -1,6 +1,6 @@
 ﻿using AudioStation.Component.AudioProcessing;
-using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Model;
+using AudioStation.Core.Service.Interface;
 
 using NAudio.Wave;
 
@@ -8,7 +8,7 @@ using SimpleWpf.Extensions.Event;
 
 namespace AudioStation.Controller.Interface
 {
-    public interface IAudioController : IAudioStationComponent, IDisposable
+    public interface IAudioController : IAudioStationService, IDisposable
     {
         /// <summary>
         /// Event occurs when the stream's current time is updated

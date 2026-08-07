@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel;
 
 using AudioStation.Core.Component.Interface;
+using AudioStation.Core.Controller.Interface;
 using AudioStation.Core.Model.Vendor.ATLExtension;
 using AudioStation.Core.Model.Vendor.ATLExtension.Interface;
 using AudioStation.Core.Utility;

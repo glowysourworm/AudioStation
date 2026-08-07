@@ -1,12 +1,11 @@
-﻿using System.Windows;
-using System.Windows.Threading;
+﻿using System.Windows.Threading;
 
 using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Component.LibraryLoaderComponent;
 using AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderLoad;
 using AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderOutput;
 using AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderWorker;
-using AudioStation.Core.Component.Vendor.Interface;
+using AudioStation.Core.Controller.Interface;
 using AudioStation.Core.Utility;
 
 using SimpleWpf.Extensions.Event;
@@ -49,7 +48,7 @@ namespace AudioStation.Core.Component
             _workerThreads = new List<LibraryWorkerThreadBase>();
 
             _workItemIdCounter = 0;
-            
+
         }
 
         public void RunLoaderTaskAsync<TIn>(LibraryLoaderParameters<TIn> parameters) where TIn : LibraryLoaderLoadBase

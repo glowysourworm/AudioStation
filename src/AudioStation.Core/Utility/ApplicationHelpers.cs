@@ -2,7 +2,7 @@
 using System.Windows;
 using System.Windows.Threading;
 
-using AudioStation.Core.Component.Interface;
+using AudioStation.Core.Controller.Interface;
 using AudioStation.Core.Utility.RecursiveComparer;
 using AudioStation.Model;
 

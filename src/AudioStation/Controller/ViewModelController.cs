@@ -2,7 +2,8 @@
 using AudioStation.Controller.Interface;
 using AudioStation.Core.Component.CDPlayer.Interface;
 using AudioStation.Core.Component.Interface;
-using AudioStation.Core.Component.Vendor.Bandcamp.Interface;
+using AudioStation.Core.Controller.Interface;
+using AudioStation.Core.Service.Vendor.Bandcamp.Interface;
 using AudioStation.Service.Interface;
 using AudioStation.ViewModels;
 using AudioStation.ViewModels.LibraryLoaderViewModels;

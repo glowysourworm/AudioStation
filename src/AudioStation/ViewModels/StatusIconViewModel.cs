@@ -1,6 +1,6 @@
 ﻿using SimpleWpf.ViewModel;
 
-using Status = AudioStation.Core.Component.Interface.IAudioStationComponent.Status;
+using Status = AudioStation.Core.Service.Interface.IAudioStationService.Status;
 
 namespace AudioStation.ViewModels
 {

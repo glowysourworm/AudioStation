@@ -5,8 +5,8 @@ using System.Windows.Controls;
 
 using AudioStation.Controller.Interface;
 using AudioStation.Controls;
-using AudioStation.Core.Component.Interface;
-using AudioStation.Core.Component.Vendor.Interface;
+using AudioStation.Core.Controller.Interface;
+using AudioStation.Core.Service.Vendor.Interface;
 using AudioStation.Model;
 using AudioStation.ViewModels.LibraryManagerViewModels;
 using AudioStation.ViewModels.LibraryViewModels;

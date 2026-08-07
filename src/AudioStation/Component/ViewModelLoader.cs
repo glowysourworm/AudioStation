@@ -1,11 +1,8 @@
-﻿
-using System;
-using System.Collections;
-using System.IO;
-using System.Windows.Shapes;
+﻿using System.IO;
 
 using AudioStation.Component.Interface;
 using AudioStation.Core.Component.Interface;
+using AudioStation.Core.Controller.Interface;
 using AudioStation.Core.Database.AudioStationDatabase;
 using AudioStation.Core.Model;
 using AudioStation.Core.Utility;
@@ -307,12 +304,15 @@ namespace AudioStation.Component
         public LibraryLoaderImportTreeViewModel? LoadImportFiles(LibraryLoaderImportOptionsViewModel options,
                                                                        DialogProgressHandler progressHandler)
         {
-            if (!_configurationManager.ValidateConfiguration())
-                return null;
-
             // Configuration:  Calculate base directory from staging
             //
             var configuration = _configurationManager.GetConfiguration();
+
+            if (string.IsNullOrWhiteSpace(configuration.DirectoryBase) ||
+                string.IsNullOrWhiteSpace(configuration.MusicSubDirectory) ||
+                string.IsNullOrWhiteSpace(configuration.AudioBooksSubDirectory))
+                return null;
+
 
             var directoryBase = configuration.DirectoryBase;
             var subDirectory = options.ImportAsType == LibraryEntryType.Music ? configuration.MusicSubDirectory :

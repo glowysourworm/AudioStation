@@ -6,7 +6,7 @@ using AudioStation.Component.Interface;
 using AudioStation.Component.Model;
 using AudioStation.Controller.Interface;
 using AudioStation.Controller.Model;
-using AudioStation.Core.Component.Interface;
+using AudioStation.Core.Controller.Interface;
 using AudioStation.Core.Utility;
 using AudioStation.Model;
 

@@ -3,7 +3,7 @@ using System.IO;
 using System.Windows.Data;
 using System.Windows.Media.Imaging;
 
-using AudioStation.Core.Component.Interface;
+using AudioStation.Core.Controller.Interface;
 
 using SimpleWpf.IocFramework.Application;
 

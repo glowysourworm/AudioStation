@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using AudioStation.Core.Component.Interface;
+using AudioStation.Core.Controller.Interface;
 
 using Microsoft.Extensions.Logging;
 

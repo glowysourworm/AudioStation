@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="Component\FileController.cs" />
+    <None Include="Controller\FileController.cs" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,4 +1,4 @@
-﻿using AudioStation.Core.Component.Interface;
+﻿using AudioStation.Core.Service.Interface;
 
 using SimpleWpf.Extensions.Event;
 
@@ -14,12 +14,12 @@ namespace AudioStation.Controller.Interface
         /// <summary>
         /// Occurs when component is initialized
         /// </summary>
-        event SimpleEventHandler<IAudioStationComponent, IAudioStationComponent.Status> ComponentInitializedEvent;
+        event SimpleEventHandler<IAudioStationService, IAudioStationService.Status> ComponentInitializedEvent;
 
         /// <summary>
         /// Occurs when component status changes
         /// </summary>
-        event SimpleEventHandler<IAudioStationComponent, IAudioStationComponent.Status> ComponentStatusChangedEvent;
+        event SimpleEventHandler<IAudioStationService, IAudioStationService.Status> ComponentStatusChangedEvent;
 
         /// <summary>
         /// Runs primary initialization routines for each IAudioStationComponent. This should be run prior to showing the main window.
@@ -29,6 +29,6 @@ namespace AudioStation.Controller.Interface
         /// <summary>
         /// Returns componet based on (interface) type
         /// </summary>
-        T GetComponent<T>() where T : IAudioStationComponent;
+        T GetComponent<T>() where T : IAudioStationService;
     }
 }

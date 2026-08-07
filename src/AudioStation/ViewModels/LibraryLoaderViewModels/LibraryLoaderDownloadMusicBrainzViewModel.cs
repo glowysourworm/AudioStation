@@ -2,6 +2,7 @@
 
 using AudioStation.Controller.Interface;
 using AudioStation.Core.Component.Interface;
+using AudioStation.Core.Controller.Interface;
 using AudioStation.Core.Database.AudioStationDatabase;
 using AudioStation.EventHandler;
 

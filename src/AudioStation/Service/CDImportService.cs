@@ -5,6 +5,7 @@ using System.Windows.Threading;
 using AudioStation.Controller.Interface;
 using AudioStation.Core.Component.CDPlayer.Interface;
 using AudioStation.Core.Component.Interface;
+using AudioStation.Core.Controller.Interface;
 using AudioStation.Core.Utility;
 using AudioStation.Service.Interface;
 

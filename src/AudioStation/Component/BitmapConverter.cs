@@ -1,16 +1,13 @@
-﻿using System;
-using System.Drawing;
+﻿using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.IO;
-using System.Security.Principal;
-using System.Windows.Forms;
 using System.Windows.Media.Imaging;
 
 using AudioStation.Component.Interface;
 using AudioStation.Component.Model;
 using AudioStation.Controller.Model;
-using AudioStation.Core.Component.Interface;
+using AudioStation.Core.Controller.Interface;
 using AudioStation.Model;
 
 using Microsoft.Extensions.Logging;
@@ -50,7 +47,7 @@ namespace AudioStation.Component
                         decoder = null;
 
                         return bitmap;
-                    } 
+                    }
                     else if (mimeType == "image/png")
                     {
                         var decoder = PngBitmapDecoder.Create(memoryStream, BitmapCreateOptions.PreservePixelFormat, BitmapCacheOption.OnLoad);
@@ -73,7 +70,7 @@ namespace AudioStation.Component
             }
             catch (Exception ex)
             {
-                _outputController.Log("Error Converting Bitmap:  {0}", LogMessageType.General, LogLevel.Error,ex, ex.Message);
+                _outputController.Log("Error Converting Bitmap:  {0}", LogMessageType.General, LogLevel.Error, ex, ex.Message);
                 return null;
             }
         }
@@ -103,7 +100,7 @@ namespace AudioStation.Component
                     }
                     else
                         throw new Exception("Unhandled mime type:  BitmapConverter.cs");
-                    
+
                     encoder.Frames.Add(bitmapFrame);
                     encoder.Save(writeStream);
 

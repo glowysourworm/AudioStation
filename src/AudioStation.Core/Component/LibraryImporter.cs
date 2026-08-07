@@ -1,13 +1,12 @@
 ﻿using System.IO;
 
-using ATL;
-
 using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderLoad.Interface;
 using AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderOutput.Interface;
-using AudioStation.Core.Component.Vendor.Interface;
+using AudioStation.Core.Controller.Interface;
 using AudioStation.Core.Database.MusicBrainzDatabase.Model;
 using AudioStation.Core.Model.Vendor;
+using AudioStation.Core.Service.Vendor.Interface;
 using AudioStation.Core.Utility;
 using AudioStation.Model;
 

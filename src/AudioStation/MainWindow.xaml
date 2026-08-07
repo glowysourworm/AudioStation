@@ -98,9 +98,9 @@
         <Border x:Name="StatusBorder" Grid.Row="3" Grid.ColumnSpan="2" Background="#EEEEEE">
             <Grid ColumnDefinitions="Auto, *, Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto">
 
-                <Button ToolTip="{Binding Message}" DataContext="{Binding StatusViewModel.AudioPlayerStatus}" Style="{StaticResource FontAwesomeStatusIcon}" Tag="{x:Static fa5assembly:EFontAwesomeIcon.Solid_Music}" Grid.Column="0" />
+                <Button ToolTip="{Binding Message}" DataContext="{Binding StatusViewModel.AudioPlayerStatus}" BorderThickness="0 0 1 0" Style="{StaticResource FontAwesomeStatusIcon}" Tag="{x:Static fa5assembly:EFontAwesomeIcon.Solid_Music}" Grid.Column="0" />
 
-                <TextBlock Style="{StaticResource LabelTextBlock}" Text="{Binding StatusViewModel.PrimaryMessage}" Grid.Column="1" />
+                <TextBlock Margin="10 0 0 0" VerticalAlignment="Center" Style="{StaticResource LabelTextBlock}" Text="{Binding StatusViewModel.PrimaryMessage}" Grid.Column="1" />
 
                 <Button ToolTip="{Binding Message}" DataContext="{Binding StatusViewModel.OutputControllerStatus}" Style="{StaticResource FontAwesomeStatusIcon}" Tag="{x:Static fa5assembly:EFontAwesomeIcon.Regular_FileWord}" Grid.Column="2" />
                 <Button ToolTip="{Binding Message}" DataContext="{Binding StatusViewModel.BandcampClient}" BorderThickness="1 0 0 0" Style="{StaticResource FontAwesomeStatusIcon}" Tag="{x:Static fa5assembly:EFontAwesomeIcon.Brands_Bandcamp}" Grid.Column="3" />

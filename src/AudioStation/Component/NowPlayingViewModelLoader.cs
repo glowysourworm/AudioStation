@@ -1,7 +1,7 @@
 ﻿using AudioStation.Component.Interface;
 using AudioStation.Component.Model;
-using AudioStation.Core.Component.Interface;
-using AudioStation.Core.Component.Vendor.Interface;
+using AudioStation.Core.Controller.Interface;
+using AudioStation.Core.Service.Vendor.Interface;
 using AudioStation.Core.Utility;
 using AudioStation.Model;
 using AudioStation.ViewModels.LibraryViewModels;

@@ -1,13 +1,11 @@
-﻿using System.Windows;
-using System.Windows.Threading;
+﻿using System.Windows.Threading;
 
-using AudioStation.Component;
 using AudioStation.Component.AudioProcessing;
 using AudioStation.Component.AudioProcessing.Interface;
 using AudioStation.Controller.Interface;
 using AudioStation.Core.Component;
-using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Model;
+using AudioStation.Core.Service.Interface;
 using AudioStation.Core.Utility;
 using AudioStation.Event;
 
@@ -33,7 +31,7 @@ namespace AudioStation.Controller
 
         // IAudioStationComponent
         //
-        public event SimpleEventHandler<IAudioStationComponent, IAudioStationComponent.Status> StatusChangeEvent;
+        public event SimpleEventHandler<IAudioStationService, IAudioStationService.Status> StatusChangeEvent;
 
         [IocImportingConstructor]
         public AudioController(IIocEventAggregator eventAggregator)
@@ -58,7 +56,7 @@ namespace AudioStation.Controller
                 else if (_streamSource != null)
                 {
                     Play();
-                }                    
+                }
 
                 else
                     throw new Exception("Trying to start playback before loading media:  IAudioController");
@@ -118,7 +116,7 @@ namespace AudioStation.Controller
             _player.Pause();
 
             _eventAggregator.GetEvent<PlaybackStateChangedEvent>().Publish(new PlaybackStateChangedEventData()
-            { 
+            {
                 State = PlayStopPause.Pause
             });
         }
@@ -187,7 +185,7 @@ namespace AudioStation.Controller
             _player.Resume();
 
             _eventAggregator.GetEvent<PlaybackStateChangedEvent>().Publish(new PlaybackStateChangedEventData()
-            { 
+            {
                 State = PlayStopPause.Play
             });
         }
@@ -267,15 +265,15 @@ namespace AudioStation.Controller
         {
             return "Audio Player";
         }
-        public IAudioStationComponent.Status GetStatus()
+        public IAudioStationService.Status GetStatus()
         {
             // TODO
-            return IAudioStationComponent.Status.Idle;
+            return IAudioStationService.Status.Idle;
         }
-        public async Task<IAudioStationComponent.Status> Initialize()
+        public async Task<IAudioStationService.Status> Initialize()
         {
             // TODO
-            return IAudioStationComponent.Status.Idle;
+            return IAudioStationService.Status.Idle;
         }
         public string GetStatusMessage()
         {

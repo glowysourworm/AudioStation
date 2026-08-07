@@ -3,9 +3,9 @@ using System.Windows.Threading;
 
 using AudioStation.Controller.Interface;
 using AudioStation.Core.Component.Interface;
-using AudioStation.Core.Component.Vendor;
 using AudioStation.Core.Database.AudioStationDatabase;
 using AudioStation.Core.Model;
+using AudioStation.Core.Service.Vendor;
 using AudioStation.Core.Utility;
 using AudioStation.EventHandler;
 using AudioStation.Model;
@@ -88,7 +88,7 @@ namespace AudioStation.ViewModels
         {
             try
             {
-                var streams = await RadioBrowserSearchComponent.SearchStation(search);
+                var streams = await RadioBrowserSearchService.SearchStation(search);
                 //var streams = await RadioBrowserSearchComponent.GetTopStations(10);
 
                 if (streams.Count == 0)
