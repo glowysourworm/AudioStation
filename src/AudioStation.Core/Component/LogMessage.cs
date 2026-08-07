@@ -3,6 +3,8 @@ using System.ComponentModel.DataAnnotations;
 
 using Microsoft.Extensions.Logging;
 
+using SimpleWpf.Extensions;
+
 namespace AudioStation.Model
 {
     public enum LogMessageType
@@ -80,7 +82,7 @@ namespace AudioStation.Model
         [Display(Name = "None", Description = "N/A")]
         None,
 
-        [Display(Name = "Audio STation Db", Description = "Audio Station's primary database")]
+        [Display(Name = "Audio Station Db", Description = "Audio Station's primary database")]
         AudioStation,
 
         [Display(Name = "Music Brainz Db", Description = "Database of Music Brainz data cache (Audio Station's copy)")]
@@ -215,6 +217,30 @@ namespace AudioStation.Model
             this.Level = level;
             this.Exception = exception;
             this.Timestamp = DateTime.Now;
+        }
+
+        public string GetLogName()
+        {
+            return this.Type.GetAttribute<DisplayAttribute>().Name;
+        }
+
+        public string GetSubLogName()
+        {
+            switch (this.Type)
+            {
+                case LogMessageType.Component:
+                    return this.ComponentType.GetAttribute<DisplayAttribute>().Name;
+                case LogMessageType.Service:
+                    return this.ServiceType.GetAttribute<DisplayAttribute>().Name;
+                case LogMessageType.Database:
+                    return this.DatabaseType.GetAttribute<DisplayAttribute>().Name;
+
+                case LogMessageType.General:
+                case LogMessageType.OtherComponent:
+                    return GetLogName();
+                default:
+                    throw new Exception("Unhandled Log Type");
+            }
         }
     }
 }

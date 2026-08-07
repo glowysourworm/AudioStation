@@ -7,8 +7,6 @@ using AudioStation.Core.Utility;
 using AudioStation.Model;
 using AudioStation.ViewModels.LogViewModels;
 
-using Microsoft.Extensions.Logging;
-
 using SimpleWpf.IocFramework.EventAggregation;
 
 using static AudioStation.EventHandler.DialogEventHandlers;
@@ -32,26 +30,11 @@ namespace AudioStation.ViewModels
             eventAggregator.GetEvent<LogEvent>().Subscribe(OnLog);
 
             this.Logs = new ObservableCollection<LogComponentViewModel>();
-
-            // Go ahead and add logs for the base message types
-            foreach (LogMessageType type in Enum.GetValues(typeof(LogMessageType)))
-            {
-                this.Logs.Add(new LogComponentViewModel()
-                {
-                    Id = type,
-                    LogLevel = LogLevel.None,               // This is a user input (for filtering)
-                    Name = type.ToString()
-                });
-            }
         }
 
         public override Task Initialize(DialogProgressHandler progressHandler)
         {
             return Task.CompletedTask;
-        }
-
-        public override void Dispose()
-        {
         }
 
         private void OnLog(LogMessage message)
@@ -61,19 +44,37 @@ namespace AudioStation.ViewModels
 
             else
             {
-                if (!_logs.Any(log => log.Id.Equals(message.LogId)))
+                var log = _logs.FirstOrDefault(x => x.Name == message.GetLogName());
                 {
-                    _logs.Add(new LogComponentViewModel()
-                    {
-                        Id = message.LogId,
-                        LogLevel = LogLevel.None,               // This is a user input (for filtering)
-                        Name = message.Type.ToString()
-                    });
+
                 }
 
-                var log = _logs.First(x => x.Id.Equals(message.LogId));
+                // New Log
+                if (log == null)
+                {
+                    log = new LogComponentViewModel()
+                    {
+                        Name = message.GetLogName()
+                    };
 
-                log.Messages.Insert(0, new LogMessageViewModel()
+                    this.Logs.Add(log);
+                }
+
+                // Check Sub Log(s)
+                var subLog = log.SubComponents.FirstOrDefault(x => x.Name == message.GetSubLogName());
+
+                // New Sublog
+                if (subLog == null)
+                {
+                    subLog = new LogSubComponentViewModel()
+                    {
+                        Name = message.GetSubLogName()
+                    };
+
+                    log.SubComponents.Add(subLog);
+                }
+
+                subLog.Messages.Insert(0, new LogMessageViewModel()
                 {
                     Level = message.Level,
                     Message = message.Message,
@@ -81,6 +82,10 @@ namespace AudioStation.ViewModels
                     Timestamp = message.Timestamp
                 });
             }
+        }
+
+        public override void Dispose()
+        {
         }
     }
 }
