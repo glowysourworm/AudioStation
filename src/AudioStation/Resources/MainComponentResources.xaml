@@ -30,6 +30,9 @@
     <simpleConverter:BoolInverseConverter x:Key="BoolInverseConverter" />
     <simpleConverter:BoolVisibilityCollapseConverter x:Key="BoolVisibilityCollapseConverter" />
     <simpleConverter:BoolInverseVisibilityCollapseConverter x:Key="BoolInverseVisibilityCollapseConverter" />
+    <simpleConverter:CollectionEmptyVisibilityConverter x:Key="CollectionEmptyVisibilityConverter" />
+    <simpleConverter:CollectionNonEmptyBoolConverter x:Key="CollectionNonEmptyBoolConverter" />
+    <simpleConverter:CollectionNonEmptyVisibilityConverter x:Key="CollectionNonEmptyVisibilityConverter" />
     <simpleConverter:EnumFilterParameterConverter x:Key="EnumFilterParameterConverter" />
     <simpleConverter:EnumObservableCollectionConverter x:Key="EnumObservableCollectionConverter" />
     <simpleConverter:NonNullVisibilityConverter x:Key="NonNullVisibilityConverter" />
@@ -55,9 +58,12 @@
     <!-- Template Selectors -->
     <templateSelector:LogItemTemplateSelector x:Key="LogItemTemplateSelector" />
     <templateSelector:LibraryLoaderImportFileTemplateSelector x:Key="LibraryLoaderImportFileTemplateSelector" />
-    
+    <templateSelector:MultiSelectTreeViewItemTemplateSelector x:Key="MultiSelectTreeViewItemTemplateSelector" />
+
     <!-- Style Selectors -->
     <styleSelector:LibraryWorkItemContainerStyleSelector x:Key="LibraryWorkItemContainerStyleSelector" />
     <styleSelector:LogItemContainerStyleSelector x:Key="LogItemContainerStyleSelector" />
     <styleSelector:LibraryLoaderImportTreeStyleSelector x:Key="LibraryLoaderImportTreeStyleSelector" />
+    <styleSelector:MultiSelectTreeViewItemContainerStyleSelector x:Key="MultiSelectTreeViewItemContainerStyleSelector" />
+
 </ResourceDictionary>

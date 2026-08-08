@@ -14,6 +14,8 @@
                 <ResourceDictionary Source="/Resources/TabControlStyles.xaml" />
                 <ResourceDictionary Source="/Resources/TextBoxStyles.xaml" />
                 <ResourceDictionary Source="/Resources/ComboBoxStyles.xaml" />
+                <ResourceDictionary Source="/Resources/ListBoxStyles.xaml" />
+                <ResourceDictionary Source="/Resources/TreeViewStyles.xaml" />
                 <ResourceDictionary Source="/Resources/LibraryWorkItemDataTemplates.xaml" />
                 <ResourceDictionary Source="/Resources/LogDataTemplates.xaml" />
                 <ResourceDictionary Source="/Resources/DataGridStyles.xaml" />

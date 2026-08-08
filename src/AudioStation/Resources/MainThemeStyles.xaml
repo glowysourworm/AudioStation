@@ -15,6 +15,7 @@
         <Setter Property="Height" Value="16" />
         <Setter Property="Foreground" Value="Gray" />
     </Style>
+    
     <Style TargetType="{x:Type Button}" x:Key="FontAwesomeStatusIcon">
         <Setter Property="Foreground" Value="#FFAAAAAA" />
         <Setter Property="BorderThickness" Value="0 0" />

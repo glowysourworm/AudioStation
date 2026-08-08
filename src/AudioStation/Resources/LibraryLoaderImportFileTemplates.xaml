@@ -17,11 +17,11 @@
     <SolidColorBrush x:Key="LibraryImportTreeItemSelectBackground">#2F33AAFF</SolidColorBrush>
     
     <!-- Import Directory (Children) -->
-    <Style TargetType="ListBoxItem" x:Key="LibraryImportTreeDirectoryItemContainerStyle">
+    <Style TargetType="TreeViewItem" x:Key="LibraryImportTreeDirectoryItemContainerStyle">
 
         <Setter Property="Template">
             <Setter.Value>
-                <ControlTemplate TargetType="ListBoxItem">
+                <ControlTemplate TargetType="TreeViewItem">
 
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsSelected" Value="True">
@@ -96,11 +96,11 @@
     </Style>
 
     <!-- Import Directory (No Children) -->
-    <Style TargetType="ListBoxItem" x:Key="LibraryImportTreeDirectoryLeafItemContainerStyle">
+    <Style TargetType="TreeViewItem" x:Key="LibraryImportTreeDirectoryLeafItemContainerStyle">
 
         <Setter Property="Template">
             <Setter.Value>
-                <ControlTemplate TargetType="ListBoxItem">
+                <ControlTemplate TargetType="TreeViewItem">
 
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsSelected" Value="True">
@@ -174,11 +174,11 @@
     </Style>
 
     <!-- Import File -->
-    <Style TargetType="ListBoxItem" x:Key="LibraryImportTreeFileItemContainerStyle">
+    <Style TargetType="TreeViewItem" x:Key="LibraryImportTreeFileItemContainerStyle">
 
         <Setter Property="Template">
             <Setter.Value>
-                <ControlTemplate TargetType="ListBoxItem">
+                <ControlTemplate TargetType="TreeViewItem">
 
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsSelected" Value="True">

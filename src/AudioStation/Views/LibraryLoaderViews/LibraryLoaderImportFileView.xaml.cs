@@ -1,9 +1,5 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
-using System.Windows.Input;
-
-using AudioStation.ViewModels.LibraryLoaderViewModels.Import;
 
 using SimpleWpf.IocFramework.Application.Attribute;
 
@@ -36,18 +32,23 @@ namespace AudioStation.Views.LibraryLoaderViews
 
         private void InputFileExpanderButton_Click(object sender, RoutedEventArgs e)
         {
-            var button = sender as ToggleButton;
-            var viewModel = this.DataContext as LibraryLoaderImportViewModel;
+            //var button = sender as ToggleButton;
+            //var viewModel = this.DataContext as LibraryLoaderImportViewModel;
 
-            if (viewModel != null && button != null)
-            {
-                var selectedFile = button.DataContext as LibraryLoaderImportFileViewModel;
+            //if (viewModel != null && button != null)
+            //{
+            //    var selectedFile = button.DataContext as LibraryLoaderImportFileViewModel;
 
-                viewModel.SourceDirectory.RecurseForEach(item =>
-                {
-                    item.NodeValue.IsExpanded = (selectedFile == item.NodeValue) && selectedFile.IsExpanded;
-                });
-            }
+            //    viewModel.SourceDirectory.RecurseForEach(item =>
+            //    {
+            //        item.NodeValue.IsExpanded = (selectedFile == item.NodeValue) && selectedFile.IsExpanded;
+            //    });
+            //}
+        }
+
+        private void ImportTV_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
+        {
+
         }
     }
 }
