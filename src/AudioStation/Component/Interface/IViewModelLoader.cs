@@ -1,6 +1,6 @@
 ﻿using AudioStation.Core.Database.AudioStationDatabase;
 using AudioStation.Core.Model;
-using AudioStation.ViewModels.LibraryLoaderViewModels.Import;
+using AudioStation.ViewModels.LibraryImporterViewModels.Import;
 using AudioStation.ViewModels.LibraryViewModels;
 
 using static AudioStation.EventHandler.DialogEventHandlers;

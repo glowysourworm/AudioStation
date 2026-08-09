@@ -1,4 +1,4 @@
-﻿using AudioStation.ViewModels.LibraryLoaderViewModels.Import;
+﻿using AudioStation.ViewModels.LibraryImporterViewModels.Import;
 
 using SimpleWpf.IocFramework.EventAggregation;
 

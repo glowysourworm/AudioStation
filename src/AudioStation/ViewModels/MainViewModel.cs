@@ -48,6 +48,7 @@ public class MainViewModel : PrimaryViewModelBase
     NowPlayingViewModel _nowPlaying;
     BandcampViewModel _bandcamp;
     LibraryLoaderViewModel _libraryLoaderViewModel;
+    LibraryImporterViewModel _libraryImportViewModel;
 
     ObservableCollection<float> _equalizerValues;
     ObservableCollection<EqualizerBandViewModel> _equalizerViewModel;
@@ -97,6 +98,11 @@ public class MainViewModel : PrimaryViewModelBase
     {
         get { return _libraryManager; }
         set { this.RaiseAndSetIfChanged(ref _libraryManager, value); }
+    }
+    public LibraryImporterViewModel LibraryImportViewModel
+    {
+        get { return _libraryImportViewModel; }
+        set { this.RaiseAndSetIfChanged(ref _libraryImportViewModel, value); }
     }
     public RadioViewModel Radio
     {
@@ -183,6 +189,7 @@ public class MainViewModel : PrimaryViewModelBase
                          RadioViewModel radioViewModel,
                          LogViewModel logViewModel,
                          LibraryLoaderViewModel libraryLoaderViewModel,
+                         LibraryImporterViewModel libraryImporterViewModel,
                          NowPlayingViewModel nowPlayingViewModel,
                          BandcampViewModel bandcampViewModel)
     {

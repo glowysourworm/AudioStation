@@ -1,7 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 
-using AudioStation.ViewModels.LibraryLoaderViewModels.Import;
+using AudioStation.ViewModels.LibraryImporterViewModels.Import;
 using AudioStation.ViewModels.LogViewModels;
 
 using Microsoft.Extensions.Logging;

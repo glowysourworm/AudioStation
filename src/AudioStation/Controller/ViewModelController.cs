@@ -6,8 +6,8 @@ using AudioStation.Core.Controller.Interface;
 using AudioStation.Core.Service.Vendor.Bandcamp.Interface;
 using AudioStation.Service.Interface;
 using AudioStation.ViewModels;
+using AudioStation.ViewModels.LibraryImporterViewModels.Import;
 using AudioStation.ViewModels.LibraryLoaderViewModels;
-using AudioStation.ViewModels.LibraryLoaderViewModels.Import;
 using AudioStation.ViewModels.Vendor;
 
 using SimpleWpf.IocFramework.Application.Attribute;
@@ -27,7 +27,7 @@ namespace AudioStation.Controller
         private readonly RadioViewModel _radioViewModel;
         private readonly LogViewModel _logViewModel;
         private readonly LibraryLoaderViewModel _libraryLoaderViewModel;
-        private readonly LibraryLoaderImportViewModel _libraryLoaderImportViewModel;
+        private readonly LibraryImporterViewModel _libraryImporterViewModel;
         private readonly LibraryLoaderImportRadioViewModel _libraryLoaderImportRadioViewModel;
         private readonly LibraryLoaderDownloadMusicBrainzViewModel _libraryLoaderDownloadMusicBrainzViewModel;
         private readonly LibraryLoaderCDImportViewModel _libraryLoaderCDImportViewModel;
@@ -50,12 +50,12 @@ namespace AudioStation.Controller
         {
             _libraryLoaderCDImportViewModel = new LibraryLoaderCDImportViewModel(eventAggregator, importService);
 
-            _libraryLoaderImportViewModel = new LibraryLoaderImportViewModel(configurationManager,
-                                                                             dialogController,
-                                                                             eventAggregator,
-                                                                             libraryImporter,
-                                                                             tagCacheController,
-                                                                             viewModelLoader);
+            _libraryImporterViewModel = new LibraryImporterViewModel(configurationManager,
+                                                                        dialogController,
+                                                                        eventAggregator,
+                                                                        libraryImporter,
+                                                                        tagCacheController,
+                                                                        viewModelLoader);
 
             _libraryLoaderImportRadioViewModel = new LibraryLoaderImportRadioViewModel(configurationManager, dialogController);
             _libraryLoaderDownloadMusicBrainzViewModel = new LibraryLoaderDownloadMusicBrainzViewModel(modelController, configurationManager, dialogController);
@@ -69,14 +69,14 @@ namespace AudioStation.Controller
 
 
             _libraryLoaderViewModel = new LibraryLoaderViewModel(configurationManager, eventAggregator,
-                                                                 _libraryLoaderCDImportViewModel, _libraryLoaderImportViewModel,
+                                                                 _libraryLoaderCDImportViewModel,
                                                                  _libraryLoaderImportRadioViewModel, _libraryLoaderDownloadMusicBrainzViewModel);
 
             _mainViewModel = new MainViewModel(configurationManager, audioStationComponentController, dialogController,
                                                eventAggregator, cdDrive,
                                                configurationManager.GetConfiguration(),
                                                _libraryManagerViewModel, _statusViewModel, _radioViewModel,
-                                               _logViewModel, _libraryLoaderViewModel,
+                                               _logViewModel, _libraryLoaderViewModel, _libraryImporterViewModel,
                                                _nowPlayingViewModel, _bandcampViewModel);
         }
 
@@ -118,7 +118,7 @@ namespace AudioStation.Controller
             await _libraryLoaderImportRadioViewModel.Initialize(progressHandler);
 
             progressHandler(taskCount, task++, 0, "Initializing Importer...");
-            await _libraryLoaderImportViewModel.Initialize(progressHandler);
+            await _libraryImporterViewModel.Initialize(progressHandler);
 
             progressHandler(taskCount, task++, 0, "Initializing Library Loader...");
             await _libraryLoaderViewModel.Initialize(progressHandler);

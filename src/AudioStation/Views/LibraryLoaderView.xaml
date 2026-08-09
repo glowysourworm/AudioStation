@@ -17,10 +17,6 @@
                 <loaderView:LibraryLoaderCDImport DataContext="{Binding ImportCDViewModel}" />
             </controls:TabItemPressable>
 
-            <controls:TabItemPressable Header="Import" Style="{StaticResource ManagerTabItemStyle}">
-                <loaderView:LibraryLoaderImportView DataContext="{Binding ImportViewModel}" />
-            </controls:TabItemPressable>
-
             <controls:TabItemPressable Header="Import Radio" Style="{StaticResource ManagerTabItemStyle}">
                 <loaderView:LibraryLoaderImportRadioView DataContext="{Binding ImportRadioViewModel}" />
             </controls:TabItemPressable>

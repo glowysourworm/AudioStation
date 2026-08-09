@@ -13,7 +13,7 @@ using AudioStation.ViewModels.Vendor.MusicBrainzViewModel;
 using SimpleWpf.Extensions.ObservableCollection;
 using SimpleWpf.ViewModel;
 
-namespace AudioStation.ViewModels.LibraryLoaderViewModels.Import
+namespace AudioStation.ViewModels.LibraryImporterViewModels.Import
 {
     public class LibraryLoaderImportOutputViewModel : ViewModelBase, ILibraryLoaderImportOutput
     {

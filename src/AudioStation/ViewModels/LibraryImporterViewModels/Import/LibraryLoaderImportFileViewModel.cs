@@ -20,7 +20,7 @@ using SimpleWpf.ViewModel;
 
 using IRelease = MetaBrainz.MusicBrainz.Interfaces.Entities.IRelease;
 
-namespace AudioStation.ViewModels.LibraryLoaderViewModels.Import
+namespace AudioStation.ViewModels.LibraryImporterViewModels.Import
 {
     /// <summary>
     /// PathViewModel provides the node VALUE for the recursive directory structure. The "Path" view model is essentially

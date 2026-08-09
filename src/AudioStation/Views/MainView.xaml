@@ -39,8 +39,12 @@
                     <local:ConfigurationView x:Name="ConfigurationView" />
                 </controls:TabItemPressable>
 
-                <controls:TabItemPressable x:Name="LibraryLoaderTab" Header="Library Loader" FontSize="14" Margin="0" Style="{StaticResource MainTabItemControlStyle}" DataContext="{Binding LibraryLoader}">
+                <controls:TabItemPressable x:Name="LibraryLoaderTab" Header="Library Loader" FontSize="14" Margin="0" Style="{StaticResource MainTabItemControlStyle}">
                     <local:LibraryLoaderView x:Name="LibraryLoaderView" />
+                </controls:TabItemPressable>
+
+                <controls:TabItemPressable x:Name="LibraryImportTab" Header="Library Import" FontSize="14" Margin="0" Style="{StaticResource MainTabItemControlStyle}">
+                    <local:LibraryImportView DataContext="{Binding LibraryImporter}" />
                 </controls:TabItemPressable>
 
                 <controls:TabItemPressable x:Name="LibraryManagerTab" FontSize="14" Margin="0" Header="Library Manager" Style="{StaticResource MainTabItemControlStyle}">

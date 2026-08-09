@@ -1,6 +1,6 @@
 ﻿using AudioStation.Event;
 using AudioStation.ViewModels;
-using AudioStation.ViewModels.LibraryLoaderViewModels.Import;
+using AudioStation.ViewModels.LibraryImporterViewModels.Import;
 using AudioStation.ViewModels.Vendor.ATLViewModel;
 
 namespace AudioStation.Controller.Interface

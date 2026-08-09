@@ -4,8 +4,8 @@ using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Component.LibraryLoaderComponent;
 using AudioStation.Core.Utility;
 using AudioStation.Event.LibraryLoaderEvent;
+using AudioStation.ViewModels.LibraryImporterViewModels.Import;
 using AudioStation.ViewModels.LibraryLoaderViewModels;
-using AudioStation.ViewModels.LibraryLoaderViewModels.Import;
 
 using SimpleWpf.Extensions.ObservableCollection;
 using SimpleWpf.IocFramework.EventAggregation;
@@ -18,7 +18,7 @@ namespace AudioStation.ViewModels
     {
         #region Backing Fields (private)
         LibraryLoaderCDImportViewModel _importCDViewModel;
-        LibraryLoaderImportViewModel _importViewModel;
+        LibraryImporterViewModel _importViewModel;
         LibraryLoaderImportRadioViewModel _importRadioBasicViewModel;
         LibraryLoaderDownloadMusicBrainzViewModel _downloadMusicBrainzViewModel;
 
@@ -46,11 +46,6 @@ namespace AudioStation.ViewModels
             get { return _libraryWorkItemsSelected; }
             set { this.RaiseAndSetIfChanged(ref _libraryWorkItemsSelected, value); }
         }
-        public LibraryLoaderImportViewModel ImportViewModel
-        {
-            get { return _importViewModel; }
-            set { this.RaiseAndSetIfChanged(ref _importViewModel, value); }
-        }
         public LibraryLoaderImportRadioViewModel ImportRadioBasicViewModel
         {
             get { return _importRadioBasicViewModel; }
@@ -73,7 +68,6 @@ namespace AudioStation.ViewModels
 
                                       // View Models
                                       LibraryLoaderCDImportViewModel importCDViewModel,
-                                      LibraryLoaderImportViewModel importViewModel,
                                       LibraryLoaderImportRadioViewModel importRadioBasicViewModel,
                                       LibraryLoaderDownloadMusicBrainzViewModel downloadMusicBrainzViewModel)
         {
@@ -83,7 +77,6 @@ namespace AudioStation.ViewModels
             this.LibraryWorkItemsSelected = this.LibraryWorkItems;
 
             this.ImportCDViewModel = importCDViewModel;
-            this.ImportViewModel = importViewModel;
             this.ImportRadioBasicViewModel = importRadioBasicViewModel;
             this.DownloadMusicBrainzViewModel = downloadMusicBrainzViewModel;
 

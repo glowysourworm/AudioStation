@@ -4,6 +4,8 @@ using ATL;
 
 using AudioStation.Core.Database.MusicBrainzDatabase.Model;
 using AudioStation.Core.Model.Vendor;
+using AudioStation.Core.Model.Vendor.ATLExtension;
+using AudioStation.Core.Model.Vendor.ATLExtension.Interface;
 using AudioStation.Core.Service.Interface;
 using AudioStation.Core.Service.Vendor.Interface;
 using AudioStation.Core.Utility;
@@ -15,14 +17,17 @@ using MetaBrainz.MusicBrainz.Interfaces.Entities;
 
 using Microsoft.Extensions.Logging;
 
+using SimpleWpf.Extensions;
 using SimpleWpf.Extensions.Collection;
 using SimpleWpf.Extensions.Event;
 using SimpleWpf.IocFramework.Application.Attribute;
 
+using Query = MetaBrainz.MusicBrainz.Query;
+
 namespace AudioStation.Core.Service.Vendor
 {
     [IocExport(typeof(IMusicBrainzClient))]
-    public class MusicBrainzClient : IMusicBrainzClient
+    public class MusicBrainzClient : IMusicBrainzClient, IAudioStationTagService
     {
         // IAudioStationComponent
         //
@@ -741,6 +746,117 @@ namespace AudioStation.Core.Service.Vendor
                 }
             });
         }
+
+        #region (private) Release ID Lookup
+        private IAudioStationTag MapResult(AudioStationTagServiceModel serviceModel, IRecording result)
+        {
+            var tag = new AudioStationTag();
+
+            foreach (var property in serviceModel.GetTagProperties())
+            {
+                // Go ahead with string switch -> Exceptions for property mistakes
+                switch (property)
+                {
+                    case "Artist":
+                        tag.Artist = result.ArtistCredit?.FirstOrDefault()?.Artist?.Name ?? string.Empty;
+                        break;
+                    case "Album":
+                    {
+                        // Album:  Must look up Release -> Media -> (first with) Track Name
+                        var media = result.Releases?
+                                          .FirstOrDefault()?
+                                          .Media?
+                                          .FirstOrDefault(x => x.Tracks?.Any(z => z.Title == serviceModel.Title) ?? false);
+
+                        // Album / (Not Found)
+                        tag.Album = media?.Title ?? string.Empty;
+                    }
+
+                    break;
+                    case "Title":
+                        tag.Title = result.Title;
+                        break;
+                    default:
+                        throw new FormattedException("Unhandled IAudioStationTag property mapping:  {0}", property);
+                }
+            }
+
+            return tag;
+        }
+        private Include CreateInclude(AudioStationTagServiceModel serviceModel)
+        {
+            // This should be broken down based on what is needed in the tag. Performance should vary depending on
+            // how many fields, or what the lookup takes for field combinations.
+            //
+            return Include.Labels |
+                   Include.Media |
+                   Include.UrlRelationships |
+                   Include.Genres |
+                   Include.Tags |
+                   Include.Recordings;
+        }
+        private async Task<IRecording?> LookupTrack(string artist, string album, string title, Include include)
+        {
+            var query = new Query();
+
+            var searchResults = await query.FindRecordingsAsync(string.Format("title:{0} artist:{1} release:{2}", title, artist, album));
+
+            if (searchResults.Results.Count > 1)
+                ApplicationHelpers.Log("Music Brainz artist/album/title search is returning more than one result with 100% score:  {0}/{1}/{2}", LogMessageServiceType.MusicBrainz, LogLevel.Warning, null, artist, album, title);
+
+            return searchResults.Results
+                                .Where(result => result.Score >= 100)
+                                .FirstOrDefault()?.Item;
+        }
+        private async Task<IAudioStationTag?> LookupByArtistAlbumTitle(AudioStationTagServiceModel serviceModel)
+        {
+            var result = await LookupTrack(serviceModel.Artist, serviceModel.Album, serviceModel.Title, CreateInclude(serviceModel));
+
+            if (result == null)
+            {
+                ApplicationHelpers.Log("Music Brainz artist/album/title search did not find any results:  {0}/{1}/{2}", LogMessageServiceType.MusicBrainz, LogLevel.Warning, null, serviceModel.Artist, serviceModel.Album, serviceModel.Title);
+                return null;
+            }
+
+            else
+                return MapResult(serviceModel, result);
+        }
+        private async Task<IAudioStationTag?> LookupByMusicBrainzId(AudioStationTagServiceModel serviceModel)
+        {
+            var query = new Query();
+
+            var recording = await query.LookupRecordingAsync(serviceModel.MusicBrainzId, CreateInclude(serviceModel));
+
+            if (recording == null)
+                ApplicationHelpers.Log("Music Brainz recording not found:  {0}", LogMessageServiceType.MusicBrainz, LogLevel.Error, null, serviceModel.MusicBrainzId);
+
+            return MapResult(serviceModel, recording);
+        }
+        private async Task<IAudioStationTag?> Lookup(AudioStationTagServiceModel serviceModel)
+        {
+            switch (serviceModel.IdType)
+            {
+                case AudioStationTagServiceModel.AudioStationTagIdentity.ArtistAlbumTitle:
+                    return await LookupByArtistAlbumTitle(serviceModel);
+                case AudioStationTagServiceModel.AudioStationTagIdentity.MusicBrainzId:
+                    return await LookupByMusicBrainzId(serviceModel);
+                case AudioStationTagServiceModel.AudioStationTagIdentity.VendorId:
+                    throw new Exception("Unhandled AudioStationTagIdentity type:  VendorId not used by IMusicBrainzClient service");
+                default:
+                    throw new Exception("Unhandled AudioStationTagIdentity type");
+            }
+        }
+        #endregion
+
+        #region (public) IAudioStationTagService
+        public Task<IAudioStationTag?> GetTagData(AudioStationTagServiceModel serviceModel)
+        {
+            return Task.Run(async () =>
+            {
+                return await Lookup(serviceModel);
+            });
+        }
+        #endregion
 
         #region (public) IAudioStationComponent Methods
         public string GetName()

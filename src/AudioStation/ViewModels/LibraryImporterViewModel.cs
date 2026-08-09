@@ -11,6 +11,7 @@ using AudioStation.Core.Model;
 using AudioStation.Core.Utility;
 using AudioStation.Event;
 using AudioStation.Event.DialogEvents;
+using AudioStation.ViewModels.LibraryImporterViewModels.Import;
 using AudioStation.ViewModels.Vendor.AcoustIDViewModel;
 using AudioStation.ViewModels.Vendor.ATLViewModel;
 using AudioStation.ViewModels.Vendor.MusicBrainzViewModel;
@@ -25,9 +26,9 @@ using SimpleWpf.ViewModel;
 
 using static AudioStation.EventHandler.DialogEventHandlers;
 
-namespace AudioStation.ViewModels.LibraryLoaderViewModels.Import
+namespace AudioStation.ViewModels
 {
-    public class LibraryLoaderImportViewModel : PrimaryViewModelBase
+    public class LibraryImporterViewModel : PrimaryViewModelBase
     {
         private readonly IConfigurationManager _configurationManager;
         private readonly IDialogController _dialogController;
@@ -92,7 +93,7 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels.Import
             set { RaiseAndSetIfChanged(ref _runChromaprintLookupCommand, value); }
         }
 
-        public LibraryLoaderImportViewModel(IConfigurationManager configurationManager,
+        public LibraryImporterViewModel(IConfigurationManager configurationManager,
                                             IDialogController dialogController,
                                             IIocEventAggregator eventAggregator,
                                             ILibraryImporter libraryImporter,

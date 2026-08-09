@@ -9,7 +9,7 @@ using SimpleWpf.Extensions.Command;
 
 using static AudioStation.EventHandler.DialogEventHandlers;
 
-namespace AudioStation.ViewModels.LibraryLoaderViewModels.Import
+namespace AudioStation.ViewModels.LibraryImporterViewModels.Import
 {
     public class LibraryLoaderImportRadioViewModel : PrimaryViewModelBase
     {

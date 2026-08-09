@@ -3,13 +3,13 @@ using System.Windows.Controls;
 
 using SimpleWpf.IocFramework.Application.Attribute;
 
-namespace AudioStation.Views.LibraryLoaderViews
+namespace AudioStation.Views.LibraryImportViews
 {
     [IocExportDefault]
-    public partial class LibraryLoaderImportFileView : UserControl
+    public partial class LibraryImportStagingView : UserControl
     {
         [IocImportingConstructor]
-        public LibraryLoaderImportFileView()
+        public LibraryImportStagingView()
         {
             InitializeComponent();
         }

@@ -6,7 +6,7 @@ using SimpleWpf.Extensions;
 using SimpleWpf.Extensions.Command;
 using SimpleWpf.ViewModel;
 
-namespace AudioStation.ViewModels.LibraryLoaderViewModels.Import
+namespace AudioStation.ViewModels.LibraryImporterViewModels.Import
 {
     public class LibraryLoaderImportOptionsViewModel : ViewModelBase
     {

@@ -1,6 +1,5 @@
 ﻿using System.Collections.ObjectModel;
 
-using AudioStation.Controller.Interface;
 using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Component.LibraryLoaderComponent;
 using AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderLoad;
@@ -11,8 +10,8 @@ using AudioStation.Event;
 using AudioStation.Event.LibraryLoaderEvent;
 using AudioStation.Service.Interface;
 using AudioStation.ViewModels;
+using AudioStation.ViewModels.LibraryImporterViewModels.Import;
 using AudioStation.ViewModels.LibraryLoaderViewModels;
-using AudioStation.ViewModels.LibraryLoaderViewModels.Import;
 using AudioStation.ViewModels.LogViewModels;
 using AudioStation.ViewModels.Vendor.AcoustIDViewModel;
 using AudioStation.ViewModels.Vendor.MusicBrainzViewModel;
@@ -95,14 +94,14 @@ namespace AudioStation.Service
                                                                                                 .SelectMany(x => x.Recordings)
                                                                                                 .Zip(workOutput.AcoustIDResults)
                                                                                                 .Select(pair => new LookupResultViewModel()
-                    {
-                        Id = new Guid(pair.Second.Id),
-                        Score = pair.Second.Score,
-                        MusicBrainzRecordingId = new Guid(pair.First.Id)
-                    })),
-                    AcoustIDSuccess = workOutput.AcoustIDSuccess,                    
+                                                                                                {
+                                                                                                    Id = new Guid(pair.Second.Id),
+                                                                                                    Score = pair.Second.Score,
+                                                                                                    MusicBrainzRecordingId = new Guid(pair.First.Id)
+                                                                                                })),
+                    AcoustIDSuccess = workOutput.AcoustIDSuccess,
                     FinalQueryRecord = null,
-                    ImportedRecord = workOutput.ImportedRecord,                    
+                    ImportedRecord = workOutput.ImportedRecord,
                     Mp3FileMoveSuccess = workOutput.Mp3FileMoveSuccess,
                     Mp3FileImportSuccess = workOutput.Mp3FileImportSuccess,
                     LogMessages = new ObservableCollection<string>(workOutput.Log.Select(x => x.Message)),

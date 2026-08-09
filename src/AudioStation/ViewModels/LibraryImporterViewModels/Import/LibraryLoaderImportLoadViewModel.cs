@@ -4,7 +4,7 @@ using AudioStation.Core.Model;
 using SimpleWpf.Extensions;
 using SimpleWpf.ViewModel;
 
-namespace AudioStation.ViewModels.LibraryLoaderViewModels.Import
+namespace AudioStation.ViewModels.LibraryImporterViewModels.Import
 {
     public class LibraryLoaderImportLoadViewModel : ViewModelBase, ILibraryLoaderImportLoad
     {

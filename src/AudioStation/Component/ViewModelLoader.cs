@@ -6,7 +6,7 @@ using AudioStation.Core.Controller.Interface;
 using AudioStation.Core.Database.AudioStationDatabase;
 using AudioStation.Core.Model;
 using AudioStation.Core.Utility;
-using AudioStation.ViewModels.LibraryLoaderViewModels.Import;
+using AudioStation.ViewModels.LibraryImporterViewModels.Import;
 using AudioStation.ViewModels.LibraryViewModels;
 
 using Microsoft.Extensions.Logging;
