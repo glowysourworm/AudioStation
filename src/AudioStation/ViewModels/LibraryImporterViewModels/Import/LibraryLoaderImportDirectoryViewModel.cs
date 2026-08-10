@@ -29,7 +29,7 @@ namespace AudioStation.ViewModels.LibraryImporterViewModels.Import
         }
 
         public LibraryLoaderImportDirectoryViewModel(string fullDirectoryPath,
-                                                     LibraryLoaderImportOptionsViewModel options)
+                                                     LibraryLoaderImportConfigurationViewModel options)
             : base(options.SourceFolder, fullDirectoryPath)
         {
         }

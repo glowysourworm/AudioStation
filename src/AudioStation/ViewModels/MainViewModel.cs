@@ -99,7 +99,7 @@ public class MainViewModel : PrimaryViewModelBase
         get { return _libraryManager; }
         set { this.RaiseAndSetIfChanged(ref _libraryManager, value); }
     }
-    public LibraryImporterViewModel LibraryImportViewModel
+    public LibraryImporterViewModel LibraryImporter
     {
         get { return _libraryImportViewModel; }
         set { this.RaiseAndSetIfChanged(ref _libraryImportViewModel, value); }
@@ -220,6 +220,7 @@ public class MainViewModel : PrimaryViewModelBase
         this.StatusViewModel = statusViewModel;
         this.Radio = radioViewModel;
         this.LibraryLoader = libraryLoaderViewModel;
+        this.LibraryImporter = libraryImporterViewModel;
         this.Bandcamp = bandcampViewModel;
         this.Volume = 1.0f;
         this.Loading = false;

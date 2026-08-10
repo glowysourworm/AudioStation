@@ -37,7 +37,7 @@ namespace AudioStation.ViewModels
         private readonly ITagCacheController _tagCacheController;
         private readonly IViewModelLoader _viewModelLoader;
 
-        LibraryLoaderImportOptionsViewModel _options;
+        LibraryLoaderImportConfigurationViewModel _options;
 
         LibraryLoaderImportTreeViewModel _sourceDirectory;
 
@@ -47,7 +47,7 @@ namespace AudioStation.ViewModels
         SimpleCommand _runImportCommand;
         SimpleCommand _runChromaprintLookupCommand;
 
-        public LibraryLoaderImportOptionsViewModel Options
+        public LibraryLoaderImportConfigurationViewModel Options
         {
             get { return _options; }
             set { RaiseAndSetIfChanged(ref _options, value); }
@@ -66,11 +66,6 @@ namespace AudioStation.ViewModels
         {
             get { return _sourceDirectory == null ? 0 : _sourceDirectory.RecursiveCount(x => !x.IsDirectory); }
             set { OnPropertyChanged("SourceFileCount"); }
-        }
-        public SimpleCommand EditOptionsCommand
-        {
-            get { return _editOptionsCommand; }
-            set { RaiseAndSetIfChanged(ref _editOptionsCommand, value); }
         }
         public SimpleCommand EditTagCommand
         {
@@ -109,7 +104,7 @@ namespace AudioStation.ViewModels
 
             var configuration = configurationManager.GetConfiguration();
 
-            this.Options = new LibraryLoaderImportOptionsViewModel(configurationManager, dialogController);
+            this.Options = new LibraryLoaderImportConfigurationViewModel(configurationManager, dialogController);
             this.SourceDirectory = null;
 
             // RunImport -> Complete
@@ -145,29 +140,29 @@ namespace AudioStation.ViewModels
 
             }, CanRunAcoustID);
 
-            this.EditOptionsCommand = new SimpleCommand(async () =>
-            {
-                // Synchronous
-                dialogController.ShowImportOptionsWindow(this.Options);
+            //this.EditOptionsCommand = new SimpleCommand(async () =>
+            //{
+            //    // Synchronous
+            //    dialogController.ShowImportOptionsWindow(this.Options);
 
-                // Show Loading
-                var loadingViewModel = new DialogLoadingViewModel()
-                {
-                    Message = "Loading Import Files",
-                    Progress = 0,
-                    ShowProgressBar = true
-                };
+            //    // Show Loading
+            //    var loadingViewModel = new DialogLoadingViewModel()
+            //    {
+            //        Message = "Loading Import Files",
+            //        Progress = 0,
+            //        ShowProgressBar = true
+            //    };
 
-                eventAggregator.GetEvent<DialogEvent>().Publish(new DialogEventData(loadingViewModel));
+            //    eventAggregator.GetEvent<DialogEvent>().Publish(new DialogEventData(loadingViewModel));
 
-                await RefreshImportFiles((count, current, errorCount, message) =>
-                {
-                    loadingViewModel.Message = message;
-                    loadingViewModel.Progress = current / (double)count;
-                });
+            //    await RefreshImportFiles((count, current, errorCount, message) =>
+            //    {
+            //        loadingViewModel.Message = message;
+            //        loadingViewModel.Progress = current / (double)count;
+            //    });
 
-                eventAggregator.GetEvent<DialogEvent>().Publish(DialogEventData.Dismiss());
-            });
+            //    eventAggregator.GetEvent<DialogEvent>().Publish(DialogEventData.Dismiss());
+            //});
         }
 
         public override async Task Initialize(DialogProgressHandler progressHandler)
@@ -257,7 +252,6 @@ namespace AudioStation.ViewModels
             OnPropertyChanged("SourceFileSelectedCount");
             OnPropertyChanged("SourceFileCount");
 
-            this.EditOptionsCommand.RaiseCanExecuteChanged();
             this.EditTagCommand.RaiseCanExecuteChanged();
             this.EditTagGroupCommand.RaiseCanExecuteChanged(string.Empty);
             this.RunImportCommand.RaiseCanExecuteChanged();

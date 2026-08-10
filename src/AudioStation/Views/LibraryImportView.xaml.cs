@@ -1,26 +1,200 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+
+using AudioStation.ViewModels;
+using AudioStation.Views.LibraryImportViews;
+
+using SimpleWpf.IocFramework.Application.Attribute;
+using SimpleWpf.IocFramework.RegionManagement.Interface;
 
 namespace AudioStation.Views
 {
-    /// <summary>
-    /// Interaction logic for LibraryImportView.xaml
-    /// </summary>
+    [IocExportDefault]
     public partial class LibraryImportView : UserControl
     {
+        public static readonly DependencyProperty NextStepReadyProperty =
+            DependencyProperty.Register("NextStepReady", typeof(bool), typeof(LibraryImportView));
+
+        public static readonly DependencyProperty PreviousStepReadyProperty =
+            DependencyProperty.Register("PreviousStepReady", typeof(bool), typeof(LibraryImportView));
+
+        public bool NextStepReady
+        {
+            get { return (bool)GetValue(NextStepReadyProperty); }
+            set { SetValue(NextStepReadyProperty, value); }
+        }
+        public bool PreviousStepReady
+        {
+            get { return (bool)GetValue(PreviousStepReadyProperty); }
+            set { SetValue(PreviousStepReadyProperty, value); }
+        }
+
+        private readonly IIocRegionManager _regionManager;
+
         public LibraryImportView()
         {
             InitializeComponent();
+
+            this.DataContextChanged += LibraryImportView_DataContextChanged;
+        }
+
+        [IocImportingConstructor]
+        public LibraryImportView(IIocRegionManager regionManager)
+        {
+            InitializeComponent();
+
+            this.DataContextChanged += LibraryImportView_DataContextChanged;
+
+            _regionManager = regionManager;
+        }
+
+        private void LibraryImportView_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            // Unhook
+            if (e.OldValue != null)
+            {
+                var viewModel = e.OldValue as LibraryImporterViewModel;
+
+                if (viewModel != null)
+                {
+                    viewModel.PropertyChanged -= ViewModel_PropertyChanged;
+                }
+            }
+
+            // Hook
+            if (e.NewValue != null)
+            {
+                var viewModel = e.NewValue as LibraryImporterViewModel;
+
+                if (viewModel != null)
+                {
+                    viewModel.PropertyChanged += ViewModel_PropertyChanged;
+
+                    // Initialize Buttons
+                    RefreshFromDataContext(viewModel);
+                }
+            }
+        }
+
+        private bool AreStagingRequirementsMet(LibraryImporterViewModel viewModel)
+        {
+            return true;
+        }
+        private bool AreTagCompletionRequirementsMet(LibraryImporterViewModel viewModel)
+        {
+            return true;
+        }
+        private bool AreConfigurationRequirementsMet(LibraryImporterViewModel viewModel)
+        {
+            return true;
+        }
+        private bool AreFinalRequirementsMet(LibraryImporterViewModel viewModel)
+        {
+            return true;
+        }
+
+        private void RefreshFromDataContext(LibraryImporterViewModel viewModel)
+        {
+            // Staging
+            if (_regionManager.GetRegion("LibraryImporterControlRegion").Content is LibraryImportStagingView)
+            {
+                this.NextStepReady = AreStagingRequirementsMet(viewModel);
+                this.PreviousStepReady = false;
+            }
+
+            // Tag Completion
+            else if (_regionManager.GetRegion("LibraryImporterControlRegion").Content is LibraryImportTagCompletionView)
+            {
+                this.NextStepReady = AreTagCompletionRequirementsMet(viewModel);
+                this.PreviousStepReady = true;
+            }
+
+            // Configuration
+            if (_regionManager.GetRegion("LibraryImporterControlRegion").Content is LibraryImportConfigurationView)
+            {
+                this.NextStepReady = AreConfigurationRequirementsMet(viewModel);
+                this.PreviousStepReady = true;
+            }
+
+            // Final View (User can go back as long as they haven't pressed "Execute")
+            if (_regionManager.GetRegion("LibraryImporterControlRegion").Content is LibraryImportFinalView)
+            {
+                this.NextStepReady = false;
+                this.PreviousStepReady = AreFinalRequirementsMet(viewModel);
+            }
+        }
+
+        private void LoadImportView(Type viewType, bool previous, bool ignoreTransition)
+        {
+            _regionManager.LoadNamedInstance("LibraryImporterControlRegion", viewType, ignoreTransition);
+        }
+
+        private void ViewModel_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            var viewModel = this.DataContext as LibraryImporterViewModel;
+
+            if (viewModel == null)
+                return;
+
+            RefreshFromDataContext(viewModel);
+        }
+
+        private void PreviousButton_Click(object sender, RoutedEventArgs e)
+        {
+            // Staging
+            if (_regionManager.GetRegion("LibraryImporterControlRegion").Content is LibraryImportStagingView)
+            {
+                // Nothing to do
+            }
+
+            // Tag Completion
+            else if (_regionManager.GetRegion("LibraryImporterControlRegion").Content is LibraryImportTagCompletionView)
+            {
+                LoadImportView(typeof(LibraryImportStagingView), true, true);
+            }
+
+            // Configuration
+            if (_regionManager.GetRegion("LibraryImporterControlRegion").Content is LibraryImportConfigurationView)
+            {
+                LoadImportView(typeof(LibraryImportTagCompletionView), true, true);
+            }
+
+            // Final View (User can go back as long as they haven't pressed "Execute")
+            if (_regionManager.GetRegion("LibraryImporterControlRegion").Content is LibraryImportFinalView)
+            {
+                LoadImportView(typeof(LibraryImportConfigurationView), true, true);
+            }
+
+            RefreshFromDataContext(this.DataContext as LibraryImporterViewModel);
+        }
+
+        private void NextButton_Click(object sender, RoutedEventArgs e)
+        {
+            // Staging
+            if (_regionManager.GetRegion("LibraryImporterControlRegion").Content is LibraryImportStagingView)
+            {
+                LoadImportView(typeof(LibraryImportTagCompletionView), false, true);
+            }
+
+            // Tag Completion
+            else if (_regionManager.GetRegion("LibraryImporterControlRegion").Content is LibraryImportTagCompletionView)
+            {
+                LoadImportView(typeof(LibraryImportConfigurationView), false, true);
+            }
+
+            // Configuration
+            else if (_regionManager.GetRegion("LibraryImporterControlRegion").Content is LibraryImportConfigurationView)
+            {
+                LoadImportView(typeof(LibraryImportFinalView), false, true);
+            }
+
+            // Final View (User can go back as long as they haven't pressed "Execute")
+            else if (_regionManager.GetRegion("LibraryImporterControlRegion").Content is LibraryImportFinalView)
+            {
+                // Nothing to do
+            }
+
+            RefreshFromDataContext(this.DataContext as LibraryImporterViewModel);
         }
     }
 }

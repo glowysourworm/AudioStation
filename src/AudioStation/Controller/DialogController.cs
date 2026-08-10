@@ -3,7 +3,6 @@
 using AudioStation.Controller.Interface;
 using AudioStation.Event;
 using AudioStation.ViewModels;
-using AudioStation.ViewModels.LibraryImporterViewModels.Import;
 using AudioStation.ViewModels.Vendor.ATLViewModel;
 using AudioStation.Views.DialogViews;
 using AudioStation.Views.VendorEntryViews;
@@ -103,13 +102,6 @@ namespace AudioStation.Controller
         public void ShowTagWindow(TagViewModel viewModel)
         {
             var window = new TagWindow();
-            window.DataContext = viewModel;
-            window.ShowDialog();
-        }
-
-        public void ShowImportOptionsWindow(LibraryLoaderImportOptionsViewModel viewModel)
-        {
-            var window = new ImportOptionsWindow();
             window.DataContext = viewModel;
             window.ShowDialog();
         }

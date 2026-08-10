@@ -2,16 +2,13 @@
 using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Model;
 
-using SimpleWpf.Extensions;
 using SimpleWpf.Extensions.Command;
 using SimpleWpf.ViewModel;
 
 namespace AudioStation.ViewModels.LibraryImporterViewModels.Import
 {
-    public class LibraryLoaderImportOptionsViewModel : ViewModelBase
+    public class LibraryLoaderImportConfigurationViewModel : ViewModelBase
     {
-        private readonly IDialogController _dialogController;
-
         string _sourceFolderSearch;
         string _sourceFolder;
         string _destinationFolderSearch;
@@ -114,10 +111,8 @@ namespace AudioStation.ViewModels.LibraryImporterViewModels.Import
             set { RaiseAndSetIfChanged(ref _selectSourceFolderCommand, value); }
         }
 
-        public LibraryLoaderImportOptionsViewModel(IConfigurationManager configurationManager, IDialogController dialogController)
+        public LibraryLoaderImportConfigurationViewModel(IConfigurationManager configurationManager, IDialogController dialogController)
         {
-            _dialogController = dialogController;
-
             var configuration = configurationManager.GetConfiguration();
 
             this.SourceFolderSearch = string.Empty;

@@ -47,6 +47,6 @@ namespace AudioStation.Component.Interface
         /// <summary>
         /// Loads a import directory tree (recursively) and returns the base directory
         /// </summary>
-        LibraryLoaderImportTreeViewModel? LoadImportFiles(LibraryLoaderImportOptionsViewModel options, DialogProgressHandler progressHandler);
+        LibraryLoaderImportTreeViewModel? LoadImportFiles(LibraryLoaderImportConfigurationViewModel options, DialogProgressHandler progressHandler);
     }
 }

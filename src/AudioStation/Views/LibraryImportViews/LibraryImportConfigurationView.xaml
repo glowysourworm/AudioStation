@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="AudioStation.Views.DialogViews.LibraryLoaderImportOptionsView"
+﻿<UserControl x:Class="AudioStation.Views.LibraryImportViews.LibraryImportConfigurationView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:xceed="http://schemas.xceed.com/wpf/xaml/toolkit"
@@ -6,6 +6,7 @@
              xmlns:propertyGrid="clr-namespace:AudioStation.Controls.PropertyGrid"
              xmlns:coreModel="clr-namespace:AudioStation.Core.Model;assembly=AudioStation.Core"
              xmlns:simpleUI="clr-namespace:SimpleWpf.UI.Controls;assembly=SimpleWpf.UI">
+
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />

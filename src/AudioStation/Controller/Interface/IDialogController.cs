@@ -1,6 +1,5 @@
 ﻿using AudioStation.Event;
 using AudioStation.ViewModels;
-using AudioStation.ViewModels.LibraryImporterViewModels.Import;
 using AudioStation.ViewModels.Vendor.ATLViewModel;
 
 namespace AudioStation.Controller.Interface
@@ -16,7 +15,6 @@ namespace AudioStation.Controller.Interface
 
         void ShowLogWindow(LogViewModel viewModel);
         void ShowTagWindow(TagViewModel viewModel);
-        void ShowImportOptionsWindow(LibraryLoaderImportOptionsViewModel viewModel);
 
         /// <summary>
         /// Shows dialog window synchronously. This represents a parallel usage to the event aggregator! So,

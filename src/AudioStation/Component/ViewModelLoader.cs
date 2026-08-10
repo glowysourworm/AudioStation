@@ -300,8 +300,8 @@ namespace AudioStation.Component
             });
         }
 
-        public LibraryLoaderImportTreeViewModel? LoadImportFiles(LibraryLoaderImportOptionsViewModel options,
-                                                                       DialogProgressHandler progressHandler)
+        public LibraryLoaderImportTreeViewModel? LoadImportFiles(LibraryLoaderImportConfigurationViewModel options,
+                                                                 DialogProgressHandler progressHandler)
         {
             // Configuration:  Calculate base directory from staging
             //

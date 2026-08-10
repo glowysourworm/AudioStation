@@ -191,7 +191,7 @@ namespace AudioStation.ViewModels.LibraryImporterViewModels.Import
         public LibraryLoaderImportFileViewModel(string fullPath,
                                                 bool isDirectory,
                                                 string destinationDirectory,
-                                                LibraryLoaderImportOptionsViewModel options)
+                                                LibraryLoaderImportConfigurationViewModel options)
             : base(options.SourceFolder, fullPath)
         {
             _modelValidationService = IocContainer.Get<IModelValidationService>();
@@ -258,7 +258,7 @@ namespace AudioStation.ViewModels.LibraryImporterViewModels.Import
             Reload();
         }
 
-        private string CreateOptionsUI(LibraryLoaderImportOptionsViewModel options)
+        private string CreateOptionsUI(LibraryLoaderImportConfigurationViewModel options)
         {
             var result = string.Empty;
 
