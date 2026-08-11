@@ -17,7 +17,7 @@ namespace AudioStation.Views.StyleSelectors
             if (listBoxItem == null)
                 throw new NullReferenceException("Improper handling of LibraryLoaderImportTreeStyleSelector");
 
-            var viewModel = listBoxItem.DataContext as LibraryLoaderImportTreeViewModel;
+            var viewModel = listBoxItem.DataContext as LibraryImporterTreeViewModel;
 
             if (viewModel == null)
                 return null;

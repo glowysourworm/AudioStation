@@ -21,7 +21,7 @@
             <region:IocRegion Margin="0"
                               Padding="0"
                               region:IocRegionManager.RegionName="LibraryImporterControlRegion"
-                              region:IocRegionManager.DefaultViewType="{x:Type importView:LibraryImportStagingView}" />
+                              region:IocRegionManager.DefaultViewType="{x:Type importView:LibraryImportConfigurationView}" />
         </Border>
 
         <!-- Import "Wizard" -->

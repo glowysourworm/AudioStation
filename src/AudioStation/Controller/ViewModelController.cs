@@ -28,7 +28,7 @@ namespace AudioStation.Controller
         private readonly LogViewModel _logViewModel;
         private readonly LibraryLoaderViewModel _libraryLoaderViewModel;
         private readonly LibraryImporterViewModel _libraryImporterViewModel;
-        private readonly LibraryLoaderImportRadioViewModel _libraryLoaderImportRadioViewModel;
+        private readonly LibraryImporterRadioViewModel _libraryLoaderImportRadioViewModel;
         private readonly LibraryLoaderDownloadMusicBrainzViewModel _libraryLoaderDownloadMusicBrainzViewModel;
         private readonly LibraryLoaderCDImportViewModel _libraryLoaderCDImportViewModel;
         private readonly NowPlayingViewModel _nowPlayingViewModel;
@@ -57,7 +57,7 @@ namespace AudioStation.Controller
                                                                         tagCacheController,
                                                                         viewModelLoader);
 
-            _libraryLoaderImportRadioViewModel = new LibraryLoaderImportRadioViewModel(configurationManager, dialogController);
+            _libraryLoaderImportRadioViewModel = new LibraryImporterRadioViewModel(configurationManager, dialogController);
             _libraryLoaderDownloadMusicBrainzViewModel = new LibraryLoaderDownloadMusicBrainzViewModel(modelController, configurationManager, dialogController);
 
             _libraryManagerViewModel = new LibraryManagerViewModel(viewModelLoader, eventAggregator);

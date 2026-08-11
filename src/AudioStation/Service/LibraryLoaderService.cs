@@ -88,7 +88,7 @@ namespace AudioStation.Service
                 var workOutput = sender as LibraryLoaderImportOutput;
 
                 _eventAggregator.GetEvent<DialogEvent>().Publish(DialogEventData.Dismiss());
-                _eventAggregator.GetEvent<LibraryLoaderWorkItemCompleteEvent>().Publish(new LibraryLoaderImportOutputViewModel()
+                _eventAggregator.GetEvent<LibraryLoaderWorkItemCompleteEvent>().Publish(new LibraryImporterOutputViewModel()
                 {
                     AcoustIDResults = new ObservableCollection<LookupResultViewModel>(workOutput.AcoustIDResults
                                                                                                 .SelectMany(x => x.Recordings)

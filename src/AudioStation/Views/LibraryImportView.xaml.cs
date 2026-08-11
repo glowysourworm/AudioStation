@@ -95,32 +95,32 @@ namespace AudioStation.Views
 
         private void RefreshFromDataContext(LibraryImporterViewModel viewModel)
         {
-            // Staging
-            if (_regionManager.GetRegion("LibraryImporterControlRegion").Content is LibraryImportStagingView)
-            {
-                this.NextStepReady = AreStagingRequirementsMet(viewModel);
-                this.PreviousStepReady = false;
-            }
-
-            // Tag Completion
-            else if (_regionManager.GetRegion("LibraryImporterControlRegion").Content is LibraryImportTagCompletionView)
-            {
-                this.NextStepReady = AreTagCompletionRequirementsMet(viewModel);
-                this.PreviousStepReady = true;
-            }
-
             // Configuration
             if (_regionManager.GetRegion("LibraryImporterControlRegion").Content is LibraryImportConfigurationView)
             {
                 this.NextStepReady = AreConfigurationRequirementsMet(viewModel);
+                this.PreviousStepReady = false;
+            }
+
+            // Staging
+            else if (_regionManager.GetRegion("LibraryImporterControlRegion").Content is LibraryImportStagingView)
+            {
+                this.NextStepReady = AreStagingRequirementsMet(viewModel);
+                this.PreviousStepReady = true;
+            }
+
+            // Tag Completion 
+            if (_regionManager.GetRegion("LibraryImporterControlRegion").Content is LibraryImportTagCompletionView)
+            {
+                this.NextStepReady = AreTagCompletionRequirementsMet(viewModel);
                 this.PreviousStepReady = true;
             }
 
             // Final View (User can go back as long as they haven't pressed "Execute")
             if (_regionManager.GetRegion("LibraryImporterControlRegion").Content is LibraryImportFinalView)
             {
-                this.NextStepReady = false;
-                this.PreviousStepReady = AreFinalRequirementsMet(viewModel);
+                this.NextStepReady = AreFinalRequirementsMet(viewModel);
+                this.PreviousStepReady = true;
             }
         }
 
@@ -141,28 +141,28 @@ namespace AudioStation.Views
 
         private void PreviousButton_Click(object sender, RoutedEventArgs e)
         {
-            // Staging
-            if (_regionManager.GetRegion("LibraryImporterControlRegion").Content is LibraryImportStagingView)
+            // Configuration
+            if (_regionManager.GetRegion("LibraryImporterControlRegion").Content is LibraryImportConfigurationView)
             {
                 // Nothing to do
             }
 
-            // Tag Completion
-            else if (_regionManager.GetRegion("LibraryImporterControlRegion").Content is LibraryImportTagCompletionView)
+            // Staging 
+            else if (_regionManager.GetRegion("LibraryImporterControlRegion").Content is LibraryImportStagingView)
             {
-                LoadImportView(typeof(LibraryImportStagingView), true, true);
+                LoadImportView(typeof(LibraryImportConfigurationView), true, true);
             }
 
-            // Configuration
-            if (_regionManager.GetRegion("LibraryImporterControlRegion").Content is LibraryImportConfigurationView)
+            // Tag Completion
+            if (_regionManager.GetRegion("LibraryImporterControlRegion").Content is LibraryImportTagCompletionView)
             {
-                LoadImportView(typeof(LibraryImportTagCompletionView), true, true);
+                LoadImportView(typeof(LibraryImportStagingView), true, true);
             }
 
             // Final View (User can go back as long as they haven't pressed "Execute")
             if (_regionManager.GetRegion("LibraryImporterControlRegion").Content is LibraryImportFinalView)
             {
-                LoadImportView(typeof(LibraryImportConfigurationView), true, true);
+                LoadImportView(typeof(LibraryImportTagCompletionView), true, true);
             }
 
             RefreshFromDataContext(this.DataContext as LibraryImporterViewModel);
@@ -171,19 +171,19 @@ namespace AudioStation.Views
         private void NextButton_Click(object sender, RoutedEventArgs e)
         {
             // Staging
-            if (_regionManager.GetRegion("LibraryImporterControlRegion").Content is LibraryImportStagingView)
+            if (_regionManager.GetRegion("LibraryImporterControlRegion").Content is LibraryImportConfigurationView)
+            {
+                LoadImportView(typeof(LibraryImportStagingView), false, true);
+            }
+
+            // Tag Completion
+            else if (_regionManager.GetRegion("LibraryImporterControlRegion").Content is LibraryImportStagingView)
             {
                 LoadImportView(typeof(LibraryImportTagCompletionView), false, true);
             }
 
-            // Tag Completion
-            else if (_regionManager.GetRegion("LibraryImporterControlRegion").Content is LibraryImportTagCompletionView)
-            {
-                LoadImportView(typeof(LibraryImportConfigurationView), false, true);
-            }
-
             // Configuration
-            else if (_regionManager.GetRegion("LibraryImporterControlRegion").Content is LibraryImportConfigurationView)
+            else if (_regionManager.GetRegion("LibraryImporterControlRegion").Content is LibraryImportTagCompletionView)
             {
                 LoadImportView(typeof(LibraryImportFinalView), false, true);
             }

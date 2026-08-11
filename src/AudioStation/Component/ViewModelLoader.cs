@@ -300,8 +300,8 @@ namespace AudioStation.Component
             });
         }
 
-        public LibraryLoaderImportTreeViewModel? LoadImportFiles(LibraryLoaderImportConfigurationViewModel options,
-                                                                 DialogProgressHandler progressHandler)
+        public LibraryImporterTreeViewModel? LoadImportFiles(LibraryImporterConfigurationViewModel options,
+                                                             DialogProgressHandler progressHandler)
         {
             // Configuration:  Calculate base directory from staging
             //
@@ -324,13 +324,13 @@ namespace AudioStation.Component
             try
             {
                 // Directory (Root -> NodeValue)
-                var rootValue = new LibraryLoaderImportDirectoryViewModel(options.SourceFolder, options);
+                var rootValue = new LibraryImporterDirectoryViewModel(options.SourceFolder, options);
 
                 // File Tree (Recursive Node Container)
-                var root = new LibraryLoaderImportTreeViewModel(rootValue);
+                var root = new LibraryImporterTreeViewModel(rootValue);
 
                 // Recurse through files using a while loop
-                var directories = new Stack<LibraryLoaderImportTreeViewModel>();
+                var directories = new Stack<LibraryImporterTreeViewModel>();
 
                 // Start (stack)
                 directories.Push(root);
@@ -352,17 +352,17 @@ namespace AudioStation.Component
                         if (file.IsDirectory)
                         {
                             // Next Directory
-                            var nodeValue = new LibraryLoaderImportDirectoryViewModel(file.Path, options);
+                            var nodeValue = new LibraryImporterDirectoryViewModel(file.Path, options);
 
                             // Current -> Next (adds parent)
-                            var nextDirectory = currentDirectory.Add(nodeValue) as LibraryLoaderImportTreeViewModel;
+                            var nextDirectory = currentDirectory.Add(nodeValue) as LibraryImporterTreeViewModel;
 
                             // Push (NodeValue, Parent)
                             directories.Push(nextDirectory);
                         }
 
                         else
-                            currentDirectory.Add(new LibraryLoaderImportFileViewModel(file.Path, false, destinationDirectory, options));
+                            currentDirectory.Add(new LibraryImporterFileViewModel(file.Path, false, destinationDirectory, options));
                     }
                 }
 

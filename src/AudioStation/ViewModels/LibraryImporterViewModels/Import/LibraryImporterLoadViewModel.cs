@@ -6,7 +6,7 @@ using SimpleWpf.ViewModel;
 
 namespace AudioStation.ViewModels.LibraryImporterViewModels.Import
 {
-    public class LibraryLoaderImportLoadViewModel : ViewModelBase, ILibraryLoaderImportLoad
+    public class LibraryImporterLoadViewModel : ViewModelBase, ILibraryLoaderImportLoad
     {
         string _sourceFile;
         string _sourceFolder;

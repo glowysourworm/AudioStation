@@ -19,7 +19,7 @@ namespace AudioStation.ViewModels
         #region Backing Fields (private)
         LibraryLoaderCDImportViewModel _importCDViewModel;
         LibraryImporterViewModel _importViewModel;
-        LibraryLoaderImportRadioViewModel _importRadioBasicViewModel;
+        LibraryImporterRadioViewModel _importRadioBasicViewModel;
         LibraryLoaderDownloadMusicBrainzViewModel _downloadMusicBrainzViewModel;
 
 
@@ -46,7 +46,7 @@ namespace AudioStation.ViewModels
             get { return _libraryWorkItemsSelected; }
             set { this.RaiseAndSetIfChanged(ref _libraryWorkItemsSelected, value); }
         }
-        public LibraryLoaderImportRadioViewModel ImportRadioBasicViewModel
+        public LibraryImporterRadioViewModel ImportRadioBasicViewModel
         {
             get { return _importRadioBasicViewModel; }
             set { this.RaiseAndSetIfChanged(ref _importRadioBasicViewModel, value); }
@@ -68,7 +68,7 @@ namespace AudioStation.ViewModels
 
                                       // View Models
                                       LibraryLoaderCDImportViewModel importCDViewModel,
-                                      LibraryLoaderImportRadioViewModel importRadioBasicViewModel,
+                                      LibraryImporterRadioViewModel importRadioBasicViewModel,
                                       LibraryLoaderDownloadMusicBrainzViewModel downloadMusicBrainzViewModel)
         {
             // Filtering of the library loader work items

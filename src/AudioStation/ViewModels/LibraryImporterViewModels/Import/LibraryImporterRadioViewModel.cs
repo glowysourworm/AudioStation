@@ -11,7 +11,7 @@ using static AudioStation.EventHandler.DialogEventHandlers;
 
 namespace AudioStation.ViewModels.LibraryImporterViewModels.Import
 {
-    public class LibraryLoaderImportRadioViewModel : PrimaryViewModelBase
+    public class LibraryImporterRadioViewModel : PrimaryViewModelBase
     {
         ObservableCollection<string> _importFilesStaged;
         string _importDirectory;
@@ -34,7 +34,7 @@ namespace AudioStation.ViewModels.LibraryImporterViewModels.Import
             set { RaiseAndSetIfChanged(ref _runImportCommand, value); }
         }
 
-        public LibraryLoaderImportRadioViewModel(IConfigurationManager configurationManager, IDialogController dialogController)
+        public LibraryImporterRadioViewModel(IConfigurationManager configurationManager, IDialogController dialogController)
         {
             var configuration = configurationManager.GetConfiguration();
 

@@ -30,7 +30,7 @@
         <xceed:WatermarkTextBox Margin="5" 
                                 Grid.Row="1"
                                 Grid.Column="2"
-                                Text="{Binding SourceFolderSearch, UpdateSourceTrigger=PropertyChanged, Delay=300}" 
+                                Text="{Binding StagedSearch, UpdateSourceTrigger=PropertyChanged, Delay=300}" 
                                 Watermark="Search Staged Files..." 
                                 HorizontalAlignment="Stretch" />        
 
@@ -40,13 +40,12 @@
                   Grid.Row="2"
                   DisplayMemberPath="NodeValue.ShortPath"
                   ChildItemsSourcePath="Children"
-                  CanHaveChildrenPath="NodeValue.IsDirectory"
+                  CanHaveChildrenPath="NodeValue.IsDirectory"                
+                  IsSelectedPath="NodeValue.IsSelected"
                   SelectionBrush="#2F33AAFF"
                   HoverBrush="#0F33AAFF"
                   BorderBrush="LightGray"
                   BorderThickness="1"
-                  SelectedItems="{Binding SourceDirectory.Children}"
-                  ItemContainerStyle="{StaticResource FileTreeViewItemStyle}"
                   ItemsSource="{Binding SourceDirectory.Children}"
                   VirtualizingPanel.IsVirtualizing="True">
         </controls:MultiSelectTreeView>
@@ -58,6 +57,7 @@
                     Grid.Column="1">
             
             <Button Style="{StaticResource SmallControlButton}"
+                    Command="{Binding StageCommand}"
                     ToolTip="Stage for Import"
                     Height="32"
                     Width="32">
@@ -65,6 +65,7 @@
             </Button>
             
             <Button Style="{StaticResource SmallControlButton}"
+                    Command="{Binding UnstageCommand}"
                     ToolTip="Unstage from Import"
                     Height="32"
                     Width="32"
@@ -76,61 +77,24 @@
 
 
         <!-- Staged Files -->
-        <TreeView x:Name="StatgedTV"
-                  Margin="5"
-                  Grid.Column="2"
-                  Grid.Row="2"
-                  VirtualizingPanel.IsVirtualizing="True"
-                  ItemContainerStyle="{StaticResource FileTreeViewItemStyle}"
-                  HorizontalAlignment="Stretch"
-                  HorizontalContentAlignment="Stretch">
-            <TreeView.ContextMenu>
-                <ContextMenu>
-
-                    <MenuItem Style="{StaticResource UserMenuItemStyle}" BorderBrush="Gray" BorderThickness="0 0 0 1">
-                        <MenuItem.Header>
-                            <StackPanel Orientation="Horizontal">
-                                <Image Source="/Resources/Images/icon.bmp" Width="20" Height="20"  />
-                                <TextBlock Text="Library Importer" Margin="5 0 0 0" />
-                            </StackPanel>
-                        </MenuItem.Header>
-                    </MenuItem>
-
-                    <MenuItem Style="{StaticResource UserMenuItemStyle}" Header="Import" Command="{Binding RunImportCommand}"
-                              IsEnabled="{Binding RunImportCommand.IsReady, Converter={StaticResource BoolVisibilityCollapseConverter}}" />
-
-                    <MenuItem Style="{StaticResource UserMenuItemStyle}" Header="Edit Tag" Command="{Binding EditTagCommand}"
-                              IsEnabled="{Binding EditTagCommand.IsReady, Converter={StaticResource BoolVisibilityCollapseConverter}}" />
-
-                    <MenuItem x:Name="EditTagGroupMI" 
-                                  Style="{StaticResource UserMenuItemStyle}" 
-                                  Header="Edit Tag (Group)" 
-                                  Command="{Binding EditTagGroupCommand}"
-                                  IsEnabled="{Binding EditTagGroupCommand.IsReady}">
-
-                        <MenuItem Style="{StaticResource UserMenuItemStyle}" BorderBrush="Gray" BorderThickness="0 0 0 1">
-                            <MenuItem.Header>
-                                <TextBlock Text="Tag (Group) Fields" Margin="5 0 0 0" />
-                            </MenuItem.Header>
-                        </MenuItem>
-                        <MenuItem Header="Artist" Command="{Binding EditTagGroupCommand}" CommandParameter="AlbumArtists" Style="{StaticResource UserMenuItemStyle}"  />
-                        <MenuItem Header="Album" Command="{Binding EditTagGroupCommand}" CommandParameter="Album" Style="{StaticResource UserMenuItemStyle}" />
-                        <MenuItem Header="Genre" Command="{Binding EditTagGroupCommand}" CommandParameter="Genres" Style="{StaticResource UserMenuItemStyle}" />
-                        <MenuItem Header="Track Count" Command="{Binding EditTagGroupCommand}" CommandParameter="TrackCount" Style="{StaticResource UserMenuItemStyle}" />
-                        <MenuItem Header="Disc Count" Command="{Binding EditTagGroupCommand}" CommandParameter="DiscCount" Style="{StaticResource UserMenuItemStyle}" />
-                        <MenuItem Header="Artwork" Command="{Binding EditTagGroupCommand}" CommandParameter="Artwork" Style="{StaticResource UserMenuItemStyle}" />
-                    </MenuItem>
-
-                    <MenuItem Style="{StaticResource UserMenuItemStyle}" Header="Save Tag" Command="{Binding SaveTagCommand}"
-                              IsEnabled="{Binding SaveTagCommand.IsReady, Converter={StaticResource BoolVisibilityCollapseConverter}}" />
-
-                    <MenuItem Style="{StaticResource UserMenuItemStyle}" Header="Run Music Brainz" Command="{Binding RunAcousticFingerprintCommand}"
-                              IsEnabled="{Binding RunAcousticFingerprintCommand.IsReady}"/>
-                </ContextMenu>
-            </TreeView.ContextMenu>
-
+        <ListBox x:Name="StagedLB"
+                 ItemsSource="{Binding StagedFiles}"
+                 Grid.Column="2"
+                 Grid.Row="2"
+                 Margin="5"
+                 DisplayMemberPath="File.ShortPath"
+                 ItemContainerStyle="{StaticResource HoverSelectItemContainerStyleWithAlternation_LibraryImporter}"
+                 MouseDoubleClick="StagedLB_MouseDoubleClick"
+                 SelectedValuePath="IsSelected"
+                 SelectionChanged="StagedLB_SelectionChanged"
+                 SelectionMode="Extended"
+                 AlternationCount="2"                 
+                 HorizontalContentAlignment="Stretch"
+                 VirtualizingPanel.IsVirtualizing="True"
+                 VirtualizingPanel.VirtualizationMode="Recycling"
+                 VirtualizingPanel.CacheLength="3">
             
-        </TreeView>
+        </ListBox>
 
         <!--ScrollViewer Grid.Row="1" Margin="5" VerticalScrollBarVisibility="Auto">
             

@@ -29,7 +29,6 @@
                   HoverBrush="#0F33AAFF"
                   BorderBrush="LightGray"
                   BorderThickness="1"
-                  SelectedItems="{Binding SourceDirectory.Children}"
                   ItemContainerStyle="{StaticResource FileTreeViewItemStyle}"
                   ItemsSource="{Binding SourceDirectory.Children}"
                   VirtualizingPanel.IsVirtualizing="True">

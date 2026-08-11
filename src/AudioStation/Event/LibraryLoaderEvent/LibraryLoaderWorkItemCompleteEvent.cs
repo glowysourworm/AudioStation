@@ -4,7 +4,7 @@ using SimpleWpf.IocFramework.EventAggregation;
 
 namespace AudioStation.Event.LibraryLoaderEvent
 {
-    public class LibraryLoaderWorkItemCompleteEvent : IocEvent<LibraryLoaderImportOutputViewModel>
+    public class LibraryLoaderWorkItemCompleteEvent : IocEvent<LibraryImporterOutputViewModel>
     {
     }
 }

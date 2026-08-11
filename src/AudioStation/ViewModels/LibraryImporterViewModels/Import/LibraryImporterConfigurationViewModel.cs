@@ -7,11 +7,9 @@ using SimpleWpf.ViewModel;
 
 namespace AudioStation.ViewModels.LibraryImporterViewModels.Import
 {
-    public class LibraryLoaderImportConfigurationViewModel : ViewModelBase
+    public class LibraryImporterConfigurationViewModel : ViewModelBase
     {
-        string _sourceFolderSearch;
         string _sourceFolder;
-        string _destinationFolderSearch;
         string _destinationFolder;
         string _destinationMusicSubFolder;
         string _destinationAudioBooksSubFolder;
@@ -30,20 +28,10 @@ namespace AudioStation.ViewModels.LibraryImporterViewModels.Import
 
         SimpleCommand _selectSourceFolderCommand;
 
-        public string SourceFolderSearch
-        {
-            get { return _sourceFolderSearch; }
-            set { RaiseAndSetIfChanged(ref _sourceFolderSearch, value); }
-        }
         public string SourceFolder
         {
             get { return _sourceFolder; }
             set { RaiseAndSetIfChanged(ref _sourceFolder, value); }
-        }
-        public string DestinationFolderSearch
-        {
-            get { return _destinationFolderSearch; }
-            set { RaiseAndSetIfChanged(ref _destinationFolderSearch, value); }
         }
         public string DestinationFolder
         {
@@ -111,12 +99,9 @@ namespace AudioStation.ViewModels.LibraryImporterViewModels.Import
             set { RaiseAndSetIfChanged(ref _selectSourceFolderCommand, value); }
         }
 
-        public LibraryLoaderImportConfigurationViewModel(IConfigurationManager configurationManager, IDialogController dialogController)
+        public LibraryImporterConfigurationViewModel(IConfigurationManager configurationManager, IDialogController dialogController)
         {
             var configuration = configurationManager.GetConfiguration();
-
-            this.SourceFolderSearch = string.Empty;
-            this.DestinationFolderSearch = string.Empty;
 
             this.SourceFolder = configuration.DownloadFolder;
             this.DestinationFolder = configuration.DirectoryBase;

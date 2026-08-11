@@ -1,5 +1,8 @@
-﻿using System.Windows;
-using System.Windows.Controls;
+﻿using System.Windows.Controls;
+
+using AudioStation.Controls;
+using AudioStation.ViewModels;
+using AudioStation.ViewModels.LibraryImporterViewModels.Import;
 
 using SimpleWpf.IocFramework.Application.Attribute;
 
@@ -14,41 +17,49 @@ namespace AudioStation.Views.LibraryImportViews
             InitializeComponent();
         }
 
-        private void ImportLB_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void StagedLB_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-            //var viewModel = this.DataContext as LibraryLoaderImportViewModel;
-            //var selectedViewModel = (e.OriginalSource as FrameworkElement).DataContext as LibraryLoaderImportTreeViewModel;
 
-            //if (viewModel != null)
-            //{
-            //    // Reset Selection
-            //    viewModel.SourceDirectory.RecurseForEach(node =>
-            //    {
-            //        // Shared Directory
-            //        node.NodeValue.IsSelected = selectedViewModel.Parent == node.Parent;
-            //    });
-            //}
         }
 
-        private void InputFileExpanderButton_Click(object sender, RoutedEventArgs e)
+        private void StagedLB_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            //var button = sender as ToggleButton;
-            //var viewModel = this.DataContext as LibraryLoaderImportViewModel;
 
-            //if (viewModel != null && button != null)
-            //{
-            //    var selectedFile = button.DataContext as LibraryLoaderImportFileViewModel;
-
-            //    viewModel.SourceDirectory.RecurseForEach(item =>
-            //    {
-            //        item.NodeValue.IsExpanded = (selectedFile == item.NodeValue) && selectedFile.IsExpanded;
-            //    });
-            //}
         }
 
-        private void ImportTV_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
+        private void ImportTV_SelectedItemsChangedEvent(IEnumerable<MultiSelectTreeItemViewModel> selectedItems)
         {
+            var viewModel = this.DataContext as LibraryImporterViewModel;
 
+            if (viewModel == null)
+                return;
+
+            // This collection holds an internal binding. So, the selection flag doesn't get passed
+            // on unless we force it to bind to our custom view model.
+
+            viewModel.SourceDirectory.RecurseForEach(treeItem =>
+            {
+                if (treeItem.NodeValue is LibraryImporterFileViewModel)
+                {
+                    bool found = false;
+
+                    foreach (var listBoxViewModel in selectedItems)
+                    {
+                        // Set IsSelected
+                        var path = treeItem.NodeValue.ShortPath;
+                        var otherPath = (string)listBoxViewModel.Item;
+
+                        if (path == otherPath)
+                        {
+                            found = true;
+                            break;
+                        }
+                    }
+
+                    // Set Selection
+                    treeItem.NodeValue.IsSelected = found;
+                }
+            });
         }
     }
 }

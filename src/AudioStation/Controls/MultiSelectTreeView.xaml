@@ -5,6 +5,7 @@
              xmlns:local="clr-namespace:AudioStation.Controls"
              xmlns:viewModel="clr-namespace:AudioStation.ViewModels.Controls"
              xmlns:fa5="http://schemas.fontawesome.com/icons/">
+    
     <UserControl.Resources>
 
         <!-- Collection (Non-Selectable) -->
@@ -12,7 +13,7 @@
             <Setter Property="BorderBrush" Value="Transparent" />
             <Setter Property="BorderThickness" Value="0" />
             <Setter Property="Background" Value="Transparent" />
-            <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />
+            <!--Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" /-->
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="ListBoxItem">
@@ -71,7 +72,7 @@
 
                 <!-- Header -->
                 <ContentPresenter Margin="23 3 3 3"
-                                  Content="{Binding Item}"
+                                  Content="{Binding ItemDisplay}"
                                   HorizontalAlignment="Stretch"
                                   VerticalAlignment="Stretch"
                                   TextBlock.TextAlignment="Left"
@@ -90,7 +91,7 @@
                 <!-- Header -->
                 <ContentPresenter Visibility="{Binding CanHaveChildren, Converter={StaticResource BoolVisibilityCollapseConverter}}"
                                   Margin="3 3 3 3"
-                                  Content="{Binding Item}"
+                                  Content="{Binding ItemDisplay}"
                                   HorizontalAlignment="Stretch"
                                   VerticalAlignment="Stretch"
                                   TextBlock.TextAlignment="Left"
@@ -134,7 +135,7 @@
                 <ContentPresenter Grid.Row="0"                                               
                                     Grid.Column="1" 
                                     Margin="3"
-                                    Content="{Binding Item}"
+                                    Content="{Binding ItemDisplay}"
                                     HorizontalAlignment="Stretch"
                                     VerticalAlignment="Stretch"
                                     TextBlock.TextAlignment="Left"
@@ -142,17 +143,18 @@
                 </ContentPresenter>
 
                 <!-- Items -->
-                <ListBox Grid.Row="1" 
-                            Grid.Column="1"
-                            ItemsSource="{Binding Children}"
-                            ItemTemplateSelector="{StaticResource MultiSelectTreeViewItemTemplateSelector}"
-                            Style="{StaticResource MultiSelectTreeViewListBoxStyle}"
-                            SelectionMode="Extended"
-                            ScrollViewer.HorizontalScrollBarVisibility="Hidden"
-                            ScrollViewer.VerticalScrollBarVisibility="Hidden"
-                            ScrollViewer.CanContentScroll="False"                         
-                            VirtualizingPanel.IsVirtualizing="True"
-                            Visibility="{Binding IsExpanded, Converter={StaticResource BoolVisibilityCollapseConverter}}">
+                <ListBox x:Name="LeafLB"
+                         Grid.Row="1" 
+                         Grid.Column="1"
+                         ItemsSource="{Binding Children}"
+                         ItemTemplateSelector="{StaticResource MultiSelectTreeViewItemTemplateSelector}"
+                         Style="{StaticResource MultiSelectTreeViewListBoxStyle}"
+                         SelectionMode="Extended"
+                         ScrollViewer.HorizontalScrollBarVisibility="Hidden"
+                         ScrollViewer.VerticalScrollBarVisibility="Hidden"
+                         ScrollViewer.CanContentScroll="False"                         
+                         VirtualizingPanel.IsVirtualizing="True"
+                         Visibility="{Binding IsExpanded, Converter={StaticResource BoolVisibilityCollapseConverter}}">
                 </ListBox>
 
             </Grid>

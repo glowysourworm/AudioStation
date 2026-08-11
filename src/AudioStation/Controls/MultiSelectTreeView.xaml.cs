@@ -1,12 +1,13 @@
 ﻿using System.Collections;
-using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 
 using SimpleWpf.Extensions;
+using SimpleWpf.Extensions.ObservableCollection;
 
 namespace AudioStation.Controls
 {
@@ -26,9 +27,6 @@ namespace AudioStation.Controls
         public static readonly DependencyProperty ItemContainerStyleProperty =
             DependencyProperty.Register("ItemContainerStyle", typeof(Style), typeof(MultiSelectTreeView));
 
-        public static readonly DependencyProperty SelectedItemsProperty =
-            DependencyProperty.Register("SelectedItems", typeof(IEnumerable), typeof(MultiSelectTreeView));
-
         public static readonly DependencyProperty CanHaveChildrenPathProperty =
             DependencyProperty.Register("CanHaveChildrenPath", typeof(string), typeof(MultiSelectTreeView));
 
@@ -38,6 +36,14 @@ namespace AudioStation.Controls
         public static readonly DependencyProperty SelectionBrushProperty =
             DependencyProperty.Register("SelectionBrush", typeof(Brush), typeof(MultiSelectTreeView));
 
+        public static readonly DependencyProperty IsSelectedPathProperty =
+            DependencyProperty.Register("IsSelectedPath", typeof(string), typeof(MultiSelectTreeView));
+
+        public string IsSelectedPath
+        {
+            get { return (string)GetValue(IsSelectedPathProperty); }
+            set { SetValue(IsSelectedPathProperty, value); }
+        }
         public Brush HoverBrush
         {
             get { return (Brush)GetValue(HoverBrushProperty); }
@@ -73,41 +79,17 @@ namespace AudioStation.Controls
             get { return (Style)GetValue(ItemContainerStyleProperty); }
             set { SetValue(ItemContainerStyleProperty, value); }
         }
-        public IEnumerable SelectedItems
-        {
-            get { return (IEnumerable)GetValue(SelectedItemsProperty); }
-            set { SetValue(SelectedItemsProperty, value); }
-        }
 
         #endregion
 
-        bool _clicking;
-        object? _mouseDownItem;
-        object? _mouseUpItem;
-
-        protected ObservableCollection<MultiSelectTreeItemViewModel> InternalItemsSource;
+        protected NotifyingObservableCollection<MultiSelectTreeItemViewModel> InternalItemsSource;
 
         public MultiSelectTreeView()
         {
             InitializeComponent();
 
-            _clicking = false;
-            _mouseDownItem = null;
-            _mouseUpItem = null;
-
-            this.InternalItemsSource = new ObservableCollection<MultiSelectTreeItemViewModel>();
+            this.InternalItemsSource = new NotifyingObservableCollection<MultiSelectTreeItemViewModel>();
             this.TheTreeView.ItemsSource = this.InternalItemsSource;
-        }
-
-        protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e)
-        {
-            base.OnMouseLeftButtonDown(e);
-
-
-        }
-        protected override void OnMouseLeftButtonUp(MouseButtonEventArgs e)
-        {
-            base.OnMouseLeftButtonUp(e);
         }
 
         protected override void OnPreviewMouseWheel(MouseWheelEventArgs e)
@@ -121,40 +103,79 @@ namespace AudioStation.Controls
             e.Handled = true;
         }
 
-        private static void OnItemsSourceChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        private void RefreshTree()
         {
-            var control = d as MultiSelectTreeView;
-            var collection = e.NewValue as IEnumerable;
-            var notifier = e.NewValue as INotifyCollectionChanged;
+            // Bound Items Source (Internal is the items for the UI)
+            var collection = this.ItemsSource as IEnumerable;
 
-            // Collection source changed
-            if (control != null &&
-                collection != null &&
-                !string.IsNullOrWhiteSpace(control.DisplayMemberPath))
+            if (collection != null &&
+                !string.IsNullOrWhiteSpace(this.DisplayMemberPath))
             {
-                MultiSelectTreeView.RecurseHookItems(control.InternalItemsSource, false);
+                // Unhook
+                this.RecurseHookItems(this.InternalItemsSource, false);
 
-                control.InternalItemsSource.Clear();
+                // Clear
+                this.InternalItemsSource.Clear();
 
-                MultiSelectTreeView.RecurseAddItems(control.InternalItemsSource, collection, control.DisplayMemberPath, control.ChildItemsSourcePath, control.CanHaveChildrenPath);
+                // Re-populate
+                this.RecurseAddItems(null, this.InternalItemsSource, collection);
+
+                // Hook
+                this.RecurseHookItems(this.InternalItemsSource, true);
             }
 
             // Null or empty value given for collection
-            else if (control != null)
+            else
             {
-                control.InternalItemsSource.Clear();
+                // Unhook
+                this.RecurseHookItems(this.InternalItemsSource, false);
+
+                // Clear
+                this.InternalItemsSource.Clear();
+            }
+
+        }
+
+        private void OnItemSourceCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+        {
+            RefreshTree();
+        }
+
+        // Occurs when a property on the UI (target) side changes
+        private void OnItemSourceItemPropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            var viewModel = sender as MultiSelectTreeItemViewModel;
+
+            // "Bound" Properties
+            if (viewModel != null &&
+                viewModel.Item != null &&
+                !string.IsNullOrWhiteSpace(this.IsSelectedPath))
+            {
+                // Destination Property Setter
+                viewModel.Item.SetProperty(this.IsSelectedPath, viewModel.IsSelected);
+
+                // Selection:  De-select anything not in this item's collection (if it is selected)
+                //
+                if (viewModel.IsSelected)
+                {
+                    RecursiveIterate(this.InternalItemsSource, item =>
+                    {
+                        if (item.Parent != viewModel.Parent)
+                            item.IsSelected = false;
+                    });
+                }
             }
         }
 
-        private static void OnItemSourceCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+        private void RecurseHookItems(IEnumerable<MultiSelectTreeItemViewModel> collection, bool hook)
         {
+            // Procedure:  Recursively iterate the control's item collection and use the "Item" property
+            //             on the control's item to access the user's item.
+            //
 
-        }
-
-        private static void RecurseHookItems(IEnumerable collection, bool hook)
-        {
             var notifier = collection as INotifyCollectionChanged;
 
+            // Child Collection Properties
             if (notifier != null)
             {
                 if (hook)
@@ -165,54 +186,70 @@ namespace AudioStation.Controls
 
             foreach (var item in collection)
             {
-                var childNotifier = item as INotifyCollectionChanged;
+                var propertyNotifier = item as INotifyPropertyChanged;
 
-                if (childNotifier != null)
+                // Item Properties
+                if (propertyNotifier != null)
                 {
                     if (hook)
-                        childNotifier.CollectionChanged += OnItemSourceCollectionChanged;
+                        propertyNotifier.PropertyChanged += OnItemSourceItemPropertyChanged;
                     else
-                        childNotifier.CollectionChanged -= OnItemSourceCollectionChanged;
+                        propertyNotifier.PropertyChanged -= OnItemSourceItemPropertyChanged;
                 }
 
-                if (item is IEnumerable)
-                    RecurseHookItems(item as IEnumerable, hook);
+                if (item != null &&
+                    item.Children is IEnumerable<MultiSelectTreeItemViewModel> &&
+                    item.CanHaveChildren)
+                    RecurseHookItems(item.Children as IEnumerable<MultiSelectTreeItemViewModel>, hook);
+
             }
         }
 
-        private static void RecurseAddItems(IList destCollection,
-                                            IEnumerable sourceCollection,
-                                            string displayMemberPath,
-                                            string childItemsSourcePath,
-                                            string canHaveChildrenPath)
+        private void RecurseAddItems(MultiSelectTreeItemViewModel destParent,
+                                     IList<MultiSelectTreeItemViewModel> destCollection,
+                                     IEnumerable sourceCollection)
         {
-            var notifier = sourceCollection as INotifyCollectionChanged;
-
-            // Hook Notifier
-            if (notifier != null)
-            {
-                notifier.CollectionChanged -= OnItemSourceCollectionChanged;
-                notifier.CollectionChanged += OnItemSourceCollectionChanged;
-            }
-
             foreach (var item in sourceCollection)
             {
-                var itemValue = item.TryGetProperty(displayMemberPath);
-                var itemCanHaveChildrenValue = (bool?)item.TryGetProperty(canHaveChildrenPath);
+                var itemValue = item;
+                var itemDisplayValue = item.TryGetProperty(this.DisplayMemberPath);
+                var itemCanHaveChildrenValue = (bool?)item.TryGetProperty(this.CanHaveChildrenPath);
 
                 if (itemValue != null)
                 {
-                    var itemViewModel = new MultiSelectTreeItemViewModel(itemValue, itemCanHaveChildrenValue ?? false);
-                    var itemChildren = item.TryGetProperty(childItemsSourcePath);
+                    var itemViewModel = new MultiSelectTreeItemViewModel(destParent, itemValue, itemDisplayValue, itemCanHaveChildrenValue ?? false);
+                    var itemChildren = item.TryGetProperty(this.ChildItemsSourcePath);
 
                     // Add items recursively
                     if (itemChildren != null &&
-                        itemChildren is IEnumerable)
-                        RecurseAddItems(itemViewModel.Children as IList, itemChildren as IEnumerable, displayMemberPath, childItemsSourcePath, canHaveChildrenPath);
+                        itemChildren is IEnumerable &&
+                        itemViewModel.Children != null)
+                        RecurseAddItems(itemViewModel,
+                                        itemViewModel.Children as IList<MultiSelectTreeItemViewModel>,
+                                        itemChildren as IEnumerable);
 
                     destCollection.Add(itemViewModel);
                 }
             }
+        }
+
+        private void RecursiveIterate(IEnumerable<MultiSelectTreeItemViewModel> collection, Action<MultiSelectTreeItemViewModel> action)
+        {
+            foreach (var item in collection)
+            {
+                action(item);
+
+                if (item.CanHaveChildren)
+                    RecursiveIterate(item.Children as IEnumerable<MultiSelectTreeItemViewModel>, action);
+            }
+        }
+
+        private static void OnItemsSourceChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            var control = d as MultiSelectTreeView;
+
+            if (control != null)
+                control.RefreshTree();
         }
     }
 }

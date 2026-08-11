@@ -21,7 +21,7 @@
                 <ResourceDictionary Source="/Resources/DataGridStyles.xaml" />
                 <ResourceDictionary Source="/Resources/MainThemeStyles.xaml" />
                 <ResourceDictionary Source="/Resources/PropertyGridStyles.xaml" />
-                <ResourceDictionary Source="/Resources/LibraryLoaderImportFileTemplates.xaml" />
+                <ResourceDictionary Source="/Resources/LibraryImporterFileTemplates.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>

@@ -26,16 +26,16 @@ namespace AudioStation.ViewModels.LibraryImporterViewModels.Import
     /// PathViewModel provides the node VALUE for the recursive directory structure. The "Path" view model is essentially
     /// the container for this value.
     /// </summary>
-    public class LibraryLoaderImportFileViewModel : PathViewModel
+    public class LibraryImporterFileViewModel : PathViewModel
     {
         private readonly IModelValidationService _modelValidationService;
         private readonly IModelFileService _modelFileService;
         private readonly ILibraryImporter _libraryImporter;
         private readonly ITagCacheController _tagCacheController;
 
-        public event SimpleEventHandler<LibraryLoaderImportFileViewModel> SelectMusicBrainzEvent;
-        public event SimpleEventHandler<LibraryLoaderImportFileViewModel> SelectAcoustIDEvent;
-        public event SimpleEventHandler<LibraryLoaderImportFileViewModel> PlayAudioEvent;
+        public event SimpleEventHandler<LibraryImporterFileViewModel> SelectMusicBrainzEvent;
+        public event SimpleEventHandler<LibraryImporterFileViewModel> SelectAcoustIDEvent;
+        public event SimpleEventHandler<LibraryImporterFileViewModel> PlayAudioEvent;
 
         bool _inError;
         bool _isTagDirty;
@@ -53,8 +53,8 @@ namespace AudioStation.ViewModels.LibraryImporterViewModels.Import
         AudioStationTag _tagClean;
         AudioStationTag _tagDirty;
 
-        LibraryLoaderImportOutputViewModel _importOutput;
-        LibraryLoaderImportLoadViewModel _importLoad;
+        LibraryImporterOutputViewModel _importOutput;
+        LibraryImporterLoadViewModel _importLoad;
 
         LookupResultViewModel _selectedAcoustIDResult;
         MusicBrainzRecordingViewModel _selectedMusicBrainzRecordingMatch;
@@ -130,12 +130,12 @@ namespace AudioStation.ViewModels.LibraryImporterViewModels.Import
             get { return _tagIssues; }
             set { SetValueOverride(ref _tagIssues, value); }
         }
-        public LibraryLoaderImportOutputViewModel ImportOutput
+        public LibraryImporterOutputViewModel ImportOutput
         {
             get { return _importOutput; }
             set { SetValueOverride(ref _importOutput, value); }
         }
-        public LibraryLoaderImportLoadViewModel ImportLoad
+        public LibraryImporterLoadViewModel ImportLoad
         {
             get { return _importLoad; }
             set { SetValueOverride(ref _importLoad, value); }
@@ -188,10 +188,10 @@ namespace AudioStation.ViewModels.LibraryImporterViewModels.Import
         /// <summary>
         /// Constructor for an import file view model. This may represent either a file or a directory.
         /// </summary>
-        public LibraryLoaderImportFileViewModel(string fullPath,
+        public LibraryImporterFileViewModel(string fullPath,
                                                 bool isDirectory,
                                                 string destinationDirectory,
-                                                LibraryLoaderImportConfigurationViewModel options)
+                                                LibraryImporterConfigurationViewModel options)
             : base(options.SourceFolder, fullPath)
         {
             _modelValidationService = IocContainer.Get<IModelValidationService>();
@@ -201,7 +201,7 @@ namespace AudioStation.ViewModels.LibraryImporterViewModels.Import
 
             _updating = false;
 
-            this.ImportLoad = new LibraryLoaderImportLoadViewModel()
+            this.ImportLoad = new LibraryImporterLoadViewModel()
             {
                 DestinationFolder = destinationDirectory,
                 GroupingType = options.GroupingType,
@@ -258,7 +258,7 @@ namespace AudioStation.ViewModels.LibraryImporterViewModels.Import
             Reload();
         }
 
-        private string CreateOptionsUI(LibraryLoaderImportConfigurationViewModel options)
+        private string CreateOptionsUI(LibraryImporterConfigurationViewModel options)
         {
             var result = string.Empty;
 
@@ -376,7 +376,7 @@ namespace AudioStation.ViewModels.LibraryImporterViewModels.Import
                     this.ImportOutput.PropertyChanged -= ImportOutput_PropertyChanged;
 
                 // Reload Working Data
-                this.ImportOutput = new LibraryLoaderImportOutputViewModel();
+                this.ImportOutput = new LibraryImporterOutputViewModel();
 
                 // Unload Selected Data
                 this.SelectedMusicBrainzRecordingMatch = null;

@@ -15,7 +15,7 @@ using SimpleWpf.ViewModel;
 
 namespace AudioStation.ViewModels.LibraryImporterViewModels.Import
 {
-    public class LibraryLoaderImportOutputViewModel : ViewModelBase, ILibraryLoaderImportOutput
+    public class LibraryImporterOutputViewModel : ViewModelBase, ILibraryLoaderImportOutput
     {
         string _destinationFolderBase;
         string _destinationPathCalculated;
@@ -175,7 +175,7 @@ namespace AudioStation.ViewModels.LibraryImporterViewModels.Import
         }
         #endregion
 
-        public LibraryLoaderImportOutputViewModel()
+        public LibraryImporterOutputViewModel()
         {
             this.AcoustIDResults = new ObservableCollection<LookupResultViewModel>();
             this.MusicBrainzCombinedRecords = new ObservableCollection<MusicBrainzCombinedLibraryEntryRecord>();
