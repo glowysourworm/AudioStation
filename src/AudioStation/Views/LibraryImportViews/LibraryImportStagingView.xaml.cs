@@ -17,16 +17,6 @@ namespace AudioStation.Views.LibraryImportViews
             InitializeComponent();
         }
 
-        private void StagedLB_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
-        {
-
-        }
-
-        private void StagedLB_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-
-        }
-
         private void ImportTV_SelectedItemsChangedEvent(IEnumerable<MultiSelectTreeItemViewModel> selectedItems)
         {
             var viewModel = this.DataContext as LibraryImporterViewModel;

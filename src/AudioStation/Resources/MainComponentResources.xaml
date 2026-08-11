@@ -62,7 +62,6 @@
     <!-- Style Selectors -->
     <styleSelector:LibraryWorkItemContainerStyleSelector x:Key="LibraryWorkItemContainerStyleSelector" />
     <styleSelector:LogItemContainerStyleSelector x:Key="LogItemContainerStyleSelector" />
-    <styleSelector:LibraryLoaderImportTreeStyleSelector x:Key="LibraryLoaderImportTreeStyleSelector" />
     <styleSelector:MultiSelectTreeViewItemContainerStyleSelector x:Key="MultiSelectTreeViewItemContainerStyleSelector" />
 
 </ResourceDictionary>

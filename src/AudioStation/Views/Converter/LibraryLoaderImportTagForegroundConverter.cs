@@ -1,8 +1,7 @@
 ﻿using System.Globalization;
+using System.Windows;
 using System.Windows.Data;
 using System.Windows.Media;
-
-using AudioStation.ViewModels.LibraryLoaderViewModels;
 
 namespace AudioStation.Views.Converter
 {
@@ -14,6 +13,11 @@ namespace AudioStation.Views.Converter
                 return Binding.DoNothing;
 
             if (values.Length != 3)
+                return Binding.DoNothing;
+
+            if (values[0] == DependencyProperty.UnsetValue ||
+                values[1] == DependencyProperty.UnsetValue ||
+                values[2] == DependencyProperty.UnsetValue)
                 return Binding.DoNothing;
 
             var isTagDirty = (bool)values[0];
