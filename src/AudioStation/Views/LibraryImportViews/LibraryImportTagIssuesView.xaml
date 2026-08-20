@@ -1,0 +1,42 @@
+﻿<UserControl x:Class="AudioStation.Views.LibraryImportViews.LibraryImportTagIssuesView"
+             x:Name="BaseControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:xceed="http://schemas.xceed.com/wpf/xaml/toolkit"
+             xmlns:fa5="http://schemas.fontawesome.com/icons/"
+             xmlns:propertyGrid="clr-namespace:AudioStation.Controls.PropertyGrid"
+             xmlns:controls="clr-namespace:AudioStation.Controls"
+             xmlns:coreModel="clr-namespace:AudioStation.Core.Model;assembly=AudioStation.Core"
+             xmlns:viewModel="clr-namespace:AudioStation.ViewModels.LibraryLoaderViewModels"
+             xmlns:viewModelImport="clr-namespace:AudioStation.ViewModels.LibraryImporterViewModels.Import"
+             xmlns:simpleUI="clr-namespace:SimpleWpf.UI.Controls;assembly=SimpleWpf.UI"
+             xmlns:simpleUIValidation="clr-namespace:SimpleWpf.UI.ValidationRules;assembly=SimpleWpf.UI">
+    
+    <GroupBox Header="{Binding TagHeader, ElementName=BaseControl}">
+        <ScrollViewer HorizontalScrollBarVisibility="Hidden"
+                      VerticalScrollBarVisibility="Auto">
+            <Grid RowDefinitions="Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto"
+              ColumnDefinitions="120, *">
+
+                <TextBlock Text="Album Artist" Style="{StaticResource TagLabelTextBlock}" Tag="{Binding IsAlbumArtistValid}" Grid.Row="0" />
+                <TextBlock Text="Album" Style="{StaticResource TagLabelTextBlock}" Tag="{Binding IsAlbumValid}" Grid.Row="1" />
+                <TextBlock Text="Title" Style="{StaticResource TagLabelTextBlock}" Tag="{Binding IsTitleValid}" Grid.Row="2" />
+                <TextBlock Text="Genre" Style="{StaticResource TagLabelTextBlock}" Tag="{Binding IsGenreValid}" Grid.Row="3" />
+                <TextBlock Text="Track" Style="{StaticResource TagLabelTextBlock}" Tag="{Binding IsTrackValid}" Grid.Row="4" />
+                <TextBlock Text="Track Total" Style="{StaticResource TagLabelTextBlock}" Tag="{Binding IsTrackTotalValid}" Grid.Row="5" />
+                <TextBlock Text="Disc #" Style="{StaticResource TagLabelTextBlock}" Tag="{Binding IsDiscNumberValid}" Grid.Row="6" />
+                <TextBlock Text="Disc Count" Style="{StaticResource TagLabelTextBlock}" Tag="{Binding IsDiscTotalValid}" Grid.Row="7" />
+
+                <TextBlock Text="{Binding AlbumArtist}" ToolTip="{Binding AlbumArtist}" Tag="{Binding IsAlbumArtistValid}" Style="{StaticResource TagLabelDetailTextBlock}" Grid.Row="0" Grid.Column="1" />
+                <TextBlock Text="{Binding Album}"       ToolTip="{Binding Album}"       Tag="{Binding IsAlbumArtistValid}" Style="{StaticResource TagLabelDetailTextBlock}" Grid.Row="1" Grid.Column="1" />
+                <TextBlock Text="{Binding Title}"       ToolTip="{Binding Title}"       Tag="{Binding IsTitleValid}" Style="{StaticResource TagLabelDetailTextBlock}" Grid.Row="2" Grid.Column="1" />
+                <TextBlock Text="{Binding Genre}"       ToolTip="{Binding Genre}"       Tag="{Binding IsGenreValid}" Style="{StaticResource TagLabelDetailTextBlock}" Grid.Row="3" Grid.Column="1" />
+                <TextBlock Text="{Binding Track}"       ToolTip="{Binding Track}"       Tag="{Binding IsTrackValid}" Style="{StaticResource TagLabelDetailTextBlock}" Grid.Row="4" Grid.Column="1" />
+                <TextBlock Text="{Binding TrackTotal}"  ToolTip="{Binding TrackTotal}"  Tag="{Binding IsTrackTotalValid}" Style="{StaticResource TagLabelDetailTextBlock}" Grid.Row="5" Grid.Column="1" />
+                <TextBlock Text="{Binding DiscNumber}"  ToolTip="{Binding DiscNumber}"  Tag="{Binding IsDiscNumberValid}" Style="{StaticResource TagLabelDetailTextBlock}" Grid.Row="6" Grid.Column="1" />
+                <TextBlock Text="{Binding DiscTotal}"   ToolTip="{Binding DiscTotal}"   Tag="{Binding IsDiscTotalValid}" Style="{StaticResource TagLabelDetailTextBlock}" Grid.Row="7" Grid.Column="1" />
+
+            </Grid>
+        </ScrollViewer>
+    </GroupBox>
+</UserControl>

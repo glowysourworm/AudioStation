@@ -24,10 +24,10 @@ namespace AudioStation.Core.Component
 
         public string CalculateFileName(IAudioStationTag tag, LibraryEntryNamingType namingType)
         {
-            string message;
+            var validation = _modelValidationService.ValidateTagImport(tag);
 
-            if (!_modelValidationService.ValidateTagImport(tag, out message))
-                throw new ArgumentException("Invalid Tag File:  Not ready for migration. Must complete the tag minimum requirements: " + message);
+            if (!validation.IsValid)
+                throw new ArgumentException("Invalid Tag File:  Not ready for migration. Must complete the tag minimum requirements: " + validation.ValidationMessage);
 
             return CalculateFileName(namingType,
                                      tag.Title,
@@ -39,10 +39,10 @@ namespace AudioStation.Core.Component
 
         public string CalculateFolderPath(IAudioStationTag tag, string destinationFolderBase, LibraryEntryGroupingType groupingType)
         {
-            string message;
+            var validation = _modelValidationService.ValidateTagImport(tag);
 
-            if (!_modelValidationService.ValidateTagImport(tag, out message))
-                throw new ArgumentException("Invalid Tag File:  Not ready for migration. Must complete the tag minimum requirements: " + message);
+            if (!validation.IsValid)
+                throw new ArgumentException("Invalid Tag File:  Not ready for migration. Must complete the tag minimum requirements: " + validation.ValidationMessage);
 
             return CalculateFolderPath(groupingType,
                                        destinationFolderBase,

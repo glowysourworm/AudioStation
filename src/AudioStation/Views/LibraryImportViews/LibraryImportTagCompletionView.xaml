@@ -5,6 +5,7 @@
              xmlns:fa5="http://schemas.fontawesome.com/icons/"
              xmlns:propertyGrid="clr-namespace:AudioStation.Controls.PropertyGrid"
              xmlns:controls="clr-namespace:AudioStation.Controls"
+             xmlns:importView="clr-namespace:AudioStation.Views.LibraryImportViews"
              xmlns:coreModel="clr-namespace:AudioStation.Core.Model;assembly=AudioStation.Core"
              xmlns:viewModel="clr-namespace:AudioStation.ViewModels.LibraryLoaderViewModels"
              xmlns:viewModelImport="clr-namespace:AudioStation.ViewModels.LibraryImporterViewModels.Import"
@@ -25,8 +26,8 @@
                  Grid.Column="0"
                  Grid.Row="1"
                  Margin="5"                 
-                 ItemTemplate="{StaticResource LibraryImportTreeFileItemTemplate}"
-                 ItemContainerStyle="{StaticResource LibraryImportTreeFileItemContainerStyle}"
+                 ItemTemplate="{StaticResource LibraryImportFileItemTemplate}"
+                 ItemContainerStyle="{StaticResource LibraryImportFileItemContainerStyle}"
                  SelectionMode="Single"
                  AlternationCount="2"
                  HorizontalContentAlignment="Stretch"                 
@@ -36,96 +37,67 @@
 
         </ListBox>
         
-        <!-- File Panel -->
-        <Border Grid.Row="2" Margin="5" 
-                Background="White"
-                BorderBrush="Gray" 
-                BorderThickness="1"
-                DataContext="{Binding SelectedItem.File, ElementName=StagedFileLB}"
-                Visibility="{Binding SelectedItem, ElementName=StagedFileLB, Converter={StaticResource NonNullVisibilityConverter}}">
-            
-            <Grid Margin="3">
+        <!-- Detail Panel:  SelectedItem.File (LibraryImportFileViewModel) -->
+        <TabControl Grid.Row="2" Grid.RowSpan="1"
+                    DataContext="{Binding SelectedItem.File, ElementName=StagedFileLB}">
 
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="Auto" />
-                </Grid.ColumnDefinitions>
+            <!-- Import Detail / File Properties -->
+            <TabItem>
+                <TabItem.Header>
+                    <Grid ColumnDefinitions="Auto, Auto">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Source File (" Style="{StaticResource LabelTextBlock}" />
+                            <TextBlock Text="{Binding LastWriteUtc}" Style="{StaticResource LabelTextBlock}" />
+                            <TextBlock Text=")" Style="{StaticResource LabelTextBlock}" />
+                        </StackPanel>
+                        
+                    </Grid>
+                </TabItem.Header>
+                <importView:LibraryImportFileDetailView />
+            </TabItem>
 
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
-                </Grid.RowDefinitions>
-
-                <!-- Import File Properties -->
-                <propertyGrid:PropertyLabelControl Grid.Row="0" Margin="3" LabelColumnWidth="100" LabelText="Source File:" 
-                                                    Value="{Binding FullPath}" ToolTip="{Binding FullPath}"
-                                                    Style="{StaticResource PropertyGridDetailUserControl}" />
-
-                <propertyGrid:PropertyLabelControl Grid.Row="1" Margin="3" LabelColumnWidth="100" LabelText="Migrated File:" 
-                                                    Style="{StaticResource PropertyGridDetailUserControl}"
-                                                    Value="{Binding FileMigrationFullPath}" ToolTip="{Binding FileMigrationFullPath}"
-                                                    Foreground="{Binding MinimumImportValid, Converter={StaticResource ValidationForegroundParameterConverter}, ConverterParameter={StaticResource LabelForeground}}" />
-
-                <propertyGrid:PropertyLabelControl Grid.Row="2" Margin="3" LabelColumnWidth="100" LabelText="Import Options:" 
-                                                    Style="{StaticResource PropertyGridDetailUserControl}" 
-                                                    Value="{Binding ImportOptions}" />
-
-                <propertyGrid:PropertyLabelControl Grid.Row="3" Margin="3" LabelColumnWidth="100" LabelText="Import Issues:" 
-                                                    Value="{Binding TagIssues}" Style="{StaticResource PropertyGridDetailUserControl}"
-                                                    Foreground="{Binding MinimumImportValid, Converter={StaticResource ValidationForegroundParameterConverter}, ConverterParameter={StaticResource LabelForeground}}"
-                                                    ToolTip="You can fill out the tag data here by selecting items; and editing their tags. This will allow Audio Station to fill in the required data. Other data may be entered later; and 3rd party services may be used at another time." />
-
-                <propertyGrid:PropertyLabelControl Grid.Row="4" Margin="3" LabelColumnWidth="100" LabelText="AcoustID:" 
-                                                    Value="{Binding SelectedAcoustIDResult}" Style="{StaticResource PropertyGridDetailUserControl}"
-                                                    Foreground="{Binding ImportOutput.AcoustIDSuccess, Converter={StaticResource ValidationForegroundParameterConverter}, ConverterParameter={StaticResource LabelForeground}}" />
-
-                <propertyGrid:PropertyLabelControl Grid.Row="5" Margin="3" LabelColumnWidth="100" LabelText="Music Brainz:" 
-                                                    Value="{Binding SelectedMusicBrainzRecordingMatch}" Style="{StaticResource PropertyGridDetailUserControl}"
-                                                    Foreground="{Binding ImportOutput.MusicBrainzRecordingMatchSuccess, Converter={StaticResource ValidationForegroundParameterConverter}, ConverterParameter={StaticResource LabelForeground}}" />
-
-                <propertyGrid:PropertyLabelControl Grid.Row="6" Margin="3" LabelColumnWidth="100" LabelText="Import:" Style="{StaticResource PropertyGridDetailUserControl}"
-                                                    Value="{Binding FinalImportDetail}" />
-
-                <!-- Final Tag Import -->
-                <Border Grid.Row="7" Background="AliceBlue" BorderBrush="LightGray" BorderThickness="1">
-
-                    <Grid>
-
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
-                        </Grid.ColumnDefinitions>
-
-                        <propertyGrid:PropertyLabelControl Margin="3" LabelColumnWidth="100" LabelText="Tag (Disk):" 
-                                                                           VerticalAlignment="Center"
-                                                                           Style="{StaticResource PropertyGridDetailUserControl}"
-                                                                           Value="{Binding TagDetail}" />
+            <!-- Tag Detail (Save / Clear / Music Brainz) -->
+            <TabItem>
+                <TabItem.Header>
 
                         <!-- Control Panel -->
                         <StackPanel Orientation="Horizontal" 
-                                                    HorizontalAlignment="Right" Margin="3" 
-                                                    VerticalAlignment="Center"
-                                                    Grid.Column="1">
+                                    HorizontalAlignment="Right" Margin="3" 
+                                    VerticalAlignment="Center"
+                                    Grid.Column="1">
 
-                            <!-- Select Buttons -->
+
+                        <fa5:ImageAwesome Icon="Solid_Tag" 
+                                          Margin="3"
+                                          Style="{StaticResource FontAwesomeIconManagerViewPager}"
+                                          ToolTip="Tag data is required to complete the import">
+                            <fa5:ImageAwesome.Foreground>
+                                <MultiBinding Converter="{StaticResource LibraryLoaderImportTagForegroundConverter}">
+                                    <Binding Path="IsTagDirty" />
+                                    <Binding Path="MinimumImportValid" />
+                                    <Binding Path="InError" />
+                                </MultiBinding>
+                            </fa5:ImageAwesome.Foreground>
+                        </fa5:ImageAwesome>
+
+                        <TextBlock Text="Tag Import Detail" Style="{StaticResource LabelTextBlock}" />
+
+                            <!-- Copy Music Brainz -> Tag -->
                             <Button Style="{StaticResource UserControlButton}" 
-                                    Command="{Binding CopyMusicBrainzToTagCommand}"
-                                    ToolTip="Copy Music Brainz Data To Tag"
-                                    Visibility="{Binding ImportOutput.MusicBrainzRecordingMatchSuccess, Converter={StaticResource BoolVisibilityCollapseConverter}}"
-                                    Margin="5 0 0 0">
+                                Command="{Binding CopyMusicBrainzToTagCommand}"
+                                ToolTip="Copy Music Brainz Data To Tag"
+                                Visibility="{Binding ImportOutput.MusicBrainzRecordingMatchSuccess, Converter={StaticResource BoolVisibilityCollapseConverter}}"
+                                Margin="5 0 0 0">
+
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Text="Copy" Margin="3 1" FontSize="12" />
                                     <fa5:ImageAwesome Icon="Solid_Music" 
-                                                                      Style="{StaticResource FontAwesomeIconManagerViewPager}" 
-                                                                      Margin="1" />
+                                                  Style="{StaticResource FontAwesomeIconManagerViewPager}" 
+                                                  Margin="1" />
                                 </StackPanel>
                             </Button>
+
+                            <!-- Save Tag -->
                             <Button Style="{StaticResource UserControlButton}" 
                                     Command="{Binding SaveTagCommand}"
                                     ToolTip="Save Tag To Disk"
@@ -138,6 +110,8 @@
                                                                   Margin="1" />
                                 </StackPanel>
                             </Button>
+
+                            <!-- Clear Tag (Revert) -->
                             <Button Style="{StaticResource UserControlButton}" 
                                     Command="{Binding RefreshCommand}"
                                     ToolTip="Clear All Imported Data And Restart"
@@ -151,13 +125,28 @@
 
                             </Button>
                         </StackPanel>
-                    </Grid>
-                </Border>
+                </TabItem.Header>
 
-            </Grid>
-        </Border>
+                <!-- Tag Detail -->
+                <Grid ColumnDefinitions="*, *">
+                    <!-- Tag (Clean / Dirty) -->
+                    <importView:LibraryImportTagIssuesView DataContext="{Binding Tag}">
+                        <importView:LibraryImportTagIssuesView.TagHeader>
+                            <TextBlock Text="Source File" Style="{StaticResource TagLabelTextBlock}" />
+                        </importView:LibraryImportTagIssuesView.TagHeader>
+                    </importView:LibraryImportTagIssuesView>
 
-        <!-- Control Panel -->
+                    <!-- Music Brainz Tag -->
+                    <importView:LibraryImportTagIssuesView DataContext="{Binding Tag}" Grid.Column="1">
+                        <importView:LibraryImportTagIssuesView.TagHeader>
+                            <TextBlock Text="Music Brainz" Style="{StaticResource TagLabelTextBlock}" />
+                        </importView:LibraryImportTagIssuesView.TagHeader>                        
+                    </importView:LibraryImportTagIssuesView>
+                </Grid>
+            </TabItem>
+        </TabControl>
+
+            <!-- Control Panel -->
         <StackPanel Grid.Row="3" HorizontalAlignment="Right" VerticalAlignment="Center" Orientation="Horizontal" Margin="5">
 
             <TextBlock Style="{StaticResource LabelTextBlock}" Margin="10">

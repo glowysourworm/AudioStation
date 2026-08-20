@@ -91,6 +91,9 @@
     <Compile Update="Controls\PropertyGrid\PropertyDoubleControl.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Update="Controls\PropertyGrid\PropertyButtonLabelControl.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Update="Controls\PropertyGrid\PropertyLabelControl.xaml.cs">
       <SubType>Code</SubType>
     </Compile>

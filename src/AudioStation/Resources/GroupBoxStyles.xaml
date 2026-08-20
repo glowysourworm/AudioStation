@@ -1,0 +1,16 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Style TargetType="GroupBox" x:Key="TagIssuesGroupBoxStyle">
+        <Setter Property="Foreground" Value="{StaticResource HeaderTitleForeground}" />
+        <Setter Property="BorderBrush" Value="{StaticResource UserControlButtonBorder}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="Padding" Value="5" />
+
+        <!--Style.Triggers>
+            <DataTrigger Binding="{Binding IsValid}" Value="False">
+                <Setter Property="Foreground" Value="{StaticResource LabelForegroundError}" />
+            </DataTrigger>
+        </Style.Triggers-->
+    </Style>
+</ResourceDictionary>

@@ -17,7 +17,7 @@
     <SolidColorBrush x:Key="LibraryImporterTreeItemSelectBackground">#2F33AAFF</SolidColorBrush>
     
     <!-- Libary Importer (Tag Completion) Item Container Style -->
-    <Style TargetType="ListBoxItem" x:Key="LibraryImportTreeFileItemContainerStyle" BasedOn="{StaticResource HoverSelectItemContainerStyleWithAlternation_LibraryImporter}">
+    <Style TargetType="ListBoxItem" x:Key="LibraryImportFileItemContainerStyle" BasedOn="{StaticResource HoverSelectItemContainerStyleWithAlternation_LibraryImporter}">
         <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />
 
         <Style.Triggers>
@@ -28,19 +28,19 @@
     </Style>
 
     <!-- Library Importer (Tag Completion) -->
-    <DataTemplate x:Key="LibraryImportTreeFileItemTemplate">
+    <DataTemplate x:Key="LibraryImportFileItemTemplate">
 
         <Border DataContext="{Binding File}">
 
-            <Grid ColumnDefinitions="Auto, *, Auto">
-                
+            <Grid ColumnDefinitions="Auto, *, Auto" RowDefinitions="Auto, Auto">
+
                 <!-- Import Indicators -->
                 <StackPanel Orientation="Horizontal" Grid.Column="0">
 
                     <fa5:ImageAwesome Icon="Solid_Tag" 
-                                      Margin="5"
-                                      Style="{StaticResource FontAwesomeIconManagerViewPager}"
-                                      ToolTip="Tag data is required to complete the import">
+                                                  Margin="3"
+                                                  Style="{StaticResource FontAwesomeIconManagerViewPager}"
+                                                  ToolTip="Tag data is required to complete the import">
                         <fa5:ImageAwesome.Foreground>
                             <MultiBinding Converter="{StaticResource LibraryLoaderImportTagForegroundConverter}">
                                 <Binding Path="IsTagDirty" />
@@ -51,14 +51,14 @@
                     </fa5:ImageAwesome>
 
                     <fa5:ImageAwesome Icon="Solid_VolumeUp" 
-                                      Margin="5"
+                                      Margin="3"
                                       Style="{StaticResource FontAwesomeIconManagerViewPager}"
                                       ToolTip="AcoustID data may be downloaded prior to import; or after."
                                       Foreground="{Binding ImportOutput.AcoustIDSuccess, 
                                                            Converter={StaticResource ImportStepForegroundParameterConverter},
                                                            ConverterParameter={x:Static Brushes.DodgerBlue}}" />
                     <fa5:ImageAwesome Icon="Solid_Music" 
-                                      Margin="5"
+                                      Margin="3"
                                       ToolTip="Music Brainz data may be downloaded prior to import; or after."              
                                       Style="{StaticResource FontAwesomeIconManagerViewPager}"
                                       Foreground="{Binding ImportOutput.MusicBrainzRecordingMatchSuccess, 
@@ -68,50 +68,38 @@
 
                 <!-- Import File Name -->
                 <TextBlock Text="{Binding ShortPath}" 
-                           Margin="5"
-                           VerticalAlignment="Center"
-                           TextWrapping="NoWrap"
-                           TextTrimming="CharacterEllipsis"
-                           FontSize="14"
-                           Grid.Column="1" />
+                                   Margin="3"
+                                   VerticalAlignment="Center"
+                                   TextWrapping="NoWrap"
+                                   TextTrimming="CharacterEllipsis"
+                                   FontSize="14"
+                                   Grid.Column="1" />
 
-                <!-- RHS Control Panel -->
-                <StackPanel Orientation="Horizontal" Grid.Column="2" Margin="3">
+                <!-- Row Detail -->
+                <StackPanel Orientation="Vertical" 
+                            Grid.ColumnSpan="3" 
+                            Grid.Row="1" 
+                            Margin="3"
+                            Visibility="{Binding IsSelected, Converter={StaticResource BoolVisibilityCollapseConverter}, RelativeSource={RelativeSource AncestorType=ListBoxItem}}">
 
-                    <!-- Current Selection -->
-                    <TextBlock Style="{StaticResource LabelDetailTextBlock}" Foreground="#FF555555" Margin="0"
-                               VerticalAlignment="Center"
-                               Visibility="{Binding SelectedAcoustIDResult, Converter={StaticResource NonNullVisibilityConverter}}">
-                                <Run Text="AcoutID (" />
-                                <Run Text="{Binding SelectedAcoustIDResult.Score, StringFormat=P2}" />
-                                <Run Text=")" />
-                    </TextBlock>
+                    <!-- AcoustID -->
+                    <propertyGrid:PropertyLabelControl LabelColumnWidth="120"
+                                                       LabelText="    Acoust ID"
+                                                       TextBlock.FontStyle="Italic"
+                                                       Visibility="{Binding SelectedAcoustIDResult, Converter={StaticResource NonNullVisibilityConverter}}"
+                                                       Value="{Binding SelectedAcoustIDResult.Score, StringFormat=P2}">
+                        
+                    </propertyGrid:PropertyLabelControl>
 
-                    <TextBlock Style="{StaticResource LabelDetailTextBlock}" Foreground="#FF555555" Margin="5 0 0 0"
-                                       VerticalAlignment="Center"
-                                       Visibility="{Binding SelectedMusicBrainzRecordingMatch, Converter={StaticResource NonNullVisibilityConverter}}">
-                                <Run Text="Music Brainz (" />
-                                <Run Text="{Binding SelectedMusicBrainzRecordingMatch.ShortString, Mode=OneWay}" />
-                                <Run Text=")" />
-                    </TextBlock>
+                    <!-- Music Brainz -->
+                    <propertyGrid:PropertyLabelControl LabelColumnWidth="120"
+                                                       LabelText="    Music Brainz"
+                                                       TextBlock.FontStyle="Italic"
+                                                       Visibility="{Binding SelectedMusicBrainzRecordingMatch, Converter={StaticResource NonNullVisibilityConverter}}"
+                                                       Value="{Binding SelectedMusicBrainzRecordingMatch.ShortString, StringFormat=P2}">
 
-                    <!-- Select Buttons -->
-                    <Button Style="{StaticResource UserControlButton}" 
-                                    Command="{Binding SelectMusicBrainzCommand}"
-                                    Margin="5 0 0 0"
-                                    Visibility="{Binding ImportOutput.MusicBrainzRecordingMatchSuccess, Converter={StaticResource BoolVisibilityCollapseConverter}}">
-                        <StackPanel Orientation="Horizontal" Margin="3 1" VerticalAlignment="Center">
-                            <TextBlock Text="Select " VerticalAlignment="Center" FontSize="12" />
-                            <fa5:ImageAwesome Icon="Solid_Music" Style="{StaticResource FontAwesomeIconManagerViewPager}" Margin="5 0 0 0" />
-                        </StackPanel>
-                    </Button>
-                    <Button Style="{StaticResource UserControlButton}" 
-                                    Command="{Binding PlayAudioCommand}"
-                                    Margin="5 0 0 0">
-                        <fa5:ImageAwesome Icon="Solid_Play" 
-                                                  Style="{StaticResource FontAwesomeIconManagerViewPager}" 
-                                                  Margin="1" />
-                    </Button>
+                    </propertyGrid:PropertyLabelControl>
+
                 </StackPanel>
             </Grid>
         </Border>

@@ -18,8 +18,12 @@
     <SolidColorBrush x:Key="LabelForeground">Gray</SolidColorBrush>
     <SolidColorBrush x:Key="LabelForegroundDetail">#FFCCCCCC</SolidColorBrush>
     <SolidColorBrush x:Key="LabelForegroundSuccess">Gray</SolidColorBrush>
-    <SolidColorBrush x:Key="LabelForegroundWarning">Gray</SolidColorBrush>
-    <SolidColorBrush x:Key="LabelForegroundError">Gray</SolidColorBrush>
+    <SolidColorBrush x:Key="LabelForegroundWarning">Yellow</SolidColorBrush>
+    <SolidColorBrush x:Key="LabelForegroundError">Red</SolidColorBrush>
+
+    <SolidColorBrush x:Key="TagLabelForeground">#FF888888</SolidColorBrush>
+    <SolidColorBrush x:Key="TagLabelForegroundDetail">#FF555555</SolidColorBrush>
+    <SolidColorBrush x:Key="TagLabelForegroundError">Red</SolidColorBrush>
 
     <SolidColorBrush x:Key="LabelForegroundInvert">White</SolidColorBrush>
 
@@ -65,6 +69,7 @@
     <SolidColorBrush x:Key="LargeInputButtonBorder">#FFAAAAAA</SolidColorBrush>
     
     <SolidColorBrush x:Key="HoverSelectBackground">White</SolidColorBrush>
+    <SolidColorBrush x:Key="HoverSelectBackgroundAlterationFaintGray">#7FEFEFEF</SolidColorBrush>
     <SolidColorBrush x:Key="HoverSelectBackgroundAlternation">AliceBlue</SolidColorBrush>
     <SolidColorBrush x:Key="HoverSelectBackgroundHover">#EFEFEFEF</SolidColorBrush>
     <SolidColorBrush x:Key="HoverSelectBackgroundSelect">#EFEFEFEF</SolidColorBrush>

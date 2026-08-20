@@ -1,8 +1,11 @@
 ﻿using AudioStation.Core.Component.Interface;
+using AudioStation.Core.Model;
+using AudioStation.Core.Model.Interface;
 using AudioStation.Core.Model.Vendor.ATLExtension.Interface;
 
 using MetaBrainz.MusicBrainz.Interfaces.Entities;
 
+using SimpleWpf.Extensions.Collection;
 using SimpleWpf.IocFramework.Application.Attribute;
 
 namespace AudioStation.Core.Component
@@ -37,83 +40,100 @@ namespace AudioStation.Core.Component
                                                                        .TrackCount > 0;
         }
 
-        public bool ValidateTagImport(IAudioStationTag simpleTag, out string validationMessage)
+        public ITagValidation ValidateTagImport(IAudioStationTag simpleTag)
         {
             return ValidateImport(simpleTag.AlbumArtist,
                                   simpleTag.Album,
-                                  simpleTag.Title, 
+                                  simpleTag.Title,
                                   simpleTag.Genre,
                                   simpleTag.Track,
                                   simpleTag.TrackTotal,
                                   simpleTag.DiscNumber,
-                                  simpleTag.DiscTotal, out validationMessage);
+                                  simpleTag.DiscTotal);
         }
 
-        private bool ValidateImport(string firstAlbumArtist,
+        private ITagValidation ValidateImport(string firstAlbumArtist,
                                     string album,
                                     string title,
                                     string genre,
                                     uint trackNumber,
                                     uint trackCount,
                                     uint discNumber,
-                                    uint discCount,
-                                    out string validationMessage)
+                                    uint discCount)
         {
-            // Validated Fields
-            var valid = true;
+            var validation = new TagValidation();
+            var invalidFields = new List<string>();
 
-            validationMessage = string.Empty;
+            validation.IsAlbumArtistValid = true;
+            validation.IsAlbumValid = true;
+            validation.IsTitleValid = true;
+            validation.IsGenreValid = true;
+            validation.IsTrackValid = true;
+            validation.IsTrackTotalValid = true;
+            validation.IsDiscNumberValid = true;
+            validation.IsDiscTotalValid = true;
 
             if (string.IsNullOrWhiteSpace(firstAlbumArtist))
             {
-                valid = false;
-                validationMessage += "(Album Artist)";
+                invalidFields.Add("Album Artist");
+
+                validation.IsAlbumArtistValid = false;
             }
 
 
             if (string.IsNullOrWhiteSpace(album))
             {
-                valid = false;
-                validationMessage += "(Album)";
+                invalidFields.Add("Album");
+
+                validation.IsAlbumValid = false;
             }
 
             if (string.IsNullOrWhiteSpace(title))
             {
-                valid = false;
-                validationMessage += "(Title)";
+                invalidFields.Add("Title");
+
+                validation.IsTitleValid = false;
             }
 
             if (string.IsNullOrWhiteSpace(genre))
             {
-                valid = false;
-                validationMessage += "(Genre)";
+                invalidFields.Add("Genre");
+
+                validation.IsGenreValid = false;
             }
 
             if (trackNumber <= 0 || trackNumber > trackCount)
             {
-                valid = false;
-                validationMessage += "(Track Number)";
+                invalidFields.Add("Track Number");
+
+                validation.IsTrackValid = false;
             }
 
             if (trackCount <= 0 || trackCount < trackNumber)
             {
-                valid = false;
-                validationMessage += "(Track Count)";
+                invalidFields.Add("Track Count");
+
+                validation.IsTrackTotalValid = false;
             }
 
             if (discNumber <= 0)
             {
-                valid = false;
-                validationMessage += "(Disc)";
+                invalidFields.Add("Disc");
+
+                validation.IsDiscNumberValid = false;
             }
 
             if (discCount <= 0)
             {
-                valid = false;
-                validationMessage += "(Disc Count)";
+                invalidFields.Add("Disc Count");
+
+                validation.IsDiscTotalValid = false;
             }
 
-            return valid;
+            validation.ValidationMessage = invalidFields.Join(",", x => x);
+            validation.IsValid = invalidFields.Count == 0;
+
+            return validation;
         }
     }
 }

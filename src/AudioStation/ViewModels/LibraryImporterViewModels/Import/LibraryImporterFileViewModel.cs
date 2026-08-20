@@ -45,7 +45,7 @@ namespace AudioStation.ViewModels.LibraryImporterViewModels.Import
 
         // Data available for the import (either cached here or in the database)
         bool _minimumImportValid;
-        string _tagIssues;
+        LibraryImporterTagViewModel _tag;
 
         // UI-only property (set in the constructor)
         string _importOptions;
@@ -67,32 +67,6 @@ namespace AudioStation.ViewModels.LibraryImporterViewModels.Import
         SimpleCommand _refreshCommand;
 
         #region (public) Calculated UI Properties
-        public string FinalImportDetail
-        {
-            get
-            {
-                var format = "Artist ({0}) Album ({1}) Title ({2}) Genre ({3}) Track ({4} of {5}) Disc ({6} of {7})";
-                var result = string.Format(format, _tagDirty.AlbumArtist, _tagDirty.Album,
-                                                   _tagDirty.Title, _tagDirty.Genre,
-                                                   _tagDirty.Track, _tagDirty.TrackTotal,
-                                                   _tagDirty.DiscNumber, _tagDirty.DiscTotal);
-
-                return result;
-            }
-        }
-        public string TagDetail
-        {
-            get
-            {
-                var format = "Artist ({0}) Album ({1}) Title ({2}) Genre ({3}) Track ({4} of {5}) Disc ({6} of {7})";
-                var result = string.Format(format, _tagClean.AlbumArtist, _tagClean.Album,
-                                                   _tagClean.Title, _tagClean.Genre,
-                                                   _tagClean.Track, _tagClean.TrackTotal,
-                                                   _tagClean.DiscNumber, _tagClean.DiscTotal);
-
-                return result;
-            }
-        }
         public string ImportOptions
         {
             get { return _importOptions; }
@@ -125,10 +99,10 @@ namespace AudioStation.ViewModels.LibraryImporterViewModels.Import
             get { return _minimumImportValid; }
             set { SetValueOverride(ref _minimumImportValid, value); }
         }
-        public string TagIssues
+        public LibraryImporterTagViewModel Tag
         {
-            get { return _tagIssues; }
-            set { SetValueOverride(ref _tagIssues, value); }
+            get { return _tag; }
+            set { SetValueOverride(ref _tag, value); }
         }
         public LibraryImporterOutputViewModel ImportOutput
         {
@@ -189,9 +163,9 @@ namespace AudioStation.ViewModels.LibraryImporterViewModels.Import
         /// Constructor for an import file view model. This may represent either a file or a directory.
         /// </summary>
         public LibraryImporterFileViewModel(string fullPath,
-                                                bool isDirectory,
-                                                string destinationDirectory,
-                                                LibraryImporterConfigurationViewModel options)
+                                            bool isDirectory,
+                                            string destinationDirectory,
+                                            LibraryImporterConfigurationViewModel options)
             : base(options.SourceFolder, fullPath)
         {
             _modelValidationService = IocContainer.Get<IModelValidationService>();
@@ -216,6 +190,7 @@ namespace AudioStation.ViewModels.LibraryImporterViewModels.Import
                 SourceFile = fullPath
             };
             this.ImportOptions = CreateOptionsUI(options);
+            this.Tag = new LibraryImporterTagViewModel();
 
             this.SelectAcoustIDCommand = new SimpleCommand(() =>
             {
@@ -294,12 +269,11 @@ namespace AudioStation.ViewModels.LibraryImporterViewModels.Import
 
             _updating = true;
 
-            var validationMessage = string.Empty;
-
             // Validate Tag (also gives validation message)
-            _modelValidationService.ValidateTagImport(_tagDirty, out validationMessage);
+            var validation = _modelValidationService.ValidateTagImport(_tagDirty);
 
-            this.TagIssues = validationMessage == string.Empty ? "(None - Save Tag (Disk))" : validationMessage;
+            // Update (validation)
+            this.Tag.Update(_tagClean, _tagDirty, validation);
 
             this.MinimumImportValid = !this.InError && _libraryImporter.CanImportEntity(this.ImportLoad, this.ImportOutput);
 
@@ -311,7 +285,7 @@ namespace AudioStation.ViewModels.LibraryImporterViewModels.Import
                 this.FileMigrationName = fileMigrationName;
                 this.FileMigrationFullPath = System.IO.Path.Combine(fileMigrationFolder, fileMigrationName);
 
-                this.TagIssues = "(None)";
+                //this.TagIssues = "(None)";
             }
 
             // Commands update

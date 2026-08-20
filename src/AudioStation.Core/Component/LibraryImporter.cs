@@ -73,7 +73,9 @@ namespace AudioStation.Core.Component
 
             var tagFile = _tagCacheController.Get(workInput.SourceFile);
 
-            return _modelValidationService.ValidateTagImport(tagFile, out message);
+            var validation = _modelValidationService.ValidateTagImport(tagFile);
+
+            return validation.IsValid;
 
         }
         public bool CanImportMigrateFile(ILibraryLoaderImportLoad workInput, ILibraryLoaderImportOutput workOutput)

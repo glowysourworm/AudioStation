@@ -81,4 +81,29 @@
         <Setter Property="FontSize" Value="16" />
     </Style>
 
+    <Style TargetType="TextBlock" x:Key="TagLabelTextBlock">
+        <Setter Property="Foreground" Value="{StaticResource TagLabelForeground}" />
+        <Setter Property="Margin" Value="1" />
+
+        <!-- Bool Validation Value (on Tag) -->
+        <Style.Triggers>
+            <Trigger Property="Tag" Value="False">
+                <Setter Property="Foreground" Value="Red" />
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <Style TargetType="TextBlock" x:Key="TagLabelDetailTextBlock">
+        <Setter Property="Foreground" Value="{StaticResource TagLabelForegroundDetail}" />
+        <Setter Property="FontStyle" Value="Italic" />
+        <Setter Property="Margin" Value="1" />
+
+        <!-- Bool Validation Value (on Tag) -->
+        <Style.Triggers>
+            <Trigger Property="Tag" Value="False">
+                <Setter Property="Foreground" Value="Red" />
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
 </ResourceDictionary>
