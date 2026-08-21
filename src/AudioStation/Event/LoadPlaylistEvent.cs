@@ -1,6 +1,4 @@
 ﻿using AudioStation.Component.Model;
-using AudioStation.ViewModels;
-using AudioStation.ViewModels.PlaylistViewModels.Interface;
 
 using SimpleWpf.IocFramework.EventAggregation;
 

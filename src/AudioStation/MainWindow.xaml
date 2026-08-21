@@ -4,11 +4,12 @@
         xmlns:views="clr-namespace:AudioStation.Views"
         xmlns:controls="clr-namespace:AudioStation.Controls"
         xmlns:region="clr-namespace:SimpleWpf.IocFramework.RegionManagement;assembly=SimpleWpf.IocFramework"        
-        xmlns:fa5assembly="clr-namespace:FontAwesome5;assembly=FontAwesome5"
+        xmlns:fa5assembly="clr-namespace:FontAwesome5;assembly=FontAwesome5"        
         WindowState="Minimized"
         WindowStartupLocation="CenterOwner"
         Title="Audio Station" Height="800" Width="1200"
-        Icon="/Resources/Images/icon.bmp">
+        Icon="/Resources/Images/icon.bmp"
+        IsEnabled="{Binding Loading, Converter={StaticResource BoolInverseConverter}}">
     
     <Grid>
 
@@ -26,8 +27,7 @@
 
         <!-- Background -->
         <Grid Grid.RowSpan="4" 
-              Grid.ColumnSpan="2" 
-              IsEnabled="{Binding Loading, Converter={StaticResource BoolInverseConverter}}"
+              Grid.ColumnSpan="2"               
               DataContext="{Binding NowPlaying}">
 
             <!--controls:WebImageCarouselControl HorizontalAlignment="Stretch"

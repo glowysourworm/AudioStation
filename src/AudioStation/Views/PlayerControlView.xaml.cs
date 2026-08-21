@@ -5,7 +5,7 @@ using System.Windows.Media;
 using AudioStation.Controls;
 using AudioStation.Event;
 using AudioStation.ViewModels;
-using AudioStation.ViewModels.PlaylistViewModels;
+using AudioStation.ViewModels.MainViewModels;
 
 using SimpleWpf.IocFramework.Application.Attribute;
 using SimpleWpf.IocFramework.EventAggregation;

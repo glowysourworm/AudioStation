@@ -2,8 +2,8 @@
 using System.Windows.Data;
 
 using AudioStation.Event;
-using AudioStation.ViewModels.LibraryViewModels;
-using AudioStation.ViewModels.PlaylistViewModels.Interface;
+using AudioStation.ViewModels.ComponentViewModels.LibraryViewModels;
+using AudioStation.ViewModels.MainViewModels.Interface;
 
 using SimpleWpf.IocFramework.Application;
 using SimpleWpf.IocFramework.EventAggregation;

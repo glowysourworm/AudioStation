@@ -1,5 +1,7 @@
 ﻿using System.IO;
 
+using AudioStation.ViewModels.OtherViewModels;
+
 using MetaBrainz.MusicBrainz.CoverArt;
 using MetaBrainz.MusicBrainz.Interfaces.Entities;
 

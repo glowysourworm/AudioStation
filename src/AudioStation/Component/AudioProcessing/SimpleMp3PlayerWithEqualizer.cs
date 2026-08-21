@@ -3,13 +3,13 @@ using System.Windows.Threading;
 
 using AudioStation.Component.AudioProcessing.Interface;
 using AudioStation.Core.Model;
-using AudioStation.Core.Utility;
 
 using NAudio.Extras;
 using NAudio.Wave;
 using NAudio.Wave.SampleProviders;
 
 using SimpleWpf.Extensions.Event;
+using SimpleWpf.Utilities;
 
 namespace AudioStation.Component.AudioProcessing
 {
@@ -95,10 +95,10 @@ namespace AudioStation.Component.AudioProcessing
 
         public void Dispose()
         {
-            if (ApplicationHelpers.IsDispatcher() == ApplicationIsDispatcherResult.False)
-                ApplicationHelpers.BeginInvokeDispatcher(Dispose, DispatcherPriority.Background);
+            if (BasicHelpers.IsDispatcher() == ApplicationIsDispatcherResult.False)
+                BasicHelpers.BeginInvokeDispatcher(Dispose, DispatcherPriority.Background);
 
-            else if (ApplicationHelpers.IsDispatcher() == ApplicationIsDispatcherResult.True)
+            else if (BasicHelpers.IsDispatcher() == ApplicationIsDispatcherResult.True)
             {
                 if (_reader != null)
                 {
@@ -118,8 +118,8 @@ namespace AudioStation.Component.AudioProcessing
 
         private void OnPlaybackStopped(object? sender, StoppedEventArgs e)
         {
-            if (ApplicationHelpers.IsDispatcher() == ApplicationIsDispatcherResult.False)
-                ApplicationHelpers.BeginInvokeDispatcher(OnPlaybackStopped, DispatcherPriority.Background, sender, e);
+            if (BasicHelpers.IsDispatcher() == ApplicationIsDispatcherResult.False)
+                BasicHelpers.BeginInvokeDispatcher(OnPlaybackStopped, DispatcherPriority.Background, sender, e);
 
             else
             {
@@ -175,7 +175,7 @@ namespace AudioStation.Component.AudioProcessing
             {
                 CreateDevice(source);
             }
-                
+
             _outputDevice.Play();
             _timer.IsEnabled = true;
         }
@@ -214,7 +214,7 @@ namespace AudioStation.Component.AudioProcessing
             {
                 // Set Gain in decibels (go ahead and use linear scale) (also, these are not lock-protected, but it's just a float setting)
                 if (_equalizerBands[index].Frequency == frequency)
-                    _equalizerBands[index].Gain = (float)AudioMath.ToDecibel(gain, AudioScale.AudioScaleType.GainStandardLogarithmic); 
+                    _equalizerBands[index].Gain = (float)AudioMath.ToDecibel(gain, AudioScale.AudioScaleType.GainStandardLogarithmic);
             }
 
             _equalizer.Update();

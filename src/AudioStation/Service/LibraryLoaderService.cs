@@ -9,10 +9,9 @@ using AudioStation.Core.Utility;
 using AudioStation.Event;
 using AudioStation.Event.LibraryLoaderEvent;
 using AudioStation.Service.Interface;
-using AudioStation.ViewModels;
-using AudioStation.ViewModels.LibraryImporterViewModels.Import;
-using AudioStation.ViewModels.LibraryLoaderViewModels;
-using AudioStation.ViewModels.LogViewModels;
+using AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.Import;
+using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels;
+using AudioStation.ViewModels.ComponentViewModels.LogViewModels;
 using AudioStation.ViewModels.Vendor.AcoustIDViewModel;
 using AudioStation.ViewModels.Vendor.MusicBrainzViewModel;
 

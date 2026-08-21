@@ -140,11 +140,12 @@ namespace AudioStation.Core.Controller
             // Log Hash Key
             var logKey = GetLogKey(logMessage);
 
+            // New Log (type)
             if (!_logs.ContainsKey(logKey))
                 _logs.Add(logKey, new LogComponent(MAX_LOG_SIZE));
 
-            else
-                _logs[logKey].Add(logMessage);
+            // Add Log
+            _logs[logKey].Add(logMessage);
 
             _eventAggregator.GetEvent<LogEvent>().Publish(logMessage);
         }

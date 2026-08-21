@@ -35,6 +35,7 @@
     <PackageReference Include="SimpleWpf" Version="0.0.1" />
     <PackageReference Include="SimpleWpf.IocFramework" Version="0.0.1" />
     <PackageReference Include="SimpleWpf.Native" Version="0.0.1" />
+    <PackageReference Include="SimpleWpf.Utilities" Version="0.0.1" />
     <PackageReference Include="SpotifyAPI.Web" Version="7.4.2" />
     <PackageReference Include="z440.atl.core" Version="7.15.3" />
   </ItemGroup>

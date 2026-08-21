@@ -6,10 +6,10 @@ using AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderLoad;
 using AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderOutput;
 using AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderWorker;
 using AudioStation.Core.Controller.Interface;
-using AudioStation.Core.Utility;
 
 using SimpleWpf.Extensions.Event;
 using SimpleWpf.IocFramework.Application.Attribute;
+using SimpleWpf.Utilities;
 
 namespace AudioStation.Core.Component
 {
@@ -151,8 +151,8 @@ namespace AudioStation.Core.Component
             // NOTE*** BeginInvoke must be allowing the worker (background thread) to exit its stack and finish the
             //         join. Otherwise, Thread.Abort is throwing a TargetOfInvocationException.
             //
-            if (ApplicationHelpers.IsDispatcher() == ApplicationIsDispatcherResult.False)
-                ApplicationHelpers.BeginInvokeDispatcher(Worker_ReportComplete, DispatcherPriority.Background, sender, workItem);
+            if (BasicHelpers.IsDispatcher() == ApplicationIsDispatcherResult.False)
+                BasicHelpers.BeginInvokeDispatcher(Worker_ReportComplete, DispatcherPriority.Background, sender, workItem);
 
             else
             {
@@ -161,10 +161,10 @@ namespace AudioStation.Core.Component
         }
         private void Worker_ReportWorkStepComplete(LibraryWorkerThreadBase sender, LibraryLoaderWorkItemUpdate update)
         {
-            if (ApplicationHelpers.IsDispatcher() == ApplicationIsDispatcherResult.False)
-                ApplicationHelpers.InvokeDispatcher(Worker_ReportWorkStepComplete, DispatcherPriority.Background, sender, update);
+            if (BasicHelpers.IsDispatcher() == ApplicationIsDispatcherResult.False)
+                BasicHelpers.InvokeDispatcher(Worker_ReportWorkStepComplete, DispatcherPriority.Background, sender, update);
 
-            else if (ApplicationHelpers.IsDispatcher() == ApplicationIsDispatcherResult.True)
+            else if (BasicHelpers.IsDispatcher() == ApplicationIsDispatcherResult.True)
             {
                 if (this.WorkItemUpdate != null)
                     this.WorkItemUpdate(update);
@@ -172,10 +172,10 @@ namespace AudioStation.Core.Component
         }
         private void Worker_ReportWorkStepStarted(LibraryWorkerThreadBase sender, LibraryLoaderWorkItemUpdate update)
         {
-            if (ApplicationHelpers.IsDispatcher() == ApplicationIsDispatcherResult.False)
-                ApplicationHelpers.InvokeDispatcher(Worker_ReportWorkStepStarted, DispatcherPriority.Background, sender, update);
+            if (BasicHelpers.IsDispatcher() == ApplicationIsDispatcherResult.False)
+                BasicHelpers.InvokeDispatcher(Worker_ReportWorkStepStarted, DispatcherPriority.Background, sender, update);
 
-            else if (ApplicationHelpers.IsDispatcher() == ApplicationIsDispatcherResult.True)
+            else if (BasicHelpers.IsDispatcher() == ApplicationIsDispatcherResult.True)
             {
                 if (this.WorkItemUpdate != null)
                     this.WorkItemUpdate(update);

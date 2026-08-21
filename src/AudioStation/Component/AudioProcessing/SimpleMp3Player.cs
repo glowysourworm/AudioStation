@@ -2,14 +2,13 @@
 using System.Windows.Media;
 using System.Windows.Threading;
 
-using AudioStation.Component.AudioProcessing;
 using AudioStation.Component.AudioProcessing.Interface;
 using AudioStation.Core.Model;
-using AudioStation.Core.Utility;
 
 using NAudio.Wave;
 
 using SimpleWpf.Extensions.Event;
+using SimpleWpf.Utilities;
 
 namespace AudioStation.Component.AudioProcessing
 {
@@ -60,7 +59,7 @@ namespace AudioStation.Component.AudioProcessing
             if (Application.Current == null)
                 return;
 
-            ApplicationHelpers.BeginInvokeDispatcher(() =>
+            BasicHelpers.BeginInvokeDispatcher(() =>
             {
                 if (this.PlaybackTickEvent != null)
                     this.PlaybackTickEvent(_player.Position);

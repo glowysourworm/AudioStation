@@ -8,11 +8,9 @@
              xmlns:controls="clr-namespace:AudioStation.Controls"
              xmlns:importView="clr-namespace:AudioStation.Views.LibraryImportViews"
              xmlns:coreModel="clr-namespace:AudioStation.Core.Model;assembly=AudioStation.Core"
-             xmlns:viewModel="clr-namespace:AudioStation.ViewModels.LibraryLoaderViewModels"
-             xmlns:viewModelImport="clr-namespace:AudioStation.ViewModels.LibraryImporterViewModels.Import"
              xmlns:simpleUI="clr-namespace:SimpleWpf.UI.Controls;assembly=SimpleWpf.UI">
     
-    <Grid RowDefinitions="Auto, *, *, Auto">
+    <Grid RowDefinitions="Auto, *, Auto, Auto">
         
         <!-- Staged Files (in memory) -->
         <xceed:WatermarkTextBox Margin="5" 

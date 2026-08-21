@@ -1,8 +1,8 @@
 ﻿using System.Windows.Controls;
 
 using AudioStation.Controls;
-using AudioStation.ViewModels;
-using AudioStation.ViewModels.LibraryImporterViewModels.Import;
+using AudioStation.ViewModels.ComponentViewModels;
+using AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.Import;
 
 using SimpleWpf.IocFramework.Application.Attribute;
 

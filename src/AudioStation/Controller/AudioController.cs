@@ -6,7 +6,6 @@ using AudioStation.Controller.Interface;
 using AudioStation.Core.Component;
 using AudioStation.Core.Model;
 using AudioStation.Core.Service.Interface;
-using AudioStation.Core.Utility;
 using AudioStation.Event;
 
 using NAudio.Wave;
@@ -14,6 +13,7 @@ using NAudio.Wave;
 using SimpleWpf.Extensions.Event;
 using SimpleWpf.IocFramework.Application.Attribute;
 using SimpleWpf.IocFramework.EventAggregation;
+using SimpleWpf.Utilities;
 
 namespace AudioStation.Controller
 {
@@ -213,10 +213,10 @@ namespace AudioStation.Controller
 
         private void OnPlaybackTick(TimeSpan currentTime)
         {
-            if (ApplicationHelpers.IsDispatcher() == ApplicationIsDispatcherResult.False)
-                ApplicationHelpers.BeginInvokeDispatcher(OnPlaybackTick, DispatcherPriority.Background, currentTime);
+            if (BasicHelpers.IsDispatcher() == ApplicationIsDispatcherResult.False)
+                BasicHelpers.BeginInvokeDispatcher(OnPlaybackTick, DispatcherPriority.Background, currentTime);
 
-            else if (ApplicationHelpers.IsDispatcher() == ApplicationIsDispatcherResult.True)
+            else if (BasicHelpers.IsDispatcher() == ApplicationIsDispatcherResult.True)
             {
                 if (this.CurrentTimeUpdated != null)
                     this.CurrentTimeUpdated(currentTime);
@@ -225,10 +225,10 @@ namespace AudioStation.Controller
 
         private void OnEqualizerCalculated(EqualizerResultSet resultSet)
         {
-            if (ApplicationHelpers.IsDispatcher() == ApplicationIsDispatcherResult.False)
-                ApplicationHelpers.BeginInvokeDispatcher(OnEqualizerCalculated, DispatcherPriority.Background, resultSet);
+            if (BasicHelpers.IsDispatcher() == ApplicationIsDispatcherResult.False)
+                BasicHelpers.BeginInvokeDispatcher(OnEqualizerCalculated, DispatcherPriority.Background, resultSet);
 
-            else if (ApplicationHelpers.IsDispatcher() == ApplicationIsDispatcherResult.True)
+            else if (BasicHelpers.IsDispatcher() == ApplicationIsDispatcherResult.True)
             {
                 if (this.CurrentBandLevelsUpdated != null)
                     this.CurrentBandLevelsUpdated(resultSet);

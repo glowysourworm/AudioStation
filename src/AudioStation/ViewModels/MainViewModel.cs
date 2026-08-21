@@ -14,23 +14,24 @@ using AudioStation.Core.Service.Vendor.Bandcamp.Interface;
 using AudioStation.Core.Service.Vendor.Interface;
 using AudioStation.Event;
 using AudioStation.Model;
+using AudioStation.ViewModels.ComponentViewModels;
 using AudioStation.ViewModels.Controls;
+using AudioStation.ViewModels.MainViewModels;
+using AudioStation.ViewModels.OtherViewModels;
 using AudioStation.ViewModels.Vendor;
 
 using SimpleWpf.Extensions.Collection;
 using SimpleWpf.Extensions.Command;
+using SimpleWpf.IocFramework.Application.Attribute;
 using SimpleWpf.IocFramework.EventAggregation;
-
-using static AudioStation.EventHandler.DialogEventHandlers;
+using SimpleWpf.ViewModel;
 
 namespace AudioStation.ViewModels;
 
-public class MainViewModel : PrimaryViewModelBase
+[IocExportDefault]
+public class MainViewModel : ViewModelBase
 {
     private readonly IIocEventAggregator _eventAggregator;
-    private readonly IOutputController _outputController;
-
-    const int MAX_LOG_COUNT = 300;
 
     bool _disposed = false;
 
@@ -47,7 +48,6 @@ public class MainViewModel : PrimaryViewModelBase
     LogViewModel _log;
     NowPlayingViewModel _nowPlaying;
     BandcampViewModel _bandcamp;
-    LibraryLoaderViewModel _libraryLoaderViewModel;
     LibraryImporterViewModel _libraryImportViewModel;
 
     ObservableCollection<float> _equalizerValues;
@@ -119,11 +119,6 @@ public class MainViewModel : PrimaryViewModelBase
         get { return _bandcamp; }
         set { this.RaiseAndSetIfChanged(ref _bandcamp, value); }
     }
-    public LibraryLoaderViewModel LibraryLoader
-    {
-        get { return _libraryLoaderViewModel; }
-        set { this.RaiseAndSetIfChanged(ref _libraryLoaderViewModel, value); }
-    }
     public NowPlayingViewModel NowPlaying
     {
         get { return _nowPlaying; }
@@ -176,6 +171,7 @@ public class MainViewModel : PrimaryViewModelBase
     }
     #endregion
 
+    [IocImportingConstructor]
     public MainViewModel(IConfigurationManager configurationManager,
                          IAudioStationComponentController componentController,
                          IDialogController dialogController,
@@ -183,21 +179,18 @@ public class MainViewModel : PrimaryViewModelBase
                          ICDDrive cdDrive,
 
                          // View Models
-                         Configuration configuration,
                          LibraryManagerViewModel libraryManagerViewModel,
                          StatusViewModel statusViewModel,
                          RadioViewModel radioViewModel,
                          LogViewModel logViewModel,
-                         LibraryLoaderViewModel libraryLoaderViewModel,
                          LibraryImporterViewModel libraryImporterViewModel,
                          NowPlayingViewModel nowPlayingViewModel,
                          BandcampViewModel bandcampViewModel)
     {
         _eventAggregator = eventAggregator;
-        _outputController = componentController.GetComponent<IOutputController>();
 
         this.ConfigurationLocked = true;
-        this.Configuration = configuration;
+        this.Configuration = configurationManager.GetConfiguration();
         this.EqualizerValues = new ObservableCollection<float>();
         this.EqualizerViewModel = new ObservableCollection<EqualizerBandViewModel>()
         {
@@ -219,7 +212,6 @@ public class MainViewModel : PrimaryViewModelBase
         this.LibraryManager = libraryManagerViewModel;
         this.StatusViewModel = statusViewModel;
         this.Radio = radioViewModel;
-        this.LibraryLoader = libraryLoaderViewModel;
         this.LibraryImporter = libraryImporterViewModel;
         this.Bandcamp = bandcampViewModel;
         this.Volume = 1.0f;
@@ -287,11 +279,6 @@ public class MainViewModel : PrimaryViewModelBase
         {
             this.ConfigurationLocked = false;
         });
-    }
-
-    public override Task Initialize(DialogProgressHandler progressHandler)
-    {
-        return Task.CompletedTask;
     }
 
     private void OnLog(LogMessage message)
@@ -373,13 +360,5 @@ public class MainViewModel : PrimaryViewModelBase
     private void OnCurrentTimeUpdated(TimeSpan currentTime)
     {
         this.NowPlaying.Playlist.CurrentTrack?.UpdateCurrentTime(currentTime);
-    }
-
-    public override void Dispose()
-    {
-        if (!_disposed)
-        {
-            _disposed = true;
-        }
     }
 }

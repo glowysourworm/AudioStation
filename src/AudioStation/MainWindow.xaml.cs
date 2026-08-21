@@ -55,11 +55,12 @@ namespace AudioStation
         const int DBT_DEVICETYPESPECIFIC = 0x8005;
         #endregion
 
-        private readonly IViewModelController _viewModelController;
         private readonly IDialogController _dialogController;
         private readonly IIocEventAggregator _eventAggregator;
 
         public event PropertyChangedEventHandler? PropertyChanged;
+
+        private readonly MainViewModel _mainViewModel;
 
         // Needed by the framework
         public MainWindow()
@@ -74,16 +75,16 @@ namespace AudioStation
         [IocImportingConstructor]
         public MainWindow(IIocEventAggregator eventAggregator,
                           IDialogController dialogController,
-                          IViewModelController viewModelController,
-                          ICDDrive cdDrive)
+                          ICDDrive cdDrive,
+                          MainViewModel mainViewModel)
         {
-            _viewModelController = viewModelController;
             _eventAggregator = eventAggregator;
             _dialogController = dialogController;
+            _mainViewModel = mainViewModel;
 
             InitializeComponent();
 
-            this.DataContext = _viewModelController.GetMainViewModel();
+            this.DataContext = mainViewModel;
 
             // CD Drive
             _cdDrive = cdDrive;
@@ -163,16 +164,7 @@ namespace AudioStation
 
         private void ShowLogButton_Click(object sender, RoutedEventArgs e)
         {
-            _dialogController.ShowLogWindow(_viewModelController.GetMainViewModel().Log);
-        }
-
-        protected override void OnClosing(CancelEventArgs e)
-        {
-            var viewModel = this.DataContext as MainViewModel;
-
-            viewModel?.Dispose();
-
-            base.OnClosing(e);
+            _dialogController.ShowLogWindow(_mainViewModel.Log);
         }
     }
 }

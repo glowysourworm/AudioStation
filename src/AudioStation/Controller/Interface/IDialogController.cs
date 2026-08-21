@@ -1,5 +1,5 @@
 ﻿using AudioStation.Event;
-using AudioStation.ViewModels;
+using AudioStation.ViewModels.ComponentViewModels;
 using AudioStation.ViewModels.Vendor.ATLViewModel;
 
 namespace AudioStation.Controller.Interface

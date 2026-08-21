@@ -4,6 +4,7 @@ using AudioStation.Controller.Interface;
 using AudioStation.Core.Model;
 using AudioStation.Event;
 using AudioStation.ViewModels;
+using AudioStation.ViewModels.ComponentViewModels.RadioViewModels;
 
 using SimpleWpf.IocFramework.Application.Attribute;
 using SimpleWpf.IocFramework.EventAggregation;
@@ -74,7 +75,7 @@ namespace AudioStation.Views
             
         }
 
-        private void RadioBrowserView_StartStationEvent(ViewModels.RadioViewModels.RadioStationViewModel sender)
+        private void RadioBrowserView_StartStationEvent(RadioStationViewModel sender)
         {
             //var nowPlaying = new NowPlayingViewModel()
             //{

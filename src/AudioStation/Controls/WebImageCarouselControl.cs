@@ -6,9 +6,9 @@ using System.Windows.Threading;
 using AudioStation.Controller.Interface;
 using AudioStation.Controller.Model;
 using AudioStation.Controls.Animation;
-using AudioStation.Core.Utility;
 
 using SimpleWpf.IocFramework.Application;
+using SimpleWpf.Utilities;
 
 using PictureType = ATL.PictureInfo.PIC_TYPE;
 
@@ -91,15 +91,15 @@ namespace AudioStation.Controls
 
         ~WebImageCarouselControl()
         {
-            if (ApplicationHelpers.IsDispatcher() == ApplicationIsDispatcherResult.ApplicationClosing)
+            if (BasicHelpers.IsDispatcher() == ApplicationIsDispatcherResult.ApplicationClosing)
                 return;
 
-            ApplicationHelpers.BeginInvokeDispatcher(Dispose, DispatcherPriority.Background);
+            BasicHelpers.BeginInvokeDispatcher(Dispose, DispatcherPriority.Background);
         }
         private async Task ReInitialize(int carouselIndex)
         {
-            if (ApplicationHelpers.IsDispatcher() == ApplicationIsDispatcherResult.False)
-                ApplicationHelpers.BeginInvokeDispatcher(ReInitialize, DispatcherPriority.Background, carouselIndex);
+            if (BasicHelpers.IsDispatcher() == ApplicationIsDispatcherResult.False)
+                BasicHelpers.BeginInvokeDispatcherAsyncAwait(ReInitialize, DispatcherPriority.Background, carouselIndex);
 
             else
             {
@@ -145,10 +145,10 @@ namespace AudioStation.Controls
 
         private void TimerTick(object? state)
         {
-            if (ApplicationHelpers.IsDispatcher() == ApplicationIsDispatcherResult.ApplicationClosing)
+            if (BasicHelpers.IsDispatcher() == ApplicationIsDispatcherResult.ApplicationClosing)
                 return;
 
-            ApplicationHelpers.BeginInvokeDispatcher(() =>
+            BasicHelpers.BeginInvokeDispatcher(() =>
             {
                 if (this.Artwork == null || this.CarouselImages == null || this.CarouselImages.Count <= 0)
                     return;

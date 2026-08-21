@@ -3,8 +3,8 @@ using AudioStation.Component.Model;
 using AudioStation.Core.Controller.Interface;
 using AudioStation.Core.Service.Vendor.Interface;
 using AudioStation.Core.Utility;
-using AudioStation.ViewModels.LibraryViewModels;
-using AudioStation.ViewModels.PlaylistViewModels;
+using AudioStation.ViewModels.ComponentViewModels.LibraryViewModels;
+using AudioStation.ViewModels.MainViewModels;
 
 using Microsoft.Extensions.Logging;
 

@@ -4,10 +4,10 @@ using System.Windows.Threading;
 
 using AudioStation.Controller.Interface;
 using AudioStation.Controller.Model;
-using AudioStation.Core.Utility;
-using AudioStation.ViewModels;
+using AudioStation.ViewModels.OtherViewModels;
 
 using SimpleWpf.IocFramework.Application;
+using SimpleWpf.Utilities;
 
 namespace AudioStation.Controls
 {
@@ -34,11 +34,11 @@ namespace AudioStation.Controls
 
         ~LibraryImageControl()
         {
-            if (ApplicationHelpers.IsDispatcher() == ApplicationIsDispatcherResult.ApplicationClosing)
+            if (BasicHelpers.IsDispatcher() == ApplicationIsDispatcherResult.ApplicationClosing)
                 return;
 
             // DESTRUCTOR CALED FROM NON-DISPATCHER ?!?
-            ApplicationHelpers.BeginInvokeDispatcher(() =>
+            BasicHelpers.InvokeDispatcher(() =>
             {
                 this.Unloaded -= LibraryImageControl_Unloaded;
                 this.IsVisibleChanged -= LibraryImageControl_IsVisibleChanged;
@@ -74,10 +74,10 @@ namespace AudioStation.Controls
 
         private async Task Reload()
         {
-            if (ApplicationHelpers.IsDispatcher() == ApplicationIsDispatcherResult.False)
-                ApplicationHelpers.BeginInvokeDispatcher(Reload, DispatcherPriority.Background);
+            if (BasicHelpers.IsDispatcher() != ApplicationIsDispatcherResult.True)
+                BasicHelpers.BeginInvokeDispatcherAsyncAwait(Reload, DispatcherPriority.Background);
 
-            else if (ApplicationHelpers.IsDispatcher() == ApplicationIsDispatcherResult.True)
+            else
             {
                 // Go ahead and dump the source data until we've been reloaded by the container
                 this.Source = null;
@@ -93,13 +93,13 @@ namespace AudioStation.Controls
                         var imageData = await _cacheController.GetForAlbum(this.ViewModel.Id, this.ImageSize);
                         this.Source = imageData?.Source;
                     }
-                        break;
+                    break;
                     case Core.Model.LibraryEntityType.Artist:
                     {
                         var imageData = await _cacheController.GetForArtist(this.ViewModel.Id, this.ImageSize);
                         this.Source = imageData?.Source;
                     }
-                        break;
+                    break;
                     case Core.Model.LibraryEntityType.Track:
                     case Core.Model.LibraryEntityType.Genre:
                     default:
@@ -111,7 +111,7 @@ namespace AudioStation.Controls
                     var imageData = _cacheController.GetDefaultImage(this.ImageSize);
                     this.Source = imageData?.Source;
                 }
-                    
+
 
                 InvalidateVisual();
             }

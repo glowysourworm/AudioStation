@@ -4,8 +4,8 @@ using System.Windows.Input;
 
 using AudioStation.Component.Interface;
 using AudioStation.Event;
-using AudioStation.ViewModels.LibraryManagerViewModels;
-using AudioStation.ViewModels.LibraryViewModels;
+using AudioStation.ViewModels.ComponentViewModels.LibraryViewModels;
+using AudioStation.ViewModels.ComponentViewModels.LoadViewModels;
 
 using EMA.ExtendedWPFVisualTreeHelper;
 
@@ -19,7 +19,7 @@ namespace AudioStation.Views
     public partial class ArtistSearchView : UserControl
     {
         private readonly INowPlayingViewModelLoader _nowPlayingViewModelLoader;
-        private readonly IViewModelLoader _viewModelLoader;
+        private readonly IComponentViewModelLoader _viewModelLoader;
         private readonly IIocEventAggregator _eventAggregator;
 
         private int _pageNumber = 0;
@@ -32,7 +32,7 @@ namespace AudioStation.Views
         }
 
         [IocImportingConstructor]
-        public ArtistSearchView(IViewModelLoader viewModelLoader,
+        public ArtistSearchView(IComponentViewModelLoader viewModelLoader,
                                 IIocEventAggregator eventAggregator,
                                 INowPlayingViewModelLoader nowPlayingViewModelLoader)
         {

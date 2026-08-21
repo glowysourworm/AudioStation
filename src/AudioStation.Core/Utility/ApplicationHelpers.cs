@@ -12,6 +12,7 @@ using Microsoft.Extensions.Logging;
 
 using SimpleWpf.IocFramework.Application;
 using SimpleWpf.Native.IO;
+using SimpleWpf.Utilities;
 
 namespace AudioStation.Core.Utility
 {
@@ -57,51 +58,6 @@ namespace AudioStation.Core.Utility
         }
 
         /// <summary>
-        /// Checks to see whether the current managed thread is the dispatcher. Also, checks for application closing.
-        /// </summary>
-        public static ApplicationIsDispatcherResult IsDispatcher()
-        {
-            if (Application.Current == null)
-                return ApplicationIsDispatcherResult.ApplicationClosing;
-
-            else if (Thread.CurrentThread.ManagedThreadId == Application.Current.Dispatcher.Thread.ManagedThreadId)
-                return ApplicationIsDispatcherResult.True;
-
-            else
-                return ApplicationIsDispatcherResult.False;
-        }
-
-        public static void BeginInvokeDispatcher(Delegate method, DispatcherPriority priority, params object[] parameters)
-        {
-            if (IsDispatcher() == ApplicationIsDispatcherResult.False)
-                Application.Current.Dispatcher.BeginInvoke(method, priority, parameters);
-
-            // Dispatcher (SYNCHRONOUS!)
-            else
-                method.DynamicInvoke(parameters);
-        }
-
-        public static async Task BeginInvokeDispatcherAsync(Delegate method, DispatcherPriority priority, params object[] parameters)
-        {
-            if (IsDispatcher() == ApplicationIsDispatcherResult.False)
-                await Application.Current.Dispatcher.BeginInvoke(method, priority, parameters);
-
-            // Dispatcher (SYNCHRONOUS!)
-            else
-                method.DynamicInvoke(parameters);
-        }
-
-        public static void InvokeDispatcher(Delegate method, DispatcherPriority priority, params object[] parameters)
-        {
-            if (IsDispatcher() == ApplicationIsDispatcherResult.False)
-                Application.Current.Dispatcher.Invoke(method, priority, parameters);
-
-            // Dispatcher
-            else
-                method.DynamicInvoke(parameters);
-        }
-
-        /// <summary>
         /// Sends a log request to the dispatcher to log with the output controller
         /// </summary>
         public static void Log(string message, LogLevel level, Exception? exception, params object[] parameters)
@@ -142,7 +98,7 @@ namespace AudioStation.Core.Utility
                                     Exception? exception,
                                     params object[] parameters)
         {
-            if (IsDispatcher() == ApplicationIsDispatcherResult.False)
+            if (BasicHelpers.IsDispatcher() == ApplicationIsDispatcherResult.False)
                 Application.Current.Dispatcher.BeginInvoke(LogImpl, DispatcherPriority.Background, message, type, level, componentType, serviceType, dbType, exception, parameters);
 
             else

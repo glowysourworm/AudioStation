@@ -8,8 +8,8 @@ using AudioStation.Controls;
 using AudioStation.Core.Controller.Interface;
 using AudioStation.Core.Service.Vendor.Interface;
 using AudioStation.Model;
-using AudioStation.ViewModels.LibraryManagerViewModels;
-using AudioStation.ViewModels.LibraryViewModels;
+using AudioStation.ViewModels.ComponentViewModels.LibraryViewModels;
+using AudioStation.ViewModels.ComponentViewModels.LoadViewModels;
 using AudioStation.ViewModels.Vendor.ATLViewModel;
 using AudioStation.Views.LibraryEntryViews;
 

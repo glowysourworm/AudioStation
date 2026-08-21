@@ -4,9 +4,9 @@ using System.Windows.Threading;
 
 using AudioStation.Controller.Interface;
 using AudioStation.Controller.Model;
-using AudioStation.Core.Utility;
 
 using SimpleWpf.IocFramework.Application;
+using SimpleWpf.Utilities;
 
 using PictureType = ATL.PictureInfo.PIC_TYPE;
 
@@ -44,11 +44,11 @@ namespace AudioStation.Controls
         }
         ~WebImageControl()
         {
-            if (ApplicationHelpers.IsDispatcher() == ApplicationIsDispatcherResult.ApplicationClosing)
+            if (BasicHelpers.IsDispatcher() == ApplicationIsDispatcherResult.ApplicationClosing)
                 return;
 
             // DESTRUCTOR CALED FROM NON-DISPATCHER ?!?
-            ApplicationHelpers.BeginInvokeDispatcher(() =>
+            BasicHelpers.BeginInvokeDispatcher(() =>
             {
                 this.Unloaded -= WebImageControl_Unloaded;
                 this.IsVisibleChanged -= WebImageControl_IsVisibleChanged;
@@ -80,8 +80,8 @@ namespace AudioStation.Controls
         private async Task Reload()
         {
             // Don't await the BeginInvoke
-            if (ApplicationHelpers.IsDispatcher() == ApplicationIsDispatcherResult.False)
-                ApplicationHelpers.BeginInvokeDispatcher(Reload, DispatcherPriority.Background);
+            if (BasicHelpers.IsDispatcher() == ApplicationIsDispatcherResult.False)
+                BasicHelpers.BeginInvokeDispatcherAsyncAwait(Reload, DispatcherPriority.Background);
 
             else
             {

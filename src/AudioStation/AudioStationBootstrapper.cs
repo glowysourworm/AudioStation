@@ -1,16 +1,17 @@
 ﻿using System.Windows;
 using System.Windows.Threading;
 
+using AudioStation.Component.Interface;
 using AudioStation.Controller.Interface;
 using AudioStation.Core;
 using AudioStation.Core.Component.Interface;
-using AudioStation.Core.Utility;
 using AudioStation.Event;
 using AudioStation.Event.DialogEvents;
 using AudioStation.Views.DialogViews;
 using AudioStation.Windows;
 
 using SimpleWpf.IocFramework.Application;
+using SimpleWpf.Utilities;
 
 namespace AudioStation
 {
@@ -55,6 +56,10 @@ namespace AudioStation
             //                                        this code will run it in the center of the primary window.
             //
 
+            // NOTE***  The dispatcher thread must be available to create ViewModel instances. So, this
+            //          initialization had some problems down stream when it is not initialized on the
+            //          dispatcher. We'll try to use Dispatcher methods to await the initialization.
+            //
             var dialogWindow = new DialogWindow();
             var dialogViewModel = new DialogSplashScreenViewModel()
             {
@@ -75,28 +80,15 @@ namespace AudioStation
             dialogWindow.WindowStartupLocation = WindowStartupLocation.CenterScreen;
             dialogWindow.Show();
 
-            // Initialize View Model Data
-            var viewModelController = IocContainer.Get<IViewModelController>();
+            // Initialize Components -> Component View Models
             var componentController = IocContainer.Get<IAudioStationComponentController>();
+            var componentViewModelLoader = IocContainer.Get<IComponentViewModelLoader>();
 
-            // (see DialogEventHandlers.cs)
-            await viewModelController.Initialize((taskCount, tasksComplete, tasksError, message) =>
-            {
-                // Update the status bar during initialization
-                ApplicationHelpers.InvokeDispatcher(() =>
-                {
-                    dialogViewModel.Progress = tasksComplete / (double)taskCount;
-                    dialogViewModel.Message = message;
-                    dialogViewModel.ShowProgressMessage = (message != string.Empty);
-                    dialogViewModel.ShowProgressBar = dialogViewModel.Progress > 0;
-
-                }, DispatcherPriority.Normal);
-            });
-
+            // (see DialogEventHandlers.cs) (Splash Screen Dialog)
             await componentController.Initialize((taskCount, tasksComplete, tasksError, message) =>
             {
                 // Update the status bar during initialization
-                ApplicationHelpers.InvokeDispatcher(() =>
+                BasicHelpers.InvokeDispatcher(() =>
                 {
                     dialogViewModel.Progress = tasksComplete / (double)taskCount;
                     dialogViewModel.Message = message;
@@ -105,6 +97,21 @@ namespace AudioStation
 
                 }, DispatcherPriority.Normal);
             });
+
+
+            await componentViewModelLoader.Initialize((taskCount, tasksComplete, tasksError, message) =>
+            {
+                // Update the status bar during initialization
+                BasicHelpers.InvokeDispatcher(() =>
+                {
+                    dialogViewModel.Progress = tasksComplete / (double)taskCount;
+                    dialogViewModel.Message = message;
+                    dialogViewModel.ShowProgressMessage = (message != string.Empty);
+                    dialogViewModel.ShowProgressBar = dialogViewModel.Progress > 0;
+
+                }, DispatcherPriority.Normal);
+            });
+
 
             // Dismiss Splash Screen
             dialogWindow.Close();

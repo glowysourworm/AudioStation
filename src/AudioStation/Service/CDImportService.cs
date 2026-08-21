@@ -1,18 +1,17 @@
 ﻿using System.IO;
-using System.Windows;
 using System.Windows.Threading;
 
 using AudioStation.Controller.Interface;
 using AudioStation.Core.Component.CDPlayer.Interface;
 using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Controller.Interface;
-using AudioStation.Core.Utility;
 using AudioStation.Service.Interface;
 
 using NAudio.Lame;
 using NAudio.Wave;
 
 using SimpleWpf.IocFramework.Application.Attribute;
+using SimpleWpf.Utilities;
 
 namespace AudioStation.Service
 {
@@ -25,7 +24,7 @@ namespace AudioStation.Service
         private readonly IFileController _fileController;
 
         [IocImportingConstructor]
-        public CDImportService(IConfigurationManager configurationManager, 
+        public CDImportService(IConfigurationManager configurationManager,
                                IDialogController dialogController,
                                ICDDrive cdDrive,
                                IFileController fileController)
@@ -54,7 +53,7 @@ namespace AudioStation.Service
                     {
                         bufferData.AddRange(args.Data);
 
-                        ApplicationHelpers.BeginInvokeDispatcher(() =>
+                        BasicHelpers.BeginInvokeDispatcher(() =>
                         {
                             // Progress %
                             progressCallback(args.TotalBytesRead / (double)args.TotalBytesToRead);
@@ -63,14 +62,14 @@ namespace AudioStation.Service
                     });
 
                     // Complete the progress bar (TODO: Problem knowing the last sector read)
-                    ApplicationHelpers.BeginInvokeDispatcher(() => progressCallback(1), DispatcherPriority.Background);
+                    BasicHelpers.BeginInvokeDispatcher(() => progressCallback(1), DispatcherPriority.Background);
                 }
                 catch (Exception ex)
                 {
                     _dialogController.ShowAlert("CD-ROM Read Error", "There was an error reading from the CD-ROM", ex.Message);
                     return;
                 }
-                
+
 
                 var directory = configuration.DownloadFolder;
                 var artistFolder = _fileController.MakeFriendlyPath(false, artist);
@@ -106,7 +105,7 @@ namespace AudioStation.Service
                     {
                         Title = "Track " + trackNumber.ToString(),
                         Artist = artist,
-                        Album = album                                                
+                        Album = album
                     };
 
                     // NAudio.Lame (extension package)

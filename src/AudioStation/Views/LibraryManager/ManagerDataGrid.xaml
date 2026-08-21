@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:fa5="http://schemas.fontawesome.com/icons/"
              xmlns:xceed="http://schemas.xceed.com/wpf/xaml/toolkit"             
-             xmlns:viewModel="clr-namespace:AudioStation.ViewModels"             
+             xmlns:componentViewModel="clr-namespace:AudioStation.ViewModels.ComponentViewModels"             
              xmlns:system="clr-namespace:System;assembly=System.Runtime"             
              xmlns:simpleUI="clr-namespace:SimpleWpf.UI.Controls;assembly=SimpleWpf.UI">
     <Grid>
@@ -24,7 +24,7 @@
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                     <TextBlock Text="Library Manager Filter" Style="{StaticResource LabelTextBlockInvert}" Margin="5" VerticalAlignment="Center" />
 
-                    <simpleUI:EnumComboBox EnumType="{x:Type viewModel:LibraryManagerErrorFilterType}"
+                    <simpleUI:EnumComboBox EnumType="{x:Type componentViewModel:LibraryManagerErrorFilterType}"
                                            EnumValue="{Binding LibraryManagerFilterType, Mode=TwoWay}"
                                            EnumValueChanged="OnLibraryManagerFilterChanged"
                                            VerticalAlignment="Center"

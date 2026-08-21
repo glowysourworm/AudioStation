@@ -2,7 +2,7 @@
 
 using AudioStation.Controller.Interface;
 using AudioStation.Event;
-using AudioStation.ViewModels;
+using AudioStation.ViewModels.ComponentViewModels;
 using AudioStation.ViewModels.Vendor.ATLViewModel;
 using AudioStation.Views.DialogViews;
 using AudioStation.Views.VendorEntryViews;

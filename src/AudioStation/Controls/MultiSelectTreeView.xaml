@@ -13,11 +13,12 @@
             <Setter Property="BorderBrush" Value="Transparent" />
             <Setter Property="BorderThickness" Value="0" />
             <Setter Property="Background" Value="Transparent" />
-            <!--Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" /-->
+            <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="ListBoxItem">
-                        <Border Padding="{TemplateBinding Padding}"
+                        <Border x:Name="Bd"
+                                Padding="{TemplateBinding Padding}"
                                 Background="{TemplateBinding Background}"
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}">
@@ -71,7 +72,7 @@
             <Grid>
 
                 <!-- Header -->
-                <ContentPresenter Margin="23 3 3 3"
+                <ContentPresenter Margin="29 3 3 3"
                                   Content="{Binding ItemDisplay}"
                                   HorizontalAlignment="Stretch"
                                   VerticalAlignment="Stretch"
@@ -105,42 +106,53 @@
         <!-- Collection Template -->
         <DataTemplate x:Key="MultiSelectTreeViewCollectionItemTemplate">
 
-            <Grid ColumnDefinitions="20, *" RowDefinitions="Auto, *">
+            <Grid RowDefinitions="Auto, *" ColumnDefinitions="26, *">
 
-                <!-- Expander -->
-                <ToggleButton x:Name="InputFileExpanderButton"
-                              ClickMode="Press"
-                              IsChecked="{Binding IsExpanded, Mode=TwoWay}"
-                              Visibility="{Binding Children, Converter={StaticResource CollectionNonEmptyBoolConverter}}">
+                <!-- Header -->
+                <Border x:Name="HeaderBorder"
+                        Grid.Row="0"
+                        Grid.ColumnSpan="2"
+                        HorizontalAlignment="Stretch">
 
-                    <ToggleButton.Template>
-                        <ControlTemplate TargetType="ToggleButton">
-                            <Grid Background="Transparent">
+                    <Grid ColumnDefinitions="26, *">
+                        
+                        <!-- Expander -->
+                        <ToggleButton x:Name="InputFileExpanderButton"
+                                      Margin="3"
+                                      ClickMode="Press"
+                                      IsChecked="{Binding IsExpanded, Mode=TwoWay}"
+                                      Visibility="{Binding Children, Converter={StaticResource CollectionNonEmptyBoolConverter}}">
 
-                                <fa5:ImageAwesome Icon="Regular_Folder"                                                     
+                            <ToggleButton.Template>
+                                <ControlTemplate TargetType="ToggleButton">
+                                    <Grid Background="Transparent">
+
+                                        <fa5:ImageAwesome Icon="Regular_Folder"                                                     
                                                     Style="{StaticResource FontAwesomeIconManagerViewPager}"
                                                     Margin="3"
                                                     Visibility="{Binding IsExpanded, Converter={StaticResource BoolInverseVisibilityCollapseConverter}}" />
 
-                                <fa5:ImageAwesome Icon="Regular_FolderOpen"                                                     
+                                        <fa5:ImageAwesome Icon="Regular_FolderOpen"                                                     
                                                     Style="{StaticResource FontAwesomeIconManagerViewPager}"
                                                     Margin="3"
                                                     Visibility="{Binding IsExpanded, Converter={StaticResource BoolVisibilityCollapseConverter}}" />
-                            </Grid>
-                        </ControlTemplate>
-                    </ToggleButton.Template>
-                </ToggleButton>
+                                    </Grid>
+                                </ControlTemplate>
+                            </ToggleButton.Template>
+                        </ToggleButton>
 
-                <!-- Header -->
-                <ContentPresenter Grid.Row="0"                                               
-                                    Grid.Column="1" 
-                                    Margin="3"
-                                    Content="{Binding ItemDisplay}"
-                                    HorizontalAlignment="Stretch"
-                                    VerticalAlignment="Stretch"
-                                    TextBlock.TextAlignment="Left"
-                                    TextBlock.FontSize="14">
-                </ContentPresenter>
+
+                        <ContentPresenter 
+                            Grid.Column="1"
+                            Margin="3"
+                            Content="{Binding ItemDisplay}"
+                            HorizontalAlignment="Stretch"
+                            VerticalAlignment="Stretch"
+                            TextBlock.TextAlignment="Left"
+                            TextBlock.FontSize="14">
+                        </ContentPresenter>
+                    </Grid>
+                </Border>
 
                 <!-- Items -->
                 <ListBox x:Name="LeafLB"
@@ -159,6 +171,15 @@
 
             </Grid>
 
+            <DataTemplate.Triggers>
+                <Trigger Property="IsMouseOver" Value="True" SourceName="HeaderBorder">
+                    <Setter TargetName="HeaderBorder" Property="Background" Value="{Binding HoverBrush, RelativeSource={RelativeSource AncestorType=UserControl}}" />
+                </Trigger>
+                <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                    <Setter Property="Background" TargetName="HeaderBorder" Value="{Binding SelectionBrush, RelativeSource={RelativeSource AncestorType=UserControl}}" />
+                </DataTrigger>
+            </DataTemplate.Triggers>
+
         </DataTemplate>
 
     </UserControl.Resources>
@@ -175,6 +196,7 @@
                      ScrollViewer.HorizontalScrollBarVisibility="Hidden"
                      ScrollViewer.VerticalScrollBarVisibility="Hidden"
                      ScrollViewer.CanContentScroll="False"
+                     SelectionMode="Extended"
                      Style="{StaticResource MultiSelectTreeViewListBoxStyle}">
             </ListBox>
 

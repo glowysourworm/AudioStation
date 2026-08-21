@@ -1,7 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 
-using AudioStation.ViewModels;
+using AudioStation.ViewModels.ComponentViewModels;
 using AudioStation.Views.LibraryImportViews;
 
 using SimpleWpf.IocFramework.Application.Attribute;
@@ -30,6 +30,8 @@ namespace AudioStation.Views
         }
 
         private readonly IIocRegionManager _regionManager;
+
+        LibraryImporterViewModel _viewModel;
 
         public LibraryImportView()
         {
@@ -95,6 +97,8 @@ namespace AudioStation.Views
 
         private void RefreshFromDataContext(LibraryImporterViewModel viewModel)
         {
+            _viewModel = viewModel;
+
             // Configuration
             if (_regionManager.GetRegion("LibraryImporterControlRegion").Content is LibraryImportConfigurationView)
             {
@@ -127,6 +131,37 @@ namespace AudioStation.Views
         private void LoadImportView(Type viewType, bool previous, bool ignoreTransition)
         {
             _regionManager.LoadNamedInstance("LibraryImporterControlRegion", viewType, ignoreTransition);
+        }
+
+        /// <summary>
+        /// Runs initial process just after loading the view
+        /// </summary>
+        private void InitializeImportStep(Type viewType)
+        {
+            // Configuration
+            if (_regionManager.GetRegion("LibraryImporterControlRegion").Content is LibraryImportConfigurationView)
+            {
+                // TODO
+            }
+
+            // Staging
+            else if (_regionManager.GetRegion("LibraryImporterControlRegion").Content is LibraryImportStagingView)
+            {
+                // TODO
+            }
+
+            // Tag Completion 
+            if (_regionManager.GetRegion("LibraryImporterControlRegion").Content is LibraryImportTagCompletionView)
+            {
+                // Run Acoust ID -> Music Brainz (cache results)
+            }
+
+            // Final View (User can go back as long as they haven't pressed "Execute")
+            if (_regionManager.GetRegion("LibraryImporterControlRegion").Content is LibraryImportFinalView)
+            {
+            }
+
+            //return Task.CompletedTask;
         }
 
         private void ViewModel_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -174,18 +209,21 @@ namespace AudioStation.Views
             if (_regionManager.GetRegion("LibraryImporterControlRegion").Content is LibraryImportConfigurationView)
             {
                 LoadImportView(typeof(LibraryImportStagingView), false, true);
+                InitializeImportStep(typeof(LibraryImportStagingView));
             }
 
             // Tag Completion
             else if (_regionManager.GetRegion("LibraryImporterControlRegion").Content is LibraryImportStagingView)
             {
                 LoadImportView(typeof(LibraryImportTagCompletionView), false, true);
+                InitializeImportStep(typeof(LibraryImportTagCompletionView));
             }
 
             // Configuration
             else if (_regionManager.GetRegion("LibraryImporterControlRegion").Content is LibraryImportTagCompletionView)
             {
                 LoadImportView(typeof(LibraryImportFinalView), false, true);
+                InitializeImportStep(typeof(LibraryImportFinalView));
             }
 
             // Final View (User can go back as long as they haven't pressed "Execute")

@@ -7,8 +7,7 @@
              xmlns:xceed="http://schemas.xceed.com/wpf/xaml/toolkit"
              xmlns:controls="clr-namespace:AudioStation.Controls"
              xmlns:viewModel="clr-namespace:AudioStation.ViewModels"
-             xmlns:region="clr-namespace:SimpleWpf.IocFramework.RegionManagement;assembly=SimpleWpf.IocFramework"
-             xmlns:libraryViewModel="clr-namespace:AudioStation.ViewModels.LibraryViewModels">
+             xmlns:region="clr-namespace:SimpleWpf.IocFramework.RegionManagement;assembly=SimpleWpf.IocFramework">
 
     <!-- Going to use this for creating the base tabs (proxy is simpler) -->
     <UserControl.Resources>

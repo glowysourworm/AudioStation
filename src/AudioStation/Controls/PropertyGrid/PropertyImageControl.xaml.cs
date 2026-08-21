@@ -8,7 +8,7 @@ using System.Windows.Media.Imaging;
 using AudioStation.Component;
 using AudioStation.Component.Interface;
 using AudioStation.Controller.Model;
-using AudioStation.ViewModels;
+using AudioStation.ViewModels.OtherViewModels;
 
 using SimpleWpf.IocFramework.Application;
 

@@ -2,11 +2,9 @@
 using System.Windows.Controls;
 using System.Windows.Threading;
 
-using AudioStation.Core.Utility;
-
 using EMA.ExtendedWPFVisualTreeHelper;
 
-using NAudio.Utils;
+using SimpleWpf.Utilities;
 
 namespace AudioStation.Controls
 {
@@ -54,13 +52,13 @@ namespace AudioStation.Controls
         {
             //Application.Current.Dispatcher.BeginInvoke(() =>
             //{
-                InvalidateMeasure();
+            InvalidateMeasure();
             //});
         }
 
         private void Window_SizeChanged(object sender, SizeChangedEventArgs e)
         {
-            ApplicationHelpers.BeginInvokeDispatcher(() =>
+            BasicHelpers.BeginInvokeDispatcher(() =>
             {
                 InvalidateMeasure();
 
@@ -68,7 +66,7 @@ namespace AudioStation.Controls
         }
         private void Window_StateChanged(object? sender, EventArgs e)
         {
-            ApplicationHelpers.BeginInvokeDispatcher(() =>
+            BasicHelpers.BeginInvokeDispatcher(() =>
             {
                 InvalidateMeasure();
 
@@ -90,8 +88,8 @@ namespace AudioStation.Controls
             // Actual Width / Height are used for the panel; but these dimensions aren't constrained. So, 
             // we need the items control render size to constrain the items.
             //
-            var listSize = new Size(scrollViewer.ViewportWidth > 0 ? Math.Min(scrollViewer.ViewportWidth, itemsControl.RenderSize.Width) : 
-                                                                     itemsControl.RenderSize.Width, 
+            var listSize = new Size(scrollViewer.ViewportWidth > 0 ? Math.Min(scrollViewer.ViewportWidth, itemsControl.RenderSize.Width) :
+                                                                     itemsControl.RenderSize.Width,
                                     scrollViewer.ViewportHeight > 0 ? scrollViewer.ViewportHeight : itemsControl.RenderSize.Height);
 
             var numberColumnsMax = (int)Math.Max(1, Math.Floor(listSize.Width / this.WrapColumnSize));
