@@ -50,14 +50,16 @@ namespace AudioStation.ViewModels.ComponentViewModels
         //                finished - with the bare minimum tag data - and moved into the library's 
         //                directory structure.
         //
-        ObservableCollection<LibraryImporterStagedFileViewModel> _stagedFiles;
+        ObservableCollection<LibraryImporterFileViewModel> _stagedFiles;
+        ObservableCollection<LibraryImporterFileViewModel> _filesCompletedSuccessfully;
+        ObservableCollection<LibraryImporterFileViewModel> _filesCompletedWithError;
 
         SimpleCommand _stageCommand;
         SimpleCommand _unstageCommand;
         SimpleCommand _editTagCommand;
         SimpleCommand<string> _editTagGroupCommand;
         SimpleCommand _runImportCommand;
-        SimpleCommand _runChromaprintLookupCommand;
+        //SimpleCommand _runChromaprintLookupCommand;
 
         string _sourceFolderSearch;
         string _stagedSearch;
@@ -72,10 +74,20 @@ namespace AudioStation.ViewModels.ComponentViewModels
             get { return _sourceDirectory; }
             set { RaiseAndSetIfChanged(ref _sourceDirectory, value); }
         }
-        public ObservableCollection<LibraryImporterStagedFileViewModel> StagedFiles
+        public ObservableCollection<LibraryImporterFileViewModel> StagedFiles
         {
             get { return _stagedFiles; }
             set { this.RaiseAndSetIfChanged(ref _stagedFiles, value); }
+        }
+        public ObservableCollection<LibraryImporterFileViewModel> FilesCompletedSuccessfully
+        {
+            get { return _filesCompletedSuccessfully; }
+            set { this.RaiseAndSetIfChanged(ref _filesCompletedSuccessfully, value); }
+        }
+        public ObservableCollection<LibraryImporterFileViewModel> FilesCompletedWithError
+        {
+            get { return _filesCompletedWithError; }
+            set { this.RaiseAndSetIfChanged(ref _filesCompletedWithError, value); }
         }
         public int SourceFileSelectedCount
         {
@@ -107,16 +119,6 @@ namespace AudioStation.ViewModels.ComponentViewModels
             get { return _editTagGroupCommand; }
             set { RaiseAndSetIfChanged(ref _editTagGroupCommand, value); }
         }
-        public SimpleCommand RunImportCommand
-        {
-            get { return _runImportCommand; }
-            set { RaiseAndSetIfChanged(ref _runImportCommand, value); }
-        }
-        public SimpleCommand RunAcousticFingerprintCommand
-        {
-            get { return _runChromaprintLookupCommand; }
-            set { RaiseAndSetIfChanged(ref _runChromaprintLookupCommand, value); }
-        }
 
         public string SourceFolderSearch
         {
@@ -129,7 +131,7 @@ namespace AudioStation.ViewModels.ComponentViewModels
             set { this.RaiseAndSetIfChanged(ref _stagedSearch, value); }
         }
 
-        public override LibraryImporterTreeViewModel? Load
+        public override LibraryImporterTreeViewModel Load
         {
             get { return this.SourceDirectory; }
         }
@@ -152,13 +154,9 @@ namespace AudioStation.ViewModels.ComponentViewModels
             this.Options = new LibraryImporterConfigurationViewModel(configurationManager, dialogController);
             this.SourceDirectory = null;
 
-            _stagedFiles = new ObservableCollection<LibraryImporterStagedFileViewModel>();
-
-            // RunImport -> Complete
-            //eventAggregator.GetEvent<LibraryLoaderWorkItemCompleteEvent>().Subscribe(payload =>
-            //{
-            //    RefreshImportFiles(true);
-            //});
+            _stagedFiles = new ObservableCollection<LibraryImporterFileViewModel>();
+            _filesCompletedSuccessfully = new ObservableCollection<LibraryImporterFileViewModel>();
+            _filesCompletedWithError = new ObservableCollection<LibraryImporterFileViewModel>();
 
             this.EditTagCommand = new SimpleCommand(() =>
             {
@@ -172,140 +170,41 @@ namespace AudioStation.ViewModels.ComponentViewModels
 
             }, CanEditTagGroup);
 
-            this.RunImportCommand = new SimpleCommand(async () =>
-            {
-                await RunImport();
-
-            }, CanRunImport);
-
-            this.RunAcousticFingerprintCommand = new SimpleCommand(async () =>
-            {
-                await RunAcoustID();
-
-                if (CanRunMusicBrainz())
-                    await RunMusicBrainz();
-
-            }, CanRunAcoustID);
-
-            this.StageCommand = new SimpleCommand(() =>
-            {
-                // Initialization (?)
-                if (this.SourceDirectory == null)
-                    return;
-
-                this.SourceDirectory.RecurseForEach(path =>
-                {
-                    var pathNode = path as LibraryImporterTreeViewModel;
-
-                    if (pathNode.HasSelectedParent() ||
-                        pathNode.NodeValue.IsSelected)
-                    {
-                        // File
-                        if (!pathNode.NodeValue.IsDirectory)
-                        {
-                            var stagedFile = new LibraryImporterStagedFileViewModel()
-                            {
-                                File = path.NodeValue as LibraryImporterFileViewModel
-                            };
-
-                            // Hook
-                            stagedFile.PropertyChanged += SourceFile_PropertyChanged;
-
-                            this.StagedFiles.Add(stagedFile);
-                        }
-
-                        // Directory
-                        else
-                        {
-                            // Nothing to do
-                        }
-                    }
-                });
-
-            }, CanStageFiles);
-
-            this.UnstageCommand = new SimpleCommand(() =>
-            {
-                // Initialization (?)
-                if (this.SourceDirectory == null)
-                    return;
-
-                // Remove unstaged files
-                var removedFiles = this.StagedFiles.Remove(x => x.IsSelected);
-
-                // Unhook
-                foreach (var file in removedFiles)
-                {
-                    file.PropertyChanged -= SourceFile_PropertyChanged;
-                }
-
-            }, CanUnstageFiles);
-
-            //this.EditOptionsCommand = new SimpleCommand(async () =>
-            //{
-            //    // Synchronous
-            //    dialogController.ShowImportOptionsWindow(this.Options);
-
-            //    // Show Loading
-            //    var loadingViewModel = new DialogLoadingViewModel()
-            //    {
-            //        Message = "Loading Import Files",
-            //        Progress = 0,
-            //        ShowProgressBar = true
-            //    };
-
-            //    eventAggregator.GetEvent<DialogEvent>().Publish(new DialogEventData(loadingViewModel));
-
-            //    await RefreshImportFiles((count, current, errorCount, message) =>
-            //    {
-            //        loadingViewModel.Message = message;
-            //        loadingViewModel.Progress = current / (double)count;
-            //    });
-
-            //    eventAggregator.GetEvent<DialogEvent>().Publish(DialogEventData.Dismiss());
-            //});
+            this.StageCommand = new SimpleCommand(StageFiles, CanStageFiles);
+            this.UnstageCommand = new SimpleCommand(UnstageFiles, CanUnstageFiles);
         }
 
-        public override void Initialize(Configuration configuration, LibraryImporterTreeViewModel? load, DialogProgressHandler progressHandler)
+        public override void Initialize(Configuration configuration, LibraryImporterTreeViewModel load, DialogProgressHandler progressHandler)
         {
             if (BasicHelpers.IsDispatcher() == ApplicationIsDispatcherResult.False)
                 BasicHelpers.BeginInvokeDispatcher(Initialize, System.Windows.Threading.DispatcherPriority.Background, configuration, load, progressHandler);
 
             else
+            {
+                // Set View Model (Load)
                 this.SourceDirectory = load;
 
-            // Initialization:     This task is run during initialization.
-            // 
-            // Task / Dispatcher:  We have to invoke the dispatcher from here so that the view model
-            //                     bindings to the UI don't throw exceptions.
-            //
-            //await ApplicationHelpers.BeginInvokeDispatcherAsync(async () =>
-            //{
-            //    if (!string.IsNullOrEmpty(this.Options.SourceFolder))
-            //    {
-            //        // IViewModelLoader -> LoadImportFiles -> LibraryLoaderImportFileViewModel(...)
-            //        //
-            //        var importDirectory = _viewModelLoader.LoadImportFiles(this.Options, progressHandler);
+                // Initialization:     This task is run during initialization.
+                // 
+                // Task / Dispatcher:  We have to invoke the dispatcher from here so that the view model
+                //                     bindings to the UI don't throw exceptions.
+                //
+                if (!string.IsNullOrEmpty(this.Options.SourceFolder))
+                {
+                    // Hook Events (Recursively)
+                    foreach (var sourceFile in this.SourceDirectory.RecursiveWhere(x => !x.IsDirectory)
+                                                                   .Cast<LibraryImporterFileViewModel>())
+                    {
+                        sourceFile.SelectAcoustIDEvent += ShowAcoustIDResults;
+                        sourceFile.SelectMusicBrainzEvent += ShowMusicBrainzResults;
+                        sourceFile.PlayAudioEvent += ShowSmallAudioPlayer;
+                        //sourceFile.PropertyChanged += SourceFile_PropertyChanged;
+                    }
 
-            //        if (importDirectory == null)
-            //            return;
-
-            //        // Hook Events (Recursively)
-            //        foreach (var sourceFile in importDirectory.RecursiveWhere(x => !x.IsDirectory)
-            //                                                  .Cast<LibraryImporterFileViewModel>())
-            //        {
-            //            sourceFile.SelectAcoustIDEvent += ShowAcoustIDResults;
-            //            sourceFile.SelectMusicBrainzEvent += ShowMusicBrainzResults;
-            //            sourceFile.PlayAudioEvent += ShowSmallAudioPlayer;
-            //            //sourceFile.PropertyChanged += SourceFile_PropertyChanged;
-            //        }
-
-            //        // Set View Model
-            //        this.SourceDirectory = importDirectory;
-            //        this.SourceDirectory.ItemPropertyChanged += SourceDirectory_ItemPropertyChanged;
-            //    }
-
-            //}, DispatcherPriority.Background);
+                    // Set View Model
+                    this.SourceDirectory.ItemPropertyChanged += SourceDirectory_ItemPropertyChanged;
+                }
+            }
         }
         public override void Dispose()
         {
@@ -332,26 +231,6 @@ namespace AudioStation.ViewModels.ComponentViewModels
         {
             return this.SourceFileSelectedCount > 1;
         }
-        private bool CanRunImport()
-        {
-            return this.SourceFileSelectedCount > 0 &&
-                   this.SourceDirectory
-                       .RecursiveWhere(x => x.IsSelected && !x.IsDirectory)
-                       .Cast<LibraryImporterFileViewModel>()
-                       .All(x => x.MinimumImportValid);
-        }
-        private bool CanRunAcoustID()
-        {
-            return this.SourceFileSelectedCount > 0;
-        }
-        private bool CanRunMusicBrainz()
-        {
-            return this.SourceFileSelectedCount > 0 &&
-                   this.SourceDirectory
-                       .RecursiveWhere(x => x.IsSelected && !x.IsDirectory)
-                       .Cast<LibraryImporterFileViewModel>()
-                       .All(x => x.ImportOutput.AcoustIDSuccess && x.SelectedAcoustIDResult != null);
-        }
 
         private void SourceDirectory_ItemPropertyChanged(PathViewModel item, PropertyChangedEventArgs propertyArgs)
         {
@@ -371,8 +250,6 @@ namespace AudioStation.ViewModels.ComponentViewModels
             this.UnstageCommand.RaiseCanExecuteChanged();
             this.EditTagCommand.RaiseCanExecuteChanged();
             this.EditTagGroupCommand.RaiseCanExecuteChanged(string.Empty);
-            this.RunImportCommand.RaiseCanExecuteChanged();
-            this.RunAcousticFingerprintCommand.RaiseCanExecuteChanged();
         }
 
         private void ClearSourceFiles()
@@ -387,6 +264,51 @@ namespace AudioStation.ViewModels.ComponentViewModels
             }
             // Nodes have list properties
             this.SourceDirectory.ItemPropertyChanged -= SourceDirectory_ItemPropertyChanged;
+        }
+
+        private void StageFiles()
+        {
+            // Initialization (?)
+            if (this.SourceDirectory == null)
+                return;
+
+            this.SourceDirectory.RecurseForEach(path =>
+            {
+                var pathNode = path as LibraryImporterTreeViewModel;
+
+                if (pathNode.HasSelectedParent() ||
+                    pathNode.NodeValue.IsSelected)
+                {
+                    // File
+                    if (!pathNode.NodeValue.IsDirectory &&
+                        !this.StagedFiles.Any(x => x.FullPath == pathNode.NodeValue.FullPath))
+                    {
+                        this.StagedFiles.Add(path.NodeValue as LibraryImporterFileViewModel);
+                    }
+
+                    // Directory
+                    else
+                    {
+                        // Nothing to do
+                    }
+                }
+            });
+        }
+
+        private void UnstageFiles()
+        {
+            // Initialization (?)
+            if (this.SourceDirectory == null)
+                return;
+
+            // Remove unstaged files
+            var removedFiles = this.StagedFiles.Remove(x => x.IsSelected);
+
+            // Unhook
+            foreach (var file in removedFiles)
+            {
+                file.PropertyChanged -= SourceFile_PropertyChanged;
+            }
         }
 
         private void EditTag()
@@ -462,164 +384,6 @@ namespace AudioStation.ViewModels.ComponentViewModels
                 ApplicationHelpers.Log("Application error:  {0}", LogLevel.Error, ex, ex.Message);
                 throw ex;
             }
-        }
-
-        private async Task RunImport()
-        {
-            // Procedure
-            //
-            // 0) Show Dialog (progress handler)
-            // 1) CanRunImport (already checked)
-            // 2) Run source files that are selected using ILibraryImporter
-            //
-
-            var loadingViewModel = new DialogLoadingViewModel()
-            {
-                Title = "Importing Audio Files",
-                Message = string.Empty,
-                Progress = 0,
-                ShowProgressBar = true
-            };
-            var progressCounter = 0;
-            var progressTotal = this.SourceDirectory.RecursiveWhere(x => !x.IsDirectory && x.IsSelected).Count();
-
-            // Show Loading...
-            _eventAggregator.GetEvent<DialogEvent>().Publish(new DialogEventData(loadingViewModel));
-
-            foreach (var file in this.SourceDirectory.RecursiveWhere(x => !x.IsDirectory && x.IsSelected).Cast<LibraryImporterFileViewModel>())
-            {
-                loadingViewModel.Message = "Importing " + file.ShortPath;
-
-                // -> Import to Database
-                var success = _libraryImporter.WorkImportEntity(file.ImportLoad, file.ImportOutput);
-
-                if (!success)
-                    file.ImportOutput.LogMessages.Add("Import Failed (progress halted)");
-                else
-                    file.ImportOutput.LogMessages.Add("Import Succeeded!");
-
-                // -> Migrate File
-                if (file.ImportLoad.ImportFileMigration && success)
-                {
-                    if (!_libraryImporter.CanImportMigrateFile(file.ImportLoad, file.ImportOutput))
-                        file.ImportOutput.LogMessages.Add("File Migration Not Possible (progress halted)");
-
-                    else
-                    {
-                        var migrationSuccess = _libraryImporter.WorkMigrateFile(file.ImportLoad, file.ImportOutput);
-
-                        if (!migrationSuccess)
-                            file.ImportOutput.LogMessages.Add("File Migration Failed (progress halted)");
-                        else
-                            file.ImportOutput.LogMessages.Add("File Migration Succeeded!");
-                    }
-                }
-
-                loadingViewModel.Progress = ++progressCounter / (double)progressTotal;
-            }
-
-            // Dismiss
-            _eventAggregator.GetEvent<DialogEvent>().Publish(DialogEventData.Dismiss());
-        }
-
-        private async Task RunAcoustID()
-        {
-            // Procedure
-            //
-            // 0) Show Dialog (progress handler)
-            // 1) CanRunAcoustID (already checked)
-            // 2) Run source files that are selected using ILibraryImporter
-            //
-
-            var progressCounter = 0;
-            var progressTotal = this.SourceDirectory.RecursiveWhere(x => !x.IsDirectory && x.IsSelected).Count();
-
-            var loadingViewModel = new DialogLoadingViewModel()
-            {
-                Title = "Running AcoustID Service",
-                Message = string.Empty,
-                Progress = 0,
-                ShowProgressBar = progressTotal > 1
-            };
-
-            // Show Loading...
-            _eventAggregator.GetEvent<DialogEvent>().Publish(new DialogEventData(loadingViewModel));
-
-            foreach (var selectedFile in this.SourceDirectory.RecursiveWhere(x => !x.IsDirectory && x.IsSelected).Cast<LibraryImporterFileViewModel>())
-            {
-                // Double Check (existing results)
-                if (!selectedFile.ImportOutput.AcoustIDSuccess)
-                {
-                    loadingViewModel.Message = "AcoustID: " + selectedFile.ShortPath;
-
-                    var success = await _libraryImporter.WorkAcoustID(selectedFile.ImportLoad, selectedFile.ImportOutput);
-
-                    if (!success)
-                        selectedFile.ImportOutput.LogMessages.Add("AcoustID Failed (progress halted)");
-                    else
-                    {
-                        selectedFile.ImportOutput.LogMessages.Add("AcoustID Succeeded!");
-
-                        // Set initial selection
-                        selectedFile.SelectedAcoustIDResult = selectedFile.ImportOutput.AcoustIDResults.First();
-                    }
-                }
-
-                loadingViewModel.Progress = ++progressCounter / (double)progressTotal;
-            }
-
-            // Dismiss
-            _eventAggregator.GetEvent<DialogEvent>().Publish(DialogEventData.Dismiss());
-        }
-
-        private async Task RunMusicBrainz()
-        {
-            // Procedure
-            //
-            // 0) Show Dialog (progress handler)
-            // 1) CanRunMusicBrainz (already checked)
-            // 2) Run source files that are selected using ILibraryImporter
-            //
-            var progressCounter = 0;
-            var progressTotal = this.SourceDirectory.RecursiveWhere(x => !x.IsDirectory && x.IsSelected).Count();
-
-            var loadingViewModel = new DialogLoadingViewModel()
-            {
-                Title = "Running Music Brainz Service",
-                Message = string.Empty,
-                Progress = 0,
-                ShowProgressBar = progressTotal > 1
-            };
-
-            // Show Loading...
-            _eventAggregator.GetEvent<DialogEvent>().Publish(new DialogEventData(loadingViewModel));
-
-            foreach (var selectedFile in this.SourceDirectory.RecursiveWhere(x => !x.IsDirectory && x.IsSelected).Cast<LibraryImporterFileViewModel>())
-            {
-                // Double Check (existing records)
-                //
-                if (!selectedFile.ImportOutput.MusicBrainzRecordingMatchSuccess)
-                {
-                    loadingViewModel.Message = "Music Brainz Lookup:  " + selectedFile.ShortPath;
-
-                    var success = await _libraryImporter.WorkMusicBrainzDetail(selectedFile.ImportLoad, selectedFile.ImportOutput);
-
-                    if (!success)
-                        selectedFile.ImportOutput.LogMessages.Add("Music Brainz Failed (progress halted)");
-                    else
-                    {
-                        selectedFile.ImportOutput.LogMessages.Add("Music Brainz Succeeded!");
-
-                        // Set initial selection
-                        selectedFile.SelectedMusicBrainzRecordingMatch = selectedFile.ImportOutput.MusicBrainzRecordingMatches.First();
-                    }
-                }
-
-                loadingViewModel.Progress = ++progressCounter / (double)progressTotal;
-            }
-
-            // Dismiss
-            _eventAggregator.GetEvent<DialogEvent>().Publish(DialogEventData.Dismiss());
         }
 
         private void ShowAcoustIDResults(LibraryImporterFileViewModel selectedFile)

@@ -14,6 +14,21 @@ namespace AudioStation.Component.Interface
         Task Initialize(DialogProgressHandler progressHandler);
 
         /// <summary>
+        /// Runs AcoustID service on the staged files of the library importer
+        /// </summary>
+        Task LibraryImporter_RunAcoustID();
+
+        /// <summary>
+        /// Runs Music Brainz service on the staged files of the library importer
+        /// </summary>
+        Task LibraryImporter_RunMusicBrainz();
+
+        /// <summary>
+        /// Runs import on staged files of the library importer
+        /// </summary>
+        Task LibraryImporter_RunImport();
+
+        /// <summary>
         /// Loads a collection of LibraryEntryViewModel ordered by ID; and translates the PageResult into 
         /// one for the ViewModel namespace.
         /// </summary>

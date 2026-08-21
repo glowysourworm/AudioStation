@@ -7,6 +7,8 @@ using AudioStation.Core.Controller.Interface;
 using AudioStation.Core.Database.AudioStationDatabase;
 using AudioStation.Core.Model;
 using AudioStation.Core.Utility;
+using AudioStation.Event;
+using AudioStation.Event.DialogEvents;
 using AudioStation.ViewModels;
 using AudioStation.ViewModels.ComponentViewModels;
 using AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.Import;
@@ -19,6 +21,7 @@ using Microsoft.Extensions.Logging;
 
 using SimpleWpf.Extensions.ObservableCollection;
 using SimpleWpf.IocFramework.Application.Attribute;
+using SimpleWpf.IocFramework.EventAggregation;
 using SimpleWpf.Utilities;
 
 using static AudioStation.EventHandler.DialogEventHandlers;
@@ -28,8 +31,12 @@ namespace AudioStation.Component
     [IocExport(typeof(IComponentViewModelLoader))]
     public class ComponentViewModelLoader : IComponentViewModelLoader
     {
-        readonly IModelController _modelController;
-        readonly IConfigurationManager _configurationManager;
+        private readonly IIocEventAggregator _eventAggregator;
+
+        private readonly ILibraryImporter _libraryImporter;
+
+        private readonly IModelController _modelController;
+        private readonly IConfigurationManager _configurationManager;
 
         private readonly LibraryManagerViewModel _libraryManagerViewModel;
         private readonly RadioViewModel _radioViewModel;
@@ -42,6 +49,11 @@ namespace AudioStation.Component
         [IocImportingConstructor]
         public ComponentViewModelLoader(
 
+            IIocEventAggregator eventAggregator,
+
+            // Core Components
+            ILibraryImporter libraryImporter,
+
             // View Models
             LibraryLoaderCDImportViewModel libraryLoaderCDImportViewModel,
             LibraryImporterViewModel libraryImporterViewModel,
@@ -53,6 +65,10 @@ namespace AudioStation.Component
             IModelController modelController,
             IConfigurationManager configurationManager)
         {
+            _eventAggregator = eventAggregator;
+
+            _libraryImporter = libraryImporter;
+
             _libraryLoaderCDImportViewModel = libraryLoaderCDImportViewModel;
             _libraryImporterViewModel = libraryImporterViewModel;
             _libraryManagerViewModel = libraryManagerViewModel;
@@ -223,7 +239,7 @@ namespace AudioStation.Component
         }
 
 
-        #region (private) ViewModel Loaders
+        #region (private) ViewModel Load Creators
 
         private LogSetViewModel LogViewModel_CreateLoad(DialogProgressHandler progressHandler)
         {
@@ -259,7 +275,7 @@ namespace AudioStation.Component
             }
         }
 
-        public LibraryImporterTreeViewModel? LoadImporterViewModel_CreateLoad(DialogProgressHandler progressHandler)
+        private LibraryImporterTreeViewModel? LoadImporterViewModel_CreateLoad(DialogProgressHandler progressHandler)
         {
             if (BasicHelpers.IsDispatcher() == ApplicationIsDispatcherResult.False)
                 return BasicHelpers.InvokeDispatcher(() => { return LoadImporterViewModel_CreateLoad(progressHandler); }, DispatcherPriority.Background);
@@ -340,6 +356,202 @@ namespace AudioStation.Component
             }
         }
 
+        #endregion
+
+        #region (public) UI Workflows
+
+        public async Task LibraryImporter_RunAcoustID()
+        {
+            // Procedure
+            //
+            // 0) Show Dialog (progress handler)
+            // 1) Run AcoustID on staged files
+            //
+
+            var progressCounter = 0;
+            var progressTotal = _libraryImporterViewModel.StagedFiles.Count();
+
+            var loadingViewModel = new DialogLoadingViewModel()
+            {
+                Title = "Running AcoustID Service",
+                Message = string.Empty,
+                Progress = 0,
+                ShowProgressBar = progressTotal > 1
+            };
+
+            // Show Loading...
+            _eventAggregator.GetEvent<DialogEvent>().Publish(new DialogEventData(loadingViewModel));
+
+            foreach (var selectedFile in _libraryImporterViewModel.StagedFiles)
+            {
+                // Double Check (existing results)
+                if (!selectedFile.ImportOutput.AcoustIDSuccess)
+                {
+                    loadingViewModel.Message = "AcoustID: " + selectedFile.ShortPath;
+
+                    await LibraryImporter_RunAcoustID_Impl(selectedFile);
+                }
+
+                loadingViewModel.Progress = ++progressCounter / (double)progressTotal;
+            }
+
+            // Dismiss
+            _eventAggregator.GetEvent<DialogEvent>().Publish(DialogEventData.Dismiss());
+        }
+
+        public async Task LibraryImporter_RunMusicBrainz()
+        {
+            // Procedure
+            //
+            // 0) Show Dialog (progress handler)
+            // 1) Run Music Brainz on staged files of library importer
+            //
+            var progressCounter = 0;
+            var progressTotal = _libraryImporterViewModel.StagedFiles.Count();
+
+            var loadingViewModel = new DialogLoadingViewModel()
+            {
+                Title = "Running Music Brainz Service",
+                Message = string.Empty,
+                Progress = 0,
+                ShowProgressBar = progressTotal > 1
+            };
+
+            // Show Loading...
+            _eventAggregator.GetEvent<DialogEvent>().Publish(new DialogEventData(loadingViewModel));
+
+            foreach (var selectedFile in _libraryImporterViewModel.StagedFiles)
+            {
+                // Double Check (existing records)
+                //
+                if (!selectedFile.ImportOutput.MusicBrainzRecordingMatchSuccess)
+                {
+                    loadingViewModel.Message = "Music Brainz Lookup:  " + selectedFile.ShortPath;
+
+                    await LibraryImporter_RunMusicBrainz_Impl(selectedFile);
+                }
+
+                loadingViewModel.Progress = ++progressCounter / (double)progressTotal;
+            }
+
+            // Dismiss
+            _eventAggregator.GetEvent<DialogEvent>().Publish(DialogEventData.Dismiss());
+        }
+
+        public async Task LibraryImporter_RunImport()
+        {
+            // Procedure
+            //
+            // 0) Show Dialog (progress handler)
+            // 1) Run source files that are staged and verified using ILibraryImporter
+            //
+
+            var loadingViewModel = new DialogLoadingViewModel()
+            {
+                Title = "Importing Audio Files",
+                Message = string.Empty,
+                Progress = 0,
+                ShowProgressBar = true
+            };
+            var progressCounter = 0;
+            var progressTotal = _libraryImporterViewModel.StagedFiles.Count();
+
+            // Show Loading...
+            _eventAggregator.GetEvent<DialogEvent>().Publish(new DialogEventData(loadingViewModel));
+
+            for (int index = _libraryImporterViewModel.StagedFiles.Count - 1; index >= 0; index--)
+            {
+                var file = _libraryImporterViewModel.StagedFiles[index];
+
+                loadingViewModel.Message = "Importing " + file.ShortPath;
+
+                var success = await LibraryLoader_RunImport_Impl(file);
+
+                // -> Success Collection
+                if (success)
+                    _libraryImporterViewModel.FilesCompletedSuccessfully.Add(file);
+
+                // -> Error Collection
+                else
+                    _libraryImporterViewModel.FilesCompletedWithError.Add(file);
+
+                // Remove Staged File (will have to restage error files)
+                _libraryImporterViewModel.StagedFiles.RemoveAt(index);
+
+                loadingViewModel.Progress = ++progressCounter / (double)progressTotal;
+            }
+
+            // Dismiss
+            _eventAggregator.GetEvent<DialogEvent>().Publish(DialogEventData.Dismiss());
+        }
+
+        private async Task LibraryImporter_RunAcoustID_Impl(LibraryImporterFileViewModel selectedFile)
+        {
+            var success = await _libraryImporter.WorkAcoustID(selectedFile.ImportLoad, selectedFile.ImportOutput);
+
+            if (!success)
+                selectedFile.ImportOutput.LogMessages.Add("AcoustID Failed (progress halted)");
+            else
+            {
+                selectedFile.ImportOutput.LogMessages.Add("AcoustID Succeeded!");
+
+                // Set initial selection
+                selectedFile.SelectedAcoustIDResult = selectedFile.ImportOutput.AcoustIDResults.First();
+            }
+        }
+
+        private async Task LibraryImporter_RunMusicBrainz_Impl(LibraryImporterFileViewModel selectedFile)
+        {
+            // Double Check (existing records)
+            //
+            if (!selectedFile.ImportOutput.MusicBrainzRecordingMatchSuccess)
+            {
+                var success = await _libraryImporter.WorkMusicBrainzDetail(selectedFile.ImportLoad, selectedFile.ImportOutput);
+
+                if (!success)
+                    selectedFile.ImportOutput.LogMessages.Add("Music Brainz Failed (progress halted)");
+                else
+                {
+                    selectedFile.ImportOutput.LogMessages.Add("Music Brainz Succeeded!");
+
+                    // Set initial selection
+                    selectedFile.SelectedMusicBrainzRecordingMatch = selectedFile.ImportOutput.MusicBrainzRecordingMatches.First();
+                }
+            }
+        }
+
+        private async Task<bool> LibraryLoader_RunImport_Impl(LibraryImporterFileViewModel selectedFile)
+        {
+            // -> Import to Database
+            var success = _libraryImporter.WorkImportEntity(selectedFile.ImportLoad, selectedFile.ImportOutput);
+
+            if (!success)
+                selectedFile.ImportOutput.LogMessages.Add("Import Failed (progress halted)");
+            else
+                selectedFile.ImportOutput.LogMessages.Add("Import Succeeded!");
+
+            // -> Migrate File
+            if (selectedFile.ImportLoad.ImportFileMigration && success)
+            {
+                if (!_libraryImporter.CanImportMigrateFile(selectedFile.ImportLoad, selectedFile.ImportOutput))
+                    selectedFile.ImportOutput.LogMessages.Add("File Migration Not Possible (progress halted)");
+
+                else
+                {
+                    var migrationSuccess = _libraryImporter.WorkMigrateFile(selectedFile.ImportLoad, selectedFile.ImportOutput);
+
+                    if (!migrationSuccess)
+                        selectedFile.ImportOutput.LogMessages.Add("File Migration Failed (progress halted)");
+                    else
+                        selectedFile.ImportOutput.LogMessages.Add("File Migration Succeeded!");
+
+                    return migrationSuccess;
+                }
+            }
+
+            // Migration may have failed; Import was at least successful! (user has to figure out file issues)
+            return success;
+        }
         #endregion
 
         #region (private) Data Loaders
