@@ -10,33 +10,8 @@
              xmlns:viewModel="clr-namespace:AudioStation.ViewModels.LibraryLoaderViewModels"
              xmlns:viewModelImport="clr-namespace:AudioStation.ViewModels.LibraryImporterViewModels.Import"
              xmlns:simpleUI="clr-namespace:SimpleWpf.UI.Controls;assembly=SimpleWpf.UI">
-    <Grid RowDefinitions="Auto, *">
-
-        <Border Background="{StaticResource HeaderBackground}">
-            <Grid ColumnDefinitions="*, Auto, Auto">
-
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="File Import" Margin="3" Style="{StaticResource HeaderTextBlock}" VerticalAlignment="Center" />
-                    <TextBlock Text="(Please resolve tag issues)" 
-                               Margin="3" 
-                               Visibility="{Binding Tag.IsValid, Converter={StaticResource BoolInverseVisibilityCollapseConverter}}"
-                               Style="{StaticResource LabelErrorTextBlock}" 
-                               VerticalAlignment="Center" />
-                </StackPanel>
-                
-
-                <Button Style="{StaticResource UserControlButton}" Grid.Column="1" Margin="5" HorizontalAlignment="Right"
-                        Command="{Binding SelectAcoustIDCommand}">
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="Acoust ID" Margin="3" Style="{StaticResource LabelTextBlock}" />
-                        <fa5:SvgAwesome Icon="Solid_VolumeUp" Style="{StaticResource FontAwesomeIconDefault}" Margin="3" VerticalAlignment="Center" />
-                    </StackPanel>
-                    
-                </Button>
-            </Grid>
-        </Border>
-        
-        <controls:NoSelectListBox
+    
+    <controls:NoSelectListBox
             Grid.Row="1"
             Background="White"
             BorderBrush="Gray" 
@@ -47,33 +22,32 @@
             ScrollViewer.VerticalScrollBarVisibility="Auto"
             ScrollViewer.HorizontalScrollBarVisibility="Hidden">
 
-            <propertyGrid:PropertyLabelControl LabelColumnWidth="140" LabelText="Creation"
+        <propertyGrid:PropertyLabelControl LabelColumnWidth="140" LabelText="Creation"
                                                Value="{Binding CreationUtc}" ToolTip="{Binding FullPath}" />
 
-            <propertyGrid:PropertyLabelControl LabelColumnWidth="140" LabelText="Last Write"
-                                               Value="{Binding LastWriteUtc}" ToolTip="{Binding FullPath}" />            
-            
-            <propertyGrid:PropertyLabelControl LabelColumnWidth="140" LabelText="Full Path"
+        <propertyGrid:PropertyLabelControl LabelColumnWidth="140" LabelText="Last Write"
+                                               Value="{Binding LastWriteUtc}" ToolTip="{Binding FullPath}" />
+
+        <propertyGrid:PropertyLabelControl LabelColumnWidth="140" LabelText="Full Path"
                                                Value="{Binding FullPath}" ToolTip="{Binding FullPath}" />
 
-            <propertyGrid:PropertyLabelControl LabelColumnWidth="140" LabelText="Migrated File"
+        <propertyGrid:PropertyLabelControl LabelColumnWidth="140" LabelText="Migrated File"
                                                Value="{Binding FileMigrationFullPath, TargetNullValue='(Tag Issues)'}" ToolTip="{Binding FileMigrationFullPath}"
                                                Foreground="{Binding MinimumImportValid, Converter={StaticResource ValidationForegroundParameterConverter}, ConverterParameter={StaticResource LabelForeground}}" />
 
-            <propertyGrid:PropertyLabelControl LabelColumnWidth="140" LabelText="Import Options" 
+        <propertyGrid:PropertyLabelControl LabelColumnWidth="140" LabelText="Import Options" 
                                                Value="{Binding ImportOptions}" />
 
-            <propertyGrid:PropertyLabelControl LabelColumnWidth="140" LabelText="AcoustID" 
-                                               Value="{Binding SelectedAcoustIDResult.Score, StringFormat=P2}"
-                                               Foreground="{Binding ImportOutput.AcoustIDSuccess, Converter={StaticResource ValidationForegroundParameterConverter}, ConverterParameter={StaticResource LabelForeground}}">
-            </propertyGrid:PropertyLabelControl>
+        <propertyGrid:PropertyLabelControl LabelColumnWidth="140" LabelText="AcoustID" 
+                                                       Value="{Binding SelectedAcoustIDResult.Score, StringFormat=P2}"
+                                                       Foreground="{Binding ImportOutput.AcoustIDSuccess, Converter={StaticResource ValidationForegroundParameterConverter}, ConverterParameter={StaticResource LabelForeground}}">
+        </propertyGrid:PropertyLabelControl>
 
-            <propertyGrid:PropertyLabelControl LabelColumnWidth="140" LabelText="Music Brainz" 
-                                               Value="{Binding SelectedMusicBrainzRecordingMatch.ShortString}"
-                                               ToolTip="{Binding SelectedMusicBrainzRecordingMatch}"
-                                               Foreground="{Binding ImportOutput.MusicBrainzRecordingMatchSuccess, Converter={StaticResource ValidationForegroundParameterConverter}, ConverterParameter={StaticResource LabelForeground}}">
-            </propertyGrid:PropertyLabelControl>
+        <propertyGrid:PropertyLabelControl LabelColumnWidth="140" LabelText="Music Brainz" Grid.Row="1"
+                                                       Value="{Binding SelectedMusicBrainzRecordingMatch.ShortString}"
+                                                       ToolTip="{Binding SelectedMusicBrainzRecordingMatch}"
+                                                       Foreground="{Binding ImportOutput.MusicBrainzRecordingMatchSuccess, Converter={StaticResource ValidationForegroundParameterConverter}, ConverterParameter={StaticResource LabelForeground}}">
+        </propertyGrid:PropertyLabelControl>
 
-        </controls:NoSelectListBox>
-    </Grid>
+    </controls:NoSelectListBox>
 </UserControl>

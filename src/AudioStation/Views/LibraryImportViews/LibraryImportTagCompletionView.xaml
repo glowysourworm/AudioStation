@@ -1,4 +1,5 @@
 ﻿<UserControl x:Class="AudioStation.Views.LibraryImportViews.LibraryImportTagCompletionView"
+             x:Name="BaseControl"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:xceed="http://schemas.xceed.com/wpf/xaml/toolkit"
@@ -41,6 +42,17 @@
         <TabControl Grid.Row="2" Grid.RowSpan="1"
                     DataContext="{Binding SelectedItem.File, ElementName=StagedFileLB}">
 
+            <!-- Import Detail / Control Panel -->
+            <TabItem>
+                <TabItem.Header>
+                    <TextBlock Text="Status" Style="{StaticResource LabelTextBlock}" />
+                </TabItem.Header>
+                
+                <!-- Tag:  LibraryImporterViewModel -->
+                <importView:LibraryImportTagControlPanel Tag="{Binding DataContext, ElementName=BaseControl}" />
+            </TabItem>
+            
+            
             <!-- Import Detail / File Properties -->
             <TabItem>
                 <TabItem.Header>
@@ -60,8 +72,8 @@
             <TabItem>
                 <TabItem.Header>
 
-                        <!-- Control Panel -->
-                        <StackPanel Orientation="Horizontal" 
+                    <!-- Control Panel -->
+                    <StackPanel Orientation="Horizontal" 
                                     HorizontalAlignment="Right" Margin="3" 
                                     VerticalAlignment="Center"
                                     Grid.Column="1">
@@ -80,51 +92,52 @@
                             </fa5:ImageAwesome.Foreground>
                         </fa5:ImageAwesome>
 
-                        <TextBlock Text="Tag Import Detail" Style="{StaticResource LabelTextBlock}" />
+                        <TextBlock Text="Tag Import" Style="{StaticResource LabelTextBlock}" />
 
-                            <!-- Copy Music Brainz -> Tag -->
-                            <Button Style="{StaticResource UserControlButton}" 
+                        <!-- Copy Music Brainz -> Tag -->
+                        <Button Style="{StaticResource UserControlButton}" 
                                 Command="{Binding CopyMusicBrainzToTagCommand}"
                                 ToolTip="Copy Music Brainz Data To Tag"
                                 Visibility="{Binding ImportOutput.MusicBrainzRecordingMatchSuccess, Converter={StaticResource BoolVisibilityCollapseConverter}}"
                                 Margin="5 0 0 0">
 
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="Copy" Margin="3 1" FontSize="12" />
-                                    <fa5:ImageAwesome Icon="Solid_Music" 
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Copy" Margin="3 1" FontSize="12" />
+                                <fa5:ImageAwesome Icon="Solid_Music" 
                                                   Style="{StaticResource FontAwesomeIconManagerViewPager}" 
                                                   Margin="1" />
-                                </StackPanel>
-                            </Button>
+                            </StackPanel>
+                        </Button>
 
-                            <!-- Save Tag -->
-                            <Button Style="{StaticResource UserControlButton}" 
+                        <!-- Save Tag -->
+                        <Button Style="{StaticResource UserControlButton}" 
                                     Command="{Binding SaveTagCommand}"
                                     ToolTip="Save Tag To Disk"
                                     Visibility="{Binding IsTagDirty, Converter={StaticResource BoolVisibilityCollapseConverter}}"
                                     Margin="5 0 0 0">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="Save" Margin="3 1" FontSize="12" />
-                                    <fa5:ImageAwesome Icon="Solid_Save" 
-                                                                  Style="{StaticResource FontAwesomeIconManagerViewPager}" 
-                                                                  Margin="1" />
-                                </StackPanel>
-                            </Button>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Save" Margin="3 1" FontSize="12" />
+                                <fa5:ImageAwesome Icon="Solid_Save" 
+                                                      Style="{StaticResource FontAwesomeIconManagerViewPager}" 
+                                                      Margin="1" />
+                            </StackPanel>
+                        </Button>
 
-                            <!-- Clear Tag (Revert) -->
-                            <Button Style="{StaticResource UserControlButton}" 
-                                    Command="{Binding RefreshCommand}"
-                                    ToolTip="Clear All Imported Data And Restart"
-                                    Margin="5 0 0 0">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="Clear" Margin="3 1" FontSize="12" />
-                                    <fa5:ImageAwesome Icon="Solid_Recycle" 
-                                                          Style="{StaticResource FontAwesomeIconManagerViewPager}" 
-                                                          Margin="1" />
-                                </StackPanel>
+                        <!-- Clear Tag (Revert) -->
+                        <Button Style="{StaticResource UserControlButton}" 
+                                Command="{Binding RefreshCommand}"
+                                Visibility="{Binding IsTagDirty, Converter={StaticResource BoolVisibilityCollapseConverter}}"
+                                ToolTip="Clear All Imported Data And Restart"
+                                Margin="5 0 0 0">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Clear" Margin="3 1" FontSize="12" />
+                                <fa5:ImageAwesome Icon="Solid_Recycle" 
+                                                      Style="{StaticResource FontAwesomeIconManagerViewPager}" 
+                                                      Margin="1" />
+                            </StackPanel>
 
-                            </Button>
-                        </StackPanel>
+                        </Button>
+                    </StackPanel>
                 </TabItem.Header>
 
                 <!-- Tag Detail -->

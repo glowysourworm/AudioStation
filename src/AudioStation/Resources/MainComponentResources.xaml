@@ -63,5 +63,7 @@
     <styleSelector:LibraryWorkItemContainerStyleSelector x:Key="LibraryWorkItemContainerStyleSelector" />
     <styleSelector:LogItemContainerStyleSelector x:Key="LogItemContainerStyleSelector" />
     <styleSelector:MultiSelectTreeViewItemContainerStyleSelector x:Key="MultiSelectTreeViewItemContainerStyleSelector" />
+    <styleSelector:LibraryImporterTagBoolStyleSelector x:Key="LibraryImporterTagBoolStyleSelector_Label" ValidStyleResourceName="TagLabelForeground" InvalidStyleResourceName="TagLabelForegroundError" />
+    <styleSelector:LibraryImporterTagBoolStyleSelector x:Key="LibraryImporterTagBoolStyleSelector_Detail" ValidStyleResourceName="TagLabelDetailForeground" InvalidStyleResourceName="TagLabelDetailForegroundError" />
 
 </ResourceDictionary>

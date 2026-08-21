@@ -16,25 +16,25 @@
         <ScrollViewer HorizontalScrollBarVisibility="Hidden"
                       VerticalScrollBarVisibility="Auto">
             <Grid RowDefinitions="Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto"
-              ColumnDefinitions="120, *">
+                  ColumnDefinitions="120, *">
 
-                <TextBlock Text="Album Artist" Style="{StaticResource TagLabelTextBlock}" Tag="{Binding IsAlbumArtistValid}" Grid.Row="0" />
-                <TextBlock Text="Album" Style="{StaticResource TagLabelTextBlock}" Tag="{Binding IsAlbumValid}" Grid.Row="1" />
-                <TextBlock Text="Title" Style="{StaticResource TagLabelTextBlock}" Tag="{Binding IsTitleValid}" Grid.Row="2" />
-                <TextBlock Text="Genre" Style="{StaticResource TagLabelTextBlock}" Tag="{Binding IsGenreValid}" Grid.Row="3" />
-                <TextBlock Text="Track" Style="{StaticResource TagLabelTextBlock}" Tag="{Binding IsTrackValid}" Grid.Row="4" />
-                <TextBlock Text="Track Total" Style="{StaticResource TagLabelTextBlock}" Tag="{Binding IsTrackTotalValid}" Grid.Row="5" />
-                <TextBlock Text="Disc #" Style="{StaticResource TagLabelTextBlock}" Tag="{Binding IsDiscNumberValid}" Grid.Row="6" />
-                <TextBlock Text="Disc Count" Style="{StaticResource TagLabelTextBlock}" Tag="{Binding IsDiscTotalValid}" Grid.Row="7" />
+                <controls:ValidationTextBlock Text="Album Artist" IsValid="{Binding IsAlbumArtistValid}" IsValidForeground="{StaticResource TagLabelForeground}" IsInvalidForeground="{StaticResource TagLabelForegroundError}" Grid.Row="0" />
+                <controls:ValidationTextBlock Text="Album"        IsValid="{Binding IsAlbumValid}" IsValidForeground="{StaticResource TagLabelForeground}" IsInvalidForeground="{StaticResource TagLabelForegroundError}" Grid.Row="1" />
+                <controls:ValidationTextBlock Text="Title"        IsValid="{Binding IsTitleValid}" IsValidForeground="{StaticResource TagLabelForeground}" IsInvalidForeground="{StaticResource TagLabelForegroundError}" Grid.Row="2" />
+                <controls:ValidationTextBlock Text="Genre"        IsValid="{Binding IsGenreValid}" IsValidForeground="{StaticResource TagLabelForeground}" IsInvalidForeground="{StaticResource TagLabelForegroundError}" Grid.Row="3" />
+                <controls:ValidationTextBlock Text="Track"        IsValid="{Binding IsTrackValid}" IsValidForeground="{StaticResource TagLabelForeground}" IsInvalidForeground="{StaticResource TagLabelForegroundError}" Grid.Row="4" />
+                <controls:ValidationTextBlock Text="Track Total"  IsValid="{Binding IsTrackTotalValid}" IsValidForeground="{StaticResource TagLabelForeground}" IsInvalidForeground="{StaticResource TagLabelForegroundError}" Grid.Row="5" />
+                <controls:ValidationTextBlock Text="Disc #"       IsValid="{Binding IsDiscNumberValid}" IsValidForeground="{StaticResource TagLabelForeground}" IsInvalidForeground="{StaticResource TagLabelForegroundError}" Grid.Row="6" />
+                <controls:ValidationTextBlock Text="Disc Count"   IsValid="{Binding IsDiscTotalValid}" IsValidForeground="{StaticResource TagLabelForeground}" IsInvalidForeground="{StaticResource TagLabelForegroundError}" Grid.Row="7" />
 
-                <TextBlock Text="{Binding AlbumArtist}" ToolTip="{Binding AlbumArtist}" Tag="{Binding IsAlbumArtistValid}" Style="{StaticResource TagLabelDetailTextBlock}" Grid.Row="0" Grid.Column="1" />
-                <TextBlock Text="{Binding Album}"       ToolTip="{Binding Album}"       Tag="{Binding IsAlbumArtistValid}" Style="{StaticResource TagLabelDetailTextBlock}" Grid.Row="1" Grid.Column="1" />
-                <TextBlock Text="{Binding Title}"       ToolTip="{Binding Title}"       Tag="{Binding IsTitleValid}" Style="{StaticResource TagLabelDetailTextBlock}" Grid.Row="2" Grid.Column="1" />
-                <TextBlock Text="{Binding Genre}"       ToolTip="{Binding Genre}"       Tag="{Binding IsGenreValid}" Style="{StaticResource TagLabelDetailTextBlock}" Grid.Row="3" Grid.Column="1" />
-                <TextBlock Text="{Binding Track}"       ToolTip="{Binding Track}"       Tag="{Binding IsTrackValid}" Style="{StaticResource TagLabelDetailTextBlock}" Grid.Row="4" Grid.Column="1" />
-                <TextBlock Text="{Binding TrackTotal}"  ToolTip="{Binding TrackTotal}"  Tag="{Binding IsTrackTotalValid}" Style="{StaticResource TagLabelDetailTextBlock}" Grid.Row="5" Grid.Column="1" />
-                <TextBlock Text="{Binding DiscNumber}"  ToolTip="{Binding DiscNumber}"  Tag="{Binding IsDiscNumberValid}" Style="{StaticResource TagLabelDetailTextBlock}" Grid.Row="6" Grid.Column="1" />
-                <TextBlock Text="{Binding DiscTotal}"   ToolTip="{Binding DiscTotal}"   Tag="{Binding IsDiscTotalValid}" Style="{StaticResource TagLabelDetailTextBlock}" Grid.Row="7" Grid.Column="1" />
+                <TextBlock Text="{Binding AlbumArtist}" ToolTip="{Binding AlbumArtist}" Style="{StaticResource TagLabelDetailTextBlock}" Grid.Row="0" Grid.Column="1" />
+                <TextBlock Text="{Binding Album}"       ToolTip="{Binding Album}"       Style="{StaticResource TagLabelDetailTextBlock}" Grid.Row="1" Grid.Column="1" />
+                <TextBlock Text="{Binding Title}"       ToolTip="{Binding Title}"       Style="{StaticResource TagLabelDetailTextBlock}" Grid.Row="2" Grid.Column="1" />
+                <TextBlock Text="{Binding Genre}"       ToolTip="{Binding Genre}"       Style="{StaticResource TagLabelDetailTextBlock}" Grid.Row="3" Grid.Column="1" />
+                <TextBlock Text="{Binding Track}"       ToolTip="{Binding Track}"       Style="{StaticResource TagLabelDetailTextBlock}" Grid.Row="4" Grid.Column="1" />
+                <TextBlock Text="{Binding TrackTotal}"  ToolTip="{Binding TrackTotal}"  Style="{StaticResource TagLabelDetailTextBlock}" Grid.Row="5" Grid.Column="1" />
+                <TextBlock Text="{Binding DiscNumber}"  ToolTip="{Binding DiscNumber}"  Style="{StaticResource TagLabelDetailTextBlock}" Grid.Row="6" Grid.Column="1" />
+                <TextBlock Text="{Binding DiscTotal}"   ToolTip="{Binding DiscTotal}"   Style="{StaticResource TagLabelDetailTextBlock}" Grid.Row="7" Grid.Column="1" />
 
             </Grid>
         </ScrollViewer>

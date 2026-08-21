@@ -227,7 +227,8 @@ namespace AudioStation.ViewModels.LibraryImporterViewModels.Import
             this.RefreshCommand = new SimpleCommand(() =>
             {
                 Reload();
-            });
+
+            }, () => this.Tag.IsModified);
 
             // Initializes the import output
             Reload();

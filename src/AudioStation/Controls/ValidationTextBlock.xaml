@@ -1,0 +1,12 @@
+﻿<UserControl x:Class="AudioStation.Controls.ValidationTextBlock"
+             x:Name="BaseControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Grid>
+        <TextBlock Text="{Binding Text, ElementName=BaseControl}" 
+                   FontSize="{Binding FontSize, ElementName=BaseControl}"
+                   FontStyle="{Binding FontStyle, ElementName=BaseControl}"
+                   Foreground="{Binding Foreground, ElementName=BaseControl}" 
+                   Margin="{Binding Margin, ElementName=BaseControl}" />
+    </Grid>
+</UserControl>
