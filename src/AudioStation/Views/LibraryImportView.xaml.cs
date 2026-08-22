@@ -1,6 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 
+using AudioStation.Component.Interface;
 using AudioStation.Controller.Interface;
 using AudioStation.ViewModels.ComponentViewModels;
 using AudioStation.Views.LibraryImportViews;
@@ -34,7 +35,7 @@ namespace AudioStation.Views
         private readonly IIocRegionManager _regionManager;
         private readonly IDialogController _dialogController;
 
-        LibraryImporterViewModel _viewModel;
+        private readonly IComponentViewModelLoader _componentViewModelLoader;
 
         public LibraryImportView()
         {
@@ -44,7 +45,7 @@ namespace AudioStation.Views
         }
 
         [IocImportingConstructor]
-        public LibraryImportView(IIocRegionManager regionManager, IDialogController dialogController)
+        public LibraryImportView(IIocRegionManager regionManager, IDialogController dialogController, IComponentViewModelLoader componentViewModelLoader)
         {
             InitializeComponent();
 
@@ -52,6 +53,7 @@ namespace AudioStation.Views
 
             _regionManager = regionManager;
             _dialogController = dialogController;
+            _componentViewModelLoader = componentViewModelLoader;
         }
 
         private void LibraryImportView_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
@@ -101,8 +103,6 @@ namespace AudioStation.Views
 
         private void RefreshFromDataContext(LibraryImporterViewModel viewModel)
         {
-            _viewModel = viewModel;
-
             // Configuration
             if (_regionManager.GetRegion("LibraryImporterControlRegion").Content is LibraryImportConfigurationView)
             {
@@ -157,11 +157,12 @@ namespace AudioStation.Views
             else if (viewType == typeof(LibraryImportTagCompletionView))
             {
                 // Run Acoust ID -> Music Brainz (cache results)
-                if (_dialogController.ShowConfirmation("Continue to Import?",
+                if (_dialogController.ShowConfirmation("Continue to Tag Completion?",
                     "This will begin the process of importing your Mp3's using the",
-                    "AcoustID (and) Music Brainz services",
+                    "AcoustID (and) Music Brainz services; but will not finalize the",
+                    "import. That part is left to you to do after you review the results.",
                     "",
-                    "This may take some time... Are you ready to import?"))
+                    "This may take some time... Are you ready to import Mp3 data?"))
                 {
                     return true;
                 }
@@ -209,6 +210,8 @@ namespace AudioStation.Views
                     // 2) Run Music Brainz (for all AcoustID entries)
                     // 3) Show result for best score
                     //
+                    await _componentViewModelLoader.LibraryImporter_RunAcoustID();
+                    await _componentViewModelLoader.LibraryImporter_RunMusicBrainz();
                 }
 
                 // Final View (User can go back as long as they haven't pressed "Execute")

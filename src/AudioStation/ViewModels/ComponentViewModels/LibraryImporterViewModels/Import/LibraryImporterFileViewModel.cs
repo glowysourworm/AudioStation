@@ -47,9 +47,6 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
         bool _minimumImportValid;
         LibraryImporterTagViewModel _tag;
 
-        // UI-only property (set in the constructor)
-        string _importOptions;
-
         AudioStationTag _tagClean;
         AudioStationTag _tagDirty;
 
@@ -65,14 +62,6 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
         SimpleCommand _saveTagCommand;
         SimpleCommand _copyMusicBrainzToTagCommand;
         SimpleCommand _refreshCommand;
-
-        #region (public) Calculated UI Properties
-        public string ImportOptions
-        {
-            get { return _importOptions; }
-            set { SetValueOverride(ref _importOptions, value); }
-        }
-        #endregion
 
         public bool InError
         {
@@ -189,7 +178,6 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
                 SourceFolder = options.SourceFolder,
                 SourceFile = fullPath
             };
-            this.ImportOptions = CreateOptionsUI(options);
             this.Tag = new LibraryImporterTagViewModel();
 
             this.SelectAcoustIDCommand = new SimpleCommand(() =>
@@ -232,32 +220,6 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
 
             // Initializes the import output
             Reload();
-        }
-
-        private string CreateOptionsUI(LibraryImporterConfigurationViewModel options)
-        {
-            var result = string.Empty;
-
-            result += options.ImportAsType.ToString();
-            result += " / " + options.NamingType.ToString();
-            result += " / " + options.GroupingType.ToString();
-
-            if (options.IdentifyUsingAcoustID && options.IncludeMusicBrainzDetail)
-                result += " / Use Acoustic Fingerprinting";
-
-            if (options.ImportFileMigration)
-            {
-                if (options.MigrationDeleteSourceFiles)
-                    result += " / Delete Source File(s)";
-
-                if (options.MigrationDeleteSourceFolders)
-                    result += " / Delete Source Folder(s)";
-
-                if (options.MigrationOverwriteDestinationFiles)
-                    result += " / Overwrite Destination";
-            }
-
-            return result;
         }
 
         /// <summary>

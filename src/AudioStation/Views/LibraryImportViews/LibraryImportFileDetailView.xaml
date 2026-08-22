@@ -5,6 +5,7 @@
              xmlns:fa5="http://schemas.fontawesome.com/icons/"
              xmlns:propertyGrid="clr-namespace:AudioStation.Controls.PropertyGrid"
              xmlns:controls="clr-namespace:AudioStation.Controls"
+             xmlns:view="clr-namespace:AudioStation.Views"
              xmlns:importView="clr-namespace:AudioStation.Views.LibraryImportViews"
              xmlns:coreModel="clr-namespace:AudioStation.Core.Model;assembly=AudioStation.Core"
              xmlns:simpleUI="clr-namespace:SimpleWpf.UI.Controls;assembly=SimpleWpf.UI">
@@ -26,26 +27,39 @@
         <propertyGrid:PropertyLabelControl LabelColumnWidth="140" LabelText="Last Write"
                                                Value="{Binding LastWriteUtc}" ToolTip="{Binding FullPath}" />
 
-        <propertyGrid:PropertyLabelControl LabelColumnWidth="140" LabelText="Full Path"
+        <propertyGrid:PropertyLabelControl LabelColumnWidth="140" LabelText="File Path"
                                                Value="{Binding FullPath}" ToolTip="{Binding FullPath}" />
 
-        <propertyGrid:PropertyLabelControl LabelColumnWidth="140" LabelText="Migrated File"
-                                               Value="{Binding FileMigrationFullPath, TargetNullValue='(Tag Issues)'}" ToolTip="{Binding FileMigrationFullPath}"
-                                               Foreground="{Binding MinimumImportValid, Converter={StaticResource ValidationForegroundParameterConverter}, ConverterParameter={StaticResource LabelForeground}}" />
+        <propertyGrid:PropertyLabelControl LabelColumnWidth="140" LabelText="Migration Path"
+                                           Value="{Binding FileMigrationFullPath, TargetNullValue='(Tag must be completed before import)'}" ToolTip="{Binding FileMigrationFullPath}"
+                                           DataContext="{Binding DataContext.Options, RelativeSource={RelativeSource AncestorType=view:LibraryImportView}}"
+                                           Visibility="{Binding ImportFileMigration, Converter={StaticResource BoolVisibilityCollapseConverter}}"
+                                           Foreground="{Binding MinimumImportValid, Converter={StaticResource ValidationForegroundParameterConverter}, ConverterParameter={StaticResource LabelForeground}}" />
 
-        <propertyGrid:PropertyLabelControl LabelColumnWidth="140" LabelText="Import Options" 
-                                               Value="{Binding ImportOptions}" />
+        <propertyGrid:PropertyLabelControl LabelColumnWidth="140" LabelText="Migration Enabled"
+                                           DataContext="{Binding DataContext.Options, RelativeSource={RelativeSource AncestorType=view:LibraryImportView}}"
+                                           Visibility="{Binding ImportFileMigration, Converter={StaticResource BoolVisibilityCollapseConverter}}"
+                                           Value="{Binding ImportFileMigration}" />        
+        
+        <propertyGrid:PropertyLabelControl LabelColumnWidth="140" LabelText="Import Type"
+                                           DataContext="{Binding DataContext.Options, RelativeSource={RelativeSource AncestorType=view:LibraryImportView}}"
+                                           Value="{Binding ImportAsType}" />
 
-        <propertyGrid:PropertyLabelControl LabelColumnWidth="140" LabelText="AcoustID" 
-                                                       Value="{Binding SelectedAcoustIDResult.Score, StringFormat=P2}"
-                                                       Foreground="{Binding ImportOutput.AcoustIDSuccess, Converter={StaticResource ValidationForegroundParameterConverter}, ConverterParameter={StaticResource LabelForeground}}">
-        </propertyGrid:PropertyLabelControl>
+        <propertyGrid:PropertyLabelControl LabelColumnWidth="140" LabelText="Naming Type"
+                                           DataContext="{Binding DataContext.Options, RelativeSource={RelativeSource AncestorType=view:LibraryImportView}}"
+                                           Value="{Binding NamingType}" />
 
-        <propertyGrid:PropertyLabelControl LabelColumnWidth="140" LabelText="Music Brainz" Grid.Row="1"
-                                                       Value="{Binding SelectedMusicBrainzRecordingMatch.ShortString}"
-                                                       ToolTip="{Binding SelectedMusicBrainzRecordingMatch}"
-                                                       Foreground="{Binding ImportOutput.MusicBrainzRecordingMatchSuccess, Converter={StaticResource ValidationForegroundParameterConverter}, ConverterParameter={StaticResource LabelForeground}}">
-        </propertyGrid:PropertyLabelControl>
+        <propertyGrid:PropertyLabelControl LabelColumnWidth="140" LabelText="Grouping Type"
+                                           DataContext="{Binding DataContext.Options, RelativeSource={RelativeSource AncestorType=view:LibraryImportView}}"
+                                           Value="{Binding GroupingType}" />
+
+        <propertyGrid:PropertyLabelControl LabelColumnWidth="140" LabelText="AcoustID Enabled"
+                                           DataContext="{Binding DataContext.Options, RelativeSource={RelativeSource AncestorType=view:LibraryImportView}}"
+                                           Value="{Binding IdentifyUsingAcoustID}" />
+
+        <propertyGrid:PropertyLabelControl LabelColumnWidth="140" LabelText="Music Brainz Enabled"
+                                           DataContext="{Binding DataContext.Options, RelativeSource={RelativeSource AncestorType=view:LibraryImportView}}"
+                                           Value="{Binding IncludeMusicBrainzDetail}" />
 
     </controls:NoSelectListBox>
 </UserControl>

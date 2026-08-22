@@ -30,7 +30,7 @@
     <!-- Library Importer (Tag Completion) -->
     <DataTemplate x:Key="LibraryImportFileItemTemplate">
 
-        <Border DataContext="{Binding File}">
+        <Border>
 
             <Grid ColumnDefinitions="Auto, *, Auto" RowDefinitions="Auto, Auto">
 
@@ -38,9 +38,9 @@
                 <StackPanel Orientation="Horizontal" Grid.Column="0">
 
                     <fa5:ImageAwesome Icon="Solid_Tag" 
-                                                  Margin="3"
-                                                  Style="{StaticResource FontAwesomeIconManagerViewPager}"
-                                                  ToolTip="Tag data is required to complete the import">
+                                        Margin="3"
+                                        Style="{StaticResource FontAwesomeIconManagerViewPager}"
+                                        ToolTip="Tag data is required to complete the import">
                         <fa5:ImageAwesome.Foreground>
                             <MultiBinding Converter="{StaticResource LibraryLoaderImportTagForegroundConverter}">
                                 <Binding Path="IsTagDirty" />

@@ -10,15 +10,15 @@
              xmlns:coreModel="clr-namespace:AudioStation.Core.Model;assembly=AudioStation.Core"
              xmlns:simpleUI="clr-namespace:SimpleWpf.UI.Controls;assembly=SimpleWpf.UI">
     
-    <Grid ColumnDefinitions="140, Auto, *" RowDefinitions="Auto, Auto, Auto">
+    <Grid ColumnDefinitions="140, Auto, *" RowDefinitions="Auto, Auto, Auto, Auto">
 
 
         <!-- File / AcoustID / Music Brainz -->
-        <TextBlock Grid.Row="0" Text="Tag Data"   Margin="5 3"      Style="{StaticResource HeaderMediumTextBlock}" FontStyle="Italic" VerticalAlignment="Center" />
-        <TextBlock Grid.Row="1" Text="AcoustID" Margin="5 3"      Style="{StaticResource HeaderMediumTextBlock}" FontStyle="Italic" VerticalAlignment="Center" />
-        <TextBlock Grid.Row="2" Text="Music Brainz" Margin="5 3"  Style="{StaticResource HeaderMediumTextBlock}" FontStyle="Italic" VerticalAlignment="Center" />
+        <TextBlock Grid.Row="0" Text="Tag (target store)"   Margin="5 3" Style="{StaticResource HeaderMediumTextBlock}" FontStyle="Italic" VerticalAlignment="Center" />
+        <TextBlock Grid.Row="1" Text="AcoustID"             Margin="5 3" Style="{StaticResource HeaderMediumTextBlock}" FontStyle="Italic" VerticalAlignment="Center" />
+        <TextBlock Grid.Row="2" Text="Music Brainz"         Margin="5 3" Style="{StaticResource HeaderMediumTextBlock}" FontStyle="Italic" VerticalAlignment="Center" />
 
-        <!-- Status Message -->
+        <!-- Tag -->
         <TextBlock Text="{Binding Tag.ValidationMessage}" 
                    Grid.Row="0"
                    Grid.Column="1"
@@ -26,48 +26,35 @@
                    Style="{StaticResource LabelErrorTextBlock}" 
                    VerticalAlignment="Center" />
 
-
-        <TextBlock Text="Not Ready (Please resolve tag issues)" 
-                   Grid.Row="1"
+        <!-- AcoustID -->
+        <TextBlock Grid.Row="1"
                    Grid.Column="1"
                    Margin="3" 
-                   Visibility="{Binding Tag.IsValid, Converter={StaticResource BoolInverseVisibilityCollapseConverter}}"
                    Style="{StaticResource LabelErrorTextBlock}" 
-                   VerticalAlignment="Center" />
+                   VerticalAlignment="Center">
+            <Grid ColumnDefinitions="Auto, Auto, Auto, Auto"
+                  Visibility="{Binding ImportOutput.AcoustIDSuccess, Converter={StaticResource BoolVisibilityCollapseConverter}}">
+                <TextBlock Grid.Column="0" Style="{StaticResource LabelTextBlock}" Text="Success (" />
+                <TextBlock Grid.Column="1" Style="{StaticResource LabelTextBlock}" Text="{Binding ImportOutput.AcoustIDResults.Count}" />
+                <TextBlock Grid.Column="2" Style="{StaticResource LabelTextBlock}" Text=" matches) " />
+                <TextBlock Grid.Column="3" Style="{StaticResource LabelTextBlock}" Text="{Binding SelectedAcoustIDResult.Score, StringFormat=P2}" />
+            </Grid>
+        </TextBlock>
 
-
-        <TextBlock Text="Not Ready (Please resolve tag issues)" 
-                    Grid.Row="2"
-                    Grid.Column="1"
-                    Margin="3" 
-                    Visibility="{Binding Tag.IsValid, Converter={StaticResource BoolInverseVisibilityCollapseConverter}}"
-                    Style="{StaticResource LabelErrorTextBlock}" 
-                    VerticalAlignment="Center" />
-
-
-        <Button Style="{StaticResource UserControlButton}" Grid.Column="2" Grid.Row="0" Margin="3" HorizontalAlignment="Right"
-                Command="{Binding Tag.EditTagCommand, ElementName=BaseControl}">
-            <StackPanel Orientation="Horizontal">
-                <TextBlock Text="Edit Tag" Margin="3" Style="{StaticResource LabelTextBlock}" FontSize="12" />
-                <fa5:SvgAwesome Icon="Solid_Tag" Style="{StaticResource FontAwesomeIconDefault}" Height="12" Width="12" Margin="3" VerticalAlignment="Center" />
-            </StackPanel>
-        </Button>
-
-        <Button Style="{StaticResource UserControlButton}" Grid.Column="2" Grid.Row="1" Margin="3" HorizontalAlignment="Right"
-                Command="{Binding SelectedAcoustIDResult}">
-            <StackPanel Orientation="Horizontal">
-                <TextBlock Text="Acoust ID" Margin="3" Style="{StaticResource LabelTextBlock}" FontSize="12" />
-                <fa5:SvgAwesome Icon="Solid_VolumeUp" Style="{StaticResource FontAwesomeIconDefault}" Height="12" Width="12" Margin="3" VerticalAlignment="Center" />
-            </StackPanel>
-        </Button>
-
-        <Button Style="{StaticResource UserControlButton}" Grid.Column="2" Grid.Row="2" Margin="3" HorizontalAlignment="Right"
-                Command="{Binding SelectedMusicBrainzRecordingMatch}">
-            <StackPanel Orientation="Horizontal">
-                <TextBlock Text="Music Brainz" Margin="3" Style="{StaticResource LabelTextBlock}" FontSize="12" />
-                <fa5:SvgAwesome Icon="Solid_Music" Style="{StaticResource FontAwesomeIconDefault}" Height="12" Width="12" Margin="3" VerticalAlignment="Center" />
-            </StackPanel>
-        </Button>
+        <!-- Music Brainz -->
+        <TextBlock Grid.Row="2"
+                   Grid.Column="1"
+                   Margin="3" 
+                   Style="{StaticResource LabelErrorTextBlock}" 
+                   VerticalAlignment="Center"
+                   Visibility="{Binding ImportOutput.MusicBrainzRecordingMatchSuccess, Converter={StaticResource BoolVisibilityCollapseConverter}}">
+            <Grid ColumnDefinitions="Auto, Auto, Auto, Auto">
+                <TextBlock Grid.Column="0" Style="{StaticResource LabelTextBlock}" Text="Success (" />
+                <TextBlock Grid.Column="1" Style="{StaticResource LabelTextBlock}" Text="{Binding ImportOutput.MusicBrainzRecordingMatches.Count}" />
+                <TextBlock Grid.Column="2" Style="{StaticResource LabelTextBlock}" Text=" matches) " />
+                <TextBlock Grid.Column="3" Style="{StaticResource LabelTextBlock}" Text="{Binding SelectedMusicBrainzRecordingMatch.ShortString}" />
+            </Grid>
+        </TextBlock>
 
     </Grid>
 </UserControl>

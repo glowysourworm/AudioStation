@@ -9,7 +9,6 @@ using AudioStation.Core.Model;
 using AudioStation.Core.Utility;
 using AudioStation.Event;
 using AudioStation.Event.DialogEvents;
-using AudioStation.ViewModels;
 using AudioStation.ViewModels.ComponentViewModels;
 using AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.Import;
 using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels;
@@ -43,8 +42,6 @@ namespace AudioStation.Component
         private readonly LogViewModel _logViewModel;
         private readonly LibraryImporterViewModel _libraryImporterViewModel;
         private readonly LibraryLoaderCDImportViewModel _libraryLoaderCDImportViewModel;
-
-        private readonly MainViewModel _mainViewModel;
 
         [IocImportingConstructor]
         public ComponentViewModelLoader(

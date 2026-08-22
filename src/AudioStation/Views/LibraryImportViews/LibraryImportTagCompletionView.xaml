@@ -10,20 +10,48 @@
              xmlns:coreModel="clr-namespace:AudioStation.Core.Model;assembly=AudioStation.Core"
              xmlns:simpleUI="clr-namespace:SimpleWpf.UI.Controls;assembly=SimpleWpf.UI">
     
-    <Grid RowDefinitions="Auto, *, Auto, Auto">
-        
+    <Grid RowDefinitions="Auto, Auto, *, Auto" ColumnDefinitions="*, Auto">
+
         <!-- Staged Files (in memory) -->
         <xceed:WatermarkTextBox Margin="5" 
-                                Grid.ColumnSpan="2"
+                                Grid.Column="0"
                                 Text="{Binding SourceFolderSearch, UpdateSourceTrigger=PropertyChanged, Delay=300}" 
                                 Watermark="Search Staged Files..." 
                                 HorizontalAlignment="Stretch" />
+
+        <!-- Control Panel (File Buttons) -->
+        <StackPanel Orientation="Horizontal" Grid.Column="1" Grid.Row="0">
+            <Button Style="{StaticResource UserControlButton}" Grid.Column="2" Grid.Row="0" Margin="3" HorizontalAlignment="Right"
+                Command="{Binding Tag.EditTagCommand, ElementName=BaseControl}">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Edit Tag" Margin="3" Style="{StaticResource LabelTextBlock}" FontSize="12" />
+                    <fa5:SvgAwesome Icon="Solid_Tag" Style="{StaticResource FontAwesomeIconDefault}" Height="12" Width="12" Margin="3" VerticalAlignment="Center" />
+                </StackPanel>
+            </Button>
+
+            <Button Style="{StaticResource UserControlButton}" Grid.Column="2" Grid.Row="1" Margin="3" HorizontalAlignment="Right"
+                Command="{Binding SelectedAcoustIDResult}">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Acoust ID" Margin="3" Style="{StaticResource LabelTextBlock}" FontSize="12" />
+                    <fa5:SvgAwesome Icon="Solid_VolumeUp" Style="{StaticResource FontAwesomeIconDefault}" Height="12" Width="12" Margin="3" VerticalAlignment="Center" />
+                </StackPanel>
+            </Button>
+
+            <Button Style="{StaticResource UserControlButton}" Grid.Column="2" Grid.Row="2" Margin="3" HorizontalAlignment="Right"
+                Command="{Binding SelectedMusicBrainzRecordingMatch}">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Music Brainz" Margin="3" Style="{StaticResource LabelTextBlock}" FontSize="12" />
+                    <fa5:SvgAwesome Icon="Solid_Music" Style="{StaticResource FontAwesomeIconDefault}" Height="12" Width="12" Margin="3" VerticalAlignment="Center" />
+                </StackPanel>
+            </Button>
+        </StackPanel>
 
         <!-- Input Files -->
         <ListBox x:Name="StagedFileLB"
                  ItemsSource="{Binding StagedFiles}"
                  Grid.Column="0"
-                 Grid.Row="1"
+                 Grid.ColumnSpan="2"
+                 Grid.Row="2"
                  Margin="5"                 
                  ItemTemplate="{StaticResource LibraryImportFileItemTemplate}"
                  ItemContainerStyle="{StaticResource LibraryImportFileItemContainerStyle}"
@@ -37,8 +65,8 @@
         </ListBox>
         
         <!-- Detail Panel:  SelectedItem.File (LibraryImportFileViewModel) -->
-        <TabControl Grid.Row="2" Grid.RowSpan="1"
-                    DataContext="{Binding SelectedItem.File, ElementName=StagedFileLB}">
+        <TabControl Grid.Row="1" Grid.RowSpan="1" Grid.ColumnSpan="2"
+                    DataContext="{Binding SelectedItem, ElementName=StagedFileLB}">
 
             <!-- Import Detail / Control Panel -->
             <TabItem>
@@ -47,8 +75,26 @@
                 </TabItem.Header>
                 
                 <!-- Tag:  LibraryImporterViewModel -->
-                <importView:LibraryImportTagControlPanel Tag="{Binding DataContext, ElementName=BaseControl}" />
+                <importView:LibraryImportTagControlPanel Tag="{Binding DataContext, ElementName=BaseControl}" MinHeight="150"  />
             </TabItem>
+            
+            <!-- Import Detail / Log -->
+            <TabItem>
+                <TabItem.Header>
+                    <TextBlock Text="Log Messages" Style="{StaticResource LabelTextBlock}" />
+                </TabItem.Header>
+                
+                <ListBox MinHeight="150" 
+                         AlternationCount="2"
+                         ItemContainerStyle="{StaticResource PlainItemContainerStyleWithAlternation_AliceBlue}"
+                         ItemsSource="{Binding ImportOutput.LogMessages}">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding}" Style="{StaticResource LabelTextBlock}" Margin="3" />
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </TabItem>                
             
             
             <!-- Import Detail / File Properties -->
@@ -63,7 +109,7 @@
                         
                     </Grid>
                 </TabItem.Header>
-                <importView:LibraryImportFileDetailView />
+                <importView:LibraryImportFileDetailView MinHeight="150"  />
             </TabItem>
 
             <!-- Tag Detail (Save / Clear / Music Brainz) -->
@@ -92,21 +138,6 @@
 
                         <TextBlock Text="Tag Import" Style="{StaticResource LabelTextBlock}" />
 
-                        <!-- Copy Music Brainz -> Tag -->
-                        <Button Style="{StaticResource UserControlButton}" 
-                                Command="{Binding CopyMusicBrainzToTagCommand}"
-                                ToolTip="Copy Music Brainz Data To Tag"
-                                Visibility="{Binding ImportOutput.MusicBrainzRecordingMatchSuccess, Converter={StaticResource BoolVisibilityCollapseConverter}}"
-                                Margin="5 0 0 0">
-
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="Copy" Margin="3 1" FontSize="12" />
-                                <fa5:ImageAwesome Icon="Solid_Music" 
-                                                  Style="{StaticResource FontAwesomeIconManagerViewPager}" 
-                                                  Margin="1" />
-                            </StackPanel>
-                        </Button>
-
                         <!-- Save Tag -->
                         <Button Style="{StaticResource UserControlButton}" 
                                     Command="{Binding SaveTagCommand}"
@@ -116,8 +147,8 @@
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="Save" Margin="3 1" FontSize="12" />
                                 <fa5:ImageAwesome Icon="Solid_Save" 
-                                                      Style="{StaticResource FontAwesomeIconManagerViewPager}" 
-                                                      Margin="1" />
+                                                  Style="{StaticResource FontAwesomeIconManagerViewPager}" 
+                                                  Margin="1" />
                             </StackPanel>
                         </Button>
 
@@ -130,8 +161,8 @@
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="Clear" Margin="3 1" FontSize="12" />
                                 <fa5:ImageAwesome Icon="Solid_Recycle" 
-                                                      Style="{StaticResource FontAwesomeIconManagerViewPager}" 
-                                                      Margin="1" />
+                                                  Style="{StaticResource FontAwesomeIconManagerViewPager}" 
+                                                  Margin="1" />
                             </StackPanel>
 
                         </Button>
@@ -139,7 +170,8 @@
                 </TabItem.Header>
 
                 <!-- Tag Detail -->
-                <Grid ColumnDefinitions="*, *">
+                <Grid ColumnDefinitions="*, Auto, *" MinHeight="150" >
+                    
                     <!-- Tag (Clean / Dirty) -->
                     <importView:LibraryImportTagIssuesView DataContext="{Binding Tag}">
                         <importView:LibraryImportTagIssuesView.TagHeader>
@@ -147,8 +179,23 @@
                         </importView:LibraryImportTagIssuesView.TagHeader>
                     </importView:LibraryImportTagIssuesView>
 
+                    <!-- Copy Music Brainz -> Tag -->
+                    <Button Style="{StaticResource UserControlButton}" 
+                            Command="{Binding CopyMusicBrainzToTagCommand}"
+                            ToolTip="Copy Music Brainz Data To Tag"
+                            Visibility="{Binding ImportOutput.MusicBrainzRecordingMatchSuccess, Converter={StaticResource BoolVisibilityCollapseConverter}}"
+                            Grid.Column="1"
+                            Height="36"
+                            Width="36"
+                            Margin="5">
+
+                            <fa5:ImageAwesome Icon="Solid_ArrowLeft" 
+                                              Style="{StaticResource FontAwesomeIconManagerViewPager}" 
+                                              Margin="1" />
+                    </Button>
+
                     <!-- Music Brainz Tag -->
-                    <importView:LibraryImportTagIssuesView DataContext="{Binding Tag}" Grid.Column="1">
+                    <importView:LibraryImportTagIssuesView DataContext="{Binding Tag}" Grid.Column="2">
                         <importView:LibraryImportTagIssuesView.TagHeader>
                             <TextBlock Text="Music Brainz" Style="{StaticResource TagLabelTextBlock}" />
                         </importView:LibraryImportTagIssuesView.TagHeader>                        
@@ -157,8 +204,8 @@
             </TabItem>
         </TabControl>
 
-            <!-- Control Panel -->
-        <StackPanel Grid.Row="3" HorizontalAlignment="Right" VerticalAlignment="Center" Orientation="Horizontal" Margin="5">
+        <!-- Control Panel -->
+        <StackPanel Grid.Row="3" Grid.ColumnSpan="2" HorizontalAlignment="Right" VerticalAlignment="Center" Orientation="Horizontal" Margin="5">
 
             <TextBlock Style="{StaticResource LabelTextBlock}" Margin="10">
                 <Run Text="Files to Run / Files Total:  " />
