@@ -51,6 +51,9 @@ namespace AudioStation.ViewModels.ComponentViewModels
         //                directory structure.
         //
         ObservableCollection<LibraryImporterFileViewModel> _stagedFiles;
+        ObservableCollection<LibraryImporterFileViewModel> _acoustIDCompletedSuccessfully;
+        ObservableCollection<LibraryImporterFileViewModel> _musicBrainzCompletedSuccessfully;
+        ObservableCollection<LibraryImporterFileViewModel> _filesReadyToImport;
         ObservableCollection<LibraryImporterFileViewModel> _filesCompletedSuccessfully;
         ObservableCollection<LibraryImporterFileViewModel> _filesCompletedWithError;
 
@@ -78,6 +81,21 @@ namespace AudioStation.ViewModels.ComponentViewModels
         {
             get { return _stagedFiles; }
             set { this.RaiseAndSetIfChanged(ref _stagedFiles, value); }
+        }
+        public ObservableCollection<LibraryImporterFileViewModel> AcoustIDCompletedSuccessfully
+        {
+            get { return _acoustIDCompletedSuccessfully; }
+            set { this.RaiseAndSetIfChanged(ref _acoustIDCompletedSuccessfully, value); }
+        }
+        public ObservableCollection<LibraryImporterFileViewModel> MusicBrainzCompletedSuccessfully
+        {
+            get { return _musicBrainzCompletedSuccessfully; }
+            set { this.RaiseAndSetIfChanged(ref _musicBrainzCompletedSuccessfully, value); }
+        }
+        public ObservableCollection<LibraryImporterFileViewModel> FilesReadyToImport
+        {
+            get { return _filesReadyToImport; }
+            set { this.RaiseAndSetIfChanged(ref _filesReadyToImport, value); }
         }
         public ObservableCollection<LibraryImporterFileViewModel> FilesCompletedSuccessfully
         {
@@ -155,6 +173,9 @@ namespace AudioStation.ViewModels.ComponentViewModels
             this.SourceDirectory = null;
 
             _stagedFiles = new ObservableCollection<LibraryImporterFileViewModel>();
+            _acoustIDCompletedSuccessfully = new ObservableCollection<LibraryImporterFileViewModel>();
+            _musicBrainzCompletedSuccessfully = new ObservableCollection<LibraryImporterFileViewModel>();
+            _filesReadyToImport = new ObservableCollection<LibraryImporterFileViewModel>();
             _filesCompletedSuccessfully = new ObservableCollection<LibraryImporterFileViewModel>();
             _filesCompletedWithError = new ObservableCollection<LibraryImporterFileViewModel>();
 

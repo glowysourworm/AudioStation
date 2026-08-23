@@ -17,7 +17,10 @@
     <SolidColorBrush x:Key="LibraryImporterTreeItemSelectBackground">#2F33AAFF</SolidColorBrush>
     
     <!-- Libary Importer (Tag Completion) Item Container Style -->
-    <Style TargetType="ListBoxItem" x:Key="LibraryImportFileItemContainerStyle" BasedOn="{StaticResource HoverSelectItemContainerStyleWithAlternation_LibraryImporter}">
+    <Style TargetType="ListBoxItem" 
+           x:Key="LibraryImportFileItemContainerStyle" 
+           BasedOn="{StaticResource HoverSelectItemContainerStyleWithAlternation_LibraryImporter}">
+        
         <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />
 
         <Style.Triggers>
@@ -30,7 +33,7 @@
     <!-- Library Importer (Tag Completion) -->
     <DataTemplate x:Key="LibraryImportFileItemTemplate">
 
-        <Border>
+        <Border Margin="0" Padding="0" BorderThickness="0" BorderBrush="Transparent">
 
             <Grid ColumnDefinitions="Auto, *, Auto" RowDefinitions="Auto, Auto">
 
@@ -68,39 +71,13 @@
 
                 <!-- Import File Name -->
                 <TextBlock Text="{Binding ShortPath}" 
-                                   Margin="3"
-                                   VerticalAlignment="Center"
-                                   TextWrapping="NoWrap"
-                                   TextTrimming="CharacterEllipsis"
-                                   FontSize="14"
-                                   Grid.Column="1" />
-
-                <!-- Row Detail -->
-                <StackPanel Orientation="Vertical" 
-                            Grid.ColumnSpan="3" 
-                            Grid.Row="1" 
-                            Margin="3"
-                            Visibility="{Binding IsSelected, Converter={StaticResource BoolVisibilityCollapseConverter}, RelativeSource={RelativeSource AncestorType=ListBoxItem}}">
-
-                    <!-- AcoustID -->
-                    <propertyGrid:PropertyLabelControl LabelColumnWidth="120"
-                                                       LabelText="    Acoust ID"
-                                                       TextBlock.FontStyle="Italic"
-                                                       Visibility="{Binding SelectedAcoustIDResult, Converter={StaticResource NonNullVisibilityConverter}}"
-                                                       Value="{Binding SelectedAcoustIDResult.Score, StringFormat=P2}">
-                        
-                    </propertyGrid:PropertyLabelControl>
-
-                    <!-- Music Brainz -->
-                    <propertyGrid:PropertyLabelControl LabelColumnWidth="120"
-                                                       LabelText="    Music Brainz"
-                                                       TextBlock.FontStyle="Italic"
-                                                       Visibility="{Binding SelectedMusicBrainzRecordingMatch, Converter={StaticResource NonNullVisibilityConverter}}"
-                                                       Value="{Binding SelectedMusicBrainzRecordingMatch.ShortString, StringFormat=P2}">
-
-                    </propertyGrid:PropertyLabelControl>
-
-                </StackPanel>
+                           Margin="3"
+                           Padding="0"
+                           VerticalAlignment="Center"
+                           TextWrapping="NoWrap"
+                           TextTrimming="CharacterEllipsis"
+                           FontSize="14"
+                           Grid.Column="1" />
             </Grid>
         </Border>
     </DataTemplate>

@@ -303,8 +303,10 @@
     <Style x:Key="HoverSelectItemContainerStyleWithAlternation_LibraryImporter" TargetType="{x:Type ListBoxItem}">
         <Setter Property="HorizontalContentAlignment" Value="{Binding HorizontalContentAlignment, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"/>
         <Setter Property="VerticalContentAlignment" Value="{Binding VerticalContentAlignment, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"/>
-        <Setter Property="Padding" Value="3" />
+        <Setter Property="Padding" Value="1" />
         <Setter Property="Margin" Value="0" />
+        <Setter Property="BorderBrush" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
         <Setter Property="Background" Value="{StaticResource HoverSelectBackground_LibraryImporter}" />
         <Setter Property="Foreground" Value="{StaticResource HoverSelectForeground_LibraryImporter}" />
         

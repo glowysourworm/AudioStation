@@ -40,7 +40,7 @@ namespace AudioStation.Core.Component
                                                                        .TrackCount > 0;
         }
 
-        public ITagValidation ValidateTagImport(IAudioStationTag simpleTag)
+        public ITagSmallValidation ValidateTagImport(IAudioStationTag simpleTag)
         {
             return ValidateImport(simpleTag.AlbumArtist,
                                   simpleTag.Album,
@@ -52,7 +52,7 @@ namespace AudioStation.Core.Component
                                   simpleTag.DiscTotal);
         }
 
-        private ITagValidation ValidateImport(string firstAlbumArtist,
+        private ITagSmallValidation ValidateImport(string firstAlbumArtist,
                                     string album,
                                     string title,
                                     string genre,

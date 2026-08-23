@@ -7,7 +7,7 @@ namespace AudioStation.Core.Component.Interface
 {
     public interface IModelValidationService
     {
-        ITagValidation ValidateTagImport(IAudioStationTag tagFile);
+        ITagSmallValidation ValidateTagImport(IAudioStationTag tagFile);
         bool ValidateMusicBrainzRecordingImport(IRecording recording);
     }
 }

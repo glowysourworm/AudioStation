@@ -5,6 +5,7 @@ using AudioStation.Core.Controller.Interface;
 using AudioStation.Core.Model.Vendor.ATLExtension;
 using AudioStation.Core.Model.Vendor.ATLExtension.Interface;
 using AudioStation.Core.Utility;
+using AudioStation.ViewModels.TagViewModels;
 using AudioStation.ViewModels.Vendor.AcoustIDViewModel;
 using AudioStation.ViewModels.Vendor.MusicBrainzViewModel;
 
@@ -45,7 +46,8 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
 
         // Data available for the import (either cached here or in the database)
         bool _minimumImportValid;
-        LibraryImporterTagViewModel _tag;
+        TagSmallEditViewModel _tag;
+        TagSmallViewModel _musicBrainzTag;
 
         AudioStationTag _tagClean;
         AudioStationTag _tagDirty;
@@ -88,10 +90,15 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
             get { return _minimumImportValid; }
             set { SetValueOverride(ref _minimumImportValid, value); }
         }
-        public LibraryImporterTagViewModel Tag
+        public TagSmallEditViewModel Tag
         {
             get { return _tag; }
             set { SetValueOverride(ref _tag, value); }
+        }
+        public TagSmallViewModel MusicBrainzTag
+        {
+            get { return _musicBrainzTag; }
+            set { SetValueOverride(ref _musicBrainzTag, value); }
         }
         public LibraryImporterOutputViewModel ImportOutput
         {
@@ -178,7 +185,8 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
                 SourceFolder = options.SourceFolder,
                 SourceFile = fullPath
             };
-            this.Tag = new LibraryImporterTagViewModel();
+            this.Tag = new TagSmallEditViewModel();
+            this.MusicBrainzTag = new TagSmallViewModel();
 
             this.SelectAcoustIDCommand = new SimpleCommand(() =>
             {
@@ -237,6 +245,10 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
 
             // Update (validation)
             this.Tag.Update(_tagClean, _tagDirty, validation);
+
+            // Update (Music Brainz)
+            if (this.SelectedMusicBrainzRecordingMatch != null)
+                this.MusicBrainzTag.UpdateFromMusicBrainz(this.SelectedMusicBrainzRecordingMatch);
 
             this.MinimumImportValid = !this.InError && _libraryImporter.CanImportEntity(this.ImportLoad, this.ImportOutput);
 

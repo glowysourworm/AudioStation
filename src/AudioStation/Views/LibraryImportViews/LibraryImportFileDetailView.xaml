@@ -36,30 +36,11 @@
                                            Visibility="{Binding ImportFileMigration, Converter={StaticResource BoolVisibilityCollapseConverter}}"
                                            Foreground="{Binding MinimumImportValid, Converter={StaticResource ValidationForegroundParameterConverter}, ConverterParameter={StaticResource LabelForeground}}" />
 
+        <!-- This will remind users that the option is turned on -->
         <propertyGrid:PropertyLabelControl LabelColumnWidth="140" LabelText="Migration Enabled"
                                            DataContext="{Binding DataContext.Options, RelativeSource={RelativeSource AncestorType=view:LibraryImportView}}"
                                            Visibility="{Binding ImportFileMigration, Converter={StaticResource BoolVisibilityCollapseConverter}}"
                                            Value="{Binding ImportFileMigration}" />        
-        
-        <propertyGrid:PropertyLabelControl LabelColumnWidth="140" LabelText="Import Type"
-                                           DataContext="{Binding DataContext.Options, RelativeSource={RelativeSource AncestorType=view:LibraryImportView}}"
-                                           Value="{Binding ImportAsType}" />
-
-        <propertyGrid:PropertyLabelControl LabelColumnWidth="140" LabelText="Naming Type"
-                                           DataContext="{Binding DataContext.Options, RelativeSource={RelativeSource AncestorType=view:LibraryImportView}}"
-                                           Value="{Binding NamingType}" />
-
-        <propertyGrid:PropertyLabelControl LabelColumnWidth="140" LabelText="Grouping Type"
-                                           DataContext="{Binding DataContext.Options, RelativeSource={RelativeSource AncestorType=view:LibraryImportView}}"
-                                           Value="{Binding GroupingType}" />
-
-        <propertyGrid:PropertyLabelControl LabelColumnWidth="140" LabelText="AcoustID Enabled"
-                                           DataContext="{Binding DataContext.Options, RelativeSource={RelativeSource AncestorType=view:LibraryImportView}}"
-                                           Value="{Binding IdentifyUsingAcoustID}" />
-
-        <propertyGrid:PropertyLabelControl LabelColumnWidth="140" LabelText="Music Brainz Enabled"
-                                           DataContext="{Binding DataContext.Options, RelativeSource={RelativeSource AncestorType=view:LibraryImportView}}"
-                                           Value="{Binding IncludeMusicBrainzDetail}" />
 
     </controls:NoSelectListBox>
 </UserControl>

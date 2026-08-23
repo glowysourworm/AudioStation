@@ -3,7 +3,7 @@
     /// <summary>
     /// Interface to represent tag field validation.
     /// </summary>
-    public interface ITagValidation
+    public interface ITagSmallValidation
     {
         bool IsAlbumArtistValid { get; set; }
         bool IsAlbumValid { get; set; }

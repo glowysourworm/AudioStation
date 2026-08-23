@@ -1,0 +1,50 @@
+﻿<UserControl x:Class="AudioStation.Views.LibraryImportViews.LibraryImportSmallConfigurationView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:xceed="http://schemas.xceed.com/wpf/xaml/toolkit"
+             xmlns:fa5="http://schemas.fontawesome.com/icons/"
+             xmlns:propertyGrid="clr-namespace:AudioStation.Controls.PropertyGrid"
+             xmlns:controls="clr-namespace:AudioStation.Controls"
+             xmlns:view="clr-namespace:AudioStation.Views"
+             xmlns:importView="clr-namespace:AudioStation.Views.LibraryImportViews"
+             xmlns:coreModel="clr-namespace:AudioStation.Core.Model;assembly=AudioStation.Core"
+             xmlns:simpleUI="clr-namespace:SimpleWpf.UI.Controls;assembly=SimpleWpf.UI">
+    
+    <controls:NoSelectListBox
+            Grid.Row="1"
+            Background="White"
+            BorderBrush="Gray" 
+            BorderThickness="0"
+            HorizontalContentAlignment="Stretch"
+            ItemContainerStyle="{StaticResource NoHoverSelectItemContainerStyleWithAlteration}"
+            AlternationCount="2"
+            ScrollViewer.VerticalScrollBarVisibility="Auto"
+            ScrollViewer.HorizontalScrollBarVisibility="Hidden">
+
+        <propertyGrid:PropertyLabelControl LabelColumnWidth="140" LabelText="Migration Enabled"
+                                           DataContext="{Binding DataContext.Options, RelativeSource={RelativeSource AncestorType=view:LibraryImportView}}"
+                                           Visibility="{Binding ImportFileMigration, Converter={StaticResource BoolVisibilityCollapseConverter}}"
+                                           Value="{Binding ImportFileMigration}" />
+
+        <propertyGrid:PropertyLabelControl LabelColumnWidth="140" LabelText="Import Type"
+                                           DataContext="{Binding DataContext.Options, RelativeSource={RelativeSource AncestorType=view:LibraryImportView}}"
+                                           Value="{Binding ImportAsType}" />
+
+        <propertyGrid:PropertyLabelControl LabelColumnWidth="140" LabelText="Naming Type"
+                                           DataContext="{Binding DataContext.Options, RelativeSource={RelativeSource AncestorType=view:LibraryImportView}}"
+                                           Value="{Binding NamingType}" />
+
+        <propertyGrid:PropertyLabelControl LabelColumnWidth="140" LabelText="Grouping Type"
+                                           DataContext="{Binding DataContext.Options, RelativeSource={RelativeSource AncestorType=view:LibraryImportView}}"
+                                           Value="{Binding GroupingType}" />
+
+        <propertyGrid:PropertyLabelControl LabelColumnWidth="140" LabelText="AcoustID Enabled"
+                                           DataContext="{Binding DataContext.Options, RelativeSource={RelativeSource AncestorType=view:LibraryImportView}}"
+                                           Value="{Binding IdentifyUsingAcoustID}" />
+
+        <propertyGrid:PropertyLabelControl LabelColumnWidth="140" LabelText="Music Brainz Enabled"
+                                           DataContext="{Binding DataContext.Options, RelativeSource={RelativeSource AncestorType=view:LibraryImportView}}"
+                                           Value="{Binding IncludeMusicBrainzDetail}" />
+
+    </controls:NoSelectListBox>
+</UserControl>

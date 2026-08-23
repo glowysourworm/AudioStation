@@ -3,9 +3,9 @@ using AudioStation.Core.Model.Vendor.ATLExtension.Interface;
 
 using SimpleWpf.ViewModel;
 
-namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.Import
+namespace AudioStation.ViewModels.TagViewModels
 {
-    public class LibraryImporterTagViewModel : ViewModelBase, ITagValidation
+    public class TagSmallEditViewModel : ViewModelBase, ITagSmallValidation
     {
         bool _isAlbumArtistValid;
         bool _isAlbumValid;
@@ -178,7 +178,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
         }
 
 
-        public void Update(IAudioStationTag tagClean, IAudioStationTag tagDirty, ITagValidation validation)
+        public void Update(IAudioStationTag tagClean, IAudioStationTag tagDirty, ITagSmallValidation validation)
         {
             this.ValidationMessage = validation.ValidationMessage;
             this.IsValid = validation.IsValid;
@@ -220,7 +220,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
                               this.IsDiscTotalModified;
         }
 
-        public LibraryImporterTagViewModel()
+        public TagSmallEditViewModel()
         {
             this.Album = string.Empty;
             this.AlbumArtist = string.Empty;

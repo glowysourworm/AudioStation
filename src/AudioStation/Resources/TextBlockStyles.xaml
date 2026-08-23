@@ -22,6 +22,12 @@
         <Setter Property="FontStyle" Value="Italic" />
     </Style>
 
+    <Style TargetType="TextBlock" x:Key="LabelDetailDarkTextBlock">
+        <Setter Property="Foreground" Value="{StaticResource LabelForegroundDark}" />
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="FontStyle" Value="Italic" />
+    </Style>
+
     <Style TargetType="TextBlock" x:Key="LabelPendingTextBlock">
         <Setter Property="Foreground" Value="{StaticResource LabelForegroundDetail}" />
         <Setter Property="FontStyle" Value="Italic" />

@@ -14,9 +14,9 @@
 
 
         <!-- File / AcoustID / Music Brainz -->
-        <TextBlock Grid.Row="0" Text="Tag (target store)"   Margin="5 3" Style="{StaticResource HeaderMediumTextBlock}" FontStyle="Italic" VerticalAlignment="Center" />
-        <TextBlock Grid.Row="1" Text="AcoustID"             Margin="5 3" Style="{StaticResource HeaderMediumTextBlock}" FontStyle="Italic" VerticalAlignment="Center" />
-        <TextBlock Grid.Row="2" Text="Music Brainz"         Margin="5 3" Style="{StaticResource HeaderMediumTextBlock}" FontStyle="Italic" VerticalAlignment="Center" />
+        <TextBlock Grid.Row="0" Text="Tag (Source)"   Margin="5 3" Style="{StaticResource HeaderMediumTextBlock}" FontStyle="Italic" VerticalAlignment="Center" />
+        <TextBlock Grid.Row="1" Text="AcoustID"       Margin="5 3" Style="{StaticResource HeaderMediumTextBlock}" FontStyle="Italic" VerticalAlignment="Center" />
+        <TextBlock Grid.Row="2" Text="Music Brainz"   Margin="5 3" Style="{StaticResource HeaderMediumTextBlock}" FontStyle="Italic" VerticalAlignment="Center" />
 
         <!-- Tag -->
         <TextBlock Text="{Binding Tag.ValidationMessage}" 

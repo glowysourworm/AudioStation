@@ -359,10 +359,11 @@ namespace AudioStation.Component
 
         public async Task LibraryImporter_RunAcoustID()
         {
-            // Procedure
+            // Procedure:  File collections are for read-only user data (except for the SourceDirectory recursive tree)
             //
             // 0) Show Dialog (progress handler)
-            // 1) Run AcoustID on staged files
+            // 1) Clear file collections from last AcoustID run
+            // 2) Run AcoustID on staged files (read-only collection until import is completed)
             //
 
             var progressCounter = 0;
@@ -379,6 +380,9 @@ namespace AudioStation.Component
             // Show Loading...
             _eventAggregator.GetEvent<DialogEvent>().Publish(new DialogEventData(loadingViewModel));
 
+            // Clear AcoustID from last run
+            _libraryImporterViewModel.AcoustIDCompletedSuccessfully.Clear();
+
             foreach (var selectedFile in _libraryImporterViewModel.StagedFiles)
             {
                 // Double Check (existing results)
@@ -387,6 +391,10 @@ namespace AudioStation.Component
                     loadingViewModel.Message = "AcoustID: " + selectedFile.ShortPath;
 
                     await LibraryImporter_RunAcoustID_Impl(selectedFile);
+
+                    // Success
+                    if (selectedFile.ImportOutput.AcoustIDSuccess)
+                        _libraryImporterViewModel.MusicBrainzCompletedSuccessfully.Add(selectedFile);
                 }
 
                 loadingViewModel.Progress = ++progressCounter / (double)progressTotal;
@@ -462,13 +470,13 @@ namespace AudioStation.Component
 
                 loadingViewModel.Message = "Importing " + file.ShortPath;
 
-                var success = await LibraryLoader_RunImport_Impl(file);
+                await LibraryLoader_RunImport_Impl(file);
 
                 // -> Success Collection
-                if (success)
+                if (file.ImportOutput.Mp3FileImportSuccess)
                     _libraryImporterViewModel.FilesCompletedSuccessfully.Add(file);
 
-                // -> Error Collection
+                // -> Error Collection (import (or) migration error)
                 else
                     _libraryImporterViewModel.FilesCompletedWithError.Add(file);
 
@@ -484,6 +492,9 @@ namespace AudioStation.Component
 
         private async Task LibraryImporter_RunAcoustID_Impl(LibraryImporterFileViewModel selectedFile)
         {
+            // Log (start)
+            selectedFile.ImportOutput.LogMessages.Add("AcoustID Chroma-Print Service Started:  " + selectedFile.ShortPath);
+
             var success = await _libraryImporter.WorkAcoustID(selectedFile.ImportLoad, selectedFile.ImportOutput);
 
             if (!success)
@@ -499,26 +510,27 @@ namespace AudioStation.Component
 
         private async Task LibraryImporter_RunMusicBrainz_Impl(LibraryImporterFileViewModel selectedFile)
         {
-            // Double Check (existing records)
-            //
-            if (!selectedFile.ImportOutput.MusicBrainzRecordingMatchSuccess)
+            // Log (start)
+            selectedFile.ImportOutput.LogMessages.Add("Music Brainz Lookup Started:  " + selectedFile.ShortPath);
+
+            var success = await _libraryImporter.WorkMusicBrainzDetail(selectedFile.ImportLoad, selectedFile.ImportOutput);
+
+            if (!success)
+                selectedFile.ImportOutput.LogMessages.Add("Music Brainz Failed (progress halted)");
+            else
             {
-                var success = await _libraryImporter.WorkMusicBrainzDetail(selectedFile.ImportLoad, selectedFile.ImportOutput);
+                selectedFile.ImportOutput.LogMessages.Add("Music Brainz Succeeded!");
 
-                if (!success)
-                    selectedFile.ImportOutput.LogMessages.Add("Music Brainz Failed (progress halted)");
-                else
-                {
-                    selectedFile.ImportOutput.LogMessages.Add("Music Brainz Succeeded!");
-
-                    // Set initial selection
-                    selectedFile.SelectedMusicBrainzRecordingMatch = selectedFile.ImportOutput.MusicBrainzRecordingMatches.First();
-                }
+                // Set initial selection
+                selectedFile.SelectedMusicBrainzRecordingMatch = selectedFile.ImportOutput.MusicBrainzRecordingMatches.First();
             }
         }
 
-        private async Task<bool> LibraryLoader_RunImport_Impl(LibraryImporterFileViewModel selectedFile)
+        private async Task LibraryLoader_RunImport_Impl(LibraryImporterFileViewModel selectedFile)
         {
+            // Log (start)
+            selectedFile.ImportOutput.LogMessages.Add("Import Started:  " + selectedFile.FullPath);
+
             // -> Import to Database
             var success = _libraryImporter.WorkImportEntity(selectedFile.ImportLoad, selectedFile.ImportOutput);
 
@@ -535,19 +547,17 @@ namespace AudioStation.Component
 
                 else
                 {
+                    // Log (migration)
+                    selectedFile.ImportOutput.LogMessages.Add("Migrating File:  " + selectedFile.FileMigrationFullPath);
+
                     var migrationSuccess = _libraryImporter.WorkMigrateFile(selectedFile.ImportLoad, selectedFile.ImportOutput);
 
                     if (!migrationSuccess)
                         selectedFile.ImportOutput.LogMessages.Add("File Migration Failed (progress halted)");
                     else
                         selectedFile.ImportOutput.LogMessages.Add("File Migration Succeeded!");
-
-                    return migrationSuccess;
                 }
             }
-
-            // Migration may have failed; Import was at least successful! (user has to figure out file issues)
-            return success;
         }
         #endregion
 
