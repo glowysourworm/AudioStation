@@ -243,7 +243,7 @@ namespace AudioStation.Controller
             var files = forArtist ? _modelController.GetArtistFiles(entityId) : _modelController.GetAlbumTracks(entityId);
 
             // Take all the artwork - consolidating the images
-            var images = files.Select(entity => _tagCacheController.Get(entity.FileName))
+            var images = files.Select(entity => _tagCacheController.Get(entity.FileReference.FileName))
                               .Where(tagRef => tagRef != null)                              // TODO: Application Level Validation (Library Maintenance)
                               .SelectMany(tagRef => tagRef.EmbeddedPictures)
                               .DistinctBy(picture => picture.PicType);                         // See Enumeration

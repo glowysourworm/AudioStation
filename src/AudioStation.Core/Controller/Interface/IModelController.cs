@@ -22,7 +22,7 @@ namespace AudioStation.Core.Controller.Interface
         /// Adds LibraryEntry to database. Does NOT update any existing, similar, entry. The tag data
         /// is also used to initialize the LibraryEntry, adding supporting data to the database.
         /// </summary>
-        Mp3FileReference AddUpdateLibraryEntry(string fileName, IAudioStationTag tagRef);
+        Track AddUpdateLibraryEntry(string fileName, IAudioStationTag tagRef);
 
         /// <summary>
         /// Add / Update M3UStream based on unique Id, and Name
@@ -38,17 +38,17 @@ namespace AudioStation.Core.Controller.Interface
         /// Returns all files associated with the artist
         /// </summary>
         /// <param name="artistId">Database id of the artist</param>
-        IEnumerable<Mp3FileReference> GetArtistFiles(int artistId);
+        IEnumerable<Track> GetArtistFiles(int artistId);
 
         /// <summary>
         /// Returns all albums associated with this artist
         /// </summary>
-        IEnumerable<Mp3FileReferenceAlbum> GetArtistAlbums(int artistId, bool isPrimaryArtist);
+        IEnumerable<Album> GetArtistAlbums(int artistId, bool isPrimaryArtist);
 
         /// <summary>
         /// Returns tracks associated with an album
         /// </summary>
-        IEnumerable<Mp3FileReference> GetAlbumTracks(int albumId);
+        IEnumerable<Track> GetAlbumTracks(int albumId);
 
         #endregion
 

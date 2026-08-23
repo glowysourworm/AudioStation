@@ -19,6 +19,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryViewModels
         bool _isFileLoadError;
         string _fileLoadErrorMessage;
         string _fileCorruptMessage;
+        int _crc32;
 
         /// <summary>
         /// File on the system for the matching database entry
@@ -88,6 +89,11 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryViewModels
             get { return _fileCorruptMessage; }
             set { this.RaiseAndSetIfChanged(ref _fileCorruptMessage, value); }
         }
+        public int Crc32
+        {
+            get { return _crc32; }
+            set { this.RaiseAndSetIfChanged(ref _crc32, value); }
+        }
 
         public LibraryEntryViewModel(int id) : base(id, LibraryEntityType.Track)
         {
@@ -99,6 +105,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryViewModels
             this.Duration = TimeSpan.Zero;
             this.FileLoadErrorMessage = string.Empty;
             this.FileCorruptMessage = string.Empty;
+            this.Crc32 = 0;
         }
     }
 }

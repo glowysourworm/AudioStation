@@ -32,7 +32,7 @@ namespace AudioStation.Component.Interface
         /// Loads a collection of LibraryEntryViewModel ordered by ID; and translates the PageResult into 
         /// one for the ViewModel namespace.
         /// </summary>
-        PageResult<LibraryEntryViewModel> LoadEntryPage(PageRequest<Mp3FileReference, int> request);
+        PageResult<LibraryEntryViewModel> LoadEntryPage(PageRequest<Track, int> request);
 
         /// <summary>
         /// Converts any non-mp3 files to mp3 files and puts them in a special staging folder to be imported.

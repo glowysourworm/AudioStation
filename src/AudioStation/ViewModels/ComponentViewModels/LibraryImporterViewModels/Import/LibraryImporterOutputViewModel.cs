@@ -24,7 +24,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
         ObservableCollection<MusicBrainzRecordingViewModel> _musicBrainzRecordingMatches;
         ObservableCollection<MusicBrainzCombinedLibraryEntryRecord> _musicBrainzCombinedRecords;
         MusicBrainzCombinedLibraryEntryRecord _finalQueryRecord;
-        Mp3FileReference _importedRecord;
+        Track _importedRecord;
 
         MusicBrainzPicture? _bestFrontCover;
         MusicBrainzPicture? _bestBackCover;
@@ -71,7 +71,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
             get { return _finalQueryRecord; }
             set { RaiseAndSetIfChanged(ref _finalQueryRecord, value); }
         }
-        public Mp3FileReference ImportedRecord
+        public Track ImportedRecord
         {
             get { return _importedRecord; }
             set { RaiseAndSetIfChanged(ref _importedRecord, value); }

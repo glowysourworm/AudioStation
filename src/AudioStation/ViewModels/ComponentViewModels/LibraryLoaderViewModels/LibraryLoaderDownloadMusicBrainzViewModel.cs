@@ -14,11 +14,11 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels
     [IocExportDefault]
     public class LibraryLoaderDownloadMusicBrainzViewModel : ViewModelBase
     {
-        ObservableCollection<Mp3FileReference> _entitiesStaged;
+        ObservableCollection<Track> _entitiesStaged;
 
         SimpleCommand _runImportCommand;
 
-        public ObservableCollection<Mp3FileReference> EntitiesStaged
+        public ObservableCollection<Track> EntitiesStaged
         {
             get { return _entitiesStaged; }
             set { this.RaiseAndSetIfChanged(ref _entitiesStaged, value); }
@@ -35,9 +35,9 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels
                                                          IDialogController dialogController)
         {
             var musicBrainzDBName = configurationManager.GetConfiguration().MusicBrainzDatabaseName;
-            var entities = modelController.GetAudioStationEntities<Mp3FileReference>();
+            var entities = modelController.GetAudioStationEntities<Track>();
 
-            this.EntitiesStaged = new ObservableCollection<Mp3FileReference>(entities);
+            this.EntitiesStaged = new ObservableCollection<Track>(entities);
 
             this.RunImportCommand = new SimpleCommand(() =>
             {

@@ -1,0 +1,19 @@
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+using Microsoft.EntityFrameworkCore;
+
+namespace AudioStation.Core.Database.AudioStationDatabase
+{
+    [PrimaryKey("Id")]
+    [Table("Vendor", Schema = "public")]
+    public class Vendor : AudioStationEntityBase
+    {
+        public Guid VendorId { get; set; }
+        public string VendorName { get; set; }
+
+        public Vendor()
+        {
+
+        }
+    }
+}

@@ -115,7 +115,7 @@ namespace AudioStation.Component
             });
         }
 
-        public PageResult<LibraryEntryViewModel> LoadEntryPage(PageRequest<Mp3FileReference, int> request)
+        public PageResult<LibraryEntryViewModel> LoadEntryPage(PageRequest<Track, int> request)
         {
             var result = new PageResult<LibraryEntryViewModel>();
 
@@ -131,27 +131,28 @@ namespace AudioStation.Component
             return result;
         }
 
-        public LibraryEntryViewModel MapTrack(Mp3FileReference track)
+        public LibraryEntryViewModel MapTrack(Track track)
         {
             return new LibraryEntryViewModel(track.Id)
             {
                 Album = track.Album?.Name ?? "Unknown",
                 Disc = (uint)(track.Album?.DiscNumber ?? 0),
                 Duration = TimeSpan.FromMilliseconds(track.DurationMilliseconds ?? 0),
-                FileName = track.FileName,
+                FileName = track.FileReference.FileName,
                 PrimaryArtist = track.PrimaryArtist?.Name ?? "Unknown",
                 PrimaryGenre = track.PrimaryGenre?.Name ?? "Unknown",
                 Title = track.Title ?? "Unknown",
-                Track = (uint)(track.Track ?? 0),
-                FileCorruptMessage = track.FileCorruptMessage ?? "",
-                FileLoadErrorMessage = track.FileErrorMessage ?? "",
-                IsFileAvailable = track.IsFileAvailable,
-                IsFileLoadError = track.IsFileLoadError,
-                IsFileCorrupt = track.IsFileCorrupt
+                Track = (uint)(track.Number ?? 0),
+                FileCorruptMessage = track.FileReference.FileCorruptMessage ?? "",
+                FileLoadErrorMessage = track.FileReference.FileErrorMessage ?? "",
+                IsFileAvailable = track.FileReference.IsFileAvailable,
+                IsFileLoadError = track.FileReference.IsFileLoadError,
+                IsFileCorrupt = track.FileReference.IsFileCorrupt,
+                Crc32 = track.FileReference.CRC32
             };
         }
 
-        public AlbumViewModel MapAlbum(Mp3FileReferenceArtist primaryArtist, Mp3FileReferenceAlbum albumEntity, IEnumerable<Mp3FileReference> tracks)
+        public AlbumViewModel MapAlbum(Artist primaryArtist, Album albumEntity, IEnumerable<Track> tracks)
         {
             return new AlbumViewModel(albumEntity.Id)
             {
@@ -568,7 +569,7 @@ namespace AudioStation.Component
             var resultCollection = new List<ArtistViewModel>();
 
             // Database:  Load the artist entities
-            var artistEntities = _modelController.GetAudioStationEntities<Mp3FileReferenceArtist>();
+            var artistEntities = _modelController.GetAudioStationEntities<Artist>();
             var artistCount = artistEntities.Count();
             var artistIndex = 0;
 
@@ -620,7 +621,7 @@ namespace AudioStation.Component
         {
             var result = new List<GenreViewModel>();
 
-            var genreEntities = _modelController.GetAudioStationEntities<Mp3FileReferenceGenre>();
+            var genreEntities = _modelController.GetAudioStationEntities<Genre>();
             var genreCount = genreEntities.Count();
             var genreIndex = 0;
 
@@ -642,8 +643,8 @@ namespace AudioStation.Component
         {
             var result = new List<AlbumViewModel>();
 
-            var albumEntities = _modelController.GetAudioStationEntities<Mp3FileReferenceAlbum>();
-            var trackEntities = _modelController.GetAudioStationEntities<Mp3FileReference>();
+            var albumEntities = _modelController.GetAudioStationEntities<Album>();
+            var trackEntities = _modelController.GetAudioStationEntities<Track>();
 
             var albumCount = albumEntities.Count();
             var albumIndex = 0;
@@ -664,7 +665,7 @@ namespace AudioStation.Component
                 }
 
                 // Artist Entity
-                var artist = _modelController.GetAudioStationEntity<Mp3FileReferenceArtist>((int)artistId);
+                var artist = _modelController.GetAudioStationEntity<Artist>((int)artistId);
 
                 // Album Result
                 var album = MapAlbum(artist, albumEntity, tracks);

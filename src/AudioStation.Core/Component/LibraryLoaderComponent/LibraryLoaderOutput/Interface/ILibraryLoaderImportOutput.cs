@@ -31,7 +31,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderOutput
         /// <summary>
         /// Final record imported as Mp3FileReference
         /// </summary>
-        Mp3FileReference ImportedRecord { get; set; }
+        Track ImportedRecord { get; set; }
 
         /// <summary>
         /// AcoustID fingerprinting successful

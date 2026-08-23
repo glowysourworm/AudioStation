@@ -15,14 +15,19 @@ namespace AudioStation.Core.Database.AudioStationDatabase
         private readonly LogLevel _currentLogLevel;
         private readonly bool _logVerbose;
 
+        public DbSet<AcoustIDChromaPrint> AcoustIDChromaPrints { get; set; }
+        public DbSet<AcoustIDLookupResult> AcoustIDLookupResults { get; set; }
+        public DbSet<Album> Albums { get; set; }
+        public DbSet<Artist> Artists { get; set; }
+        public DbSet<FileReference> FileReferences { get; set; }
+        public DbSet<Genre> Genres { get; set; }
         public DbSet<M3UStream> M3UStreams { get; set; }
-        public DbSet<Mp3FileReference> Mp3FileReferences { get; set; }
-        public DbSet<Mp3FileReferenceAlbum> Mp3FileReferenceAlbums { get; set; }
-        public DbSet<Mp3FileReferenceArtist> Mp3FileReferenceArtists { get; set; }
-        public DbSet<Mp3FileReferenceGenre> Mp3FileReferenceGenres { get; set; }
-        public DbSet<Mp3FileReferenceArtistMap> Mp3FileReferenceArtistMaps { get; set; }
-        public DbSet<Mp3FileReferenceGenreMap> Mp3FileReferenceGenreMaps { get; set; }
         public DbSet<RadioBrowserStation> RadioBrowserStations { get; set; }
+        public DbSet<Track> Tracks { get; set; }
+        public DbSet<TrackArtistMap> TrackArtistMaps { get; set; }
+        public DbSet<TrackGenreMap> TrackGenreMaps { get; set; }
+        public DbSet<Vendor> Vendors { get; set; }
+        public DbSet<VendorTagSmall> VendorTagSmalls { get; set; }
 
         public AudioStationDbContext(Configuration configuration,
                                      LogLevel currentLogLevel,
@@ -42,20 +47,22 @@ namespace AudioStation.Core.Database.AudioStationDatabase
             //
             modelBuilder.Entity<M3UStream>().HasIndex("Name");
 
-            modelBuilder.Entity<Mp3FileReference>().Navigation(x => x.PrimaryArtist).AutoInclude(true);
-            modelBuilder.Entity<Mp3FileReference>().Navigation(x => x.Album).AutoInclude(true);
-            modelBuilder.Entity<Mp3FileReference>().Navigation(x => x.PrimaryGenre).AutoInclude(true);
+            modelBuilder.Entity<Track>().Navigation(x => x.PrimaryArtist).AutoInclude(true);
+            modelBuilder.Entity<Track>().Navigation(x => x.Album).AutoInclude(true);
+            modelBuilder.Entity<Track>().Navigation(x => x.PrimaryGenre).AutoInclude(true);
 
-            modelBuilder.Entity<Mp3FileReferenceAlbum>();
-            modelBuilder.Entity<Mp3FileReferenceArtist>();
-            modelBuilder.Entity<Mp3FileReferenceGenre>();
+            modelBuilder.Entity<Album>();
+            modelBuilder.Entity<Artist>();
+            modelBuilder.Entity<Genre>();
             modelBuilder.Entity<RadioBrowserStation>();
 
-            modelBuilder.Entity<Mp3FileReferenceArtistMap>().Navigation(x => x.Mp3FileReferenceArtist).AutoInclude(true);
-            modelBuilder.Entity<Mp3FileReferenceArtistMap>().Navigation(x => x.Mp3FileReference).AutoInclude(true);
+            modelBuilder.Entity<TrackArtistMap>().Navigation(x => x.Artist).AutoInclude(true);
+            modelBuilder.Entity<TrackArtistMap>().Navigation(x => x.Track).AutoInclude(true);
 
-            modelBuilder.Entity<Mp3FileReferenceGenreMap>().Navigation(x => x.Mp3FileReferenceGenre).AutoInclude(true);
-            modelBuilder.Entity<Mp3FileReferenceGenreMap>().Navigation(x => x.Mp3FileReference).AutoInclude(true);
+            modelBuilder.Entity<TrackGenreMap>().Navigation(x => x.Genre).AutoInclude(true);
+            modelBuilder.Entity<TrackGenreMap>().Navigation(x => x.Track).AutoInclude(true);
+
+            modelBuilder.Entity<VendorTagSmall>().Navigation(x => x.Vendor).AutoInclude(true);
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

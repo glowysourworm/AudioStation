@@ -3,7 +3,6 @@
 using AudioStation.Component.Interface;
 using AudioStation.Core.Database.AudioStationDatabase;
 using AudioStation.Core.Model;
-using AudioStation.ViewModels.ComponentViewModels;
 using AudioStation.ViewModels.ComponentViewModels.LibraryViewModels;
 
 using SimpleWpf.Extensions.Command;
@@ -264,7 +263,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LoadViewModels
 
             if (this.LibraryManagerFilterType == LibraryManagerErrorFilterType.None)
             {
-                result = _viewModelLoader.LoadEntryPage(new PageRequest<Mp3FileReference, int>()
+                result = _viewModelLoader.LoadEntryPage(new PageRequest<Track, int>()
                 {
                     PageNumber = Math.Max(pageNumber, 0),
                     PageSize = _libraryEntryPageSize,
@@ -273,7 +272,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LoadViewModels
             }
             else
             {
-                result = _viewModelLoader.LoadEntryPage(new PageRequest<Mp3FileReference, int>()
+                result = _viewModelLoader.LoadEntryPage(new PageRequest<Track, int>()
                 {
                     PageNumber = Math.Max(pageNumber, 0),
                     PageSize = _libraryEntryPageSize,
@@ -284,23 +283,23 @@ namespace AudioStation.ViewModels.ComponentViewModels.LoadViewModels
             LoadEntryPage(result, true);
         }
 
-        private bool FilterFileErrors(Mp3FileReference entity)
+        private bool FilterFileErrors(Track entity)
         {
             switch (this.LibraryManagerFilterType)
             {
                 case LibraryManagerErrorFilterType.None:
                     return true;
                 case LibraryManagerErrorFilterType.FileLoadError:
-                    return entity.IsFileLoadError;
+                    return entity.FileReference.IsFileLoadError;
                 case LibraryManagerErrorFilterType.FileUnavailable:
-                    return !entity.IsFileAvailable;
+                    return !entity.FileReference.IsFileAvailable;
                 default:
                     throw new Exception("Unhandled LibraryManagerErrorFilterType:  LibraryViewModel.cs");
             }
         }
 
         // Not likely to get any optimization for this call from postgres / EF
-        private bool FilterEntityFields(Mp3FileReference entity)
+        private bool FilterEntityFields(Track entity)
         {
             var result = true;
 
@@ -313,13 +312,13 @@ namespace AudioStation.ViewModels.ComponentViewModels.LoadViewModels
                 result &= entity.Album?.DiscNumber == this.LibraryEntrySearch.Disc;
 
             if (result && this.LibraryEntrySearch.FileCorruptMessage != string.Empty)
-                result &= entity.FileCorruptMessage?.Contains(this.LibraryEntrySearch.FileCorruptMessage, StringComparison.OrdinalIgnoreCase) ?? false;
+                result &= entity.FileReference.FileCorruptMessage?.Contains(this.LibraryEntrySearch.FileCorruptMessage, StringComparison.OrdinalIgnoreCase) ?? false;
 
             if (result && this.LibraryEntrySearch.FileLoadErrorMessage != string.Empty)
-                result &= entity.FileErrorMessage?.Contains(this.LibraryEntrySearch.FileLoadErrorMessage, StringComparison.OrdinalIgnoreCase) ?? false;
+                result &= entity.FileReference.FileErrorMessage?.Contains(this.LibraryEntrySearch.FileLoadErrorMessage, StringComparison.OrdinalIgnoreCase) ?? false;
 
             if (result && this.LibraryEntrySearch.FileName != string.Empty)
-                result &= entity.FileName?.Contains(this.LibraryEntrySearch.FileName) ?? false;
+                result &= entity.FileReference.FileName?.Contains(this.LibraryEntrySearch.FileName) ?? false;
 
             if (result && this.LibraryEntrySearch.Id > 0)
                 result &= entity.Id.ToString().Contains(this.LibraryEntrySearch.Id.ToString());
@@ -334,7 +333,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LoadViewModels
                 result &= entity.Title?.Contains(this.LibraryEntrySearch.Title, StringComparison.OrdinalIgnoreCase) ?? false;
 
             if (result && this.LibraryEntrySearch.Track > 0)
-                result &= entity.Track == this.LibraryEntrySearch.Track;
+                result &= entity.Number == this.LibraryEntrySearch.Track;
 
             return result;
         }

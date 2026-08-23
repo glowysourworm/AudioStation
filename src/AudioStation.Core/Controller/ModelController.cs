@@ -61,13 +61,24 @@ namespace AudioStation.Core.Controller
         }
 
         #region Audio Station Database Methods
-        public Mp3FileReference AddUpdateLibraryEntry(string fileName, IAudioStationTag tagRef)
+        public Track AddUpdateLibraryEntry(string fileName, IAudioStationTag tagRef)
         {
             try
             {
                 var fileExists = Path.Exists(fileName);
 
-                return _audioStationDbClient.AddUpdateLibraryEntry(fileName, fileExists, false, string.Empty, tagRef);
+                var created = File.GetCreationTime(fileName);
+                var modified = File.GetCreationTime(fileName);
+
+                var crcHash = new System.IO.Hashing.Crc32();
+
+                // CRC32 CALCULATION:  THIS IS NOT KEPT ON THE FILE SYSTEM
+                var fileBytes = File.ReadAllBytes(fileName);
+
+                crcHash.Append(fileBytes);
+                var crc32 = crcHash.GetCurrentHash(fileBytes);
+
+                return _audioStationDbClient.AddUpdateLibraryEntry(fileName, created, modified, crc32, fileExists, false, string.Empty, tagRef);
             }
             catch (Exception ex)
             {
@@ -105,7 +116,7 @@ namespace AudioStation.Core.Controller
                 return false;
             }
         }
-        public IEnumerable<Mp3FileReference> GetArtistFiles(int artistId)
+        public IEnumerable<Track> GetArtistFiles(int artistId)
         {
             try
             {
@@ -116,9 +127,9 @@ namespace AudioStation.Core.Controller
                 ApplicationHelpers.Log("Error in IModelController (AddLibraryEntry):  {0}", LogMessageDbType.AudioStation, LogLevel.Error, ex, ex.Message);
             }
 
-            return Enumerable.Empty<Mp3FileReference>();
+            return Enumerable.Empty<Track>();
         }
-        public IEnumerable<Mp3FileReferenceAlbum> GetArtistAlbums(int artistId, bool isPrimaryArtist)
+        public IEnumerable<Album> GetArtistAlbums(int artistId, bool isPrimaryArtist)
         {
             try
             {
@@ -129,9 +140,9 @@ namespace AudioStation.Core.Controller
                 ApplicationHelpers.Log("Error in IModelController (AddLibraryEntry):  {0}", LogMessageDbType.AudioStation, LogLevel.Error, ex, ex.Message);
             }
 
-            return Enumerable.Empty<Mp3FileReferenceAlbum>();
+            return Enumerable.Empty<Album>();
         }
-        public IEnumerable<Mp3FileReference> GetAlbumTracks(int albumId)
+        public IEnumerable<Track> GetAlbumTracks(int albumId)
         {
             try
             {
@@ -142,7 +153,7 @@ namespace AudioStation.Core.Controller
                 ApplicationHelpers.Log("Error in IModelController (AddLibraryEntry):  {0}", LogMessageDbType.AudioStation, LogLevel.Error, ex, ex.Message);
             }
 
-            return Enumerable.Empty<Mp3FileReference>();
+            return Enumerable.Empty<Track>();
         }
         #endregion
 
