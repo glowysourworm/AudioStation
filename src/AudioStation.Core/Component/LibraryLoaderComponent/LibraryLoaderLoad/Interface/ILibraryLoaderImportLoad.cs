@@ -7,8 +7,8 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderLoad.I
         string SourceFile { get; set; }
         string SourceFolder { get; set; }
         string DestinationFolder { get; set; }
-        LibraryEntryGroupingType GroupingType { get; set; }
-        LibraryEntryNamingType NamingType { get; set; }
+        TrackGroupingType GroupingType { get; set; }
+        TrackNamingType NamingType { get; set; }
         bool IncludeMusicBrainzDetail { get; set; }
         bool IdentifyUsingAcoustID { get; set; }
         bool ImportFileMigration { get; set; }

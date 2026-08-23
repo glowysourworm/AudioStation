@@ -1,6 +1,6 @@
 ﻿namespace AudioStation.Core.Model
 {
-    public enum LibraryEntryNamingType
+    public enum TrackNamingType
     {
         None = 0,
 

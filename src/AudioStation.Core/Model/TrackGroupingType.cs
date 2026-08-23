@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace AudioStation.Core.Model
 {
-    public enum LibraryEntryGroupingType
+    public enum TrackGroupingType
     {
         None = 0,
         ArtistAlbum = 1,

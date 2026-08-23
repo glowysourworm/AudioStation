@@ -15,7 +15,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryViewModels
             set { this.RaiseAndSetIfChanged(ref _name, value); }
         }
 
-        public GenreViewModel(int id) : base(id, LibraryEntityType.Genre)
+        public GenreViewModel(int id) : base(id, LibraryEntryType.Genre)
         {
             this.Name = string.Empty;
         }

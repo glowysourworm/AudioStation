@@ -58,10 +58,10 @@ namespace AudioStation.Views.LibraryManager
             var newViewModel = e.NewValue as LibraryViewModel;
 
             if (oldViewModel != null)
-                oldViewModel.LibraryEntryTabItems.CollectionChanged -= OnLibraryEntryTabsChanged;
+                oldViewModel.TrackTabItems.CollectionChanged -= OnLibraryEntryTabsChanged;
 
             if (newViewModel != null)
-                newViewModel.LibraryEntryTabItems.CollectionChanged += OnLibraryEntryTabsChanged;
+                newViewModel.TrackTabItems.CollectionChanged += OnLibraryEntryTabsChanged;
         }
 
         private async void OnLibraryEntryTabsChanged(object? sender, NotifyCollectionChangedEventArgs e)
@@ -75,14 +75,14 @@ namespace AudioStation.Views.LibraryManager
                 // Removed Tab(s)
                 for (int index = _tabItems.Count - 1; index >= 3 /* Skipping Non-Closeable Tabs */; index--)
                 {
-                    var entryViewModel = viewModel.LibraryEntryTabItems.FirstOrDefault(x => GetFileTabName(x) == (string)_tabItems[index].Header);
+                    var entryViewModel = viewModel.TrackTabItems.FirstOrDefault(x => GetFileTabName(x) == (string)_tabItems[index].Header);
 
                     if (entryViewModel == null)
                         _tabItems.RemoveAt(index);
                 }
 
                 // Sync the tab items w/ the view model
-                foreach (var tabViewModel in viewModel.LibraryEntryTabItems)
+                foreach (var tabViewModel in viewModel.TrackTabItems)
                 {
                     var tabItem = _tabItems.FirstOrDefault(x => (string)x.Header == GetFileTabName(tabViewModel));
 
@@ -93,7 +93,7 @@ namespace AudioStation.Views.LibraryManager
         }
 
         // Gets a consistent readable tab item header / name
-        private string GetFileTabName(LibraryEntryViewModel entryViewModel)
+        private string GetFileTabName(TrackViewModel entryViewModel)
         {
             return string.Format("File ({0})", entryViewModel.Id.ToString());
         }
@@ -118,7 +118,7 @@ namespace AudioStation.Views.LibraryManager
         {
             return this.Resources["LibraryMaintenanceTab"] as TabItemPressable;
         }
-        private async Task<TabItemPressable> CreateLibraryEntryFileTab(LibraryEntryViewModel viewModel)
+        private async Task<TabItemPressable> CreateLibraryEntryFileTab(TrackViewModel viewModel)
         {
             var tabItem = new TabItemPressable();
             tabItem.Style = App.Current.Resources["ManagerTabItemStyle"] as Style;
@@ -175,7 +175,7 @@ namespace AudioStation.Views.LibraryManager
             {
                 var libraryViewModel = this.DataContext as LibraryViewModel;
 
-                libraryViewModel?.RemoveLibraryEntryTabCommand.Execute(viewModel);
+                libraryViewModel?.RemoveTrackTabCommand.Execute(viewModel);
             });
             return tabItem;
         }

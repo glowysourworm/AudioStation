@@ -3,7 +3,7 @@ using AudioStation.ViewModels.OtherViewModels;
 
 namespace AudioStation.ViewModels.ComponentViewModels.LibraryViewModels
 {
-    public class LibraryEntryViewModel : EntityViewModel
+    public class TrackViewModel : EntityViewModel
     {
         string _fileName;
         string _primaryArtist;
@@ -95,7 +95,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryViewModels
             set { this.RaiseAndSetIfChanged(ref _crc32, value); }
         }
 
-        public LibraryEntryViewModel(int id) : base(id, LibraryEntityType.Track)
+        public TrackViewModel(int id) : base(id, LibraryEntryType.Track)
         {
             this.FileName = string.Empty;
             this.Title = string.Empty;

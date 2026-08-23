@@ -4,7 +4,7 @@ using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Component.LibraryLoaderComponent;
 using AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderLoad;
 using AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderOutput;
-using AudioStation.Core.Model.Vendor;
+using AudioStation.Core.Database.AudioStationDatabase;
 using AudioStation.Core.Utility;
 using AudioStation.Event;
 using AudioStation.Event.LibraryLoaderEvent;
@@ -12,8 +12,8 @@ using AudioStation.Service.Interface;
 using AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.Import;
 using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels;
 using AudioStation.ViewModels.ComponentViewModels.LogViewModels;
+using AudioStation.ViewModels.TagViewModels;
 using AudioStation.ViewModels.Vendor.AcoustIDViewModel;
-using AudioStation.ViewModels.Vendor.MusicBrainzViewModel;
 
 using SimpleWpf.IocFramework.Application.Attribute;
 using SimpleWpf.IocFramework.EventAggregation;
@@ -89,15 +89,8 @@ namespace AudioStation.Service
                 _eventAggregator.GetEvent<DialogEvent>().Publish(DialogEventData.Dismiss());
                 _eventAggregator.GetEvent<LibraryLoaderWorkItemCompleteEvent>().Publish(new LibraryImporterOutputViewModel()
                 {
-                    AcoustIDResults = new ObservableCollection<LookupResultViewModel>(workOutput.AcoustIDResults
-                                                                                                .SelectMany(x => x.Recordings)
-                                                                                                .Zip(workOutput.AcoustIDResults)
-                                                                                                .Select(pair => new LookupResultViewModel()
-                                                                                                {
-                                                                                                    Id = new Guid(pair.Second.Id),
-                                                                                                    Score = pair.Second.Score,
-                                                                                                    MusicBrainzRecordingId = new Guid(pair.First.Id)
-                                                                                                })),
+                    AcoustIDResults = new ObservableCollection<AcoustIDLookupResultViewModel>(
+                                            workOutput.AcoustIDResults.Select(ApplicationHelpers.Map<AcoustIDLookupResult, AcoustIDLookupResultViewModel>)),
                     AcoustIDSuccess = workOutput.AcoustIDSuccess,
                     FinalQueryRecord = null,
                     ImportedRecord = workOutput.ImportedRecord,
@@ -106,9 +99,9 @@ namespace AudioStation.Service
                     LogMessages = new ObservableCollection<string>(workOutput.Log.Select(x => x.Message)),
                     MusicBrainzCombinedRecordQuerySuccess = false,
                     MusicBrainzCombinedRecords = null,
-                    MusicBrainzRecordingMatches = new ObservableCollection<MusicBrainzRecordingViewModel>(
+                    MusicBrainzRecordingMatches = new ObservableCollection<TagSmallViewModel>(
                                                     workOutput.MusicBrainzRecordingMatches
-                                                              .Select(ApplicationHelpers.Map<MusicBrainzRecording, MusicBrainzRecordingViewModel>)),
+                                                              .Select(ApplicationHelpers.Map<VendorTagSmall, TagSmallViewModel>)),
 
                     MusicBrainzRecordingMatchSuccess = workOutput.MusicBrainzRecordingMatchSuccess,
                     TagEmbeddingSuccess = workOutput.TagEmbeddingSuccess

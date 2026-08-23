@@ -13,11 +13,11 @@ namespace AudioStation.Core.Component.Interface
         /// <summary>
         /// Calculates the file name of the tag's library file. This should be the file name stored in the database, also.
         /// </summary>
-        string CalculateFileName(IAudioStationTag tagFile, LibraryEntryNamingType namingType);
+        string CalculateFileName(IAudioStationTag tagFile, TrackNamingType namingType);
 
         /// <summary>
         /// Calculates the folder path of a tag's library folder.
         /// </summary>
-        string CalculateFolderPath(IAudioStationTag tagFile, string destinationFolderBase, LibraryEntryGroupingType groupingType);
+        string CalculateFolderPath(IAudioStationTag tagFile, string destinationFolderBase, TrackGroupingType groupingType);
     }
 }

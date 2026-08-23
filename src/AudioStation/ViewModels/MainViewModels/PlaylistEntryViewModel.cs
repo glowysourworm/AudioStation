@@ -9,7 +9,7 @@ namespace AudioStation.ViewModels.MainViewModels
     {
         ArtistViewModel _artist;
         AlbumViewModel _album;
-        LibraryEntryViewModel _track;
+        TrackViewModel _track;
 
         TimeSpan _currentTime;
         double _currentTimeRatio;
@@ -25,7 +25,7 @@ namespace AudioStation.ViewModels.MainViewModels
             get { return _album; }
             set { RaiseAndSetIfChanged(ref _album, value); }
         }
-        public LibraryEntryViewModel Track
+        public TrackViewModel Track
         {
             get { return _track; }
             set { RaiseAndSetIfChanged(ref _track, value); }
@@ -58,7 +58,7 @@ namespace AudioStation.ViewModels.MainViewModels
             OnPropertyChanged("CurrentTime");
         }
 
-        public PlaylistEntryViewModel(ArtistViewModel artist, AlbumViewModel album, LibraryEntryViewModel track)
+        public PlaylistEntryViewModel(ArtistViewModel artist, AlbumViewModel album, TrackViewModel track)
         {
             this.Artist = artist;
             this.Album = album;

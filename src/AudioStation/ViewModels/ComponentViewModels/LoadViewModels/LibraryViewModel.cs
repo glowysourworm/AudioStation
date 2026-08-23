@@ -14,10 +14,10 @@ namespace AudioStation.ViewModels.ComponentViewModels.LoadViewModels
     public class LibraryViewModel : ViewModelBase
     {
         private readonly IComponentViewModelLoader _viewModelLoader;
-        private readonly int _libraryEntryPageSize = 100;
+        private readonly int _trackPageSize = 100;
 
-        ObservableCollection<LibraryEntryViewModel> _libraryEntries;
-        ObservableCollection<LibraryEntryViewModel> _libraryEntryTabItems;
+        ObservableCollection<TrackViewModel> _tracks;
+        ObservableCollection<TrackViewModel> _trackTabItems;
         ObservableCollection<AlbumViewModel> _albums;
         ObservableCollection<ArtistViewModel> _artists;
         ObservableCollection<ArtistViewModel> _artistsFull;
@@ -25,7 +25,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LoadViewModels
 
         int _totalArtistCount;
         int _totalAlbumCount;
-        int _totalLibraryEntriesCount;
+        int _totalCount;
         int _totalGenresCount;
 
         int _totalArtistFilteredCount;
@@ -34,29 +34,29 @@ namespace AudioStation.ViewModels.ComponentViewModels.LoadViewModels
         int _totalGenresFilteredCount;
 
         string _artistSearch;
-        LibraryEntryViewModel _libraryEntrySearch;
+        TrackViewModel _trackSearch;
         LibraryManagerErrorFilterType _libraryManagerFilterType;
 
-        int _libraryEntriesPageBeginEntryNumber;
-        int _libraryEntriesPageEndEntryNumber;
-        int _libraryEntryRequestPage;
-        int _libraryEntryPage;
+        int _trackPageBeginEntryNumber;
+        int _trackPageEndEntryNumber;
+        int _trackRequestPage;
+        int _trackPage;
 
-        SimpleCommand _libraryEntryPageRequestCommand;
-        SimpleCommand<int> _libraryEntryPageRequestBackCommand;
-        SimpleCommand<int> _libraryEntryPageRequestForwardCommand;
-        SimpleCommand<LibraryEntryViewModel> _addLibraryEntryTabCommand;
-        SimpleCommand<LibraryEntryViewModel> _removeLibraryEntryTabCommand;
+        SimpleCommand _trackPageRequestCommand;
+        SimpleCommand<int> _trackPageRequestBackCommand;
+        SimpleCommand<int> _trackPageRequestForwardCommand;
+        SimpleCommand<TrackViewModel> _addTrackTabCommand;
+        SimpleCommand<TrackViewModel> _removeTrackTabCommand;
 
-        public ObservableCollection<LibraryEntryViewModel> LibraryEntries
+        public ObservableCollection<TrackViewModel> Tracks
         {
-            get { return _libraryEntries; }
-            set { RaiseAndSetIfChanged(ref _libraryEntries, value); }
+            get { return _tracks; }
+            set { RaiseAndSetIfChanged(ref _tracks, value); }
         }
-        public ObservableCollection<LibraryEntryViewModel> LibraryEntryTabItems
+        public ObservableCollection<TrackViewModel> TrackTabItems
         {
-            get { return _libraryEntryTabItems; }
-            set { RaiseAndSetIfChanged(ref _libraryEntryTabItems, value); }
+            get { return _trackTabItems; }
+            set { RaiseAndSetIfChanged(ref _trackTabItems, value); }
         }
         public ObservableCollection<AlbumViewModel> Albums
         {
@@ -84,10 +84,10 @@ namespace AudioStation.ViewModels.ComponentViewModels.LoadViewModels
             get { return _totalAlbumCount; }
             set { RaiseAndSetIfChanged(ref _totalAlbumCount, value); }
         }
-        public int TotalLibraryEntriesCount
+        public int TotalTrackCount
         {
-            get { return _totalLibraryEntriesCount; }
-            set { RaiseAndSetIfChanged(ref _totalLibraryEntriesCount, value); }
+            get { return _totalCount; }
+            set { RaiseAndSetIfChanged(ref _totalCount, value); }
         }
         public int TotalGenresCount
         {
@@ -104,7 +104,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LoadViewModels
             get { return _totalAlbumFilteredCount; }
             set { RaiseAndSetIfChanged(ref _totalAlbumFilteredCount, value); }
         }
-        public int TotalLibraryEntriesFilteredCount
+        public int TotalTrackFilteredCount
         {
             get { return _totalLibraryEntriesFilteredCount; }
             set { RaiseAndSetIfChanged(ref _totalLibraryEntriesFilteredCount, value); }
@@ -120,10 +120,10 @@ namespace AudioStation.ViewModels.ComponentViewModels.LoadViewModels
             get { return _artistSearch; }
             set { RaiseAndSetIfChanged(ref _artistSearch, value); ExecuteArtistSearch(); }
         }
-        public LibraryEntryViewModel LibraryEntrySearch
+        public TrackViewModel TrackSearch
         {
-            get { return _libraryEntrySearch; }
-            set { RaiseAndSetIfChanged(ref _libraryEntrySearch, value); }
+            get { return _trackSearch; }
+            set { RaiseAndSetIfChanged(ref _trackSearch, value); }
         }
         public LibraryManagerErrorFilterType LibraryManagerFilterType
         {
@@ -131,51 +131,51 @@ namespace AudioStation.ViewModels.ComponentViewModels.LoadViewModels
             set { RaiseAndSetIfChanged(ref _libraryManagerFilterType, value); }
         }
 
-        public int LibraryEntriesPageBeginEntryNumber
+        public int TrackPageBeginEntryNumber
         {
-            get { return _libraryEntriesPageBeginEntryNumber; }
-            set { RaiseAndSetIfChanged(ref _libraryEntriesPageBeginEntryNumber, value); }
+            get { return _trackPageBeginEntryNumber; }
+            set { RaiseAndSetIfChanged(ref _trackPageBeginEntryNumber, value); }
         }
-        public int LibraryEntriesPageEndEntryNumber
+        public int TrackPageEndEntryNumber
         {
-            get { return _libraryEntriesPageEndEntryNumber; }
-            set { RaiseAndSetIfChanged(ref _libraryEntriesPageEndEntryNumber, value); }
+            get { return _trackPageEndEntryNumber; }
+            set { RaiseAndSetIfChanged(ref _trackPageEndEntryNumber, value); }
         }
-        public int LibraryEntryRequestPage
+        public int TrackRequestPage
         {
-            get { return _libraryEntryRequestPage; }
-            set { RaiseAndSetIfChanged(ref _libraryEntryRequestPage, value); }
+            get { return _trackRequestPage; }
+            set { RaiseAndSetIfChanged(ref _trackRequestPage, value); }
         }
-        public int LibraryEntryPage
+        public int TrackPage
         {
-            get { return _libraryEntryPage; }
-            set { RaiseAndSetIfChanged(ref _libraryEntryPage, value); }
+            get { return _trackPage; }
+            set { RaiseAndSetIfChanged(ref _trackPage, value); }
         }
 
-        public SimpleCommand LibraryEntryPageRequestCommand
+        public SimpleCommand TrackPageRequestCommand
         {
-            get { return _libraryEntryPageRequestCommand; }
-            set { RaiseAndSetIfChanged(ref _libraryEntryPageRequestCommand, value); }
+            get { return _trackPageRequestCommand; }
+            set { RaiseAndSetIfChanged(ref _trackPageRequestCommand, value); }
         }
-        public SimpleCommand<int> LibraryEntryPageRequestBackCommand
+        public SimpleCommand<int> TrackPageRequestBackCommand
         {
-            get { return _libraryEntryPageRequestBackCommand; }
-            set { RaiseAndSetIfChanged(ref _libraryEntryPageRequestBackCommand, value); }
+            get { return _trackPageRequestBackCommand; }
+            set { RaiseAndSetIfChanged(ref _trackPageRequestBackCommand, value); }
         }
-        public SimpleCommand<int> LibraryEntryPageRequestForwardCommand
+        public SimpleCommand<int> TrackPageRequestForwardCommand
         {
-            get { return _libraryEntryPageRequestForwardCommand; }
-            set { RaiseAndSetIfChanged(ref _libraryEntryPageRequestForwardCommand, value); }
+            get { return _trackPageRequestForwardCommand; }
+            set { RaiseAndSetIfChanged(ref _trackPageRequestForwardCommand, value); }
         }
-        public SimpleCommand<LibraryEntryViewModel> AddLibraryEntryTabCommand
+        public SimpleCommand<TrackViewModel> AddTrackTabCommand
         {
-            get { return _addLibraryEntryTabCommand; }
-            set { RaiseAndSetIfChanged(ref _addLibraryEntryTabCommand, value); }
+            get { return _addTrackTabCommand; }
+            set { RaiseAndSetIfChanged(ref _addTrackTabCommand, value); }
         }
-        public SimpleCommand<LibraryEntryViewModel> RemoveLibraryEntryTabCommand
+        public SimpleCommand<TrackViewModel> RemoveTrackTabCommand
         {
-            get { return _removeLibraryEntryTabCommand; }
-            set { RaiseAndSetIfChanged(ref _removeLibraryEntryTabCommand, value); }
+            get { return _removeTrackTabCommand; }
+            set { RaiseAndSetIfChanged(ref _removeTrackTabCommand, value); }
         }
 
         /// <summary>
@@ -186,46 +186,46 @@ namespace AudioStation.ViewModels.ComponentViewModels.LoadViewModels
         {
             _artistsFull = new ObservableCollection<ArtistViewModel>();
 
-            this.LibraryEntries = new ObservableCollection<LibraryEntryViewModel>();
-            this.LibraryEntryTabItems = new ObservableCollection<LibraryEntryViewModel>();
+            this.Tracks = new ObservableCollection<TrackViewModel>();
+            this.TrackTabItems = new ObservableCollection<TrackViewModel>();
             this.Albums = new ObservableCollection<AlbumViewModel>();
             this.Artists = new ObservableCollection<ArtistViewModel>();
             this.Genres = new ObservableCollection<GenreViewModel>();
 
-            this.LibraryEntrySearch = new LibraryEntryViewModel(-1);
+            this.TrackSearch = new TrackViewModel(-1);
 
             // Library Entry Tabs (closeable / ManagerView)
-            this.AddLibraryEntryTabCommand = new SimpleCommand<LibraryEntryViewModel>(viewModel =>
+            this.AddTrackTabCommand = new SimpleCommand<TrackViewModel>(viewModel =>
             {
-                this.LibraryEntryTabItems.Add(viewModel);
+                this.TrackTabItems.Add(viewModel);
             });
-            this.RemoveLibraryEntryTabCommand = new SimpleCommand<LibraryEntryViewModel>(viewModel =>
+            this.RemoveTrackTabCommand = new SimpleCommand<TrackViewModel>(viewModel =>
             {
-                this.LibraryEntryTabItems.Remove(viewModel);
+                this.TrackTabItems.Remove(viewModel);
             });
 
             // Manager Grid (pager)
-            this.LibraryEntryPageRequestCommand = new SimpleCommand(() =>
+            this.TrackPageRequestCommand = new SimpleCommand(() =>
             {
-                ExecuteSearch(this.LibraryEntryRequestPage);
+                ExecuteSearch(this.TrackRequestPage);
             });
-            this.LibraryEntryPageRequestForwardCommand = new SimpleCommand<int>((pageCount) =>
+            this.TrackPageRequestForwardCommand = new SimpleCommand<int>((pageCount) =>
             {
-                var pageNumber = Math.Max(1, this.LibraryEntryPage + pageCount);
+                var pageNumber = Math.Max(1, this.TrackPage + pageCount);
 
                 ExecuteSearch(pageNumber);
             });
-            this.LibraryEntryPageRequestBackCommand = new SimpleCommand<int>((pageCount) =>
+            this.TrackPageRequestBackCommand = new SimpleCommand<int>((pageCount) =>
             {
-                var pageNumber = Math.Max(1, this.LibraryEntryPage - pageCount);
+                var pageNumber = Math.Max(1, this.TrackPage - pageCount);
 
                 ExecuteSearch(pageNumber);
             });
 
             // Listen to property changes for executing searches on the data grid
-            this.LibraryEntrySearch.PropertyChanged += (sender, args) =>
+            this.TrackSearch.PropertyChanged += (sender, args) =>
             {
-                this.LibraryEntryRequestPage = 1;
+                this.TrackRequestPage = 1;
 
                 ExecuteSearch(1);
             };
@@ -242,31 +242,31 @@ namespace AudioStation.ViewModels.ComponentViewModels.LoadViewModels
                 this.Artists.AddRange(_artistsFull);
         }
 
-        public void LoadEntryPage(PageResult<LibraryEntryViewModel> result, bool reset)
+        public void LoadEntryPage(PageResult<TrackViewModel> result, bool reset)
         {
             if (reset)
-                this.LibraryEntries.Clear();
+                this.Tracks.Clear();
 
-            this.LibraryEntries.AddRange(result.Results);
+            this.Tracks.AddRange(result.Results);
 
-            this.LibraryEntryPage = result.PageNumber;
-            this.LibraryEntryRequestPage = result.PageNumber;
-            this.LibraryEntriesPageBeginEntryNumber = ((result.PageNumber - 1) * result.PageSize) + 1;
-            this.LibraryEntriesPageEndEntryNumber = result.PageNumber * result.PageSize;
-            this.TotalLibraryEntriesCount = result.TotalRecordCount;
-            this.TotalLibraryEntriesFilteredCount = result.TotalRecordCountFiltered;
+            this.TrackPage = result.PageNumber;
+            this.TrackRequestPage = result.PageNumber;
+            this.TrackPageBeginEntryNumber = ((result.PageNumber - 1) * result.PageSize) + 1;
+            this.TrackPageEndEntryNumber = result.PageNumber * result.PageSize;
+            this.TotalTrackCount = result.TotalRecordCount;
+            this.TotalTrackFilteredCount = result.TotalRecordCountFiltered;
         }
 
         private void ExecuteSearch(int pageNumber)
         {
-            PageResult<LibraryEntryViewModel> result;
+            PageResult<TrackViewModel> result;
 
             if (this.LibraryManagerFilterType == LibraryManagerErrorFilterType.None)
             {
                 result = _viewModelLoader.LoadEntryPage(new PageRequest<Track, int>()
                 {
                     PageNumber = Math.Max(pageNumber, 0),
-                    PageSize = _libraryEntryPageSize,
+                    PageSize = _trackPageSize,
                     WhereCallback = (entity) => { return FilterEntityFields(entity); }
                 });
             }
@@ -275,7 +275,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LoadViewModels
                 result = _viewModelLoader.LoadEntryPage(new PageRequest<Track, int>()
                 {
                     PageNumber = Math.Max(pageNumber, 0),
-                    PageSize = _libraryEntryPageSize,
+                    PageSize = _trackPageSize,
                     WhereCallback = (entity) => { return FilterEntityFields(entity) && FilterFileErrors(entity); }
                 });
             }
@@ -305,35 +305,35 @@ namespace AudioStation.ViewModels.ComponentViewModels.LoadViewModels
 
             // If there are search settings, then demand that they're honored
             //
-            if (this.LibraryEntrySearch.Album != string.Empty)
-                result &= entity.Album?.Name?.Contains(this.LibraryEntrySearch.Album, StringComparison.OrdinalIgnoreCase) ?? false;
+            if (this.TrackSearch.Album != string.Empty)
+                result &= entity.Album?.Name?.Contains(this.TrackSearch.Album, StringComparison.OrdinalIgnoreCase) ?? false;
 
-            if (result && this.LibraryEntrySearch.Disc > 0)
-                result &= entity.Album?.DiscNumber == this.LibraryEntrySearch.Disc;
+            if (result && this.TrackSearch.Disc > 0)
+                result &= entity.Album?.DiscNumber == this.TrackSearch.Disc;
 
-            if (result && this.LibraryEntrySearch.FileCorruptMessage != string.Empty)
-                result &= entity.FileReference.FileCorruptMessage?.Contains(this.LibraryEntrySearch.FileCorruptMessage, StringComparison.OrdinalIgnoreCase) ?? false;
+            if (result && this.TrackSearch.FileCorruptMessage != string.Empty)
+                result &= entity.FileReference.FileCorruptMessage?.Contains(this.TrackSearch.FileCorruptMessage, StringComparison.OrdinalIgnoreCase) ?? false;
 
-            if (result && this.LibraryEntrySearch.FileLoadErrorMessage != string.Empty)
-                result &= entity.FileReference.FileErrorMessage?.Contains(this.LibraryEntrySearch.FileLoadErrorMessage, StringComparison.OrdinalIgnoreCase) ?? false;
+            if (result && this.TrackSearch.FileLoadErrorMessage != string.Empty)
+                result &= entity.FileReference.FileErrorMessage?.Contains(this.TrackSearch.FileLoadErrorMessage, StringComparison.OrdinalIgnoreCase) ?? false;
 
-            if (result && this.LibraryEntrySearch.FileName != string.Empty)
-                result &= entity.FileReference.FileName?.Contains(this.LibraryEntrySearch.FileName) ?? false;
+            if (result && this.TrackSearch.FileName != string.Empty)
+                result &= entity.FileReference.FileName?.Contains(this.TrackSearch.FileName) ?? false;
 
-            if (result && this.LibraryEntrySearch.Id > 0)
-                result &= entity.Id.ToString().Contains(this.LibraryEntrySearch.Id.ToString());
+            if (result && this.TrackSearch.Id > 0)
+                result &= entity.Id.ToString().Contains(this.TrackSearch.Id.ToString());
 
-            if (result && this.LibraryEntrySearch.PrimaryArtist != string.Empty)
-                result &= entity.PrimaryArtist?.Name?.Contains(this.LibraryEntrySearch.PrimaryArtist, StringComparison.OrdinalIgnoreCase) ?? false;
+            if (result && this.TrackSearch.PrimaryArtist != string.Empty)
+                result &= entity.PrimaryArtist?.Name?.Contains(this.TrackSearch.PrimaryArtist, StringComparison.OrdinalIgnoreCase) ?? false;
 
-            if (result && this.LibraryEntrySearch.PrimaryGenre != string.Empty)
-                result &= entity.PrimaryGenre?.Name?.Contains(this.LibraryEntrySearch.PrimaryGenre, StringComparison.OrdinalIgnoreCase) ?? false;
+            if (result && this.TrackSearch.PrimaryGenre != string.Empty)
+                result &= entity.PrimaryGenre?.Name?.Contains(this.TrackSearch.PrimaryGenre, StringComparison.OrdinalIgnoreCase) ?? false;
 
-            if (result && this.LibraryEntrySearch.Title != string.Empty)
-                result &= entity.Title?.Contains(this.LibraryEntrySearch.Title, StringComparison.OrdinalIgnoreCase) ?? false;
+            if (result && this.TrackSearch.Title != string.Empty)
+                result &= entity.Title?.Contains(this.TrackSearch.Title, StringComparison.OrdinalIgnoreCase) ?? false;
 
-            if (result && this.LibraryEntrySearch.Track > 0)
-                result &= entity.Number == this.LibraryEntrySearch.Track;
+            if (result && this.TrackSearch.Track > 0)
+                result &= entity.Number == this.TrackSearch.Track;
 
             return result;
         }

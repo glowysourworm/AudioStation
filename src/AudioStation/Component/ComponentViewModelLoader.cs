@@ -115,9 +115,9 @@ namespace AudioStation.Component
             });
         }
 
-        public PageResult<LibraryEntryViewModel> LoadEntryPage(PageRequest<Track, int> request)
+        public PageResult<TrackViewModel> LoadEntryPage(PageRequest<Track, int> request)
         {
-            var result = new PageResult<LibraryEntryViewModel>();
+            var result = new PageResult<TrackViewModel>();
 
             // Database:  Load the file (entry) entities
             var entryPage = _modelController.GetAudioStationPage(request);
@@ -131,9 +131,9 @@ namespace AudioStation.Component
             return result;
         }
 
-        public LibraryEntryViewModel MapTrack(Track track)
+        public TrackViewModel MapTrack(Track track)
         {
-            return new LibraryEntryViewModel(track.Id)
+            return new TrackViewModel(track.Id)
             {
                 Album = track.Album?.Name ?? "Unknown",
                 Disc = (uint)(track.Album?.DiscNumber ?? 0),
@@ -159,7 +159,7 @@ namespace AudioStation.Component
                 Album = albumEntity.Name,
                 Duration = TimeSpan.FromMilliseconds((double)tracks.Sum(track => track.DurationMilliseconds)),
                 PrimaryArtist = primaryArtist.Name,
-                Tracks = new SortedObservableCollection<LibraryEntryViewModel>(tracks.Select(MapTrack)),
+                Tracks = new SortedObservableCollection<TrackViewModel>(tracks.Select(MapTrack)),
                 Year = (uint)albumEntity.Year
             };
         }
@@ -292,8 +292,8 @@ namespace AudioStation.Component
 
 
                 var directoryBase = configuration.DirectoryBase;
-                var subDirectory = options.ImportAsType == LibraryEntryType.Music ? configuration.MusicSubDirectory :
-                                   options.ImportAsType == LibraryEntryType.AudioBook ? configuration.AudioBooksSubDirectory :
+                var subDirectory = options.ImportAsType == TrackType.Music ? configuration.MusicSubDirectory :
+                                   options.ImportAsType == TrackType.AudioBook ? configuration.AudioBooksSubDirectory :
                                    string.Empty;
 
                 // Calculate Migration (destination) Directory

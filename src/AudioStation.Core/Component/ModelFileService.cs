@@ -22,7 +22,7 @@ namespace AudioStation.Core.Component
             _modelValidationService = modelValidationService;
         }
 
-        public string CalculateFileName(IAudioStationTag tag, LibraryEntryNamingType namingType)
+        public string CalculateFileName(IAudioStationTag tag, TrackNamingType namingType)
         {
             var validation = _modelValidationService.ValidateTagImport(tag);
 
@@ -37,7 +37,7 @@ namespace AudioStation.Core.Component
                                      tag.TrackTotal);
         }
 
-        public string CalculateFolderPath(IAudioStationTag tag, string destinationFolderBase, LibraryEntryGroupingType groupingType)
+        public string CalculateFolderPath(IAudioStationTag tag, string destinationFolderBase, TrackGroupingType groupingType)
         {
             var validation = _modelValidationService.ValidateTagImport(tag);
 
@@ -51,7 +51,7 @@ namespace AudioStation.Core.Component
                                        tag.Genre);
         }
 
-        private string CalculateFileName(LibraryEntryNamingType namingType,
+        private string CalculateFileName(TrackNamingType namingType,
                                          string trackTitle,
                                          string primaryAlbumArtist,
                                          string album,
@@ -60,14 +60,14 @@ namespace AudioStation.Core.Component
         {
             switch (namingType)
             {
-                case LibraryEntryNamingType.None:
-                case LibraryEntryNamingType.Standard:
+                case TrackNamingType.None:
+                case TrackNamingType.Standard:
                 {
                     var format = "{0:#} of {1:#} {2}.mp3";
                     var formattedTitle = string.Format(format, trackNumber, trackCount, trackTitle);
                     return _fileController.MakeFriendlyPath(true, formattedTitle);
                 }
-                case LibraryEntryNamingType.Descriptive:
+                case TrackNamingType.Descriptive:
                 {
                     var format = "{0:#} of {1:#} {2}-{3}-{4}.mp3";
                     var formattedTitle = string.Format(format, trackNumber, trackCount, primaryAlbumArtist, album, trackTitle);
@@ -78,7 +78,7 @@ namespace AudioStation.Core.Component
             }
         }
 
-        private string CalculateFolderPath(LibraryEntryGroupingType groupingType,
+        private string CalculateFolderPath(TrackGroupingType groupingType,
                                            string destinationFolderBase,
                                            string primaryAlbumArtist,
                                            string album,
@@ -86,16 +86,16 @@ namespace AudioStation.Core.Component
         {
             switch (groupingType)
             {
-                case LibraryEntryGroupingType.None:
+                case TrackGroupingType.None:
                     return destinationFolderBase;
-                case LibraryEntryGroupingType.ArtistAlbum:
+                case TrackGroupingType.ArtistAlbum:
                 {
                     var artistFolder = _fileController.MakeFriendlyPath(false, primaryAlbumArtist);
                     var albumFolder = _fileController.MakeFriendlyPath(false, album);
 
                     return Path.Combine(destinationFolderBase, artistFolder, albumFolder);
                 }
-                case LibraryEntryGroupingType.GenreArtistAlbum:
+                case TrackGroupingType.GenreArtistAlbum:
                 {
                     var artistFolder = _fileController.MakeFriendlyPath(false, primaryAlbumArtist);
                     var albumFolder = _fileController.MakeFriendlyPath(false, album);

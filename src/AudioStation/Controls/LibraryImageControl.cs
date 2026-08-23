@@ -88,20 +88,20 @@ namespace AudioStation.Controls
 
                 switch (this.ViewModel.Type)
                 {
-                    case Core.Model.LibraryEntityType.Album:
+                    case Core.Model.LibraryEntryType.Album:
                     {
                         var imageData = await _cacheController.GetForAlbum(this.ViewModel.Id, this.ImageSize);
                         this.Source = imageData?.Source;
                     }
                     break;
-                    case Core.Model.LibraryEntityType.Artist:
+                    case Core.Model.LibraryEntryType.Artist:
                     {
                         var imageData = await _cacheController.GetForArtist(this.ViewModel.Id, this.ImageSize);
                         this.Source = imageData?.Source;
                     }
                     break;
-                    case Core.Model.LibraryEntityType.Track:
-                    case Core.Model.LibraryEntityType.Genre:
+                    case Core.Model.LibraryEntryType.Track:
+                    case Core.Model.LibraryEntryType.Genre:
                     default:
                         throw new Exception("Unhandled LibraryEntityType:  LibraryImageControl.cs");
                 }

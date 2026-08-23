@@ -1,6 +1,7 @@
 ﻿using AcoustID.Web;
 
 using AudioStation.Core.Component.Interface;
+using AudioStation.Core.Database.AudioStationDatabase;
 using AudioStation.Core.Service.Interface;
 using AudioStation.Core.Service.Vendor.AcoustIDComponent;
 using AudioStation.Core.Service.Vendor.Interface;
@@ -35,9 +36,9 @@ namespace AudioStation.Core.Service.Vendor
         /// <summary>
         /// Calculates library entry by audio fingerprint using an online api.
         /// </summary>
-        public Task<IEnumerable<LookupResult>> IdentifyFingerprint(string fileName, int minScore)
+        public Task<IEnumerable<AcoustIDLookupResult>> IdentifyFingerprint(string fileName, int minScore)
         {
-            return Task<IEnumerable<LookupResult>>.Run(async () =>
+            return Task.Run(async () =>
             {
                 try
                 {
@@ -79,13 +80,34 @@ namespace AudioStation.Core.Service.Vendor
                                    .Where(x => x.Score >= (minScore / 100.0D))
                                    .Where(x => x.Recordings != null && x.Recordings.Any())
                                    .OrderByDescending(x => x.Score)
+                                   .SelectMany(x =>
+                                   {
+                                       var results = new List<AcoustIDLookupResult>();
+
+                                       foreach (var recording in x.Recordings)
+                                       {
+                                           results.Add(new AcoustIDLookupResult()
+                                           {
+                                               AcoustIDChromaPrint = new AcoustIDChromaPrint()
+                                               {
+                                                   Fingerprint = fingerPrint
+                                               },
+                                               Fingerprint = fingerPrint,
+                                               LookupId = new Guid(x.Id),
+                                               MusicBrainzRecordingId = new Guid(recording.Id),
+                                               Score = x.Score
+                                           });
+                                       }
+
+                                       return results;
+                                   })
                                    .ToList();
                 }
                 catch (Exception ex)
                 {
                     ApplicationHelpers.Log("Error using AcoustID service:  {0}", LogMessageServiceType.AcoustID, LogLevel.Error, ex, ex.Message);
 
-                    return Enumerable.Empty<LookupResult>();
+                    return Enumerable.Empty<AcoustIDLookupResult>();
                 }
             });
         }

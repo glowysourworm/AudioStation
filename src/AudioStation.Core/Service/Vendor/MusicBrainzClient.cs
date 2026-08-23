@@ -3,6 +3,7 @@
 using ATL;
 
 using AudioStation.Core.Database.MusicBrainzDatabase.Model;
+using AudioStation.Core.Model.Interface;
 using AudioStation.Core.Model.Vendor;
 using AudioStation.Core.Model.Vendor.ATLExtension;
 using AudioStation.Core.Model.Vendor.ATLExtension.Interface;
@@ -27,7 +28,7 @@ using Query = MetaBrainz.MusicBrainz.Query;
 namespace AudioStation.Core.Service.Vendor
 {
     [IocExport(typeof(IMusicBrainzClient))]
-    public class MusicBrainzClient : IMusicBrainzClient, IAudioStationTagService
+    public class MusicBrainzClient : IMusicBrainzClient
     {
         // IAudioStationComponent
         //
@@ -855,6 +856,10 @@ namespace AudioStation.Core.Service.Vendor
             {
                 return await Lookup(serviceModel);
             });
+        }
+        public Task<ITagSmall> GetTagSmallData(AudioStationTagServiceModel serviceModel)
+        {
+            throw new NotImplementedException();
         }
         #endregion
 

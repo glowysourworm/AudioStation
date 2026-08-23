@@ -146,6 +146,14 @@ namespace AudioStation.ViewModels.TagViewModels
             this.DiscNumber = (uint)((release?.Media?.IndexOf(media) + 1) ?? 0);
             this.DiscTotal = (uint)(release?.Media?.Count ?? 0);
 
+            Validate();
+        }
+
+        /// <summary>
+        /// Sets validation from current properties
+        /// </summary>
+        public void Validate()
+        {
             this.IsAlbumValid = !string.IsNullOrWhiteSpace(this.Album);
             this.IsAlbumArtistValid = !string.IsNullOrWhiteSpace(this.AlbumArtist);
             this.IsTitleValid = !string.IsNullOrWhiteSpace(this.Title);

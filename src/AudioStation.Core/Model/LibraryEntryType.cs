@@ -1,6 +1,6 @@
 ﻿namespace AudioStation.Core.Model
 {
-    public enum LibraryEntityType
+    public enum LibraryEntryType
     {
         Track,
         Album,
@@ -11,7 +11,7 @@
     /// <summary>
     /// TODO: This has to be better integrated. What other types are there?
     /// </summary>
-    public enum LibraryEntryType
+    public enum TrackType
     {
         Any = 0,
         Music = 1,

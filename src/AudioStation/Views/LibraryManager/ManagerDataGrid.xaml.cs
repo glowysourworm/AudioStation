@@ -45,8 +45,8 @@ namespace AudioStation.Views.LibraryManager
             if (viewModel != null)
             {
                 // Invoke main pager request
-                viewModel.LibraryEntryRequestPage = 1;
-                viewModel.LibraryEntryPageRequestCommand.Execute(1);
+                viewModel.TrackRequestPage = 1;
+                viewModel.TrackPageRequestCommand.Execute(1);
             }
         }
 
@@ -54,10 +54,10 @@ namespace AudioStation.Views.LibraryManager
         private void LibraryEntryGrid_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
             var viewModel = this.DataContext as LibraryViewModel;
-            var selectedItem = this.LibraryEntryGrid.SelectedItem as LibraryEntryViewModel;
+            var selectedItem = this.LibraryEntryGrid.SelectedItem as TrackViewModel;
 
             if (selectedItem != null && viewModel != null)
-                viewModel.AddLibraryEntryTabCommand.Execute(selectedItem);
+                viewModel.AddTrackTabCommand.Execute(selectedItem);
         }
     }
 }

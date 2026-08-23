@@ -53,7 +53,7 @@ namespace AudioStation.Views
         }
 
         // Primary load method to send playlist to the main view model
-        private async Task LoadPlaylist(LibraryEntryViewModel selectedTitle, AlbumViewModel selectedAlbum, ArtistViewModel selectedArtist)
+        private async Task LoadPlaylist(TrackViewModel selectedTitle, AlbumViewModel selectedAlbum, ArtistViewModel selectedArtist)
         {
             // Loading...
             _eventAggregator.GetEvent<DialogEvent>().Publish(DialogEventData.ShowLoading("Loading Playlist..."));
@@ -116,7 +116,7 @@ namespace AudioStation.Views
         {
 
         }
-        private async void AlbumViewItem_TrackSelected(object sender, LibraryEntryViewModel selectedTrack)
+        private async void AlbumViewItem_TrackSelected(object sender, TrackViewModel selectedTrack)
         {
             var viewModel = this.DataContext as LibraryViewModel;
             var album = (sender as AlbumView).DataContext as AlbumViewModel;

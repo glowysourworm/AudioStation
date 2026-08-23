@@ -7,20 +7,20 @@ namespace AudioStation.ViewModels.OtherViewModels
     public class EntityViewModel : ViewModelBase
     {
         int _id;
-        LibraryEntityType _type;
+        LibraryEntryType _type;
 
         public int Id
         {
             get { return _id; }
             private set { this.RaiseAndSetIfChanged(ref _id, value); }
         }
-        public LibraryEntityType Type
+        public LibraryEntryType Type
         {
             get { return _type; }
             private set { this.RaiseAndSetIfChanged(ref _type, value); }
         }
 
-        public EntityViewModel(int id, LibraryEntityType type)
+        public EntityViewModel(int id, LibraryEntryType type)
         {
             this.Id = id;
             this.Type = type;

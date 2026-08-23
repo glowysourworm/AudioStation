@@ -1,14 +1,10 @@
 ﻿using System.Collections.ObjectModel;
 
-using AcoustID.Web;
-
 using AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderOutput.Interface;
 using AudioStation.Core.Database.AudioStationDatabase;
 using AudioStation.Core.Database.MusicBrainzDatabase.Model;
-using AudioStation.Core.Model.Vendor;
-using AudioStation.Core.Utility;
+using AudioStation.ViewModels.TagViewModels;
 using AudioStation.ViewModels.Vendor.AcoustIDViewModel;
-using AudioStation.ViewModels.Vendor.MusicBrainzViewModel;
 
 using SimpleWpf.Extensions.ObservableCollection;
 using SimpleWpf.ViewModel;
@@ -20,8 +16,8 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
         string _destinationFolderBase;
         string _destinationPathCalculated;
         ObservableCollection<string> _logMessages;
-        ObservableCollection<LookupResultViewModel> _acoustIDResults;
-        ObservableCollection<MusicBrainzRecordingViewModel> _musicBrainzRecordingMatches;
+        ObservableCollection<AcoustIDLookupResultViewModel> _acoustIDResults;
+        ObservableCollection<TagSmallViewModel> _musicBrainzRecordingMatches;
         ObservableCollection<MusicBrainzCombinedLibraryEntryRecord> _musicBrainzCombinedRecords;
         MusicBrainzCombinedLibraryEntryRecord _finalQueryRecord;
         Track _importedRecord;
@@ -51,12 +47,12 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
             get { return _logMessages; }
             set { RaiseAndSetIfChanged(ref _logMessages, value); }
         }
-        public ObservableCollection<LookupResultViewModel> AcoustIDResults
+        public ObservableCollection<AcoustIDLookupResultViewModel> AcoustIDResults
         {
             get { return _acoustIDResults; }
             set { RaiseAndSetIfChanged(ref _acoustIDResults, value); }
         }
-        public ObservableCollection<MusicBrainzRecordingViewModel> MusicBrainzRecordingMatches
+        public ObservableCollection<TagSmallViewModel> MusicBrainzRecordingMatches
         {
             get { return _musicBrainzRecordingMatches; }
             set { RaiseAndSetIfChanged(ref _musicBrainzRecordingMatches, value); }
@@ -119,45 +115,78 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
 
 
         #region (private / public) ILibraryLoaderImportOutput properties
-        IEnumerable<LookupResult> ILibraryLoaderImportOutput.AcoustIDResults
+        IEnumerable<AcoustIDLookupResult> ILibraryLoaderImportOutput.AcoustIDResults
         {
             get
             {
-                return _acoustIDResults.Select(x => new LookupResult(x.Id.ToString(), x.Score, new Recording[]
+                return _acoustIDResults.Select(x => new AcoustIDLookupResult()
                 {
-                    new Recording(0, x.MusicBrainzRecordingId.ToString(), string.Empty)
+                    AcoustIDChromaPrint = new AcoustIDChromaPrint()
+                    {
+                        Fingerprint = x.Fingerprint
+                    },
+                    LookupId = x.Id,
+                    MusicBrainzRecordingId = x.MusicBrainzRecordingId,
+                    Score = x.Score
 
-                })).ToList();
+                }).ToList();
             }
             set
             {
                 _acoustIDResults.Clear();
                 foreach (var result in value)
                 {
-                    foreach (var recording in result.Recordings)
+                    _acoustIDResults.Add(new AcoustIDLookupResultViewModel()
                     {
-                        _acoustIDResults.Add(new LookupResultViewModel()
-                        {
-                            Id = new Guid(result.Id),
-                            MusicBrainzRecordingId = new Guid(recording.Id),
-                            Score = result.Score
-                        });
-                    }
+                        Id = result.LookupId,
+                        Fingerprint = result.Fingerprint,
+                        MusicBrainzRecordingId = result.MusicBrainzRecordingId,
+                        Score = result.Score
+                    });
                 }
 
                 OnPropertyChanged("AcoustIDResults");
             }
         }
-        IEnumerable<MusicBrainzRecording> ILibraryLoaderImportOutput.MusicBrainzRecordingMatches
+        IEnumerable<VendorTagSmall> ILibraryLoaderImportOutput.MusicBrainzRecordingMatches
         {
             get
             {
-                return _musicBrainzRecordingMatches.Select(ApplicationHelpers.Map<MusicBrainzRecordingViewModel, MusicBrainzRecording>).ToList();
+                return _musicBrainzRecordingMatches.Select(x =>
+                {
+                    return new VendorTagSmall()
+                    {
+                        Album = x.Album,
+                        AlbumArtist = x.AlbumArtist,
+                        DiscNumber = (int)x.DiscNumber,
+                        DiscTotal = (int)x.DiscTotal,
+                        Genre = x.Genre,
+                        Title = x.Title,
+                        TrackNumber = (int)x.Track,
+                        TrackTotal = (int)x.TrackTotal
+                    };
+                }).ToList();
             }
             set
             {
                 _musicBrainzRecordingMatches.Clear();
-                _musicBrainzRecordingMatches.AddRange(value.Select(ApplicationHelpers.Map<MusicBrainzRecording, MusicBrainzRecordingViewModel>));
+
+                foreach (var result in value)
+                {
+                    var tagSmall = new TagSmallViewModel()
+                    {
+                        Album = result.Album ?? string.Empty,
+                        AlbumArtist = result.AlbumArtist ?? string.Empty,
+                        DiscNumber = (uint)result.DiscNumber,
+                        DiscTotal = (uint)result.DiscTotal,
+                        Genre = result.Genre ?? string.Empty,
+                        Title = result.Title ?? string.Empty,
+                        Track = (uint)result.TrackNumber,
+                        TrackTotal = (uint)result.TrackTotal
+                    };
+
+                    tagSmall.Validate();
+                }
 
                 OnPropertyChanged("MusicBrainzRecordingMatches");
             }
@@ -177,9 +206,9 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
 
         public LibraryImporterOutputViewModel()
         {
-            this.AcoustIDResults = new ObservableCollection<LookupResultViewModel>();
+            this.AcoustIDResults = new ObservableCollection<AcoustIDLookupResultViewModel>();
             this.MusicBrainzCombinedRecords = new ObservableCollection<MusicBrainzCombinedLibraryEntryRecord>();
-            this.MusicBrainzRecordingMatches = new ObservableCollection<MusicBrainzRecordingViewModel>();
+            this.MusicBrainzRecordingMatches = new ObservableCollection<TagSmallViewModel>();
             this.LogMessages = new ObservableCollection<string>();
         }
     }

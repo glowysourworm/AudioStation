@@ -2,12 +2,11 @@
 using AudioStation.Core.Model.Vendor;
 using AudioStation.Core.Service.Interface;
 
-using MetaBrainz.MusicBrainz.CoverArt;
 using MetaBrainz.MusicBrainz.Interfaces.Entities;
 
 namespace AudioStation.Core.Service.Vendor.Interface
 {
-    public interface IMusicBrainzClient : IAudioStationService
+    public interface IMusicBrainzClient : IAudioStationService, IAudioStationTagService
     {
 
 

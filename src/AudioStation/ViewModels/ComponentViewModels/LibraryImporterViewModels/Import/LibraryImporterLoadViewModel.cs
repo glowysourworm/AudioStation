@@ -11,8 +11,8 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
         string _sourceFile;
         string _sourceFolder;
         string _destinationFolder;
-        LibraryEntryGroupingType _groupingType;
-        LibraryEntryNamingType _namingType;
+        TrackGroupingType _groupingType;
+        TrackNamingType _namingType;
         bool _includeMusicBrainzDetail;
         bool _identifyUsingAcoustID;
         bool _importFileMigration;
@@ -35,12 +35,12 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
             get { return _destinationFolder; }
             set { RaiseAndSetIfChanged(ref _destinationFolder, value); }
         }
-        public LibraryEntryGroupingType GroupingType
+        public TrackGroupingType GroupingType
         {
             get { return _groupingType; }
             set { RaiseAndSetIfChanged(ref _groupingType, value); }
         }
-        public LibraryEntryNamingType NamingType
+        public TrackNamingType NamingType
         {
             get { return _namingType; }
             set { RaiseAndSetIfChanged(ref _namingType, value); }

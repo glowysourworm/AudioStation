@@ -25,7 +25,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryViewModels
             set { this.RaiseAndSetIfChanged(ref _albums, value); }
         }
 
-        public ArtistViewModel(int id) : base(id, LibraryEntityType.Artist)
+        public ArtistViewModel(int id) : base(id, LibraryEntryType.Artist)
         {
             this.Artist = string.Empty;
             this.Albums = new SortedObservableCollection<AlbumViewModel>(new PropertyComparer<uint, AlbumViewModel>(x => x.Year));

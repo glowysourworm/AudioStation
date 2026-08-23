@@ -35,7 +35,7 @@ namespace AudioStation.Component
             _outputController = outputController;
         }
 
-        public async Task<NowPlayingData> LoadPlaylist(ArtistViewModel artist, AlbumViewModel album, LibraryEntryViewModel startTrack)
+        public async Task<NowPlayingData> LoadPlaylist(ArtistViewModel artist, AlbumViewModel album, TrackViewModel startTrack)
         {
             try
             {

@@ -1,12 +1,12 @@
-﻿using SimpleWpf.Extensions;
-using SimpleWpf.ViewModel;
+﻿using SimpleWpf.ViewModel;
 
 namespace AudioStation.ViewModels.Vendor.AcoustIDViewModel
 {
-    public class LookupResultViewModel : ViewModelBase
+    public class AcoustIDLookupResultViewModel : ViewModelBase
     {
         Guid _id;
         double _score;
+        string _fingerprint;
         Guid _musicBrainzRecordingId;
 
         /// <summary>
@@ -22,15 +22,22 @@ namespace AudioStation.ViewModels.Vendor.AcoustIDViewModel
             get { return _score; }
             set { this.RaiseAndSetIfChanged(ref _score, value); }
         }
+        public string Fingerprint
+        {
+            get { return _fingerprint; }
+            set { this.RaiseAndSetIfChanged(ref _fingerprint, value); }
+        }
         public Guid MusicBrainzRecordingId
         {
             get { return _musicBrainzRecordingId; }
             set { this.RaiseAndSetIfChanged(ref _musicBrainzRecordingId, value); }
         }
 
-        public LookupResultViewModel()
+        public AcoustIDLookupResultViewModel()
         {
-
+            this.Id = Guid.Empty;
+            this.Fingerprint = string.Empty;
+            this.MusicBrainzRecordingId = Guid.Empty;
         }
 
         public override string ToString()

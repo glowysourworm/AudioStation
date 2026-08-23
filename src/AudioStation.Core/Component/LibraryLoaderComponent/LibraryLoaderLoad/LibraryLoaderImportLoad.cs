@@ -8,8 +8,8 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderLoad
         public string SourceFile { get; set; }
         public string SourceFolder { get; set; }
         public string DestinationFolder { get; set; }
-        public LibraryEntryGroupingType GroupingType { get; set; }
-        public LibraryEntryNamingType NamingType { get; set; }
+        public TrackGroupingType GroupingType { get; set; }
+        public TrackNamingType NamingType { get; set; }
         public bool IncludeMusicBrainzDetail { get; set; }
         public bool IdentifyUsingAcoustID { get; set; }
         public bool ImportFileMigration { get; set; }
@@ -20,8 +20,8 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderLoad
         public LibraryLoaderImportLoad(string sourceFolder,
                                            string destinationFolder,
                                            string sourceFile,
-                                           LibraryEntryGroupingType groupingType,
-                                           LibraryEntryNamingType namingType,
+                                           TrackGroupingType groupingType,
+                                           TrackNamingType namingType,
                                            bool includeMusicBrainzDetail,
                                            bool identifyUsingAcoustID,
                                            bool importFileMigration,

@@ -7,7 +7,7 @@ namespace AudioStation.ViewModels.MainViewModels.Interface
     {
         ArtistViewModel Artist { get; }
         AlbumViewModel Album { get; }
-        LibraryEntryViewModel Track { get; }
+        TrackViewModel Track { get; }
         TimeSpan CurrentTime { get; }
         double CurrentTimeRatio { get; }
         bool IsPlaying { get; set; }

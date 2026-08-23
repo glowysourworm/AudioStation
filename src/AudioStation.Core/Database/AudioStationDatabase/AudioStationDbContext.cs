@@ -51,6 +51,7 @@ namespace AudioStation.Core.Database.AudioStationDatabase
             modelBuilder.Entity<Track>().Navigation(x => x.Album).AutoInclude(true);
             modelBuilder.Entity<Track>().Navigation(x => x.PrimaryGenre).AutoInclude(true);
 
+            modelBuilder.Entity<AcoustIDLookupResult>().Navigation(x => x.AcoustIDChromaPrint).AutoInclude(true);
             modelBuilder.Entity<Album>();
             modelBuilder.Entity<Artist>();
             modelBuilder.Entity<Genre>();

@@ -5,7 +5,7 @@
 -- Dumped from database version 17.4
 -- Dumped by pg_dump version 17.4
 
--- Started on 2026-08-23 12:04:46
+-- Started on 2026-08-23 13:44:42
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -60,7 +60,8 @@ CREATE TABLE public."AcoustIDLookupResult" (
     "Id" integer NOT NULL,
     "LookupId" uuid NOT NULL,
     "MusicBrainzRecordingId" uuid NOT NULL,
-    "Score" double precision NOT NULL
+    "Score" double precision NOT NULL,
+    "AcoustIDChromaPrintId" integer NOT NULL
 );
 
 
@@ -167,7 +168,7 @@ CREATE TABLE public."M3UStream" (
 ALTER TABLE public."M3UStream" OWNER TO postgres;
 
 --
--- TOC entry 4988 (class 0 OID 0)
+-- TOC entry 4989 (class 0 OID 0)
 -- Dependencies: 218
 -- Name: TABLE "M3UStream"; Type: COMMENT; Schema: public; Owner: postgres
 --
@@ -317,7 +318,7 @@ CREATE TABLE public."Track" (
 ALTER TABLE public."Track" OWNER TO postgres;
 
 --
--- TOC entry 4989 (class 0 OID 0)
+-- TOC entry 4990 (class 0 OID 0)
 -- Dependencies: 221
 -- Name: TABLE "Track"; Type: COMMENT; Schema: public; Owner: postgres
 --
@@ -569,6 +570,15 @@ CREATE INDEX "NameIndex" ON public."M3UStream" USING btree ("Name") WITH (dedupl
 
 
 --
+-- TOC entry 4837 (class 2606 OID 50718)
+-- Name: AcoustIDLookupResult AcoustIDChromaPrint_FK; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."AcoustIDLookupResult"
+    ADD CONSTRAINT "AcoustIDChromaPrint_FK" FOREIGN KEY ("AcoustIDChromaPrintId") REFERENCES public."AcoustIDChromaPrint"("Id") NOT VALID;
+
+
+--
 -- TOC entry 4829 (class 2606 OID 16869)
 -- Name: Track Album_ForeignKey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
@@ -641,7 +651,7 @@ ALTER TABLE ONLY public."TrackGenreMap"
 
 
 --
--- TOC entry 4837 (class 2606 OID 50691)
+-- TOC entry 4838 (class 2606 OID 50691)
 -- Name: VendorTagSmall Vendor_FK; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -649,7 +659,7 @@ ALTER TABLE ONLY public."VendorTagSmall"
     ADD CONSTRAINT "Vendor_FK" FOREIGN KEY ("VendorId") REFERENCES public."Vendor"("Id") NOT VALID;
 
 
--- Completed on 2026-08-23 12:04:46
+-- Completed on 2026-08-23 13:44:43
 
 --
 -- PostgreSQL database dump complete

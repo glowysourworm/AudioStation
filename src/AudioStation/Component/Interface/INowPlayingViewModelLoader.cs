@@ -5,6 +5,6 @@ namespace AudioStation.Component.Interface
 {
     public interface INowPlayingViewModelLoader
     {
-        Task<NowPlayingData> LoadPlaylist(ArtistViewModel artist, AlbumViewModel album, LibraryEntryViewModel startTrack);
+        Task<NowPlayingData> LoadPlaylist(ArtistViewModel artist, AlbumViewModel album, TrackViewModel startTrack);
     }
 }

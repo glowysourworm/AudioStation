@@ -1,12 +1,14 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 
+using AudioStation.Core.Model.Interface;
+
 using Microsoft.EntityFrameworkCore;
 
 namespace AudioStation.Core.Database.AudioStationDatabase
 {
     [PrimaryKey("Id")]
     [Table("VendorTagSmall", Schema = "public")]
-    public class VendorTagSmall : AudioStationEntityBase
+    public class VendorTagSmall : AudioStationEntityBase, ITagSmall
     {
         [ForeignKey("VendorId")]
         public Guid VendorId { get; set; }

@@ -1,9 +1,6 @@
-﻿using AcoustID.Web;
-
-using AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderOutput.Interface;
+﻿using AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderOutput.Interface;
 using AudioStation.Core.Database.AudioStationDatabase;
 using AudioStation.Core.Database.MusicBrainzDatabase.Model;
-using AudioStation.Core.Model.Vendor;
 
 namespace AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderOutput
 {
@@ -22,12 +19,12 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderOutput
         /// <summary>
         /// Results for AcoustID fingerprinting
         /// </summary>
-        public IEnumerable<LookupResult> AcoustIDResults { get; set; }
+        public IEnumerable<AcoustIDLookupResult> AcoustIDResults { get; set; }
 
         /// <summary>
         /// Matches for the AcoustID fingerprints
         /// </summary>
-        public IEnumerable<MusicBrainzRecording> MusicBrainzRecordingMatches { get; set; }
+        public IEnumerable<VendorTagSmall> MusicBrainzRecordingMatches { get; set; }
 
         /// <summary>
         /// Final record imported as Mp3FileReference
@@ -83,5 +80,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderOutput
         /// Music Brainz combined record was queried successfully
         /// </summary>
         public bool MusicBrainzCombinedRecordQuerySuccess { get; set; }
+        IEnumerable<AcoustIDLookupResult> ILibraryLoaderImportOutput.AcoustIDResults { get; set; }
+        IEnumerable<VendorTagSmall> ILibraryLoaderImportOutput.MusicBrainzRecordingMatches { get; set; }
     }
 }

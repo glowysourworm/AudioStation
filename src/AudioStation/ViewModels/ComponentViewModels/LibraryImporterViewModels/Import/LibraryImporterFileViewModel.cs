@@ -7,19 +7,13 @@ using AudioStation.Core.Model.Vendor.ATLExtension.Interface;
 using AudioStation.Core.Utility;
 using AudioStation.ViewModels.TagViewModels;
 using AudioStation.ViewModels.Vendor.AcoustIDViewModel;
-using AudioStation.ViewModels.Vendor.MusicBrainzViewModel;
-
-using MetaBrainz.MusicBrainz.Interfaces.Entities;
 
 using Microsoft.Extensions.Logging;
 
-using SimpleWpf.Extensions.Collection;
 using SimpleWpf.Extensions.Command;
 using SimpleWpf.Extensions.Event;
 using SimpleWpf.IocFramework.Application;
 using SimpleWpf.ViewModel;
-
-using IRelease = MetaBrainz.MusicBrainz.Interfaces.Entities.IRelease;
 
 namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.Import
 {
@@ -55,8 +49,8 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
         LibraryImporterOutputViewModel _importOutput;
         LibraryImporterLoadViewModel _importLoad;
 
-        LookupResultViewModel _selectedAcoustIDResult;
-        MusicBrainzRecordingViewModel _selectedMusicBrainzRecordingMatch;
+        AcoustIDLookupResultViewModel _selectedAcoustIDResult;
+        TagSmallViewModel _selectedMusicBrainzRecordingMatch;
 
         SimpleCommand _selectMusicBrainzCommand;
         SimpleCommand _selectAcoustIDCommand;
@@ -111,12 +105,12 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
             set { SetValueOverride(ref _importLoad, value); }
         }
 
-        public LookupResultViewModel SelectedAcoustIDResult
+        public AcoustIDLookupResultViewModel SelectedAcoustIDResult
         {
             get { return _selectedAcoustIDResult; }
             set { SetValueOverride(ref _selectedAcoustIDResult, value); Update(); }
         }
-        public MusicBrainzRecordingViewModel SelectedMusicBrainzRecordingMatch
+        public TagSmallViewModel SelectedMusicBrainzRecordingMatch
         {
             get { return _selectedMusicBrainzRecordingMatch; }
             set { SetValueOverride(ref _selectedMusicBrainzRecordingMatch, value); Update(); }
@@ -248,7 +242,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
 
             // Update (Music Brainz)
             if (this.SelectedMusicBrainzRecordingMatch != null)
-                this.MusicBrainzTag.UpdateFromMusicBrainz(this.SelectedMusicBrainzRecordingMatch);
+                ApplicationHelpers.MapOnto(this.SelectedMusicBrainzRecordingMatch, this.MusicBrainzTag);
 
             this.MinimumImportValid = !this.InError && _libraryImporter.CanImportEntity(this.ImportLoad, this.ImportOutput);
 
@@ -419,14 +413,14 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
         {
             // Update our dirty copy of the tag
             //
-            _tagDirty.Album = GetAlbum();
-            _tagDirty.AlbumArtist = GetAlbumArtist();
-            _tagDirty.Title = GetTrackTitle();
-            _tagDirty.Genre = GetGenre();
-            _tagDirty.Track = GetTrackNumber();
-            _tagDirty.TrackTotal = (ushort)GetTrackCount();
-            _tagDirty.DiscNumber = (ushort)GetDisc();
-            _tagDirty.DiscTotal = (ushort)GetDiscCount();
+            _tagDirty.Album = this.SelectedMusicBrainzRecordingMatch.Album;
+            _tagDirty.AlbumArtist = this.SelectedMusicBrainzRecordingMatch.AlbumArtist;
+            _tagDirty.Title = this.SelectedMusicBrainzRecordingMatch.Title;
+            _tagDirty.Genre = this.SelectedMusicBrainzRecordingMatch.Genre;
+            _tagDirty.Track = this.SelectedMusicBrainzRecordingMatch.Track;
+            _tagDirty.TrackTotal = (ushort)this.SelectedMusicBrainzRecordingMatch.TrackTotal;
+            _tagDirty.DiscNumber = (ushort)this.SelectedMusicBrainzRecordingMatch.DiscNumber;
+            _tagDirty.DiscTotal = (ushort)this.SelectedMusicBrainzRecordingMatch.DiscTotal;
 
             // ATL FIELD UPDATES
             _tagDirty.TrackNumber = _tagDirty.Track.ToString();
@@ -446,151 +440,6 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
         {
             Update();
         }
-
-        #region (private) Tag Data (resolved from AcoustID + Music Brainz + Tag)
-        public string GetAlbumArtist()
-        {
-            var result = string.Empty;
-
-            if (this.SelectedMusicBrainzRecordingMatch != null)
-            {
-                result = this.SelectedMusicBrainzRecordingMatch
-                             .ArtistCredit?
-                             .Where(x => !string.IsNullOrWhiteSpace(x.Name))
-                             .FirstOrDefault()?.Name ?? string.Empty;
-            }
-
-            return result;
-        }
-        public string GetAlbum()
-        {
-            var result = string.Empty;
-
-            if (this.SelectedMusicBrainzRecordingMatch != null)
-            {
-                var release = GetRelease();
-
-                if (release != null)
-                {
-                    result = release.Title ?? string.Empty;
-                }
-            }
-
-            return result;
-        }
-        public string GetTrackTitle()
-        {
-            var result = string.Empty;
-
-            if (this.SelectedMusicBrainzRecordingMatch != null)
-            {
-                result = this.SelectedMusicBrainzRecordingMatch.Title ?? string.Empty;
-            }
-
-            return result;
-        }
-        public string GetGenre()
-        {
-            var result = string.Empty;
-
-            if (this.SelectedMusicBrainzRecordingMatch != null)
-            {
-                result = this.SelectedMusicBrainzRecordingMatch
-                             .Genres?
-                             .Where(x => !string.IsNullOrWhiteSpace(x.Name))
-                             .FirstOrDefault()?.Name ?? string.Empty;
-            }
-
-            return result;
-        }
-        public int GetDisc()
-        {
-            int result = _tagDirty.DiscNumber;
-
-            if (this.SelectedMusicBrainzRecordingMatch != null)
-            {
-                var release = GetRelease();
-                var medium = GetReleaseMedium();
-
-                if (medium != null && release != null)
-                {
-                    result = (int)(release.Media?.IndexOf(medium) + 1);
-                }
-            }
-
-            return result;
-        }
-        public int GetDiscCount()
-        {
-            int result = _tagDirty.DiscTotal;
-
-            if (this.SelectedMusicBrainzRecordingMatch != null)
-            {
-                var release = GetRelease();
-
-                if (release != null && release.Media != null)
-                {
-                    result = release.Media.Count;
-                }
-            }
-
-            return result;
-        }
-        public uint GetTrackNumber()
-        {
-            var result = _tagDirty.Track;
-
-            if (this.SelectedMusicBrainzRecordingMatch != null)
-            {
-                var medium = GetReleaseMedium();
-
-                if (medium != null)
-                {
-                    result = (uint)medium.Tracks.First(x => x.Title == GetTrackTitle()).Position;
-                }
-            }
-
-            return result;
-        }
-        public uint GetTrackCount()
-        {
-            uint result = _tagDirty.TrackTotal;
-
-            if (this.SelectedMusicBrainzRecordingMatch != null)
-            {
-                var medium = GetReleaseMedium();
-
-                if (medium != null)
-                {
-                    result = (uint)medium.TrackCount;
-                }
-            }
-
-            return result;
-        }
-        private IRelease? GetRelease()
-        {
-            if (this.SelectedMusicBrainzRecordingMatch != null)
-            {
-                // ISSUES! Can't match release here against the tag! Since, we're trying to pull from music brainz.
-                return this.SelectedMusicBrainzRecordingMatch?.Releases?.FirstOrDefault();
-            }
-
-            return null;
-        }
-        private IMedium? GetReleaseMedium()
-        {
-            var release = GetRelease();
-            var trackTitle = GetTrackTitle();
-
-            if (release != null)
-            {
-                return release.Media?.FirstOrDefault(x => x.Tracks != null && x.Tracks.Any(z => z.Title == trackTitle));
-            }
-
-            return null;
-        }
-        #endregion
 
         public override string ToString()
         {

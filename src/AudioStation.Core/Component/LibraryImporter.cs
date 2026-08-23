@@ -4,8 +4,9 @@ using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderLoad.Interface;
 using AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderOutput.Interface;
 using AudioStation.Core.Controller.Interface;
-using AudioStation.Core.Database.MusicBrainzDatabase.Model;
-using AudioStation.Core.Model.Vendor;
+using AudioStation.Core.Database.AudioStationDatabase;
+using AudioStation.Core.Model.Interface;
+using AudioStation.Core.Service;
 using AudioStation.Core.Service.Vendor.Interface;
 using AudioStation.Core.Utility;
 
@@ -13,8 +14,6 @@ using Microsoft.Extensions.Logging;
 
 using SimpleWpf.Extensions.Collection;
 using SimpleWpf.IocFramework.Application.Attribute;
-
-using PictureType = ATL.PictureInfo.PIC_TYPE;
 
 namespace AudioStation.Core.Component
 {
@@ -98,22 +97,21 @@ namespace AudioStation.Core.Component
         {
             var acoustIDResults = workOutput.AcoustIDResults
                                             .OrderByDescending(x => x.Score)
-                                            .SelectMany(x => x.Recordings)
                                             .ToList();
 
-            var matches = new List<MusicBrainzRecording>();
+            var matches = new List<VendorTagSmall>();
 
             foreach (var result in acoustIDResults)
             {
                 // -> Music Brainz Recording Lookup
                 //
-                var recording = await _musicBrainzClient.GetRecordingById(new Guid(result.Id));
+                var tagSmall = await _musicBrainzClient.GetTagSmallData(new AudioStationTagServiceModel(result.MusicBrainzRecordingId));
 
                 // Validation
-                if (_modelValidationService.ValidateMusicBrainzRecordingImport(recording))
+                if (_modelValidationService.ValidateTagSmallImport(tagSmall).IsValid)
                 {
                     // Results
-                    matches.Add(recording);
+                    matches.Add(ApplicationHelpers.Map<ITagSmall, VendorTagSmall>(tagSmall));
                 }
             }
 
@@ -168,47 +166,47 @@ namespace AudioStation.Core.Component
 
                 // Take the first result - the rest may be presented to the user for further processing
                 var bestMatch = workOutput.MusicBrainzRecordingMatches
-                                          .FirstOrDefault(x => _modelValidationService.ValidateMusicBrainzRecordingImport(x));
+                                          .FirstOrDefault(x => _modelValidationService.ValidateTagSmallImport(x).IsValid);
 
                 if (bestMatch != null)
                 {
-                    // Success (Call / Cache MusicBrainz) (heavy load)
-                    var recordMatches = _modelController.GetCompleteMusicBrainzRecord(bestMatch.ArtistCredit.First().Name,
-                                                                                      bestMatch.Releases.First().Title,
-                                                                                      bestMatch.Title);
+                    //// Success (Call / Cache MusicBrainz) (heavy load)
+                    //var recordMatches = _modelController.GetCompleteMusicBrainzRecord(bestMatch.ArtistCredit.First().Name,
+                    //                                                                  bestMatch.Releases.First().Title,
+                    //                                                                  bestMatch.Title);
 
-                    // Output -> Music Brainz Combined Query Records
-                    workOutput.MusicBrainzCombinedRecordQuerySuccess = recordMatches != null && recordMatches.Any();
-                    workOutput.MusicBrainzCombinedLibraryEntryRecords = recordMatches ?? Enumerable.Empty<MusicBrainzCombinedLibraryEntryRecord>();
+                    //// Output -> Music Brainz Combined Query Records
+                    //workOutput.MusicBrainzCombinedRecordQuerySuccess = recordMatches != null && recordMatches.Any();
+                    //workOutput.MusicBrainzCombinedLibraryEntryRecords = recordMatches ?? Enumerable.Empty<MusicBrainzCombinedLibraryEntryRecord>();
 
-                    if (workOutput.MusicBrainzCombinedLibraryEntryRecords.Any())
-                    {
-                        // Lookup record with matching ID (try and select greedily for the artwork)
-                        //
-                        var record = workOutput.MusicBrainzCombinedLibraryEntryRecords.FirstOrDefault(x => x.Track.Title == bestMatch.Title);
+                    //if (workOutput.MusicBrainzCombinedLibraryEntryRecords.Any())
+                    //{
+                    //    // Lookup record with matching ID (try and select greedily for the artwork)
+                    //    //
+                    //    var record = workOutput.MusicBrainzCombinedLibraryEntryRecords.FirstOrDefault(x => x.Track.Title == bestMatch.Title);
 
-                        if (record != null)
-                        {
-                            var artwork = workOutput.MusicBrainzCombinedLibraryEntryRecords.SelectMany(x => x.ReleasePictures).ToList();
+                    //    if (record != null)
+                    //    {
+                    //        var artwork = workOutput.MusicBrainzCombinedLibraryEntryRecords.SelectMany(x => x.ReleasePictures).ToList();
 
-                            // Scrape any artwork that is already downloaded from the results
-                            var front = record.ReleasePictures.Any(x => x.PicType == PictureType.Front) ?
-                                        record.ReleasePictures.First(x => x.PicType == PictureType.Front) :
-                                        artwork.FirstOrDefault(x => x.PicType == PictureType.Front);
+                    //        // Scrape any artwork that is already downloaded from the results
+                    //        var front = record.ReleasePictures.Any(x => x.PicType == PictureType.Front) ?
+                    //                    record.ReleasePictures.First(x => x.PicType == PictureType.Front) :
+                    //                    artwork.FirstOrDefault(x => x.PicType == PictureType.Front);
 
-                            var back = record.ReleasePictures.Any(x => x.PicType == PictureType.Back) ?
-                                       record.ReleasePictures.First(x => x.PicType == PictureType.Back) :
-                                       artwork.FirstOrDefault(x => x.PicType == PictureType.Back);
+                    //        var back = record.ReleasePictures.Any(x => x.PicType == PictureType.Back) ?
+                    //                   record.ReleasePictures.First(x => x.PicType == PictureType.Back) :
+                    //                   artwork.FirstOrDefault(x => x.PicType == PictureType.Back);
 
-                            // Store artwork
-                            workOutput.BestBackCover = back;
-                            workOutput.BestFrontCover = front;
+                    //        // Store artwork
+                    //        workOutput.BestBackCover = back;
+                    //        workOutput.BestFrontCover = front;
 
-                            // Music Brainz Combined Record Query Complete
-                            workOutput.MusicBrainzCombinedRecordQuerySuccess = true;
-                            workOutput.FinalQueryRecord = record;
-                        }
-                    }
+                    //        // Music Brainz Combined Record Query Complete
+                    //        workOutput.MusicBrainzCombinedRecordQuerySuccess = true;
+                    //        workOutput.FinalQueryRecord = record;
+                    //    }
+                    //}
                 }
             });
         }

@@ -12,9 +12,9 @@ using AudioStation.Core.Utility;
 using AudioStation.Event;
 using AudioStation.Event.DialogEvents;
 using AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.Import;
+using AudioStation.ViewModels.TagViewModels;
 using AudioStation.ViewModels.Vendor.AcoustIDViewModel;
 using AudioStation.ViewModels.Vendor.ATLViewModel;
-using AudioStation.ViewModels.Vendor.MusicBrainzViewModel;
 
 using Microsoft.Extensions.Logging;
 
@@ -427,7 +427,7 @@ namespace AudioStation.ViewModels.ComponentViewModels
             _dialogController.ShowDialogWindowSync(new DialogEventData("Acoust ID Results (Min Score = 30%)", dialogViewModel));
 
             // Take Selection
-            selectedFile.SelectedAcoustIDResult = (LookupResultViewModel)dialogViewModel.SelectionList.Single(x => x.Selected).Item;
+            selectedFile.SelectedAcoustIDResult = (AcoustIDLookupResultViewModel)dialogViewModel.SelectionList.Single(x => x.Selected).Item;
 
             if (selectedFile.SelectedAcoustIDResult != oldSelection)
                 selectedFile.SelectedMusicBrainzRecordingMatch = null;
@@ -448,9 +448,9 @@ namespace AudioStation.ViewModels.ComponentViewModels
                 SelectionList = new NotifyingObservableCollection<SelectionViewModel>(
                                     zippedCollections
                                         .Select(x => x.Second)
-                                        .Select(x => new SelectionViewModel(x, string.Format(format, x.Id,
-                                                                                                    x.ArtistCredit?.FirstOrDefault()?.Name ?? string.Empty,
-                                                                                                    x.Releases?.FirstOrDefault()?.Title ?? string.Empty,
+                                        .Select(x => new SelectionViewModel(x, string.Format(format, x,
+                                                                                                    x.AlbumArtist,
+                                                                                                    x.Album,
                                                                                                     x.Title ?? string.Empty),
                                                                                x == selectedFile.SelectedMusicBrainzRecordingMatch)))
             };
@@ -459,7 +459,7 @@ namespace AudioStation.ViewModels.ComponentViewModels
             _dialogController.ShowDialogWindowSync(new DialogEventData("Music Brainz Results", dialogViewModel));
 
             // Take Selection
-            var result = (MusicBrainzRecordingViewModel)dialogViewModel.SelectionList.Single(x => x.Selected).Item;
+            var result = (TagSmallViewModel)dialogViewModel.SelectionList.Single(x => x.Selected).Item;
             var acoustIDResult = zippedCollections.Where(x => x.Second == result).Select(z => z.First).Single();
 
             // Select Both Records

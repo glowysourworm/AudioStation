@@ -52,6 +52,18 @@ namespace AudioStation.Core.Component
                                   simpleTag.DiscTotal);
         }
 
+        public ITagSmallValidation ValidateTagSmallImport(ITagSmall tagSmall)
+        {
+            return ValidateImport(tagSmall.AlbumArtist,
+                                  tagSmall.Album,
+                                  tagSmall.Title,
+                                  tagSmall.Genre,
+                                  (uint)tagSmall.TrackNumber,
+                                  (uint)tagSmall.TrackTotal,
+                                  (uint)tagSmall.DiscNumber,
+                                  (uint)tagSmall.DiscTotal);
+        }
+
         private ITagSmallValidation ValidateImport(string firstAlbumArtist,
                                     string album,
                                     string title,

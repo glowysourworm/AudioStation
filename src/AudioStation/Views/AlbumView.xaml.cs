@@ -8,7 +8,7 @@ namespace AudioStation.Views
 {
     public partial class AlbumView : UserControl
     {
-        public event EventHandler<LibraryEntryViewModel> TrackSelected;
+        public event EventHandler<TrackViewModel> TrackSelected;
 
         public AlbumView()
         {
@@ -22,7 +22,7 @@ namespace AudioStation.Views
 
         private void OnTracksDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            foreach (var item in this.TracksLB.Items.Cast<LibraryEntryViewModel>())
+            foreach (var item in this.TracksLB.Items.Cast<TrackViewModel>())
             {
                 if (item == (e.OriginalSource as FrameworkElement).DataContext)
                 {

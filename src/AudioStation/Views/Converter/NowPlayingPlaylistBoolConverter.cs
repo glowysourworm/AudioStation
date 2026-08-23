@@ -36,7 +36,7 @@ namespace AudioStation.Views.Converter
             if (playlistEntry != null)
                 return _playlistEntries.Any(x => x.Track.Id == playlistEntry.Track.Id);
 
-            var track = value as LibraryEntryViewModel;
+            var track = value as TrackViewModel;
             if (track != null)
                 return _playlistEntries.Any(x => x.Track.Id == track.Id);
 

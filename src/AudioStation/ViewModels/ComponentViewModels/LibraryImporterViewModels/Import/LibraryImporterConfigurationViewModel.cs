@@ -14,9 +14,9 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
         string _destinationMusicSubFolder;
         string _destinationAudioBooksSubFolder;
 
-        LibraryEntryType _importAsType;
-        LibraryEntryGroupingType _groupingType;
-        LibraryEntryNamingType _namingType;
+        TrackType _importAsType;
+        TrackGroupingType _groupingType;
+        TrackNamingType _namingType;
 
         bool _includeMusicBrainzDetail;
         bool _identifyUsingAcoustID;
@@ -48,17 +48,17 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
             get { return _destinationAudioBooksSubFolder; }
             set { RaiseAndSetIfChanged(ref _destinationAudioBooksSubFolder, value); }
         }
-        public LibraryEntryType ImportAsType
+        public TrackType ImportAsType
         {
             get { return _importAsType; }
             set { RaiseAndSetIfChanged(ref _importAsType, value); }
         }
-        public LibraryEntryGroupingType GroupingType
+        public TrackGroupingType GroupingType
         {
             get { return _groupingType; }
             set { RaiseAndSetIfChanged(ref _groupingType, value); }
         }
-        public LibraryEntryNamingType NamingType
+        public TrackNamingType NamingType
         {
             get { return _namingType; }
             set { RaiseAndSetIfChanged(ref _namingType, value); }
@@ -108,9 +108,9 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
             this.DestinationMusicSubFolder = configuration.MusicSubDirectory;
             this.DestinationAudioBooksSubFolder = configuration.AudioBooksSubDirectory;
 
-            this.ImportAsType = LibraryEntryType.Music;
-            this.GroupingType = LibraryEntryGroupingType.ArtistAlbum;
-            this.NamingType = LibraryEntryNamingType.Standard;
+            this.ImportAsType = TrackType.Music;
+            this.GroupingType = TrackGroupingType.ArtistAlbum;
+            this.NamingType = TrackNamingType.Standard;
 
             this.SelectSourceFolderCommand = new SimpleCommand(() =>
             {
