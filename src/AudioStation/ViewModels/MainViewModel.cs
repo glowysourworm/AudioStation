@@ -49,6 +49,9 @@ public class MainViewModel : ViewModelBase
     NowPlayingViewModel _nowPlaying;
     BandcampViewModel _bandcamp;
     LibraryImporterViewModel _libraryImportViewModel;
+    LibraryLoaderAcoustIDViewModel _libraryLoaderAcoustID;
+    LibraryLoaderCDImportViewModel _libraryLoaderCDImport;
+    LibraryLoaderMusicBrainzViewModel _libraryLoaderMusicBrainz;
 
     ObservableCollection<float> _equalizerValues;
     ObservableCollection<EqualizerBandViewModel> _equalizerViewModel;
@@ -103,6 +106,21 @@ public class MainViewModel : ViewModelBase
     {
         get { return _libraryImportViewModel; }
         set { this.RaiseAndSetIfChanged(ref _libraryImportViewModel, value); }
+    }
+    public LibraryLoaderAcoustIDViewModel LibraryLoaderAcoustID
+    {
+        get { return _libraryLoaderAcoustID; }
+        set { this.RaiseAndSetIfChanged(ref _libraryLoaderAcoustID, value); }
+    }
+    public LibraryLoaderCDImportViewModel LibraryLoaderCDImport
+    {
+        get { return _libraryLoaderCDImport; }
+        set { this.RaiseAndSetIfChanged(ref _libraryLoaderCDImport, value); }
+    }
+    public LibraryLoaderMusicBrainzViewModel LibraryLoaderMusicBrainz
+    {
+        get { return _libraryLoaderMusicBrainz; }
+        set { this.RaiseAndSetIfChanged(ref _libraryLoaderMusicBrainz, value); }
     }
     public RadioViewModel Radio
     {
@@ -184,6 +202,9 @@ public class MainViewModel : ViewModelBase
                          RadioViewModel radioViewModel,
                          LogViewModel logViewModel,
                          LibraryImporterViewModel libraryImporterViewModel,
+                         LibraryLoaderAcoustIDViewModel libraryLoaderAcoustIDViewModel,
+                         LibraryLoaderCDImportViewModel libraryLoaderCDImportViewModel,
+                         LibraryLoaderMusicBrainzViewModel libraryLoaderMusicBrainzViewModel,
                          NowPlayingViewModel nowPlayingViewModel,
                          BandcampViewModel bandcampViewModel)
     {
@@ -213,6 +234,9 @@ public class MainViewModel : ViewModelBase
         this.StatusViewModel = statusViewModel;
         this.Radio = radioViewModel;
         this.LibraryImporter = libraryImporterViewModel;
+        this.LibraryLoaderAcoustID = libraryLoaderAcoustIDViewModel;
+        this.LibraryLoaderCDImport = libraryLoaderCDImportViewModel;
+        this.LibraryLoaderMusicBrainz = libraryLoaderMusicBrainzViewModel;
         this.Bandcamp = bandcampViewModel;
         this.Volume = 1.0f;
         this.Loading = false;

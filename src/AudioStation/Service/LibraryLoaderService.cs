@@ -3,17 +3,11 @@
 using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Component.LibraryLoaderComponent;
 using AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderLoad;
-using AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderOutput;
-using AudioStation.Core.Database.AudioStationDatabase;
-using AudioStation.Core.Utility;
-using AudioStation.Event;
 using AudioStation.Event.LibraryLoaderEvent;
 using AudioStation.Service.Interface;
-using AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.Import;
 using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels;
+using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Input;
 using AudioStation.ViewModels.ComponentViewModels.LogViewModels;
-using AudioStation.ViewModels.TagViewModels;
-using AudioStation.ViewModels.Vendor.AcoustIDViewModel;
 
 using SimpleWpf.IocFramework.Application.Attribute;
 using SimpleWpf.IocFramework.EventAggregation;
@@ -37,20 +31,25 @@ namespace AudioStation.Service
             libraryLoader.WorkItemUpdate += LibraryLoader_WorkItemUpdate;
         }
 
-        public void RunLoaderTaskAsync(LibraryLoaderImportLoad workLoad)
+        public void RunLoaderTaskAsync(LibraryLoaderImportLoadViewModel workLoad)
         {
-            // Show Dialog
-            _eventAggregator.GetEvent<DialogEvent>().Publish(DialogEventData.ShowLoading("Importing Audio File"));
-
-            _libraryLoader.RunLoaderTaskAsync(new LibraryLoaderParameters<LibraryLoaderImportLoad>(LibraryLoadType.Import, workLoad));
+            _libraryLoader.RunLoaderTaskAsync(new LibraryLoaderParameters<LibraryLoaderImportLoad>(LibraryLoadType.Import,
+                new LibraryLoaderImportLoad(workLoad.SourceFolder,
+                                            workLoad.DestinationFolder,
+                                            workLoad.SourceFile,
+                                            workLoad.GroupingType,
+                                            workLoad.NamingType,
+                                            workLoad.IncludeMusicBrainzDetail,
+                                            workLoad.IdentifyUsingAcoustID,
+                                            workLoad.ImportFileMigration,
+                                            workLoad.MigrationDeleteSourceFiles,
+                                            workLoad.MigrationDeleteSourceFolders,
+                                            workLoad.MigrationOverwriteDestinationFiles)));
         }
 
-        public void RunLoaderTaskAsync(LibraryLoaderEntityLoad workLoad)
+        public void RunLoaderTaskAsync(LibraryLoaderFileLoadViewModel workLoad)
         {
-            // Show Dialog
-            _eventAggregator.GetEvent<DialogEvent>().Publish(DialogEventData.ShowLoading("Importing Audio File"));
-
-            _libraryLoader.RunLoaderTaskAsync(new LibraryLoaderParameters<LibraryLoaderEntityLoad>(LibraryLoadType.DownloadMusicBrainz, workLoad));
+            _libraryLoader.RunLoaderTaskAsync(new LibraryLoaderParameters<LibraryLoaderFileLoad>(LibraryLoadType.AcoustID, new LibraryLoaderFileLoad(workLoad.File)));
         }
 
         private void LibraryLoader_WorkItemUpdate(LibraryLoaderWorkItemUpdate sender)
@@ -73,40 +72,42 @@ namespace AudioStation.Service
                     Message = x.Message,
                     StepNumber = x.StepNumber,
                     Success = x.Result
-                }))
+                })),
+                HasErrors = sender.ResultSteps.Any(x => x.Result),
+                InProgress = true,
+                Progress = (int)((sender.ResultSteps.Count(x => x.Completed) / (double)sender.ResultSteps.Count()) * 100)
             };
 
             _eventAggregator.GetEvent<LibraryLoaderWorkItemUpdateEvent>().Publish(viewModel);
         }
 
-        private void LibraryLoader_WorkItemComplete(LibraryLoaderOutputBase sender)
+        private void LibraryLoader_WorkItemComplete(LibraryLoaderWorkItem sender)
         {
-            // Hide Dialog (if all tasks are complete)
-            if (_libraryLoader.IsWorkCompleted())
+            var viewModel = new LibraryWorkItemViewModel()
             {
-                var workOutput = sender as LibraryLoaderImportOutput;
-
-                _eventAggregator.GetEvent<DialogEvent>().Publish(DialogEventData.Dismiss());
-                _eventAggregator.GetEvent<LibraryLoaderWorkItemCompleteEvent>().Publish(new LibraryImporterOutputViewModel()
+                Id = sender.GetId(),
+                LoadType = sender.GetLoadType(),
+                LogMessages = new ObservableCollection<LogMessageViewModel>(sender.GetOutputItem().Log.Select(x => new LogMessageViewModel()
                 {
-                    AcoustIDResults = new ObservableCollection<AcoustIDLookupResultViewModel>(
-                                            workOutput.AcoustIDResults.Select(ApplicationHelpers.Map<AcoustIDLookupResult, AcoustIDLookupResultViewModel>)),
-                    AcoustIDSuccess = workOutput.AcoustIDSuccess,
-                    FinalQueryRecord = null,
-                    ImportedRecord = workOutput.ImportedRecord,
-                    Mp3FileMoveSuccess = workOutput.Mp3FileMoveSuccess,
-                    Mp3FileImportSuccess = workOutput.Mp3FileImportSuccess,
-                    LogMessages = new ObservableCollection<string>(workOutput.Log.Select(x => x.Message)),
-                    MusicBrainzCombinedRecordQuerySuccess = false,
-                    MusicBrainzCombinedRecords = null,
-                    MusicBrainzRecordingMatches = new ObservableCollection<TagSmallViewModel>(
-                                                    workOutput.MusicBrainzRecordingMatches
-                                                              .Select(ApplicationHelpers.Map<VendorTagSmall, TagSmallViewModel>)),
+                    Level = x.Level,
+                    Message = x.Message,
+                    Timestamp = x.Timestamp,
+                    Type = x.Type
+                })),
+                IsCompleted = true,
+                WorkSteps = new ObservableCollection<LibraryLoaderWorkStepViewModel>(sender.GetOutputItem().Results.Select(x => new LibraryLoaderWorkStepViewModel()
+                {
+                    Complete = x.Completed,
+                    Message = x.Message,
+                    StepNumber = x.StepNumber,
+                    Success = x.Result
+                })),
+                HasErrors = sender.GetOutputItem().Results.Any(x => x.Result),
+                InProgress = false,
+                Progress = (int)((sender.GetOutputItem().Results.Count(x => x.Completed) / (double)sender.GetOutputItem().Results.Count()) * 100)
+            };
 
-                    MusicBrainzRecordingMatchSuccess = workOutput.MusicBrainzRecordingMatchSuccess,
-                    TagEmbeddingSuccess = workOutput.TagEmbeddingSuccess
-                });
-            }
+            _eventAggregator.GetEvent<LibraryLoaderWorkItemCompleteEvent>().Publish(viewModel);
         }
     }
 }

@@ -1,6 +1,5 @@
 ﻿using AudioStation.Core.Component.LibraryLoaderComponent;
 using AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderLoad;
-using AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderOutput;
 
 using SimpleWpf.Extensions.Event;
 
@@ -16,7 +15,7 @@ namespace AudioStation.Core.Component.Interface
         /// <summary>
         /// Sends completed event for a work item
         /// </summary>
-        public event SimpleEventHandler<LibraryLoaderOutputBase> WorkItemComplete;
+        public event SimpleEventHandler<LibraryLoaderWorkItem> WorkItemComplete;
 
         /// <summary>
         /// Initializes and runs a library loader task with the specified parameters.

@@ -85,7 +85,7 @@ namespace AudioStation.Core.Component
 
         public async Task<bool> WorkAcoustID(ILibraryLoaderImportLoad workInput, ILibraryLoaderImportOutput workOutput)
         {
-            var acoustIDResults = await _acoustIDClient.IdentifyFingerprint(workInput.SourceFile, ACOUSTID_MIN_SCORE);
+            var acoustIDResults = await _acoustIDClient.IdentifyFingerprintAsync(workInput.SourceFile, ACOUSTID_MIN_SCORE);
 
             // Output -> AcoustID Results
             workOutput.AcoustIDResults = acoustIDResults;

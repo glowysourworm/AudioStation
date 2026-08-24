@@ -1,7 +1,6 @@
 ﻿using System.Windows.Controls;
 
 using AudioStation.Controller.Interface;
-using AudioStation.Core.Model;
 using AudioStation.Event;
 using AudioStation.ViewModels;
 using AudioStation.ViewModels.ComponentViewModels.RadioViewModels;
@@ -35,8 +34,17 @@ namespace AudioStation.Views
                 case NavigationView.Configuration:
                     this.ConfigurationTab.IsSelected = true;
                     break;
-                case NavigationView.LibraryLoader:
-                    this.LibraryLoaderTab.IsSelected = true;
+                case NavigationView.LibraryLoaderImportCD:
+                    this.LibraryLoaderImportCDTab.IsSelected = true;
+                    break;
+                case NavigationView.LibraryLoaderAcoustID:
+                    this.LibraryLoaderAcoustIDTab.IsSelected = true;
+                    break;
+                case NavigationView.LibraryLoaderMusicBrainz:
+                    this.LibraryLoaderMusicBrainzTab.IsSelected = true;
+                    break;
+                case NavigationView.LibraryImporter:
+                    this.LibraryImportTab.IsSelected = true;
                     break;
                 case NavigationView.LibraryManager:
                     this.LibraryManagerTab.IsSelected = true;
@@ -63,7 +71,7 @@ namespace AudioStation.Views
                     {
                         _dialogController.ShowLogWindow(viewModel.Log);
                     }
-                }                
+                }
                 break;
                 default:
                     throw new Exception("Unhandled navigation request view:  MainView.cs");
@@ -72,7 +80,7 @@ namespace AudioStation.Views
 
         private void OnShowOutputMessagesClick(object sender, System.Windows.RoutedEventArgs e)
         {
-            
+
         }
 
         private void RadioBrowserView_StartStationEvent(RadioStationViewModel sender)

@@ -462,6 +462,41 @@ namespace AudioStation.Core.Database.AudioStationDatabase
             }
         }
 
+        public bool AddEntity<TEntity>(TEntity entity) where TEntity : AudioStationEntityBase
+        {
+            try
+            {
+                using (var context = CreateContext())
+                {
+                    context.Add<TEntity>(entity);
+                    context.SaveChanges();
+                }
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                ApplicationHelpers.Log("Error saving entity data:  " + ex.Message, LogMessageDbType.AudioStation, LogLevel.Error, ex);
+                throw ex;
+            }
+        }
+
+        public TEntity? FindEntity<TEntity, TProperty>(TProperty property, Func<TEntity, TProperty> selector) where TEntity : AudioStationEntityBase
+        {
+            try
+            {
+                using (var context = CreateContext())
+                {
+                    return context.Set<TEntity>().FirstOrDefault(x => selector(x).Equals(property));
+                }
+            }
+            catch (Exception ex)
+            {
+                ApplicationHelpers.Log("Error finding entity data:  " + ex.Message, LogMessageDbType.AudioStation, LogLevel.Error, ex);
+                throw ex;
+            }
+        }
+
         public bool UpdateEntity<TEntity>(TEntity entity) where TEntity : AudioStationEntityBase
         {
             try

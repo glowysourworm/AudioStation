@@ -5,10 +5,9 @@ using SimpleWpf.IocFramework.Application.Attribute;
 namespace AudioStation.Views.LibraryLoaderViews
 {
     [IocExportDefault]
-    public partial class LibraryLoaderDownloadMusicBrainzView : UserControl
+    public partial class LibraryLoaderCDImportView : UserControl
     {
-        [IocImportingConstructor]
-        public LibraryLoaderDownloadMusicBrainzView()
+        public LibraryLoaderCDImportView()
         {
             InitializeComponent();
         }

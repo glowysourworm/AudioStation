@@ -4,6 +4,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 			 xmlns:fa5="http://schemas.fontawesome.com/icons/"
 			 xmlns:local="clr-namespace:AudioStation.Views"
+             xmlns:loaderView="clr-namespace:AudioStation.Views.LibraryLoaderViews"
              xmlns:viewsManager="clr-namespace:AudioStation.Views.LibraryManager"
 			 xmlns:controls="clr-namespace:AudioStation.Controls"
              xmlns:cacheModel="clr-namespace:AudioStation.Controller.Model"
@@ -39,8 +40,21 @@
                     <local:ConfigurationView x:Name="ConfigurationView" />
                 </controls:TabItemPressable>
 
-                <controls:TabItemPressable x:Name="LibraryLoaderTab" Header="Library Loader" FontSize="14" Margin="0" Style="{StaticResource MainTabItemControlStyle}">
-                    <local:LibraryLoaderView x:Name="LibraryLoaderView" />
+                <controls:TabItemPressable x:Name="LibraryLoaderAcoustIDTab" Header="Library Loader (AcoustID)" FontSize="14" Margin="0" Style="{StaticResource MainTabItemControlStyle}">
+                    <region:IocRegion region:IocRegionManager.DefaultViewType="{x:Type loaderView:LibraryLoaderAcoustIDView}"
+                                      DataContext="{Binding LibraryLoaderAcoustID}" />
+                </controls:TabItemPressable>
+
+                <controls:TabItemPressable x:Name="LibraryLoaderMusicBrainzTab" Header="Library Loader (Music Brainz)" FontSize="14" Margin="0" Style="{StaticResource MainTabItemControlStyle}">
+                    <region:IocRegion region:IocRegionManager.DefaultViewType="{x:Type loaderView:LibraryLoaderDownloadMusicBrainzView}"
+                                      DataContext="{Binding LibraryLoaderMusicBrainz}">
+                    </region:IocRegion>
+                </controls:TabItemPressable>
+
+                <controls:TabItemPressable x:Name="LibraryLoaderImportCDTab" Header="Library Loader (CD Import)" FontSize="14" Margin="0" Style="{StaticResource MainTabItemControlStyle}">
+                    <region:IocRegion region:IocRegionManager.DefaultViewType="{x:Type loaderView:LibraryLoaderCDImportView}" 
+                                      DataContext="{Binding LibraryLoaderCDImport}"
+                                      />
                 </controls:TabItemPressable>
 
                 <controls:TabItemPressable x:Name="LibraryImportTab" Header="Library Import" FontSize="14" Margin="0" Style="{StaticResource MainTabItemControlStyle}">

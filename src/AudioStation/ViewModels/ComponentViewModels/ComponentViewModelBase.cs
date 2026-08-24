@@ -13,6 +13,17 @@ namespace AudioStation.ViewModels.ComponentViewModels
     /// </summary>
     public abstract class ComponentViewModelBase<TLoad> : ViewModelBase, IDisposable where TLoad : ViewModelBase
     {
+        bool _loading;
+
+        /// <summary>
+        /// (TODO: Controller pattern!!!) Component is currently running an operation
+        /// </summary>
+        public bool Loading
+        {
+            get { return _loading; }
+            set { this.RaiseAndSetIfChanged(ref _loading, value); }
+        }
+
         /// <summary>
         /// Returns the primary load of the view model
         /// </summary>

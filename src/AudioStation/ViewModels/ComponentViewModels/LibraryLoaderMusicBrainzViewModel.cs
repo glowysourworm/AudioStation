@@ -1,18 +1,20 @@
 ﻿using System.Collections.ObjectModel;
 
 using AudioStation.Controller.Interface;
+using AudioStation.Core;
 using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Controller.Interface;
 using AudioStation.Core.Database.AudioStationDatabase;
+using AudioStation.EventHandler;
+using AudioStation.ViewModels.ComponentViewModels.LoadViewModels;
 
 using SimpleWpf.Extensions.Command;
 using SimpleWpf.IocFramework.Application.Attribute;
-using SimpleWpf.ViewModel;
 
-namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels
+namespace AudioStation.ViewModels.ComponentViewModels
 {
     [IocExportDefault]
-    public class LibraryLoaderDownloadMusicBrainzViewModel : ViewModelBase
+    public class LibraryLoaderMusicBrainzViewModel : ComponentViewModelBase<NoViewModel>
     {
         ObservableCollection<Track> _entitiesStaged;
 
@@ -29,8 +31,10 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels
             set { this.RaiseAndSetIfChanged(ref _runImportCommand, value); }
         }
 
+        public override NoViewModel? Load { get; }
+
         [IocImportingConstructor]
-        public LibraryLoaderDownloadMusicBrainzViewModel(IModelController modelController,
+        public LibraryLoaderMusicBrainzViewModel(IModelController modelController,
                                                          IConfigurationManager configurationManager,
                                                          IDialogController dialogController)
         {
@@ -51,6 +55,16 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels
                     //libraryLoader.Start();
                 }
             });
+        }
+
+        public override void Initialize(Configuration configuration, NoViewModel load, DialogEventHandlers.DialogProgressHandler progressHandler)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Dispose()
+        {
+            throw new NotImplementedException();
         }
     }
 }

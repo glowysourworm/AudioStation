@@ -39,6 +39,11 @@ namespace AudioStation.Core.Database.AudioStationDatabase.Interface
         IEnumerable<Track> GetAlbumTracks(int albumId);
 
         /// <summary>
+        /// Add entity using property reflection
+        /// </summary>
+        bool AddEntity<TEntity>(TEntity entity) where TEntity : AudioStationEntityBase;
+
+        /// <summary>
         /// Updates entity using property reflection
         /// </summary>
         bool UpdateEntity<TEntity>(TEntity entity) where TEntity : AudioStationEntityBase;
@@ -58,5 +63,10 @@ namespace AudioStation.Core.Database.AudioStationDatabase.Interface
         /// Gets entity by ID from the database
         /// </summary>
         TEntity? GetEntity<TEntity>(int id) where TEntity : AudioStationEntityBase;
+
+        /// <summary>
+        /// Finds an entity by property comparison
+        /// </summary>
+        TEntity? FindEntity<TEntity, TProperty>(TProperty property, Func<TEntity, TProperty> selector) where TEntity : AudioStationEntityBase;
     }
 }

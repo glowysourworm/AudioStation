@@ -6,6 +6,8 @@ using AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderLoad;
 using AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderOutput;
 using AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderWorker;
 using AudioStation.Core.Controller.Interface;
+using AudioStation.Core.Database.AudioStationDatabase.Interface;
+using AudioStation.Core.Service.Vendor.Interface;
 
 using SimpleWpf.Extensions.Event;
 using SimpleWpf.IocFramework.Application.Attribute;
@@ -18,12 +20,14 @@ namespace AudioStation.Core.Component
     {
         private readonly ILibraryImporter _libraryImporter;
         private readonly IFileController _fileController;
+        private readonly IAudioStationDbClient _audioStationDbClient;
+        private readonly IAcoustIDClient _acoustIDClient;
 
         // Cannot use multi threading on the database until we have proper 
         // table locking, or transactions!
 
         public event SimpleEventHandler<LibraryLoaderWorkItemUpdate> WorkItemUpdate;
-        public event SimpleEventHandler<LibraryLoaderOutputBase> WorkItemComplete;
+        public event SimpleEventHandler<LibraryLoaderWorkItem> WorkItemComplete;
 
         private Queue<LibraryLoaderWorkItem> _workQueue;
         private List<LibraryLoaderWorkItem> _workItemsWorking;
@@ -36,9 +40,13 @@ namespace AudioStation.Core.Component
         private int _workItemIdCounter;
 
         [IocImportingConstructor]
-        public LibraryLoader(ILibraryImporter libraryImporter,
+        public LibraryLoader(IAudioStationDbClient audioStationDbClient,
+                             IAcoustIDClient acoustIDClient,
+                             ILibraryImporter libraryImporter,
                              IFileController fileController)
         {
+            _audioStationDbClient = audioStationDbClient;
+            _acoustIDClient = acoustIDClient;
             _libraryImporter = libraryImporter;
             _fileController = fileController;
 
@@ -68,7 +76,7 @@ namespace AudioStation.Core.Component
                 }
                 break;
                 case LibraryLoadType.ImportRadio:
-                case LibraryLoadType.DownloadMusicBrainz:
+                case LibraryLoadType.MusicBrainz:
                 default:
                     throw new Exception("Unhandled library loader task type:  LibraryLoader.cs");
             }
@@ -91,30 +99,42 @@ namespace AudioStation.Core.Component
         /// </summary>
         private void CheckMoreWork()
         {
-            // Next work item
+            // Next work item (1 THREAD ONLY!)  ^_^
             if (_workQueue.Count > 0 && _workerThreads.Count == 0)
             {
                 // -> Dequeue
                 var workItem = _workQueue.Dequeue();
 
+                // Next Thread
+                LibraryWorkerThreadBase thread = null;
+
                 switch (workItem.GetLoadType())
                 {
                     case LibraryLoadType.Import:
                     {
-                        var thread = new LibraryLoaderImportWorker(workItem, _libraryImporter);
-
-                        // Make sure to hook / unhook these events before start / after complete
-                        thread.ReportWorkStepStarted += Worker_ReportWorkStepStarted;
-                        thread.ReportWorkStepComplete += Worker_ReportWorkStepComplete;
-                        thread.ReportComplete += Worker_ReportComplete;
-
-                        _workerThreads.Add(thread);
+                        thread = new LibraryLoaderImportWorker(workItem, _libraryImporter);
+                    }
+                    break;
+                    case LibraryLoadType.AcoustID:
+                    {
+                        thread = new LibraryLoaderAcoustIDWorker(_acoustIDClient, _audioStationDbClient, workItem);
                     }
                     break;
                     case LibraryLoadType.ImportRadio:
-                    case LibraryLoadType.DownloadMusicBrainz:
+                    case LibraryLoadType.MusicBrainz:
                     default:
                         throw new Exception("Unhandled work item type:  LibraryLoader.cs");
+                }
+
+                // -> Next Thread
+                if (thread != null)
+                {
+                    // Make sure to hook / unhook these events before start / after complete
+                    thread.ReportWorkStepStarted += Worker_ReportWorkStepStarted;
+                    thread.ReportWorkStepComplete += Worker_ReportWorkStepComplete;
+                    thread.ReportComplete += Worker_ReportComplete;
+
+                    _workerThreads.Add(thread);
                 }
 
                 // -> Working
@@ -140,7 +160,7 @@ namespace AudioStation.Core.Component
 
             // Final Report Event
             if (this.WorkItemComplete != null)
-                this.WorkItemComplete(workItem.GetOutputItem());
+                this.WorkItemComplete(workItem);
 
             CheckMoreWork();
         }

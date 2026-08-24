@@ -21,13 +21,19 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent
         ImportRadio,
 
         /// <summary>
+        /// Opens m3u file, and adds it to the M3UStream table int the database.
+        /// </summary>
+        [Display(Name = "AcoustID Download", Description = "This task will download results for the AcoustID audio fingerprint service and store them locally.")]
+        AcoustID,
+
+        /// <summary>
         /// Completely fill out, and report on music brainz ID's througout the library. The AcoustID
         /// service is used to try finding the ID by the first 30 seconds of the track in the event
         /// that we can't find it otherwise. Finally, the data is stored both in the database; and the
         /// tag data.
         /// </summary>
-        [Display(Name = "Get Music Brainz Detail", Description = "This long running task will retrieve all applicable data from Music Brainz for your entire library; and store it locally in your database. This does not alter your existing tags - which can be done during other tasks.")]
-        DownloadMusicBrainz
+        [Display(Name = "Music Brainz", Description = "This task will retrieve basic Music Brainz data for any completed AcoustID records in your library")]
+        MusicBrainz
     }
     public enum LibraryWorkItemState
     {

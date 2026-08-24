@@ -1,0 +1,47 @@
+﻿<UserControl x:Class="AudioStation.Views.LibraryLoaderViews.LibraryLoaderAcoustIDView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:fa5="http://schemas.fontawesome.com/icons/"
+             xmlns:propertyGrid="clr-namespace:AudioStation.Controls.PropertyGrid">
+    
+    <Grid RowDefinitions="Auto, Auto, *, Auto">
+
+        <Border Background="{StaticResource HeaderBackground}" Margin="0 0 0 5" BorderBrush="Transparent" BorderThickness="0">
+            <TextBlock Text="Acoust ID Import" Style="{StaticResource HeaderMediumTextBlock}" Margin="5" VerticalAlignment="Center" />
+        </Border>
+
+        <GroupBox Header="Report" Style="{StaticResource TagIssuesGroupBoxStyle}" Grid.Row="1">
+            <StackPanel>
+                <propertyGrid:PropertyLabelControl LabelColumnWidth="140" LabelText="Waiting" Value="{Binding WorkItemsWaiting}" />
+                <propertyGrid:PropertyLabelControl LabelColumnWidth="140" LabelText="In Progress" Value="{Binding WorkItemsInProgress}" />
+                <propertyGrid:PropertyLabelControl LabelColumnWidth="140" LabelText="Completed (success)" Value="{Binding WorkItemsSuccess}" />
+                <propertyGrid:PropertyLabelControl LabelColumnWidth="140" LabelText="Completed (error)" Value="{Binding WorkItemsError}" />
+                <propertyGrid:PropertyLabelControl LabelColumnWidth="140" LabelText="Total" Value="{Binding WorkItems.Count}" />
+            </StackPanel>
+        </GroupBox>
+        
+        <!-- Input Files -->
+        <ListBox x:Name="FileLB"
+                 ItemsSource="{Binding SelectedFiles}"
+                 Grid.Column="0"
+                 Grid.ColumnSpan="2"
+                 Grid.Row="2"
+                 Margin="0"                 
+                 ItemTemplate="{StaticResource LibraryWorkItemDataTemplate}"
+                 ItemContainerStyle="{StaticResource LibraryImportFileItemContainerStyle}"
+                 SelectionMode="Extended"
+                 AlternationCount="2"
+                 HorizontalContentAlignment="Stretch"                 
+                 VirtualizingPanel.IsVirtualizing="True"
+                 VirtualizingPanel.VirtualizationMode="Recycling"
+                 VirtualizingPanel.CacheLength="3">
+        </ListBox>
+
+        <Button Style="{StaticResource UserControlButton}" Grid.Row="3" HorizontalAlignment="Right" Margin="3">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="Execute" Style="{StaticResource LabelTextBlock}" Margin="3" />
+                <fa5:SvgAwesome Icon="Solid_VolumeUp" Style="{StaticResource FontAwesomeIconDefault}" Margin="3" />
+            </StackPanel>
+        </Button>
+    </Grid>
+</UserControl>

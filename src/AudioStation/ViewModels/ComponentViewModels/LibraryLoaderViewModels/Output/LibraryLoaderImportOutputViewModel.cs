@@ -7,11 +7,10 @@ using AudioStation.ViewModels.TagViewModels;
 using AudioStation.ViewModels.Vendor.AcoustIDViewModel;
 
 using SimpleWpf.Extensions.ObservableCollection;
-using SimpleWpf.ViewModel;
 
-namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.Import
+namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Output
 {
-    public class LibraryImporterOutputViewModel : ViewModelBase, ILibraryLoaderImportOutput
+    public class LibraryLoaderImportOutputViewModel : LibraryLoaderOutputViewModelBase, ILibraryLoaderImportOutput
     {
         string _destinationFolderBase;
         string _destinationPathCalculated;
@@ -204,7 +203,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
         }
         #endregion
 
-        public LibraryImporterOutputViewModel()
+        public LibraryLoaderImportOutputViewModel()
         {
             this.AcoustIDResults = new ObservableCollection<AcoustIDLookupResultViewModel>();
             this.MusicBrainzCombinedRecords = new ObservableCollection<MusicBrainzCombinedLibraryEntryRecord>();

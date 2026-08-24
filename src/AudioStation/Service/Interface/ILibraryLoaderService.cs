@@ -1,10 +1,10 @@
-﻿using AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderLoad;
+﻿using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Input;
 
 namespace AudioStation.Service.Interface
 {
     public interface ILibraryLoaderService
     {
-        void RunLoaderTaskAsync(LibraryLoaderImportLoad workLoad);
-        void RunLoaderTaskAsync(LibraryLoaderEntityLoad workLoad);
+        void RunLoaderTaskAsync(LibraryLoaderImportLoadViewModel workLoad);
+        void RunLoaderTaskAsync(LibraryLoaderFileLoadViewModel workLoad);
     }
 }

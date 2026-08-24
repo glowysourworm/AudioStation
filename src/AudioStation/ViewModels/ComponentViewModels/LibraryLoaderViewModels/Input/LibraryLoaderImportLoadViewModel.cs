@@ -1,12 +1,9 @@
 ﻿using AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderLoad.Interface;
 using AudioStation.Core.Model;
 
-using SimpleWpf.Extensions;
-using SimpleWpf.ViewModel;
-
-namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.Import
+namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Input
 {
-    public class LibraryImporterLoadViewModel : ViewModelBase, ILibraryLoaderImportLoad
+    public class LibraryLoaderImportLoadViewModel : LibraryLoaderLoadViewModelBase, ILibraryLoaderImportLoad
     {
         string _sourceFile;
         string _sourceFolder;
@@ -76,5 +73,11 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
             set { RaiseAndSetIfChanged(ref _migrationOverwriteDestinationFiles, value); }
         }
 
+        public LibraryLoaderImportLoadViewModel()
+        {
+            this.SourceFile = string.Empty;
+            this.SourceFolder = string.Empty;
+            this.DestinationFolder = string.Empty;
+        }
     }
 }

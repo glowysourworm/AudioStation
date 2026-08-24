@@ -5,6 +5,8 @@ using AudioStation.Core.Controller.Interface;
 using AudioStation.Core.Model.Vendor.ATLExtension;
 using AudioStation.Core.Model.Vendor.ATLExtension.Interface;
 using AudioStation.Core.Utility;
+using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Input;
+using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Output;
 using AudioStation.ViewModels.TagViewModels;
 using AudioStation.ViewModels.Vendor.AcoustIDViewModel;
 
@@ -46,8 +48,8 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
         AudioStationTag _tagClean;
         AudioStationTag _tagDirty;
 
-        LibraryImporterOutputViewModel _importOutput;
-        LibraryImporterLoadViewModel _importLoad;
+        LibraryLoaderImportOutputViewModel _importOutput;
+        LibraryLoaderImportLoadViewModel _importLoad;
 
         AcoustIDLookupResultViewModel _selectedAcoustIDResult;
         TagSmallViewModel _selectedMusicBrainzRecordingMatch;
@@ -94,12 +96,12 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
             get { return _musicBrainzTag; }
             set { SetValueOverride(ref _musicBrainzTag, value); }
         }
-        public LibraryImporterOutputViewModel ImportOutput
+        public LibraryLoaderImportOutputViewModel ImportOutput
         {
             get { return _importOutput; }
             set { SetValueOverride(ref _importOutput, value); }
         }
-        public LibraryImporterLoadViewModel ImportLoad
+        public LibraryLoaderImportLoadViewModel ImportLoad
         {
             get { return _importLoad; }
             set { SetValueOverride(ref _importLoad, value); }
@@ -165,7 +167,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
 
             _updating = false;
 
-            this.ImportLoad = new LibraryImporterLoadViewModel()
+            this.ImportLoad = new LibraryLoaderImportLoadViewModel()
             {
                 DestinationFolder = destinationDirectory,
                 GroupingType = options.GroupingType,
@@ -319,7 +321,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
                     this.ImportOutput.PropertyChanged -= ImportOutput_PropertyChanged;
 
                 // Reload Working Data
-                this.ImportOutput = new LibraryImporterOutputViewModel();
+                this.ImportOutput = new LibraryLoaderImportOutputViewModel();
 
                 // Unload Selected Data
                 this.SelectedMusicBrainzRecordingMatch = null;

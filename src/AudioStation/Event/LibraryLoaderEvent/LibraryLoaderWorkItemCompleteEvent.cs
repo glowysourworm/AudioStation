@@ -1,10 +1,10 @@
-﻿using AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.Import;
+﻿using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels;
 
 using SimpleWpf.IocFramework.EventAggregation;
 
 namespace AudioStation.Event.LibraryLoaderEvent
 {
-    public class LibraryLoaderWorkItemCompleteEvent : IocEvent<LibraryImporterOutputViewModel>
+    public class LibraryLoaderWorkItemCompleteEvent : IocEvent<LibraryWorkItemViewModel>
     {
     }
 }

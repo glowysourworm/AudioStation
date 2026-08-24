@@ -5,6 +5,7 @@ using AudioStation.Core;
 using AudioStation.Core.Component.CDPlayer;
 using AudioStation.Event;
 using AudioStation.Service.Interface;
+using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels;
 using AudioStation.ViewModels.ComponentViewModels.LoadViewModels;
 
 using SimpleWpf.Extensions.Command;
@@ -13,7 +14,7 @@ using SimpleWpf.IocFramework.EventAggregation;
 
 using static AudioStation.EventHandler.DialogEventHandlers;
 
-namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels
+namespace AudioStation.ViewModels.ComponentViewModels
 {
     [IocExportDefault]
     public class LibraryLoaderCDImportViewModel : ComponentViewModelBase<NoViewModel>

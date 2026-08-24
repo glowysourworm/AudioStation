@@ -2,6 +2,7 @@
 
 using ATL;
 
+using AudioStation.Core.Database.AudioStationDatabase;
 using AudioStation.Core.Database.MusicBrainzDatabase.Model;
 using AudioStation.Core.Model.Interface;
 using AudioStation.Core.Model.Vendor;
@@ -784,6 +785,31 @@ namespace AudioStation.Core.Service.Vendor
 
             return tag;
         }
+        private ITagSmall MapResultSmall(AudioStationTagServiceModel serviceModel, IAudioStationTag result)
+        {
+            var tag = new VendorTagSmall();
+
+            foreach (var property in serviceModel.GetTagProperties())
+            {
+                // Go ahead with string switch -> Exceptions for property mistakes
+                switch (property)
+                {
+                    case "Artist":
+                        tag.AlbumArtist = result.Artist;
+                        break;
+                    case "Album":
+                        tag.Album = result.Album;
+                        break;
+                    case "Title":
+                        tag.Title = result.Title;
+                        break;
+                    default:
+                        throw new FormattedException("Unhandled IAudioStationTag property mapping:  {0}", property);
+                }
+            }
+
+            return tag;
+        }
         private Include CreateInclude(AudioStationTagServiceModel serviceModel)
         {
             // This should be broken down based on what is needed in the tag. Performance should vary depending on
@@ -847,6 +873,26 @@ namespace AudioStation.Core.Service.Vendor
                     throw new Exception("Unhandled AudioStationTagIdentity type");
             }
         }
+        private async Task<ITagSmall?> LookupSmall(AudioStationTagServiceModel serviceModel)
+        {
+            IAudioStationTag? result = null;
+
+            switch (serviceModel.IdType)
+            {
+                case AudioStationTagServiceModel.AudioStationTagIdentity.ArtistAlbumTitle:
+                    result = await LookupByArtistAlbumTitle(serviceModel);
+                    break;
+                case AudioStationTagServiceModel.AudioStationTagIdentity.MusicBrainzId:
+                    result = await LookupByMusicBrainzId(serviceModel);
+                    break;
+                case AudioStationTagServiceModel.AudioStationTagIdentity.VendorId:
+                    throw new Exception("Unhandled AudioStationTagIdentity type:  VendorId not used by IMusicBrainzClient service");
+                default:
+                    throw new Exception("Unhandled AudioStationTagIdentity type");
+            }
+
+            return MapResultSmall(serviceModel, result);
+        }
         #endregion
 
         #region (public) IAudioStationTagService
@@ -857,9 +903,12 @@ namespace AudioStation.Core.Service.Vendor
                 return await Lookup(serviceModel);
             });
         }
-        public Task<ITagSmall> GetTagSmallData(AudioStationTagServiceModel serviceModel)
+        public Task<ITagSmall?> GetTagSmallData(AudioStationTagServiceModel serviceModel)
         {
-            throw new NotImplementedException();
+            return Task.Run(async () =>
+            {
+                return await LookupSmall(serviceModel);
+            });
         }
         #endregion
 

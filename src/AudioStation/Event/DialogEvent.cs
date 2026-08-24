@@ -1,9 +1,7 @@
-﻿using System.Runtime.CompilerServices;
-using System.Windows;
+﻿using System.Windows;
 
 using AudioStation.Event.DialogEvents;
 
-using SimpleWpf.Extensions;
 using SimpleWpf.IocFramework.EventAggregation;
 using SimpleWpf.ViewModel;
 
@@ -13,7 +11,10 @@ namespace AudioStation.Event
     {
         None,
         Configuration,
-        LibraryLoader,
+        LibraryLoaderImportCD,
+        LibraryLoaderAcoustID,
+        LibraryLoaderMusicBrainz,
+        LibraryImporter,
         LibraryManager,
         ArtistSearch,
         NowPlaying,
@@ -199,8 +200,8 @@ namespace AudioStation.Event
         {
             return new DialogEventData(true,
                                        true,
-                                       dialogTitle, 
-                                       DialogDefaultWidth, 
+                                       dialogTitle,
+                                       DialogDefaultWidth,
                                        DialogDefaultHeight,
                                        MessageBoxButton.OKCancel,
                                        NavigationView.None,

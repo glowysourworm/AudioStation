@@ -10,6 +10,6 @@ namespace AudioStation.Core.Service.Interface
     public interface IAudioStationTagService
     {
         Task<IAudioStationTag?> GetTagData(AudioStationTagServiceModel serviceModel);
-        Task<ITagSmall> GetTagSmallData(AudioStationTagServiceModel serviceModel);
+        Task<ITagSmall?> GetTagSmallData(AudioStationTagServiceModel serviceModel);
     }
 }
