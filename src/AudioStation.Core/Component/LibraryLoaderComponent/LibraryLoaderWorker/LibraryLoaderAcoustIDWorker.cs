@@ -105,7 +105,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderWorker
 
                 foreach (var result in _workOutput.ResultSet)
                 {
-                    var existingEntity = _audioStationDbClient.FindEntity<AcoustIDLookupResult, Guid>(result.MusicBrainzRecordingId, x => x.MusicBrainzRecordingId);
+                    var existingEntity = _audioStationDbClient.FirstEntity<AcoustIDLookupResult>(x => x.MusicBrainzRecordingId == result.MusicBrainzRecordingId);
 
                     // Update
                     if (existingEntity != null)

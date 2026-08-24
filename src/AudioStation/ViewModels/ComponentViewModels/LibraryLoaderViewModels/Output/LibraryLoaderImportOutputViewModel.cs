@@ -120,10 +120,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Ou
             {
                 return _acoustIDResults.Select(x => new AcoustIDLookupResult()
                 {
-                    AcoustIDChromaPrint = new AcoustIDChromaPrint()
-                    {
-                        Fingerprint = x.Fingerprint
-                    },
+                    Fingerprint = x.Fingerprint,
                     LookupId = x.Id,
                     MusicBrainzRecordingId = x.MusicBrainzRecordingId,
                     Score = x.Score

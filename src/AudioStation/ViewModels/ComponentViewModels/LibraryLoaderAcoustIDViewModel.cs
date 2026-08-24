@@ -19,6 +19,7 @@ using Microsoft.Extensions.Logging;
 using SimpleWpf.Extensions.Command;
 using SimpleWpf.IocFramework.Application.Attribute;
 using SimpleWpf.IocFramework.EventAggregation;
+using SimpleWpf.Utilities;
 
 namespace AudioStation.ViewModels.ComponentViewModels
 {
@@ -109,7 +110,8 @@ namespace AudioStation.ViewModels.ComponentViewModels
                         workItem.InProgress = true;
                         workItem.Progress = 0;
 
-                        _libraryLoaderService.RunLoaderTaskAsync(workItem.Load as LibraryLoaderFileLoadViewModel);
+                        // WORK ITEM:  Id is set from the backend!
+                        workItem.Id = _libraryLoaderService.RunLoaderTaskAsync(workItem.Load as LibraryLoaderFileLoadViewModel);
                         break;
                     case LibraryLoadType.Import:
                     case LibraryLoadType.ImportRadio:
@@ -118,13 +120,13 @@ namespace AudioStation.ViewModels.ComponentViewModels
                         throw new Exception("Unhandled work item load type");
                 }
             }
+
+            OnUpdate();
         }
 
         private bool CanExecute()
         {
-            return !this.Loading &&
-                   this.WorkItems.Any() &&
-                   this.WorkItems.All(x => x.IsCompleted);
+            return !this.Loading;
         }
 
         protected override void OnPropertyChanged(string name)
@@ -147,7 +149,7 @@ namespace AudioStation.ViewModels.ComponentViewModels
 
             if (workItem != null)
             {
-                ApplicationHelpers.MapOnto(model, workItem);
+                Map(model, workItem);
             }
 
             OnUpdate();
@@ -159,7 +161,7 @@ namespace AudioStation.ViewModels.ComponentViewModels
 
             if (workItem != null)
             {
-                ApplicationHelpers.MapOnto(model, workItem);
+                Map(model, workItem);
             }
 
             OnUpdate();
@@ -167,46 +169,72 @@ namespace AudioStation.ViewModels.ComponentViewModels
 
         private void OnUpdate()
         {
-            this.ExecuteCommand.RaiseCanExecuteChanged();
+            if (this.ExecuteCommand != null)
+            {
+                this.ExecuteCommand.RaiseCanExecuteChanged();
 
-            this.Loading = this.WorkItems.Any(x => !x.IsCompleted);
+                this.Loading = this.WorkItems.Any(x => x.InProgress);
+                this.WorkItemsWaiting = this.WorkItems.Count(x => !x.InProgress && !x.IsCompleted);
+                this.WorkItemsInProgress = this.WorkItems.Count(x => x.InProgress);
+                this.WorkItemsSuccessful = this.WorkItems.Count(x => !x.InProgress && x.IsCompleted && !x.HasErrors);
+                this.WorkItemsError = this.WorkItems.Count(x => !x.InProgress && x.IsCompleted && x.HasErrors);
+            }
+        }
+
+        private void Map(LibraryWorkItemViewModel source, LibraryWorkItemViewModel dest)
+        {
+            if (source.Id != dest.Id)
+                throw new ArgumentException("Trying to map mis-matching work items");
+
+            dest.HasErrors = source.HasErrors;
+            dest.InProgress = source.InProgress;
+            dest.IsCompleted = source.IsCompleted;
+            dest.LogMessages = source.LogMessages;
+            dest.Output = source.Output;
+            dest.Progress = source.Progress;
+            dest.WorkSteps = source.WorkSteps;
         }
 
         public override void Initialize(Configuration configuration, NoViewModel load, DialogEventHandlers.DialogProgressHandler progressHandler)
         {
-            this.MusicFolder = Path.Combine(configuration.DirectoryBase, configuration.MusicSubDirectory);
-            this.DownloadFolder = configuration.DownloadFolder;
+            if (BasicHelpers.IsDispatcher() == ApplicationIsDispatcherResult.False)
+                BasicHelpers.BeginInvokeDispatcher(Initialize, System.Windows.Threading.DispatcherPriority.Background, configuration, load, progressHandler);
 
-            try
+            else
             {
-                // Load Directory
-                var directoryTree = DirectoryTreeLoader.Load(this.MusicFolder, "*.mp3");
+                this.MusicFolder = Path.Combine(configuration.DirectoryBase, configuration.MusicSubDirectory);
+                this.DownloadFolder = configuration.DownloadFolder;
 
-                // Initialize Work Items
-                this.WorkItems.Clear();
-
-                var counter = 0;
-
-                directoryTree.RecurseForEach(entry =>
+                try
                 {
-                    if (!entry.NodeValue.IsDirectory)
-                        this.WorkItems.Add(new LibraryWorkItemViewModel()
-                        {
-                            Id = counter++,
-                            HasErrors = false,
-                            IsCompleted = false,
-                            LoadType = LibraryLoadType.AcoustID,
-                            Load = new LibraryLoaderFileLoadViewModel(entry.NodeValue.FullPath),
-                            Output = new LibraryLoaderEntitySetOutputViewModel<AcoustIDLookupResult>(),
-                            InProgress = false,
-                            Progress = 0
-                        });
-                });
-            }
-            catch (Exception ex)
-            {
-                ApplicationHelpers.Log("Error loading import files:  {0}", LogLevel.Error, ex, ex.Message);
-                throw ex;
+                    // Load Directory
+                    var directoryTree = DirectoryTreeLoader.Load(this.MusicFolder, "*.mp3");
+
+                    // Initialize Work Items
+                    this.WorkItems.Clear();
+
+                    directoryTree.RecurseForEach(entry =>
+                    {
+                        if (!entry.NodeValue.IsDirectory)
+                            this.WorkItems.Add(new LibraryWorkItemViewModel()
+                            {
+                                HasErrors = false,
+                                IsCompleted = false,
+                                LoadType = LibraryLoadType.AcoustID,
+                                Load = new LibraryLoaderFileLoadViewModel(entry.NodeValue.FullPath, entry.NodeValue.ShortPath),
+                                Output = new LibraryLoaderEntitySetOutputViewModel<AcoustIDLookupResult>(),
+                                InProgress = false,
+                                Progress = 0
+                            });
+                    });
+
+                    OnUpdate();
+                }
+                catch (Exception ex)
+                {
+                    ApplicationHelpers.Log("Error loading import files:  {0}", LogLevel.Error, ex, ex.Message);
+                    throw ex;
+                }
             }
         }
     }

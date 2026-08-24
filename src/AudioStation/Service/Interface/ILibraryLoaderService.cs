@@ -4,7 +4,7 @@ namespace AudioStation.Service.Interface
 {
     public interface ILibraryLoaderService
     {
-        void RunLoaderTaskAsync(LibraryLoaderImportLoadViewModel workLoad);
-        void RunLoaderTaskAsync(LibraryLoaderFileLoadViewModel workLoad);
+        int RunLoaderTaskAsync(LibraryLoaderImportLoadViewModel workLoad);
+        int RunLoaderTaskAsync(LibraryLoaderFileLoadViewModel workLoad);
     }
 }

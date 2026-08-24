@@ -65,8 +65,8 @@ namespace AudioStation.Core.Database.AudioStationDatabase.Interface
         TEntity? GetEntity<TEntity>(int id) where TEntity : AudioStationEntityBase;
 
         /// <summary>
-        /// Finds an entity by property comparison
+        /// Finds first entity that matches the delegate
         /// </summary>
-        TEntity? FindEntity<TEntity, TProperty>(TProperty property, Func<TEntity, TProperty> selector) where TEntity : AudioStationEntityBase;
+        TEntity? FirstEntity<TEntity>(Func<TEntity, bool> predicate) where TEntity : AudioStationEntityBase;
     }
 }

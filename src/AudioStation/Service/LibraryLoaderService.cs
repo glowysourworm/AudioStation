@@ -31,9 +31,9 @@ namespace AudioStation.Service
             libraryLoader.WorkItemUpdate += LibraryLoader_WorkItemUpdate;
         }
 
-        public void RunLoaderTaskAsync(LibraryLoaderImportLoadViewModel workLoad)
+        public int RunLoaderTaskAsync(LibraryLoaderImportLoadViewModel workLoad)
         {
-            _libraryLoader.RunLoaderTaskAsync(new LibraryLoaderParameters<LibraryLoaderImportLoad>(LibraryLoadType.Import,
+            return _libraryLoader.RunLoaderTaskAsync(new LibraryLoaderParameters<LibraryLoaderImportLoad>(LibraryLoadType.Import,
                 new LibraryLoaderImportLoad(workLoad.SourceFolder,
                                             workLoad.DestinationFolder,
                                             workLoad.SourceFile,
@@ -47,9 +47,9 @@ namespace AudioStation.Service
                                             workLoad.MigrationOverwriteDestinationFiles)));
         }
 
-        public void RunLoaderTaskAsync(LibraryLoaderFileLoadViewModel workLoad)
+        public int RunLoaderTaskAsync(LibraryLoaderFileLoadViewModel workLoad)
         {
-            _libraryLoader.RunLoaderTaskAsync(new LibraryLoaderParameters<LibraryLoaderFileLoad>(LibraryLoadType.AcoustID, new LibraryLoaderFileLoad(workLoad.File)));
+            return _libraryLoader.RunLoaderTaskAsync(new LibraryLoaderParameters<LibraryLoaderFileLoad>(LibraryLoadType.AcoustID, new LibraryLoaderFileLoad(workLoad.FullPath)));
         }
 
         private void LibraryLoader_WorkItemUpdate(LibraryLoaderWorkItemUpdate sender)
@@ -73,9 +73,9 @@ namespace AudioStation.Service
                     StepNumber = x.StepNumber,
                     Success = x.Result
                 })),
-                HasErrors = sender.ResultSteps.Any(x => x.Result),
+                HasErrors = !sender.ResultSteps.Any() ? false : sender.ResultSteps.Any(x => !x.Result),
                 InProgress = true,
-                Progress = (int)((sender.ResultSteps.Count(x => x.Completed) / (double)sender.ResultSteps.Count()) * 100)
+                Progress = !sender.ResultSteps.Any() ? 0 : (sender.ResultSteps.Count(x => x.Completed) / (double)sender.ResultSteps.Count())
             };
 
             _eventAggregator.GetEvent<LibraryLoaderWorkItemUpdateEvent>().Publish(viewModel);
@@ -102,9 +102,9 @@ namespace AudioStation.Service
                     StepNumber = x.StepNumber,
                     Success = x.Result
                 })),
-                HasErrors = sender.GetOutputItem().Results.Any(x => x.Result),
+                HasErrors = !sender.GetOutputItem().Results.Any() ? false : sender.GetOutputItem().Results.Any(x => !x.Result),
                 InProgress = false,
-                Progress = (int)((sender.GetOutputItem().Results.Count(x => x.Completed) / (double)sender.GetOutputItem().Results.Count()) * 100)
+                Progress = ((sender.GetOutputItem().Results.Count(x => x.Completed) / (double)sender.GetOutputItem().Results.Count()))
             };
 
             _eventAggregator.GetEvent<LibraryLoaderWorkItemCompleteEvent>().Publish(viewModel);

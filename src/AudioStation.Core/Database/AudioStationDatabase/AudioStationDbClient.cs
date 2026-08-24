@@ -481,13 +481,14 @@ namespace AudioStation.Core.Database.AudioStationDatabase
             }
         }
 
-        public TEntity? FindEntity<TEntity, TProperty>(TProperty property, Func<TEntity, TProperty> selector) where TEntity : AudioStationEntityBase
+        public TEntity? FirstEntity<TEntity>(Func<TEntity, bool> predicate) where TEntity : AudioStationEntityBase
         {
             try
             {
                 using (var context = CreateContext())
                 {
-                    return context.Set<TEntity>().FirstOrDefault(x => selector(x).Equals(property));
+                    // Must bring set into memory to execute predicate
+                    return context.Set<TEntity>().AsEnumerable().FirstOrDefault(x => predicate(x));
                 }
             }
             catch (Exception ex)

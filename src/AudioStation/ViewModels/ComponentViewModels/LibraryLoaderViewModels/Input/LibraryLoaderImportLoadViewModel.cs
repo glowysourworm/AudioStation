@@ -79,5 +79,10 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.In
             this.SourceFolder = string.Empty;
             this.DestinationFolder = string.Empty;
         }
+
+        public override string ToString()
+        {
+            return _sourceFile;
+        }
     }
 }

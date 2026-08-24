@@ -10,34 +10,45 @@
             <TextBlock Text="Acoust ID Import" Style="{StaticResource HeaderMediumTextBlock}" Margin="5" VerticalAlignment="Center" />
         </Border>
 
-        <GroupBox Header="Report" Style="{StaticResource TagIssuesGroupBoxStyle}" Grid.Row="1">
-            <StackPanel>
-                <propertyGrid:PropertyLabelControl LabelColumnWidth="140" LabelText="Waiting" Value="{Binding WorkItemsWaiting}" />
-                <propertyGrid:PropertyLabelControl LabelColumnWidth="140" LabelText="In Progress" Value="{Binding WorkItemsInProgress}" />
-                <propertyGrid:PropertyLabelControl LabelColumnWidth="140" LabelText="Completed (success)" Value="{Binding WorkItemsSuccess}" />
-                <propertyGrid:PropertyLabelControl LabelColumnWidth="140" LabelText="Completed (error)" Value="{Binding WorkItemsError}" />
+        
+        <Grid Grid.Row="1" ColumnDefinitions="Auto, *">
+            <GroupBox Header="Work Item Status" Style="{StaticResource TagIssuesGroupBoxStyle}" Grid.Row="1">
+                <StackPanel>
+                    <propertyGrid:PropertyLabelControl LabelColumnWidth="140" LabelText="Waiting" Value="{Binding WorkItemsWaiting}" />
+                    <propertyGrid:PropertyLabelControl LabelColumnWidth="140" LabelText="In Progress" Value="{Binding WorkItemsInProgress}" />
+                    <propertyGrid:PropertyLabelControl LabelColumnWidth="140" LabelText="Completed (success)" Value="{Binding WorkItemsSuccessful}" />
+                    <propertyGrid:PropertyLabelControl LabelColumnWidth="140" LabelText="Completed (error)" Value="{Binding WorkItemsError}" />
                 <propertyGrid:PropertyLabelControl LabelColumnWidth="140" LabelText="Total" Value="{Binding WorkItems.Count}" />
             </StackPanel>
         </GroupBox>
+
+            <GroupBox Header="Selected Log Messages" Grid.Column="1">
+                <ListBox Grid.Column="1"
+                         Margin="0"
+                         Style="{StaticResource PlainListBoxStyle}"
+                         ItemContainerStyle="{StaticResource HoverSelectItemContainerStyleWithAlternation}"
+                         AlternationCount="2"
+                         DisplayMemberPath="Message"
+                         ItemsSource="{Binding ElementName=FileLB, Path=SelectedItem.LogMessages}" />
+            </GroupBox>
+        </Grid>
+        
         
         <!-- Input Files -->
         <ListBox x:Name="FileLB"
-                 ItemsSource="{Binding SelectedFiles}"
+                 ItemsSource="{Binding WorkItems}"
                  Grid.Column="0"
                  Grid.ColumnSpan="2"
                  Grid.Row="2"
                  Margin="0"                 
                  ItemTemplate="{StaticResource LibraryWorkItemDataTemplate}"
-                 ItemContainerStyle="{StaticResource LibraryImportFileItemContainerStyle}"
+                 ItemContainerStyle="{StaticResource SimpleItemContainerStyle}"
                  SelectionMode="Extended"
                  AlternationCount="2"
-                 HorizontalContentAlignment="Stretch"                 
-                 VirtualizingPanel.IsVirtualizing="True"
-                 VirtualizingPanel.VirtualizationMode="Recycling"
-                 VirtualizingPanel.CacheLength="3">
+                 HorizontalContentAlignment="Stretch">
         </ListBox>
 
-        <Button Style="{StaticResource UserControlButton}" Grid.Row="3" HorizontalAlignment="Right" Margin="3">
+        <Button Style="{StaticResource UserControlButton}" Command="{Binding ExecuteCommand}" Grid.Row="3" HorizontalAlignment="Right" Margin="3">
             <StackPanel Orientation="Horizontal">
                 <TextBlock Text="Execute" Style="{StaticResource LabelTextBlock}" Margin="3" />
                 <fa5:SvgAwesome Icon="Solid_VolumeUp" Style="{StaticResource FontAwesomeIconDefault}" Margin="3" />

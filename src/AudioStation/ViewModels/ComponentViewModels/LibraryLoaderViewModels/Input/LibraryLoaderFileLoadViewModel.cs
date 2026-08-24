@@ -2,17 +2,30 @@
 {
     public class LibraryLoaderFileLoadViewModel : LibraryLoaderLoadViewModelBase
     {
-        string _file;
+        string _fullPath;
+        string _shortPath;
 
-        public string File
+        public string FullPath
         {
-            get { return _file; }
-            set { this.RaiseAndSetIfChanged(ref _file, value); }
+            get { return _fullPath; }
+            set { this.RaiseAndSetIfChanged(ref _fullPath, value); }
+        }
+        public string ShortPath
+        {
+            get { return _shortPath; }
+            set { this.RaiseAndSetIfChanged(ref _shortPath, value); }
         }
 
-        public LibraryLoaderFileLoadViewModel(string file)
+
+        public LibraryLoaderFileLoadViewModel(string fullPath, string shortPath)
         {
-            this.File = file;
+            this.FullPath = fullPath;
+            this.ShortPath = shortPath;
+        }
+
+        public override string ToString()
+        {
+            return _shortPath;
         }
     }
 }

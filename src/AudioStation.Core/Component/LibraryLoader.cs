@@ -6,6 +6,7 @@ using AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderLoad;
 using AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderOutput;
 using AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderWorker;
 using AudioStation.Core.Controller.Interface;
+using AudioStation.Core.Database.AudioStationDatabase;
 using AudioStation.Core.Database.AudioStationDatabase.Interface;
 using AudioStation.Core.Service.Vendor.Interface;
 
@@ -59,7 +60,7 @@ namespace AudioStation.Core.Component
 
         }
 
-        public void RunLoaderTaskAsync<TIn>(LibraryLoaderParameters<TIn> parameters) where TIn : LibraryLoaderLoadBase
+        public int RunLoaderTaskAsync<TIn>(LibraryLoaderParameters<TIn> parameters) where TIn : LibraryLoaderLoadBase
         {
             // NOTE:  The incremental work item ID property is a unique identifier! This must be maintained
             //        properly here by incremeting. It is used to identify logs for the task; and to have a
@@ -71,8 +72,14 @@ namespace AudioStation.Core.Component
             {
                 case LibraryLoadType.Import:
                 {
-                    workItem = new LibraryLoaderWorkItem(_workItemIdCounter++, LibraryLoadType.Import);
+                    workItem = new LibraryLoaderWorkItem(_workItemIdCounter, LibraryLoadType.Import);
                     workItem.Initialize(LibraryWorkItemState.Pending, parameters.Load, new LibraryLoaderImportOutput());
+                }
+                break;
+                case LibraryLoadType.AcoustID:
+                {
+                    workItem = new LibraryLoaderWorkItem(_workItemIdCounter, LibraryLoadType.AcoustID);
+                    workItem.Initialize(LibraryWorkItemState.Pending, parameters.Load, new LibraryLoaderEntitySetOutput<AcoustIDLookupResult>());
                 }
                 break;
                 case LibraryLoadType.ImportRadio:
@@ -85,6 +92,8 @@ namespace AudioStation.Core.Component
             _workQueue.Enqueue(workItem);
 
             CheckMoreWork();
+
+            return _workItemIdCounter++;
         }
 
         public bool IsWorkCompleted()

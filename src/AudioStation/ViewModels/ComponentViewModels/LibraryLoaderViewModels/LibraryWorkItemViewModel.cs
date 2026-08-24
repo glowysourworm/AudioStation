@@ -17,7 +17,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels
         LibraryLoadType _loadType;
         ObservableCollection<LibraryLoaderWorkStepViewModel> _workSteps;
         ObservableCollection<LogMessageViewModel> _logMessages;
-        int _progress;
+        double _progress;
         bool _inProgress;
         bool _isCompleted;
         bool _hasErrors;
@@ -52,7 +52,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels
             get { return _output; }
             set { this.RaiseAndSetIfChanged(ref _output, value); }
         }
-        public int Progress
+        public double Progress
         {
             get { return _progress; }
             set { this.RaiseAndSetIfChanged(ref _progress, value); }
@@ -72,11 +72,60 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels
             get { return _hasErrors; }
             set { this.RaiseAndSetIfChanged(ref _hasErrors, value); }
         }
+        public string LastMessage
+        {
+            get { return _logMessages.LastOrDefault()?.Message; }
+        }
+        public DateTime LastMessageTimestamp
+        {
+            get { return _logMessages.LastOrDefault()?.Timestamp ?? DateTime.MinValue; }
+        }
+        public string DisplayName
+        {
+            get { return _load.ToString(); }
+        }
+
+        public string Status
+        {
+            get
+            {
+                if (this.InProgress)
+                    return "In Progress";
+
+                else if (this.IsCompleted)
+                    return "Completed";
+
+                else
+                    return "Queued";
+            }
+        }
+
+        protected override void OnPropertyChanged(string name)
+        {
+            base.OnPropertyChanged(name);
+
+            if (name != "Status" &&
+                name != "DisplayName" &&
+                name != "LastMessage" &&
+                name != "LastMessageTimestamp")
+            {
+                OnPropertyChanged("Status");
+                OnPropertyChanged("DisplayName");
+                OnPropertyChanged("LastMessage");
+                OnPropertyChanged("LastMessageTimestamp");
+            }
+        }
 
         public LibraryWorkItemViewModel()
         {
             this.WorkSteps = new ObservableCollection<LibraryLoaderWorkStepViewModel>();
             this.LogMessages = new ObservableCollection<LogMessageViewModel>();
+            this.Progress = 0;
+        }
+
+        public override string ToString()
+        {
+            return this.Id.ToString();
         }
     }
 }

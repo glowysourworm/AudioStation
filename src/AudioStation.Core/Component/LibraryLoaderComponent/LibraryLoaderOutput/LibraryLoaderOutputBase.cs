@@ -23,6 +23,9 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderOutput
             if (currentStep > totalSteps)
                 throw new ArgumentException("Improper step numbering:  LibraryLoaderOutputBase");
 
+            // Log
+            this.Log.Add(new LogMessage(message));
+
             while (this.Results.Count < totalSteps)
             {
                 this.Results.Add(new LibraryLoaderResultStep(false, false, this.Results.Count, string.Empty));

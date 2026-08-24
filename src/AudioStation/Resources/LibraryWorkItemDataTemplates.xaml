@@ -18,6 +18,22 @@
         <Setter Property="FontFamily" Value="{Binding FontFamily, RelativeSource={RelativeSource AncestorType=Window}}" />
     </Style>
 
+    <Style x:Key="LibraryLoaderWorkItemProgressBarStyle" TargetType="{x:Type controls:ProgressBar}">
+        <Setter Property="Foreground" Value="#AF000000" />
+        <Setter Property="Background" Value="LightGray" />
+        <Setter Property="ProgressBrush" Value="LawnGreen" />
+        <Setter Property="Height" Value="24" />
+        <Setter Property="CornerRadius" Value="5" />
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="FontFamily" Value="{Binding FontFamily, RelativeSource={RelativeSource AncestorType=Window}}" />
+
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding HasErrors}" Value="True">
+                <Setter Property="ProgressBrush" Value="Red" />
+            </DataTrigger>
+        </Style.Triggers>
+    </Style>
+
     <Style x:Key="LibraryWorkItemContainerStyleNormal" TargetType="ListBoxItem">
         <Setter Property="Background" Value="White" />
         <Setter Property="Foreground" Value="{StaticResource LabelForeground}" />
@@ -49,64 +65,22 @@
     </Style>
 
     <DataTemplate x:Key="LibraryWorkItemDataTemplate" DataType="{x:Type viewModel:LibraryWorkItemViewModel}">
-        <Border Padding="3">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="Auto" />
-                </Grid.ColumnDefinitions>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
-                </Grid.RowDefinitions>
-                
-                <TextBlock Text="{Binding Id, StringFormat='Id={0}'}" Margin="5" Style="{StaticResource LabelTextBlock}" HorizontalAlignment="Left" VerticalAlignment="Center"  />
-                <TextBlock Text="{Binding LoadType, StringFormat='Load Type={0}'}" Margin="5" Grid.Column="1" Style="{StaticResource LabelTextBlock}" HorizontalAlignment="Left" VerticalAlignment="Center"  />
-                
-                <TextBlock Margin="5" Grid.Column="2" Style="{StaticResource LabelTextBlock}" HorizontalAlignment="Left" VerticalAlignment="Center">
-                    <Run Text="Success Count=" />
-                    <Run Text="{Binding SuccessCount}" />
-                </TextBlock>
-                
-                <TextBlock Margin="5" Grid.Column="3" Style="{StaticResource LabelTextBlock}" HorizontalAlignment="Left" VerticalAlignment="Center">
-                    <Run Text="Failure Count=" />
-                    <Run Text="{Binding FailureCount}" />
-                </TextBlock>
-                
-                <TextBlock Text="{Binding LogIdentity}" Margin="5" Grid.Column="4" Style="{StaticResource LabelTextBlock}" HorizontalAlignment="Left" VerticalAlignment="Center"  />
+        <Border Padding="3"
+                ToolTip="{Binding LastMessage}">
+            
+            <Grid ColumnDefinitions="60, 90, 120, *">
+
+                <TextBlock Grid.Column="0" Text="{Binding Id, StringFormat='Id={0}'}" Style="{StaticResource LabelTextBlock}" />
+                <TextBlock Grid.Column="1" Margin="5 0 0 0" Text="{Binding Status, StringFormat='({0})'}" />
                 
                 <controls:ProgressBar Progress="{Binding Progress}" 
-                                      Width="200" Margin="5" Grid.Column="5" 
-                                      Style="{StaticResource ProgressBarStyle}" 
+                                      Grid.Column="2" Margin="5 0"
+                                      Style="{StaticResource LibraryLoaderWorkItemProgressBarStyle}" 
                                       VerticalAlignment="Center" HorizontalAlignment="Right">
-                    <controls:ProgressBar.ProgressBrush>
-                        <Binding Path="HasErrors" Converter="{StaticResource ParameterProviderBoolConverter}">
-                            <Binding.ConverterParameter>
-                                <SolidColorBrush Color="Red" />
-                            </Binding.ConverterParameter>
-                        </Binding>
-                    </controls:ProgressBar.ProgressBrush>
                 </controls:ProgressBar>
                 
-                <TextBlock Text="{Binding LoadState}" Grid.Column="6" Margin="5" Style="{StaticResource LabelTextBlock}" HorizontalAlignment="Right" VerticalAlignment="Center"  />
-                
-                <TextBlock Grid.Column="7" Margin="5" Style="{StaticResource LabelTextBlock}" HorizontalAlignment="Right" VerticalAlignment="Center">
-                    <Run Text="Estimated Completion=(" />
-                    <Run Text="{Binding EstimatedCompletionTime, StringFormat='yyyy-MM-dd  HH:mm:ss'}" />
-                    <Run Text=")" />
-                </TextBlock>
+                <TextBlock Grid.Column="3" Margin="5 0 0 0" Text="{Binding DisplayName}" Style="{StaticResource LabelTextBlock}" />
 
-                <TextBlock Text="{Binding LastMessage, StringFormat='Last Message={0}'}" 
-                           TextWrapping="NoWrap"
-                           TextTrimming="CharacterEllipsis"
-                           Margin="5" Style="{StaticResource LabelTextBlock}" 
-                           Grid.ColumnSpan="7" Grid.Column="0" Grid.Row="1" />
             </Grid>
         </Border>
     </DataTemplate>

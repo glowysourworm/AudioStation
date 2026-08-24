@@ -40,6 +40,7 @@ namespace AudioStation.Component
         private readonly RadioViewModel _radioViewModel;
         private readonly LogViewModel _logViewModel;
         private readonly LibraryImporterViewModel _libraryImporterViewModel;
+        private readonly LibraryLoaderAcoustIDViewModel _libraryLoaderAcoustIDViewModel;
         private readonly LibraryLoaderCDImportViewModel _libraryLoaderCDImportViewModel;
 
         [IocImportingConstructor]
@@ -52,6 +53,7 @@ namespace AudioStation.Component
 
             // View Models
             LibraryLoaderCDImportViewModel libraryLoaderCDImportViewModel,
+            LibraryLoaderAcoustIDViewModel libraryLoaderAcoustIDViewModel,
             LibraryImporterViewModel libraryImporterViewModel,
             LibraryManagerViewModel libraryManagerViewModel,
             RadioViewModel radioViewModel,
@@ -66,6 +68,7 @@ namespace AudioStation.Component
             _libraryImporter = libraryImporter;
 
             _libraryLoaderCDImportViewModel = libraryLoaderCDImportViewModel;
+            _libraryLoaderAcoustIDViewModel = libraryLoaderAcoustIDViewModel;
             _libraryImporterViewModel = libraryImporterViewModel;
             _libraryManagerViewModel = libraryManagerViewModel;
             _radioViewModel = radioViewModel;
@@ -96,9 +99,13 @@ namespace AudioStation.Component
                 progressHandler(taskCount, task++, 0, "Initializing Log...");
                 _logViewModel.Initialize(configuration, LogViewModel_CreateLoad(progressHandler), progressHandler);
 
-                // CD Drive
+                // Library Loader: CD Drive
                 progressHandler(taskCount, task++, 0, "Initializing CD Drive...");
                 _libraryLoaderCDImportViewModel.Initialize(configuration, new NoViewModel(), progressHandler);
+
+                // Library Loader: AcoustID
+                progressHandler(taskCount, task++, 0, "Initializing AcoustID...");
+                _libraryLoaderAcoustIDViewModel.Initialize(configuration, new NoViewModel(), progressHandler);
 
                 // Library Importer
                 progressHandler(taskCount, task++, 0, "Initializing Library Importer...");
