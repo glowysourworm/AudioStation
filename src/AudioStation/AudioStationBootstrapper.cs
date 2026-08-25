@@ -81,7 +81,7 @@ namespace AudioStation
             dialogWindow.Show();
 
             // Initialize Components -> Component View Models
-            var componentController = IocContainer.Get<IAudioStationComponentController>();
+            var componentController = IocContainer.Get<IAudioStationServiceController>();
             var componentViewModelLoader = IocContainer.Get<IComponentViewModelLoader>();
 
             // (see DialogEventHandlers.cs) (Splash Screen Dialog)

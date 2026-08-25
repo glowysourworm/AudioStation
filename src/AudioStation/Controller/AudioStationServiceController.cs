@@ -1,5 +1,7 @@
 ﻿using AudioStation.Controller.Interface;
+using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Controller.Interface;
+using AudioStation.Core.Database.AudioStationDatabase.Interface;
 using AudioStation.Core.Service.Interface;
 using AudioStation.Core.Service.Vendor.Bandcamp.Interface;
 using AudioStation.Core.Service.Vendor.Interface;
@@ -10,13 +12,16 @@ using SimpleWpf.IocFramework.Application.Attribute;
 
 namespace AudioStation.Controller
 {
-    [IocExport(typeof(IAudioStationComponentController))]
-    public class AudioStationServiceController : IAudioStationComponentController
+    [IocExport(typeof(IAudioStationServiceController))]
+    public class AudioStationServiceController : IAudioStationServiceController
     {
         public event SimpleEventHandler<IAudioStationService, IAudioStationService.Status> ComponentInitializedEvent;
         public event SimpleEventHandler<IAudioStationService, IAudioStationService.Status> ComponentStatusChangedEvent;
 
-        // IAudioStationComponent
+        private readonly IConfigurationManager _configurationManager;
+
+        // IAudioStationService
+        private readonly IAudioStationDbClient _audioStationDbClient;
         private readonly IOutputController _outputController;
         private readonly IAudioController _audioController;
         private readonly IAcoustIDClient _acoustIDClient;
@@ -29,18 +34,22 @@ namespace AudioStation.Controller
         private readonly ISpotifyClient _spotifyClient;
 
         [IocImportingConstructor]
-        public AudioStationServiceController(IAudioController audioController,
-                                               IOutputController outputController,
-                                               IAcoustIDClient acoustIDClient,
-                                               IBandcampClient bandcampClient,
-                                               IDiscogsClient discogsClient,
-                                               IFanartClient fanartClient,
-                                               IITunesClient itunesClient,
-                                               ILastFmClient lastFmClient,
-                                               IMusicBrainzClient musicBrainzClient,
-                                               ISpotifyClient spotifyClient)
+        public AudioStationServiceController(IConfigurationManager configurationManager,
+                                             IAudioStationDbClient audioStationDbClient,
+                                             IAudioController audioController,
+                                             IOutputController outputController,
+                                             IAcoustIDClient acoustIDClient,
+                                             IBandcampClient bandcampClient,
+                                             IDiscogsClient discogsClient,
+                                             IFanartClient fanartClient,
+                                             IITunesClient itunesClient,
+                                             ILastFmClient lastFmClient,
+                                             IMusicBrainzClient musicBrainzClient,
+                                             ISpotifyClient spotifyClient)
         {
+            _configurationManager = configurationManager;
 
+            _audioStationDbClient = audioStationDbClient;
             _audioController = audioController;
             _outputController = outputController;
             _acoustIDClient = acoustIDClient;
@@ -52,6 +61,7 @@ namespace AudioStation.Controller
             _musicBrainzClient = musicBrainzClient;
             _spotifyClient = spotifyClient;
 
+            _audioStationDbClient.StatusChangeEvent += IAudioStationComponent_StatusChangeEvent;
             _audioController.StatusChangeEvent += IAudioStationComponent_StatusChangeEvent;
             _outputController.StatusChangeEvent += IAudioStationComponent_StatusChangeEvent;
             _acoustIDClient.StatusChangeEvent += IAudioStationComponent_StatusChangeEvent;
@@ -62,12 +72,6 @@ namespace AudioStation.Controller
             _lastFmClient.StatusChangeEvent += IAudioStationComponent_StatusChangeEvent;
             _musicBrainzClient.StatusChangeEvent += IAudioStationComponent_StatusChangeEvent;
             _spotifyClient.StatusChangeEvent += IAudioStationComponent_StatusChangeEvent;
-        }
-
-        private void IAudioStationComponent_StatusChangeEvent(IAudioStationService sender, IAudioStationService.Status status)
-        {
-            if (this.ComponentStatusChangedEvent != null)
-                this.ComponentStatusChangedEvent(sender, status);
         }
 
         public async Task Initialize(DialogEventHandlers.DialogProgressHandler progressHandler)
@@ -81,71 +85,31 @@ namespace AudioStation.Controller
             // 2) Report between components
             //
 
-            var taskCount = 10;
+            var taskCount = 11;
             var task = 0;
-            var status = IAudioStationService.Status.Disabled;
 
             // IAudioStationComponent (these display their status on the status bar)
             //
-            progressHandler(taskCount, task++, 0, string.Format("Initializing {0}", _outputController.GetDisplayName()));
-            status = await _outputController.Initialize();
+            await InitializeImpl(_outputController, task++, taskCount, progressHandler);
+            await InitializeImpl(_audioStationDbClient, task++, taskCount, progressHandler);
+            await InitializeImpl(_audioController, task++, taskCount, progressHandler);
+            await InitializeImpl(_bandcampClient, task++, taskCount, progressHandler);
+            await InitializeImpl(_acoustIDClient, task++, taskCount, progressHandler);
+            await InitializeImpl(_discogsClient, task++, taskCount, progressHandler);
+            await InitializeImpl(_fanartClient, task++, taskCount, progressHandler);
+            await InitializeImpl(_iTunesClient, task++, taskCount, progressHandler);
+            await InitializeImpl(_lastFmClient, task++, taskCount, progressHandler);
+            await InitializeImpl(_musicBrainzClient, task++, taskCount, progressHandler);
+            await InitializeImpl(_spotifyClient, task++, taskCount, progressHandler);
+        }
+
+        private async Task InitializeImpl(IAudioStationService service, int taskNumber, int taskCount, DialogEventHandlers.DialogProgressHandler progressHandler)
+        {
+            progressHandler(taskCount, taskNumber, 0, string.Format("Initializing {0}", service.GetDisplayName()));
+            var status = await service.Initialize(_configurationManager.GetConfiguration());
 
             if (this.ComponentInitializedEvent != null)
-                this.ComponentInitializedEvent(_outputController, status);
-
-            progressHandler(taskCount, task++, 0, string.Format("Initializing {0}", _audioController.GetDisplayName()));
-            status = await _audioController.Initialize();
-
-            if (this.ComponentInitializedEvent != null)
-                this.ComponentInitializedEvent(_audioController, status);
-
-            progressHandler(taskCount, task++, 0, string.Format("Initializing {0}", _bandcampClient.GetDisplayName()));
-            status = await _bandcampClient.Initialize();
-
-            if (this.ComponentInitializedEvent != null)
-                this.ComponentInitializedEvent(_bandcampClient, status);
-
-            progressHandler(taskCount, task++, 0, string.Format("Initializing {0}", _acoustIDClient.GetDisplayName()));
-            status = await _acoustIDClient.Initialize();
-
-            if (this.ComponentInitializedEvent != null)
-                this.ComponentInitializedEvent(_acoustIDClient, status);
-
-            progressHandler(taskCount, task++, 0, string.Format("Initializing {0}", _discogsClient.GetDisplayName()));
-            status = await _discogsClient.Initialize();
-
-            if (this.ComponentInitializedEvent != null)
-                this.ComponentInitializedEvent(_discogsClient, status);
-
-            progressHandler(taskCount, task++, 0, string.Format("Initializing {0}", _fanartClient.GetDisplayName()));
-            status = await _fanartClient.Initialize();
-
-            if (this.ComponentInitializedEvent != null)
-                this.ComponentInitializedEvent(_fanartClient, status);
-
-            progressHandler(taskCount, task++, 0, string.Format("Initializing {0}", _iTunesClient.GetDisplayName()));
-            status = await _iTunesClient.Initialize();
-
-            if (this.ComponentInitializedEvent != null)
-                this.ComponentInitializedEvent(_iTunesClient, status);
-
-            progressHandler(taskCount, task++, 0, string.Format("Initializing {0}", _lastFmClient.GetDisplayName()));
-            status = await _lastFmClient.Initialize();
-
-            if (this.ComponentInitializedEvent != null)
-                this.ComponentInitializedEvent(_lastFmClient, status);
-
-            progressHandler(taskCount, task++, 0, string.Format("Initializing {0}", _musicBrainzClient.GetDisplayName()));
-            status = await _musicBrainzClient.Initialize();
-
-            if (this.ComponentInitializedEvent != null)
-                this.ComponentInitializedEvent(_musicBrainzClient, status);
-
-            progressHandler(taskCount, task++, 0, string.Format("Initializing {0}", _spotifyClient.GetDisplayName()));
-            status = await _spotifyClient.Initialize();
-
-            if (this.ComponentInitializedEvent != null)
-                this.ComponentInitializedEvent(_spotifyClient, status);
+                this.ComponentInitializedEvent(service, status);
         }
 
         public T GetComponent<T>() where T : IAudioStationService
@@ -182,6 +146,12 @@ namespace AudioStation.Controller
 
             else
                 throw new Exception("Unhandled IAudioStationComponent type");
+        }
+
+        private void IAudioStationComponent_StatusChangeEvent(IAudioStationService sender, IAudioStationService.Status status)
+        {
+            if (this.ComponentStatusChangedEvent != null)
+                this.ComponentStatusChangedEvent(sender, status);
         }
     }
 }

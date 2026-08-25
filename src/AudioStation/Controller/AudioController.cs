@@ -3,6 +3,7 @@
 using AudioStation.Component.AudioProcessing;
 using AudioStation.Component.AudioProcessing.Interface;
 using AudioStation.Controller.Interface;
+using AudioStation.Core;
 using AudioStation.Core.Component;
 using AudioStation.Core.Model;
 using AudioStation.Core.Service.Interface;
@@ -270,7 +271,12 @@ namespace AudioStation.Controller
             // TODO
             return IAudioStationService.Status.Idle;
         }
-        public async Task<IAudioStationService.Status> Initialize()
+        public async Task<IAudioStationService.Status> Initialize(Configuration configuration)
+        {
+            // TODO
+            return IAudioStationService.Status.Idle;
+        }
+        public async Task<IAudioStationService.Status> ReInitialize(Configuration configuration)
         {
             // TODO
             return IAudioStationService.Status.Idle;

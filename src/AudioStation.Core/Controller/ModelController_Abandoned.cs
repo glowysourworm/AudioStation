@@ -1,28 +1,7 @@
-﻿using System.IO;
-
-using AudioStation.Core.Controller.Interface;
-using AudioStation.Core.Database.AudioStationDatabase;
-using AudioStation.Core.Database.AudioStationDatabase.Interface;
-using AudioStation.Core.Database.MusicBrainzDatabase;
-using AudioStation.Core.Database.MusicBrainzDatabase.Interface;
-using AudioStation.Core.Database.MusicBrainzDatabase.Model;
-using AudioStation.Core.Event;
-using AudioStation.Core.Model;
-using AudioStation.Core.Model.Vendor.ATLExtension.Interface;
-using AudioStation.Core.Service.Vendor.Interface;
-using AudioStation.Core.Utility;
-using AudioStation.Model;
-
-using MetaBrainz.MusicBrainz.Interfaces.Entities;
-
-using Microsoft.Extensions.Logging;
-
-using SimpleWpf.Extensions.Collection;
-using SimpleWpf.IocFramework.Application.Attribute;
-using SimpleWpf.IocFramework.EventAggregation;
-
-namespace AudioStation.Core.Controller
+﻿namespace AudioStation.Core.Controller
 {
+    /*
+
     [IocExport(typeof(IModelController))]
     public class ModelController : IModelController
     {
@@ -1257,61 +1236,61 @@ namespace AudioStation.Core.Controller
                             result.Labels.Add(existingLabel);
                         }
                     }
-                    /*
+                    
                     // These would be related to each track. (May need a separate query to get the artist URL's)
-                    var relatedUrls = _musicBrainzClient.GetRelatedUrls(artistName, albumName, trackName, MUSIC_BRAINZ_MIN_SCORE).Result;
+                    //var relatedUrls = _musicBrainzClient.GetRelatedUrls(artistName, albumName, trackName, MUSIC_BRAINZ_MIN_SCORE).Result;
 
-                    foreach (var relatedUrl in relatedUrls)
-                    {
-                        switch (relatedUrl.EntityType)
-                        {
-                            case EntityType.Artist:
+                    //foreach (var relatedUrl in relatedUrls)
+                    //{
+                    //    switch (relatedUrl.EntityType)
+                    //    {
+                    //        case EntityType.Artist:
                                 
-                                // These should now be available (locally)
-                                foreach (var matchingArtist in matchingRelease.ArtistCredit.Select(x => x.Artist))
-                                {
-                                    var existingArtist = _musicBrainzDbClient.GetEntity<MusicBrainzArtistEntity>(matchingArtist.Id);
+                    //            // These should now be available (locally)
+                    //            foreach (var matchingArtist in matchingRelease.ArtistCredit.Select(x => x.Artist))
+                    //            {
+                    //                var existingArtist = _musicBrainzDbClient.GetEntity<MusicBrainzArtistEntity>(matchingArtist.Id);
 
-                                    if (existingArtist != null)
-                                    {
-                                        AddUpdateMusicBrainzUrl(relatedUrl, existingArtist);
-                                    }
-                                    else
-                                        throw new Exception("Error retrieving / saving artist data:  ModelController.cs");
-                                }
-                                break;
-                            case EntityType.Label:
-                            {
-                                if (matchingRelease.LabelInfo == null)
-                                    continue;
+                    //                if (existingArtist != null)
+                    //                {
+                    //                    AddUpdateMusicBrainzUrl(relatedUrl, existingArtist);
+                    //                }
+                    //                else
+                    //                    throw new Exception("Error retrieving / saving artist data:  ModelController.cs");
+                    //            }
+                    //            break;
+                    //        case EntityType.Label:
+                    //        {
+                    //            if (matchingRelease.LabelInfo == null)
+                    //                continue;
 
-                                foreach (var label in matchingRelease.LabelInfo.Where(x => x.Label != null))
-                                {
-                                    var existingLabel = _musicBrainzDbClient.GetEntity<MusicBrainzLabelEntity>(label.Label.Id);
+                    //            foreach (var label in matchingRelease.LabelInfo.Where(x => x.Label != null))
+                    //            {
+                    //                var existingLabel = _musicBrainzDbClient.GetEntity<MusicBrainzLabelEntity>(label.Label.Id);
 
-                                    if (existingLabel != null)
-                                    {
-                                        AddUpdateMusicBrainzUrl(relatedUrl, existingLabel);
-                                    }
-                                    else
-                                        throw new Exception("Error retrieving / saving label data:  ModelController.cs");
-                                }
-                            }
-                            break;
-                            case EntityType.Recording:
-                                AddUpdateMusicBrainzUrl(relatedUrl, existingRecording);
-                                break;
-                            case EntityType.Release:
-                                AddUpdateMusicBrainzUrl(relatedUrl, existingRelease);
-                                break;
+                    //                if (existingLabel != null)
+                    //                {
+                    //                    AddUpdateMusicBrainzUrl(relatedUrl, existingLabel);
+                    //                }
+                    //                else
+                    //                    throw new Exception("Error retrieving / saving label data:  ModelController.cs");
+                    //            }
+                    //        }
+                    //        break;
+                    //        case EntityType.Recording:
+                    //            AddUpdateMusicBrainzUrl(relatedUrl, existingRecording);
+                    //            break;
+                    //        case EntityType.Release:
+                    //            AddUpdateMusicBrainzUrl(relatedUrl, existingRelease);
+                    //            break;
 
-                            // Go ahead and skip unknown related URL's (until we need them, or find out the meaning of the URL)
-                            default:
-                                ApplicationHelpers.Log("Skipped Music Brainz Url Relationship:  " + relatedUrl.ToString(), LogMessageType.Database, LogLevel.Warning);
-                                break;
-                        }
-                    }
-                    */
+                    //        // Go ahead and skip unknown related URL's (until we need them, or find out the meaning of the URL)
+                    //        default:
+                    //            ApplicationHelpers.Log("Skipped Music Brainz Url Relationship:  " + relatedUrl.ToString(), LogMessageType.Database, LogLevel.Warning);
+                    //            break;
+                    //    }
+                    //}
+                    
                     // Release Picture Set
                     result.ReleasePictures.AddRange(_musicBrainzClient.GetCoverArt(existingRelease.Id).Result);
 
@@ -1329,4 +1308,6 @@ namespace AudioStation.Core.Controller
         }
         #endregion
     }
+
+    */
 }

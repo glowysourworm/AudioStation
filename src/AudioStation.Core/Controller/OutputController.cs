@@ -233,7 +233,11 @@ namespace AudioStation.Core.Controller
 
             return IAudioStationService.Status.Idle;
         }
-        public async Task<IAudioStationService.Status> Initialize()
+        public async Task<IAudioStationService.Status> Initialize(Configuration configuration)
+        {
+            return IAudioStationService.Status.Idle;
+        }
+        public async Task<IAudioStationService.Status> ReInitialize(Configuration configuration)
         {
             return IAudioStationService.Status.Idle;
         }

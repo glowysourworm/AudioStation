@@ -57,7 +57,7 @@ namespace AudioStation.Core.Service.Vendor
         {
             return "Discogs Client";
         }
-        public async Task<IAudioStationService.Status> Initialize()
+        public async Task<IAudioStationService.Status> Initialize(Configuration configuration)
         {
             //if (string.IsNullOrWhiteSpace(_configurationManager.GetConfiguration().AcoustIDAPIKey))
             //    return _status;
@@ -67,6 +67,10 @@ namespace AudioStation.Core.Service.Vendor
             OnStatusChanged(IAudioStationService.Status.Idle);
 
             return _status;
+        }
+        public Task<IAudioStationService.Status> ReInitialize(Configuration configuration)
+        {
+            return Initialize(configuration);
         }
         public string GetStatusMessage()
         {

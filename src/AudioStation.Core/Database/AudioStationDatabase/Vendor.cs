@@ -8,7 +8,6 @@ namespace AudioStation.Core.Database.AudioStationDatabase
     [Table("Vendor", Schema = "public")]
     public class Vendor : AudioStationEntityBase
     {
-        public Guid VendorId { get; set; }
         public string VendorName { get; set; }
 
         public Vendor()

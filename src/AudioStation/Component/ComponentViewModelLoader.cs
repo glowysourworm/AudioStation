@@ -2,8 +2,8 @@
 
 using AudioStation.Component.Interface;
 using AudioStation.Core.Component.Interface;
-using AudioStation.Core.Controller.Interface;
 using AudioStation.Core.Database.AudioStationDatabase;
+using AudioStation.Core.Database.AudioStationDatabase.Interface;
 using AudioStation.Core.Model;
 using AudioStation.Core.Utility;
 using AudioStation.Event;
@@ -33,7 +33,7 @@ namespace AudioStation.Component
 
         private readonly ILibraryImporter _libraryImporter;
 
-        private readonly IModelController _modelController;
+        private readonly IAudioStationDbClient _audioStationDbClient;
         private readonly IConfigurationManager _configurationManager;
 
         private readonly LibraryManagerViewModel _libraryManagerViewModel;
@@ -62,7 +62,7 @@ namespace AudioStation.Component
             LogViewModel logViewModel,
 
             // Controllers
-            IModelController modelController,
+            IAudioStationDbClient audioStationDbClient,
             IConfigurationManager configurationManager)
         {
             _eventAggregator = eventAggregator;
@@ -77,7 +77,7 @@ namespace AudioStation.Component
             _radioViewModel = radioViewModel;
             _logViewModel = logViewModel;
 
-            _modelController = modelController;
+            _audioStationDbClient = audioStationDbClient;
             _configurationManager = configurationManager;
         }
 
@@ -93,7 +93,7 @@ namespace AudioStation.Component
                 // 3) Load View Model Data
                 //
 
-                var taskCount = 5;
+                var taskCount = 7;
                 var task = 0;
 
                 var configuration = _configurationManager.GetConfiguration();
@@ -133,7 +133,7 @@ namespace AudioStation.Component
             var result = new PageResult<TrackViewModel>();
 
             // Database:  Load the file (entry) entities
-            var entryPage = _modelController.GetAudioStationPage(request);
+            var entryPage = _audioStationDbClient.GetPage(request);
 
             result.PageNumber = request.PageNumber;
             result.PageSize = request.PageSize;
@@ -544,7 +544,7 @@ namespace AudioStation.Component
             var resultCollection = new List<ArtistViewModel>();
 
             // Database:  Load the artist entities
-            var artistEntities = _modelController.GetAudioStationEntities<Artist>();
+            var artistEntities = _audioStationDbClient.GetEntities<Artist>();
             var artistCount = artistEntities.Count();
             var artistIndex = 0;
 
@@ -552,7 +552,7 @@ namespace AudioStation.Component
             foreach (var artist in artistEntities.OrderBy(x => x.Name))
             {
                 // Database:  Load the album entities
-                var albums = _modelController.GetArtistAlbums(artist.Id, true);
+                var albums = _audioStationDbClient.GetArtistAlbums(artist.Id, true);
 
                 // Create Artist Result
                 var artistViewModel = new ArtistViewModel(artist.Id)
@@ -571,7 +571,7 @@ namespace AudioStation.Component
                     };
 
                     // Database:  Load the track entities
-                    var tracks = _modelController.GetAlbumTracks(album.Id);
+                    var tracks = _audioStationDbClient.GetAlbumTracks(album.Id);
 
                     // Create tracks for the album
                     albumViewModel.Tracks.AddRange(tracks.Select(MapTrack));
@@ -596,7 +596,7 @@ namespace AudioStation.Component
         {
             var result = new List<GenreViewModel>();
 
-            var genreEntities = _modelController.GetAudioStationEntities<Genre>();
+            var genreEntities = _audioStationDbClient.GetEntities<Genre>();
             var genreCount = genreEntities.Count();
             var genreIndex = 0;
 
@@ -618,8 +618,8 @@ namespace AudioStation.Component
         {
             var result = new List<AlbumViewModel>();
 
-            var albumEntities = _modelController.GetAudioStationEntities<Album>();
-            var trackEntities = _modelController.GetAudioStationEntities<Track>();
+            var albumEntities = _audioStationDbClient.GetEntities<Album>();
+            var trackEntities = _audioStationDbClient.GetEntities<Track>();
 
             var albumCount = albumEntities.Count();
             var albumIndex = 0;
@@ -640,7 +640,7 @@ namespace AudioStation.Component
                 }
 
                 // Artist Entity
-                var artist = _modelController.GetAudioStationEntity<Artist>((int)artistId);
+                var artist = _audioStationDbClient.GetEntity<Artist>((int)artistId);
 
                 // Album Result
                 var album = MapAlbum(artist, albumEntity, tracks);

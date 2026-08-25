@@ -55,7 +55,12 @@ namespace AudioStation.Core.Service.Interface
         /// <summary>
         /// Performs startup task for component
         /// </summary>
-        Task<Status> Initialize();
+        Task<Status> Initialize(Configuration configuration);
+
+        /// <summary>
+        /// Resets the component based on new configuration settings
+        /// </summary>
+        Task<Status> ReInitialize(Configuration configuration);
 
         /// <summary>
         /// Returns status message for the component

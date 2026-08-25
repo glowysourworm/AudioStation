@@ -131,11 +131,15 @@ namespace AudioStation.Core.Service.Vendor
         {
             return _status;
         }
-        public async Task<IAudioStationService.Status> Initialize()
+        public async Task<IAudioStationService.Status> Initialize(Configuration configuration)
         {
             _client = await Authenticate();
 
             return _status;
+        }
+        public Task<IAudioStationService.Status> ReInitialize(Configuration configuration)
+        {
+            return Initialize(configuration);
         }
         public string GetStatusMessage()
         {

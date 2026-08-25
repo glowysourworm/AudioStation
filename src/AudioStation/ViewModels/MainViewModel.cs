@@ -8,6 +8,7 @@ using AudioStation.Core.Component;
 using AudioStation.Core.Component.CDPlayer.Interface;
 using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Controller.Interface;
+using AudioStation.Core.Database.AudioStationDatabase.Interface;
 using AudioStation.Core.Event;
 using AudioStation.Core.Service.Interface;
 using AudioStation.Core.Service.Vendor.Bandcamp.Interface;
@@ -191,7 +192,7 @@ public class MainViewModel : ViewModelBase
 
     [IocImportingConstructor]
     public MainViewModel(IConfigurationManager configurationManager,
-                         IAudioStationComponentController componentController,
+                         IAudioStationServiceController componentController,
                          IDialogController dialogController,
                          IIocEventAggregator eventAggregator,
                          ICDDrive cdDrive,
@@ -315,6 +316,9 @@ public class MainViewModel : ViewModelBase
 
         if (sender is IOutputController)
             viewModel = this.StatusViewModel.OutputControllerStatus;
+
+        else if (sender is IAudioStationDbClient)
+            viewModel = this.StatusViewModel.AudioStationDbStatus;
 
         else if (sender is IAudioController)
             viewModel = this.StatusViewModel.AudioPlayerStatus;

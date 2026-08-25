@@ -1,5 +1,4 @@
-﻿using AudioStation.Core.Database.MusicBrainzDatabase.Model;
-using AudioStation.Core.Model.Vendor;
+﻿using AudioStation.Core.Model.Vendor;
 using AudioStation.Core.Service.Interface;
 
 using MetaBrainz.MusicBrainz.Interfaces.Entities;
@@ -24,7 +23,7 @@ namespace AudioStation.Core.Service.Vendor.Interface
         /// <summary>
         /// Returns cover art for the release. This includes data.
         /// </summary>
-        Task<IEnumerable<MusicBrainzPicture>> GetCoverArt(Guid musicBrainzReleaseId);
+        //Task<IEnumerable<MusicBrainzPicture>> GetCoverArt(Guid musicBrainzReleaseId);
 
         /// <summary>
         /// Tries to look up information for the provided library entry

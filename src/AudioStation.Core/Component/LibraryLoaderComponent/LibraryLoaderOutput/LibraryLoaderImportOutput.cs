@@ -1,6 +1,5 @@
 ﻿using AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderOutput.Interface;
 using AudioStation.Core.Database.AudioStationDatabase;
-using AudioStation.Core.Database.MusicBrainzDatabase.Model;
 
 namespace AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderOutput
 {
@@ -59,22 +58,22 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderOutput
         /// <summary>
         /// Front cover art recovered during the query process
         /// </summary>
-        public MusicBrainzPicture? BestFrontCover { get; set; }
+        //public MusicBrainzPicture? BestFrontCover { get; set; }
 
         /// <summary>
         /// Back cover art recovered during the query process
         /// </summary>
-        public MusicBrainzPicture? BestBackCover { get; set; }
+        //public MusicBrainzPicture? BestBackCover { get; set; }
 
         /// <summary>
         /// Completed MusicBrainz records (expensive queries)
         /// </summary>
-        public IEnumerable<MusicBrainzCombinedLibraryEntryRecord> MusicBrainzCombinedLibraryEntryRecords { get; set; }
+        //public IEnumerable<MusicBrainzCombinedLibraryEntryRecord> MusicBrainzCombinedLibraryEntryRecords { get; set; }
 
         /// <summary>
         /// Final record selection for the entry
         /// </summary>
-        public MusicBrainzCombinedLibraryEntryRecord FinalQueryRecord { get; set; }
+        //public MusicBrainzCombinedLibraryEntryRecord FinalQueryRecord { get; set; }
 
         /// <summary>
         /// Music Brainz combined record was queried successfully

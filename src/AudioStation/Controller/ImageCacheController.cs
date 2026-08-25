@@ -7,6 +7,7 @@ using AudioStation.Component.Model;
 using AudioStation.Controller.Interface;
 using AudioStation.Controller.Model;
 using AudioStation.Core.Controller.Interface;
+using AudioStation.Core.Database.AudioStationDatabase.Interface;
 using AudioStation.Core.Utility;
 
 using Microsoft.Extensions.Logging;
@@ -21,7 +22,7 @@ namespace AudioStation.Controller
     [IocExport(typeof(IImageCacheController))]
     public class ImageCacheController : IImageCacheController
     {
-        readonly IModelController _modelController;
+        readonly IAudioStationDbClient _audioStationDbClient;
         readonly IBitmapConverter _bitmapConverter;
         readonly IOutputController _outputController;
         readonly ITagCacheController _tagCacheController;
@@ -46,12 +47,12 @@ namespace AudioStation.Controller
         private HttpClient _httpClient;
 
         [IocImportingConstructor]
-        public ImageCacheController(IModelController modelController,
+        public ImageCacheController(IAudioStationDbClient audioStationDbClient,
                                     IBitmapConverter bitmapConverter,
                                     IOutputController outputController,
                                     ITagCacheController tagCacheController)
         {
-            _modelController = modelController;
+            _audioStationDbClient = audioStationDbClient;
             _bitmapConverter = bitmapConverter;
             _outputController = outputController;
             _tagCacheController = tagCacheController;
@@ -240,7 +241,7 @@ namespace AudioStation.Controller
             }
 
             // Fetch the mp3 files for this artist
-            var files = forArtist ? _modelController.GetArtistFiles(entityId) : _modelController.GetAlbumTracks(entityId);
+            var files = forArtist ? _audioStationDbClient.GetArtistFiles(entityId) : _audioStationDbClient.GetAlbumTracks(entityId);
 
             // Take all the artwork - consolidating the images
             var images = files.Select(entity => _tagCacheController.Get(entity.FileReference.FileName))

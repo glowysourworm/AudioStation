@@ -24,7 +24,6 @@ namespace AudioStation.Core.Component
         private readonly IMusicBrainzClient _musicBrainzClient;
         private readonly IModelValidationService _modelValidationService;
         private readonly IModelFileService _modelFileService;
-        private readonly IModelController _modelController;
         private readonly ITagCacheController _tagCacheController;
         private readonly IFileController _fileController;
 
@@ -35,7 +34,6 @@ namespace AudioStation.Core.Component
                                IMusicBrainzClient musicBrainzClient,
                                IModelValidationService modelValidationService,
                                IModelFileService modelFileService,
-                               IModelController modelController,
                                ITagCacheController tagCacheController,
                                IFileController fileController)
         {
@@ -43,7 +41,6 @@ namespace AudioStation.Core.Component
             _musicBrainzClient = musicBrainzClient;
             _modelValidationService = modelValidationService;
             _modelFileService = modelFileService;
-            _modelController = modelController;
             _tagCacheController = tagCacheController;
             _fileController = fileController;
         }
@@ -62,9 +59,10 @@ namespace AudioStation.Core.Component
         }
         public bool CanImportEmbedTag(ILibraryLoaderImportLoad workInput, ILibraryLoaderImportOutput workOutput)
         {
-            return !string.IsNullOrEmpty(workInput.SourceFile) &&
-                    _tagCacheController.Verify(workInput.SourceFile) &&
-                    workOutput.FinalQueryRecord != null;
+            throw new NotImplementedException();
+            //return !string.IsNullOrEmpty(workInput.SourceFile) &&
+            //        _tagCacheController.Verify(workInput.SourceFile) &&
+            //        workOutput.FinalQueryRecord != null;
         }
         public bool CanImportEntity(ILibraryLoaderImportLoad workInput, ILibraryLoaderImportOutput workOutput)
         {
@@ -142,7 +140,7 @@ namespace AudioStation.Core.Component
             var tagFile = _tagCacheController.Get(workInput.SourceFile);
 
             // Import Record:  Save imported entity for output
-            workOutput.ImportedRecord = _modelController.AddUpdateLibraryEntry(workInput.SourceFile, tagFile);
+            //workOutput.ImportedRecord = _modelController.AddUpdateLibraryEntry(workInput.SourceFile, tagFile);
 
             workOutput.Mp3FileImportSuccess = workOutput.ImportedRecord != null;
 
@@ -230,8 +228,8 @@ namespace AudioStation.Core.Component
             if (string.IsNullOrEmpty(workInput.SourceFile))
                 throw new ArgumentException("Invalid media file name");
 
-            if (workOutput.FinalQueryRecord == null)
-                throw new ArgumentException("Final query record not yet completed. Embedding of tag data halted.");
+            //if (workOutput.FinalQueryRecord == null)
+            //    throw new ArgumentException("Final query record not yet completed. Embedding of tag data halted.");
 
             try
             {
@@ -240,12 +238,12 @@ namespace AudioStation.Core.Component
                 if (fileRef == null)
                     return false;
 
-                fileRef.Album = workOutput.FinalQueryRecord.Release.Title;
-                fileRef.AlbumArtists = workOutput.FinalQueryRecord.Artists.Select(x => x.Name).ToArray();
-                fileRef.Comment = workOutput.FinalQueryRecord.Recording.Annotation;
-                fileRef.DiscNumber = (ushort)(workOutput.FinalQueryRecord.Release.Media.IndexOf(x => x.Id == workOutput.FinalQueryRecord.Medium.Id) + 1);
-                fileRef.DiscTotal = (ushort)workOutput.FinalQueryRecord.Release.Media.Count;
-                fileRef.Genres = workOutput.FinalQueryRecord.RecordingGenres.Select(x => x.Name).ToArray();
+                //fileRef.Album = workOutput.FinalQueryRecord.Release.Title;
+                //fileRef.AlbumArtists = workOutput.FinalQueryRecord.Artists.Select(x => x.Name).ToArray();
+                //fileRef.Comment = workOutput.FinalQueryRecord.Recording.Annotation;
+                //fileRef.DiscNumber = (ushort)(workOutput.FinalQueryRecord.Release.Media.IndexOf(x => x.Id == workOutput.FinalQueryRecord.Medium.Id) + 1);
+                //fileRef.DiscTotal = (ushort)workOutput.FinalQueryRecord.Release.Media.Count;
+                //fileRef.Genres = workOutput.FinalQueryRecord.RecordingGenres.Select(x => x.Name).ToArray();
                 //fileRef.Tag.MusicBrainzArtistId = workOutput.FinalQueryRecord.Artists.FirstOrDefault()?.Id.ToString() ?? string.Empty;
                 //fileRef.Tag.MusicBrainzReleaseArtistId = workOutput.FinalQueryRecord.Artists.FirstOrDefault()?.Id.ToString() ?? string.Empty;
                 //fileRef.Tag.MusicBrainzReleaseCountry = workOutput.FinalQueryRecord.Release.Country;
@@ -256,18 +254,18 @@ namespace AudioStation.Core.Component
                 //fileRef.Tag.PerformersSort = workOutput.FinalQueryRecord.Artists.Select(x => x.SortName).ToArray();
 
                 // COVER ART!
-                if (workOutput.BestFrontCover != null)
-                    fileRef.EmbeddedPictures.Add(workOutput.BestFrontCover);
+                //if (workOutput.BestFrontCover != null)
+                //    fileRef.EmbeddedPictures.Add(workOutput.BestFrontCover);
 
-                if (workOutput.BestBackCover != null)
-                    fileRef.EmbeddedPictures.Add(workOutput.BestBackCover);
+                //if (workOutput.BestBackCover != null)
+                //    fileRef.EmbeddedPictures.Add(workOutput.BestBackCover);
 
-                fileRef.Title = workOutput.FinalQueryRecord.Track.Title;
-                fileRef.Track = (uint)(workOutput.FinalQueryRecord.Track.Position ?? 0);
-                fileRef.TrackTotal = (ushort)workOutput.FinalQueryRecord.Medium.TrackCount;
-                fileRef.Date = workOutput.FinalQueryRecord.Release?.Date ?? DateTime.MinValue;
-                fileRef.PublishingDate = workOutput.FinalQueryRecord.Release?.Date ?? DateTime.MinValue;
-                fileRef.Year = (int)(workOutput.FinalQueryRecord.Release?.Date?.Year ?? 0);
+                //fileRef.Title = workOutput.FinalQueryRecord.Track.Title;
+                //fileRef.Track = (uint)(workOutput.FinalQueryRecord.Track.Position ?? 0);
+                //fileRef.TrackTotal = (ushort)workOutput.FinalQueryRecord.Medium.TrackCount;
+                //fileRef.Date = workOutput.FinalQueryRecord.Release?.Date ?? DateTime.MinValue;
+                //fileRef.PublishingDate = workOutput.FinalQueryRecord.Release?.Date ?? DateTime.MinValue;
+                //fileRef.Year = (int)(workOutput.FinalQueryRecord.Release?.Date?.Year ?? 0);
 
                 // Save tag data to file
                 _tagCacheController.SetData(workInput.SourceFile, fileRef, true);

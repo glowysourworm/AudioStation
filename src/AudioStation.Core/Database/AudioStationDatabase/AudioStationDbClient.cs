@@ -1,7 +1,10 @@
-﻿using AudioStation.Core.Component.Interface;
+﻿using System.ComponentModel.DataAnnotations;
+
+using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Database.AudioStationDatabase.Interface;
 using AudioStation.Core.Event;
 using AudioStation.Core.Model;
+using AudioStation.Core.Model.Vendor;
 using AudioStation.Core.Model.Vendor.ATLExtension.Interface;
 using AudioStation.Core.Service.Interface;
 using AudioStation.Core.Utility;
@@ -10,6 +13,7 @@ using AudioStation.Model;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
+using SimpleWpf.Extensions;
 using SimpleWpf.Extensions.Collection;
 using SimpleWpf.Extensions.Event;
 using SimpleWpf.IocFramework.Application.Attribute;
@@ -582,10 +586,8 @@ namespace AudioStation.Core.Database.AudioStationDatabase
         {
             return _status;
         }
-        public async Task<IAudioStationService.Status> Initialize()
+        public async Task<IAudioStationService.Status> Initialize(Configuration configuration)
         {
-            var configuration = _configurationManager.GetConfiguration();
-
             if (string.IsNullOrWhiteSpace(configuration.DatabaseHost))
                 OnStatusChanged(IAudioStationService.Status.Error, "database host not specified");
 
@@ -598,16 +600,34 @@ namespace AudioStation.Core.Database.AudioStationDatabase
             else if (string.IsNullOrWhiteSpace(configuration.DatabasePassword))
                 OnStatusChanged(IAudioStationService.Status.Error, "database password not specified");
 
-            else
-                OnStatusChanged(IAudioStationService.Status.Idle, "database configuration OK!");
-
-            // Test Connection
+            // Test Connection (Initialize:  Vendor table must be filled out)
             try
             {
                 using (var context = CreateContext())
                 {
-                    // No-op
+                    foreach (var enumValue in Enum.GetValues<VendorNames>())
+                    {
+                        var enumName = enumValue.GetAttribute<DisplayAttribute>().Name;
+
+                        // Check for existing entity
+                        var entity = context.Find<Vendor>((int)enumValue);
+
+                        // Add (NO UPDATE)
+                        if (entity == null)
+                        {
+                            entity = new Vendor()
+                            {
+                                VendorName = enumName!
+                            };
+
+                            context.Add<Vendor>(entity);
+                        }
+                    }
+
+                    context.SaveChanges();
                 }
+
+                OnStatusChanged(IAudioStationService.Status.Idle, "database configuration OK!");
             }
             catch (Exception ex)
             {
@@ -616,6 +636,10 @@ namespace AudioStation.Core.Database.AudioStationDatabase
             }
 
             return _status;
+        }
+        public Task<IAudioStationService.Status> ReInitialize(Configuration configuration)
+        {
+            return Initialize(configuration);
         }
         public string GetStatusMessage()
         {

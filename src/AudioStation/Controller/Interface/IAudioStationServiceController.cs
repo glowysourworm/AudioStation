@@ -9,7 +9,7 @@ namespace AudioStation.Controller.Interface
     /// <summary>
     /// Component controller to report and contain all IAudioStationComponent instances
     /// </summary>
-    public interface IAudioStationComponentController
+    public interface IAudioStationServiceController
     {
         /// <summary>
         /// Occurs when component is initialized

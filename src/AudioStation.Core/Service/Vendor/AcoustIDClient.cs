@@ -1,6 +1,5 @@
 ﻿using AcoustID.Web;
 
-using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Database.AudioStationDatabase;
 using AudioStation.Core.Service.Interface;
 using AudioStation.Core.Service.Vendor.AcoustIDComponent;
@@ -18,8 +17,6 @@ namespace AudioStation.Core.Service.Vendor
     [IocExport(typeof(IAcoustIDClient))]
     public class AcoustIDClient : IAcoustIDClient, IAudioStationService
     {
-        private readonly IConfigurationManager _configurationManager;
-
         // IAudioStationComponent
         //
         public event SimpleEventHandler<IAudioStationService, IAudioStationService.Status> StatusChangeEvent;
@@ -27,9 +24,8 @@ namespace AudioStation.Core.Service.Vendor
         private IAudioStationService.Status _status;
 
         [IocImportingConstructor]
-        public AcoustIDClient(IConfigurationManager configurationManager)
+        public AcoustIDClient()
         {
-            _configurationManager = configurationManager;
             _status = IAudioStationService.Status.Disabled;
         }
 
@@ -129,18 +125,22 @@ namespace AudioStation.Core.Service.Vendor
         {
             return _status;
         }
-        public async Task<IAudioStationService.Status> Initialize()
+        public async Task<IAudioStationService.Status> Initialize(Configuration configuration)
         {
-            if (string.IsNullOrWhiteSpace(_configurationManager.GetConfiguration().AcoustIDAPIKey))
+            if (string.IsNullOrWhiteSpace(configuration.AcoustIDAPIKey))
                 return _status;
 
             // Setup Static Configuration
-            AcoustID.Configuration.ClientKey = _configurationManager.GetConfiguration().AcoustIDAPIKey;
+            AcoustID.Configuration.ClientKey = configuration.AcoustIDAPIKey;
 
             // -> Idle
             OnStatusChanged(IAudioStationService.Status.Idle);
 
             return _status;
+        }
+        public Task<IAudioStationService.Status> ReInitialize(Configuration configuration)
+        {
+            return Initialize(configuration);
         }
         public string GetStatusMessage()
         {

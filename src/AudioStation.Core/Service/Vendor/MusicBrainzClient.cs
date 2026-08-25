@@ -1,9 +1,4 @@
-﻿using System.IO;
-
-using ATL;
-
-using AudioStation.Core.Database.MusicBrainzDatabase.Model;
-using AudioStation.Core.Model.Interface;
+﻿using AudioStation.Core.Model.Interface;
 using AudioStation.Core.Model.Vendor;
 using AudioStation.Core.Model.Vendor.ATLExtension;
 using AudioStation.Core.Model.Vendor.ATLExtension.Interface;
@@ -246,8 +241,8 @@ namespace AudioStation.Core.Service.Vendor
                     var frontArt = release.CoverArtArchive?.Front ?? false ? await coverArtClient.FetchFrontAsync(releaseId) : null;
                     var backArt = release.CoverArtArchive?.Back ?? false ? await coverArtClient.FetchBackAsync(releaseId) : null;
 
-                    var front = frontArt != null ? ConvertImage(frontArt, PictureInfo.PIC_TYPE.Front) : null;
-                    var bacK = backArt != null ? ConvertImage(backArt, PictureInfo.PIC_TYPE.Back) : null;
+                    //var front = frontArt != null ? ConvertImage(frontArt, PictureInfo.PIC_TYPE.Front) : null;
+                    //var bacK = backArt != null ? ConvertImage(backArt, PictureInfo.PIC_TYPE.Back) : null;
 
                     if (release == null || artist == null)
                     {
@@ -277,8 +272,8 @@ namespace AudioStation.Core.Service.Vendor
                         Annotation = track.Recording?.Annotation ?? string.Empty,
                         ArtistCreditName = track.Recording?.ArtistCredit?.FirstOrDefault()?.Name ?? artist.Name ?? string.Empty,
                         Asin = release.Asin ?? string.Empty,
-                        FrontCover = front,
-                        BackCover = bacK,
+                        FrontCover = null,
+                        BackCover = null,
                         AssociatedUrls = release.Relationships?
                                                 .Where(x => x.TargetType == EntityType.Url)?
                                                 .Select(x => x.Url?.Resource?.AbsoluteUri ?? string.Empty)?
@@ -473,42 +468,42 @@ namespace AudioStation.Core.Service.Vendor
             });
         }
 
-        public Task<IEnumerable<MusicBrainzPicture>> GetCoverArt(Guid musicBrainzReleaseId)
-        {
-            return Task.Run(async () =>
-            {
-                try
-                {
-                    var release = await GetReleaseById(musicBrainzReleaseId);
+        //public Task<IEnumerable<MusicBrainzPicture>> GetCoverArt(Guid musicBrainzReleaseId)
+        //{
+        //    return Task.Run(async () =>
+        //    {
+        //        try
+        //        {
+        //            var release = await GetReleaseById(musicBrainzReleaseId);
 
-                    var coverArtClient = new CoverArt();
-                    var coverArt = new List<CoverArtImage>();
-                    var result = new List<MusicBrainzPicture>();
+        //            var coverArtClient = new CoverArt();
+        //            var coverArt = new List<CoverArtImage>();
+        //            var result = new List<MusicBrainzPicture>();
 
-                    if (release.CoverArtArchive.Front)
-                    {
-                        var front = await coverArtClient.FetchFrontAsync(musicBrainzReleaseId);
-                        if (front != null)
-                            result.Add(ConvertImage(front, PictureInfo.PIC_TYPE.Front));
-                    }
+        //            if (release.CoverArtArchive.Front)
+        //            {
+        //                var front = await coverArtClient.FetchFrontAsync(musicBrainzReleaseId);
+        //                if (front != null)
+        //                    result.Add(ConvertImage(front, PictureInfo.PIC_TYPE.Front));
+        //            }
 
-                    if (release.CoverArtArchive.Back)
-                    {
-                        var back = await coverArtClient.FetchBackAsync(musicBrainzReleaseId);
-                        if (back != null)
-                            coverArt.Add(back);
-                    }
+        //            if (release.CoverArtArchive.Back)
+        //            {
+        //                var back = await coverArtClient.FetchBackAsync(musicBrainzReleaseId);
+        //                if (back != null)
+        //                    coverArt.Add(back);
+        //            }
 
-                    return result;
-                }
-                catch (Exception ex)
-                {
-                    ApplicationHelpers.Log("Music Brainz Client Error:  {0}", LogMessageServiceType.MusicBrainz, LogLevel.Error, ex, ex.Message);
-                }
+        //            return result;
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            ApplicationHelpers.Log("Music Brainz Client Error:  {0}", LogMessageServiceType.MusicBrainz, LogLevel.Error, ex, ex.Message);
+        //        }
 
-                return Enumerable.Empty<MusicBrainzPicture>();
-            });
-        }
+        //        return Enumerable.Empty<MusicBrainzPicture>();
+        //    });
+        //}
 
         public Task<MusicBrainzUrl?> GetUrlById(Guid musicBrainzUrlId)
         {
@@ -704,17 +699,17 @@ namespace AudioStation.Core.Service.Vendor
 
         #endregion
 
-        private MusicBrainzPicture ConvertImage(CoverArtImage musicBrainzArt, PictureInfo.PIC_TYPE type)
-        {
-            using (var stream = new MemoryStream())
-            {
-                musicBrainzArt.Data.CopyTo(stream);
+        //private MusicBrainzPicture ConvertImage(CoverArtImage musicBrainzArt, PictureInfo.PIC_TYPE type)
+        //{
+        //    using (var stream = new MemoryStream())
+        //    {
+        //        musicBrainzArt.Data.CopyTo(stream);
 
-                var pictureInfo = PictureInfo.fromBinaryData(stream.GetBuffer(), type);
+        //        var pictureInfo = PictureInfo.fromBinaryData(stream.GetBuffer(), type);
 
-                return new MusicBrainzPicture(pictureInfo, false);
-            }
-        }
+        //        return new MusicBrainzPicture(pictureInfo, false);
+        //    }
+        //}
 
         protected Task<bool> Authenticate()
         {
@@ -901,11 +896,15 @@ namespace AudioStation.Core.Service.Vendor
         {
             return _status;
         }
-        public async Task<IAudioStationService.Status> Initialize()
+        public async Task<IAudioStationService.Status> Initialize(Configuration configuration)
         {
             await Authenticate();
 
             return _status;
+        }
+        public Task<IAudioStationService.Status> ReInitialize(Configuration configuration)
+        {
+            return Initialize(configuration);
         }
         public string GetStatusMessage()
         {

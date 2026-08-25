@@ -1,23 +1,19 @@
 ﻿using AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderLoad;
 using AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderOutput;
-using AudioStation.Core.Controller.Interface;
 using AudioStation.Core.Model.M3U;
 
 namespace AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderWorker
 {
     public class LibraryLoaderM3UAddUpdateWorker : LibraryWorkerThreadBase
     {
-        private readonly IModelController _modelController;
-
         private LibraryLoaderFileLoad _workLoad;
         private LibraryLoaderOutputBase _workOutput;
 
         private bool _started;
 
-        public LibraryLoaderM3UAddUpdateWorker(LibraryLoaderWorkItem workItem, IModelController modelController)
+        public LibraryLoaderM3UAddUpdateWorker(LibraryLoaderWorkItem workItem)
             : base(workItem)
         {
-            _modelController = modelController;
             _started = false;
             _workLoad = workItem.GetWorkItem() as LibraryLoaderFileLoad;
             _workOutput = workItem.GetOutputItem() as LibraryLoaderOutputBase;
@@ -37,7 +33,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderWorker
             else
             {
                 // Add to database
-                _modelController.AddRadioEntries(streams);
+                //_modelController.AddRadioEntries(streams);
 
                 //ApplicationHelpers.LogSeparate(workItem.GetId(), "M3U stream file load success: Streams={0}, File={1}", LogMessageType.LibraryLoaderWorkItem, LogLevel.Information, streams.Count, file);
             }

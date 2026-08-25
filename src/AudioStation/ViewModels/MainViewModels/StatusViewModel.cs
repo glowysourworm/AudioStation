@@ -12,6 +12,7 @@ namespace AudioStation.ViewModels.MainViewModels
 
         StatusIconViewModel _audioPlayerStatus;
 
+        StatusIconViewModel _audioStationDbStatus;
         StatusIconViewModel _outputControllerStatus;
         StatusIconViewModel _bandcampClient;
         StatusIconViewModel _acoustIDClient;
@@ -33,7 +34,11 @@ namespace AudioStation.ViewModels.MainViewModels
             get { return _audioPlayerStatus; }
             set { this.RaiseAndSetIfChanged(ref _audioPlayerStatus, value); }
         }
-
+        public StatusIconViewModel AudioStationDbStatus
+        {
+            get { return _audioStationDbStatus; }
+            set { this.RaiseAndSetIfChanged(ref _audioStationDbStatus, value); }
+        }
         public StatusIconViewModel OutputControllerStatus
         {
             get { return _outputControllerStatus; }
@@ -86,6 +91,7 @@ namespace AudioStation.ViewModels.MainViewModels
             this.PrimaryMessage = string.Empty;
 
             this.AudioPlayerStatus = new StatusIconViewModel();
+            this.AudioStationDbStatus = new StatusIconViewModel();
             this.OutputControllerStatus = new StatusIconViewModel();
             this.BandcampClient = new StatusIconViewModel();
             this.AcoustIDClient = new StatusIconViewModel();
