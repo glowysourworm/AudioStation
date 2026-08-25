@@ -50,6 +50,11 @@ namespace AudioStation.Core.Model.Vendor.ATLExtension.Interface
         TimeSpan Duration { get; }
 
         /// <summary>
+        /// Media format of the medium that from which the track originates:  CD / Vinyl / Tape / ...
+        /// </summary>
+        string MediaFormat { get; }
+
+        /// <summary>
         /// Collection of genres (Genre (singular) will be the first of this collection)
         /// </summary>
         IList<string> Genres { get; }

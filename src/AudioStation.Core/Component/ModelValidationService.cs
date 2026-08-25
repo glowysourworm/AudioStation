@@ -46,10 +46,13 @@ namespace AudioStation.Core.Component
                                   simpleTag.Album,
                                   simpleTag.Title,
                                   simpleTag.Genre,
-                                  simpleTag.Track,
+                                  (int)simpleTag.Track,
                                   simpleTag.TrackTotal,
                                   simpleTag.DiscNumber,
-                                  simpleTag.DiscTotal);
+                                  simpleTag.DiscTotal,
+                                  simpleTag.MediaFormat,
+                                  (int)simpleTag.Duration.TotalMilliseconds,
+                                  simpleTag.Year);
         }
 
         public ITagSmallValidation ValidateTagSmallImport(ITagSmall tagSmall)
@@ -58,20 +61,26 @@ namespace AudioStation.Core.Component
                                   tagSmall.Album,
                                   tagSmall.Title,
                                   tagSmall.Genre,
-                                  (uint)tagSmall.TrackNumber,
-                                  (uint)tagSmall.TrackTotal,
-                                  (uint)tagSmall.DiscNumber,
-                                  (uint)tagSmall.DiscTotal);
+                                  tagSmall.TrackNumber,
+                                  tagSmall.TrackTotal,
+                                  tagSmall.MediaNumber,
+                                  tagSmall.MediaTotal,
+                                  tagSmall.MediaFormat,
+                                  tagSmall.DurationMilliseconds,
+                                  tagSmall.Year);
         }
 
-        private ITagSmallValidation ValidateImport(string firstAlbumArtist,
-                                    string album,
-                                    string title,
-                                    string genre,
-                                    uint trackNumber,
-                                    uint trackCount,
-                                    uint discNumber,
-                                    uint discCount)
+        private ITagSmallValidation ValidateImport(string? albumArtist,
+                                                   string? album,
+                                                   string? title,
+                                                   string? genre,
+                                                   int? trackNumber,
+                                                   int? trackCount,
+                                                   int? mediaNumber,
+                                                   int? mediaCount,
+                                                   string? mediaFormat,
+                                                   int? durationMilliseconds,
+                                                   int? year)
         {
             var validation = new TagValidation();
             var invalidFields = new List<string>();
@@ -82,10 +91,13 @@ namespace AudioStation.Core.Component
             validation.IsGenreValid = true;
             validation.IsTrackValid = true;
             validation.IsTrackTotalValid = true;
-            validation.IsDiscNumberValid = true;
-            validation.IsDiscTotalValid = true;
+            validation.IsMediaNumberValid = true;
+            validation.IsMediaTotalValid = true;
+            validation.IsMediaFormatValid = true;
+            validation.IsDurationMillisecondsValid = true;
+            validation.IsYearValid = true;
 
-            if (string.IsNullOrWhiteSpace(firstAlbumArtist))
+            if (string.IsNullOrWhiteSpace(albumArtist))
             {
                 invalidFields.Add("Album Artist");
 
@@ -128,18 +140,37 @@ namespace AudioStation.Core.Component
                 validation.IsTrackTotalValid = false;
             }
 
-            if (discNumber <= 0)
+            if (mediaNumber <= 0)
             {
-                invalidFields.Add("Disc");
+                invalidFields.Add("Media Number");
 
-                validation.IsDiscNumberValid = false;
+                validation.IsMediaNumberValid = false;
             }
 
-            if (discCount <= 0)
+            if (mediaCount <= 0)
             {
-                invalidFields.Add("Disc Count");
+                invalidFields.Add("Media Count");
 
-                validation.IsDiscTotalValid = false;
+                validation.IsMediaTotalValid = false;
+            }
+
+            if (string.IsNullOrWhiteSpace(mediaFormat))
+            {
+                invalidFields.Add("Media Format");
+
+                validation.IsMediaFormatValid = false;
+            }
+            if (durationMilliseconds <= 0)
+            {
+                invalidFields.Add("Duration");
+
+                validation.IsDurationMillisecondsValid = false;
+            }
+            if (year <= 0)
+            {
+                invalidFields.Add("Year");
+
+                validation.IsYearValid = false;
             }
 
             validation.ValidationMessage = invalidFields.Join(",", x => x);

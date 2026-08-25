@@ -13,8 +13,11 @@ namespace AudioStation.ViewModels.TagViewModels
         bool _isGenreValid;
         bool _isTrackValid;
         bool _isTrackTotalValid;
-        bool _isDiscNumberValid;
-        bool _isDiscTotalValid;
+        bool _isMediaNumberValid;
+        bool _isMediaTotalValid;
+        bool _isMediaFormatValid;
+        bool _isDurationMillisecondsValid;
+        bool _isYearValid;
 
         bool _isAlbumArtistModified;
         bool _isAlbumModified;
@@ -22,17 +25,23 @@ namespace AudioStation.ViewModels.TagViewModels
         bool _isGenreModified;
         bool _isTrackModified;
         bool _isTrackTotalModified;
-        bool _isDiscNumberModified;
-        bool _isDiscTotalModified;
+        bool _isMediaNumberModified;
+        bool _isMediaTotalModified;
+        bool _isMediaFormatModified;
+        bool _isDurationMillisecondsModified;
+        bool _isYearModified;
 
         string _albumArtist;
         string _album;
         string _title;
         string _genre;
-        uint _track;
-        uint _trackTotal;
-        uint _discNumber;
-        uint _discTotal;
+        int _track;
+        int _trackTotal;
+        int _mediaNumber;
+        int _mediaTotal;
+        string _mediaFormat;
+        int _durationMilliseconds;
+        int _year;
 
         bool _isValid;
         bool _isModified;
@@ -68,15 +77,30 @@ namespace AudioStation.ViewModels.TagViewModels
             get { return _isTrackTotalValid; }
             set { this.RaiseAndSetIfChanged(ref _isTrackTotalValid, value); }
         }
-        public bool IsDiscNumberValid
+        public bool IsMediaNumberValid
         {
-            get { return _isDiscNumberValid; }
-            set { this.RaiseAndSetIfChanged(ref _isDiscNumberValid, value); }
+            get { return _isMediaNumberValid; }
+            set { this.RaiseAndSetIfChanged(ref _isMediaNumberValid, value); }
         }
-        public bool IsDiscTotalValid
+        public bool IsMediaTotalValid
         {
-            get { return _isDiscTotalValid; }
-            set { this.RaiseAndSetIfChanged(ref _isDiscTotalValid, value); }
+            get { return _isMediaTotalValid; }
+            set { this.RaiseAndSetIfChanged(ref _isMediaTotalValid, value); }
+        }
+        public bool IsMediaFormatValid
+        {
+            get { return _isMediaFormatValid; }
+            set { this.RaiseAndSetIfChanged(ref _isMediaFormatValid, value); }
+        }
+        public bool IsDurationMillisecondsValid
+        {
+            get { return _isDurationMillisecondsValid; }
+            set { this.RaiseAndSetIfChanged(ref _isDurationMillisecondsValid, value); }
+        }
+        public bool IsYearValid
+        {
+            get { return _isYearValid; }
+            set { this.RaiseAndSetIfChanged(ref _isYearValid, value); }
         }
 
         public bool IsAlbumArtistModified
@@ -109,15 +133,30 @@ namespace AudioStation.ViewModels.TagViewModels
             get { return _isTrackTotalModified; }
             set { this.RaiseAndSetIfChanged(ref _isTrackTotalModified, value); }
         }
-        public bool IsDiscNumberModified
+        public bool IsMediaNumberModified
         {
-            get { return _isDiscNumberModified; }
-            set { this.RaiseAndSetIfChanged(ref _isDiscNumberModified, value); }
+            get { return _isMediaNumberModified; }
+            set { this.RaiseAndSetIfChanged(ref _isMediaNumberModified, value); }
         }
-        public bool IsDiscTotalModified
+        public bool IsMediaTotalModified
         {
-            get { return _isDiscTotalModified; }
-            set { this.RaiseAndSetIfChanged(ref _isDiscTotalModified, value); }
+            get { return _isMediaTotalModified; }
+            set { this.RaiseAndSetIfChanged(ref _isMediaTotalModified, value); }
+        }
+        public bool IsMediaFormatModified
+        {
+            get { return _isMediaFormatModified; }
+            set { this.RaiseAndSetIfChanged(ref _isMediaFormatModified, value); }
+        }
+        public bool IsDurationMillisecondsModified
+        {
+            get { return _isDurationMillisecondsModified; }
+            set { this.RaiseAndSetIfChanged(ref _isDurationMillisecondsModified, value); }
+        }
+        public bool IsYearModified
+        {
+            get { return _isYearModified; }
+            set { this.RaiseAndSetIfChanged(ref _isYearModified, value); }
         }
 
         public string AlbumArtist
@@ -140,25 +179,40 @@ namespace AudioStation.ViewModels.TagViewModels
             get { return _genre; }
             set { this.RaiseAndSetIfChanged(ref _genre, value); }
         }
-        public uint Track
+        public int Track
         {
             get { return _track; }
             set { this.RaiseAndSetIfChanged(ref _track, value); }
         }
-        public uint TrackTotal
+        public int TrackTotal
         {
             get { return _trackTotal; }
             set { this.RaiseAndSetIfChanged(ref _trackTotal, value); }
         }
-        public uint DiscNumber
+        public int MediaNumber
         {
-            get { return _discNumber; }
-            set { this.RaiseAndSetIfChanged(ref _discNumber, value); }
+            get { return _mediaNumber; }
+            set { this.RaiseAndSetIfChanged(ref _mediaNumber, value); }
         }
-        public uint DiscTotal
+        public int MediaTotal
         {
-            get { return _discTotal; }
-            set { this.RaiseAndSetIfChanged(ref _discTotal, value); }
+            get { return _mediaTotal; }
+            set { this.RaiseAndSetIfChanged(ref _mediaTotal, value); }
+        }
+        public string MediaFormat
+        {
+            get { return _mediaFormat; }
+            set { this.RaiseAndSetIfChanged(ref _mediaFormat, value); }
+        }
+        public int DurationMilliseconds
+        {
+            get { return _durationMilliseconds; }
+            set { this.RaiseAndSetIfChanged(ref _durationMilliseconds, value); }
+        }
+        public int Year
+        {
+            get { return _year; }
+            set { this.RaiseAndSetIfChanged(ref _year, value); }
         }
 
         public bool IsValid
@@ -185,39 +239,51 @@ namespace AudioStation.ViewModels.TagViewModels
 
             this.IsAlbumValid = validation.IsAlbumValid;
             this.IsAlbumArtistValid = validation.IsAlbumArtistValid;
-            this.IsTitleValid = validation.IsTitleValid;
             this.IsGenreValid = validation.IsGenreValid;
+            this.IsTitleValid = validation.IsTitleValid;
             this.IsTrackValid = validation.IsTrackValid;
             this.IsTrackTotalValid = validation.IsTrackTotalValid;
-            this.IsDiscNumberValid = validation.IsDiscNumberValid;
-            this.IsDiscTotalValid = validation.IsDiscTotalValid;
+            this.IsMediaNumberValid = validation.IsMediaNumberValid;
+            this.IsMediaTotalValid = validation.IsMediaTotalValid;
+            this.IsMediaFormatValid = validation.IsMediaFormatValid;
+            this.IsDurationMillisecondsValid = validation.IsDurationMillisecondsValid;
+            this.IsYearValid = validation.IsYearValid;
 
             this.Album = tagDirty.Album;
             this.AlbumArtist = tagDirty.AlbumArtist;
             this.Title = tagDirty.Title;
             this.Genre = tagDirty.Genre;
-            this.Track = tagDirty.Track;
+            this.Track = (int)tagDirty.Track;
             this.TrackTotal = tagDirty.TrackTotal;
-            this.DiscNumber = tagDirty.DiscNumber;
-            this.DiscTotal = tagDirty.DiscTotal;
+            this.MediaNumber = tagDirty.DiscNumber;
+            this.MediaTotal = tagDirty.DiscTotal;
+            this.MediaFormat = tagDirty.MediaFormat;
+            this.DurationMilliseconds = (int)tagDirty.Duration.TotalMilliseconds;
+            this.Year = tagDirty.Year;
 
             this.IsAlbumModified = tagDirty.Album != tagClean.Album;
             this.IsAlbumArtistModified = tagDirty.AlbumArtist != tagClean.AlbumArtist;
-            this.IsTitleModified = tagDirty.Title != tagClean.Title;
             this.IsGenreModified = tagDirty.Genre != tagClean.Genre;
+            this.IsTitleModified = tagDirty.Title != tagClean.Title;
             this.IsTrackModified = tagDirty.Track != tagClean.Track;
             this.IsTrackTotalModified = tagDirty.TrackTotal != tagClean.TrackTotal;
-            this.IsDiscNumberModified = tagDirty.DiscNumber != tagClean.DiscNumber;
-            this.IsDiscTotalModified = tagDirty.DiscTotal != tagClean.DiscTotal;
+            this.IsMediaNumberModified = tagDirty.DiscNumber != tagClean.DiscNumber;
+            this.IsMediaTotalModified = tagDirty.DiscTotal != tagClean.DiscTotal;
+            this.IsMediaFormatModified = tagDirty.MediaFormat != tagClean.MediaFormat;
+            this.IsDurationMillisecondsModified = tagDirty.Duration != tagClean.Duration;
+            this.IsYearModified = tagDirty.Year != tagClean.Year;
 
             this.IsModified = this.IsAlbumModified ||
                               this.IsAlbumArtistModified ||
-                              this.IsTitleModified ||
+                              this.IsDurationMillisecondsModified ||
                               this.IsGenreModified ||
+                              this.IsTitleModified ||
                               this.IsTrackModified ||
                               this.IsTrackTotalModified ||
-                              this.IsDiscNumberModified ||
-                              this.IsDiscTotalModified;
+                              this.IsMediaNumberModified ||
+                              this.IsMediaTotalModified ||
+                              this.IsMediaFormatModified ||
+                              this.IsYearModified;
         }
 
         public TagSmallEditViewModel()

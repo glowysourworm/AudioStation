@@ -309,7 +309,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LoadViewModels
                 result &= entity.Album?.Name?.Contains(this.TrackSearch.Album, StringComparison.OrdinalIgnoreCase) ?? false;
 
             if (result && this.TrackSearch.Disc > 0)
-                result &= entity.Album?.DiscNumber == this.TrackSearch.Disc;
+                result &= entity.Album?.MediaNumber == this.TrackSearch.Disc;
 
             if (result && this.TrackSearch.FileCorruptMessage != string.Empty)
                 result &= entity.FileReference.FileCorruptMessage?.Contains(this.TrackSearch.FileCorruptMessage, StringComparison.OrdinalIgnoreCase) ?? false;

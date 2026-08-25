@@ -22,7 +22,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderOutput
         /// <summary>
         /// Matches for the AcoustID fingerprints
         /// </summary>
-        IEnumerable<VendorTagSmall> MusicBrainzRecordingMatches { get; set; }
+        IEnumerable<TagSmall> MusicBrainzRecordingMatches { get; set; }
 
         /// <summary>
         /// Final record imported as Mp3FileReference

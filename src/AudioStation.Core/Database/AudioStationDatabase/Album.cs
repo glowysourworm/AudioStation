@@ -9,9 +9,10 @@ namespace AudioStation.Core.Database.AudioStationDatabase
     public class Album : AudioStationEntityBase
     {
         public string Name { get; set; }
-        public int DiscNumber { get; set; }
-        public int DiscCount { get; set; }
-        public int Year { get; set; }
+        public int? MediaNumber { get; set; }
+        public int? MediaCount { get; set; }
+        public string? MediaFormat { get; set; }             // See MediaFormats.cs
+        public int? Year { get; set; }
         public Guid? MusicBrainzReleaseId { get; set; }
 
         public Album() { }

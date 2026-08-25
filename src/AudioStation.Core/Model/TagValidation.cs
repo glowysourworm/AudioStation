@@ -10,11 +10,15 @@ namespace AudioStation.Core.Model
         public bool IsGenreValid { get; set; }
         public bool IsTrackValid { get; set; }
         public bool IsTrackTotalValid { get; set; }
-        public bool IsDiscNumberValid { get; set; }
-        public bool IsDiscTotalValid { get; set; }
+        public bool IsMediaNumberValid { get; set; }
+        public bool IsMediaTotalValid { get; set; }
+        public bool IsMediaFormatValid { get; set; }
+        public bool IsDurationMillisecondsValid { get; set; }
+        public bool IsYearValid { get; set; }
 
         public bool IsValid { get; set; }
         public string ValidationMessage { get; set; }
+
 
         public TagValidation()
         {

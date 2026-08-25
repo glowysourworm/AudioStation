@@ -141,18 +141,21 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Ou
                 OnPropertyChanged("AcoustIDResults");
             }
         }
-        IEnumerable<VendorTagSmall> ILibraryLoaderImportOutput.MusicBrainzRecordingMatches
+        IEnumerable<TagSmall> ILibraryLoaderImportOutput.MusicBrainzRecordingMatches
         {
             get
             {
                 return _musicBrainzRecordingMatches.Select(x =>
                 {
-                    return new VendorTagSmall()
+                    return new TagSmall()
                     {
                         Album = x.Album,
                         AlbumArtist = x.AlbumArtist,
-                        DiscNumber = (int)x.DiscNumber,
-                        DiscTotal = (int)x.DiscTotal,
+                        MediaNumber = (int)x.MediaNumber,
+                        MediaTotal = (int)x.MediaTotal,
+                        MediaFormat = x.MediaFormat,
+                        DurationMilliseconds = x.DurationMilliseconds,
+                        Year = x.Year,
                         Genre = x.Genre,
                         Title = x.Title,
                         TrackNumber = (int)x.Track,
@@ -170,12 +173,14 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Ou
                     {
                         Album = result.Album ?? string.Empty,
                         AlbumArtist = result.AlbumArtist ?? string.Empty,
-                        DiscNumber = (uint)result.DiscNumber,
-                        DiscTotal = (uint)result.DiscTotal,
+                        DurationMilliseconds = result.DurationMilliseconds ?? 0,
+                        MediaNumber = result.MediaNumber ?? 0,
+                        MediaTotal = result.MediaTotal ?? 0,
+                        MediaFormat = result.MediaFormat ?? string.Empty,
                         Genre = result.Genre ?? string.Empty,
                         Title = result.Title ?? string.Empty,
-                        Track = (uint)result.TrackNumber,
-                        TrackTotal = (uint)result.TrackTotal
+                        Track = result.TrackNumber ?? 0,
+                        TrackTotal = result.TrackTotal ?? 0
                     };
 
                     tagSmall.Validate();

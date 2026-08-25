@@ -11,8 +11,11 @@
         bool IsGenreValid { get; set; }
         bool IsTrackValid { get; set; }
         bool IsTrackTotalValid { get; set; }
-        bool IsDiscNumberValid { get; set; }
-        bool IsDiscTotalValid { get; set; }
+        bool IsMediaNumberValid { get; set; }
+        bool IsMediaTotalValid { get; set; }
+        bool IsMediaFormatValid { get; set; }
+        bool IsDurationMillisecondsValid { get; set; }
+        bool IsYearValid { get; set; }
 
         /// <summary>
         /// Represents overall validation in one property

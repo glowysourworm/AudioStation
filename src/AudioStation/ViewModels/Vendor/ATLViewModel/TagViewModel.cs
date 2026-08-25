@@ -4,7 +4,6 @@ using AudioStation.Core.Model.Vendor.ATLExtension.Interface;
 using AudioStation.Core.Utility;
 using AudioStation.Core.Utility.RecursiveComparer.Attribute;
 
-using SimpleWpf.Extensions;
 using SimpleWpf.ViewModel;
 
 namespace AudioStation.ViewModels.Vendor.ATLViewModel
@@ -44,6 +43,7 @@ namespace AudioStation.ViewModels.Vendor.ATLViewModel
         string _genre;
         IList<string> _genres;
         string _group;
+        string _mediaFormat;
         string _involvedPeople;
         bool _isDateYearOnly;
         bool _isOriginalReleaseDateYearOnly;
@@ -219,6 +219,11 @@ namespace AudioStation.ViewModels.Vendor.ATLViewModel
         {
             get { return _group; }
             set { this.RaiseAndSetIfChanged(ref _group, value); }
+        }
+        public string MediaFormat
+        {
+            get { return _mediaFormat; }
+            set { this.RaiseAndSetIfChanged(ref _mediaFormat, value); }
         }
         public string InvolvedPeople
         {

@@ -23,7 +23,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderOutput
         /// <summary>
         /// Matches for the AcoustID fingerprints
         /// </summary>
-        public IEnumerable<VendorTagSmall> MusicBrainzRecordingMatches { get; set; }
+        public IEnumerable<TagSmall> MusicBrainzRecordingMatches { get; set; }
 
         /// <summary>
         /// Final record imported as Mp3FileReference
@@ -80,6 +80,6 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderOutput
         /// </summary>
         public bool MusicBrainzCombinedRecordQuerySuccess { get; set; }
         IEnumerable<AcoustIDLookupResult> ILibraryLoaderImportOutput.AcoustIDResults { get; set; }
-        IEnumerable<VendorTagSmall> ILibraryLoaderImportOutput.MusicBrainzRecordingMatches { get; set; }
+        IEnumerable<TagSmall> ILibraryLoaderImportOutput.MusicBrainzRecordingMatches { get; set; }
     }
 }

@@ -97,7 +97,7 @@ namespace AudioStation.Core.Component
                                             .OrderByDescending(x => x.Score)
                                             .ToList();
 
-            var matches = new List<VendorTagSmall>();
+            var matches = new List<TagSmall>();
 
             foreach (var result in acoustIDResults)
             {
@@ -109,7 +109,7 @@ namespace AudioStation.Core.Component
                 if (_modelValidationService.ValidateTagSmallImport(tagSmall).IsValid)
                 {
                     // Results
-                    matches.Add(ApplicationHelpers.Map<ITagSmall, VendorTagSmall>(tagSmall));
+                    matches.Add(ApplicationHelpers.Map<ITagSmall, TagSmall>(tagSmall));
                 }
             }
 

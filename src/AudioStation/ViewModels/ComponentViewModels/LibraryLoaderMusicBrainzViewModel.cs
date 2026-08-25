@@ -196,7 +196,7 @@ namespace AudioStation.ViewModels.ComponentViewModels
                                 EntitySet = new ObservableCollection<AcoustIDLookupResult>(result)
                             },
                             LoadType = LibraryLoadType.MusicBrainz,
-                            Output = new LibraryLoaderEntitySetOutputViewModel<VendorTagSmall>(),
+                            Output = new LibraryLoaderEntitySetOutputViewModel<TagSmall>(),
                             Progress = 0
                         });
                     }

@@ -118,8 +118,9 @@ namespace AudioStation.Core.Database.AudioStationDatabase
                     {
                         existingAlbum = new Album()
                         {
-                            DiscCount = (int)tagRef.DiscTotal,
-                            DiscNumber = (int)tagRef.DiscNumber,
+                            MediaFormat = tagRef.MediaFormat,
+                            MediaCount = (int)tagRef.DiscTotal,
+                            MediaNumber = (int)tagRef.DiscNumber,
                             Year = (int)tagRef.Year,
                             Name = tagRef.Album.Trim()
                         };
@@ -556,8 +557,8 @@ namespace AudioStation.Core.Database.AudioStationDatabase
             else if (typeof(TEntity) == typeof(Vendor))
                 return context.Vendors as DbSet<TEntity>;
 
-            else if (typeof(TEntity) == typeof(VendorTagSmall))
-                return context.VendorTagSmalls as DbSet<TEntity>;
+            else if (typeof(TEntity) == typeof(TagSmall))
+                return context.TagSmalls as DbSet<TEntity>;
 
             else
                 throw new Exception("Unhandled entity type:  AudioStationDbClient.GetEntitySet");

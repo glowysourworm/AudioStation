@@ -88,7 +88,7 @@ namespace AudioStation.Core.Component
                 case LibraryLoadType.MusicBrainz:
                 {
                     workItem = new LibraryLoaderWorkItem(_workItemIdCounter, LibraryLoadType.MusicBrainz);
-                    workItem.Initialize(LibraryWorkItemState.Pending, parameters.Load, new LibraryLoaderEntitySetOutput<VendorTagSmall>());
+                    workItem.Initialize(LibraryWorkItemState.Pending, parameters.Load, new LibraryLoaderEntitySetOutput<TagSmall>());
                 }
                 break;
                 case LibraryLoadType.ImportRadio:

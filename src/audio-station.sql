@@ -5,7 +5,7 @@
 -- Dumped from database version 17.4
 -- Dumped by pg_dump version 17.4
 
--- Started on 2026-08-24 21:09:11
+-- Started on 2026-08-25 12:42:13
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -63,10 +63,11 @@ ALTER TABLE public."AcoustIDLookupResult" ALTER COLUMN "Id" ADD GENERATED ALWAYS
 CREATE TABLE public."Album" (
     "Id" integer NOT NULL,
     "Name" character varying NOT NULL,
-    "DiscNumber" integer,
-    "DiscCount" integer,
+    "MediaNumber" integer,
+    "MediaCount" integer,
     "Year" integer,
-    "MusicBrainzReleaseId" uuid
+    "MusicBrainzReleaseId" uuid,
+    "MediaFormat" character varying
 );
 
 
@@ -141,7 +142,7 @@ CREATE TABLE public."M3UStream" (
 ALTER TABLE public."M3UStream" OWNER TO postgres;
 
 --
--- TOC entry 4979 (class 0 OID 0)
+-- TOC entry 4985 (class 0 OID 0)
 -- Dependencies: 218
 -- Name: TABLE "M3UStream"; Type: COMMENT; Schema: public; Owner: postgres
 --
@@ -291,7 +292,7 @@ CREATE TABLE public."Track" (
 ALTER TABLE public."Track" OWNER TO postgres;
 
 --
--- TOC entry 4980 (class 0 OID 0)
+-- TOC entry 4986 (class 0 OID 0)
 -- Dependencies: 221
 -- Name: TABLE "Track"; Type: COMMENT; Schema: public; Owner: postgres
 --
@@ -343,6 +344,59 @@ CREATE TABLE public."RadioBrowserStation" (
 ALTER TABLE public."RadioBrowserStation" OWNER TO postgres;
 
 --
+-- TOC entry 235 (class 1259 OID 50669)
+-- Name: TagSmall; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public."TagSmall" (
+    "Id" integer NOT NULL,
+    "AlbumArtist" character varying,
+    "Album" character varying,
+    "Title" character varying,
+    "Genre" character varying,
+    "TrackNumber" integer,
+    "TrackTotal" integer,
+    "MediaNumber" integer,
+    "MediaTotal" integer,
+    "MediaFormat" character varying,
+    "DurationMilliseconds" integer,
+    "Year" integer
+);
+
+
+ALTER TABLE public."TagSmall" OWNER TO postgres;
+
+--
+-- TOC entry 240 (class 1259 OID 52115)
+-- Name: TagSmallVendorMap; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public."TagSmallVendorMap" (
+    "Id" integer NOT NULL,
+    "TagSmallId" integer NOT NULL,
+    "VendorId" integer NOT NULL,
+    "MusicBrainzRecordingId" uuid
+);
+
+
+ALTER TABLE public."TagSmallVendorMap" OWNER TO postgres;
+
+--
+-- TOC entry 239 (class 1259 OID 52114)
+-- Name: TagSmallVendorMap_Id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+ALTER TABLE public."TagSmallVendorMap" ALTER COLUMN "Id" ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public."TagSmallVendorMap_Id_seq"
+    START WITH 0
+    INCREMENT BY 1
+    MINVALUE 0
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
 -- TOC entry 237 (class 1259 OID 50677)
 -- Name: Vendor; Type: TABLE; Schema: public; Owner: postgres
 --
@@ -356,33 +410,11 @@ CREATE TABLE public."Vendor" (
 ALTER TABLE public."Vendor" OWNER TO postgres;
 
 --
--- TOC entry 235 (class 1259 OID 50669)
--- Name: VendorTagSmall; Type: TABLE; Schema: public; Owner: postgres
---
-
-CREATE TABLE public."VendorTagSmall" (
-    "Id" integer NOT NULL,
-    "VendorRecordId" uuid NOT NULL,
-    "VendorId" integer NOT NULL,
-    "AlbumArtist" character varying,
-    "Album" character varying,
-    "Title" character varying,
-    "Genre" character varying,
-    "TrackNumber" integer,
-    "TrackTotal" integer,
-    "DiscNumber" integer,
-    "DiscTotal" integer
-);
-
-
-ALTER TABLE public."VendorTagSmall" OWNER TO postgres;
-
---
 -- TOC entry 234 (class 1259 OID 50668)
 -- Name: VendorTagSmall_Id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
-ALTER TABLE public."VendorTagSmall" ALTER COLUMN "Id" ADD GENERATED ALWAYS AS IDENTITY (
+ALTER TABLE public."TagSmall" ALTER COLUMN "Id" ADD GENERATED ALWAYS AS IDENTITY (
     SEQUENCE NAME public."VendorTagSmall_Id_seq"
     START WITH 0
     INCREMENT BY 1
@@ -408,7 +440,7 @@ ALTER TABLE public."Vendor" ALTER COLUMN "Id" ADD GENERATED ALWAYS AS IDENTITY (
 
 
 --
--- TOC entry 4813 (class 2606 OID 50667)
+-- TOC entry 4818 (class 2606 OID 50667)
 -- Name: AcoustIDLookupResult AcoustIDResult_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -417,7 +449,7 @@ ALTER TABLE ONLY public."AcoustIDLookupResult"
 
 
 --
--- TOC entry 4809 (class 2606 OID 16879)
+-- TOC entry 4814 (class 2606 OID 16879)
 -- Name: TrackArtistMap ArtistMap_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -426,7 +458,7 @@ ALTER TABLE ONLY public."TrackArtistMap"
 
 
 --
--- TOC entry 4819 (class 2606 OID 50712)
+-- TOC entry 4824 (class 2606 OID 50712)
 -- Name: FileReference FileReference_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -435,7 +467,7 @@ ALTER TABLE ONLY public."FileReference"
 
 
 --
--- TOC entry 4811 (class 2606 OID 16900)
+-- TOC entry 4816 (class 2606 OID 16900)
 -- Name: TrackGenreMap GenreMap_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -444,7 +476,7 @@ ALTER TABLE ONLY public."TrackGenreMap"
 
 
 --
--- TOC entry 4796 (class 2606 OID 16775)
+-- TOC entry 4801 (class 2606 OID 16775)
 -- Name: M3UStream M3UInfo_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -453,7 +485,7 @@ ALTER TABLE ONLY public."M3UStream"
 
 
 --
--- TOC entry 4805 (class 2606 OID 16850)
+-- TOC entry 4810 (class 2606 OID 16850)
 -- Name: Album Mp3FileReferenceAlbum_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -462,7 +494,7 @@ ALTER TABLE ONLY public."Album"
 
 
 --
--- TOC entry 4803 (class 2606 OID 16837)
+-- TOC entry 4808 (class 2606 OID 16837)
 -- Name: Artist Mp3FileReferenceArtist_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -471,7 +503,7 @@ ALTER TABLE ONLY public."Artist"
 
 
 --
--- TOC entry 4807 (class 2606 OID 16863)
+-- TOC entry 4812 (class 2606 OID 16863)
 -- Name: Genre Mp3FileReferenceGenre_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -480,7 +512,7 @@ ALTER TABLE ONLY public."Genre"
 
 
 --
--- TOC entry 4801 (class 2606 OID 16829)
+-- TOC entry 4806 (class 2606 OID 16829)
 -- Name: Track Mp3FileReference_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -489,7 +521,7 @@ ALTER TABLE ONLY public."Track"
 
 
 --
--- TOC entry 4799 (class 2606 OID 16821)
+-- TOC entry 4804 (class 2606 OID 16821)
 -- Name: RadioBrowserStation RadioBrowserStation_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -498,16 +530,16 @@ ALTER TABLE ONLY public."RadioBrowserStation"
 
 
 --
--- TOC entry 4815 (class 2606 OID 50675)
--- Name: VendorTagSmall VendorTagSmall_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+-- TOC entry 4820 (class 2606 OID 50675)
+-- Name: TagSmall VendorTagSmall_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
-ALTER TABLE ONLY public."VendorTagSmall"
+ALTER TABLE ONLY public."TagSmall"
     ADD CONSTRAINT "VendorTagSmall_pkey" PRIMARY KEY ("Id");
 
 
 --
--- TOC entry 4817 (class 2606 OID 50683)
+-- TOC entry 4822 (class 2606 OID 50683)
 -- Name: Vendor VendorType_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -516,7 +548,7 @@ ALTER TABLE ONLY public."Vendor"
 
 
 --
--- TOC entry 4797 (class 1259 OID 17220)
+-- TOC entry 4802 (class 1259 OID 17220)
 -- Name: NameIndex; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -524,7 +556,7 @@ CREATE INDEX "NameIndex" ON public."M3UStream" USING btree ("Name") WITH (dedupl
 
 
 --
--- TOC entry 4820 (class 2606 OID 16869)
+-- TOC entry 4825 (class 2606 OID 16869)
 -- Name: Track Album_ForeignKey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -533,7 +565,7 @@ ALTER TABLE ONLY public."Track"
 
 
 --
--- TOC entry 4824 (class 2606 OID 16885)
+-- TOC entry 4829 (class 2606 OID 16885)
 -- Name: TrackArtistMap Artist_ForeignKey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -542,7 +574,7 @@ ALTER TABLE ONLY public."TrackArtistMap"
 
 
 --
--- TOC entry 4821 (class 2606 OID 16890)
+-- TOC entry 4826 (class 2606 OID 16890)
 -- Name: Track Artist_ForeignKey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -551,7 +583,7 @@ ALTER TABLE ONLY public."Track"
 
 
 --
--- TOC entry 4822 (class 2606 OID 50713)
+-- TOC entry 4827 (class 2606 OID 50713)
 -- Name: Track FileReference_ForeignKey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -560,7 +592,7 @@ ALTER TABLE ONLY public."Track"
 
 
 --
--- TOC entry 4826 (class 2606 OID 16906)
+-- TOC entry 4831 (class 2606 OID 16906)
 -- Name: TrackGenreMap Genre_ForeignKey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -569,7 +601,7 @@ ALTER TABLE ONLY public."TrackGenreMap"
 
 
 --
--- TOC entry 4823 (class 2606 OID 17237)
+-- TOC entry 4828 (class 2606 OID 17237)
 -- Name: Track Genre_ForeignKey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -578,7 +610,25 @@ ALTER TABLE ONLY public."Track"
 
 
 --
--- TOC entry 4825 (class 2606 OID 16880)
+-- TOC entry 4833 (class 2606 OID 52123)
+-- Name: TagSmallVendorMap TagSmallVendorMap_TagSmall_FK; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."TagSmallVendorMap"
+    ADD CONSTRAINT "TagSmallVendorMap_TagSmall_FK" FOREIGN KEY ("TagSmallId") REFERENCES public."TagSmall"("Id");
+
+
+--
+-- TOC entry 4834 (class 2606 OID 52118)
+-- Name: TagSmallVendorMap TagSmallVendorMap_Vendor_FK; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."TagSmallVendorMap"
+    ADD CONSTRAINT "TagSmallVendorMap_Vendor_FK" FOREIGN KEY ("VendorId") REFERENCES public."Vendor"("Id");
+
+
+--
+-- TOC entry 4830 (class 2606 OID 16880)
 -- Name: TrackArtistMap Track_ForeignKey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -587,7 +637,7 @@ ALTER TABLE ONLY public."TrackArtistMap"
 
 
 --
--- TOC entry 4827 (class 2606 OID 16901)
+-- TOC entry 4832 (class 2606 OID 16901)
 -- Name: TrackGenreMap Track_ForeignKey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -595,16 +645,7 @@ ALTER TABLE ONLY public."TrackGenreMap"
     ADD CONSTRAINT "Track_ForeignKey" FOREIGN KEY ("TrackId") REFERENCES public."Track"("Id");
 
 
---
--- TOC entry 4828 (class 2606 OID 50691)
--- Name: VendorTagSmall Vendor_FK; Type: FK CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public."VendorTagSmall"
-    ADD CONSTRAINT "Vendor_FK" FOREIGN KEY ("VendorId") REFERENCES public."Vendor"("Id") NOT VALID;
-
-
--- Completed on 2026-08-24 21:09:11
+-- Completed on 2026-08-25 12:42:13
 
 --
 -- PostgreSQL database dump complete

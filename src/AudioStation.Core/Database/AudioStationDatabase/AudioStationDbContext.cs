@@ -22,11 +22,13 @@ namespace AudioStation.Core.Database.AudioStationDatabase
         public DbSet<Genre> Genres { get; set; }
         public DbSet<M3UStream> M3UStreams { get; set; }
         public DbSet<RadioBrowserStation> RadioBrowserStations { get; set; }
+        public DbSet<TagSmall> TagSmalls { get; set; }
+        public DbSet<TagSmallVendorMap> TagSmallVendorMaps { get; set; }
         public DbSet<Track> Tracks { get; set; }
         public DbSet<TrackArtistMap> TrackArtistMaps { get; set; }
         public DbSet<TrackGenreMap> TrackGenreMaps { get; set; }
         public DbSet<Vendor> Vendors { get; set; }
-        public DbSet<VendorTagSmall> VendorTagSmalls { get; set; }
+
 
         public AudioStationDbContext(Configuration configuration,
                                      LogLevel currentLogLevel,
@@ -61,7 +63,8 @@ namespace AudioStation.Core.Database.AudioStationDatabase
             modelBuilder.Entity<TrackGenreMap>().Navigation(x => x.Genre).AutoInclude(true);
             modelBuilder.Entity<TrackGenreMap>().Navigation(x => x.Track).AutoInclude(true);
 
-            modelBuilder.Entity<VendorTagSmall>().Navigation(x => x.Vendor).AutoInclude(true);
+            modelBuilder.Entity<TagSmallVendorMap>().Navigation(x => x.Vendor).AutoInclude(true);
+            modelBuilder.Entity<TagSmallVendorMap>().Navigation(x => x.TagSmall).AutoInclude(true);
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

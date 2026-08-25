@@ -419,10 +419,10 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
             _tagDirty.AlbumArtist = this.SelectedMusicBrainzRecordingMatch.AlbumArtist;
             _tagDirty.Title = this.SelectedMusicBrainzRecordingMatch.Title;
             _tagDirty.Genre = this.SelectedMusicBrainzRecordingMatch.Genre;
-            _tagDirty.Track = this.SelectedMusicBrainzRecordingMatch.Track;
+            _tagDirty.Track = (uint)this.SelectedMusicBrainzRecordingMatch.Track;
             _tagDirty.TrackTotal = (ushort)this.SelectedMusicBrainzRecordingMatch.TrackTotal;
-            _tagDirty.DiscNumber = (ushort)this.SelectedMusicBrainzRecordingMatch.DiscNumber;
-            _tagDirty.DiscTotal = (ushort)this.SelectedMusicBrainzRecordingMatch.DiscTotal;
+            _tagDirty.DiscNumber = (ushort)this.SelectedMusicBrainzRecordingMatch.MediaNumber;
+            _tagDirty.DiscTotal = (ushort)this.SelectedMusicBrainzRecordingMatch.MediaTotal;
 
             // ATL FIELD UPDATES
             _tagDirty.TrackNumber = _tagDirty.Track.ToString();

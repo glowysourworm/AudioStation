@@ -4,8 +4,6 @@ using AudioStation.Core.Model.Vendor.ATLExtension.Interface;
 using AudioStation.Core.Utility;
 using AudioStation.Core.Utility.RecursiveComparer.Attribute;
 
-using AutoMapper.Configuration.Annotations;
-
 namespace AudioStation.Core.Model.Vendor.ATLExtension
 {
     public class AudioStationTag : IAudioStationTag
@@ -70,6 +68,7 @@ namespace AudioStation.Core.Model.Vendor.ATLExtension
         public string TrackNumber { get; set; }
         public ushort TrackTotal { get; set; }
         public int Year { get; set; }
+        public string MediaFormat { get; set; }
 
         public AudioStationTag()
         {

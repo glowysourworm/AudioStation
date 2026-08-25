@@ -149,7 +149,7 @@ namespace AudioStation.Component
             return new TrackViewModel(track.Id)
             {
                 Album = track.Album?.Name ?? "Unknown",
-                Disc = (uint)(track.Album?.DiscNumber ?? 0),
+                Disc = (uint)(track.Album?.MediaNumber ?? 0),
                 Duration = TimeSpan.FromMilliseconds(track.DurationMilliseconds ?? 0),
                 FileName = track.FileReference.FileName,
                 PrimaryArtist = track.PrimaryArtist?.Name ?? "Unknown",

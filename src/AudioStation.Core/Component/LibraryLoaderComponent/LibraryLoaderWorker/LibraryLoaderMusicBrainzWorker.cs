@@ -24,7 +24,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderWorker
         private readonly int WORK_STEPS = 2;
 
         private LibraryLoaderEntitySetLoad<AcoustIDLookupResult> _workLoad;
-        private LibraryLoaderEntitySetOutput<VendorTagSmall> _workOutput;
+        private LibraryLoaderEntitySetOutput<TagSmall> _workOutput;
 
         // Thread Contention (between work steps only)
         private int _workCurrentStep = 0;
@@ -39,7 +39,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderWorker
             _audioStationDbClient = audioStationDbClient;
 
             _workLoad = workItem.GetWorkItem() as LibraryLoaderEntitySetLoad<AcoustIDLookupResult>;
-            _workOutput = workItem.GetOutputItem() as LibraryLoaderEntitySetOutput<VendorTagSmall>;
+            _workOutput = workItem.GetOutputItem() as LibraryLoaderEntitySetOutput<TagSmall>;
         }
 
         public override int GetNumberOfWorkSteps()
@@ -90,7 +90,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderWorker
         {
             try
             {
-                var resultSet = new List<VendorTagSmall>();
+                var resultSet = new List<TagSmall>();
 
                 foreach (var entity in _workLoad.EntitySet)
                 {
@@ -110,7 +110,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderWorker
 
                     if (musicBrainzResult != null)
                     {
-                        resultSet.Add(BasicHelpers.Map<ITagSmall, VendorTagSmall>(musicBrainzResult));
+                        resultSet.Add(BasicHelpers.Map<ITagSmall, TagSmall>(musicBrainzResult));
 
                         _workOutput.Log.Add(new LogMessage("Music Brainz client lookup finished:  " + entity.FileName));
                     }
@@ -158,21 +158,23 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderWorker
                     _workOutput.Log.Add(new LogMessage("Importing Music Brainz result to database:  " + result.Title));
 
                     var inputLoad = _workLoad.EntitySet.ElementAt(index++);
-                    var existingEntity = _audioStationDbClient.FirstEntity<VendorTagSmall>(x => x.VendorRecordId == inputLoad.MusicBrainzRecordingId);
+                    var existingMap = _audioStationDbClient.FirstEntity<TagSmallVendorMap>(x => x.MusicBrainzRecordingId == inputLoad.MusicBrainzRecordingId);
+                    var existingEntity = existingMap?.TagSmall;
 
                     // Update
                     if (existingEntity != null)
                     {
                         existingEntity.Album = result.Album;
                         existingEntity.AlbumArtist = result.AlbumArtist;
-                        existingEntity.DiscNumber = result.DiscNumber;
-                        existingEntity.DiscTotal = result.DiscTotal;
+                        existingEntity.MediaNumber = result.MediaNumber;
+                        existingEntity.MediaTotal = result.MediaTotal;
+                        existingEntity.MediaFormat = result.MediaFormat;
+                        existingEntity.DurationMilliseconds = result.DurationMilliseconds;
+                        existingEntity.Year = result.Year;
                         existingEntity.Genre = result.Genre;
                         existingEntity.Title = result.Title;
                         existingEntity.TrackNumber = result.TrackNumber;
                         existingEntity.TrackTotal = result.TrackTotal;
-                        existingEntity.Vendor = vendor;
-                        existingEntity.VendorRecordId = inputLoad.MusicBrainzRecordingId;
 
                         _audioStationDbClient.UpdateEntity(existingEntity);
 
@@ -182,12 +184,22 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderWorker
                     // Add
                     else
                     {
-                        // These are not part of ITagSmall
-                        result.Id = 0;
-                        result.VendorId = vendor.Id;
-                        result.VendorRecordId = inputLoad.MusicBrainzRecordingId;
 
+                        // PostGres ID constraint (database will find these using the foreign keys)
+                        result.Id = 0;
+
+                        // Add -> Save -> assigns TagSmall.Id
                         _audioStationDbClient.AddEntity(result);
+
+                        var resultMap = new TagSmallVendorMap()
+                        {
+                            Id = 0,
+                            TagSmallId = result.Id,
+                            VendorId = vendor.Id,
+                            MusicBrainzRecordingId = inputLoad.MusicBrainzRecordingId
+                        };
+
+                        _audioStationDbClient.AddEntity(resultMap);
 
                         added++;
                     }

@@ -1,12 +1,8 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-using AudioStation.Core.Database.AudioStationDatabase;
+﻿using AudioStation.Core.Database.AudioStationDatabase;
 using AudioStation.Core.Model.Interface;
 using AudioStation.Core.Model.Vendor;
 using AudioStation.Core.Model.Vendor.ATLExtension;
 using AudioStation.Core.Model.Vendor.ATLExtension.Interface;
-
-using SimpleWpf.Extensions;
 
 namespace AudioStation.Core.Utility
 {
@@ -15,24 +11,21 @@ namespace AudioStation.Core.Utility
     /// </summary>
     public static class TagMapper
     {
-        public static VendorTagSmall MapTo(IAudioStationTag tag, VendorNames vendor, Guid vendorRecordId)
+        public static TagSmall MapTo(IAudioStationTag tag, VendorNames vendor, Guid vendorRecordId)
         {
-            return new VendorTagSmall()
+            return new TagSmall()
             {
                 Album = tag.Album,
                 AlbumArtist = tag.AlbumArtist,
-                DiscNumber = tag.DiscNumber,
-                DiscTotal = tag.DiscTotal,
-
+                DurationMilliseconds = (int)tag.Duration.TotalMilliseconds,
+                MediaFormat = tag.MediaFormat,
+                MediaNumber = tag.DiscNumber,
+                MediaTotal = tag.DiscTotal,
+                Year = tag.Year,
                 Genre = tag.Genre,
                 Title = tag.Title,
                 TrackNumber = (int)tag.Track,
-                TrackTotal = tag.TrackTotal,
-                Vendor = new Vendor()
-                {
-                    VendorName = vendor.GetAttribute<DisplayAttribute>().Name ?? string.Empty
-                },
-                VendorRecordId = vendorRecordId
+                TrackTotal = tag.TrackTotal
             };
         }
 
@@ -42,11 +35,14 @@ namespace AudioStation.Core.Utility
             {
                 Album = tag.Album ?? string.Empty,
                 AlbumArtist = tag.AlbumArtist ?? string.Empty,
-                DiscNumber = (ushort)tag.DiscNumber,
-                DiscTotal = (ushort)tag.DiscTotal,
+                DiscNumber = (ushort)(tag.MediaNumber ?? 0),
+                DiscTotal = (ushort)(tag.MediaTotal ?? 0),
                 Genre = tag.Genre ?? string.Empty,
-                Track = (uint)tag.TrackNumber,
-                TrackTotal = (ushort)tag.TrackTotal
+                Track = (uint)(tag.TrackNumber ?? 0),
+                TrackTotal = (ushort)(tag.TrackTotal ?? 0),
+                MediaFormat = tag.MediaFormat ?? string.Empty,
+                Year = tag.Year ?? 0,
+                Duration = TimeSpan.FromMilliseconds(tag.DurationMilliseconds ?? 0)
             };
         }
 
