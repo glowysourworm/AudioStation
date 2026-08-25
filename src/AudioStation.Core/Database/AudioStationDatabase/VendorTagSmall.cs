@@ -10,8 +10,8 @@ namespace AudioStation.Core.Database.AudioStationDatabase
     [Table("VendorTagSmall", Schema = "public")]
     public class VendorTagSmall : AudioStationEntityBase, ITagSmall
     {
-        [ForeignKey("VendorId")]
-        public Guid VendorId { get; set; }
+        [ForeignKey("Vendor")]
+        public int VendorId { get; set; }
 
         // This will be filled in by the 3rd party service. It must be enough to query the data below.
         public Guid VendorRecordId { get; set; }

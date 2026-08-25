@@ -610,7 +610,7 @@ namespace AudioStation.Core.Database.AudioStationDatabase
                         var enumName = enumValue.GetAttribute<DisplayAttribute>().Name;
 
                         // Check for existing entity
-                        var entity = context.Find<Vendor>((int)enumValue);
+                        var entity = context.Vendors.ToList().FirstOrDefault(x => x.VendorName == enumName);
 
                         // Add (NO UPDATE)
                         if (entity == null)

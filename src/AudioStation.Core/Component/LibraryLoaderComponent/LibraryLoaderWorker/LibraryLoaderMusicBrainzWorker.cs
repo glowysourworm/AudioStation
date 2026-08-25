@@ -1,11 +1,16 @@
-﻿using AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderLoad;
+﻿using System.ComponentModel.DataAnnotations;
+
+using AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderLoad;
 using AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderOutput;
 using AudioStation.Core.Database.AudioStationDatabase;
 using AudioStation.Core.Database.AudioStationDatabase.Interface;
 using AudioStation.Core.Model.Interface;
+using AudioStation.Core.Model.Vendor;
 using AudioStation.Core.Service;
 using AudioStation.Core.Service.Vendor.Interface;
 using AudioStation.Model;
+
+using IF.Lastfm.Core.Api.Helpers;
 
 using SimpleWpf.Utilities;
 
@@ -89,6 +94,16 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderWorker
 
                 foreach (var entity in _workLoad.EntitySet)
                 {
+                    // TODO: CLEAN THIS UP AS PART OF THE SERVICE MODEL. 
+                    //
+                    //       The MusicBrainz server was throwing it back at us for
+                    //       hitting them too quickly. We need a throttle limit to
+                    //       be part of the service architecture. So, there would
+                    //       be a simple wait loop for every public call to their 
+                    //       servers determined by the configuration.
+                    //
+                    Thread.Sleep(1500);
+
                     _workOutput.Log.Add(new LogMessage("Music Brainz client lookup started:  " + entity.FileName));
 
                     var musicBrainzResult = _musicBrainzClient.GetTagSmall(new AudioStationTagServiceModel(entity.MusicBrainzRecordingId));
@@ -129,7 +144,8 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderWorker
                 var added = 0;
                 var index = 0;
 
-                var vendor = _audioStationDbClient.FirstEntity<Vendor>(x => x.VendorName == "MusicBrainz");
+                var vendorName = VendorNames.MusicBrainz.GetAttribute<DisplayAttribute>().Name;
+                var vendor = _audioStationDbClient.FirstEntity<Vendor>(x => x.VendorName == vendorName);
 
                 if (vendor == null)
                 {
@@ -156,7 +172,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderWorker
                         existingEntity.TrackNumber = result.TrackNumber;
                         existingEntity.TrackTotal = result.TrackTotal;
                         existingEntity.Vendor = vendor;
-                        existingEntity.VendorRecordId = result.VendorRecordId;
+                        existingEntity.VendorRecordId = inputLoad.MusicBrainzRecordingId;
 
                         _audioStationDbClient.UpdateEntity(existingEntity);
 
@@ -167,7 +183,8 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderWorker
                     else
                     {
                         // These are not part of ITagSmall
-                        result.Vendor = vendor;
+                        result.Id = 0;
+                        result.VendorId = vendor.Id;
                         result.VendorRecordId = inputLoad.MusicBrainzRecordingId;
 
                         _audioStationDbClient.AddEntity(result);
