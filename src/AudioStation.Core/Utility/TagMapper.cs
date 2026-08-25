@@ -1,7 +1,12 @@
-﻿using ATL;
+﻿using System.ComponentModel.DataAnnotations;
 
+using AudioStation.Core.Database.AudioStationDatabase;
+using AudioStation.Core.Model.Interface;
+using AudioStation.Core.Model.Vendor;
 using AudioStation.Core.Model.Vendor.ATLExtension;
 using AudioStation.Core.Model.Vendor.ATLExtension.Interface;
+
+using SimpleWpf.Extensions;
 
 namespace AudioStation.Core.Utility
 {
@@ -10,18 +15,53 @@ namespace AudioStation.Core.Utility
     /// </summary>
     public static class TagMapper
     {
+        public static VendorTagSmall MapTo(IAudioStationTag tag, VendorNames vendor, Guid vendorRecordId)
+        {
+            return new VendorTagSmall()
+            {
+                Album = tag.Album,
+                AlbumArtist = tag.AlbumArtist,
+                DiscNumber = tag.DiscNumber,
+                DiscTotal = tag.DiscTotal,
+
+                Genre = tag.Genre,
+                Title = tag.Title,
+                TrackNumber = (int)tag.Track,
+                TrackTotal = tag.TrackTotal,
+                Vendor = new Vendor()
+                {
+                    VendorName = vendor.GetAttribute<DisplayAttribute>().Name ?? string.Empty
+                },
+                VendorRecordId = vendorRecordId
+            };
+        }
+
+        public static AudioStationTag MapTo(ITagSmall tag)
+        {
+            return new AudioStationTag()
+            {
+                Album = tag.Album ?? string.Empty,
+                AlbumArtist = tag.AlbumArtist ?? string.Empty,
+                DiscNumber = (ushort)tag.DiscNumber,
+                DiscTotal = (ushort)tag.DiscTotal,
+                Genre = tag.Genre ?? string.Empty,
+                Track = (uint)tag.TrackNumber,
+                TrackTotal = (ushort)tag.TrackTotal
+            };
+        }
+
         /// <summary>
         /// Maps our namespace onto the ATL namespace as directly as possible. The original file name corresponds to the Path
         /// property inside of ATL.Track; and must be set in the constructor because the SaveTo function does not allow you 
         /// to change the destination file (without Path being set); and I'd like to avoid ATL's copying of the file before
         /// setting it. So, we need to be in charge of our file movement on the UI side.
         /// </summary>
-        public static Track MapTo(IAudioStationTag tag, string fileName)
+        public static ATL.Track MapTo(IAudioStationTag tag, string fileName)
         {
             // AudioStation -> ATL:  Some properties are ready only. All fields have been put in their proper place by
             //                       this point. (see IAudioStationTag)
             //
-            var atlTrack = new Track(fileName);
+            var atlTrack = new ATL.Track(fileName);
 
             atlTrack.AdditionalFields = tag.AdditionalFields;
             atlTrack.Album = tag.Album;
@@ -89,7 +129,7 @@ namespace AudioStation.Core.Utility
         /// <summary>
         /// Maps the ATL tag onto our namespace as directly as possible
         /// </summary>
-        public static AudioStationTag MapFrom(Track atlTrack)
+        public static AudioStationTag MapFrom(ATL.Track atlTrack)
         {
             // ATL -> AudioStation
             var tagFile = new AudioStationTag();
@@ -98,7 +138,7 @@ namespace AudioStation.Core.Utility
             tagFile.Album = atlTrack.Album;
             tagFile.AlbumArtist = atlTrack.AlbumArtist;
 
-            if (!string.IsNullOrEmpty(atlTrack.AlbumArtist)) 
+            if (!string.IsNullOrEmpty(atlTrack.AlbumArtist))
                 tagFile.AlbumArtists.Add(atlTrack.AlbumArtist);                         // NEEDS TO BE FINISHED
 
             tagFile.Artist = atlTrack.Artist;

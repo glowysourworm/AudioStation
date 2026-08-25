@@ -3,6 +3,7 @@
 using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Component.LibraryLoaderComponent;
 using AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderLoad;
+using AudioStation.Core.Database.AudioStationDatabase;
 using AudioStation.Event.LibraryLoaderEvent;
 using AudioStation.Service.Interface;
 using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels;
@@ -31,25 +32,54 @@ namespace AudioStation.Service
             libraryLoader.WorkItemUpdate += LibraryLoader_WorkItemUpdate;
         }
 
-        public int RunLoaderTaskAsync(LibraryLoaderImportLoadViewModel workLoad)
+        public int RunLoaderTaskAsync(LibraryWorkItemViewModel workItem)
         {
-            return _libraryLoader.RunLoaderTaskAsync(new LibraryLoaderParameters<LibraryLoaderImportLoad>(LibraryLoadType.Import,
-                new LibraryLoaderImportLoad(workLoad.SourceFolder,
-                                            workLoad.DestinationFolder,
-                                            workLoad.SourceFile,
-                                            workLoad.GroupingType,
-                                            workLoad.NamingType,
-                                            workLoad.IncludeMusicBrainzDetail,
-                                            workLoad.IdentifyUsingAcoustID,
-                                            workLoad.ImportFileMigration,
-                                            workLoad.MigrationDeleteSourceFiles,
-                                            workLoad.MigrationDeleteSourceFolders,
-                                            workLoad.MigrationOverwriteDestinationFiles)));
-        }
+            switch (workItem.LoadType)
+            {
+                case LibraryLoadType.Import:
+                {
+                    var workLoad = workItem.Load as LibraryLoaderImportLoadViewModel;
 
-        public int RunLoaderTaskAsync(LibraryLoaderFileLoadViewModel workLoad)
-        {
-            return _libraryLoader.RunLoaderTaskAsync(new LibraryLoaderParameters<LibraryLoaderFileLoad>(LibraryLoadType.AcoustID, new LibraryLoaderFileLoad(workLoad.FullPath)));
+                    if (workLoad == null)
+                        throw new ArgumentException("Invalid work load for Library Loader Import");
+
+                    return _libraryLoader.RunLoaderTaskAsync(new LibraryLoaderParameters<LibraryLoaderImportLoad>(LibraryLoadType.Import,
+                        new LibraryLoaderImportLoad(workLoad.SourceFolder,
+                                                    workLoad.DestinationFolder,
+                                                    workLoad.SourceFile,
+                                                    workLoad.GroupingType,
+                                                    workLoad.NamingType,
+                                                    workLoad.IncludeMusicBrainzDetail,
+                                                    workLoad.IdentifyUsingAcoustID,
+                                                    workLoad.ImportFileMigration,
+                                                    workLoad.MigrationDeleteSourceFiles,
+                                                    workLoad.MigrationDeleteSourceFolders,
+                                                    workLoad.MigrationOverwriteDestinationFiles)));
+                }
+                case LibraryLoadType.AcoustID:
+                {
+                    var workLoad = workItem.Load as LibraryLoaderFileLoadViewModel;
+
+                    if (workLoad == null)
+                        throw new ArgumentException("Invalid work load for Library Loader AcoustID Lookup");
+
+                    return _libraryLoader.RunLoaderTaskAsync(
+                        new LibraryLoaderParameters<LibraryLoaderFileLoad>(LibraryLoadType.AcoustID, new LibraryLoaderFileLoad(workLoad.FullPath)));
+                }
+                case LibraryLoadType.MusicBrainz:
+                {
+                    var workLoad = workItem.Load as LibraryLoaderEntitySetLoadViewModel<AcoustIDLookupResult>;
+
+                    if (workLoad == null)
+                        throw new ArgumentException("Invalid work load for Library Loader Music Brainz Import");
+
+                    return _libraryLoader.RunLoaderTaskAsync(
+                        new LibraryLoaderParameters<LibraryLoaderEntitySetLoad<AcoustIDLookupResult>>(LibraryLoadType.MusicBrainz, new LibraryLoaderEntitySetLoad<AcoustIDLookupResult>(workLoad.EntitySet)));
+                }
+                case LibraryLoadType.ImportRadio:
+                default:
+                    throw new Exception("Unhandled Libary Loader load type");
+            }
         }
 
         private void LibraryLoader_WorkItemUpdate(LibraryLoaderWorkItemUpdate sender)

@@ -105,7 +105,7 @@ namespace AudioStation.Core.Component
             {
                 // -> Music Brainz Recording Lookup
                 //
-                var tagSmall = await _musicBrainzClient.GetTagSmallData(new AudioStationTagServiceModel(result.MusicBrainzRecordingId));
+                var tagSmall = await _musicBrainzClient.GetTagSmallAsync(new AudioStationTagServiceModel(result.MusicBrainzRecordingId));
 
                 // Validation
                 if (_modelValidationService.ValidateTagSmallImport(tagSmall).IsValid)

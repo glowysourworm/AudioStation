@@ -1,8 +1,4 @@
-﻿using System.Linq.Expressions;
-
-using AudioStation.Core.Model.Vendor.ATLExtension.Interface;
-
-namespace AudioStation.Core.Service
+﻿namespace AudioStation.Core.Service
 {
     public class AudioStationTagServiceModel
     {
@@ -76,29 +72,6 @@ namespace AudioStation.Core.Service
             this.MusicBrainzId = Guid.Empty;
             this.VendorId = vendorId;
             this.IdType = AudioStationTagIdentity.VendorId;
-        }
-
-        /// <summary>
-        /// Adds property to tag service model to be dealt with during any transaction.
-        /// </summary>
-        public void AddTagProperty(Expression<Func<IAudioStationTag>> expression)
-        {
-            var memberExpression = expression.Body as MemberExpression;
-
-            if (memberExpression != null &&
-                !string.IsNullOrWhiteSpace(memberExpression.Member.Name) &&
-                !_tagProperties.Contains(memberExpression.Member.Name))
-            {
-                _tagProperties.Add(memberExpression.Member.Name);
-            }
-
-            else
-                throw new Exception("Invalid or duplicate property expression for IAudioStationTag");
-        }
-
-        public IEnumerable<string> GetTagProperties()
-        {
-            return _tagProperties;
         }
     }
 }

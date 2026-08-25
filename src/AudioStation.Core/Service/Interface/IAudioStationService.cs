@@ -6,7 +6,7 @@ namespace AudioStation.Core.Service.Interface
     /// Primary component of Audio Station core. Each of these components will be displayed to the user
     /// on the status bar as "working", or "not working". This interface will help them to know whether
     /// each piece has had some malfunction; and this interface will be called during startup to gather
-    /// component status.
+    /// component status and initialize the service.
     /// </summary>
     public interface IAudioStationService
     {

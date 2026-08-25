@@ -34,7 +34,7 @@
     <!-- Libary Importer (Tag Completion) Item Container Style -->
     <Style TargetType="ListBoxItem" 
            x:Key="SimpleItemContainerStyle" 
-           BasedOn="{StaticResource HoverSelectItemContainerStyleWithAlternation_LibraryImporter}">
+           BasedOn="{StaticResource HoverSelectItemContainerStyleWithAlternation}">
 
         <Style.Triggers>
             <Trigger Property="IsSelected" Value="True">

@@ -42,6 +42,7 @@ namespace AudioStation.Component
         private readonly LibraryImporterViewModel _libraryImporterViewModel;
         private readonly LibraryLoaderAcoustIDViewModel _libraryLoaderAcoustIDViewModel;
         private readonly LibraryLoaderCDImportViewModel _libraryLoaderCDImportViewModel;
+        private readonly LibraryLoaderMusicBrainzViewModel _libraryLoaderMusicBrainzViewModel;
 
         [IocImportingConstructor]
         public ComponentViewModelLoader(
@@ -54,6 +55,7 @@ namespace AudioStation.Component
             // View Models
             LibraryLoaderCDImportViewModel libraryLoaderCDImportViewModel,
             LibraryLoaderAcoustIDViewModel libraryLoaderAcoustIDViewModel,
+            LibraryLoaderMusicBrainzViewModel libraryLoaderMusicBrainzViewModel,
             LibraryImporterViewModel libraryImporterViewModel,
             LibraryManagerViewModel libraryManagerViewModel,
             RadioViewModel radioViewModel,
@@ -69,6 +71,7 @@ namespace AudioStation.Component
 
             _libraryLoaderCDImportViewModel = libraryLoaderCDImportViewModel;
             _libraryLoaderAcoustIDViewModel = libraryLoaderAcoustIDViewModel;
+            _libraryLoaderMusicBrainzViewModel = libraryLoaderMusicBrainzViewModel;
             _libraryImporterViewModel = libraryImporterViewModel;
             _libraryManagerViewModel = libraryManagerViewModel;
             _radioViewModel = radioViewModel;
@@ -106,6 +109,10 @@ namespace AudioStation.Component
                 // Library Loader: AcoustID
                 progressHandler(taskCount, task++, 0, "Initializing AcoustID...");
                 _libraryLoaderAcoustIDViewModel.Initialize(configuration, new NoViewModel(), progressHandler);
+
+                // Library Loader: Music Brainz
+                progressHandler(taskCount, task++, 0, "Initializing Music Brainz...");
+                _libraryLoaderMusicBrainzViewModel.Initialize(configuration, new NoViewModel(), progressHandler);
 
                 // Library Importer
                 progressHandler(taskCount, task++, 0, "Initializing Library Importer...");

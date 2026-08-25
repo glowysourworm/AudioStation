@@ -8,6 +8,11 @@ namespace AudioStation.Core.Database.AudioStationDatabase
     [Table("AcoustIDLookupResult", Schema = "public")]
     public class AcoustIDLookupResult : AudioStationEntityBase
     {
+        /// <summary>
+        /// Reference file name from the lookup
+        /// </summary>
+        public string FileName { get; set; }
+
         // Vendor result (from service)
         public Guid LookupId { get; set; }
         public Guid MusicBrainzRecordingId { get; set; }

@@ -23,6 +23,7 @@ namespace AudioStation.Core.Component
         private readonly IFileController _fileController;
         private readonly IAudioStationDbClient _audioStationDbClient;
         private readonly IAcoustIDClient _acoustIDClient;
+        private readonly IMusicBrainzClient _musicBrainzClient;
 
         // Cannot use multi threading on the database until we have proper 
         // table locking, or transactions!
@@ -43,10 +44,12 @@ namespace AudioStation.Core.Component
         [IocImportingConstructor]
         public LibraryLoader(IAudioStationDbClient audioStationDbClient,
                              IAcoustIDClient acoustIDClient,
+                             IMusicBrainzClient musicBrainzClient,
                              ILibraryImporter libraryImporter,
                              IFileController fileController)
         {
             _audioStationDbClient = audioStationDbClient;
+            _musicBrainzClient = musicBrainzClient;
             _acoustIDClient = acoustIDClient;
             _libraryImporter = libraryImporter;
             _fileController = fileController;
@@ -82,8 +85,13 @@ namespace AudioStation.Core.Component
                     workItem.Initialize(LibraryWorkItemState.Pending, parameters.Load, new LibraryLoaderEntitySetOutput<AcoustIDLookupResult>());
                 }
                 break;
-                case LibraryLoadType.ImportRadio:
                 case LibraryLoadType.MusicBrainz:
+                {
+                    workItem = new LibraryLoaderWorkItem(_workItemIdCounter, LibraryLoadType.MusicBrainz);
+                    workItem.Initialize(LibraryWorkItemState.Pending, parameters.Load, new LibraryLoaderEntitySetOutput<VendorTagSmall>());
+                }
+                break;
+                case LibraryLoadType.ImportRadio:
                 default:
                     throw new Exception("Unhandled library loader task type:  LibraryLoader.cs");
             }
@@ -129,8 +137,12 @@ namespace AudioStation.Core.Component
                         thread = new LibraryLoaderAcoustIDWorker(_acoustIDClient, _audioStationDbClient, workItem);
                     }
                     break;
-                    case LibraryLoadType.ImportRadio:
                     case LibraryLoadType.MusicBrainz:
+                    {
+                        thread = new LibraryLoaderMusicBrainzWorker(_musicBrainzClient, _audioStationDbClient, workItem);
+                    }
+                    break;
+                    case LibraryLoadType.ImportRadio:
                     default:
                         throw new Exception("Unhandled work item type:  LibraryLoader.cs");
                 }

@@ -2,11 +2,11 @@
 
 namespace AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderLoad
 {
-    public class LibraryLoaderEntityLoad : LibraryLoaderLoadBase
+    public class LibraryLoaderEntityLoad<TEntity> : LibraryLoaderLoadBase where TEntity : AudioStationEntityBase
     {
-        public AudioStationEntityBase Entity { get; private set; }
+        public TEntity Entity { get; private set; }
 
-        public LibraryLoaderEntityLoad(AudioStationEntityBase entity)
+        public LibraryLoaderEntityLoad(TEntity entity)
         {
             this.Entity = entity;
         }

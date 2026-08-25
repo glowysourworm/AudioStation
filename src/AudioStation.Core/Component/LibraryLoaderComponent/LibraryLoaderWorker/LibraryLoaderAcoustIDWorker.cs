@@ -55,9 +55,6 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderWorker
 
             switch (_workCurrentStep)
             {
-                // Import:  Assume no tag data is filled out. Go with the best acoustID result you can
-                //          get; and hope that it works right out of the box.
-                //
                 case 1:
                 {
                     var message = string.Empty;
@@ -110,6 +107,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderWorker
                     // Update
                     if (existingEntity != null)
                     {
+                        existingEntity.FileName = _workLoad.File;
                         existingEntity.Fingerprint = result.Fingerprint;
                         existingEntity.LookupId = result.LookupId;
                         existingEntity.MusicBrainzRecordingId = result.MusicBrainzRecordingId;

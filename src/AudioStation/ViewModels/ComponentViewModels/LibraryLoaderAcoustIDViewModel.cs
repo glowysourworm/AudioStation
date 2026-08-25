@@ -107,11 +107,10 @@ namespace AudioStation.ViewModels.ComponentViewModels
                 switch (workItem.LoadType)
                 {
                     case LibraryLoadType.AcoustID:
-                        workItem.InProgress = true;
                         workItem.Progress = 0;
 
                         // WORK ITEM:  Id is set from the backend!
-                        workItem.Id = _libraryLoaderService.RunLoaderTaskAsync(workItem.Load as LibraryLoaderFileLoadViewModel);
+                        workItem.Id = _libraryLoaderService.RunLoaderTaskAsync(workItem);
                         break;
                     case LibraryLoadType.Import:
                     case LibraryLoadType.ImportRadio:

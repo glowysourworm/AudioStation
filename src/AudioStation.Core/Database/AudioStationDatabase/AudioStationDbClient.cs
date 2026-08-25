@@ -525,6 +525,9 @@ namespace AudioStation.Core.Database.AudioStationDatabase
             if (typeof(TEntity) == typeof(M3UStream))
                 return context.M3UStreams as DbSet<TEntity>;
 
+            else if (typeof(TEntity) == typeof(AcoustIDLookupResult))
+                return context.AcoustIDLookupResults as DbSet<TEntity>;
+
             else if (typeof(TEntity) == typeof(Track))
                 return context.Tracks as DbSet<TEntity>;
 
@@ -545,6 +548,12 @@ namespace AudioStation.Core.Database.AudioStationDatabase
 
             else if (typeof(TEntity) == typeof(RadioBrowserStation))
                 return context.RadioBrowserStations as DbSet<TEntity>;
+
+            else if (typeof(TEntity) == typeof(Vendor))
+                return context.Vendors as DbSet<TEntity>;
+
+            else if (typeof(TEntity) == typeof(VendorTagSmall))
+                return context.VendorTagSmalls as DbSet<TEntity>;
 
             else
                 throw new Exception("Unhandled entity type:  AudioStationDbClient.GetEntitySet");

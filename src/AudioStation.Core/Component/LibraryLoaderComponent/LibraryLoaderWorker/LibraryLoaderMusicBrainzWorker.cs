@@ -1,0 +1,200 @@
+﻿using AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderLoad;
+using AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderOutput;
+using AudioStation.Core.Database.AudioStationDatabase;
+using AudioStation.Core.Database.AudioStationDatabase.Interface;
+using AudioStation.Core.Model.Interface;
+using AudioStation.Core.Service;
+using AudioStation.Core.Service.Vendor.Interface;
+using AudioStation.Model;
+
+using SimpleWpf.Utilities;
+
+namespace AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderWorker
+{
+    public class LibraryLoaderMusicBrainzWorker : LibraryWorkerThreadBase
+    {
+        private readonly IMusicBrainzClient _musicBrainzClient;
+        private readonly IAudioStationDbClient _audioStationDbClient;
+
+        private readonly int WORK_STEPS = 2;
+
+        private LibraryLoaderEntitySetLoad<AcoustIDLookupResult> _workLoad;
+        private LibraryLoaderEntitySetOutput<VendorTagSmall> _workOutput;
+
+        // Thread Contention (between work steps only)
+        private int _workCurrentStep = 0;
+        private object _lock = new object();
+
+        public LibraryLoaderMusicBrainzWorker(
+                IMusicBrainzClient musicBrainzClient,
+                IAudioStationDbClient audioStationDbClient,
+                LibraryLoaderWorkItem workItem) : base(workItem)
+        {
+            _musicBrainzClient = musicBrainzClient;
+            _audioStationDbClient = audioStationDbClient;
+
+            _workLoad = workItem.GetWorkItem() as LibraryLoaderEntitySetLoad<AcoustIDLookupResult>;
+            _workOutput = workItem.GetOutputItem() as LibraryLoaderEntitySetOutput<VendorTagSmall>;
+        }
+
+        public override int GetNumberOfWorkSteps()
+        {
+            return WORK_STEPS;
+        }
+
+        public override int GetCurrentWorkStep()
+        {
+            lock (_lock)
+            {
+                return _workCurrentStep;
+            }
+        }
+
+        protected override bool WorkNext()
+        {
+            // Steps: (AcoustID was used to get MusicBrainz IRecording)
+            //
+            // 1) Music Brainz
+            // 2) Database Import AcoustID Entit(y|ies)
+            // 
+
+            IncrementWorkStep();
+
+            switch (_workCurrentStep)
+            {
+                case 1:
+                {
+                    var message = string.Empty;
+                    var success = WorkMusicBrainzStep(ref message);
+                    _workOutput.SetResult(success, _workCurrentStep, WORK_STEPS, message);
+                    return success;
+                }
+                case 2:
+                {
+                    var message = string.Empty;
+                    var success = WorkDbStep(ref message);
+                    _workOutput.SetResult(success, _workCurrentStep, WORK_STEPS, message);
+                    return success;
+                }
+                default:
+                    throw new Exception("Unhandled work step");
+            }
+        }
+
+        private bool WorkMusicBrainzStep(ref string message)
+        {
+            try
+            {
+                var resultSet = new List<VendorTagSmall>();
+
+                foreach (var entity in _workLoad.EntitySet)
+                {
+                    _workOutput.Log.Add(new LogMessage("Music Brainz client lookup started:  " + entity.FileName));
+
+                    var musicBrainzResult = _musicBrainzClient.GetTagSmall(new AudioStationTagServiceModel(entity.MusicBrainzRecordingId));
+
+                    if (musicBrainzResult != null)
+                    {
+                        resultSet.Add(BasicHelpers.Map<ITagSmall, VendorTagSmall>(musicBrainzResult));
+
+                        _workOutput.Log.Add(new LogMessage("Music Brainz client lookup finished:  " + entity.FileName));
+                    }
+
+                    else
+                    {
+                        _workOutput.Log.Add(new LogMessage("Music Brainz client lookup error:  " + entity.FileName));
+                        return false;
+                    }
+                }
+
+                _workOutput.ResultSet = resultSet;
+
+                message = "Music Brainz service successful";
+                return true;
+            }
+            catch (Exception ex)
+            {
+                message = "Music Brainz service error: " + ex.Message;
+                return false;
+            }
+        }
+
+        private bool WorkDbStep(ref string message)
+        {
+            try
+            {
+                message = string.Empty;
+
+                var updated = 0;
+                var added = 0;
+                var index = 0;
+
+                var vendor = _audioStationDbClient.FirstEntity<Vendor>(x => x.VendorName == "MusicBrainz");
+
+                if (vendor == null)
+                {
+                    message = "Failed to find 'Music Brainz' vendor in database. Please ensure that this vendor has been added to your configuration";
+                    return false;
+                }
+
+                foreach (var result in _workOutput.ResultSet)
+                {
+                    _workOutput.Log.Add(new LogMessage("Importing Music Brainz result to database:  " + result.Title));
+
+                    var inputLoad = _workLoad.EntitySet.ElementAt(index++);
+                    var existingEntity = _audioStationDbClient.FirstEntity<VendorTagSmall>(x => x.VendorRecordId == inputLoad.MusicBrainzRecordingId);
+
+                    // Update
+                    if (existingEntity != null)
+                    {
+                        existingEntity.Album = result.Album;
+                        existingEntity.AlbumArtist = result.AlbumArtist;
+                        existingEntity.DiscNumber = result.DiscNumber;
+                        existingEntity.DiscTotal = result.DiscTotal;
+                        existingEntity.Genre = result.Genre;
+                        existingEntity.Title = result.Title;
+                        existingEntity.TrackNumber = result.TrackNumber;
+                        existingEntity.TrackTotal = result.TrackTotal;
+                        existingEntity.Vendor = vendor;
+                        existingEntity.VendorRecordId = result.VendorRecordId;
+
+                        _audioStationDbClient.UpdateEntity(existingEntity);
+
+                        updated++;
+                    }
+
+                    // Add
+                    else
+                    {
+                        // These are not part of ITagSmall
+                        result.Vendor = vendor;
+                        result.VendorRecordId = inputLoad.MusicBrainzRecordingId;
+
+                        _audioStationDbClient.AddEntity(result);
+
+                        added++;
+                    }
+
+                    _workOutput.Log.Add(new LogMessage("Import Music Brainz result to database successful:  " + result.Title));
+                }
+
+                message = string.Format("Music Brainz results imported to database:  {0} added, {1} updated", added, updated);
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                message = "Music Brainz database import error " + ex.Message;
+                return false;
+            }
+        }
+
+        private void IncrementWorkStep()
+        {
+            lock (_lock)
+            {
+                _workCurrentStep++;
+            }
+        }
+    }
+}
