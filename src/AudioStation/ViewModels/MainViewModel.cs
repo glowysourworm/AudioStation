@@ -52,7 +52,7 @@ public class MainViewModel : ViewModelBase
     LibraryImporterViewModel _libraryImportViewModel;
     LibraryLoaderAcoustIDViewModel _libraryLoaderAcoustID;
     LibraryLoaderCDImportViewModel _libraryLoaderCDImport;
-    LibraryLoaderMusicBrainzViewModel _libraryLoaderMusicBrainz;
+    LibraryLoaderMusicBrainzBasicViewModel _libraryLoaderMusicBrainz;
 
     ObservableCollection<float> _equalizerValues;
     ObservableCollection<EqualizerBandViewModel> _equalizerViewModel;
@@ -118,7 +118,7 @@ public class MainViewModel : ViewModelBase
         get { return _libraryLoaderCDImport; }
         set { this.RaiseAndSetIfChanged(ref _libraryLoaderCDImport, value); }
     }
-    public LibraryLoaderMusicBrainzViewModel LibraryLoaderMusicBrainz
+    public LibraryLoaderMusicBrainzBasicViewModel LibraryLoaderMusicBrainz
     {
         get { return _libraryLoaderMusicBrainz; }
         set { this.RaiseAndSetIfChanged(ref _libraryLoaderMusicBrainz, value); }
@@ -205,7 +205,7 @@ public class MainViewModel : ViewModelBase
                          LibraryImporterViewModel libraryImporterViewModel,
                          LibraryLoaderAcoustIDViewModel libraryLoaderAcoustIDViewModel,
                          LibraryLoaderCDImportViewModel libraryLoaderCDImportViewModel,
-                         LibraryLoaderMusicBrainzViewModel libraryLoaderMusicBrainzViewModel,
+                         LibraryLoaderMusicBrainzBasicViewModel libraryLoaderMusicBrainzViewModel,
                          NowPlayingViewModel nowPlayingViewModel,
                          BandcampViewModel bandcampViewModel)
     {

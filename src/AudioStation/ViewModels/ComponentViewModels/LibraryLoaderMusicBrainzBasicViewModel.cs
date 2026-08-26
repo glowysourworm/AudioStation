@@ -17,13 +17,13 @@ using SimpleWpf.IocFramework.EventAggregation;
 namespace AudioStation.ViewModels.ComponentViewModels
 {
     [IocExportDefault]
-    public class LibraryLoaderMusicBrainzViewModel : LibraryLoaderComponentViewModelBase
+    public class LibraryLoaderMusicBrainzBasicViewModel : LibraryLoaderComponentViewModelBase
     {
         private readonly IAudioStationDbClient _audioStationDbClient;
         public override NoViewModel? Load { get; }
 
         [IocImportingConstructor]
-        public LibraryLoaderMusicBrainzViewModel(
+        public LibraryLoaderMusicBrainzBasicViewModel(
                 IIocEventAggregator eventAggregator,
                 ILibraryLoaderService libraryLoaderService,
                 IAudioStationDbClient audioStationDbClient)

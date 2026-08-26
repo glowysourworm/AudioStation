@@ -42,7 +42,7 @@ namespace AudioStation.Component
         private readonly LibraryImporterViewModel _libraryImporterViewModel;
         private readonly LibraryLoaderAcoustIDViewModel _libraryLoaderAcoustIDViewModel;
         private readonly LibraryLoaderCDImportViewModel _libraryLoaderCDImportViewModel;
-        private readonly LibraryLoaderMusicBrainzViewModel _libraryLoaderMusicBrainzViewModel;
+        private readonly LibraryLoaderMusicBrainzBasicViewModel _libraryLoaderMusicBrainzViewModel;
 
         [IocImportingConstructor]
         public ComponentViewModelLoader(
@@ -55,7 +55,7 @@ namespace AudioStation.Component
             // View Models
             LibraryLoaderCDImportViewModel libraryLoaderCDImportViewModel,
             LibraryLoaderAcoustIDViewModel libraryLoaderAcoustIDViewModel,
-            LibraryLoaderMusicBrainzViewModel libraryLoaderMusicBrainzViewModel,
+            LibraryLoaderMusicBrainzBasicViewModel libraryLoaderMusicBrainzViewModel,
             LibraryImporterViewModel libraryImporterViewModel,
             LibraryManagerViewModel libraryManagerViewModel,
             RadioViewModel radioViewModel,

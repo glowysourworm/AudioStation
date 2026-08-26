@@ -4,26 +4,16 @@ using AudioStation.Core.Model.M3U;
 
 namespace AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderWorker
 {
-    public class LibraryLoaderM3UAddUpdateWorker : LibraryWorkerThreadBase
+    public class LibraryLoaderM3UAddUpdateWorker : LibraryLoaderWorker<LibraryLoaderFileLoad, LibraryLoaderOutputBase>
     {
-        private LibraryLoaderFileLoad _workLoad;
-        private LibraryLoaderOutputBase _workOutput;
-
-        private bool _started;
-
         public LibraryLoaderM3UAddUpdateWorker(LibraryLoaderWorkItem workItem)
             : base(workItem)
         {
-            _started = false;
-            _workLoad = workItem.GetWorkItem() as LibraryLoaderFileLoad;
-            _workOutput = workItem.GetOutputItem() as LibraryLoaderOutputBase;
         }
 
-        protected override bool WorkNext()
+        protected override bool Work(int step, ref string message)
         {
-            _started = true;
-
-            var streams = LoadRadioEntry(_workLoad.File);
+            var streams = LoadRadioEntry(this.Load.File);
 
             // Set Work Item
             if (streams == null || streams.Count == 0)
@@ -38,7 +28,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderWorker
                 //ApplicationHelpers.LogSeparate(workItem.GetId(), "M3U stream file load success: Streams={0}, File={1}", LogMessageType.LibraryLoaderWorkItem, LogLevel.Information, streams.Count, file);
             }
 
-            _workOutput.SetResult(streams != null && streams.Count > 0, 1, 1, "Radio Import Complete");
+            this.Output.SetResult(streams != null && streams.Count > 0, 1, 1, "Radio Import Complete");
 
             return true;
         }
@@ -46,11 +36,6 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderWorker
         public override int GetNumberOfWorkSteps()
         {
             return 1;
-        }
-
-        public override int GetCurrentWorkStep()
-        {
-            return _started ? 1 : 0;
         }
 
         public List<M3UStream> LoadRadioEntry(string fileName)

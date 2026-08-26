@@ -16,30 +16,20 @@ using SimpleWpf.Utilities;
 
 namespace AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderWorker
 {
-    public class LibraryLoaderMusicBrainzWorker : LibraryWorkerThreadBase
+    public class LibraryLoaderMusicBrainzBasicWorker : LibraryLoaderWorker<LibraryLoaderEntitySetLoad<AcoustIDLookupResult>, LibraryLoaderEntitySetOutput<TagSmall>>
     {
         private readonly IMusicBrainzClient _musicBrainzClient;
         private readonly IAudioStationDbClient _audioStationDbClient;
 
-        private readonly int WORK_STEPS = 3;
+        private readonly int WORK_STEPS = 2;
 
-        private LibraryLoaderEntitySetLoad<AcoustIDLookupResult> _workLoad;
-        private LibraryLoaderEntitySetOutput<TagSmall> _workOutput;
-
-        // Thread Contention (between work steps only)
-        private int _workCurrentStep = 0;
-        private object _lock = new object();
-
-        public LibraryLoaderMusicBrainzWorker(
+        public LibraryLoaderMusicBrainzBasicWorker(
                 IMusicBrainzClient musicBrainzClient,
                 IAudioStationDbClient audioStationDbClient,
                 LibraryLoaderWorkItem workItem) : base(workItem)
         {
             _musicBrainzClient = musicBrainzClient;
             _audioStationDbClient = audioStationDbClient;
-
-            _workLoad = workItem.GetWorkItem() as LibraryLoaderEntitySetLoad<AcoustIDLookupResult>;
-            _workOutput = workItem.GetOutputItem() as LibraryLoaderEntitySetOutput<TagSmall>;
         }
 
         public override int GetNumberOfWorkSteps()
@@ -47,15 +37,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderWorker
             return WORK_STEPS;
         }
 
-        public override int GetCurrentWorkStep()
-        {
-            lock (_lock)
-            {
-                return _workCurrentStep;
-            }
-        }
-
-        protected override bool WorkNext()
+        protected override bool Work(int step, ref string message)
         {
             // Steps: (AcoustID was used to get MusicBrainz IRecording)
             //
@@ -64,24 +46,12 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderWorker
             // 3) Album Art
             // 
 
-            IncrementWorkStep();
-
-            switch (_workCurrentStep)
+            switch (step)
             {
                 case 1:
-                {
-                    var message = string.Empty;
-                    var success = WorkMusicBrainzStep(ref message);
-                    _workOutput.SetResult(success, _workCurrentStep, WORK_STEPS, message);
-                    return success;
-                }
+                    return WorkMusicBrainzStep(ref message);
                 case 2:
-                {
-                    var message = string.Empty;
-                    var success = WorkDbStep(ref message);
-                    _workOutput.SetResult(success, _workCurrentStep, WORK_STEPS, message);
-                    return success;
-                }
+                    return WorkDbStep(ref message);
                 default:
                     throw new Exception("Unhandled work step");
             }
@@ -93,7 +63,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderWorker
             {
                 var resultSet = new List<TagSmall>();
 
-                foreach (var entity in _workLoad.EntitySet)
+                foreach (var entity in this.Load.EntitySet)
                 {
                     // TODO: CLEAN THIS UP AS PART OF THE SERVICE MODEL. 
                     //
@@ -105,7 +75,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderWorker
                     //
                     Thread.Sleep(1500);
 
-                    _workOutput.Log.Add(new LogMessage("Music Brainz client lookup started:  " + entity.FileName));
+                    this.Output.Log.Add(new LogMessage("Music Brainz client lookup started:  " + entity.FileName));
 
                     var musicBrainzResult = _musicBrainzClient.GetTagSmall(new AudioStationTagServiceModel(entity.MusicBrainzRecordingId));
 
@@ -113,17 +83,17 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderWorker
                     {
                         resultSet.Add(BasicHelpers.Map<ITagSmall, TagSmall>(musicBrainzResult));
 
-                        _workOutput.Log.Add(new LogMessage("Music Brainz client lookup finished:  " + entity.FileName));
+                        this.Output.Log.Add(new LogMessage("Music Brainz client lookup finished:  " + entity.FileName));
                     }
 
                     else
                     {
-                        _workOutput.Log.Add(new LogMessage("Music Brainz client lookup error:  " + entity.FileName));
+                        this.Output.Log.Add(new LogMessage("Music Brainz client lookup error:  " + entity.FileName));
                         return false;
                     }
                 }
 
-                _workOutput.ResultSet = resultSet;
+                this.Output.ResultSet = resultSet;
 
                 message = "Music Brainz service successful";
                 return true;
@@ -154,11 +124,11 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderWorker
                     return false;
                 }
 
-                foreach (var result in _workOutput.ResultSet)
+                foreach (var result in this.Output.ResultSet)
                 {
-                    _workOutput.Log.Add(new LogMessage("Importing Music Brainz result to database:  " + result.Title));
+                    this.Output.Log.Add(new LogMessage("Importing Music Brainz result to database:  " + result.Title));
 
-                    var inputLoad = _workLoad.EntitySet.ElementAt(index++);
+                    var inputLoad = this.Load.EntitySet.ElementAt(index++);
                     var existingMap = _audioStationDbClient.FirstEntity<TagSmallVendorMap>(x => x.MusicBrainzRecordingId == inputLoad.MusicBrainzRecordingId);
                     var existingEntity = existingMap?.TagSmall;
 
@@ -205,7 +175,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderWorker
                         added++;
                     }
 
-                    _workOutput.Log.Add(new LogMessage("Import Music Brainz result to database successful:  " + result.Title));
+                    this.Output.Log.Add(new LogMessage("Import Music Brainz result to database successful:  " + result.Title));
                 }
 
                 message = string.Format("Music Brainz results imported to database:  {0} added, {1} updated", added, updated);
@@ -216,14 +186,6 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderWorker
             {
                 message = "Music Brainz database import error " + ex.Message;
                 return false;
-            }
-        }
-
-        private void IncrementWorkStep()
-        {
-            lock (_lock)
-            {
-                _workCurrentStep++;
             }
         }
     }

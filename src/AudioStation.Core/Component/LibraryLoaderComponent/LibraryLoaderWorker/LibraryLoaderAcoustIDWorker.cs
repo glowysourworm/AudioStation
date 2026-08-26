@@ -6,7 +6,7 @@ using AudioStation.Core.Service.Vendor.Interface;
 
 namespace AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderWorker
 {
-    public class LibraryLoaderAcoustIDWorker : LibraryWorkerThreadBase
+    public class LibraryLoaderAcoustIDWorker : LibraryLoaderWorker<LibraryLoaderFileLoad, LibraryLoaderEntitySetOutput<AcoustIDLookupResult>>
     {
         private readonly IAcoustIDClient _acoustIDClient;
         private readonly IAudioStationDbClient _audioStationDbClient;
@@ -14,20 +14,10 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderWorker
         private readonly int ACOUSTID_MIN_SCORE = 70;
         private readonly int WORK_STEPS = 2;
 
-        private LibraryLoaderFileLoad _workLoad;
-        private LibraryLoaderEntitySetOutput<AcoustIDLookupResult> _workOutput;
-
-        // Thread Contention (between work steps only)
-        private int _workCurrentStep = 0;
-        private object _lock = new object();
-
         public LibraryLoaderAcoustIDWorker(IAcoustIDClient acoustIDClient, IAudioStationDbClient audioStationDbClient, LibraryLoaderWorkItem workItem) : base(workItem)
         {
             _acoustIDClient = acoustIDClient;
             _audioStationDbClient = audioStationDbClient;
-
-            _workLoad = workItem.GetWorkItem() as LibraryLoaderFileLoad;
-            _workOutput = workItem.GetOutputItem() as LibraryLoaderEntitySetOutput<AcoustIDLookupResult>;
         }
 
         public override int GetNumberOfWorkSteps()
@@ -35,15 +25,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderWorker
             return WORK_STEPS;
         }
 
-        public override int GetCurrentWorkStep()
-        {
-            lock (_lock)
-            {
-                return _workCurrentStep;
-            }
-        }
-
-        protected override bool WorkNext()
+        protected override bool Work(int step, ref string message)
         {
             // Steps:
             //
@@ -51,23 +33,15 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderWorker
             // 2) Database Import AcoustID Entit(y|ies)
             // 
 
-            IncrementWorkStep();
-
-            switch (_workCurrentStep)
+            switch (step)
             {
                 case 1:
                 {
-                    var message = string.Empty;
-                    var success = WorkAcoustIDStep(ref message);
-                    _workOutput.SetResult(success, _workCurrentStep, WORK_STEPS, message);
-                    return success;
+                    return WorkAcoustIDStep(ref message);
                 }
                 case 2:
                 {
-                    var message = string.Empty;
-                    var success = WorkDbStep(ref message);
-                    _workOutput.SetResult(success, _workCurrentStep, WORK_STEPS, message);
-                    return success;
+                    return WorkDbStep(ref message);
                 }
                 default:
                     throw new Exception("Unhandled work step");
@@ -78,7 +52,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderWorker
         {
             try
             {
-                _workOutput.ResultSet = _acoustIDClient.IdentifyFingerprint(_workLoad.File, ACOUSTID_MIN_SCORE);
+                this.Output.ResultSet = _acoustIDClient.IdentifyFingerprint(this.Load.File, ACOUSTID_MIN_SCORE);
 
                 message = "AcoustID fingerprint service call successful";
 
@@ -100,14 +74,14 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderWorker
                 var updated = 0;
                 var added = 0;
 
-                foreach (var result in _workOutput.ResultSet)
+                foreach (var result in this.Output.ResultSet)
                 {
                     var existingEntity = _audioStationDbClient.FirstEntity<AcoustIDLookupResult>(x => x.MusicBrainzRecordingId == result.MusicBrainzRecordingId);
 
                     // Update
                     if (existingEntity != null)
                     {
-                        existingEntity.FileName = _workLoad.File;
+                        existingEntity.FileName = this.Load.File;
                         existingEntity.Fingerprint = result.Fingerprint;
                         existingEntity.LookupId = result.LookupId;
                         existingEntity.MusicBrainzRecordingId = result.MusicBrainzRecordingId;
@@ -135,14 +109,6 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderWorker
             {
                 message = "AcoustID database import error " + ex.Message;
                 return false;
-            }
-        }
-
-        private void IncrementWorkStep()
-        {
-            lock (_lock)
-            {
-                _workCurrentStep++;
             }
         }
     }

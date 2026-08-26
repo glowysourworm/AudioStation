@@ -91,6 +91,12 @@ namespace AudioStation.Core.Component
                     workItem.Initialize(LibraryWorkItemState.Pending, parameters.Load, new LibraryLoaderEntitySetOutput<TagSmall>());
                 }
                 break;
+                case LibraryLoadType.MusicBrainzAlbumArt:
+                {
+                    workItem = new LibraryLoaderWorkItem(_workItemIdCounter, LibraryLoadType.MusicBrainzAlbumArt);
+                    workItem.Initialize(LibraryWorkItemState.Pending, parameters.Load, new LibraryLoaderTagOutput());
+                }
+                break;
                 case LibraryLoadType.ImportRadio:
                 default:
                     throw new Exception("Unhandled library loader task type:  LibraryLoader.cs");
@@ -139,7 +145,12 @@ namespace AudioStation.Core.Component
                     break;
                     case LibraryLoadType.MusicBrainzTagSmall:
                     {
-                        thread = new LibraryLoaderMusicBrainzWorker(_musicBrainzClient, _audioStationDbClient, workItem);
+                        thread = new LibraryLoaderMusicBrainzBasicWorker(_musicBrainzClient, _audioStationDbClient, workItem);
+                    }
+                    break;
+                    case LibraryLoadType.MusicBrainzAlbumArt:
+                    {
+                        thread = new LibraryLoaderMusicBrainzAlbumArtWorker(_musicBrainzClient, workItem);
                     }
                     break;
                     case LibraryLoadType.ImportRadio:
