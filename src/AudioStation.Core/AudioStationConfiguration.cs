@@ -4,11 +4,17 @@ namespace AudioStation.Core
 {
     public class AudioStationConfiguration : ViewModelBase
     {
+        // User Folders
         string _directoryBase;
         string _musicSubDirectory;
         string _audioBooksSubDirectory;
 
         string _downloadFolder;
+        string _stagingFolder;
+
+        // Relative to .exe directory
+        string _applicationCacheFolder;
+        string _applicationStorageFolder;
 
         string _databaseHost;
         string _databaseName;
@@ -70,6 +76,22 @@ namespace AudioStation.Core
         {
             get { return _downloadFolder; }
             set { this.RaiseAndSetIfChanged(ref _downloadFolder, value); }
+        }
+        public string StagingFolder
+        {
+            get { return _stagingFolder; }
+            set { this.RaiseAndSetIfChanged(ref _stagingFolder, value); }
+        }
+
+        public string ApplicationCacheFolder
+        {
+            get { return _applicationCacheFolder; }
+            set { this.RaiseAndSetIfChanged(ref _applicationCacheFolder, value); }
+        }
+        public string ApplicationStorageFolder
+        {
+            get { return _applicationStorageFolder; }
+            set { this.RaiseAndSetIfChanged(ref _applicationStorageFolder, value); }
         }
 
         public string DatabaseHost
@@ -239,6 +261,14 @@ namespace AudioStation.Core
         public AudioStationConfiguration()
         {
             this.DirectoryBase = string.Empty;
+            this.AudioBooksSubDirectory = string.Empty;
+            this.MusicSubDirectory = string.Empty;
+
+            this.DownloadFolder = string.Empty;
+            this.StagingFolder = string.Empty;
+
+            this.ApplicationCacheFolder = string.Empty;
+            this.ApplicationStorageFolder = string.Empty;
 
             this.DatabaseHost = string.Empty;
             this.DatabaseName = string.Empty;

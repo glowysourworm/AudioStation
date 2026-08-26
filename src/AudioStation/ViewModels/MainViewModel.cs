@@ -62,6 +62,9 @@ public class MainViewModel : ViewModelBase
     SimpleCommand _openMusicSubFolderCommand;
     SimpleCommand _openAudioBooksSubFolderCommand;
     SimpleCommand _openDownloadFolderCommand;
+    SimpleCommand _openStagingFolderCommand;
+    SimpleCommand _openCacheFolderCommand;
+    SimpleCommand _openStorageFolderCommand;
     SimpleCommand _saveConfigurationCommand;
     SimpleCommand _loadLibraryCommand;
     SimpleCommand _unlockConfigurationCommand;
@@ -177,6 +180,21 @@ public class MainViewModel : ViewModelBase
     {
         get { return _openDownloadFolderCommand; }
         set { this.RaiseAndSetIfChanged(ref _openDownloadFolderCommand, value); }
+    }
+    public SimpleCommand OpenStagingFolderCommand
+    {
+        get { return _openStagingFolderCommand; }
+        set { this.RaiseAndSetIfChanged(ref _openStagingFolderCommand, value); }
+    }
+    public SimpleCommand OpenCacheFolderCommand
+    {
+        get { return _openCacheFolderCommand; }
+        set { this.RaiseAndSetIfChanged(ref _openCacheFolderCommand, value); }
+    }
+    public SimpleCommand OpenStorageFolderCommand
+    {
+        get { return _openStorageFolderCommand; }
+        set { this.RaiseAndSetIfChanged(ref _openStorageFolderCommand, value); }
     }
     public SimpleCommand SaveConfigurationCommand
     {
@@ -298,6 +316,33 @@ public class MainViewModel : ViewModelBase
             if (!string.IsNullOrEmpty(folder))
             {
                 this.Configuration.DownloadFolder = folder;
+            }
+        });
+        this.OpenStagingFolderCommand = new SimpleCommand(() =>
+        {
+            var folder = dialogController.ShowSelectFolder();
+
+            if (!string.IsNullOrEmpty(folder))
+            {
+                this.Configuration.StagingFolder = folder;
+            }
+        });
+        this.OpenCacheFolderCommand = new SimpleCommand(() =>
+        {
+            var folder = dialogController.ShowSelectFolder();
+
+            if (!string.IsNullOrEmpty(folder))
+            {
+                this.Configuration.ApplicationCacheFolder = folder;
+            }
+        });
+        this.OpenStorageFolderCommand = new SimpleCommand(() =>
+        {
+            var folder = dialogController.ShowSelectFolder();
+
+            if (!string.IsNullOrEmpty(folder))
+            {
+                this.Configuration.ApplicationStorageFolder = folder;
             }
         });
         this.UnlockConfigurationCommand = new SimpleCommand(() =>
