@@ -6,7 +6,7 @@
              xmlns:controls="clr-namespace:AudioStation.Controls"
              xmlns:controlAnimation="clr-namespace:AudioStation.Controls.Animation"             
              xmlns:views="clr-namespace:AudioStation.Views"
-             xmlns:cacheModel="clr-namespace:AudioStation.Controller.Model"
+             xmlns:cacheModel="AudioStation.Core.Controller.ImageCacheModel;assembly=AudioStation.Core"
              xmlns:region="clr-namespace:SimpleWpf.IocFramework.RegionManagement;assembly=SimpleWpf.IocFramework"
              DataContext="{Binding LibraryManager.Library}"
              Background="White">

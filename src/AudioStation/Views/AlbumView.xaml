@@ -6,7 +6,7 @@
 			 xmlns:fa5="http://schemas.fontawesome.com/icons/"    
              xmlns:local="clr-namespace:AudioStation.Views"
              xmlns:controls="clr-namespace:AudioStation.Controls"
-             xmlns:cacheModel="clr-namespace:AudioStation.Controller.Model"
+             xmlns:cacheModel="clr-namespace:AudioStation.Core.Controller.ImageCacheModel;assembly=AudioStation.Core"
              xmlns:controlAnimation="clr-namespace:AudioStation.Controls.Animation">
     
     <Border>

@@ -1,4 +1,8 @@
-﻿using AudioStation.Core.Model.Interface;
+﻿using System.IO;
+
+using ATL;
+
+using AudioStation.Core.Model.Interface;
 using AudioStation.Core.Model.Vendor;
 using AudioStation.Core.Model.Vendor.ATLExtension;
 using AudioStation.Core.Model.Vendor.ATLExtension.Interface;
@@ -235,6 +239,7 @@ namespace AudioStation.Core.Service.Vendor
                                                                             Include.Genres |
                                                                             Include.Tags |
                                                                             Include.Recordings);
+
                     var media = release.Media?.FirstOrDefault(x => x.Tracks?.Any(z => z.Id == trackId || z.Title == trackName) ?? false);
 
                     var coverArtClient = new CoverArt();
@@ -766,18 +771,51 @@ namespace AudioStation.Core.Service.Vendor
             {
                 Album = release?.Title ?? string.Empty,
                 Artist = artistName,
+                Date = recording.FirstReleaseDate?.NearestDate ?? DateTime.MinValue,
                 AlbumArtist = artistName,
                 AlbumArtists = recording.ArtistCredit?.Select(x => x.Name ?? x.Artist?.Name ?? string.Empty)?.ToList() ?? new List<string>(),
                 DiscNumber = (ushort)(media?.Position ?? 0),
                 DiscTotal = (ushort)(release?.Media?.Count ?? 0),
                 Duration = recording.Length ?? TimeSpan.Zero,
                 Genre = release?.Genres?.FirstOrDefault()?.Name ?? string.Empty,
+                Publisher = release?.LabelInfo?.FirstOrDefault()?.Label?.Name ?? string.Empty,
                 TrackNumber = track?.Number ?? string.Empty,
                 TrackTotal = (ushort)(media?.TrackCount ?? 0),
                 Title = track?.Title ?? string.Empty,
                 Track = (uint)(track?.Position ?? 0),
                 Year = release?.Date?.Year ?? 0
             };
+        }
+        private async Task<PictureInfo?> LookupArtMusicBrainzId(Guid recordingId, bool frontOrBack)
+        {
+            var coverArtClient = new CoverArt();
+            var query = new Query();
+            var recording = await query.LookupRecordingAsync(recordingId, Include.Releases);
+            var release = recording?.Releases?.FirstOrDefault(x => x.Date == recording.FirstReleaseDate);
+
+
+            var hasArt = frontOrBack ? (release?.CoverArtArchive?.Front ?? false) : (release?.CoverArtArchive?.Back ?? false);
+
+            if (!hasArt)
+                return null;
+
+            var art = frontOrBack ? await coverArtClient.FetchFrontAsync(release.Id) : await coverArtClient.FetchBackAsync(release.Id);
+
+            if (art == null)
+                return null;
+
+            else
+            {
+                using (var streamReader = new BinaryReader(art.Data))
+                {
+                    var binaryData = streamReader.ReadBytes((int)art.Data.Length);
+                    var pictureInfo = PictureInfo.fromBinaryData(binaryData, PictureInfo.PIC_TYPE.Front);
+
+                    art.Dispose();
+
+                    return pictureInfo;
+                }
+            }
         }
         private async Task<IRecording?> LookupTrack(string artist, string album, string title, Include include)
         {
@@ -808,12 +846,13 @@ namespace AudioStation.Core.Service.Vendor
         private async Task<IAudioStationTag?> LookupByMusicBrainzId(AudioStationTagServiceModel serviceModel)
         {
             var query = new Query();
+            var coverArtClient = new CoverArt();
 
-            var recording = await query.LookupRecordingAsync(serviceModel.MusicBrainzId, CreateInclude(serviceModel));
+            var recording = await query.LookupRecordingAsync(serviceModel.MusicBrainzRecordingId, CreateInclude(serviceModel));
 
             if (recording == null)
             {
-                ApplicationHelpers.Log("Music Brainz recording not found:  {0}", LogMessageServiceType.MusicBrainz, LogLevel.Error, null, serviceModel.MusicBrainzId);
+                ApplicationHelpers.Log("Music Brainz recording not found:  {0}", LogMessageServiceType.MusicBrainz, LogLevel.Error, null, serviceModel.MusicBrainzRecordingId);
                 return null;
             }
             else
@@ -852,7 +891,7 @@ namespace AudioStation.Core.Service.Vendor
             }
 
             if (result != null)
-                return TagMapper.MapTo(result, VendorNames.MusicBrainz, serviceModel.MusicBrainzId);
+                return TagMapper.MapTo(result, VendorNames.MusicBrainz, serviceModel.MusicBrainzRecordingId);
             else
                 return null;
         }
@@ -880,6 +919,23 @@ namespace AudioStation.Core.Service.Vendor
         public ITagSmall? GetTagSmall(AudioStationTagServiceModel serviceModel)
         {
             return LookupSmall(serviceModel).Result;
+        }
+        public Task<PictureInfo?> GetFrontArtAsync(AudioStationTagServiceModel serviceModel)
+        {
+            return LookupArtMusicBrainzId(serviceModel.MusicBrainzRecordingId, true);
+
+        }
+        public PictureInfo? GetFrontArt(AudioStationTagServiceModel serviceModel)
+        {
+            return LookupArtMusicBrainzId(serviceModel.MusicBrainzRecordingId, true).Result;
+        }
+        public Task<PictureInfo?> GetBackArtAsync(AudioStationTagServiceModel serviceModel)
+        {
+            return LookupArtMusicBrainzId(serviceModel.MusicBrainzRecordingId, false);
+        }
+        public PictureInfo? GetBackArt(AudioStationTagServiceModel serviceModel)
+        {
+            return LookupArtMusicBrainzId(serviceModel.MusicBrainzRecordingId, false).Result;
         }
         #endregion
 

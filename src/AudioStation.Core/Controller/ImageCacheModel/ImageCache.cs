@@ -1,6 +1,6 @@
 ﻿using SimpleWpf.SimpleCollections.Collection;
 
-namespace AudioStation.Controller.Model
+namespace AudioStation.Core.Controller.ImageCacheModel
 {
     public class ImageCache<TKey, TValue> where TValue : IDisposable
     {
@@ -22,7 +22,7 @@ namespace AudioStation.Controller.Model
 
                 pair.Value.Dispose();
             }
-                
+
 
             _cacheDict.Add(key, value);
         }

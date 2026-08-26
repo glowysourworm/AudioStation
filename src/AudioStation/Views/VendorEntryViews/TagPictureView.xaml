@@ -9,7 +9,7 @@
              xmlns:controls="clr-namespace:AudioStation.Controls"
              xmlns:system="clr-namespace:System;assembly=System"
              xmlns:atl="clr-namespace:ATL;assembly=ATL"
-             xmlns:controllerModel="clr-namespace:AudioStation.Controller.Model">
+             xmlns:controllerModel="clr-namespace:AudioStation.Core.Controller.ImageCacheModel;assembly=AudioStation.Core">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="200" />

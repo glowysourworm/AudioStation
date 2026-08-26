@@ -7,7 +7,7 @@
              xmlns:loaderView="clr-namespace:AudioStation.Views.LibraryLoaderViews"
              xmlns:viewsManager="clr-namespace:AudioStation.Views.LibraryManager"
 			 xmlns:controls="clr-namespace:AudioStation.Controls"
-             xmlns:cacheModel="clr-namespace:AudioStation.Controller.Model"
+             xmlns:cacheModel="AudioStation.Core.Controller.ImageCacheModel;assembly=AudioStation.Core"
              xmlns:region="clr-namespace:SimpleWpf.IocFramework.RegionManagement;assembly=SimpleWpf.IocFramework"
              Cursor="{Binding Loading, Converter={StaticResource BoolToWaitCursorConverter}, ConverterParameter={x:Static Cursors.Arrow}}">
     <Grid>

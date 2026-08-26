@@ -1,15 +1,12 @@
 ﻿using System.Globalization;
 using System.Windows.Data;
-using System.Windows.Media.Imaging;
 
 using ATL;
 
-using AudioStation.Component.Interface;
-using AudioStation.Controller.Model;
+using AudioStation.Core.Component.Interface;
+using AudioStation.Core.Controller.ImageCacheModel;
 
 using SimpleWpf.IocFramework.Application;
-
-using PictureType = ATL.PictureInfo.PIC_TYPE;
 
 namespace AudioStation.Views.Converter
 {

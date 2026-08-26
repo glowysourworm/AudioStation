@@ -25,10 +25,6 @@
   <ItemGroup>
     <Resource Include="Resources\Images\icon.bmp" />
     <Resource Include="Resources\Images\icon.png" />
-    <EmbeddedResource Include="Resources\Images\placeholder_FullSized.png" />
-    <EmbeddedResource Include="Resources\Images\placeholder_Medium.png" />
-    <EmbeddedResource Include="Resources\Images\placeholder_Small.png" />
-    <EmbeddedResource Include="Resources\Images\placeholder_Thumbnail.png" />
   </ItemGroup>
 
   <ItemGroup>

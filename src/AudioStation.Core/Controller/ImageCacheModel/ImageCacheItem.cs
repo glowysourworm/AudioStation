@@ -1,14 +1,11 @@
-﻿using System.Runtime.CompilerServices;
-using System.Windows.Media;
-
-using AudioStation.Component.Model;
+﻿using AudioStation.Core.Component.BitmapConverterComponent;
 
 using SimpleWpf.SimpleCollections.Collection;
 using SimpleWpf.SimpleCollections.Extension;
 
 using PictureType = ATL.PictureInfo.PIC_TYPE;
 
-namespace AudioStation.Controller.Model
+namespace AudioStation.Core.Controller.ImageCacheModel
 {
     public class ImageCacheItem : IDisposable
     {

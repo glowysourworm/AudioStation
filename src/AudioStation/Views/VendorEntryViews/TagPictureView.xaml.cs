@@ -2,8 +2,8 @@
 
 using ATL;
 
-using AudioStation.Controller.Interface;
-using AudioStation.Controller.Model;
+using AudioStation.Core.Controller.ImageCacheModel;
+using AudioStation.Core.Controller.Interface;
 using AudioStation.Core.Utility;
 using AudioStation.ViewModels.Vendor.ATLViewModel;
 

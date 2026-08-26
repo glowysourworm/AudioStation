@@ -1,11 +1,9 @@
-﻿using System.Windows.Media;
-
-using AudioStation.Component.Model;
-using AudioStation.Controller.Model;
+﻿using AudioStation.Core.Component.BitmapConverterComponent;
+using AudioStation.Core.Controller.ImageCacheModel;
 
 using PictureType = ATL.PictureInfo.PIC_TYPE;
 
-namespace AudioStation.Controller.Interface
+namespace AudioStation.Core.Controller.Interface
 {
     public interface IImageCacheController
     {

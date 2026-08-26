@@ -4,17 +4,17 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Windows.Media.Imaging;
 
-using AudioStation.Component.Interface;
-using AudioStation.Component.Model;
-using AudioStation.Controller.Model;
+using AudioStation.Core.Component.BitmapConverterComponent;
+using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Controller.Interface;
+using AudioStation.Core.Controller.ImageCacheModel;
 using AudioStation.Model;
 
 using Microsoft.Extensions.Logging;
 
 using SimpleWpf.IocFramework.Application.Attribute;
 
-namespace AudioStation.Component
+namespace AudioStation.Core.Component
 {
     [IocExport(typeof(IBitmapConverter))]
     public class BitmapConverter : IBitmapConverter

@@ -1,8 +1,7 @@
-﻿using System.Drawing.Imaging;
-using System.IO;
+﻿using System.IO;
 using System.Windows.Media.Imaging;
 
-namespace AudioStation.Component.Model
+namespace AudioStation.Core.Component.BitmapConverterComponent
 {
     public class BitmapImageData : IDisposable
     {

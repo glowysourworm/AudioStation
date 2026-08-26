@@ -11,7 +11,7 @@
              xmlns:controls="clr-namespace:AudioStation.Controls"
              xmlns:system="clr-namespace:System;assembly=System"
              xmlns:region="clr-namespace:SimpleWpf.IocFramework.RegionManagement;assembly=SimpleWpf.IocFramework"
-             xmlns:controllerModel="clr-namespace:AudioStation.Controller.Model"
+             xmlns:controllerModel="AudioStation.Core.Controller.ImageCacheModel;assembly=AudioStation.Core"
              Width="700" Height="500">
 
     <Grid>

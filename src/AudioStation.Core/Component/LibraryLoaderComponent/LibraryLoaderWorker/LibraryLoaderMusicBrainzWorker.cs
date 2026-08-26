@@ -21,7 +21,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderWorker
         private readonly IMusicBrainzClient _musicBrainzClient;
         private readonly IAudioStationDbClient _audioStationDbClient;
 
-        private readonly int WORK_STEPS = 2;
+        private readonly int WORK_STEPS = 3;
 
         private LibraryLoaderEntitySetLoad<AcoustIDLookupResult> _workLoad;
         private LibraryLoaderEntitySetOutput<TagSmall> _workOutput;
@@ -61,6 +61,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderWorker
             //
             // 1) Music Brainz
             // 2) Database Import AcoustID Entit(y|ies)
+            // 3) Album Art
             // 
 
             IncrementWorkStep();
@@ -78,6 +79,13 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderWorker
                 {
                     var message = string.Empty;
                     var success = WorkDbStep(ref message);
+                    _workOutput.SetResult(success, _workCurrentStep, WORK_STEPS, message);
+                    return success;
+                }
+                case 3:
+                {
+                    var message = string.Empty;
+                    var success = WorkAlbumArtStep(ref message);
                     _workOutput.SetResult(success, _workCurrentStep, WORK_STEPS, message);
                     return success;
                 }
@@ -208,6 +216,25 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderWorker
                 }
 
                 message = string.Format("Music Brainz results imported to database:  {0} added, {1} updated", added, updated);
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                message = "Music Brainz database import error " + ex.Message;
+                return false;
+            }
+        }
+
+        private bool WorkAlbumArtStep(ref string message)
+        {
+            try
+            {
+                message = string.Empty;
+
+
+
+                //message = string.Format("Music Brainz results imported to database:  {0} added, {1} updated", added, updated);
 
                 return true;
             }

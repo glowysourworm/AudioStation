@@ -1,4 +1,4 @@
-﻿namespace AudioStation.Controller.Model
+﻿namespace AudioStation.Core.Controller.ImageCacheModel
 {
     /// <summary>
     /// Size structure to handle the image size enumerating for the cache. For full sized images

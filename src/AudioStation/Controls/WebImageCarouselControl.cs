@@ -3,9 +3,9 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Threading;
 
-using AudioStation.Controller.Interface;
-using AudioStation.Controller.Model;
 using AudioStation.Controls.Animation;
+using AudioStation.Core.Controller.ImageCacheModel;
+using AudioStation.Core.Controller.Interface;
 
 using SimpleWpf.IocFramework.Application;
 using SimpleWpf.Utilities;

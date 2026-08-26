@@ -1,4 +1,6 @@
-﻿using AudioStation.Core.Model.Interface;
+﻿using ATL;
+
+using AudioStation.Core.Model.Interface;
 using AudioStation.Core.Model.Vendor.ATLExtension.Interface;
 
 namespace AudioStation.Core.Service.Interface
@@ -14,5 +16,10 @@ namespace AudioStation.Core.Service.Interface
 
         IAudioStationTag? GetTag(AudioStationTagServiceModel serviceModel);
         ITagSmall? GetTagSmall(AudioStationTagServiceModel serviceModel);
+
+        Task<PictureInfo?> GetFrontArtAsync(AudioStationTagServiceModel serviceModel);
+        PictureInfo? GetFrontArt(AudioStationTagServiceModel serviceModel);
+        Task<PictureInfo?> GetBackArtAsync(AudioStationTagServiceModel serviceModel);
+        PictureInfo? GetBackArt(AudioStationTagServiceModel serviceModel);
     }
 }

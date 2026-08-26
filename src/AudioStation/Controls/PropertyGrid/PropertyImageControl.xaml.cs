@@ -1,13 +1,7 @@
-﻿using System.IO;
-using System.Runtime.CompilerServices;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
+﻿using System.Windows;
 
-using AudioStation.Component;
-using AudioStation.Component.Interface;
-using AudioStation.Controller.Model;
+using AudioStation.Core.Component.Interface;
+using AudioStation.Core.Controller.ImageCacheModel;
 using AudioStation.ViewModels.OtherViewModels;
 
 using SimpleWpf.IocFramework.Application;
@@ -47,7 +41,7 @@ namespace AudioStation.Controls.PropertyGrid
 
             if (control != null && control.Value != null)
             {
-                control.SetImage();   
+                control.SetImage();
             }
         }
 

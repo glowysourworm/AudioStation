@@ -1,6 +1,6 @@
 ﻿using SimpleWpf.RecursiveSerializer.Shared;
 
-namespace AudioStation.Controller.Model
+namespace AudioStation.Core.Controller.ImageCacheModel
 {
     public struct ImageCacheKey : IDisposable
     {

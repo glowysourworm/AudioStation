@@ -29,7 +29,7 @@
         public string Artist { get; }
         public string Album { get; }
         public string Title { get; }
-        public Guid MusicBrainzId { get; }
+        public Guid MusicBrainzRecordingId { get; }
         public object? VendorId { get; }
 
         /// <summary>
@@ -41,7 +41,7 @@
             this.Artist = artist;
             this.Album = album;
             this.Title = title;
-            this.MusicBrainzId = Guid.Empty;
+            this.MusicBrainzRecordingId = Guid.Empty;
             this.VendorId = null;
             this.IdType = AudioStationTagIdentity.ArtistAlbumTitle;
         }
@@ -55,7 +55,7 @@
             this.Artist = string.Empty;
             this.Album = string.Empty;
             this.Title = string.Empty;
-            this.MusicBrainzId = musicBrainzId;
+            this.MusicBrainzRecordingId = musicBrainzId;
             this.VendorId = null;
             this.IdType = AudioStationTagIdentity.MusicBrainzId;
         }
@@ -69,7 +69,7 @@
             this.Artist = string.Empty;
             this.Album = string.Empty;
             this.Title = string.Empty;
-            this.MusicBrainzId = Guid.Empty;
+            this.MusicBrainzRecordingId = Guid.Empty;
             this.VendorId = vendorId;
             this.IdType = AudioStationTagIdentity.VendorId;
         }

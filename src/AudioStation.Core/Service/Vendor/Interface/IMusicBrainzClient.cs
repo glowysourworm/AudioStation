@@ -7,8 +7,6 @@ namespace AudioStation.Core.Service.Vendor.Interface
 {
     public interface IMusicBrainzClient : IAudioStationService, IAudioStationTagService
     {
-
-
         // Entity Calls (Query and Cache)
         Task<IEnumerable<IArtist>> QueryArtists(string artist, int minScore);
         Task<IEnumerable<IRecording>> QueryRecordings(string artist, string album, string trackName, int minScore);

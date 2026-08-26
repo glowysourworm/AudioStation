@@ -1,9 +1,9 @@
 ﻿using System.Drawing;
 
-using AudioStation.Component.Model;
-using AudioStation.Controller.Model;
+using AudioStation.Core.Component.BitmapConverterComponent;
+using AudioStation.Core.Controller.ImageCacheModel;
 
-namespace AudioStation.Component.Interface
+namespace AudioStation.Core.Component.Interface
 {
     /// <summary>
     /// This component is responsible for building BitmapSource objects that are less-prone to memory
