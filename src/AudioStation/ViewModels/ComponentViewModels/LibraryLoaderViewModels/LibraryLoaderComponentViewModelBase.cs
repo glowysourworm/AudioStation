@@ -139,7 +139,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels
             dest.InProgress = source.InProgress;
             dest.IsCompleted = source.IsCompleted;
             dest.LogMessages = source.LogMessages;
-            dest.Output = source.Output;
+            //dest.Output = source.Output;
             dest.Progress = source.Progress;
             dest.WorkSteps = source.WorkSteps;
         }

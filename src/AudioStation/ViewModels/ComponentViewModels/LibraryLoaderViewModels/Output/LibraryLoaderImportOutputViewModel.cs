@@ -1,13 +1,15 @@
 ﻿using System.Collections.ObjectModel;
 
-using AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderOutput.Interface;
+using AudioStation.Core.Component.LibraryLoaderComponent.Output.Interface;
 using AudioStation.Core.Database.AudioStationDatabase;
 using AudioStation.ViewModels.TagViewModels;
 using AudioStation.ViewModels.Vendor.AcoustIDViewModel;
 
+using SimpleWpf.ViewModel;
+
 namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Output
 {
-    public class LibraryLoaderImportOutputViewModel : LibraryLoaderOutputViewModelBase, ILibraryLoaderImportOutput
+    public class LibraryLoaderImportOutputViewModel : ViewModelBase, ILibraryLoaderImportOutput
     {
         string _destinationFolderBase;
         string _destinationPathCalculated;

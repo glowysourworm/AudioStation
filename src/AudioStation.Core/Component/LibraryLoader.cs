@@ -2,12 +2,12 @@
 
 using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Component.LibraryLoaderComponent;
-using AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderLoad;
-using AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderOutput;
-using AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderWorker;
+using AudioStation.Core.Component.LibraryLoaderComponent.Output;
+using AudioStation.Core.Component.LibraryLoaderComponent.Worker;
 using AudioStation.Core.Controller.Interface;
 using AudioStation.Core.Database.AudioStationDatabase;
 using AudioStation.Core.Database.AudioStationDatabase.Interface;
+using AudioStation.Core.Model.Vendor.ATLExtension;
 using AudioStation.Core.Service.Vendor.Interface;
 
 using SimpleWpf.Extensions.Event;
@@ -63,7 +63,7 @@ namespace AudioStation.Core.Component
 
         }
 
-        public int RunLoaderTaskAsync<TIn>(LibraryLoaderParameters<TIn> parameters) where TIn : LibraryLoaderLoadBase
+        public int RunLoaderTaskAsync(LibraryLoadType loadType, object load)
         {
             // NOTE:  The incremental work item ID property is a unique identifier! This must be maintained
             //        properly here by incremeting. It is used to identify logs for the task; and to have a
@@ -71,30 +71,30 @@ namespace AudioStation.Core.Component
             //
             LibraryLoaderWorkItem workItem = null;
 
-            switch (parameters.LoadType)
+            switch (loadType)
             {
                 case LibraryLoadType.Import:
                 {
                     workItem = new LibraryLoaderWorkItem(_workItemIdCounter, LibraryLoadType.Import);
-                    workItem.Initialize(LibraryWorkItemState.Pending, parameters.Load, new LibraryLoaderImportOutput());
+                    workItem.Initialize(LibraryWorkItemState.Pending, new LibraryLoaderLoad(loadType, load), new LibraryLoaderOutput(loadType, new LibraryLoaderImportOutput(), LibraryLoaderImportWorker.GetNumberSteps()));
                 }
                 break;
                 case LibraryLoadType.AcoustID:
                 {
                     workItem = new LibraryLoaderWorkItem(_workItemIdCounter, LibraryLoadType.AcoustID);
-                    workItem.Initialize(LibraryWorkItemState.Pending, parameters.Load, new LibraryLoaderEntitySetOutput<AcoustIDLookupResult>());
+                    workItem.Initialize(LibraryWorkItemState.Pending, new LibraryLoaderLoad(loadType, load), new LibraryLoaderOutput(loadType, new LibraryLoaderEntitySetOutput<AcoustIDLookupResult>(), LibraryLoaderAcoustIDWorker.GetNumberSteps()));
                 }
                 break;
                 case LibraryLoadType.MusicBrainzTagSmall:
                 {
                     workItem = new LibraryLoaderWorkItem(_workItemIdCounter, LibraryLoadType.MusicBrainzTagSmall);
-                    workItem.Initialize(LibraryWorkItemState.Pending, parameters.Load, new LibraryLoaderEntitySetOutput<TagSmall>());
+                    workItem.Initialize(LibraryWorkItemState.Pending, new LibraryLoaderLoad(loadType, load), new LibraryLoaderOutput(loadType, new LibraryLoaderEntitySetOutput<TagSmall>(), LibraryLoaderMusicBrainzBasicWorker.GetNumberSteps()));
                 }
                 break;
                 case LibraryLoadType.MusicBrainzAlbumArt:
                 {
                     workItem = new LibraryLoaderWorkItem(_workItemIdCounter, LibraryLoadType.MusicBrainzAlbumArt);
-                    workItem.Initialize(LibraryWorkItemState.Pending, parameters.Load, new LibraryLoaderTagOutput());
+                    workItem.Initialize(LibraryWorkItemState.Pending, new LibraryLoaderLoad(loadType, load), new LibraryLoaderOutput(loadType, new AudioStationTag(), LibraryLoaderMusicBrainzAlbumArtWorker.GetNumberSteps()));
                 }
                 break;
                 case LibraryLoadType.ImportRadio:

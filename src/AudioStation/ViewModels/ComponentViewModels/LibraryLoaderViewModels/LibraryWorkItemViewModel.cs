@@ -1,8 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 
 using AudioStation.Core.Component.LibraryLoaderComponent;
-using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Input;
-using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Output;
 using AudioStation.ViewModels.ComponentViewModels.LogViewModels;
 
 using SimpleWpf.ViewModel;
@@ -12,8 +10,8 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels
     public class LibraryWorkItemViewModel : ViewModelBase
     {
         int _id;
-        LibraryLoaderLoadViewModelBase _load;
-        LibraryLoaderOutputViewModelBase _output;
+        LibraryLoaderLoadViewModel _load;
+        LibraryLoaderOutputViewModel _output;
         LibraryLoadType _loadType;
         ObservableCollection<LibraryLoaderWorkStepViewModel> _workSteps;
         ObservableCollection<LogMessageViewModel> _logMessages;
@@ -42,12 +40,12 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels
             get { return _logMessages; }
             set { this.RaiseAndSetIfChanged(ref _logMessages, value); }
         }
-        public LibraryLoaderLoadViewModelBase Load
+        public LibraryLoaderLoadViewModel Load
         {
             get { return _load; }
             set { this.RaiseAndSetIfChanged(ref _load, value); }
         }
-        public LibraryLoaderOutputViewModelBase Output
+        public LibraryLoaderOutputViewModel Output
         {
             get { return _output; }
             set { this.RaiseAndSetIfChanged(ref _output, value); }
@@ -82,7 +80,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels
         }
         public string DisplayName
         {
-            get { return _load.ToString(); }
+            get { return _load.DisplayText; }
         }
 
         public string Status

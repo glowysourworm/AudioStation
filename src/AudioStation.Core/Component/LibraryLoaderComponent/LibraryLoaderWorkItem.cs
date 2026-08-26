@@ -1,8 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-using AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderLoad;
-using AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderOutput;
-
 namespace AudioStation.Core.Component.LibraryLoaderComponent
 {
     public enum LibraryLoadType
@@ -50,8 +47,8 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent
         int _id;
         DateTime _startTime;
         DateTime _lastUpdateTime;
-        LibraryLoaderLoadBase _workItem;                                           // Supposed to be a LibraryLoaderLoadBase
-        LibraryLoaderOutputBase _outputItem;
+        LibraryLoaderLoad _workItem;                                           // Supposed to be a LibraryLoaderLoadBase
+        LibraryLoaderOutput _outputItem;
         LibraryLoadType _loadType;
         LibraryWorkItemState _loadState;
 
@@ -106,14 +103,14 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent
                 return _lastUpdateTime;
             }
         }
-        public LibraryLoaderLoadBase GetWorkItem()
+        public LibraryLoaderLoad GetWorkItem()
         {
             lock (_lock)
             {
                 return _workItem;
             }
         }
-        public LibraryLoaderOutputBase GetOutputItem()
+        public LibraryLoaderOutput GetOutputItem()
         {
             lock (_lock)
             {
@@ -134,8 +131,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent
                 return _loadState;
             }
         }
-        public void Initialize<TIn, TOut>(LibraryWorkItemState state, TIn workItem, TOut outputItem) where TIn : LibraryLoaderLoadBase
-                                                                                                     where TOut : LibraryLoaderOutputBase
+        public void Initialize(LibraryWorkItemState state, LibraryLoaderLoad workItem, LibraryLoaderOutput outputItem)
         {
             lock (_lock)
             {

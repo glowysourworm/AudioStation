@@ -2,9 +2,11 @@
 
 using AudioStation.Core.Database.AudioStationDatabase;
 
+using SimpleWpf.ViewModel;
+
 namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Output
 {
-    public class LibraryLoaderEntitySetOutputViewModel<T> : LibraryLoaderOutputViewModelBase where T : AudioStationEntityBase
+    public class LibraryLoaderEntitySetOutputViewModel<T> : ViewModelBase where T : AudioStationEntityBase
     {
         ObservableCollection<T> _resultSet;
 

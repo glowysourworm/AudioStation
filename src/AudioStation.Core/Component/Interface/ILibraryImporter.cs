@@ -1,5 +1,6 @@
-﻿using AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderLoad.Interface;
-using AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderOutput.Interface;
+﻿
+using AudioStation.Core.Component.LibraryLoaderComponent.Load.Interface;
+using AudioStation.Core.Component.LibraryLoaderComponent.Output.Interface;
 
 namespace AudioStation.Core.Component.Interface
 {

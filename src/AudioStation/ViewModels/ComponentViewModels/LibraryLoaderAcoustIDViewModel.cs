@@ -8,7 +8,7 @@ using AudioStation.EventHandler;
 using AudioStation.Service.Interface;
 using AudioStation.Utility;
 using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels;
-using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Input;
+using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Load;
 using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Output;
 
 using Microsoft.Extensions.Logging;
@@ -63,8 +63,15 @@ namespace AudioStation.ViewModels.ComponentViewModels
                             HasErrors = false,
                             IsCompleted = false,
                             LoadType = LibraryLoadType.AcoustID,
-                            Load = new LibraryLoaderFileLoadViewModel(entry.NodeValue.FullPath, entry.NodeValue.ShortPath),
-                            Output = new LibraryLoaderEntitySetOutputViewModel<AcoustIDLookupResult>(),
+                            Load = new LibraryLoaderLoadViewModel()
+                            {
+                                DisplayText = entry.NodeValue.FullPath,
+                                Data = new LibraryLoaderFileLoadViewModel(entry.NodeValue.FullPath, entry.NodeValue.ShortPath)
+                            },
+                            Output = new LibraryLoaderOutputViewModel()
+                            {
+                                Output = new LibraryLoaderEntitySetOutputViewModel<AcoustIDLookupResult>()
+                            },
                             InProgress = false,
                             Progress = 0
                         });

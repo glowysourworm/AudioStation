@@ -1,8 +1,8 @@
 ﻿using System.IO;
 
 using AudioStation.Core.Component.Interface;
-using AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderLoad.Interface;
-using AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderOutput.Interface;
+using AudioStation.Core.Component.LibraryLoaderComponent.Load.Interface;
+using AudioStation.Core.Component.LibraryLoaderComponent.Output.Interface;
 using AudioStation.Core.Controller.Interface;
 using AudioStation.Core.Database.AudioStationDatabase;
 using AudioStation.Core.Model.Interface;
