@@ -6,7 +6,7 @@ namespace AudioStation.Core.Database.AudioStationDatabase
 {
     [PrimaryKey("Id")]
     [Table("AlbumFileReferenceMap", Schema = "public")]
-    public class AlbumFileReferenceMap
+    public class AlbumFileReferenceMap : AudioStationEntityBase
     {
         [ForeignKey("Album")]
         public int AlbumId { get; set; }

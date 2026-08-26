@@ -29,7 +29,7 @@ namespace AudioStation.ViewModels.ComponentViewModels
         /// </summary>
         public abstract TLoad? Load { get; }
 
-        public abstract void Initialize(Configuration configuration, TLoad load, DialogProgressHandler progressHandler);
+        public abstract void Initialize(AudioStationConfiguration configuration, TLoad load, DialogProgressHandler progressHandler);
         public abstract void Dispose();
     }
 }

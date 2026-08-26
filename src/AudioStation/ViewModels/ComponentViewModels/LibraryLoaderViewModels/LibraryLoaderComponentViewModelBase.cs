@@ -147,9 +147,9 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels
         /// <summary>
         /// Function to initialize the component (this is called from the Dispatcher)
         /// </summary>
-        protected abstract void InitializeComponent(Configuration configuration, DialogEventHandlers.DialogProgressHandler progressHandler);
+        protected abstract void InitializeComponent(AudioStationConfiguration configuration, DialogEventHandlers.DialogProgressHandler progressHandler);
 
-        public override void Initialize(Configuration configuration, NoViewModel load, DialogEventHandlers.DialogProgressHandler progressHandler)
+        public override void Initialize(AudioStationConfiguration configuration, NoViewModel load, DialogEventHandlers.DialogProgressHandler progressHandler)
         {
             if (BasicHelpers.IsDispatcher() == ApplicationIsDispatcherResult.False)
                 BasicHelpers.BeginInvokeDispatcher(Initialize, System.Windows.Threading.DispatcherPriority.Background, configuration, load, progressHandler);

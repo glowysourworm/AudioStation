@@ -30,7 +30,7 @@ namespace AudioStation.ViewModels.ComponentViewModels
             _audioStationDbClient = audioStationDbClient;
         }
 
-        protected override void InitializeComponent(Configuration configuration, DialogEventHandlers.DialogProgressHandler progressHandler)
+        protected override void InitializeComponent(AudioStationConfiguration configuration, DialogEventHandlers.DialogProgressHandler progressHandler)
         {
             try
             {

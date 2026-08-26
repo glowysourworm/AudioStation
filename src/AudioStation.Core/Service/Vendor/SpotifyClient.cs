@@ -129,7 +129,7 @@ namespace AudioStation.Core.Service.Vendor
         {
             return _status;
         }
-        public async Task<IAudioStationService.Status> Initialize(Configuration configuration)
+        public async Task<IAudioStationService.Status> Initialize(AudioStationConfiguration configuration)
         {
             if (string.IsNullOrWhiteSpace(configuration.SpotifyClientId))
                 OnStatusChanged(IAudioStationService.Status.Disabled);
@@ -149,7 +149,7 @@ namespace AudioStation.Core.Service.Vendor
 
             return _status;
         }
-        public Task<IAudioStationService.Status> ReInitialize(Configuration configuration)
+        public Task<IAudioStationService.Status> ReInitialize(AudioStationConfiguration configuration)
         {
             return Initialize(configuration);
         }

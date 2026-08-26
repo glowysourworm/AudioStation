@@ -7,8 +7,8 @@
     public interface IConfigurationManager
     {
         void Initialize(string? configurationFile);
-        Configuration GetValidConfiguration();
-        Configuration GetConfiguration();
+        AudioStationConfiguration GetValidConfiguration();
+        AudioStationConfiguration GetConfiguration();
         void SaveConfiguration();
         bool ValidateConfiguration();
     }

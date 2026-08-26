@@ -26,7 +26,7 @@ namespace AudioStation.ViewModels.ComponentViewModels
             eventAggregator.GetEvent<LogEvent>().Subscribe(OnLog);
         }
 
-        public override void Initialize(Configuration configuration, LogSetViewModel load, DialogProgressHandler progressHandler)
+        public override void Initialize(AudioStationConfiguration configuration, LogSetViewModel load, DialogProgressHandler progressHandler)
         {
             _viewModel = load;
         }

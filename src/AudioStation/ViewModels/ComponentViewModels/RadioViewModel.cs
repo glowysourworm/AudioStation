@@ -75,7 +75,7 @@ namespace AudioStation.ViewModels.ComponentViewModels
             });
         }
 
-        public override void Initialize(Configuration configuration, NoViewModel load, DialogProgressHandler progressHandler)
+        public override void Initialize(AudioStationConfiguration configuration, NoViewModel load, DialogProgressHandler progressHandler)
         {
         }
 

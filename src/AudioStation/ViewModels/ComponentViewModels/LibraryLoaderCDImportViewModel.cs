@@ -141,7 +141,7 @@ namespace AudioStation.ViewModels.ComponentViewModels
             this.ImportCommand.RaiseCanExecuteChanged();
         }
 
-        public override void Initialize(Configuration configuration, NoViewModel load, DialogEventHandlers.DialogProgressHandler progressHandler)
+        public override void Initialize(AudioStationConfiguration configuration, NoViewModel load, DialogEventHandlers.DialogProgressHandler progressHandler)
         {
         }
     }

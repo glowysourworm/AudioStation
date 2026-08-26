@@ -42,7 +42,7 @@ namespace AudioStation.ViewModels.ComponentViewModels
         }
 
 
-        protected override void InitializeComponent(Configuration configuration, DialogEventHandlers.DialogProgressHandler progressHandler)
+        protected override void InitializeComponent(AudioStationConfiguration configuration, DialogEventHandlers.DialogProgressHandler progressHandler)
         {
             this.MusicFolder = Path.Combine(configuration.DirectoryBase, configuration.MusicSubDirectory);
             this.DownloadFolder = configuration.DownloadFolder;

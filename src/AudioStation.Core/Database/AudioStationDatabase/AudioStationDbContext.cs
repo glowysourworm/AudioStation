@@ -11,7 +11,7 @@ namespace AudioStation.Core.Database.AudioStationDatabase
 {
     public class AudioStationDbContext : DbContext, IDisposable
     {
-        private readonly Configuration _configuration;
+        private readonly AudioStationConfiguration _configuration;
         private readonly LogLevel _currentLogLevel;
         private readonly bool _logVerbose;
 
@@ -33,7 +33,7 @@ namespace AudioStation.Core.Database.AudioStationDatabase
         public DbSet<Vendor> Vendors { get; set; }
 
 
-        public AudioStationDbContext(Configuration configuration,
+        public AudioStationDbContext(AudioStationConfiguration configuration,
                                      LogLevel currentLogLevel,
                                      bool logVerbose)
 
@@ -94,7 +94,7 @@ namespace AudioStation.Core.Database.AudioStationDatabase
             base.OnConfiguring(optionsBuilder);
         }
 
-        public static string GetConnectionString(Configuration configuration, bool logVerbose)
+        public static string GetConnectionString(AudioStationConfiguration configuration, bool logVerbose)
         {
             var connectionStringFormat = "Host={0};Database={1};Username={2};Password={3};";
 

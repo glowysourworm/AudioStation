@@ -195,7 +195,7 @@ namespace AudioStation.ViewModels.ComponentViewModels
             this.UnstageCommand = new SimpleCommand(UnstageFiles, CanUnstageFiles);
         }
 
-        public override void Initialize(Configuration configuration, LibraryImporterTreeViewModel load, DialogProgressHandler progressHandler)
+        public override void Initialize(AudioStationConfiguration configuration, LibraryImporterTreeViewModel load, DialogProgressHandler progressHandler)
         {
             if (BasicHelpers.IsDispatcher() == ApplicationIsDispatcherResult.False)
                 BasicHelpers.BeginInvokeDispatcher(Initialize, System.Windows.Threading.DispatcherPriority.Background, configuration, load, progressHandler);

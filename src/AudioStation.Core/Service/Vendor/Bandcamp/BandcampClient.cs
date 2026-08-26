@@ -151,12 +151,12 @@ namespace AudioStation.Core.Service.Vendor.Bandcamp
             // TODO
             return IAudioStationService.Status.Idle;
         }
-        public async Task<IAudioStationService.Status> Initialize(Configuration configuration)
+        public async Task<IAudioStationService.Status> Initialize(AudioStationConfiguration configuration)
         {
             // TODO
             return IAudioStationService.Status.Idle;
         }
-        public async Task<IAudioStationService.Status> ReInitialize(Configuration configuration)
+        public async Task<IAudioStationService.Status> ReInitialize(AudioStationConfiguration configuration)
         {
             return IAudioStationService.Status.Idle;
         }

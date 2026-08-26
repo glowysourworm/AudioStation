@@ -19,7 +19,7 @@ namespace AudioStation.Core.Component
 
         private readonly IOutputController _outputController;
 
-        Configuration _configuration;
+        AudioStationConfiguration _configuration;
 
         [IocImportingConstructor]
         public ConfigurationManager(IOutputController outputController)
@@ -35,12 +35,12 @@ namespace AudioStation.Core.Component
             _configuration = this.Open(configFileName);
         }
 
-        public Configuration GetConfiguration()
+        public AudioStationConfiguration GetConfiguration()
         {
             return _configuration;
         }
 
-        public Configuration GetValidConfiguration()
+        public AudioStationConfiguration GetValidConfiguration()
         {
             if (!ValidateConfiguration())
                 throw new Exception("Configuration not valid! Cannot return valid configuration. Please check before using this method!");
@@ -70,18 +70,18 @@ namespace AudioStation.Core.Component
                 _outputController.Log("Error saving configuration / data files:  {0}", LogLevel.Error, LogMessageType.General, ex, ex.Message);
             }
         }
-        private Configuration Open(string configurationFile)
+        private AudioStationConfiguration Open(string configurationFile)
         {
             try
             {
-                return (Configuration)Serializer.Deserialize<Configuration>(configurationFile);
+                return (AudioStationConfiguration)Serializer.Deserialize<AudioStationConfiguration>(configurationFile);
             }
             catch (Exception ex)
             {
                 _outputController.Log("Error reading configuration file. Please try saving the working configuration first and then restarting.", LogLevel.Error, LogMessageType.General, ex);
                 _outputController.Log("Creating default configuration.");
 
-                return new Configuration();
+                return new AudioStationConfiguration();
             }
         }
 

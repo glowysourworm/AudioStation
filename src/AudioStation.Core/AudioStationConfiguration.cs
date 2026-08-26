@@ -1,9 +1,8 @@
-﻿using SimpleWpf.Extensions;
-using SimpleWpf.ViewModel;
+﻿using SimpleWpf.ViewModel;
 
 namespace AudioStation.Core
 {
-    public class Configuration : ViewModelBase
+    public class AudioStationConfiguration : ViewModelBase
     {
         string _directoryBase;
         string _musicSubDirectory;
@@ -237,7 +236,7 @@ namespace AudioStation.Core
             set { this.RaiseAndSetIfChanged(ref _acoustIDAPIKey, value); }
         }
 
-        public Configuration()
+        public AudioStationConfiguration()
         {
             this.DirectoryBase = string.Empty;
 
@@ -260,8 +259,8 @@ namespace AudioStation.Core
             this.LastFmAPIKey = string.Empty;
             this.LastFmAPISecret = string.Empty;
             this.LastFmAPIUser = string.Empty;
-            this.LastFmApplication = string.Empty;   
-            this.LastFmPassword = string.Empty; 
+            this.LastFmApplication = string.Empty;
+            this.LastFmPassword = string.Empty;
             this.LastFmUser = string.Empty;
 
             this.SpotifyClientId = string.Empty;

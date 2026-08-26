@@ -37,7 +37,7 @@ public class MainViewModel : ViewModelBase
     bool _disposed = false;
 
     #region Backing Fields
-    Configuration _configuration;
+    AudioStationConfiguration _configuration;
     bool _loadedFromConfiguration;
     float _volume;
     bool _loading;
@@ -68,7 +68,7 @@ public class MainViewModel : ViewModelBase
     #endregion
 
     #region Properties
-    public Configuration Configuration
+    public AudioStationConfiguration Configuration
     {
         get { return _configuration; }
         set { this.RaiseAndSetIfChanged(ref _configuration, value); }
