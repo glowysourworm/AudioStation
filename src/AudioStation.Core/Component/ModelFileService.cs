@@ -4,6 +4,7 @@ using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Controller.Interface;
 using AudioStation.Core.Model;
 using AudioStation.Core.Model.Vendor.ATLExtension.Interface;
+using AudioStation.Core.Utility.FileUtility;
 
 using SimpleWpf.IocFramework.Application.Attribute;
 
@@ -65,13 +66,13 @@ namespace AudioStation.Core.Component
                 {
                     var format = "{0:#} of {1:#} {2}.mp3";
                     var formattedTitle = string.Format(format, trackNumber, trackCount, trackTitle);
-                    return _fileController.MakeFriendlyPath(true, formattedTitle);
+                    return MigrationHelpers.MakeFriendlyPath(true, formattedTitle);
                 }
                 case TrackNamingType.Descriptive:
                 {
                     var format = "{0:#} of {1:#} {2}-{3}-{4}.mp3";
                     var formattedTitle = string.Format(format, trackNumber, trackCount, primaryAlbumArtist, album, trackTitle);
-                    return _fileController.MakeFriendlyPath(true, formattedTitle);
+                    return MigrationHelpers.MakeFriendlyPath(true, formattedTitle);
                 }
                 default:
                     throw new Exception("Unhandled naming type:  ModelFileService.cs");
@@ -90,16 +91,16 @@ namespace AudioStation.Core.Component
                     return destinationFolderBase;
                 case TrackGroupingType.ArtistAlbum:
                 {
-                    var artistFolder = _fileController.MakeFriendlyPath(false, primaryAlbumArtist);
-                    var albumFolder = _fileController.MakeFriendlyPath(false, album);
+                    var artistFolder = MigrationHelpers.MakeFriendlyPath(false, primaryAlbumArtist);
+                    var albumFolder = MigrationHelpers.MakeFriendlyPath(false, album);
 
                     return Path.Combine(destinationFolderBase, artistFolder, albumFolder);
                 }
                 case TrackGroupingType.GenreArtistAlbum:
                 {
-                    var artistFolder = _fileController.MakeFriendlyPath(false, primaryAlbumArtist);
-                    var albumFolder = _fileController.MakeFriendlyPath(false, album);
-                    var genreFolder = _fileController.MakeFriendlyPath(false, genre);
+                    var artistFolder = MigrationHelpers.MakeFriendlyPath(false, primaryAlbumArtist);
+                    var albumFolder = MigrationHelpers.MakeFriendlyPath(false, album);
+                    var genreFolder = MigrationHelpers.MakeFriendlyPath(false, genre);
 
                     return Path.Combine(destinationFolderBase, genre, artistFolder, albumFolder);
                 }

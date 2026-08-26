@@ -1,4 +1,5 @@
-﻿using AudioStation.Core.Model.Vendor.ATLExtension.Interface;
+﻿using AudioStation.Core.Component.LibraryLoaderComponent.Load;
+using AudioStation.Core.Database.AudioStationDatabase;
 using AudioStation.Core.Service;
 using AudioStation.Core.Service.Vendor.Interface;
 
@@ -47,23 +48,28 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
         {
             try
             {
-                var musicBrainzId = this.Load.Get<Guid>();
+                var vendorMap = this.Load.Get<LibraryLoaderEntityLoad<TagSmallVendorMap>>();
 
-                Log("Music Brainz front cover lookup started:  " + musicBrainzId);
+                Log("Music Brainz front cover lookup started:  " + vendorMap.Entity.MusicBrainzRecordingId);
 
-                var frontCover = _musicBrainzClient.GetFrontArt(new AudioStationTagServiceModel(musicBrainzId));
+                var frontCover = _musicBrainzClient.GetFrontArt(new AudioStationTagServiceModel(vendorMap.Entity.MusicBrainzRecordingId));
 
                 if (frontCover != null)
                 {
-                    Log("Music Brainz client lookup finished:  " + musicBrainzId);
+                    Log("Music Brainz client lookup finished:  " + vendorMap.Entity.MusicBrainzRecordingId);
 
-                    // ATL Tag -> Front Cover
-                    this.Output.Get<IAudioStationTag>().EmbeddedPictures.Add(frontCover);
+                    // -> Store to file
+
+
+                    Log("Saving artwork to file:  " + vendorMap.Entity.MusicBrainzRecordingId);
+
+                    // -> Report FileReference to the front end
+                    //this.Output.Get<LibraryLoaderEntitySetOutput<FileReference>>().EmbeddedPictures.Add(frontCover);
                 }
 
                 else
                 {
-                    Log("Music Brainz client lookup error:  " + musicBrainzId);
+                    Log("Music Brainz client lookup error:  " + vendorMap.Entity.MusicBrainzRecordingId);
                     return false;
                 }
 
@@ -80,23 +86,23 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
         {
             try
             {
-                var musicBrainzId = this.Load.Get<Guid>();
+                var vendorMap = this.Load.Get<LibraryLoaderEntityLoad<TagSmallVendorMap>>();
 
-                Log("Music Brainz back cover lookup started:  " + musicBrainzId);
+                Log("Music Brainz back cover lookup started:  " + vendorMap.Entity.MusicBrainzRecordingId);
 
-                var backCover = _musicBrainzClient.GetBackArt(new AudioStationTagServiceModel(musicBrainzId));
+                var backCover = _musicBrainzClient.GetBackArt(new AudioStationTagServiceModel(vendorMap.Entity.MusicBrainzRecordingId));
 
                 if (backCover != null)
                 {
-                    Log("Music Brainz client lookup finished:  " + musicBrainzId);
+                    Log("Music Brainz client lookup finished:  " + vendorMap.Entity.MusicBrainzRecordingId);
 
                     // ATL Tag -> Front Cover
-                    this.Output.Get<IAudioStationTag>().EmbeddedPictures.Add(backCover);
+                    //this.Output.Get<IAudioStationTag>().EmbeddedPictures.Add(backCover);
                 }
 
                 else
                 {
-                    Log("Music Brainz client lookup error:  " + musicBrainzId);
+                    Log("Music Brainz client lookup error:  " + vendorMap.Entity.MusicBrainzRecordingId);
                     return false;
                 }
 

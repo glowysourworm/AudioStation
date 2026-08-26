@@ -5,6 +5,7 @@ using AudioStation.Controller.Interface;
 using AudioStation.Core.Component.CDPlayer.Interface;
 using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Controller.Interface;
+using AudioStation.Core.Utility.FileUtility;
 using AudioStation.Service.Interface;
 
 using NAudio.Lame;
@@ -72,13 +73,13 @@ namespace AudioStation.Service
 
 
                 var directory = configuration.DownloadFolder;
-                var artistFolder = _fileController.MakeFriendlyPath(false, artist);
-                var albumFolder = _fileController.MakeFriendlyPath(false, album);
+                var artistFolder = MigrationHelpers.MakeFriendlyPath(false, artist);
+                var albumFolder = MigrationHelpers.MakeFriendlyPath(false, album);
                 var hasDiscFolder = discCount > 1;
                 var discFolder = "Disc " + discNumber.ToString();
 
-                var filePath = hasDiscFolder ? _fileController.MakeFriendlyPath(true, directory, artistFolder, albumFolder, discFolder, "Track" + trackNumber + ".mp3") :
-                                               _fileController.MakeFriendlyPath(true, directory, artistFolder, albumFolder, "Track" + trackNumber + ".mp3");
+                var filePath = hasDiscFolder ? MigrationHelpers.MakeFriendlyPath(true, directory, artistFolder, albumFolder, discFolder, "Track" + trackNumber + ".mp3") :
+                                               MigrationHelpers.MakeFriendlyPath(true, directory, artistFolder, albumFolder, "Track" + trackNumber + ".mp3");
 
                 var artistDirectory = Path.Combine(directory, artistFolder);
                 var albumDirectory = Path.Combine(directory, artistFolder, albumFolder);

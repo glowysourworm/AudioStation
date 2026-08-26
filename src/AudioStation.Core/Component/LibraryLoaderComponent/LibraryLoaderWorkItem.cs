@@ -26,13 +26,13 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent
         /// <summary>
         /// Import small amount of tag data to local database using the AcoustID matching output.
         /// </summary>
-        [Display(Name = "Music Brainz Tag (basic)", Description = "This task will retrieve basic Music Brainz data for any completed AcoustID records in your library")]
-        MusicBrainzTagSmall,
+        [Display(Name = "Music Brainz (basic)", Description = "This task will retrieve basic Music Brainz data for any completed AcoustID records in your library")]
+        MusicBrainzBasic,
 
         /// <summary>
         /// Import album art from Music Brainz for tags loaded using the Music Brainz / AcoustID matching library loader service
         /// </summary>
-        [Display(Name = "Music Brainz Album Art (basic)", Description = "This task will retrieve basic Music Brainz album artwork for all (basic) data retrieved using library loader services")]
+        [Display(Name = "Music Brainz Album Art", Description = "This task will retrieve basic Music Brainz album artwork for all (basic) data retrieved using library loader services")]
         MusicBrainzAlbumArt,
     }
     public enum LibraryWorkItemState

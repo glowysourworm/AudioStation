@@ -7,6 +7,7 @@ using AudioStation.Core.Database.AudioStationDatabase.Interface;
 using AudioStation.EventHandler;
 using AudioStation.Service.Interface;
 using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels;
+using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Load;
 using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Output;
 using AudioStation.ViewModels.ComponentViewModels.LoadViewModels;
 
@@ -47,12 +48,12 @@ namespace AudioStation.ViewModels.ComponentViewModels
                         Load = new LibraryLoaderLoadViewModel()
                         {
                             DisplayText = result.First().FileName,
-                            Data = new LibraryLoaderEntitySetOutputViewModel<AcoustIDLookupResult>()
+                            Data = new LibraryLoaderEntitySetLoadViewModel<AcoustIDLookupResult>()
                             {
-                                ResultSet = new ObservableCollection<AcoustIDLookupResult>(result)
+                                EntitySet = new ObservableCollection<AcoustIDLookupResult>(result)
                             }
                         },
-                        LoadType = LibraryLoadType.MusicBrainzTagSmall,
+                        LoadType = LibraryLoadType.MusicBrainzBasic,
                         Output = new LibraryLoaderOutputViewModel()
                         {
                             Output = new LibraryLoaderEntitySetOutputViewModel<TagSmall>()

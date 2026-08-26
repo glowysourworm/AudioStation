@@ -4,7 +4,6 @@ using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Database.AudioStationDatabase.Interface;
 using AudioStation.Core.Event;
 using AudioStation.Core.Model;
-using AudioStation.Core.Model.Vendor;
 using AudioStation.Core.Model.Vendor.ATLExtension.Interface;
 using AudioStation.Core.Service.Interface;
 using AudioStation.Core.Utility;
@@ -606,6 +605,7 @@ namespace AudioStation.Core.Database.AudioStationDatabase
             {
                 using (var context = CreateContext())
                 {
+                    // Vendor Names
                     foreach (var enumValue in Enum.GetValues<VendorNames>())
                     {
                         var enumName = enumValue.GetAttribute<DisplayAttribute>().Name;
@@ -622,6 +622,28 @@ namespace AudioStation.Core.Database.AudioStationDatabase
                             };
 
                             context.Add<Vendor>(entity);
+                        }
+                    }
+
+                    context.SaveChanges();
+
+                    // File Types
+                    foreach (var enumValue in Enum.GetValues<FileTypes>())
+                    {
+                        var enumName = enumValue.GetAttribute<DisplayAttribute>().Name;
+
+                        // Check for existing entity
+                        var entity = context.FileTypes.ToList().FirstOrDefault(x => x.Name == enumName);
+
+                        // Add (NO UPDATE)
+                        if (entity == null)
+                        {
+                            entity = new FileType()
+                            {
+                                Name = enumName!
+                            };
+
+                            context.Add<FileType>(entity);
                         }
                     }
 

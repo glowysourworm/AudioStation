@@ -1,7 +1,6 @@
 ﻿using AudioStation.Core.Component.LibraryLoaderComponent.Load;
 using AudioStation.Core.Component.LibraryLoaderComponent.Output;
 using AudioStation.Core.Database.AudioStationDatabase;
-using AudioStation.Core.Model.Vendor.ATLExtension.Interface;
 using AudioStation.Model;
 
 namespace AudioStation.Core.Component.LibraryLoaderComponent
@@ -44,17 +43,17 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent
 
                     _actualType = typeof(LibraryLoaderEntitySetOutput<AcoustIDLookupResult>);
                     break;
-                case LibraryLoadType.MusicBrainzTagSmall:
-                    if (output is not LibraryLoaderEntityOutput<TagSmall>)
-                        throw new ArgumentException("Improper library output type:  MusicBrainzTagSmall expects LibraryLoaderEntityOutput<TagSmall>");
+                case LibraryLoadType.MusicBrainzBasic:
+                    if (output is not LibraryLoaderEntitySetOutput<TagSmall>)
+                        throw new ArgumentException("Improper library output type:  MusicBrainzBasic expects LibraryLoaderEntityOutput<TagSmall>");
 
-                    _actualType = typeof(LibraryLoaderEntityOutput<TagSmall>);
+                    _actualType = typeof(LibraryLoaderEntitySetOutput<TagSmall>);
                     break;
                 case LibraryLoadType.MusicBrainzAlbumArt:
-                    if (output is not IAudioStationTag)
-                        throw new ArgumentException("Improper library output type:  MusicBrainzAlbumArt expects IAudioStationTag");
+                    if (output is not LibraryLoaderEntitySetOutput<FileReference>)
+                        throw new ArgumentException("Improper library output type:  MusicBrainzAlbumArt expects LibraryLoaderEntitySetOutput<FileReference>");
 
-                    _actualType = typeof(IAudioStationTag);
+                    _actualType = typeof(LibraryLoaderEntitySetOutput<FileReference>);
                     break;
                 case LibraryLoadType.Import:
                     if (output is not LibraryLoaderImportOutput)

@@ -17,7 +17,10 @@ namespace AudioStation.Core.Database.AudioStationDatabase
 
         public DbSet<AcoustIDLookupResult> AcoustIDLookupResults { get; set; }
         public DbSet<Album> Albums { get; set; }
+        public DbSet<AlbumFileReferenceMap> AlbumFileReferenceMaps { get; set; }
         public DbSet<Artist> Artists { get; set; }
+        public DbSet<ArtistFileReferenceMap> ArtistFileReferenceMaps { get; set; }
+        public DbSet<FileType> FileTypes { get; set; }
         public DbSet<FileReference> FileReferences { get; set; }
         public DbSet<Genre> Genres { get; set; }
         public DbSet<M3UStream> M3UStreams { get; set; }
@@ -56,6 +59,14 @@ namespace AudioStation.Core.Database.AudioStationDatabase
             modelBuilder.Entity<Artist>();
             modelBuilder.Entity<Genre>();
             modelBuilder.Entity<RadioBrowserStation>();
+
+            modelBuilder.Entity<ArtistFileReferenceMap>().Navigation(x => x.Artist).AutoInclude(true);
+            modelBuilder.Entity<ArtistFileReferenceMap>().Navigation(x => x.FileReference).AutoInclude(true);
+            modelBuilder.Entity<ArtistFileReferenceMap>().Navigation(x => x.FileType).AutoInclude(true);
+
+            modelBuilder.Entity<AlbumFileReferenceMap>().Navigation(x => x.Album).AutoInclude(true);
+            modelBuilder.Entity<AlbumFileReferenceMap>().Navigation(x => x.FileReference).AutoInclude(true);
+            modelBuilder.Entity<AlbumFileReferenceMap>().Navigation(x => x.FileType).AutoInclude(true);
 
             modelBuilder.Entity<TrackArtistMap>().Navigation(x => x.Artist).AutoInclude(true);
             modelBuilder.Entity<TrackArtistMap>().Navigation(x => x.Track).AutoInclude(true);

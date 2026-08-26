@@ -1,41 +1,42 @@
-﻿namespace AudioStation.Core.Controller.Interface
+﻿using AudioStation.Core.Component.BitmapConverterComponent;
+using AudioStation.Core.Model;
+
+namespace AudioStation.Core.Controller.Interface
 {
     public interface IFileController
     {
-        /// <summary>
-        /// Removes un-friendly characters for the file path. Use for 
-        /// directory names / file paths. The file name has a different illegal character set - so set 
-        /// isFileName = true (iff) the final string is a file name. Otherwise, set it to false, and the 
-        /// path will be processed according to what is "legal" for a directory (and, in this case, "friendly"). 
-        /// Also, decodes UTF-8 escape sequences.
-        /// </summary>
-        string MakeFriendlyPath(bool isFileName, params string[] filePath);
+        public enum StorageType
+        {
+            /// <summary>
+            /// File is put into a temporary cache (see Configuration) in a single flat folder
+            /// </summary>
+            DiskCache,
+
+            /// <summary>
+            /// File is put into its final location based on configuration (e.g. Album/Artist/front-cover.bmp)
+            /// </summary>
+            DiskPermanent
+        }
 
         /// <summary>
-        /// Creates a directory using standard .NET calls. Throws exceptions ordinarily.
+        /// Returns the image for the specified album / artist / file type / (storage type)
         /// </summary>
-        void CreateDirectory(string path);
+        /// <param name="album">Album related to the image (from database entities)</param>
+        /// <param name="artist">Artist related to the image (from database entities)</param>
+        /// <param name="fileType">File type related to usage</param>
+        /// <param name="storageType">Storage type (temp / permanent)</param>
+        /// <returns>Image data ready for use for WPF controls</returns>
+        BitmapImageData GetImage(string album, string artist, FileTypes fileType, StorageType storageType = StorageType.DiskCache);
 
         /// <summary>
-        /// Checks for directory ordinarily - with logging and exceptions.
+        /// Stores image given album / artist / file type / (storage type)
         /// </summary>
-        bool DirectoryExists(string path);
-
-        /// <summary>
-        /// Checks for file ordinarily - with logging and exceptions.
-        /// </summary>
-        bool FileExists(string path);
-
-        /// <summary>
-        /// Moves file, checking parts of directory paths, checking folder permissions, and logging details. Returns true if 
-        /// the file is moved successfully.
-        /// </summary>
-        void MigrateFile(string sourcePath, string destinationPath, bool overwriteDestination = true, bool deleteSource = true, bool deleteSourceEmptyFolder = false);
-
-        /// <summary>
-        /// Checks all possible file movement issues (that are allowed without yet moving the file); and returns the result. DOES NOT
-        /// CREATE / DELETE ANY FILES OR FOLDERS.
-        /// </summary>
-        bool CanMigrateFile(string sourcePath, string destinationPath, bool overwriteDestination = true, bool deleteSource = true, bool deleteSourceEmptyFolder = false);
+        /// <param name="imageData">Image data from other services</param>
+        /// <param name="album">Album related to the image (from database entities)</param>
+        /// <param name="artist">Artist related to the image (from database entities)</param>
+        /// <param name="fileType">File type related to usage</param>
+        /// <param name="storageType">Storage type (temp / permanent)</param>
+        /// <returns>Location of file for adding to the database file reference</returns>
+        string StoreImage(BitmapImageData imageData, string album, string artist, FileTypes fileType, StorageType storageType = StorageType.DiskCache);
     }
 }

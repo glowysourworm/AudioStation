@@ -39,17 +39,17 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent
 
                     _actualType = typeof(LibraryLoaderFileLoad);
                     break;
-                case LibraryLoadType.MusicBrainzTagSmall:
+                case LibraryLoadType.MusicBrainzBasic:
                     if (load is not LibraryLoaderEntitySetLoad<AcoustIDLookupResult>)
-                        throw new ArgumentException("Improper library load type:  MusicBrainzAlbumArt expects Guid for the MusicBrainz IRecording.Id");
+                        throw new ArgumentException("Improper library load type:  MusicBrainzBasic expects LibraryLoaderEntitySetLoad<AcoustIDLookupResult>");
 
                     _actualType = typeof(LibraryLoaderEntitySetLoad<AcoustIDLookupResult>);
                     break;
                 case LibraryLoadType.MusicBrainzAlbumArt:
-                    if (load is not Guid)
-                        throw new ArgumentException("Improper library load type:  MusicBrainzAlbumArt expects Guid for the MusicBrainz IRecording.Id");
+                    if (load is not LibraryLoaderEntityLoad<TagSmallVendorMap>)
+                        throw new ArgumentException("Improper library load type:  MusicBrainzAlbumArt expects LibraryLoaderEntityLoad<TagSmallVendorMap>");
 
-                    _actualType = typeof(Guid);
+                    _actualType = typeof(LibraryLoaderEntityLoad<TagSmallVendorMap>);
                     break;
                 case LibraryLoadType.Import:
                     if (load is not LibraryLoaderFileLoad)

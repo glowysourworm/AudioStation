@@ -4,8 +4,8 @@ using AudioStation.Core.Component.LibraryLoaderComponent.Load;
 using AudioStation.Core.Component.LibraryLoaderComponent.Output;
 using AudioStation.Core.Database.AudioStationDatabase;
 using AudioStation.Core.Database.AudioStationDatabase.Interface;
+using AudioStation.Core.Model;
 using AudioStation.Core.Model.Interface;
-using AudioStation.Core.Model.Vendor;
 using AudioStation.Core.Service;
 using AudioStation.Core.Service.Vendor.Interface;
 

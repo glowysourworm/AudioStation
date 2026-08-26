@@ -1,6 +1,6 @@
 ﻿using AudioStation.Core.Database.AudioStationDatabase;
+using AudioStation.Core.Model;
 using AudioStation.Core.Model.Interface;
-using AudioStation.Core.Model.Vendor;
 using AudioStation.Core.Model.Vendor.ATLExtension;
 using AudioStation.Core.Model.Vendor.ATLExtension.Interface;
 

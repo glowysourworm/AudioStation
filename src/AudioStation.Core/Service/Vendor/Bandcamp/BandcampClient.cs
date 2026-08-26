@@ -5,6 +5,7 @@ using AudioStation.Core.Controller.Interface;
 using AudioStation.Core.Service.Interface;
 using AudioStation.Core.Service.Vendor.Bandcamp.Interface;
 using AudioStation.Core.Utility;
+using AudioStation.Core.Utility.FileUtility;
 using AudioStation.Model;
 
 using Microsoft.Extensions.Logging;
@@ -95,8 +96,8 @@ namespace AudioStation.Core.Service.Vendor.Bandcamp
                     throw new Exception("Error reading data from Bandcamp API. Invalid or incomplete data set.");
 
                 var baseFolder = Path.Combine(_configurationManager.GetConfiguration().DownloadFolder, "Bandcamp");
-                var artistFolder = Path.Combine(baseFolder, _fileController.MakeFriendlyPath(false, album.Artist));
-                var albumFolder = Path.Combine(artistFolder, _fileController.MakeFriendlyPath(false, album.Title.Title));
+                var artistFolder = Path.Combine(baseFolder, MigrationHelpers.MakeFriendlyPath(false, album.Artist));
+                var albumFolder = Path.Combine(artistFolder, MigrationHelpers.MakeFriendlyPath(false, album.Title.Title));
 
                 if (!Path.Exists(baseFolder))
                     Directory.CreateDirectory(baseFolder);
@@ -107,7 +108,7 @@ namespace AudioStation.Core.Service.Vendor.Bandcamp
                 if (!Path.Exists(albumFolder))
                     Directory.CreateDirectory(albumFolder);
 
-                var bmpFile = _fileController.MakeFriendlyPath(true, string.Format("{0}-{1}.bmp", album.Title?.Title, album.Artist));
+                var bmpFile = MigrationHelpers.MakeFriendlyPath(true, string.Format("{0}-{1}.bmp", album.Title?.Title, album.Artist));
                 var bmpPath = Path.Combine(albumFolder, bmpFile);
 
                 // Write Album Art
@@ -121,7 +122,7 @@ namespace AudioStation.Core.Service.Vendor.Bandcamp
 
                     var fileFormat = "{0}-{1}-{2}.{3}";
 
-                    var mp3File = _fileController.MakeFriendlyPath(true, string.Format(fileFormat, track.Artist, album.Title?.Title, track.Title, "mp3"));
+                    var mp3File = MigrationHelpers.MakeFriendlyPath(true, string.Format(fileFormat, track.Artist, album.Title?.Title, track.Title, "mp3"));
                     var mp3Path = Path.Combine(albumFolder, mp3File);
 
                     // Write Mp3 to file

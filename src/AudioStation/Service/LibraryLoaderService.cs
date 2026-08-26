@@ -65,29 +65,23 @@ namespace AudioStation.Service
 
                     return _libraryLoader.RunLoaderTaskAsync(LibraryLoadType.AcoustID, new LibraryLoaderFileLoad(workLoad.FullPath));
                 }
-                case LibraryLoadType.MusicBrainzTagSmall:
+                case LibraryLoadType.MusicBrainzBasic:
                 {
                     var workLoad = workItem.Load.Data as LibraryLoaderEntitySetLoadViewModel<AcoustIDLookupResult>;
 
                     if (workLoad == null)
                         throw new ArgumentException("Invalid work load for Library Loader Music Brainz Import");
 
-                    return _libraryLoader.RunLoaderTaskAsync(LibraryLoadType.MusicBrainzTagSmall, new LibraryLoaderEntitySetLoad<AcoustIDLookupResult>(workLoad.EntitySet));
+                    return _libraryLoader.RunLoaderTaskAsync(LibraryLoadType.MusicBrainzBasic, new LibraryLoaderEntitySetLoad<AcoustIDLookupResult>(workLoad.EntitySet));
                 }
                 case LibraryLoadType.MusicBrainzAlbumArt:
                 {
-                    //var workLoad = workItem.Load.Data as Guid;
+                    var workLoad = workItem.Load.Data as LibraryLoaderEntityLoadViewModel<TagSmallVendorMap>;
 
-                    //if (workLoad == null)
-                    //    throw new ArgumentException("Invalid work load for Library Loader Music Brainz Import");
+                    if (workLoad == null)
+                        throw new ArgumentException("Invalid work load for Library Loader Music Brainz Album Art");
 
-                    //return _libraryLoader.RunLoaderTaskAsync(
-                    //    new LibraryLoaderParameters<LibraryLoaderObjectLoad<Guid>>
-                    //        (LibraryLoadType.MusicBrainzAlbumArt, new LibraryLoaderObjectLoad<Guid>()
-                    //        {
-                    //            Load = workLoad.Load
-                    //        }));
-                    throw new NotImplementedException();
+                    return _libraryLoader.RunLoaderTaskAsync(LibraryLoadType.MusicBrainzAlbumArt, new LibraryLoaderEntityLoad<TagSmallVendorMap>(workLoad.Entity));
                 }
                 case LibraryLoadType.ImportRadio:
                 default:

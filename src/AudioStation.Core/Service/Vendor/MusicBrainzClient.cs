@@ -2,6 +2,7 @@
 
 using ATL;
 
+using AudioStation.Core.Model;
 using AudioStation.Core.Model.Interface;
 using AudioStation.Core.Model.Vendor;
 using AudioStation.Core.Model.Vendor.ATLExtension;

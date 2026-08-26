@@ -7,7 +7,6 @@ using AudioStation.Core.Component.LibraryLoaderComponent.Worker;
 using AudioStation.Core.Controller.Interface;
 using AudioStation.Core.Database.AudioStationDatabase;
 using AudioStation.Core.Database.AudioStationDatabase.Interface;
-using AudioStation.Core.Model.Vendor.ATLExtension;
 using AudioStation.Core.Service.Vendor.Interface;
 
 using SimpleWpf.Extensions.Event;
@@ -85,16 +84,16 @@ namespace AudioStation.Core.Component
                     workItem.Initialize(LibraryWorkItemState.Pending, new LibraryLoaderLoad(loadType, load), new LibraryLoaderOutput(loadType, new LibraryLoaderEntitySetOutput<AcoustIDLookupResult>(), LibraryLoaderAcoustIDWorker.GetNumberSteps()));
                 }
                 break;
-                case LibraryLoadType.MusicBrainzTagSmall:
+                case LibraryLoadType.MusicBrainzBasic:
                 {
-                    workItem = new LibraryLoaderWorkItem(_workItemIdCounter, LibraryLoadType.MusicBrainzTagSmall);
+                    workItem = new LibraryLoaderWorkItem(_workItemIdCounter, LibraryLoadType.MusicBrainzBasic);
                     workItem.Initialize(LibraryWorkItemState.Pending, new LibraryLoaderLoad(loadType, load), new LibraryLoaderOutput(loadType, new LibraryLoaderEntitySetOutput<TagSmall>(), LibraryLoaderMusicBrainzBasicWorker.GetNumberSteps()));
                 }
                 break;
                 case LibraryLoadType.MusicBrainzAlbumArt:
                 {
                     workItem = new LibraryLoaderWorkItem(_workItemIdCounter, LibraryLoadType.MusicBrainzAlbumArt);
-                    workItem.Initialize(LibraryWorkItemState.Pending, new LibraryLoaderLoad(loadType, load), new LibraryLoaderOutput(loadType, new AudioStationTag(), LibraryLoaderMusicBrainzAlbumArtWorker.GetNumberSteps()));
+                    workItem.Initialize(LibraryWorkItemState.Pending, new LibraryLoaderLoad(loadType, load), new LibraryLoaderOutput(loadType, new LibraryLoaderEntitySetOutput<FileReference>(), LibraryLoaderMusicBrainzAlbumArtWorker.GetNumberSteps()));
                 }
                 break;
                 case LibraryLoadType.ImportRadio:
@@ -143,7 +142,7 @@ namespace AudioStation.Core.Component
                         thread = new LibraryLoaderAcoustIDWorker(_acoustIDClient, _audioStationDbClient, workItem);
                     }
                     break;
-                    case LibraryLoadType.MusicBrainzTagSmall:
+                    case LibraryLoadType.MusicBrainzBasic:
                     {
                         thread = new LibraryLoaderMusicBrainzBasicWorker(_musicBrainzClient, _audioStationDbClient, workItem);
                     }

@@ -9,6 +9,7 @@ using AudioStation.Core.Model.Interface;
 using AudioStation.Core.Service;
 using AudioStation.Core.Service.Vendor.Interface;
 using AudioStation.Core.Utility;
+using AudioStation.Core.Utility.FileUtility;
 
 using Microsoft.Extensions.Logging;
 
@@ -77,7 +78,7 @@ namespace AudioStation.Core.Component
         }
         public bool CanImportMigrateFile(ILibraryLoaderImportLoad workInput, ILibraryLoaderImportOutput workOutput)
         {
-            return workOutput.Mp3FileImportSuccess && _fileController.CanMigrateFile(workInput.SourceFile, workOutput.DestinationPathCalculated);
+            return workOutput.Mp3FileImportSuccess && MigrationHelpers.CanMigrateFile(workInput.SourceFile, workOutput.DestinationPathCalculated);
         }
 
 
@@ -285,7 +286,7 @@ namespace AudioStation.Core.Component
                 _tagCacheController.Evict(workInput.SourceFile);
 
                 // Migrate File
-                _fileController.MigrateFile(workInput.SourceFile,
+                MigrationHelpers.MigrateFile(workInput.SourceFile,
                                             workOutput.DestinationPathCalculated,
                                             workInput.MigrationOverwriteDestinationFiles,
                                             workInput.MigrationDeleteSourceFiles,
