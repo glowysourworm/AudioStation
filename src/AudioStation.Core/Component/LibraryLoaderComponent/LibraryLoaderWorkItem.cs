@@ -27,13 +27,16 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent
         AcoustID,
 
         /// <summary>
-        /// Completely fill out, and report on music brainz ID's througout the library. The AcoustID
-        /// service is used to try finding the ID by the first 30 seconds of the track in the event
-        /// that we can't find it otherwise. Finally, the data is stored both in the database; and the
-        /// tag data.
+        /// Import small amount of tag data to local database using the AcoustID matching output.
         /// </summary>
-        [Display(Name = "Music Brainz", Description = "This task will retrieve basic Music Brainz data for any completed AcoustID records in your library")]
-        MusicBrainz
+        [Display(Name = "Music Brainz Tag (basic)", Description = "This task will retrieve basic Music Brainz data for any completed AcoustID records in your library")]
+        MusicBrainzTagSmall,
+
+        /// <summary>
+        /// Import album art from Music Brainz for tags loaded using the Music Brainz / AcoustID matching library loader service
+        /// </summary>
+        [Display(Name = "Music Brainz Album Art (basic)", Description = "This task will retrieve basic Music Brainz album artwork for all (basic) data retrieved using library loader services")]
+        MusicBrainzAlbumArt,
     }
     public enum LibraryWorkItemState
     {

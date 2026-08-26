@@ -82,13 +82,6 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderWorker
                     _workOutput.SetResult(success, _workCurrentStep, WORK_STEPS, message);
                     return success;
                 }
-                case 3:
-                {
-                    var message = string.Empty;
-                    var success = WorkAlbumArtStep(ref message);
-                    _workOutput.SetResult(success, _workCurrentStep, WORK_STEPS, message);
-                    return success;
-                }
                 default:
                     throw new Exception("Unhandled work step");
             }
@@ -216,25 +209,6 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.LibraryLoaderWorker
                 }
 
                 message = string.Format("Music Brainz results imported to database:  {0} added, {1} updated", added, updated);
-
-                return true;
-            }
-            catch (Exception ex)
-            {
-                message = "Music Brainz database import error " + ex.Message;
-                return false;
-            }
-        }
-
-        private bool WorkAlbumArtStep(ref string message)
-        {
-            try
-            {
-                message = string.Empty;
-
-
-
-                //message = string.Format("Music Brainz results imported to database:  {0} added, {1} updated", added, updated);
 
                 return true;
             }

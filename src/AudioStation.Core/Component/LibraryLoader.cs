@@ -85,9 +85,9 @@ namespace AudioStation.Core.Component
                     workItem.Initialize(LibraryWorkItemState.Pending, parameters.Load, new LibraryLoaderEntitySetOutput<AcoustIDLookupResult>());
                 }
                 break;
-                case LibraryLoadType.MusicBrainz:
+                case LibraryLoadType.MusicBrainzTagSmall:
                 {
-                    workItem = new LibraryLoaderWorkItem(_workItemIdCounter, LibraryLoadType.MusicBrainz);
+                    workItem = new LibraryLoaderWorkItem(_workItemIdCounter, LibraryLoadType.MusicBrainzTagSmall);
                     workItem.Initialize(LibraryWorkItemState.Pending, parameters.Load, new LibraryLoaderEntitySetOutput<TagSmall>());
                 }
                 break;
@@ -137,7 +137,7 @@ namespace AudioStation.Core.Component
                         thread = new LibraryLoaderAcoustIDWorker(_acoustIDClient, _audioStationDbClient, workItem);
                     }
                     break;
-                    case LibraryLoadType.MusicBrainz:
+                    case LibraryLoadType.MusicBrainzTagSmall:
                     {
                         thread = new LibraryLoaderMusicBrainzWorker(_musicBrainzClient, _audioStationDbClient, workItem);
                     }

@@ -66,7 +66,7 @@ namespace AudioStation.Service
                     return _libraryLoader.RunLoaderTaskAsync(
                         new LibraryLoaderParameters<LibraryLoaderFileLoad>(LibraryLoadType.AcoustID, new LibraryLoaderFileLoad(workLoad.FullPath)));
                 }
-                case LibraryLoadType.MusicBrainz:
+                case LibraryLoadType.MusicBrainzTagSmall:
                 {
                     var workLoad = workItem.Load as LibraryLoaderEntitySetLoadViewModel<AcoustIDLookupResult>;
 
@@ -74,7 +74,7 @@ namespace AudioStation.Service
                         throw new ArgumentException("Invalid work load for Library Loader Music Brainz Import");
 
                     return _libraryLoader.RunLoaderTaskAsync(
-                        new LibraryLoaderParameters<LibraryLoaderEntitySetLoad<AcoustIDLookupResult>>(LibraryLoadType.MusicBrainz, new LibraryLoaderEntitySetLoad<AcoustIDLookupResult>(workLoad.EntitySet)));
+                        new LibraryLoaderParameters<LibraryLoaderEntitySetLoad<AcoustIDLookupResult>>(LibraryLoadType.MusicBrainzTagSmall, new LibraryLoaderEntitySetLoad<AcoustIDLookupResult>(workLoad.EntitySet)));
                 }
                 case LibraryLoadType.ImportRadio:
                 default:
