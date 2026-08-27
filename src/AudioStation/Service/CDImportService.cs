@@ -72,7 +72,7 @@ namespace AudioStation.Service
                 }
 
 
-                var directory = configuration.DownloadFolder;
+                var directory = configuration.ImportFolder;
                 var artistFolder = MigrationHelpers.MakeFriendlyPath(false, artist);
                 var albumFolder = MigrationHelpers.MakeFriendlyPath(false, album);
                 var hasDiscFolder = discCount > 1;

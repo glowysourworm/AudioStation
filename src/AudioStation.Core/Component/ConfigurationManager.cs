@@ -2,6 +2,7 @@
 
 using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Controller.Interface;
+using AudioStation.Core.Model;
 using AudioStation.Core.Utility;
 using AudioStation.Model;
 
@@ -108,6 +109,8 @@ namespace AudioStation.Core.Component
                 var success = true;
 
                 success &= !string.IsNullOrWhiteSpace(_configuration.AcoustIDAPIKey);
+                success &= !string.IsNullOrWhiteSpace(_configuration.ApplicationCacheFolder);
+                success &= !string.IsNullOrWhiteSpace(_configuration.ApplicationStorageFolder);
                 success &= !string.IsNullOrWhiteSpace(_configuration.AudioBooksSubDirectory);
                 success &= !string.IsNullOrWhiteSpace(_configuration.BandcampAPIKey);
                 success &= !string.IsNullOrWhiteSpace(_configuration.BandcampAPISecret);
@@ -122,11 +125,13 @@ namespace AudioStation.Core.Component
                 success &= !string.IsNullOrWhiteSpace(_configuration.DiscogsEmail);
                 success &= !string.IsNullOrWhiteSpace(_configuration.DiscogsKey);
                 success &= !string.IsNullOrWhiteSpace(_configuration.DiscogsSecret);
-                success &= !string.IsNullOrWhiteSpace(_configuration.DownloadFolder);
                 success &= !string.IsNullOrWhiteSpace(_configuration.FanartAPIKey);
                 success &= !string.IsNullOrWhiteSpace(_configuration.FanartEmail);
                 success &= !string.IsNullOrWhiteSpace(_configuration.FanartPassword);
                 success &= !string.IsNullOrWhiteSpace(_configuration.FanartUser);
+                success &= !string.IsNullOrWhiteSpace(_configuration.ImportFolder);
+                success &= _configuration.ImportNamingType != TrackNamingType.None;
+                success &= _configuration.ImportGroupingType != TrackGroupingType.None;
                 success &= !string.IsNullOrWhiteSpace(_configuration.LastFmAPIKey);
                 success &= !string.IsNullOrWhiteSpace(_configuration.LastFmAPISecret);
                 success &= !string.IsNullOrWhiteSpace(_configuration.LastFmAPIUser);
@@ -152,7 +157,13 @@ namespace AudioStation.Core.Component
                 if (!Directory.Exists(Path.Combine(_configuration.DirectoryBase, _configuration.AudioBooksSubDirectory)))
                     success = false;
 
-                if (!Directory.Exists(_configuration.DownloadFolder))
+                if (!Directory.Exists(_configuration.ApplicationCacheFolder))
+                    success = false;
+
+                if (!Directory.Exists(_configuration.ApplicationStorageFolder))
+                    success = false;
+
+                if (!Directory.Exists(_configuration.ImportFolder))
                     success = false;
 
                 return success;

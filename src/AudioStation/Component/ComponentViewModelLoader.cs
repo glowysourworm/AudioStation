@@ -299,12 +299,12 @@ namespace AudioStation.Component
                 var options = _libraryImporterViewModel.Options;
 
                 if (string.IsNullOrWhiteSpace(configuration.DirectoryBase) ||
-                    string.IsNullOrWhiteSpace(configuration.DownloadFolder))
+                    string.IsNullOrWhiteSpace(configuration.ImportFolder))
                     return null;
 
 
                 // Calculate Migration (destination) Directory
-                var destinationDirectory = System.IO.Path.Combine(configuration.DirectoryBase, configuration.DownloadFolder);
+                var destinationDirectory = System.IO.Path.Combine(configuration.DirectoryBase, configuration.ImportFolder);
 
                 try
                 {

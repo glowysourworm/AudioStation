@@ -61,8 +61,7 @@ public class MainViewModel : ViewModelBase
     SimpleCommand _openLibraryFolderCommand;
     SimpleCommand _openMusicSubFolderCommand;
     SimpleCommand _openAudioBooksSubFolderCommand;
-    SimpleCommand _openDownloadFolderCommand;
-    SimpleCommand _openStagingFolderCommand;
+    SimpleCommand _openImportFolderCommand;
     SimpleCommand _openCacheFolderCommand;
     SimpleCommand _openStorageFolderCommand;
     SimpleCommand _saveConfigurationCommand;
@@ -176,15 +175,10 @@ public class MainViewModel : ViewModelBase
         get { return _openAudioBooksSubFolderCommand; }
         set { this.RaiseAndSetIfChanged(ref _openAudioBooksSubFolderCommand, value); }
     }
-    public SimpleCommand OpenDownloadFolderCommand
+    public SimpleCommand OpenImportFolderCommand
     {
-        get { return _openDownloadFolderCommand; }
-        set { this.RaiseAndSetIfChanged(ref _openDownloadFolderCommand, value); }
-    }
-    public SimpleCommand OpenStagingFolderCommand
-    {
-        get { return _openStagingFolderCommand; }
-        set { this.RaiseAndSetIfChanged(ref _openStagingFolderCommand, value); }
+        get { return _openImportFolderCommand; }
+        set { this.RaiseAndSetIfChanged(ref _openImportFolderCommand, value); }
     }
     public SimpleCommand OpenCacheFolderCommand
     {
@@ -309,22 +303,13 @@ public class MainViewModel : ViewModelBase
                 this.Configuration.AudioBooksSubDirectory = Path.GetFileName(folder) ?? string.Empty;
             }
         });
-        this.OpenDownloadFolderCommand = new SimpleCommand(() =>
+        this.OpenImportFolderCommand = new SimpleCommand(() =>
         {
             var folder = dialogController.ShowSelectFolder();
 
             if (!string.IsNullOrEmpty(folder))
             {
-                this.Configuration.DownloadFolder = folder;
-            }
-        });
-        this.OpenStagingFolderCommand = new SimpleCommand(() =>
-        {
-            var folder = dialogController.ShowSelectFolder();
-
-            if (!string.IsNullOrEmpty(folder))
-            {
-                this.Configuration.StagingFolder = folder;
+                this.Configuration.ImportFolder = folder;
             }
         });
         this.OpenCacheFolderCommand = new SimpleCommand(() =>

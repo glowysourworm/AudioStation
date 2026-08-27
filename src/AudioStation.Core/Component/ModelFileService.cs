@@ -1,7 +1,6 @@
 ﻿using System.IO;
 
 using AudioStation.Core.Component.Interface;
-using AudioStation.Core.Controller.Interface;
 using AudioStation.Core.Model;
 using AudioStation.Core.Model.Vendor.ATLExtension.Interface;
 using AudioStation.Core.Utility.FileUtility;
@@ -13,13 +12,11 @@ namespace AudioStation.Core.Component
     [IocExport(typeof(IModelFileService))]
     public class ModelFileService : IModelFileService
     {
-        private readonly IFileController _fileController;
         private readonly IModelValidationService _modelValidationService;
 
         [IocImportingConstructor]
-        public ModelFileService(IFileController fileController, IModelValidationService modelValidationService)
+        public ModelFileService(IModelValidationService modelValidationService)
         {
-            _fileController = fileController;
             _modelValidationService = modelValidationService;
         }
 

@@ -1,4 +1,6 @@
-﻿using SimpleWpf.ViewModel;
+﻿using AudioStation.Core.Model;
+
+using SimpleWpf.ViewModel;
 
 namespace AudioStation.Core
 {
@@ -9,12 +11,14 @@ namespace AudioStation.Core
         string _musicSubDirectory;
         string _audioBooksSubDirectory;
 
-        string _downloadFolder;
-        string _stagingFolder;
-
         // Relative to .exe directory
         string _applicationCacheFolder;
         string _applicationStorageFolder;
+
+        // Import Options
+        TrackGroupingType _importGroupingType;
+        TrackNamingType _importNamingType;
+        string _importFolder;
 
         string _databaseHost;
         string _databaseName;
@@ -72,17 +76,6 @@ namespace AudioStation.Core
             set { this.RaiseAndSetIfChanged(ref _audioBooksSubDirectory, value); }
         }
 
-        public string DownloadFolder
-        {
-            get { return _downloadFolder; }
-            set { this.RaiseAndSetIfChanged(ref _downloadFolder, value); }
-        }
-        public string StagingFolder
-        {
-            get { return _stagingFolder; }
-            set { this.RaiseAndSetIfChanged(ref _stagingFolder, value); }
-        }
-
         public string ApplicationCacheFolder
         {
             get { return _applicationCacheFolder; }
@@ -92,6 +85,22 @@ namespace AudioStation.Core
         {
             get { return _applicationStorageFolder; }
             set { this.RaiseAndSetIfChanged(ref _applicationStorageFolder, value); }
+        }
+
+        public TrackGroupingType ImportGroupingType
+        {
+            get { return _importGroupingType; }
+            set { this.RaiseAndSetIfChanged(ref _importGroupingType, value); }
+        }
+        public TrackNamingType ImportNamingType
+        {
+            get { return _importNamingType; }
+            set { this.RaiseAndSetIfChanged(ref _importNamingType, value); }
+        }
+        public string ImportFolder
+        {
+            get { return _importFolder; }
+            set { this.RaiseAndSetIfChanged(ref _importFolder, value); }
         }
 
         public string DatabaseHost
@@ -264,8 +273,9 @@ namespace AudioStation.Core
             this.AudioBooksSubDirectory = string.Empty;
             this.MusicSubDirectory = string.Empty;
 
-            this.DownloadFolder = string.Empty;
-            this.StagingFolder = string.Empty;
+            this.ImportFolder = string.Empty;
+            this.ImportNamingType = TrackNamingType.Standard;
+            this.ImportGroupingType = TrackGroupingType.ArtistAlbum;
 
             this.ApplicationCacheFolder = string.Empty;
             this.ApplicationStorageFolder = string.Empty;
@@ -284,7 +294,6 @@ namespace AudioStation.Core
             this.BandcampAPIKey = string.Empty;
             this.BandcampAPISecret = string.Empty;
             this.BandcampPassword = string.Empty;
-            this.DownloadFolder = string.Empty;
 
             this.LastFmAPIKey = string.Empty;
             this.LastFmAPISecret = string.Empty;
