@@ -52,7 +52,8 @@ public class MainViewModel : ViewModelBase
     LibraryImporterViewModel _libraryImportViewModel;
     LibraryLoaderAcoustIDViewModel _libraryLoaderAcoustID;
     LibraryLoaderCDImportViewModel _libraryLoaderCDImport;
-    LibraryLoaderMusicBrainzBasicViewModel _libraryLoaderMusicBrainz;
+    LibraryLoaderMusicBrainzBasicViewModel _libraryLoaderMusicBrainzBasic;
+    LibraryLoaderMusicBrainzAlbumArtViewModel _libraryLoaderMusicBrainzAlbumArt;
 
     ObservableCollection<float> _equalizerValues;
     ObservableCollection<EqualizerBandViewModel> _equalizerViewModel;
@@ -120,10 +121,15 @@ public class MainViewModel : ViewModelBase
         get { return _libraryLoaderCDImport; }
         set { this.RaiseAndSetIfChanged(ref _libraryLoaderCDImport, value); }
     }
-    public LibraryLoaderMusicBrainzBasicViewModel LibraryLoaderMusicBrainz
+    public LibraryLoaderMusicBrainzBasicViewModel LibraryLoaderMusicBrainzBasic
     {
-        get { return _libraryLoaderMusicBrainz; }
-        set { this.RaiseAndSetIfChanged(ref _libraryLoaderMusicBrainz, value); }
+        get { return _libraryLoaderMusicBrainzBasic; }
+        set { this.RaiseAndSetIfChanged(ref _libraryLoaderMusicBrainzBasic, value); }
+    }
+    public LibraryLoaderMusicBrainzAlbumArtViewModel LibraryLoaderMusicBrainzAlbumArt
+    {
+        get { return _libraryLoaderMusicBrainzAlbumArt; }
+        set { this.RaiseAndSetIfChanged(ref _libraryLoaderMusicBrainzAlbumArt, value); }
     }
     public RadioViewModel Radio
     {
@@ -217,7 +223,8 @@ public class MainViewModel : ViewModelBase
                          LibraryImporterViewModel libraryImporterViewModel,
                          LibraryLoaderAcoustIDViewModel libraryLoaderAcoustIDViewModel,
                          LibraryLoaderCDImportViewModel libraryLoaderCDImportViewModel,
-                         LibraryLoaderMusicBrainzBasicViewModel libraryLoaderMusicBrainzViewModel,
+                         LibraryLoaderMusicBrainzBasicViewModel libraryLoaderMusicBrainzBasicViewModel,
+                         LibraryLoaderMusicBrainzAlbumArtViewModel libraryLoaderMusicBrainzAlbumArtViewModel,
                          NowPlayingViewModel nowPlayingViewModel,
                          BandcampViewModel bandcampViewModel)
     {
@@ -249,7 +256,8 @@ public class MainViewModel : ViewModelBase
         this.LibraryImporter = libraryImporterViewModel;
         this.LibraryLoaderAcoustID = libraryLoaderAcoustIDViewModel;
         this.LibraryLoaderCDImport = libraryLoaderCDImportViewModel;
-        this.LibraryLoaderMusicBrainz = libraryLoaderMusicBrainzViewModel;
+        this.LibraryLoaderMusicBrainzBasic = libraryLoaderMusicBrainzBasicViewModel;
+        this.LibraryLoaderMusicBrainzAlbumArt = libraryLoaderMusicBrainzAlbumArtViewModel;
         this.Bandcamp = bandcampViewModel;
         this.Volume = 1.0f;
         this.Loading = false;

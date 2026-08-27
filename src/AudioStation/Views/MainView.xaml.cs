@@ -40,8 +40,11 @@ namespace AudioStation.Views
                 case NavigationView.LibraryLoaderAcoustID:
                     this.LibraryLoaderAcoustIDTab.IsSelected = true;
                     break;
-                case NavigationView.LibraryLoaderMusicBrainz:
-                    this.LibraryLoaderMusicBrainzTab.IsSelected = true;
+                case NavigationView.LibraryLoaderMusicBrainzBasic:
+                    this.LibraryLoaderMusicBrainzBasicTab.IsSelected = true;
+                    break;
+                case NavigationView.LibraryLoaderMusicBrainzAlbumArt:
+                    this.LibraryLoaderMusicBrainzAlbumArtTab.IsSelected = true;
                     break;
                 case NavigationView.LibraryImporter:
                     this.LibraryImportTab.IsSelected = true;

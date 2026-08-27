@@ -42,7 +42,8 @@ namespace AudioStation.Component
         private readonly LibraryImporterViewModel _libraryImporterViewModel;
         private readonly LibraryLoaderAcoustIDViewModel _libraryLoaderAcoustIDViewModel;
         private readonly LibraryLoaderCDImportViewModel _libraryLoaderCDImportViewModel;
-        private readonly LibraryLoaderMusicBrainzBasicViewModel _libraryLoaderMusicBrainzViewModel;
+        private readonly LibraryLoaderMusicBrainzBasicViewModel _libraryLoaderMusicBrainzBasicViewModel;
+        private readonly LibraryLoaderMusicBrainzAlbumArtViewModel _libraryLoaderMusicBrainzAlbumArtViewModel;
 
         [IocImportingConstructor]
         public ComponentViewModelLoader(
@@ -55,7 +56,8 @@ namespace AudioStation.Component
             // View Models
             LibraryLoaderCDImportViewModel libraryLoaderCDImportViewModel,
             LibraryLoaderAcoustIDViewModel libraryLoaderAcoustIDViewModel,
-            LibraryLoaderMusicBrainzBasicViewModel libraryLoaderMusicBrainzViewModel,
+            LibraryLoaderMusicBrainzBasicViewModel libraryLoaderMusicBrainzBasicViewModel,
+            LibraryLoaderMusicBrainzAlbumArtViewModel libraryLoaderMusicBrainzAlbumArtViewModel,
             LibraryImporterViewModel libraryImporterViewModel,
             LibraryManagerViewModel libraryManagerViewModel,
             RadioViewModel radioViewModel,
@@ -71,7 +73,8 @@ namespace AudioStation.Component
 
             _libraryLoaderCDImportViewModel = libraryLoaderCDImportViewModel;
             _libraryLoaderAcoustIDViewModel = libraryLoaderAcoustIDViewModel;
-            _libraryLoaderMusicBrainzViewModel = libraryLoaderMusicBrainzViewModel;
+            _libraryLoaderMusicBrainzBasicViewModel = libraryLoaderMusicBrainzBasicViewModel;
+            _libraryLoaderMusicBrainzAlbumArtViewModel = libraryLoaderMusicBrainzAlbumArtViewModel;
             _libraryImporterViewModel = libraryImporterViewModel;
             _libraryManagerViewModel = libraryManagerViewModel;
             _radioViewModel = radioViewModel;
@@ -110,9 +113,13 @@ namespace AudioStation.Component
                 progressHandler(taskCount, task++, 0, "Initializing AcoustID...");
                 _libraryLoaderAcoustIDViewModel.Initialize(configuration, new NoViewModel(), progressHandler);
 
-                // Library Loader: Music Brainz
-                progressHandler(taskCount, task++, 0, "Initializing Music Brainz...");
-                _libraryLoaderMusicBrainzViewModel.Initialize(configuration, new NoViewModel(), progressHandler);
+                // Library Loader: Music Brainz (Basic)
+                progressHandler(taskCount, task++, 0, "Initializing Music Brainz (Basic)...");
+                _libraryLoaderMusicBrainzBasicViewModel.Initialize(configuration, new NoViewModel(), progressHandler);
+
+                // Library Loader: Music Brainz (Album Art)
+                progressHandler(taskCount, task++, 0, "Initializing Music Brainz (Album Art)...");
+                _libraryLoaderMusicBrainzAlbumArtViewModel.Initialize(configuration, new NoViewModel(), progressHandler);
 
                 // Library Importer
                 progressHandler(taskCount, task++, 0, "Initializing Library Importer...");

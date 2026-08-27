@@ -526,38 +526,50 @@ namespace AudioStation.Core.Database.AudioStationDatabase
         //
         private DbSet<TEntity> GetEntitySet<TEntity>(AudioStationDbContext context) where TEntity : AudioStationEntityBase
         {
-            if (typeof(TEntity) == typeof(M3UStream))
-                return context.M3UStreams as DbSet<TEntity>;
-
-            else if (typeof(TEntity) == typeof(AcoustIDLookupResult))
+            if (typeof(TEntity) == typeof(AcoustIDLookupResult))
                 return context.AcoustIDLookupResults as DbSet<TEntity>;
-
-            else if (typeof(TEntity) == typeof(Track))
-                return context.Tracks as DbSet<TEntity>;
 
             else if (typeof(TEntity) == typeof(Album))
                 return context.Albums as DbSet<TEntity>;
 
+            else if (typeof(TEntity) == typeof(AlbumFileReferenceMap))
+                return context.AlbumFileReferenceMaps as DbSet<TEntity>;
+
             else if (typeof(TEntity) == typeof(Artist))
                 return context.Artists as DbSet<TEntity>;
 
-            else if (typeof(TEntity) == typeof(TrackArtistMap))
-                return context.TrackArtistMaps as DbSet<TEntity>;
+            else if (typeof(TEntity) == typeof(ArtistFileReferenceMap))
+                return context.ArtistFileReferenceMaps as DbSet<TEntity>;
+
+            else if (typeof(TEntity) == typeof(FileReference))
+                return context.FileReferences as DbSet<TEntity>;
 
             else if (typeof(TEntity) == typeof(Genre))
                 return context.Genres as DbSet<TEntity>;
 
-            else if (typeof(TEntity) == typeof(TrackGenreMap))
-                return context.TrackGenreMaps as DbSet<TEntity>;
+            else if (typeof(TEntity) == typeof(M3UStream))
+                return context.M3UStreams as DbSet<TEntity>;
 
             else if (typeof(TEntity) == typeof(RadioBrowserStation))
                 return context.RadioBrowserStations as DbSet<TEntity>;
 
-            else if (typeof(TEntity) == typeof(Vendor))
-                return context.Vendors as DbSet<TEntity>;
-
             else if (typeof(TEntity) == typeof(TagSmall))
                 return context.TagSmalls as DbSet<TEntity>;
+
+            else if (typeof(TEntity) == typeof(TagSmallVendorMap))
+                return context.TagSmallVendorMaps as DbSet<TEntity>;
+
+            else if (typeof(TEntity) == typeof(Track))
+                return context.Tracks as DbSet<TEntity>;
+
+            else if (typeof(TEntity) == typeof(TrackArtistMap))
+                return context.TrackArtistMaps as DbSet<TEntity>;
+
+            else if (typeof(TEntity) == typeof(TrackGenreMap))
+                return context.TrackGenreMaps as DbSet<TEntity>;
+
+            else if (typeof(TEntity) == typeof(Vendor))
+                return context.Vendors as DbSet<TEntity>;
 
             else
                 throw new Exception("Unhandled entity type:  AudioStationDbClient.GetEntitySet");
