@@ -178,9 +178,9 @@ namespace AudioStation.Core.Utility.FileUtility
 
             // NOTE*** This does not include all invalid path characters!!! 
             //
-            //         Adding:  ['?', '!', '\'', '%', '$', '#', '@', '^', '&', '*', '(', ')', '+', '=']
+            //         Adding:  ['?', '\'', '%', '$', '#', '@', '^', '&', '*', '(', ')', '+', '=']
             var invalidChars = System.IO.Path.GetInvalidPathChars()
-                                             .Concat(new char[] { '?', '!', '\'', ':', ';', '\"', '%', '$', '#', '@', '^', '&', '*', '(', ')', '+', '=' });
+                                             .Concat(new char[] { '?', '\'', ':', ';', '\"', '%', '$', '#', '@', '^', '&', '*', '(', ')', '+', '=' });
 
             foreach (var invalidChar in invalidChars)
             {

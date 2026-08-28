@@ -25,8 +25,6 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
     /// </summary>
     public class LibraryImporterFileViewModel : PathViewModel
     {
-        private readonly IModelValidationService _modelValidationService;
-        private readonly IModelFileService _modelFileService;
         private readonly ILibraryImporter _libraryImporter;
         private readonly ITagCacheController _tagCacheController;
 
@@ -160,8 +158,6 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
                                             LibraryImporterConfigurationViewModel options)
             : base(options.SourceFolder, fullPath)
         {
-            _modelValidationService = IocContainer.Get<IModelValidationService>();
-            _modelFileService = IocContainer.Get<IModelFileService>();
             _libraryImporter = IocContainer.Get<ILibraryImporter>();
             _tagCacheController = IocContainer.Get<ITagCacheController>();
 
@@ -237,7 +233,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
             _updating = true;
 
             // Validate Tag (also gives validation message)
-            var validation = _modelValidationService.ValidateTagImport(_tagDirty);
+            var validation = TagValidator.ValidateTagImport(_tagDirty);
 
             // Update (validation)
             this.Tag.Update(_tagClean, _tagDirty, validation);
@@ -250,11 +246,11 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
 
             if (this.MinimumImportValid)
             {
-                var fileMigrationName = _modelFileService.CalculateFileName(_tagDirty, this.ImportLoad.NamingType);
-                var fileMigrationFolder = _modelFileService.CalculateFolderPath(_tagDirty, this.ImportLoad.DestinationFolder, this.ImportLoad.GroupingType);
+                //var fileMigrationName = _modelFileService.CalculateFileName(_tagDirty, this.ImportLoad.NamingType);
+                //var fileMigrationFolder = _modelFileService.CalculateFolderPath(_tagDirty, this.ImportLoad.DestinationFolder, this.ImportLoad.GroupingType);
 
-                this.FileMigrationName = fileMigrationName;
-                this.FileMigrationFullPath = System.IO.Path.Combine(fileMigrationFolder, fileMigrationName);
+                //this.FileMigrationName = fileMigrationName;
+                //this.FileMigrationFullPath = System.IO.Path.Combine(fileMigrationFolder, fileMigrationName);
 
                 //this.TagIssues = "(None)";
             }

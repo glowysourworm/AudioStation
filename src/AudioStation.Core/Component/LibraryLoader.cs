@@ -149,7 +149,7 @@ namespace AudioStation.Core.Component
                     break;
                     case LibraryLoadType.MusicBrainzAlbumArt:
                     {
-                        thread = new LibraryLoaderMusicBrainzAlbumArtWorker(_musicBrainzClient, workItem);
+                        thread = new LibraryLoaderMusicBrainzAlbumArtWorker(_audioStationDbClient, _musicBrainzClient, _fileController, workItem);
                     }
                     break;
                     case LibraryLoadType.ImportRadio:

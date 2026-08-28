@@ -1,5 +1,7 @@
 ﻿using System.IO;
 
+using ATL;
+
 using AudioStation.Core.Component.BitmapConverterComponent;
 using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Controller.ImageCacheModel;
@@ -66,14 +68,37 @@ namespace AudioStation.Core.Component
         }
 
         public string StoreImage(
-            BitmapImageData imageData,
-            string album,
-            string artist,
+            PictureInfo pictureInfo,
             string genre,
+            string artist,
+            string album,
             FileTypes fileType,
-            string specificFileName = "",
             IFileController.StorageType storageType = IFileController.StorageType.DiskCache,
-            bool overwrite = false)
+            bool overwrite = false,
+            string specificFileName = "")
+        {
+            try
+            {
+                // Convert -> BMP
+                var bitmapData = _bitmapConverter.BitmapDataToBitmapSource(pictureInfo.PictureData, new ImageSize(ImageCacheType.FullSize), pictureInfo.MimeType);
+
+                return StoreImage(bitmapData, genre, artist, album, fileType, storageType, overwrite, specificFileName);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error storing image", ex);
+            }
+        }
+
+        public string StoreImage(
+            BitmapImageData imageData,
+            string genre,
+            string artist,
+            string album,
+            FileTypes fileType,
+            IFileController.StorageType storageType = IFileController.StorageType.DiskCache,
+            bool overwrite = false,
+            string specificFileName = "")
         {
             // Procedure:
             //
@@ -99,7 +124,7 @@ namespace AudioStation.Core.Component
             }
         }
 
-        public string SaveAudioFile(string stagedFilePath, TrackType trackType, string genre, string album, string artist, string track, int trackNumber, int trackCount, bool overwrite = false)
+        public string SaveAudioFile(string stagedFilePath, TrackType trackType, string genre, string artist, string album, string track, int trackNumber, int trackCount, bool overwrite = false)
         {
             // Procedure:
             //
@@ -204,7 +229,7 @@ namespace AudioStation.Core.Component
             {
                 // Audio Folder Path:  This is where music files are typically placed. The same folder path will
                 //                     be used for cache / permanent storage to organize artwork or other files.
-                folderPath = CalculateAudioFolderPath(configuration.ImportGroupingType, baseFolder, artist, album, genre, true);
+                folderPath = CalculateAudioFolderPath(configuration.ImportGroupingType, baseFolder, genre, artist, album, true);
             }
             catch (Exception ex)
             {
@@ -269,9 +294,9 @@ namespace AudioStation.Core.Component
 
         private string CalculateAudioFolderPath(TrackGroupingType groupingType,
                                                 string destinationFolderBase,
+                                                string genre,
                                                 string artist,
                                                 string album,
-                                                string genre,
                                                 bool createFolders = false)
         {
             if (!Directory.Exists(destinationFolderBase))
@@ -286,15 +311,18 @@ namespace AudioStation.Core.Component
                     var artistFolder = MigrationHelpers.MakeFriendlyPath(false, artist);
                     var albumFolder = MigrationHelpers.MakeFriendlyPath(false, album);
 
+                    var artistPath = Path.Combine(destinationFolderBase, artistFolder);
+                    var albumPath = Path.Combine(destinationFolderBase, artistFolder, albumFolder);
+
                     // ../Artist
-                    if (createFolders && !Directory.Exists(artistFolder))
-                        Directory.CreateDirectory(artistFolder);
+                    if (createFolders && !Directory.Exists(artistPath))
+                        Directory.CreateDirectory(artistPath);
 
                     // ../Artist/Album
-                    if (createFolders && !Directory.Exists(albumFolder))
-                        Directory.CreateDirectory(albumFolder);
+                    if (createFolders && !Directory.Exists(albumPath))
+                        Directory.CreateDirectory(albumPath);
 
-                    return Path.Combine(destinationFolderBase, artistFolder, albumFolder);
+                    return albumPath;
                 }
                 case TrackGroupingType.GenreArtistAlbum:
                 {
@@ -302,19 +330,23 @@ namespace AudioStation.Core.Component
                     var albumFolder = MigrationHelpers.MakeFriendlyPath(false, album);
                     var genreFolder = MigrationHelpers.MakeFriendlyPath(false, genre);
 
+                    var artistPath = Path.Combine(destinationFolderBase, artistFolder);
+                    var albumPath = Path.Combine(destinationFolderBase, artistFolder, albumFolder);
+                    var genrePath = Path.Combine(destinationFolderBase, genreFolder, artistFolder, albumFolder);
+
                     // ../Genre
-                    if (createFolders && !Directory.Exists(genreFolder))
-                        Directory.CreateDirectory(genreFolder);
+                    if (createFolders && !Directory.Exists(genrePath))
+                        Directory.CreateDirectory(genrePath);
 
                     // ../Genre/Artist
-                    if (createFolders && !Directory.Exists(artistFolder))
-                        Directory.CreateDirectory(artistFolder);
+                    if (createFolders && !Directory.Exists(artistPath))
+                        Directory.CreateDirectory(artistPath);
 
                     // ../Genre/Artist/Album
-                    if (createFolders && !Directory.Exists(albumFolder))
-                        Directory.CreateDirectory(albumFolder);
+                    if (createFolders && !Directory.Exists(albumPath))
+                        Directory.CreateDirectory(albumPath);
 
-                    return Path.Combine(destinationFolderBase, genre, artistFolder, albumFolder);
+                    return genrePath;
                 }
                 default:
                     throw new Exception("Unhandled grouping type:  LibraryLoaderImportWorker.cs");

@@ -13,6 +13,7 @@ using AudioStation.Model;
 using Microsoft.Extensions.Logging;
 
 using SimpleWpf.IocFramework.Application.Attribute;
+using AudioStation.Core.Utility;
 
 namespace AudioStation.Core.Component
 {
@@ -61,7 +62,7 @@ namespace AudioStation.Core.Component
                     else // Default to Bitmap
                     {
                         if (!string.IsNullOrEmpty(mimeType))
-                            _outputController.Log("Unhandled Bitmap mime/type:  {0}", LogMessageType.General, LogLevel.Warning, null, mimeType);
+                            ApplicationHelpers.Log("Unhandled Bitmap mime/type:  {0}", LogLevel.Warning, null, mimeType);
 
                         var bitmap = new Bitmap(memoryStream, false);
                         return BitmapToBitmapSource(bitmap, imageSize);

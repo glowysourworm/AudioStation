@@ -1,12 +1,11 @@
-﻿using System.IO;
-
-using AudioStation.Core.Component.Interface;
+﻿using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Component.LibraryLoaderComponent.Load.Interface;
 using AudioStation.Core.Component.LibraryLoaderComponent.Output.Interface;
 using AudioStation.Core.Controller.Interface;
 using AudioStation.Core.Database.AudioStationDatabase;
 using AudioStation.Core.Model.Interface;
 using AudioStation.Core.Service;
+using AudioStation.Core.Service.Payload;
 using AudioStation.Core.Service.Vendor.Interface;
 using AudioStation.Core.Utility;
 using AudioStation.Core.Utility.FileUtility;
@@ -23,8 +22,6 @@ namespace AudioStation.Core.Component
     {
         private readonly IAcoustIDClient _acoustIDClient;
         private readonly IMusicBrainzClient _musicBrainzClient;
-        private readonly IModelValidationService _modelValidationService;
-        private readonly IModelFileService _modelFileService;
         private readonly ITagCacheController _tagCacheController;
         private readonly IFileController _fileController;
 
@@ -33,15 +30,11 @@ namespace AudioStation.Core.Component
         [IocImportingConstructor]
         public LibraryImporter(IAcoustIDClient acoustIDClient,
                                IMusicBrainzClient musicBrainzClient,
-                               IModelValidationService modelValidationService,
-                               IModelFileService modelFileService,
                                ITagCacheController tagCacheController,
                                IFileController fileController)
         {
             _acoustIDClient = acoustIDClient;
             _musicBrainzClient = musicBrainzClient;
-            _modelValidationService = modelValidationService;
-            _modelFileService = modelFileService;
             _tagCacheController = tagCacheController;
             _fileController = fileController;
         }
@@ -71,7 +64,7 @@ namespace AudioStation.Core.Component
 
             var tagFile = _tagCacheController.Get(workInput.SourceFile);
 
-            var validation = _modelValidationService.ValidateTagImport(tagFile);
+            var validation = TagValidator.ValidateTagImport(tagFile);
 
             return validation.IsValid;
 
@@ -104,10 +97,17 @@ namespace AudioStation.Core.Component
             {
                 // -> Music Brainz Recording Lookup
                 //
-                var tagSmall = await _musicBrainzClient.GetTagSmallAsync(new AudioStationTagServiceModel(result.MusicBrainzRecordingId));
+                var response = await _musicBrainzClient.ProcessRequestAsync(new AudioStationTagServiceRequest(AudioStationTagRequestType.TagSmall, result.MusicBrainzRecordingId));
+
+                if (!response.Success)
+                {
+                    return false;
+                }
+
+                var tagSmall = (response.Payload as TagSmallPayload).Data;
 
                 // Validation
-                if (_modelValidationService.ValidateTagSmallImport(tagSmall).IsValid)
+                if (TagValidator.ValidateTagSmallImport(tagSmall).IsValid)
                 {
                     // Results
                     matches.Add(ApplicationHelpers.Map<ITagSmall, TagSmall>(tagSmall));
@@ -165,7 +165,7 @@ namespace AudioStation.Core.Component
 
                 // Take the first result - the rest may be presented to the user for further processing
                 var bestMatch = workOutput.MusicBrainzRecordingMatches
-                                          .FirstOrDefault(x => _modelValidationService.ValidateTagSmallImport(x).IsValid);
+                                          .FirstOrDefault(x => TagValidator.ValidateTagSmallImport(x).IsValid);
 
                 if (bestMatch != null)
                 {
@@ -213,16 +213,18 @@ namespace AudioStation.Core.Component
         {
             var tagFile = _tagCacheController.Get(workInput.SourceFile);
 
-            // Calculate standard file name for the import
-            var calculatedFileName = _modelFileService.CalculateFileName(tagFile, workInput.NamingType);
+            throw new NotImplementedException();
 
-            // All groupings are based on the destination file folder (base)
-            var destinationFolder = _modelFileService.CalculateFolderPath(tagFile,
-                                                                          workOutput.DestinationFolderBase,
-                                                                          workInput.GroupingType);
+            //// Calculate standard file name for the import
+            //var calculatedFileName = _fileController.CalculateFileName(tagFile, workInput.NamingType);
+
+            //// All groupings are based on the destination file folder (base)
+            //var destinationFolder = _fileController.CalculateFolderPath(tagFile,
+            //                                                              workOutput.DestinationFolderBase,
+            //                                                              workInput.GroupingType);
 
             // Final Impot Path
-            workOutput.DestinationPathCalculated = Path.Combine(destinationFolder, calculatedFileName);
+            //workOutput.DestinationPathCalculated = Path.Combine(destinationFolder, calculatedFileName);
         }
         private bool EmbedTagData(ILibraryLoaderImportLoad workInput, ILibraryLoaderImportOutput workOutput)
         {

@@ -6,153 +6,79 @@
         <ResourceDictionary Source="/Resources/TextBlockStyles.xaml" />
     </ResourceDictionary.MergedDictionaries>
 
+    <!-- Basic Item Container Template -->
+    <ControlTemplate x:Key="LogItemContainerTemplate" TargetType="ListBoxItem">
+        <Border x:Name="Bd" BorderBrush="{TemplateBinding BorderBrush}" 
+                            BorderThickness="{TemplateBinding BorderThickness}" 
+                            Background="{TemplateBinding Background}" 
+                            Padding="{TemplateBinding Padding}" 
+                            Margin="{TemplateBinding Margin}"
+                            SnapsToDevicePixels="true">
+            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                              SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" 
+                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+        </Border>
+    </ControlTemplate>
+
     <Style x:Key="LogItemContainerStyle" TargetType="ListBoxItem">
-        <Setter Property="Background" Value="White" />
-        <Setter Property="Foreground" Value="{StaticResource LabelForeground}" />
+
+        <Setter Property="Padding" Value="3" />
+        <Setter Property="Foreground" Value="{StaticResource LogForeground}" />
+        <Setter Property="Template" Value="{StaticResource LogItemContainerTemplate}" />
 
         <Style.Triggers>
+
+            <!-- Alternation Background (count must be set to 2 on the ListBox) -->
+            <Trigger Property="ItemsControl.AlternationIndex" Value="0">
+                <Setter Property="Background" Value="{StaticResource LogBackground}" />
+            </Trigger>
+            <Trigger Property="ItemsControl.AlternationIndex" Value="1">
+                <Setter Property="Background" Value="{StaticResource LogBackgroundAlternation}" />
+            </Trigger>
+
+            <!-- Mouse Triggers (applied after any above triggers) -->
             <Trigger Property="IsMouseOver" Value="True">
-                <Setter Property="Background" Value="{StaticResource HoverSelectBackgroundHover}" />
+                <Setter Property="Background" Value="{StaticResource LogHoverBackground}" />
             </Trigger>
             <Trigger Property="IsSelected" Value="True">
-                <Setter Property="Background" Value="{StaticResource HoverSelectBackgroundSelect}" />
+                <Setter Property="Background" Value="{StaticResource LogSelectBackground}" />
             </Trigger>
+
         </Style.Triggers>
     </Style>
 
     <Style x:Key="LogItemContainerStyleTrace" TargetType="ListBoxItem" BasedOn="{StaticResource LogItemContainerStyle}">
-        <Setter Property="Background" Value="White" />
         <Setter Property="Foreground" Value="{StaticResource LabelForeground}" />
     </Style>
 
     <Style x:Key="LogItemContainerStyleDebug" TargetType="ListBoxItem" BasedOn="{StaticResource LogItemContainerStyle}">
-        <Setter Property="Background" Value="White" />
         <Setter Property="Foreground" Value="{StaticResource LabelForeground}" />
     </Style>
 
     <Style x:Key="LogItemContainerStyleInfo" TargetType="ListBoxItem" BasedOn="{StaticResource LogItemContainerStyle}">
-        <Setter Property="Background" Value="White" />
         <Setter Property="Foreground" Value="{StaticResource LabelForeground}" />
     </Style>
 
     <Style x:Key="LogItemContainerStyleWarning" TargetType="ListBoxItem" BasedOn="{StaticResource LogItemContainerStyle}">
-        <Setter Property="Background" Value="{StaticResource LabelBackgroundWarning}" />
-        <Setter Property="Foreground" Value="{StaticResource LabelForegroundWarning}" />
+        <Setter Property="Foreground" Value="{StaticResource LogForegroundWarning}" />
     </Style>
 
     <Style x:Key="LogItemContainerStyleError" TargetType="ListBoxItem" BasedOn="{StaticResource LogItemContainerStyle}">
-        <Setter Property="Background" Value="{StaticResource LabelBackgroundError}" />
-        <Setter Property="Foreground" Value="{StaticResource LabelForegroundError}" />
+        <Setter Property="Foreground" Value="{StaticResource LogForegroundError}" />
     </Style>
 
     <Style x:Key="LogItemContainerStyleCritical" TargetType="ListBoxItem" BasedOn="{StaticResource LogItemContainerStyle}">
-        <Setter Property="Background" Value="{StaticResource LabelBackgroundError}" />
-        <Setter Property="Foreground" Value="{StaticResource LabelForegroundError}" />
+        <Setter Property="Foreground" Value="{StaticResource LogBackgroundCritical}" />
     </Style>
 
     <DataTemplate x:Key="LogDataTemplate" DataType="{x:Type viewModel:LogMessageViewModel}">
-        <Border Padding="3">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="Auto" />
-                </Grid.ColumnDefinitions>
-                <TextBlock Grid.Column="0" Text="{Binding Timestamp, StringFormat={}{0:yyyy-MM-dd HH:mm:ss}}" Margin="10, 0" Style="{StaticResource LabelTextBlock}" />
-                <TextBlock Grid.Column="1" Text="{Binding Message}" Style="{StaticResource LabelTextBlock}" />
-                <TextBlock Grid.Column="2" Text="{Binding Level}" Style="{StaticResource LabelTextBlock}" />
+        <Border>
+            <Grid ColumnDefinitions="Auto, Auto, *" VerticalAlignment="Center">
+                <TextBlock Grid.Column="0" Margin="0 0 10 0" Text="{Binding Timestamp, StringFormat={}{0:yyyy-MM-dd HH:mm:ss}}" VerticalAlignment="Center" />
+                <TextBlock Grid.Column="1" Margin="0 0 10 0" Text="{Binding Level}" VerticalAlignment="Center" />
+                <TextBlock Grid.Column="2" Text="{Binding Message}" VerticalAlignment="Center" />
             </Grid>
         </Border>
     </DataTemplate>    
-    
-    <DataTemplate x:Key="LogDataTemplateTrace" DataType="{x:Type viewModel:LogMessageViewModel}">
-        <Border Padding="3">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="Auto" />
-                </Grid.ColumnDefinitions>
-                <TextBlock Grid.Column="0" Text="{Binding Timestamp, StringFormat={}{0:yyyy-MM-dd HH:mm:ss}}" Margin="10, 0" Style="{StaticResource LabelTextBlock}" />
-                <TextBlock Grid.Column="1" Text="{Binding Message}" Style="{StaticResource LabelTextBlock}" />
-                <TextBlock Grid.Column="2" Text="{Binding Level}" Style="{StaticResource LabelTextBlock}" />
-            </Grid>
-        </Border>
-    </DataTemplate>
-
-    <DataTemplate x:Key="LogDataTemplateDebug" DataType="{x:Type viewModel:LogMessageViewModel}">
-        <Border Padding="3">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="Auto" />
-                </Grid.ColumnDefinitions>
-                <TextBlock Grid.Column="0" Text="{Binding Timestamp, StringFormat={}{0:yyyy-MM-dd HH:mm:ss}}" Margin="10, 0" Style="{StaticResource LabelTextBlock}" />
-                <TextBlock Grid.Column="1" Text="{Binding Message}" Style="{StaticResource LabelTextBlock}" />
-                <TextBlock Grid.Column="2" Text="{Binding Level}" Style="{StaticResource LabelTextBlock}" />
-            </Grid>
-        </Border>
-    </DataTemplate>
-
-    <DataTemplate x:Key="LogDataTemplateInfo" DataType="{x:Type viewModel:LogMessageViewModel}">
-        <Border Padding="3">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="Auto" />
-                </Grid.ColumnDefinitions>
-                <TextBlock Grid.Column="0" Text="{Binding Timestamp, StringFormat={}{0:yyyy-MM-dd HH:mm:ss}}" Margin="10, 0" Style="{StaticResource LabelTextBlock}" />
-                <TextBlock Grid.Column="1" Text="{Binding Message}" Style="{StaticResource LabelTextBlock}" />
-                <TextBlock Grid.Column="2" Text="{Binding Level}" Style="{StaticResource LabelTextBlock}" />
-            </Grid>
-        </Border>
-    </DataTemplate>
-
-    <DataTemplate x:Key="LogDataTemplateWarning" DataType="{x:Type viewModel:LogMessageViewModel}">
-        <Border Padding="3">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="Auto" />
-                </Grid.ColumnDefinitions>
-                <TextBlock Grid.Column="0" Text="{Binding Timestamp, StringFormat={}{0:yyyy-MM-dd HH:mm:ss}}" Margin="10, 0" Style="{StaticResource LabelTextBlock}" />
-                <TextBlock Grid.Column="1" Text="{Binding Message}" Style="{StaticResource LabelTextBlock}" />
-                <TextBlock Grid.Column="2" Text="{Binding Level}" Style="{StaticResource LabelTextBlock}" />
-            </Grid>
-        </Border>
-    </DataTemplate>
-
-    <DataTemplate x:Key="LogDataTemplateError" DataType="{x:Type viewModel:LogMessageViewModel}">
-        <Border Padding="3">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="Auto" />
-                </Grid.ColumnDefinitions>
-                <TextBlock Grid.Column="0" Text="{Binding Timestamp, StringFormat={}{0:yyyy-MM-dd HH:mm:ss}}" Margin="10, 0" Style="{StaticResource LabelTextBlock}" />
-                <TextBlock Grid.Column="1" Text="{Binding Message}" Style="{StaticResource LabelTextBlock}" />
-                <TextBlock Grid.Column="2" Text="{Binding Level}" Style="{StaticResource LabelTextBlock}" />
-            </Grid>
-        </Border>
-    </DataTemplate>
-
-    <DataTemplate x:Key="LogDataTemplateCritical" DataType="{x:Type viewModel:LogMessageViewModel}">
-        <Border Padding="3">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="Auto" />
-                </Grid.ColumnDefinitions>
-                <TextBlock Grid.Column="0" Text="{Binding Timestamp, StringFormat={}{0:yyyy-MM-dd HH:mm:ss}}" Margin="10, 0" Style="{StaticResource LabelTextBlock}" />
-                <TextBlock Grid.Column="1" Text="{Binding Message}" Style="{StaticResource LabelTextBlock}" />
-                <TextBlock Grid.Column="2" Text="{Binding Level}" Style="{StaticResource LabelTextBlock}" />
-            </Grid>
-        </Border>
-    </DataTemplate>
 
 </ResourceDictionary>

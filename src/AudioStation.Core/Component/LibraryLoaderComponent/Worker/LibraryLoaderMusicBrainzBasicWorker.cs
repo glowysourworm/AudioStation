@@ -7,7 +7,9 @@ using AudioStation.Core.Database.AudioStationDatabase.Interface;
 using AudioStation.Core.Model;
 using AudioStation.Core.Model.Interface;
 using AudioStation.Core.Service;
+using AudioStation.Core.Service.Payload;
 using AudioStation.Core.Service.Vendor.Interface;
+using AudioStation.Core.Utility;
 
 using IF.Lastfm.Core.Api.Helpers;
 
@@ -68,25 +70,24 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
 
                 foreach (var entity in load.EntitySet)
                 {
-                    // TODO: CLEAN THIS UP AS PART OF THE SERVICE MODEL. 
-                    //
-                    //       The MusicBrainz server was throwing it back at us for
-                    //       hitting them too quickly. We need a throttle limit to
-                    //       be part of the service architecture. So, there would
-                    //       be a simple wait loop for every public call to their 
-                    //       servers determined by the configuration.
-                    //
-                    Thread.Sleep(1500);
-
                     Log("Music Brainz client lookup started:  " + entity.FileName);
 
-                    var musicBrainzResult = _musicBrainzClient.GetTagSmall(new AudioStationTagServiceModel(entity.MusicBrainzRecordingId));
+                    var response = _musicBrainzClient.ProcessRequest(new AudioStationTagServiceRequest(AudioStationTagRequestType.TagSmall, entity.MusicBrainzRecordingId));
+                    var result = (response.Payload as TagSmallPayload).Data;
+                    var validation = TagValidator.ValidateTagSmallImport(result);
 
-                    if (musicBrainzResult != null)
+                    if (response.Success && validation.IsValid)
                     {
-                        this.Output.Get<LibraryLoaderEntitySetOutput<TagSmall>>().Add(BasicHelpers.Map<ITagSmall, TagSmall>(musicBrainzResult));
+                        this.Output.Get<LibraryLoaderEntitySetOutput<TagSmall>>().Add(BasicHelpers.Map<ITagSmall, TagSmall>(result));
 
-                        Log("Music Brainz client lookup finished:  " + entity.FileName);
+                        Log("Music Brainz client lookup finished (valid):  " + entity.FileName);
+                    }
+
+                    else if (!validation.IsValid)
+                    {
+                        Log("Music Brainz client lookup skipped (invalid):  " + entity.FileName);
+                        Log("Validation Message:  " + validation.ValidationMessage);
+                        return false;
                     }
 
                     else

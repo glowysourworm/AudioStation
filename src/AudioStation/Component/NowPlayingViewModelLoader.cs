@@ -41,12 +41,12 @@ namespace AudioStation.Component
             {
                 var lastFmResponse = await _lastFmClient.GetNowPlayingInfo(artist.Artist, album.Album);
                 var spotifyResponse = await _spotifyClient.CreateNowPlaying(artist.Artist, album.Album);
-                var musicBrainzResponse = await _musicBrainzClient.QueryArtist(artist.Artist);
+                //var musicBrainzResponse = await _musicBrainzClient.QueryArtist(artist.Artist);
 
-                var musicBrainzArtist = musicBrainzResponse?.FirstOrDefault();
+                //var musicBrainzArtist = musicBrainzResponse?.FirstOrDefault();
 
-                var fanartBackgrounds = musicBrainzArtist != null ? await _fanartClient.GetArtistBackgrounds(musicBrainzArtist.Id.ToString()) : null;
-                var fanartArtistThumbs = musicBrainzArtist != null ? await _fanartClient.GetArtistImages(musicBrainzArtist.Id.ToString()) : null;
+                //var fanartBackgrounds = musicBrainzArtist != null ? await _fanartClient.GetArtistBackgrounds(musicBrainzArtist.Id.ToString()) : null;
+                //var fanartArtistThumbs = musicBrainzArtist != null ? await _fanartClient.GetArtistImages(musicBrainzArtist.Id.ToString()) : null;
 
                 var playlistEntries = new List<PlaylistEntryViewModel>();
 
@@ -60,12 +60,12 @@ namespace AudioStation.Component
                     ArtistArticle = lastFmResponse?.BioContent ?? string.Empty,
                     ArtistSummary = lastFmResponse?.BioSummary ?? string.Empty,
                     BestImage = spotifyResponse?.CombinedImages?.FirstOrDefault() ?? lastFmResponse?.AlbumImage ?? lastFmResponse?.ArtistMainImage ?? string.Empty,
-                    ArtistImages = fanartArtistThumbs ?? Enumerable.Empty<string>(),
-                    BackgroundImages = fanartBackgrounds ?? Enumerable.Empty<string>(),
-                    ExternalLinks = musicBrainzResponse?.FirstOrDefault()?
-                                                        .Relationships?
-                                                        .Where(x => x.Url != null)?
-                                                        .Select(x => x.Url?.ToString() ?? string.Empty) ?? Enumerable.Empty<string>(),
+                    //ArtistImages = fanartArtistThumbs ?? Enumerable.Empty<string>(),
+                    //BackgroundImages = fanartBackgrounds ?? Enumerable.Empty<string>(),
+                    //ExternalLinks = musicBrainzResponse?.FirstOrDefault()?
+                    //                                    .Relationships?
+                    //                                    .Where(x => x.Url != null)?
+                    //                                    .Select(x => x.Url?.ToString() ?? string.Empty) ?? Enumerable.Empty<string>(),
                     Entries = playlistEntries,
                     NowPlaying = playlistEntries.First(x => x.Track.Id == startTrack.Id)
                 };

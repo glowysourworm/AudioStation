@@ -39,7 +39,7 @@ namespace AudioStation.Core.Controller.Interface
         /// <param name="genre">Genre related to the image (from database entities)</param>
         /// <param name="overwrite">Option to overwrite existing file</param>
         /// <returns>File name of music file for database reference</returns>
-        string SaveAudioFile(string stagedFilePath, TrackType trackType, string genre, string album, string artist, string track, int trackNumber, int trackCount, bool overwrite = false);
+        string SaveAudioFile(string stagedFilePath, TrackType trackType, string genre, string artist, string album, string track, int trackNumber, int trackCount, bool overwrite = false);
 
         /// <summary>
         /// Stores image given album / artist / genre / file type / (storage type)
@@ -53,6 +53,20 @@ namespace AudioStation.Core.Controller.Interface
         /// <param name="fileType">File type related to usage</param>
         /// <param name="storageType">Storage type (temp / permanent)</param>
         /// <returns>Location of file for adding to the database file reference</returns>
-        string StoreImage(BitmapImageData imageData, string genre, string artist, string album, FileTypes fileType, string specificFileName = "", StorageType storageType = StorageType.DiskCache, bool overwrite = false);
+        string StoreImage(BitmapImageData imageData, string genre, string artist, string album, FileTypes fileType, StorageType storageType = StorageType.DiskCache, bool overwrite = false, string specificFileName = "");
+
+        /// <summary>
+        /// Stores image given album / artist / genre / file type / (storage type)
+        /// </summary>
+        /// <param name="album">Album related to the image (from database entities)</param>
+        /// <param name="artist">Artist related to the image (from database entities)</param>
+        /// <param name="genre">Genre related to the image (from database entities)</param>
+        /// <param name="specificFileName">This would be for non-tag related images:  FanArt, ..</param>
+        /// <param name="overwrite">Option to overwrite existing file</param>
+        /// <param name="genre">Genre related to the image (from database entities)</param>
+        /// <param name="fileType">File type related to usage</param>
+        /// <param name="storageType">Storage type (temp / permanent)</param>
+        /// <returns>Location of file for adding to the database file reference</returns>
+        string StoreImage(ATL.PictureInfo pictureInfo, string genre, string artist, string album, FileTypes fileType, StorageType storageType = StorageType.DiskCache, bool overwrite = false, string specificFileName = "");
     }
 }

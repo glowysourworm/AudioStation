@@ -1,25 +1,16 @@
-﻿using AudioStation.Core.Component.Interface;
-using AudioStation.Core.Model;
+﻿using AudioStation.Core.Model;
 using AudioStation.Core.Model.Interface;
 using AudioStation.Core.Model.Vendor.ATLExtension.Interface;
 
 using MetaBrainz.MusicBrainz.Interfaces.Entities;
 
 using SimpleWpf.Extensions.Collection;
-using SimpleWpf.IocFramework.Application.Attribute;
 
-namespace AudioStation.Core.Component
+namespace AudioStation.Core.Utility
 {
-    [IocExport(typeof(IModelValidationService))]
-    public class ModelValidationService : IModelValidationService
+    public static class TagValidator
     {
-        [IocImportingConstructor]
-        public ModelValidationService()
-        {
-
-        }
-
-        public bool ValidateMusicBrainzRecordingImport(IRecording recording)
+        public static bool ValidateMusicBrainzRecordingImport(IRecording recording)
         {
             return recording != null &&
                    recording.ArtistCredit != null &&
@@ -40,7 +31,7 @@ namespace AudioStation.Core.Component
                                                                        .TrackCount > 0;
         }
 
-        public ITagSmallValidation ValidateTagImport(IAudioStationTag simpleTag)
+        public static ITagSmallValidation ValidateTagImport(IAudioStationTag simpleTag)
         {
             return ValidateImport(simpleTag.AlbumArtist,
                                   simpleTag.Album,
@@ -55,7 +46,7 @@ namespace AudioStation.Core.Component
                                   simpleTag.Year);
         }
 
-        public ITagSmallValidation ValidateTagSmallImport(ITagSmall tagSmall)
+        public static ITagSmallValidation ValidateTagSmallImport(ITagSmall tagSmall)
         {
             return ValidateImport(tagSmall.AlbumArtist,
                                   tagSmall.Album,
@@ -70,7 +61,7 @@ namespace AudioStation.Core.Component
                                   tagSmall.Year);
         }
 
-        private ITagSmallValidation ValidateImport(string? albumArtist,
+        private static ITagSmallValidation ValidateImport(string? albumArtist,
                                                    string? album,
                                                    string? title,
                                                    string? genre,

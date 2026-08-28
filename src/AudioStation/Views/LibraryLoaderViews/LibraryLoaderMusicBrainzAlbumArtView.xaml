@@ -22,7 +22,7 @@
                 </StackPanel>
             </GroupBox>
 
-            <GroupBox Header="Selected Log Messages" Grid.Column="1">
+            <GroupBox Header="Selected Log Messages" Grid.Column="1" Height="180">
                 <ListBox Grid.Column="1"
                          Margin="0"
                          Style="{StaticResource PlainListBoxStyle}"

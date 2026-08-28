@@ -22,6 +22,16 @@
     <SolidColorBrush x:Key="LabelForegroundWarning">Yellow</SolidColorBrush>
     <SolidColorBrush x:Key="LabelForegroundError">Red</SolidColorBrush>
 
+    <SolidColorBrush x:Key="LogBackground">#FFFFFFFF</SolidColorBrush>
+    <SolidColorBrush x:Key="LogBackgroundAlternation">#EFEFEFEF</SolidColorBrush>
+    <SolidColorBrush x:Key="LogHoverBackground">#AFDFDFDF</SolidColorBrush>
+    <SolidColorBrush x:Key="LogSelectBackground">#AFDFDFDF</SolidColorBrush>
+
+    <SolidColorBrush x:Key="LogForeground">DimGray</SolidColorBrush>
+    <SolidColorBrush x:Key="LogForegroundWarning">#3FFFFF00</SolidColorBrush>
+    <SolidColorBrush x:Key="LogForegroundError">#CFFF0000</SolidColorBrush>
+    <SolidColorBrush x:Key="LogForegroundCritical">#FFFF0000</SolidColorBrush>
+
     <SolidColorBrush x:Key="TagLabelForeground">#FF888888</SolidColorBrush>
     <SolidColorBrush x:Key="TagLabelForegroundDetail">#FF555555</SolidColorBrush>
     <SolidColorBrush x:Key="TagLabelForegroundError">Red</SolidColorBrush>

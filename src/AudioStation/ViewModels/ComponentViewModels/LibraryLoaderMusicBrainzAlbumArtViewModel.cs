@@ -49,9 +49,9 @@ namespace AudioStation.ViewModels.ComponentViewModels
                             // Vendor Lookup
                             Data = new LibraryLoaderEntityLoadViewModel<TagSmallVendorMap>()
                             {
-                                Entity = result,
-                                DisplayName = "Music Brainz Result:  " + result.TagSmall.Title
-                            }
+                                Entity = result
+                            },
+                            DisplayText = "Music Brainz Result:  " + result.TagSmall.Title
                         },
                         Output = new LibraryLoaderOutputViewModel()
                         {

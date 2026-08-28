@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -9,7 +10,12 @@ namespace AudioStation.Core.Database.AudioStationDatabase
     public class FileReference : AudioStationEntityBase
     {
         public string FileName { get; set; }
+
+
+        [DataType(DataType.DateTime)]
         public DateTime Created { get; set; }
+
+        [DataType(DataType.DateTime)]
         public DateTime LastModified { get; set; }
         public bool IsFileAvailable { get; set; }
         public bool IsFileCorrupt { get; set; }

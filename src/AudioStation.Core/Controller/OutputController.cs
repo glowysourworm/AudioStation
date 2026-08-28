@@ -135,7 +135,7 @@ namespace AudioStation.Core.Controller
                 formattedMessage = string.Format(message, parameters);
 
             // Full Constructor (with argument checks)
-            var logMessage = new LogMessage(message, type, componentType, serviceType, dbType, level, exception);
+            var logMessage = new LogMessage(formattedMessage, type, componentType, serviceType, dbType, level, exception);
 
             // Log Hash Key
             var logKey = GetLogKey(logMessage);
