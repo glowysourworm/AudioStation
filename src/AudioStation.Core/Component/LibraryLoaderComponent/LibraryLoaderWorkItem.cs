@@ -34,6 +34,12 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent
         /// </summary>
         [Display(Name = "Music Brainz Album Art", Description = "This task will retrieve basic Music Brainz album artwork for all (basic) data retrieved using library loader services")]
         MusicBrainzAlbumArt,
+
+        /// <summary>
+        /// Checks integrity of FileReference table, and all related entities
+        /// </summary>
+        [Display(Name = "Music Brainz Album Art", Description = "This task will retrieve basic Music Brainz album artwork for all (basic) data retrieved using library loader services")]
+        FileChecker
     }
     public enum LibraryWorkItemState
     {

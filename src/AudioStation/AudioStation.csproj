@@ -115,6 +115,9 @@
     <Compile Update="Views\LibraryLoaderViews\LibraryLoaderMusicBrainzAlbumArtView.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Update="Views\LibraryLoaderViews\LibraryLoaderFileCheckerView.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
   </ItemGroup>
 
   <ItemGroup>

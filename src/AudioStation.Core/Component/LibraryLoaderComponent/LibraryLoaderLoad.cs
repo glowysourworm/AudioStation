@@ -39,6 +39,12 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent
 
                     _actualType = typeof(LibraryLoaderFileLoad);
                     break;
+                case LibraryLoadType.FileChecker:
+                    if (load is not LibraryLoaderEntityLoad<FileReference>)
+                        throw new ArgumentException("Improper library load type:  FileChecker expects LibraryLoaderEntityLoad<FileReference>");
+
+                    _actualType = typeof(LibraryLoaderEntityLoad<FileReference>);
+                    break;
                 case LibraryLoadType.MusicBrainzBasic:
                     if (load is not LibraryLoaderEntitySetLoad<AcoustIDLookupResult>)
                         throw new ArgumentException("Improper library load type:  MusicBrainzBasic expects LibraryLoaderEntitySetLoad<AcoustIDLookupResult>");

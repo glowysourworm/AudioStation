@@ -45,6 +45,12 @@
                                       DataContext="{Binding LibraryLoaderAcoustID}" />
                 </controls:TabItemPressable>
 
+                <controls:TabItemPressable x:Name="LibraryLoaderFileCheckerTab" Header="Library Loader (File Integrity)" FontSize="14" Margin="0" Style="{StaticResource MainTabItemControlStyle}">
+                    <region:IocRegion region:IocRegionManager.DefaultViewType="{x:Type loaderView:LibraryLoaderFileCheckerView}"
+                                      DataContext="{Binding LibraryLoaderFileChecker}">
+                    </region:IocRegion>
+                </controls:TabItemPressable>
+
                 <controls:TabItemPressable x:Name="LibraryLoaderMusicBrainzBasicTab" Header="Library Loader (Music Brainz / Basic)" FontSize="14" Margin="0" Style="{StaticResource MainTabItemControlStyle}">
                     <region:IocRegion region:IocRegionManager.DefaultViewType="{x:Type loaderView:LibraryLoaderMusicBrainzBasicView}"
                                       DataContext="{Binding LibraryLoaderMusicBrainzBasic}">

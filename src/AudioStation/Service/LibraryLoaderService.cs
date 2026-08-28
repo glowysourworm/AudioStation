@@ -83,6 +83,15 @@ namespace AudioStation.Service
 
                     return _libraryLoader.RunLoaderTaskAsync(LibraryLoadType.MusicBrainzAlbumArt, new LibraryLoaderEntityLoad<TagSmallVendorMap>(workLoad.Entity));
                 }
+                case LibraryLoadType.FileChecker:
+                {
+                    var workLoad = workItem.Load.Data as LibraryLoaderEntityLoadViewModel<FileReference>;
+
+                    if (workLoad == null)
+                        throw new ArgumentException("Invalid work load for Library Loader File Checker");
+
+                    return _libraryLoader.RunLoaderTaskAsync(LibraryLoadType.FileChecker, new LibraryLoaderEntityLoad<FileReference>(workLoad.Entity));
+                }
                 case LibraryLoadType.ImportRadio:
                 default:
                     throw new Exception("Unhandled Libary Loader load type");

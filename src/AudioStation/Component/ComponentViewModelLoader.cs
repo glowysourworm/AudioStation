@@ -42,6 +42,7 @@ namespace AudioStation.Component
         private readonly LibraryImporterViewModel _libraryImporterViewModel;
         private readonly LibraryLoaderAcoustIDViewModel _libraryLoaderAcoustIDViewModel;
         private readonly LibraryLoaderCDImportViewModel _libraryLoaderCDImportViewModel;
+        private readonly LibraryLoaderFileCheckerViewModel _libraryLoaderFileCheckerViewModel;
         private readonly LibraryLoaderMusicBrainzBasicViewModel _libraryLoaderMusicBrainzBasicViewModel;
         private readonly LibraryLoaderMusicBrainzAlbumArtViewModel _libraryLoaderMusicBrainzAlbumArtViewModel;
 
@@ -56,6 +57,7 @@ namespace AudioStation.Component
             // View Models
             LibraryLoaderCDImportViewModel libraryLoaderCDImportViewModel,
             LibraryLoaderAcoustIDViewModel libraryLoaderAcoustIDViewModel,
+            LibraryLoaderFileCheckerViewModel libraryLoaderFileCheckerViewModel,
             LibraryLoaderMusicBrainzBasicViewModel libraryLoaderMusicBrainzBasicViewModel,
             LibraryLoaderMusicBrainzAlbumArtViewModel libraryLoaderMusicBrainzAlbumArtViewModel,
             LibraryImporterViewModel libraryImporterViewModel,
@@ -73,6 +75,7 @@ namespace AudioStation.Component
 
             _libraryLoaderCDImportViewModel = libraryLoaderCDImportViewModel;
             _libraryLoaderAcoustIDViewModel = libraryLoaderAcoustIDViewModel;
+            _libraryLoaderFileCheckerViewModel = libraryLoaderFileCheckerViewModel;
             _libraryLoaderMusicBrainzBasicViewModel = libraryLoaderMusicBrainzBasicViewModel;
             _libraryLoaderMusicBrainzAlbumArtViewModel = libraryLoaderMusicBrainzAlbumArtViewModel;
             _libraryImporterViewModel = libraryImporterViewModel;
@@ -96,7 +99,7 @@ namespace AudioStation.Component
                 // 3) Load View Model Data
                 //
 
-                var taskCount = 7;
+                var taskCount = 9;
                 var task = 0;
 
                 var configuration = _configurationManager.GetConfiguration();
@@ -108,6 +111,10 @@ namespace AudioStation.Component
                 // Library Loader: CD Drive
                 progressHandler(taskCount, task++, 0, "Initializing CD Drive...");
                 _libraryLoaderCDImportViewModel.Initialize(configuration, new NoViewModel(), progressHandler);
+
+                // Library Loader: File Checker
+                progressHandler(taskCount, task++, 0, "Initializing File Checker...");
+                _libraryLoaderFileCheckerViewModel.Initialize(configuration, new NoViewModel(), progressHandler);
 
                 // Library Loader: AcoustID
                 progressHandler(taskCount, task++, 0, "Initializing AcoustID...");

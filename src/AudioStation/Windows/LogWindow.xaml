@@ -107,7 +107,7 @@
                                      HorizontalContentAlignment="Stretch"
                                      VirtualizingPanel.CacheLength="3"
                                      VirtualizingPanel.IsVirtualizing="True"
-                                     VirtualizingPanel.VirtualizationMode="Recycling"        
+                                     VirtualizingPanel.VirtualizationMode="Recycling"
                                      AlternationCount="2"
                                      ItemContainerStyleSelector="{StaticResource LogItemContainerStyleSelector}"
                                      ItemTemplate="{StaticResource LogDataTemplate}"

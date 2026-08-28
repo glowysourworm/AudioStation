@@ -52,6 +52,7 @@ public class MainViewModel : ViewModelBase
     LibraryImporterViewModel _libraryImportViewModel;
     LibraryLoaderAcoustIDViewModel _libraryLoaderAcoustID;
     LibraryLoaderCDImportViewModel _libraryLoaderCDImport;
+    LibraryLoaderFileCheckerViewModel _libraryLoaderFileChecker;
     LibraryLoaderMusicBrainzBasicViewModel _libraryLoaderMusicBrainzBasic;
     LibraryLoaderMusicBrainzAlbumArtViewModel _libraryLoaderMusicBrainzAlbumArt;
 
@@ -110,6 +111,11 @@ public class MainViewModel : ViewModelBase
     {
         get { return _libraryImportViewModel; }
         set { this.RaiseAndSetIfChanged(ref _libraryImportViewModel, value); }
+    }
+    public LibraryLoaderFileCheckerViewModel LibraryLoaderFileChecker
+    {
+        get { return _libraryLoaderFileChecker; }
+        set { this.RaiseAndSetIfChanged(ref _libraryLoaderFileChecker, value); }
     }
     public LibraryLoaderAcoustIDViewModel LibraryLoaderAcoustID
     {
@@ -223,6 +229,7 @@ public class MainViewModel : ViewModelBase
                          LibraryImporterViewModel libraryImporterViewModel,
                          LibraryLoaderAcoustIDViewModel libraryLoaderAcoustIDViewModel,
                          LibraryLoaderCDImportViewModel libraryLoaderCDImportViewModel,
+                         LibraryLoaderFileCheckerViewModel libraryLoaderFileChecker,
                          LibraryLoaderMusicBrainzBasicViewModel libraryLoaderMusicBrainzBasicViewModel,
                          LibraryLoaderMusicBrainzAlbumArtViewModel libraryLoaderMusicBrainzAlbumArtViewModel,
                          NowPlayingViewModel nowPlayingViewModel,
@@ -256,6 +263,7 @@ public class MainViewModel : ViewModelBase
         this.LibraryImporter = libraryImporterViewModel;
         this.LibraryLoaderAcoustID = libraryLoaderAcoustIDViewModel;
         this.LibraryLoaderCDImport = libraryLoaderCDImportViewModel;
+        this.LibraryLoaderFileChecker = libraryLoaderFileChecker;
         this.LibraryLoaderMusicBrainzBasic = libraryLoaderMusicBrainzBasicViewModel;
         this.LibraryLoaderMusicBrainzAlbumArt = libraryLoaderMusicBrainzAlbumArtViewModel;
         this.Bandcamp = bandcampViewModel;

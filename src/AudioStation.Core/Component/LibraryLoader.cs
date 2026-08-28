@@ -96,6 +96,12 @@ namespace AudioStation.Core.Component
                     workItem.Initialize(LibraryWorkItemState.Pending, new LibraryLoaderLoad(loadType, load), new LibraryLoaderOutput(loadType, new LibraryLoaderEntitySetOutput<FileReference>(), LibraryLoaderMusicBrainzAlbumArtWorker.GetNumberSteps()));
                 }
                 break;
+                case LibraryLoadType.FileChecker:
+                {
+                    workItem = new LibraryLoaderWorkItem(_workItemIdCounter, LibraryLoadType.FileChecker);
+                    workItem.Initialize(LibraryWorkItemState.Pending, new LibraryLoaderLoad(loadType, load), new LibraryLoaderOutput(loadType, new LibraryLoaderNoOutput(), LibraryLoaderFileCheckerWorker.GetNumberSteps()));
+                }
+                break;
                 case LibraryLoadType.ImportRadio:
                 default:
                     throw new Exception("Unhandled library loader task type:  LibraryLoader.cs");
@@ -140,6 +146,11 @@ namespace AudioStation.Core.Component
                     case LibraryLoadType.AcoustID:
                     {
                         thread = new LibraryLoaderAcoustIDWorker(_acoustIDClient, _audioStationDbClient, workItem);
+                    }
+                    break;
+                    case LibraryLoadType.FileChecker:
+                    {
+                        thread = new LibraryLoaderFileCheckerWorker(_audioStationDbClient, workItem);
                     }
                     break;
                     case LibraryLoadType.MusicBrainzBasic:
