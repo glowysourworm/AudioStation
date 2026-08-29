@@ -7,6 +7,7 @@ using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Controller.ImageCacheModel;
 using AudioStation.Core.Controller.Interface;
 using AudioStation.Core.Model;
+using AudioStation.Core.Model.Interface;
 using AudioStation.Core.Service.Interface;
 using AudioStation.Core.Utility.FileUtility;
 
@@ -110,8 +111,14 @@ namespace AudioStation.Core.Component
 
             try
             {
+                var configuration = _configurationManager.GetValidConfiguration();
+
+                var libraryDirectory = (storageType == IFileController.StorageType.DiskCache) ?
+                                            configuration.ApplicationCacheFolder :
+                                            configuration.ApplicationStorageFolder;
+
                 // Calculate Path:  Also, create intermediate directories
-                var finalPath = CalculateFilePath(genre, artist, album, specificFileName, fileType, TrackType.Any, storageType);
+                var finalPath = CalculateFilePath(libraryDirectory, genre, artist, album, specificFileName, fileType, TrackType.Any, storageType);
 
                 // -> Save
                 StoreImageFileImpl(imageData, finalPath, overwrite);
@@ -137,12 +144,13 @@ namespace AudioStation.Core.Component
             try
             {
                 var configuration = _configurationManager.GetValidConfiguration();
+                var libraryDirectory = GetLibraryDirectory(stagedFilePath);
 
                 // Calculate Track File Name:  needs all info from a valid tag to proceed
-                var fileName = CalculateTrackFileName(configuration.ImportNamingType, track, artist, album, trackNumber, trackCount);
+                var fileName = CalculateTrackFileName(libraryDirectory.NamingType, stagedFilePath, track, artist, album, trackNumber, trackCount);
 
                 // Calculate Path:  Also, create intermediate directories
-                var finalPath = CalculateFilePath(genre, artist, album, fileName, FileTypes.AudioFile, trackType, IFileController.StorageType.DiskPermanent);
+                var finalPath = CalculateFilePath(libraryDirectory, genre, artist, album, fileName, FileTypes.AudioFile, trackType, IFileController.StorageType.DiskPermanent);
 
                 if (File.Exists(finalPath))
                 {
@@ -184,7 +192,8 @@ namespace AudioStation.Core.Component
             File.WriteAllBytes(finalPath, imageData.GetBuffer());
         }
 
-        private string CalculateFilePath(string genre,
+        private string CalculateFilePath(ILibraryDirectory libraryDirectory,
+                                         string genre,
                                          string artist,
                                          string album,
                                          string fileName,
@@ -192,44 +201,14 @@ namespace AudioStation.Core.Component
                                          TrackType trackType,
                                          IFileController.StorageType storageType)
         {
-            var configuration = _configurationManager.GetValidConfiguration();
-
-            string baseFolder = string.Empty;
-
-            // Audio
-            if (fileType == FileTypes.AudioFile)
-            {
-                switch (trackType)
-                {
-                    case TrackType.Music:
-                        baseFolder = Path.Combine(configuration.DirectoryBase, configuration.MusicSubDirectory);
-                        break;
-                    case TrackType.AudioBook:
-                        baseFolder = Path.Combine(configuration.DirectoryBase, configuration.AudioBooksSubDirectory);
-                        break;
-                    case TrackType.Any:
-                    default:
-                        throw new Exception("Unhandled track type");
-                }
-            }
-
-
-            // Images
-            else
-            {
-                // Select cache folder or permanent folder
-                baseFolder = storageType == IFileController.StorageType.DiskCache ?
-                                                configuration.ApplicationCacheFolder :
-                                                configuration.ApplicationStorageFolder;
-            }
-
+            // Path off of the library directory
             string folderPath = string.Empty;
 
             try
             {
                 // Audio Folder Path:  This is where music files are typically placed. The same folder path will
                 //                     be used for cache / permanent storage to organize artwork or other files.
-                folderPath = CalculateAudioFolderPath(configuration.ImportGroupingType, baseFolder, genre, artist, album, true);
+                folderPath = CalculateAudioFolderPath(libraryDirectory, genre, artist, album, true);
             }
             catch (Exception ex)
             {
@@ -266,6 +245,7 @@ namespace AudioStation.Core.Component
         }
 
         private string CalculateTrackFileName(TrackNamingType namingType,
+                                              string originalFileName,
                                               string trackTitle,
                                               string artist,
                                               string album,
@@ -275,6 +255,7 @@ namespace AudioStation.Core.Component
             switch (namingType)
             {
                 case TrackNamingType.None:
+                    return MigrationHelpers.MakeFriendlyPath(true, originalFileName);
                 case TrackNamingType.Standard:
                 {
                     var format = "{0:#} of {1:#} {2}.mp3";
@@ -292,27 +273,24 @@ namespace AudioStation.Core.Component
             }
         }
 
-        private string CalculateAudioFolderPath(TrackGroupingType groupingType,
-                                                string destinationFolderBase,
+        private string CalculateAudioFolderPath(ILibraryDirectory libraryDirectory,
                                                 string genre,
                                                 string artist,
                                                 string album,
                                                 bool createFolders = false)
         {
-            if (!Directory.Exists(destinationFolderBase))
-                throw new ArgumentException("Directory does not exist:  " + destinationFolderBase);
-
-            switch (groupingType)
+            switch (libraryDirectory.GroupingType)
             {
                 case TrackGroupingType.None:
-                    return destinationFolderBase;
+                    return libraryDirectory.Directory;
+
                 case TrackGroupingType.ArtistAlbum:
                 {
                     var artistFolder = MigrationHelpers.MakeFriendlyPath(false, artist);
                     var albumFolder = MigrationHelpers.MakeFriendlyPath(false, album);
 
-                    var artistPath = Path.Combine(destinationFolderBase, artistFolder);
-                    var albumPath = Path.Combine(destinationFolderBase, artistFolder, albumFolder);
+                    var artistPath = Path.Combine(libraryDirectory.Directory, artistFolder);
+                    var albumPath = Path.Combine(libraryDirectory.Directory, artistFolder, albumFolder);
 
                     // ../Artist
                     if (createFolders && !Directory.Exists(artistPath))
@@ -330,9 +308,9 @@ namespace AudioStation.Core.Component
                     var albumFolder = MigrationHelpers.MakeFriendlyPath(false, album);
                     var genreFolder = MigrationHelpers.MakeFriendlyPath(false, genre);
 
-                    var artistPath = Path.Combine(destinationFolderBase, artistFolder);
-                    var albumPath = Path.Combine(destinationFolderBase, artistFolder, albumFolder);
-                    var genrePath = Path.Combine(destinationFolderBase, genreFolder, artistFolder, albumFolder);
+                    var artistPath = Path.Combine(libraryDirectory.Directory, artistFolder);
+                    var albumPath = Path.Combine(libraryDirectory.Directory, artistFolder, albumFolder);
+                    var genrePath = Path.Combine(libraryDirectory.Directory, genreFolder, artistFolder, albumFolder);
 
                     // ../Genre
                     if (createFolders && !Directory.Exists(genrePath))
@@ -350,6 +328,40 @@ namespace AudioStation.Core.Component
                 }
                 default:
                     throw new Exception("Unhandled grouping type:  LibraryLoaderImportWorker.cs");
+            }
+        }
+
+        private ILibraryDirectory GetLibraryDirectory(string fileName)
+        {
+            try
+            {
+                var configuration = _configurationManager.GetValidConfiguration();
+
+                var directory = new DirectoryInfo(fileName);
+
+                if (directory.FullName == configuration.ApplicationCacheFolder.Directory)
+                    return configuration.ApplicationCacheFolder;
+
+                else if (directory.FullName == configuration.ApplicationStorageFolder.Directory)
+                    return configuration.ApplicationStorageFolder;
+
+                else if (directory.FullName == configuration.StagingFolder.Directory)
+                    return configuration.StagingFolder;
+
+                else if (directory.FullName == configuration.DownloadFolder.Directory)
+                    return configuration.DownloadFolder;
+
+                var libraryDirectory = configuration.LibraryDirectories
+                                                    .FirstOrDefault(x => x.Directory == directory.FullName);
+
+                if (libraryDirectory == null)
+                    throw new Exception("Directory does not exist");
+
+                return libraryDirectory;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Library directory error for:  " + fileName, ex);
             }
         }
 
@@ -371,35 +383,41 @@ namespace AudioStation.Core.Component
             // Create Configuration Folders
 
             // Cache
-            if (!string.IsNullOrWhiteSpace(configuration.ApplicationCacheFolder))
+            if (!string.IsNullOrWhiteSpace(configuration.ApplicationCacheFolder.Directory))
             {
-                if (!Directory.Exists(configuration.ApplicationCacheFolder))
-                    Directory.CreateDirectory(configuration.ApplicationCacheFolder);
+                if (!Directory.Exists(configuration.ApplicationCacheFolder.Directory))
+                    Directory.CreateDirectory(configuration.ApplicationCacheFolder.Directory);
             }
 
             // Storage
-            if (!string.IsNullOrWhiteSpace(configuration.ApplicationStorageFolder))
+            if (!string.IsNullOrWhiteSpace(configuration.ApplicationStorageFolder.Directory))
             {
-                if (!Directory.Exists(configuration.ApplicationStorageFolder))
-                    Directory.CreateDirectory(configuration.ApplicationStorageFolder);
+                if (!Directory.Exists(configuration.ApplicationStorageFolder.Directory))
+                    Directory.CreateDirectory(configuration.ApplicationStorageFolder.Directory);
             }
 
-            // Library -> Music
-            if (!string.IsNullOrWhiteSpace(configuration.MusicSubDirectory))
+            // Staging
+            if (!string.IsNullOrWhiteSpace(configuration.StagingFolder.Directory))
             {
-                var musicDirectory = Path.Combine(configuration.DirectoryBase, configuration.MusicSubDirectory);
-
-                if (!Directory.Exists(musicDirectory))
-                    Directory.CreateDirectory(musicDirectory);
+                if (!Directory.Exists(configuration.StagingFolder.Directory))
+                    Directory.CreateDirectory(configuration.StagingFolder.Directory);
             }
 
-            // Library -> Audio Books
-            if (!string.IsNullOrWhiteSpace(configuration.AudioBooksSubDirectory))
+            // Download
+            if (!string.IsNullOrWhiteSpace(configuration.DownloadFolder.Directory))
             {
-                var audioBooksDirectory = Path.Combine(configuration.DirectoryBase, configuration.AudioBooksSubDirectory);
+                if (!Directory.Exists(configuration.DownloadFolder.Directory))
+                    Directory.CreateDirectory(configuration.DownloadFolder.Directory);
+            }
 
-                if (!Directory.Exists(audioBooksDirectory))
-                    Directory.CreateDirectory(audioBooksDirectory);
+            // User Folders
+            foreach (var directory in configuration.LibraryDirectories)
+            {
+                if (!string.IsNullOrWhiteSpace(directory.Directory))
+                {
+                    if (!Directory.Exists(directory.Directory))
+                        Directory.CreateDirectory(directory.Directory);
+                }
             }
 
             return Task.FromResult(IAudioStationService.Status.Idle);

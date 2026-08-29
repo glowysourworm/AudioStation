@@ -1,8 +1,8 @@
 ﻿using System.Windows.Threading;
 
 using AudioStation.Controller.Interface;
-using AudioStation.Core;
 using AudioStation.Core.Database.AudioStationDatabase;
+using AudioStation.Core.Model.Interface;
 using AudioStation.Core.Service.Vendor;
 using AudioStation.Core.Utility;
 using AudioStation.Service.Interface;
@@ -75,7 +75,7 @@ namespace AudioStation.ViewModels.ComponentViewModels
             });
         }
 
-        public override void Initialize(AudioStationConfiguration configuration, NoViewModel load, DialogProgressHandler progressHandler)
+        public override void Initialize(IAudioStationConfiguration configuration, NoViewModel load, DialogProgressHandler progressHandler)
         {
         }
 

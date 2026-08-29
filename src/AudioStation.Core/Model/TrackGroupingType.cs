@@ -4,7 +4,7 @@ namespace AudioStation.Core.Model
 {
     public enum TrackGroupingType
     {
-        [Display(Name = "None", ShortName = "None", Description = "No Preference")]
+        [Display(Name = "None", ShortName = "None", Description = "Keep folders as is")]
         None = 0,
 
         [Display(Name = "Artist / Album", ShortName = "ArtistAlbum", Description = "../Artist/Album/... (Artist & Album required for imports)")]

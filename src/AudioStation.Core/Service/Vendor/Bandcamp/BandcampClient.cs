@@ -95,7 +95,8 @@ namespace AudioStation.Core.Service.Vendor.Bandcamp
                     string.IsNullOrWhiteSpace(album.Title?.Title))
                     throw new Exception("Error reading data from Bandcamp API. Invalid or incomplete data set.");
 
-                var baseFolder = Path.Combine(_configurationManager.GetConfiguration().ImportFolder, "Bandcamp");
+                var configuration = _configurationManager.GetValidConfiguration();
+                var baseFolder = Path.Combine(configuration.DownloadFolder.Directory, "Bandcamp");
                 var artistFolder = Path.Combine(baseFolder, MigrationHelpers.MakeFriendlyPath(false, album.Artist));
                 var albumFolder = Path.Combine(artistFolder, MigrationHelpers.MakeFriendlyPath(false, album.Title.Title));
 

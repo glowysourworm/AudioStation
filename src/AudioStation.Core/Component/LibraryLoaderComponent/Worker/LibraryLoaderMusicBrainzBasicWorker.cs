@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
+using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Component.LibraryLoaderComponent.Load;
 using AudioStation.Core.Component.LibraryLoaderComponent.Output;
 using AudioStation.Core.Database.AudioStationDatabase;
@@ -13,22 +14,23 @@ using AudioStation.Core.Utility;
 
 using IF.Lastfm.Core.Api.Helpers;
 
-using SimpleWpf.Utilities;
-
 namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
 {
     public class LibraryLoaderMusicBrainzBasicWorker : LibraryLoaderWorker
     {
+        private readonly IAudioStationMapper _audioStationMapper;
         private readonly IMusicBrainzClient _musicBrainzClient;
         private readonly IAudioStationDbClient _audioStationDbClient;
 
         private const int WORK_STEPS = 2;
 
         public LibraryLoaderMusicBrainzBasicWorker(
+                IAudioStationMapper audioStationMapper,
                 IMusicBrainzClient musicBrainzClient,
                 IAudioStationDbClient audioStationDbClient,
                 LibraryLoaderWorkItem workItem) : base(workItem)
         {
+            _audioStationMapper = audioStationMapper;
             _musicBrainzClient = musicBrainzClient;
             _audioStationDbClient = audioStationDbClient;
         }
@@ -78,7 +80,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
 
                     if (response.Success && validation.IsValid)
                     {
-                        this.Output.Get<LibraryLoaderEntitySetOutput<TagSmall>>().Add(BasicHelpers.Map<ITagSmall, TagSmall>(result));
+                        this.Output.Get<LibraryLoaderEntitySetOutput<TagSmall>>().Add(_audioStationMapper.Map<ITagSmall, TagSmall>(result));
 
                         Log("Music Brainz client lookup finished (valid):  " + entity.FileName);
                     }

@@ -1,7 +1,6 @@
 ﻿using ATL;
 
 using AudioStation.Core.Model.Vendor.ATLExtension.Interface;
-using AudioStation.Core.Utility;
 using AudioStation.Core.Utility.RecursiveComparer.Attribute;
 
 namespace AudioStation.Core.Model.Vendor.ATLExtension
@@ -74,10 +73,6 @@ namespace AudioStation.Core.Model.Vendor.ATLExtension
         {
             this.AlbumArtists = new List<string>();
             this.Genres = new List<string>();
-        }
-        public AudioStationTag(IAudioStationTag tag)
-        {
-            ApplicationHelpers.MapOnto(tag, this);
         }
 
         public void ToATL()

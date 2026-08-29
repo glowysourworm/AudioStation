@@ -3,11 +3,12 @@ using System.ComponentModel;
 using System.Windows.Controls;
 
 using AudioStation.Controller.Interface;
-using AudioStation.Core;
 using AudioStation.Core.Component;
 using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Controller.Interface;
 using AudioStation.Core.Model;
+using AudioStation.Core.Model.Interface;
+using AudioStation.Core.Model.Vendor.ATLExtension.Interface;
 using AudioStation.Core.Utility;
 using AudioStation.Event;
 using AudioStation.Event.DialogEvents;
@@ -34,6 +35,7 @@ namespace AudioStation.ViewModels.ComponentViewModels
     public class LibraryImporterViewModel : ComponentViewModelBase<LibraryImporterTreeViewModel>
     {
         private readonly IConfigurationManager _configurationManager;
+        private readonly IAudioStationMapper _audioStationMapper;
         private readonly IDialogController _dialogController;
         private readonly IIocEventAggregator _eventAggregator;
         private readonly ILibraryImporter _libraryImporter;
@@ -156,12 +158,14 @@ namespace AudioStation.ViewModels.ComponentViewModels
 
         [IocImportingConstructor]
         public LibraryImporterViewModel(IConfigurationManager configurationManager,
-                                            IDialogController dialogController,
-                                            IIocEventAggregator eventAggregator,
-                                            ILibraryImporter libraryImporter,
-                                            ITagCacheController tagCacheController)
+                                        IAudioStationMapper audioStationMapper,
+                                        IDialogController dialogController,
+                                        IIocEventAggregator eventAggregator,
+                                        ILibraryImporter libraryImporter,
+                                        ITagCacheController tagCacheController)
         {
             _configurationManager = configurationManager;
+            _audioStationMapper = audioStationMapper;
             _dialogController = dialogController;
             _libraryImporter = libraryImporter;
             _eventAggregator = eventAggregator;
@@ -195,7 +199,7 @@ namespace AudioStation.ViewModels.ComponentViewModels
             this.UnstageCommand = new SimpleCommand(UnstageFiles, CanUnstageFiles);
         }
 
-        public override void Initialize(AudioStationConfiguration configuration, LibraryImporterTreeViewModel load, DialogProgressHandler progressHandler)
+        public override void Initialize(IAudioStationConfiguration configuration, LibraryImporterTreeViewModel load, DialogProgressHandler progressHandler)
         {
             if (BasicHelpers.IsDispatcher() == ApplicationIsDispatcherResult.False)
                 BasicHelpers.BeginInvokeDispatcher(Initialize, System.Windows.Threading.DispatcherPriority.Background, configuration, load, progressHandler);
@@ -348,8 +352,8 @@ namespace AudioStation.ViewModels.ComponentViewModels
                 // Get the current working tag
                 var tag = firstFile.GetTagCopy();
 
-                // Create view model for the data
-                var viewModel = new TagViewModel(tag);
+                // Map tag to view model
+                var viewModel = _audioStationMapper.Map<IAudioStationTag, TagViewModel>(tag);
 
                 // Show Tag Editor (ONLY UPDATES NEW VIEW-MODEL! WE MUST MAP THE RESULT BACK!)
                 var dialogResult = _dialogController.ShowDialogWindowSync(DialogEventData.ShowDialogEditor("Tag Editor (" + firstFile.ShortPath + ")", DialogEditorView.TagView, viewModel));

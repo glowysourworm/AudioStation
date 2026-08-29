@@ -41,7 +41,7 @@ namespace AudioStation.Service
             if (string.IsNullOrWhiteSpace(artist) || string.IsNullOrWhiteSpace(album))
                 throw new ArgumentException("Must have artist and album for the CD import");
 
-            var configuration = _configurationManager.GetConfiguration();
+            var configuration = _configurationManager.GetValidConfiguration();
 
             return Task.Run(() =>
             {
@@ -72,7 +72,7 @@ namespace AudioStation.Service
                 }
 
 
-                var directory = configuration.ImportFolder;
+                var directory = configuration.StagingFolder.Directory;
                 var artistFolder = MigrationHelpers.MakeFriendlyPath(false, artist);
                 var albumFolder = MigrationHelpers.MakeFriendlyPath(false, album);
                 var hasDiscFolder = discCount > 1;

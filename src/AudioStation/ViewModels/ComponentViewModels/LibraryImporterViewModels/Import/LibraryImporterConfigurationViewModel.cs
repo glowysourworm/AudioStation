@@ -103,14 +103,14 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
         {
             var configuration = configurationManager.GetConfiguration();
 
-            this.SourceFolder = configuration.ImportFolder;
-            this.DestinationFolder = configuration.DirectoryBase;
-            this.DestinationMusicSubFolder = configuration.MusicSubDirectory;
-            this.DestinationAudioBooksSubFolder = configuration.AudioBooksSubDirectory;
+            this.SourceFolder = configuration.StagingFolder.Directory;
+            //this.DestinationFolder = configuration.DirectoryBase;
+            //this.DestinationMusicSubFolder = configuration.MusicSubDirectory;
+            //this.DestinationAudioBooksSubFolder = configuration.AudioBooksSubDirectory;
 
-            this.ImportAsType = TrackType.Music;
-            this.GroupingType = TrackGroupingType.ArtistAlbum;
-            this.NamingType = TrackNamingType.Standard;
+            //this.ImportAsType = TrackType.Music;
+            //this.GroupingType = TrackGroupingType.ArtistAlbum;
+            //this.NamingType = TrackNamingType.Standard;
 
             this.SelectSourceFolderCommand = new SimpleCommand(() =>
             {

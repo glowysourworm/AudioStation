@@ -125,6 +125,8 @@ namespace AudioStation
         /// </summary>
         private void InitializeConfiguration()
         {
+
+
             // We can inject our initialize procedure(s) here
             //
             var configurationManager = IocContainer.Get<IConfigurationManager>();

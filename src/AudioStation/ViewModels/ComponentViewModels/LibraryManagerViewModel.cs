@@ -1,19 +1,14 @@
 ﻿using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
 
-using AudioStation.Core;
-using AudioStation.Core.Utility;
+using AudioStation.Core.Model.Interface;
 using AudioStation.Event;
 using AudioStation.Event.DialogEvents;
 using AudioStation.ViewModels.ComponentViewModels.LoadViewModels;
 
-using Microsoft.Extensions.Logging;
-
 using SimpleWpf.Extensions.Command;
-using SimpleWpf.Extensions.ObservableCollection;
 using SimpleWpf.IocFramework.Application.Attribute;
 using SimpleWpf.IocFramework.EventAggregation;
-using SimpleWpf.Utilities;
 
 using static AudioStation.EventHandler.DialogEventHandlers;
 
@@ -105,30 +100,30 @@ namespace AudioStation.ViewModels.ComponentViewModels
             });
         }
 
-        public override void Initialize(AudioStationConfiguration configuration, LibraryViewModel load, DialogProgressHandler progressHandler)
+        public override void Initialize(IAudioStationConfiguration configuration, LibraryViewModel load, DialogProgressHandler progressHandler)
         {
-            try
-            {
-                // TODO: CHECK CONFIGURATION!
-                if (!System.IO.Path.Exists(configuration.DirectoryBase))
-                    return;
+            //try
+            //{
+            //    // TODO: CHECK CONFIGURATION!
+            //    if (!System.IO.Path.Exists(configuration.DirectoryBase))
+            //        return;
 
-                var allFiles = BasicHelpers.FastGetFileData(configuration.DirectoryBase, "*.*", false, System.IO.SearchOption.AllDirectories);
+            //    var allFiles = BasicHelpers.FastGetFileData(configuration.DirectoryBase, "*.*", false, System.IO.SearchOption.AllDirectories);
 
-                var convertibleFiles = allFiles.Where(x => CONVERTIBLE_FILE_EXT.Any(z => x.Path.EndsWith(z)))
-                                               .Select(x => x.Path)
-                                               .ToList();
+            //    var convertibleFiles = allFiles.Where(x => CONVERTIBLE_FILE_EXT.Any(z => x.Path.EndsWith(z)))
+            //                                   .Select(x => x.Path)
+            //                                   .ToList();
 
-                this.NonConvertedFiles.AddRange(convertibleFiles);
+            //    this.NonConvertedFiles.AddRange(convertibleFiles);
 
-                // Load Artists / Albums / Genres
-                //await this.Library.Initialize(progressHandler);
-            }
-            catch (Exception ex)
-            {
-                ApplicationHelpers.Log("Error loading non-converted files:  {0}", LogLevel.Error, ex, ex.Message);
-                this.NonConvertedFiles.Clear();
-            }
+            //    // Load Artists / Albums / Genres
+            //    //await this.Library.Initialize(progressHandler);
+            //}
+            //catch (Exception ex)
+            //{
+            //    ApplicationHelpers.Log("Error loading non-converted files:  {0}", LogLevel.Error, ex, ex.Message);
+            //    this.NonConvertedFiles.Clear();
+            //}
         }
 
         public override void Dispose()

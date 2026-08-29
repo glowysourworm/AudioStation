@@ -20,6 +20,7 @@ namespace AudioStation.Core.Component
     [IocExport(typeof(ILibraryImporter))]
     public class LibraryImporter : ILibraryImporter
     {
+        private readonly IAudioStationMapper _audioStationMapper;
         private readonly IAcoustIDClient _acoustIDClient;
         private readonly IMusicBrainzClient _musicBrainzClient;
         private readonly ITagCacheController _tagCacheController;
@@ -28,11 +29,13 @@ namespace AudioStation.Core.Component
         private const int ACOUSTID_MIN_SCORE = 0;
 
         [IocImportingConstructor]
-        public LibraryImporter(IAcoustIDClient acoustIDClient,
+        public LibraryImporter(IAudioStationMapper audioStationMapper,
+                               IAcoustIDClient acoustIDClient,
                                IMusicBrainzClient musicBrainzClient,
                                ITagCacheController tagCacheController,
                                IFileController fileController)
         {
+            _audioStationMapper = audioStationMapper;
             _acoustIDClient = acoustIDClient;
             _musicBrainzClient = musicBrainzClient;
             _tagCacheController = tagCacheController;
@@ -110,7 +113,7 @@ namespace AudioStation.Core.Component
                 if (TagValidator.ValidateTagSmallImport(tagSmall).IsValid)
                 {
                     // Results
-                    matches.Add(ApplicationHelpers.Map<ITagSmall, TagSmall>(tagSmall));
+                    matches.Add(_audioStationMapper.Map<ITagSmall, TagSmall>(tagSmall));
                 }
             }
 

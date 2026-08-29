@@ -1,9 +1,9 @@
 ﻿using System.Collections.ObjectModel;
 
-using AudioStation.Core;
 using AudioStation.Core.Component.LibraryLoaderComponent;
 using AudioStation.Core.Database.AudioStationDatabase;
 using AudioStation.Core.Database.AudioStationDatabase.Interface;
+using AudioStation.Core.Model.Interface;
 using AudioStation.EventHandler;
 using AudioStation.Service.Interface;
 using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels;
@@ -32,7 +32,7 @@ namespace AudioStation.ViewModels.ComponentViewModels
             _audioStationDbClient = audioStationDbClient;
         }
 
-        protected override void InitializeComponent(AudioStationConfiguration configuration, DialogEventHandlers.DialogProgressHandler progressHandler)
+        protected override void InitializeComponent(IAudioStationConfiguration configuration, DialogEventHandlers.DialogProgressHandler progressHandler)
         {
             try
             {

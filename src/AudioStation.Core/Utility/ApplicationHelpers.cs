@@ -6,8 +6,6 @@ using AudioStation.Core.Controller.Interface;
 using AudioStation.Core.Utility.RecursiveComparer;
 using AudioStation.Model;
 
-using AutoMapper;
-
 using Microsoft.Extensions.Logging;
 
 using SimpleWpf.IocFramework.Application;
@@ -125,38 +123,6 @@ namespace AudioStation.Core.Utility
             }
         }
 
-        public static TDest Map<TSource, TDest>(TSource source)
-        {
-            try
-            {
-                var destination = Activator.CreateInstance(typeof(TDest));
-
-                var mapper = GetMapper<TSource, TDest>();
-
-                return (TDest)mapper.Map(source, destination, typeof(TSource), typeof(TDest));
-            }
-            catch (Exception ex)
-            {
-                ApplicationHelpers.Log("Error mapping objects:  {0}", LogLevel.Error, ex, ex.Message);
-                throw ex;
-            }
-        }
-
-        public static void MapOnto<TSource, TDest>(TSource source, TDest dest)
-        {
-            try
-            {
-                var mapper = GetMapper<TSource, TDest>();
-
-                mapper.Map(source, dest, typeof(TSource), typeof(TDest));
-            }
-            catch (Exception ex)
-            {
-                ApplicationHelpers.Log("Error mapping objects:  {0}", LogLevel.Error, ex, ex.Message);
-                throw ex;
-            }
-        }
-
         public static bool Compare<T>(T object1, T object2)
         {
             try
@@ -166,32 +132,6 @@ namespace AudioStation.Core.Utility
             catch (Exception ex)
             {
                 ApplicationHelpers.Log("Error comparing objects:  {0}", LogLevel.Error, ex, ex.Message);
-                throw ex;
-            }
-        }
-
-        private static IMapper GetMapper<TSource, TDest>()
-        {
-            if (ApplicationMapperCache.Has<TSource, TDest>())
-                return ApplicationMapperCache.Get<TSource, TDest>();
-
-            try
-            {
-                var config = new MapperConfiguration(cfg =>
-                {
-                    var map = cfg.CreateMap<TSource, TDest>();
-
-                }, GetLoggerFactory());
-
-                var mapper = config.CreateMapper();
-
-                ApplicationMapperCache.Set<TSource, TDest>(mapper);
-
-                return mapper;
-            }
-            catch (Exception ex)
-            {
-                Log("Error creating type mapper: {0}", LogLevel.Error, ex, ex.Message);
                 throw ex;
             }
         }

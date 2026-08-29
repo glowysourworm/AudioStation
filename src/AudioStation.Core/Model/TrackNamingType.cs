@@ -4,7 +4,7 @@ namespace AudioStation.Core.Model
 {
     public enum TrackNamingType
     {
-        [Display(Name = "None", ShortName = "Name", Description = "No Preference")]
+        [Display(Name = "None", ShortName = "None", Description = "Keep file names as is")]
         None = 0,
 
         /// <summary>

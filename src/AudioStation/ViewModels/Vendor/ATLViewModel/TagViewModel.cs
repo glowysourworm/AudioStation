@@ -1,7 +1,6 @@
 ﻿using ATL;
 
 using AudioStation.Core.Model.Vendor.ATLExtension.Interface;
-using AudioStation.Core.Utility;
 using AudioStation.Core.Utility.RecursiveComparer.Attribute;
 
 using SimpleWpf.ViewModel;
@@ -381,11 +380,6 @@ namespace AudioStation.ViewModels.Vendor.ATLViewModel
             this.Genres = new List<string>();
             this.Lyrics = new List<LyricsInfo>();
             this.MetadataFormats = new List<Format>();
-        }
-        public TagViewModel(IAudioStationTag tag)
-            : this()
-        {
-            ApplicationHelpers.MapOnto(tag, this);
         }
 
         public void ToATL()

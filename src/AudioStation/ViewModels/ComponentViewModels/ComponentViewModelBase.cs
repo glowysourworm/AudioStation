@@ -1,4 +1,4 @@
-﻿using AudioStation.Core;
+﻿using AudioStation.Core.Model.Interface;
 
 using SimpleWpf.ViewModel;
 
@@ -29,7 +29,7 @@ namespace AudioStation.ViewModels.ComponentViewModels
         /// </summary>
         public abstract TLoad? Load { get; }
 
-        public abstract void Initialize(AudioStationConfiguration configuration, TLoad load, DialogProgressHandler progressHandler);
+        public abstract void Initialize(IAudioStationConfiguration configuration, TLoad load, DialogProgressHandler progressHandler);
         public abstract void Dispose();
     }
 }

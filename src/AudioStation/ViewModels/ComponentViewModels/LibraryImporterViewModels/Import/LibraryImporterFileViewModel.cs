@@ -25,6 +25,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
     /// </summary>
     public class LibraryImporterFileViewModel : PathViewModel
     {
+        private readonly IAudioStationMapper _audioStationMapper;
         private readonly ILibraryImporter _libraryImporter;
         private readonly ITagCacheController _tagCacheController;
 
@@ -240,7 +241,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
 
             // Update (Music Brainz)
             if (this.SelectedMusicBrainzRecordingMatch != null)
-                ApplicationHelpers.MapOnto(this.SelectedMusicBrainzRecordingMatch, this.MusicBrainzTag);
+                _audioStationMapper.MapOnto(this.SelectedMusicBrainzRecordingMatch, this.MusicBrainzTag);
 
             this.MinimumImportValid = !this.InError && _libraryImporter.CanImportEntity(this.ImportLoad, this.ImportOutput);
 
@@ -350,7 +351,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
         /// <returns></returns>
         public IAudioStationTag GetTagCopy()
         {
-            return ApplicationHelpers.Map<AudioStationTag, AudioStationTag>(_tagDirty);
+            return _audioStationMapper.Map<AudioStationTag, AudioStationTag>(_tagDirty);
         }
 
         /// <summary>
@@ -361,7 +362,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
             // Sets calculated fields for the tag
             tagEdit.ToATL();
 
-            ApplicationHelpers.MapOnto(tagEdit, _tagDirty);
+            _audioStationMapper.MapOnto(tagEdit, _tagDirty);
 
             Update();
         }

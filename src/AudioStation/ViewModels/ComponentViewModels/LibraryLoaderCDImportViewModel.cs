@@ -1,8 +1,8 @@
 ﻿using System.Collections.ObjectModel;
 using System.IO;
 
-using AudioStation.Core;
 using AudioStation.Core.Component.CDPlayer;
+using AudioStation.Core.Model.Interface;
 using AudioStation.Event;
 using AudioStation.EventHandler;
 using AudioStation.Service.Interface;
@@ -141,7 +141,7 @@ namespace AudioStation.ViewModels.ComponentViewModels
             this.ImportCommand.RaiseCanExecuteChanged();
         }
 
-        public override void Initialize(AudioStationConfiguration configuration, NoViewModel load, DialogEventHandlers.DialogProgressHandler progressHandler)
+        public override void Initialize(IAudioStationConfiguration configuration, NoViewModel load, DialogEventHandlers.DialogProgressHandler progressHandler)
         {
         }
     }

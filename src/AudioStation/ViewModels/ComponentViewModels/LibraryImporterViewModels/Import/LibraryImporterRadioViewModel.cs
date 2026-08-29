@@ -1,9 +1,7 @@
 ﻿using System.Collections.ObjectModel;
-using System.IO;
 
 using AudioStation.Controller.Interface;
 using AudioStation.Core.Component.Interface;
-using AudioStation.Core.Utility;
 
 using SimpleWpf.Extensions.Command;
 using SimpleWpf.IocFramework.Application.Attribute;
@@ -40,30 +38,30 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
         {
             var configuration = configurationManager.GetConfiguration();
 
-            if (!string.IsNullOrEmpty(configuration.DirectoryBase))
-            {
-                var files = ApplicationHelpers.FastGetFiles(configuration.DirectoryBase, "*.m3u", SearchOption.AllDirectories);
+            //if (!string.IsNullOrEmpty(configuration.DirectoryBase))
+            //{
+            //    var files = ApplicationHelpers.FastGetFiles(configuration.DirectoryBase, "*.m3u", SearchOption.AllDirectories);
 
-                this.ImportFilesStaged = new ObservableCollection<string>(files);
-                this.ImportDirectory = configuration.DirectoryBase;
-            }
-            else
-            {
-                this.ImportFilesStaged = new ObservableCollection<string>();
-            }
+            //    this.ImportFilesStaged = new ObservableCollection<string>(files);
+            //    this.ImportDirectory = configuration.DirectoryBase;
+            //}
+            //else
+            //{
+            //    this.ImportFilesStaged = new ObservableCollection<string>();
+            //}
 
-            this.RunImportCommand = new SimpleCommand(() =>
-            {
-                if (dialogController.ShowConfirmation("Library Database Initialization",
-                                                      "This will delete your existing library data and reload it from:",
-                                                      "", this.ImportDirectory, "",
-                                                      "Your radio file(s) will not be otherwise disturbed.",
-                                                      "Are you sure you want to do this?"))
-                {
-                    //libraryLoader.LoadLibraryAsync(this.Configuration.DirectoryBase);
-                    //libraryLoader.Start();
-                }
-            });
+            //this.RunImportCommand = new SimpleCommand(() =>
+            //{
+            //    if (dialogController.ShowConfirmation("Library Database Initialization",
+            //                                          "This will delete your existing library data and reload it from:",
+            //                                          "", this.ImportDirectory, "",
+            //                                          "Your radio file(s) will not be otherwise disturbed.",
+            //                                          "Are you sure you want to do this?"))
+            //    {
+            //        //libraryLoader.LoadLibraryAsync(this.Configuration.DirectoryBase);
+            //        //libraryLoader.Start();
+            //    }
+            //});
         }
     }
 }

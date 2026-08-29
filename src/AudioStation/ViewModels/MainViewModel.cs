@@ -1,15 +1,14 @@
 ﻿using System.Collections.ObjectModel;
-using System.IO;
 
 using AudioStation.Component.AudioProcessing;
 using AudioStation.Controller.Interface;
-using AudioStation.Core;
 using AudioStation.Core.Component;
 using AudioStation.Core.Component.CDPlayer.Interface;
 using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Controller.Interface;
 using AudioStation.Core.Database.AudioStationDatabase.Interface;
 using AudioStation.Core.Event;
+using AudioStation.Core.Model.Interface;
 using AudioStation.Core.Service.Interface;
 using AudioStation.Core.Service.Vendor.Bandcamp.Interface;
 using AudioStation.Core.Service.Vendor.Interface;
@@ -37,7 +36,7 @@ public class MainViewModel : ViewModelBase
     bool _disposed = false;
 
     #region Backing Fields
-    AudioStationConfiguration _configuration;
+    AudioStationConfigurationViewModel _configuration;
     bool _loadedFromConfiguration;
     float _volume;
     bool _loading;
@@ -72,7 +71,7 @@ public class MainViewModel : ViewModelBase
     #endregion
 
     #region Properties
-    public AudioStationConfiguration Configuration
+    public AudioStationConfigurationViewModel Configuration
     {
         get { return _configuration; }
         set { this.RaiseAndSetIfChanged(ref _configuration, value); }
@@ -216,6 +215,7 @@ public class MainViewModel : ViewModelBase
 
     [IocImportingConstructor]
     public MainViewModel(IConfigurationManager configurationManager,
+                         IAudioStationMapper audioStationMapper,
                          IAudioStationServiceController componentController,
                          IDialogController dialogController,
                          IIocEventAggregator eventAggregator,
@@ -238,7 +238,7 @@ public class MainViewModel : ViewModelBase
         _eventAggregator = eventAggregator;
 
         this.ConfigurationLocked = true;
-        this.Configuration = configurationManager.GetConfiguration();
+        this.Configuration = audioStationMapper.Map<IAudioStationConfiguration, AudioStationConfigurationViewModel>(configurationManager.GetConfiguration());
         this.EqualizerValues = new ObservableCollection<float>();
         this.EqualizerViewModel = new ObservableCollection<EqualizerBandViewModel>()
         {
@@ -298,7 +298,7 @@ public class MainViewModel : ViewModelBase
 
             if (!string.IsNullOrEmpty(folder))
             {
-                this.Configuration.DirectoryBase = folder;
+                //this.Configuration.DirectoryBase = folder;
             }
         });
         this.OpenMusicSubFolderCommand = new SimpleCommand(() =>
@@ -307,7 +307,7 @@ public class MainViewModel : ViewModelBase
 
             if (!string.IsNullOrEmpty(folder))
             {
-                this.Configuration.MusicSubDirectory = Path.GetFileName(folder) ?? string.Empty;
+                //this.Configuration.MusicSubDirectory = Path.GetFileName(folder) ?? string.Empty;
             }
         });
         this.OpenAudioBooksSubFolderCommand = new SimpleCommand(() =>
@@ -316,7 +316,7 @@ public class MainViewModel : ViewModelBase
 
             if (!string.IsNullOrEmpty(folder))
             {
-                this.Configuration.AudioBooksSubDirectory = Path.GetFileName(folder) ?? string.Empty;
+                //this.Configuration.AudioBooksSubDirectory = Path.GetFileName(folder) ?? string.Empty;
             }
         });
         this.OpenImportFolderCommand = new SimpleCommand(() =>
@@ -325,7 +325,7 @@ public class MainViewModel : ViewModelBase
 
             if (!string.IsNullOrEmpty(folder))
             {
-                this.Configuration.ImportFolder = folder;
+                //this.Configuration.ImportFolder = folder;
             }
         });
         this.OpenCacheFolderCommand = new SimpleCommand(() =>
@@ -334,7 +334,7 @@ public class MainViewModel : ViewModelBase
 
             if (!string.IsNullOrEmpty(folder))
             {
-                this.Configuration.ApplicationCacheFolder = folder;
+                //this.Configuration.ApplicationCacheFolder = folder;
             }
         });
         this.OpenStorageFolderCommand = new SimpleCommand(() =>
@@ -343,7 +343,7 @@ public class MainViewModel : ViewModelBase
 
             if (!string.IsNullOrEmpty(folder))
             {
-                this.Configuration.ApplicationStorageFolder = folder;
+                //this.Configuration.ApplicationStorageFolder = folder;
             }
         });
         this.UnlockConfigurationCommand = new SimpleCommand(() =>

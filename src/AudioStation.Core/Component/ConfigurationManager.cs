@@ -2,7 +2,6 @@
 
 using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Controller.Interface;
-using AudioStation.Core.Model;
 using AudioStation.Core.Utility;
 using AudioStation.Model;
 
@@ -109,9 +108,8 @@ namespace AudioStation.Core.Component
                 var success = true;
 
                 success &= !string.IsNullOrWhiteSpace(_configuration.AcoustIDAPIKey);
-                success &= !string.IsNullOrWhiteSpace(_configuration.ApplicationCacheFolder);
-                success &= !string.IsNullOrWhiteSpace(_configuration.ApplicationStorageFolder);
-                success &= !string.IsNullOrWhiteSpace(_configuration.AudioBooksSubDirectory);
+                success &= !string.IsNullOrWhiteSpace(_configuration.ApplicationCacheFolder.Directory);
+                success &= !string.IsNullOrWhiteSpace(_configuration.ApplicationStorageFolder.Directory);
                 success &= !string.IsNullOrWhiteSpace(_configuration.BandcampAPIKey);
                 success &= !string.IsNullOrWhiteSpace(_configuration.BandcampAPISecret);
                 success &= !string.IsNullOrWhiteSpace(_configuration.BandcampEmail);
@@ -120,50 +118,40 @@ namespace AudioStation.Core.Component
                 success &= !string.IsNullOrWhiteSpace(_configuration.DatabaseName);
                 success &= !string.IsNullOrWhiteSpace(_configuration.DatabasePassword);
                 success &= !string.IsNullOrWhiteSpace(_configuration.DatabaseUser);
-                success &= !string.IsNullOrWhiteSpace(_configuration.DirectoryBase);
                 success &= !string.IsNullOrWhiteSpace(_configuration.DiscogsCurrentToken);
                 success &= !string.IsNullOrWhiteSpace(_configuration.DiscogsEmail);
                 success &= !string.IsNullOrWhiteSpace(_configuration.DiscogsKey);
                 success &= !string.IsNullOrWhiteSpace(_configuration.DiscogsSecret);
+                success &= !string.IsNullOrWhiteSpace(_configuration.DownloadFolder.Directory);
                 success &= !string.IsNullOrWhiteSpace(_configuration.FanartAPIKey);
                 success &= !string.IsNullOrWhiteSpace(_configuration.FanartEmail);
                 success &= !string.IsNullOrWhiteSpace(_configuration.FanartPassword);
                 success &= !string.IsNullOrWhiteSpace(_configuration.FanartUser);
-                success &= !string.IsNullOrWhiteSpace(_configuration.ImportFolder);
-                success &= _configuration.ImportNamingType != TrackNamingType.None;
-                success &= _configuration.ImportGroupingType != TrackGroupingType.None;
                 success &= !string.IsNullOrWhiteSpace(_configuration.LastFmAPIKey);
                 success &= !string.IsNullOrWhiteSpace(_configuration.LastFmAPISecret);
                 success &= !string.IsNullOrWhiteSpace(_configuration.LastFmAPIUser);
                 success &= !string.IsNullOrWhiteSpace(_configuration.LastFmApplication);
                 success &= !string.IsNullOrWhiteSpace(_configuration.LastFmPassword);
                 success &= !string.IsNullOrWhiteSpace(_configuration.LastFmUser);
-                success &= !string.IsNullOrWhiteSpace(_configuration.MusicBrainzDatabaseHost);
-                success &= !string.IsNullOrWhiteSpace(_configuration.MusicBrainzDatabaseName);
-                success &= !string.IsNullOrWhiteSpace(_configuration.MusicBrainzDatabasePassword);
-                success &= !string.IsNullOrWhiteSpace(_configuration.MusicBrainzDatabaseUser);
                 success &= !string.IsNullOrWhiteSpace(_configuration.MusicBrainzPassword);
                 success &= !string.IsNullOrWhiteSpace(_configuration.MusicBrainzUser);
-                success &= !string.IsNullOrWhiteSpace(_configuration.MusicSubDirectory);
                 success &= !string.IsNullOrWhiteSpace(_configuration.SpotifyClientId);
                 success &= !string.IsNullOrWhiteSpace(_configuration.SpotifyClientSecret);
+                success &= !string.IsNullOrWhiteSpace(_configuration.StagingFolder.Directory);
 
-                if (!Directory.Exists(_configuration.DirectoryBase))
+                success &= !_configuration.LibraryDirectories.Any(x => string.IsNullOrWhiteSpace(x.Directory));
+                success &= !_configuration.LibraryDirectories.Any(x => !Directory.Exists(x.Directory));
+
+                if (!Directory.Exists(_configuration.ApplicationCacheFolder.Directory))
                     success = false;
 
-                if (!Directory.Exists(Path.Combine(_configuration.DirectoryBase, _configuration.MusicSubDirectory)))
+                if (!Directory.Exists(_configuration.ApplicationStorageFolder.Directory))
                     success = false;
 
-                if (!Directory.Exists(Path.Combine(_configuration.DirectoryBase, _configuration.AudioBooksSubDirectory)))
+                if (!Directory.Exists(_configuration.StagingFolder.Directory))
                     success = false;
 
-                if (!Directory.Exists(_configuration.ApplicationCacheFolder))
-                    success = false;
-
-                if (!Directory.Exists(_configuration.ApplicationStorageFolder))
-                    success = false;
-
-                if (!Directory.Exists(_configuration.ImportFolder))
+                if (!Directory.Exists(_configuration.DownloadFolder.Directory))
                     success = false;
 
                 return success;

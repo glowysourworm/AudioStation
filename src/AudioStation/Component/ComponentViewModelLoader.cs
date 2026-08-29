@@ -8,7 +8,6 @@ using AudioStation.Core.Model;
 using AudioStation.Core.Utility;
 using AudioStation.Event;
 using AudioStation.Event.DialogEvents;
-using AudioStation.Utility;
 using AudioStation.ViewModels.ComponentViewModels;
 using AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.Import;
 using AudioStation.ViewModels.ComponentViewModels.LibraryViewModels;
@@ -307,39 +306,41 @@ namespace AudioStation.Component
 
             else
             {
-                // Configuration:  Calculate base directory from staging
-                //
-                var configuration = _configurationManager.GetConfiguration();
-                var options = _libraryImporterViewModel.Options;
+                //// Configuration:  Calculate base directory from staging
+                ////
+                //var configuration = _configurationManager.GetConfiguration();
+                //var options = _libraryImporterViewModel.Options;
 
-                if (string.IsNullOrWhiteSpace(configuration.DirectoryBase) ||
-                    string.IsNullOrWhiteSpace(configuration.ImportFolder))
-                    return null;
+                //if (string.IsNullOrWhiteSpace(configuration.DirectoryBase) ||
+                //    string.IsNullOrWhiteSpace(configuration.ImportFolder))
+                //    return null;
 
 
-                // Calculate Migration (destination) Directory
-                var destinationDirectory = System.IO.Path.Combine(configuration.DirectoryBase, configuration.ImportFolder);
+                //// Calculate Migration (destination) Directory
+                //var destinationDirectory = System.IO.Path.Combine(configuration.DirectoryBase, configuration.ImportFolder);
 
-                try
-                {
-                    return DirectoryTreeLoader.Load(destinationDirectory, "*.mp3", directoryNode =>
-                    {
-                        return new LibraryImporterTreeViewModel(directoryNode);
+                //try
+                //{
+                //    return DirectoryTreeLoader.Load(destinationDirectory, "*.mp3", directoryNode =>
+                //    {
+                //        return new LibraryImporterTreeViewModel(directoryNode);
 
-                    }, directoryPath =>
-                    {
-                        return new LibraryImporterDirectoryViewModel(directoryPath, options);
+                //    }, directoryPath =>
+                //    {
+                //        return new LibraryImporterDirectoryViewModel(directoryPath, options);
 
-                    }, filePath =>
-                    {
-                        return new LibraryImporterFileViewModel(filePath, false, destinationDirectory, options);
-                    });
-                }
-                catch (Exception ex)
-                {
-                    ApplicationHelpers.Log("Error loading import files:  {0}", LogLevel.Error, ex, ex.Message);
-                    return null;
-                }
+                //    }, filePath =>
+                //    {
+                //        return new LibraryImporterFileViewModel(filePath, false, destinationDirectory, options);
+                //    });
+                //}
+                //catch (Exception ex)
+                //{
+                //    ApplicationHelpers.Log("Error loading import files:  {0}", LogLevel.Error, ex, ex.Message);
+                //    return null;
+                //}
+
+                return null;
             }
         }
 

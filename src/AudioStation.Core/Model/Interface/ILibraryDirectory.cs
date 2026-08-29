@@ -1,0 +1,10 @@
+﻿namespace AudioStation.Core.Model.Interface
+{
+    public interface ILibraryDirectory
+    {
+        public string Directory { get; set; }
+        public TrackType TrackType { get; set; }
+        public TrackGroupingType GroupingType { get; set; }
+        public TrackNamingType NamingType { get; set; }
+    }
+}

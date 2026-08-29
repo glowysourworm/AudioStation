@@ -18,6 +18,7 @@ namespace AudioStation.Core.Component
     [IocExport(typeof(ILibraryLoader))]
     public class LibraryLoader : ILibraryLoader
     {
+        private readonly IAudioStationMapper _audioStationMapper;
         private readonly ILibraryImporter _libraryImporter;
         private readonly IFileController _fileController;
         private readonly IAudioStationDbClient _audioStationDbClient;
@@ -41,12 +42,14 @@ namespace AudioStation.Core.Component
         private int _workItemIdCounter;
 
         [IocImportingConstructor]
-        public LibraryLoader(IAudioStationDbClient audioStationDbClient,
+        public LibraryLoader(IAudioStationMapper audioStationMapper,
+                             IAudioStationDbClient audioStationDbClient,
                              IAcoustIDClient acoustIDClient,
                              IMusicBrainzClient musicBrainzClient,
                              ILibraryImporter libraryImporter,
                              IFileController fileController)
         {
+            _audioStationMapper = audioStationMapper;
             _audioStationDbClient = audioStationDbClient;
             _musicBrainzClient = musicBrainzClient;
             _acoustIDClient = acoustIDClient;
@@ -155,7 +158,7 @@ namespace AudioStation.Core.Component
                     break;
                     case LibraryLoadType.MusicBrainzBasic:
                     {
-                        thread = new LibraryLoaderMusicBrainzBasicWorker(_musicBrainzClient, _audioStationDbClient, workItem);
+                        thread = new LibraryLoaderMusicBrainzBasicWorker(_audioStationMapper, _musicBrainzClient, _audioStationDbClient, workItem);
                     }
                     break;
                     case LibraryLoadType.MusicBrainzAlbumArt:

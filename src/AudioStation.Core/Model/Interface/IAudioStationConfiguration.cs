@@ -1,9 +1,6 @@
-﻿using AudioStation.Core.Model;
-using AudioStation.Core.Model.Interface;
-
-namespace AudioStation.Core
+﻿namespace AudioStation.Core.Model.Interface
 {
-    public class AudioStationConfiguration : IAudioStationConfiguration
+    public interface IAudioStationConfiguration
     {
         public IList<ILibraryDirectory> LibraryDirectories { get; set; }
 
@@ -45,15 +42,8 @@ namespace AudioStation.Core
 
         public string MusicBrainzUser { get; set; }
         public string MusicBrainzPassword { get; set; }
+
         public string AcoustIDAPIKey { get; set; }
 
-        public AudioStationConfiguration()
-        {
-            this.LibraryDirectories = new List<ILibraryDirectory>();
-            this.ApplicationCacheFolder = new LibraryDirectory();
-            this.ApplicationStorageFolder = new LibraryDirectory();
-            this.DownloadFolder = new LibraryDirectory();
-            this.StagingFolder = new LibraryDirectory();
-        }
     }
 }
