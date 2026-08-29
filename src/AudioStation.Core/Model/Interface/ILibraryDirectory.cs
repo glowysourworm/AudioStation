@@ -2,6 +2,7 @@
 {
     public interface ILibraryDirectory
     {
+        public string DirectoryLabel { get; set; }
         public string Directory { get; set; }
         public TrackType TrackType { get; set; }
         public TrackGroupingType GroupingType { get; set; }

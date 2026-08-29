@@ -4,6 +4,7 @@ namespace AudioStation.Core.Model
 {
     public class LibraryDirectory : ILibraryDirectory
     {
+        public string DirectoryLabel { get; set; }
         public string Directory { get; set; }
         public TrackType TrackType { get; set; }
         public TrackGroupingType GroupingType { get; set; }
@@ -11,6 +12,7 @@ namespace AudioStation.Core.Model
 
         public LibraryDirectory()
         {
+            this.DirectoryLabel = string.Empty;
             this.Directory = string.Empty;
             this.TrackType = TrackType.Any;
             this.GroupingType = TrackGroupingType.None;

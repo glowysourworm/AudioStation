@@ -3,18 +3,19 @@
 using AudioStation.Core.Model.Interface;
 using AudioStation.ViewModels.MainViewModels;
 
-using AutoMapper.Configuration.Annotations;
-
+using SimpleWpf.Extensions.Command;
 using SimpleWpf.ViewModel;
 
 namespace AudioStation.ViewModels
 {
     public class AudioStationConfigurationViewModel : ViewModelBase //, IAudioStationConfiguration
     {
+        SimpleCommand _addDirectoryCommand;
+
         // (UI Property) All Directories (ignore using AutoMapper, and Newtonsoft.Json)
         //ObservableCollection<LibraryDirectoryViewModel> _allDirectories;
 
-        ObservableCollection<ILibraryDirectory> _libraryDirectories;
+        ObservableCollection<LibraryDirectoryViewModel> _libraryDirectories;
 
         ILibraryDirectory _applicationCacheFolder;
         ILibraryDirectory _applicationStorageFolder;
@@ -26,11 +27,6 @@ namespace AudioStation.ViewModels
         string _databaseName;
         string _databaseUser;
         string _databasePassword;
-
-        string _musicBrainzDatabaseHost;
-        string _musicBrainzDatabaseName;
-        string _musicBrainzDatabaseUser;
-        string _musicBrainzDatabasePassword;
 
         string _bandcampEmail;
         string _bandcampPassword;
@@ -62,38 +58,18 @@ namespace AudioStation.ViewModels
 
         string _acoustIDAPIKey;
 
-        //[JsonIgnore]
-        //[Ignore]
-        //public ObservableCollection<LibraryDirectoryViewModel> AllDirectories
-        //{
-        //    get { return _allDirectories; }
-        //    set
-        //    {
-        //        this.RaiseAndSetIfChanged(ref _allDirectories, value);
-        //    }
-        //}
+        public SimpleCommand AddDirectoryCommand
+        {
+            get { return _addDirectoryCommand; }
+            set { this.RaiseAndSetIfChanged(ref _addDirectoryCommand, value); }
+        }
 
-        //IList<ILibraryDirectory> IAudioStationConfiguration.LibraryDirectories
-        //{
-        //    get { return _libraryDirectories as IList<ILibraryDirectory>; }
-        //    set
-        //    {
-        //        // -> (our property setter)
-        //        this.LibraryDirectories = value as ObservableCollection<LibraryDirectoryViewModel>;
-        //    }
-        //}
-
-        [Ignore]
-        public IList<ILibraryDirectory> LibraryDirectories
+        public ObservableCollection<LibraryDirectoryViewModel> LibraryDirectories
         {
             get { return _libraryDirectories; }
-            set
-            {
-                //_libraryDirectories = value;
-
-                OnPropertyChanged("LibraryDirectories");
-            }
+            set { this.RaiseAndSetIfChanged(ref _libraryDirectories, value); }
         }
+
         public ILibraryDirectory ApplicationCacheFolder
         {
             get { return _applicationCacheFolder; }
@@ -133,26 +109,6 @@ namespace AudioStation.ViewModels
         {
             get { return _databasePassword; }
             set { this.RaiseAndSetIfChanged(ref _databasePassword, value); }
-        }
-        public string MusicBrainzDatabaseHost
-        {
-            get { return _musicBrainzDatabaseHost; }
-            set { this.RaiseAndSetIfChanged(ref _musicBrainzDatabaseHost, value); }
-        }
-        public string MusicBrainzDatabaseName
-        {
-            get { return _musicBrainzDatabaseName; }
-            set { this.RaiseAndSetIfChanged(ref _musicBrainzDatabaseName, value); }
-        }
-        public string MusicBrainzDatabaseUser
-        {
-            get { return _musicBrainzDatabaseUser; }
-            set { this.RaiseAndSetIfChanged(ref _musicBrainzDatabaseUser, value); }
-        }
-        public string MusicBrainzDatabasePassword
-        {
-            get { return _musicBrainzDatabasePassword; }
-            set { this.RaiseAndSetIfChanged(ref _musicBrainzDatabasePassword, value); }
         }
         public string BandcampEmail
         {
@@ -273,11 +229,21 @@ namespace AudioStation.ViewModels
 
         public AudioStationConfigurationViewModel()
         {
-            this.LibraryDirectories = new ObservableCollection<ILibraryDirectory>();
+            this.LibraryDirectories = new ObservableCollection<LibraryDirectoryViewModel>();
             this.ApplicationCacheFolder = new LibraryDirectoryViewModel();
             this.ApplicationStorageFolder = new LibraryDirectoryViewModel();
             this.DownloadFolder = new LibraryDirectoryViewModel();
             this.StagingFolder = new LibraryDirectoryViewModel();
+
+            this.AddDirectoryCommand = new SimpleCommand(() =>
+            {
+                var directory = Environment.GetFolderPath(Environment.SpecialFolder.MyMusic);
+
+                this.LibraryDirectories.Add(new LibraryDirectoryViewModel()
+                {
+                    Directory = directory
+                });
+            });
         }
     }
 }

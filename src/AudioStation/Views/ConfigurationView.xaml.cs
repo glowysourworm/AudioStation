@@ -23,7 +23,6 @@ namespace AudioStation.Views
                 this.LastFmPasswordTB.Password = viewModel.Configuration.LastFmPassword;
                 this.FanartPasswordTB.Password = viewModel.Configuration.FanartPassword;
                 this.MusicBrainzPasswordTB.Password = viewModel.Configuration.MusicBrainzPassword;
-                this.MusicBrainzDatabasePasswordTB.Password = viewModel.Configuration.MusicBrainzDatabasePassword;
                 this.BandcampPasswordTB.Password = viewModel.Configuration.BandcampPassword;
             }
         }
@@ -74,7 +73,6 @@ namespace AudioStation.Views
 
             if (viewModel != null)
             {
-                viewModel.Configuration.MusicBrainzDatabasePassword = this.MusicBrainzDatabasePasswordTB.Password;
             }
         }
 

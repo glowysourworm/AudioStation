@@ -103,7 +103,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
         {
             var configuration = configurationManager.GetConfiguration();
 
-            this.SourceFolder = configuration.StagingFolder.Directory;
+            //this.SourceFolder = configuration.StagingFolder.Dir%ectory;
             //this.DestinationFolder = configuration.DirectoryBase;
             //this.DestinationMusicSubFolder = configuration.MusicSubDirectory;
             //this.DestinationAudioBooksSubFolder = configuration.AudioBooksSubDirectory;

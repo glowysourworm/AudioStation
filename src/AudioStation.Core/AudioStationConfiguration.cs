@@ -50,10 +50,22 @@ namespace AudioStation.Core
         public AudioStationConfiguration()
         {
             this.LibraryDirectories = new List<ILibraryDirectory>();
-            this.ApplicationCacheFolder = new LibraryDirectory();
-            this.ApplicationStorageFolder = new LibraryDirectory();
-            this.DownloadFolder = new LibraryDirectory();
-            this.StagingFolder = new LibraryDirectory();
+            this.ApplicationCacheFolder = new LibraryDirectory()
+            {
+                DirectoryLabel = "Cache"
+            };
+            this.ApplicationStorageFolder = new LibraryDirectory()
+            {
+                DirectoryLabel = "Storage"
+            };
+            this.DownloadFolder = new LibraryDirectory()
+            {
+                DirectoryLabel = "Downloads"
+            };
+            this.StagingFolder = new LibraryDirectory()
+            {
+                DirectoryLabel = "Staging"
+            };
         }
     }
 }

@@ -4,8 +4,6 @@ using System.Reflection;
 using AudioStation.Core.Utility.RecursiveComparer.Attribute;
 using AudioStation.Core.Utility.RecursiveComparer.Interface;
 
-using AutoMapper.Internal;
-
 using Microsoft.Extensions.Logging;
 
 using SimpleWpf.Extensions;
@@ -146,7 +144,7 @@ namespace AudioStation.Core.Utility.RecursiveComparer
 
         private bool IsNullable(Type type)
         {
-            return type.IsGenericType(typeof(Nullable<>));
+            return Nullable.GetUnderlyingType(type) != null;
         }
 
         private bool IsPrimitive(Type type)

@@ -1,8 +1,6 @@
 ﻿using AudioStation.Core.Model;
 using AudioStation.Core.Model.Interface;
 
-using AutoMapper.Configuration.Annotations;
-
 using Microsoft.Win32;
 
 using SimpleWpf.Extensions.Command;
@@ -13,6 +11,7 @@ namespace AudioStation.ViewModels.MainViewModels
     public class LibraryDirectoryViewModel : ViewModelBase, ILibraryDirectory
     {
         string _directory;
+        string _directoryLabel;
         TrackType _trackType;
         TrackGroupingType _trackGroupingType;
         TrackNamingType _trackNamingType;
@@ -23,6 +22,11 @@ namespace AudioStation.ViewModels.MainViewModels
         {
             get { return _directory; }
             set { this.RaiseAndSetIfChanged(ref _directory, value); }
+        }
+        public string DirectoryLabel
+        {
+            get { return _directoryLabel; }
+            set { this.RaiseAndSetIfChanged(ref _directoryLabel, value); }
         }
         public TrackType TrackType
         {
@@ -40,7 +44,6 @@ namespace AudioStation.ViewModels.MainViewModels
             set { this.RaiseAndSetIfChanged(ref _trackNamingType, value); }
         }
 
-        [Ignore]
         public SimpleCommand OpenFolderCommand
         {
             get { return _openFolderCommand; }
@@ -50,6 +53,7 @@ namespace AudioStation.ViewModels.MainViewModels
         public LibraryDirectoryViewModel()
         {
             this.Directory = string.Empty;
+            this.DirectoryLabel = string.Empty;
             this.TrackType = TrackType.Any;
             this.GroupingType = TrackGroupingType.None;
             this.NamingType = TrackNamingType.None;

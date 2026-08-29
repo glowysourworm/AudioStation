@@ -1,4 +1,6 @@
-﻿using AudioStation.Core.Component;
+﻿using System.Collections.Concurrent;
+
+using AudioStation.Core.Component;
 using AudioStation.Core.Controller.Interface;
 using AudioStation.Core.Event;
 using AudioStation.Core.Service.Interface;
@@ -9,7 +11,6 @@ using Microsoft.Extensions.Logging;
 using SimpleWpf.Extensions.Event;
 using SimpleWpf.IocFramework.Application.Attribute;
 using SimpleWpf.IocFramework.EventAggregation;
-using SimpleWpf.SimpleCollections.Collection;
 
 namespace AudioStation.Core.Controller
 {
@@ -22,7 +23,7 @@ namespace AudioStation.Core.Controller
 
         // Log message types have buckets here - one for each, with a max message count set in the 
         // constructor. (LibraryLoaderWorkItem logs should mostly be "specific"; but it's up to the user end)
-        SimpleDictionary<int, LogComponent> _logs;
+        ConcurrentDictionary<int, LogComponent> _logs;
 
         // IAudioStationComponent
         //
@@ -35,7 +36,7 @@ namespace AudioStation.Core.Controller
         {
             _eventAggregator = eventAggregator;
 
-            _logs = new SimpleDictionary<int, LogComponent>();
+            _logs = new ConcurrentDictionary<int, LogComponent>();
         }
 
         #region (public) Log Methods
@@ -142,7 +143,11 @@ namespace AudioStation.Core.Controller
 
             // New Log (type)
             if (!_logs.ContainsKey(logKey))
-                _logs.Add(logKey, new LogComponent(MAX_LOG_SIZE));
+                _logs.AddOrUpdate(logKey, new LogComponent(MAX_LOG_SIZE), (hash, log) =>
+                {
+                    // TODO: THIS IS JUST A LOG.. ANY CONTENTIONS ARE VERY RARE. WE'LL COME BACK FOR THIS
+                    return log;
+                });
 
             // Add Log
             _logs[logKey].Add(logMessage);
