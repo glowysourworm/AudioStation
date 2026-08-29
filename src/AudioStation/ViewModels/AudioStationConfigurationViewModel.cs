@@ -1,6 +1,5 @@
 ﻿using System.Collections.ObjectModel;
 
-using AudioStation.Core.Model.Interface;
 using AudioStation.ViewModels.MainViewModels;
 
 using SimpleWpf.Extensions.Command;
@@ -8,20 +7,17 @@ using SimpleWpf.ViewModel;
 
 namespace AudioStation.ViewModels
 {
-    public class AudioStationConfigurationViewModel : ViewModelBase //, IAudioStationConfiguration
+    public class AudioStationConfigurationViewModel : ViewModelBase//, IAudioStationConfiguration
     {
-        SimpleCommand _addDirectoryCommand;
-
-        // (UI Property) All Directories (ignore using AutoMapper, and Newtonsoft.Json)
-        //ObservableCollection<LibraryDirectoryViewModel> _allDirectories;
+        SimpleCommand<string> _addDirectoryCommand;
 
         ObservableCollection<LibraryDirectoryViewModel> _libraryDirectories;
 
-        ILibraryDirectory _applicationCacheFolder;
-        ILibraryDirectory _applicationStorageFolder;
+        LibraryDirectoryViewModel _applicationCacheFolder;
+        LibraryDirectoryViewModel _applicationStorageFolder;
 
-        ILibraryDirectory _stagingFolder;
-        ILibraryDirectory _downloadFolder;
+        LibraryDirectoryViewModel _stagingFolder;
+        LibraryDirectoryViewModel _downloadFolder;
 
         string _databaseHost;
         string _databaseName;
@@ -58,7 +54,7 @@ namespace AudioStation.ViewModels
 
         string _acoustIDAPIKey;
 
-        public SimpleCommand AddDirectoryCommand
+        public SimpleCommand<string> AddDirectoryCommand
         {
             get { return _addDirectoryCommand; }
             set { this.RaiseAndSetIfChanged(ref _addDirectoryCommand, value); }
@@ -70,22 +66,22 @@ namespace AudioStation.ViewModels
             set { this.RaiseAndSetIfChanged(ref _libraryDirectories, value); }
         }
 
-        public ILibraryDirectory ApplicationCacheFolder
+        public LibraryDirectoryViewModel ApplicationCacheFolder
         {
             get { return _applicationCacheFolder; }
             set { this.RaiseAndSetIfChanged(ref _applicationCacheFolder, value); }
         }
-        public ILibraryDirectory ApplicationStorageFolder
+        public LibraryDirectoryViewModel ApplicationStorageFolder
         {
             get { return _applicationStorageFolder; }
             set { this.RaiseAndSetIfChanged(ref _applicationStorageFolder, value); }
         }
-        public ILibraryDirectory StagingFolder
+        public LibraryDirectoryViewModel StagingFolder
         {
             get { return _stagingFolder; }
             set { this.RaiseAndSetIfChanged(ref _stagingFolder, value); }
         }
-        public ILibraryDirectory DownloadFolder
+        public LibraryDirectoryViewModel DownloadFolder
         {
             get { return _downloadFolder; }
             set { this.RaiseAndSetIfChanged(ref _downloadFolder, value); }
@@ -226,7 +222,6 @@ namespace AudioStation.ViewModels
             set { this.RaiseAndSetIfChanged(ref _acoustIDAPIKey, value); }
         }
 
-
         public AudioStationConfigurationViewModel()
         {
             this.LibraryDirectories = new ObservableCollection<LibraryDirectoryViewModel>();
@@ -235,13 +230,14 @@ namespace AudioStation.ViewModels
             this.DownloadFolder = new LibraryDirectoryViewModel();
             this.StagingFolder = new LibraryDirectoryViewModel();
 
-            this.AddDirectoryCommand = new SimpleCommand(() =>
+            this.AddDirectoryCommand = new SimpleCommand<string>((label) =>
             {
                 var directory = Environment.GetFolderPath(Environment.SpecialFolder.MyMusic);
 
                 this.LibraryDirectories.Add(new LibraryDirectoryViewModel()
                 {
-                    Directory = directory
+                    Directory = directory,
+                    DirectoryLabel = label
                 });
             });
         }

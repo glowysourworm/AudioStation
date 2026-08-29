@@ -2,13 +2,13 @@
 {
     public interface IAudioStationConfiguration
     {
-        public IList<ILibraryDirectory> LibraryDirectories { get; set; }
+        public List<LibraryDirectory> LibraryDirectories { get; set; }
 
-        public ILibraryDirectory ApplicationCacheFolder { get; set; }
-        public ILibraryDirectory ApplicationStorageFolder { get; set; }
+        public LibraryDirectory ApplicationCacheFolder { get; set; }
+        public LibraryDirectory ApplicationStorageFolder { get; set; }
 
-        public ILibraryDirectory StagingFolder { get; set; }
-        public ILibraryDirectory DownloadFolder { get; set; }
+        public LibraryDirectory StagingFolder { get; set; }
+        public LibraryDirectory DownloadFolder { get; set; }
 
         public string DatabaseHost { get; set; }
         public string DatabaseName { get; set; }

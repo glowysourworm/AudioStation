@@ -12,6 +12,13 @@ namespace AudioStation
         public App()
         {
             _bootstrapper = new AudioStationBootstrapper();
+
+            this.DispatcherUnhandledException += OnDispatcherUnhandledException;
+        }
+
+        private void OnDispatcherUnhandledException(object sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)
+        {
+
         }
 
         private void InitializeResources()

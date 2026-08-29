@@ -20,7 +20,7 @@
         /// Maps properties onto the destination object using recursion. Any unmatched properties, or unmapped
         /// properties will be handled depending on the type (see MapType)
         /// </summary>
-        public IAudioStationMapperConfiguration ConfigureMap<TSource, TDest>(TSource source, TDest destination, MapType type = MapType.Permissive);
+        public IAudioStationMapperConfiguration ConfigureMap<TSource, TDest>();
 
         /// <summary>
         /// Maps all properties using property names. Returns a new object with mapped properties.

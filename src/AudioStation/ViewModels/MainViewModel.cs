@@ -2,6 +2,7 @@
 
 using AudioStation.Component.AudioProcessing;
 using AudioStation.Controller.Interface;
+using AudioStation.Core;
 using AudioStation.Core.Component;
 using AudioStation.Core.Component.CDPlayer.Interface;
 using AudioStation.Core.Component.Interface;
@@ -289,7 +290,8 @@ public class MainViewModel : ViewModelBase
 
         this.SaveConfigurationCommand = new SimpleCommand(() =>
         {
-            configurationManager.SaveConfiguration();
+            var configuration = audioStationMapper.Map<AudioStationConfigurationViewModel, AudioStationConfiguration>(this.Configuration);
+            configurationManager.SaveConfiguration(configuration);
             this.ConfigurationLocked = true;
         });
         this.OpenLibraryFolderCommand = new SimpleCommand(() =>

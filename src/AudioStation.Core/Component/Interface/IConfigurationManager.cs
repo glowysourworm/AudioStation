@@ -10,6 +10,7 @@
         AudioStationConfiguration GetValidConfiguration();
         AudioStationConfiguration GetConfiguration();
         void SaveConfiguration();
+        void SaveConfiguration(AudioStationConfiguration configuration);
         bool ValidateConfiguration();
     }
 }

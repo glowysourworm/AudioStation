@@ -24,6 +24,13 @@ namespace AudioStation.Views
                 this.FanartPasswordTB.Password = viewModel.Configuration.FanartPassword;
                 this.MusicBrainzPasswordTB.Password = viewModel.Configuration.MusicBrainzPassword;
                 this.BandcampPasswordTB.Password = viewModel.Configuration.BandcampPassword;
+
+                // Problem adding DataGridRow
+                this.AudioStationFoldersDG.Items.Clear();
+                this.AudioStationFoldersDG.Items.Add(viewModel.Configuration.ApplicationCacheFolder);
+                this.AudioStationFoldersDG.Items.Add(viewModel.Configuration.ApplicationStorageFolder);
+                this.AudioStationFoldersDG.Items.Add(viewModel.Configuration.StagingFolder);
+                this.AudioStationFoldersDG.Items.Add(viewModel.Configuration.DownloadFolder);
             }
         }
 

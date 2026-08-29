@@ -58,6 +58,14 @@ namespace AudioStation.Core.Utility
         /// <summary>
         /// Sends a log request to the dispatcher to log with the output controller
         /// </summary>
+        public static void Log(string message, params object[] parameters)
+        {
+            LogImpl(message, LogMessageType.General, LogLevel.Information, LogMessageComponentType.None, LogMessageServiceType.None, LogMessageDbType.None, null, parameters);
+        }
+
+        /// <summary>
+        /// Sends a log request to the dispatcher to log with the output controller
+        /// </summary>
         public static void Log(string message, LogLevel level, Exception? exception, params object[] parameters)
         {
             LogImpl(message, LogMessageType.General, level, LogMessageComponentType.None, LogMessageServiceType.None, LogMessageDbType.None, exception, parameters);
