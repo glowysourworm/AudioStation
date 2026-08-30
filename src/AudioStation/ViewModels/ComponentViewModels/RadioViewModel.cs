@@ -5,6 +5,7 @@ using AudioStation.Core.Database.AudioStationDatabase;
 using AudioStation.Core.Model.Interface;
 using AudioStation.Core.Service.Vendor;
 using AudioStation.Core.Utility;
+using AudioStation.EventHandler;
 using AudioStation.Service.Interface;
 using AudioStation.ViewModels.ComponentViewModels.LibraryViewModels.Comparer;
 using AudioStation.ViewModels.ComponentViewModels.LoadViewModels;
@@ -16,8 +17,6 @@ using SimpleWpf.Extensions.Command;
 using SimpleWpf.Extensions.ObservableCollection;
 using SimpleWpf.IocFramework.Application.Attribute;
 using SimpleWpf.Utilities;
-
-using static AudioStation.EventHandler.DialogEventHandlers;
 
 namespace AudioStation.ViewModels.ComponentViewModels
 {
@@ -55,7 +54,7 @@ namespace AudioStation.ViewModels.ComponentViewModels
         public override NoViewModel? Load { get; }
 
         [IocImportingConstructor]
-        public RadioViewModel(ILibraryLoaderService libraryLoaderService,
+        public RadioViewModel(ILibraryLoaderWorkerService libraryLoaderService,
                               IDialogController dialogController)
         {
             this.RadioEntries = new SortedObservableCollection<RadioEntryViewModel>(new PropertyComparer<string, RadioEntryViewModel>(x => x.Name));
@@ -75,7 +74,7 @@ namespace AudioStation.ViewModels.ComponentViewModels
             });
         }
 
-        public override void Initialize(IAudioStationConfiguration configuration, NoViewModel load, DialogProgressHandler progressHandler)
+        protected override void InitializeWork(IAudioStationConfiguration configuration, NoViewModel load, DialogEventHandlers.DialogProgressHandler progressHandler)
         {
         }
 

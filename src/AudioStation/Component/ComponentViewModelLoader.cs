@@ -33,17 +33,13 @@ namespace AudioStation.Component
         private readonly ILibraryImporter _libraryImporter;
 
         private readonly IAudioStationDbClient _audioStationDbClient;
-        private readonly IConfigurationManager _configurationManager;
+        private readonly IAudioStationConfigurationManager _configurationManager;
 
+        private readonly CDImporterViewModel _cdImporterViewModel;
         private readonly LibraryManagerViewModel _libraryManagerViewModel;
         private readonly RadioViewModel _radioViewModel;
         private readonly LogViewModel _logViewModel;
         private readonly LibraryImporterViewModel _libraryImporterViewModel;
-        private readonly LibraryLoaderAcoustIDViewModel _libraryLoaderAcoustIDViewModel;
-        private readonly LibraryLoaderCDImportViewModel _libraryLoaderCDImportViewModel;
-        private readonly LibraryLoaderFileCheckerViewModel _libraryLoaderFileCheckerViewModel;
-        private readonly LibraryLoaderMusicBrainzBasicViewModel _libraryLoaderMusicBrainzBasicViewModel;
-        private readonly LibraryLoaderMusicBrainzAlbumArtViewModel _libraryLoaderMusicBrainzAlbumArtViewModel;
 
         [IocImportingConstructor]
         public ComponentViewModelLoader(
@@ -54,11 +50,7 @@ namespace AudioStation.Component
             ILibraryImporter libraryImporter,
 
             // View Models
-            LibraryLoaderCDImportViewModel libraryLoaderCDImportViewModel,
-            LibraryLoaderAcoustIDViewModel libraryLoaderAcoustIDViewModel,
-            LibraryLoaderFileCheckerViewModel libraryLoaderFileCheckerViewModel,
-            LibraryLoaderMusicBrainzBasicViewModel libraryLoaderMusicBrainzBasicViewModel,
-            LibraryLoaderMusicBrainzAlbumArtViewModel libraryLoaderMusicBrainzAlbumArtViewModel,
+            CDImporterViewModel cdImporterViewModel,
             LibraryImporterViewModel libraryImporterViewModel,
             LibraryManagerViewModel libraryManagerViewModel,
             RadioViewModel radioViewModel,
@@ -66,17 +58,13 @@ namespace AudioStation.Component
 
             // Controllers
             IAudioStationDbClient audioStationDbClient,
-            IConfigurationManager configurationManager)
+            IAudioStationConfigurationManager configurationManager)
         {
             _eventAggregator = eventAggregator;
 
             _libraryImporter = libraryImporter;
 
-            _libraryLoaderCDImportViewModel = libraryLoaderCDImportViewModel;
-            _libraryLoaderAcoustIDViewModel = libraryLoaderAcoustIDViewModel;
-            _libraryLoaderFileCheckerViewModel = libraryLoaderFileCheckerViewModel;
-            _libraryLoaderMusicBrainzBasicViewModel = libraryLoaderMusicBrainzBasicViewModel;
-            _libraryLoaderMusicBrainzAlbumArtViewModel = libraryLoaderMusicBrainzAlbumArtViewModel;
+            _cdImporterViewModel = cdImporterViewModel;
             _libraryImporterViewModel = libraryImporterViewModel;
             _libraryManagerViewModel = libraryManagerViewModel;
             _radioViewModel = radioViewModel;
@@ -86,59 +74,40 @@ namespace AudioStation.Component
             _configurationManager = configurationManager;
         }
 
-        public Task Initialize(DialogProgressHandler progressHandler)
+        public void Initialize(DialogProgressHandler progressHandler)
         {
-            return Task.Run(() =>
-            {
-                // Procedure
-                //
-                // 0) Load / Validation Configuration
-                // 1) Load Data (for view models)
-                // 2) Initialize View Models
-                // 3) Load View Model Data
-                //
+            // Procedure
+            //
+            // 0) Load / Validation Configuration
+            // 1) Load Data (for view models)
+            // 2) Initialize View Models
+            // 3) Load View Model Data
+            //
 
-                var taskCount = 9;
-                var task = 0;
+            var taskCount = 5;
+            var task = 1;
 
-                var configuration = _configurationManager.GetConfiguration();
+            var configuration = _configurationManager.GetConfiguration();
 
-                // Log (first)
-                progressHandler(taskCount, task++, 0, "Initializing Log...");
-                _logViewModel.Initialize(configuration, LogViewModel_CreateLoad(progressHandler), progressHandler);
+            // Log (first)
+            progressHandler(taskCount, task++, 0, "Initializing Log...");
+            _logViewModel.Initialize(configuration, LogViewModel_CreateLoad(progressHandler), progressHandler);
 
-                // Library Loader: CD Drive
-                progressHandler(taskCount, task++, 0, "Initializing CD Drive...");
-                _libraryLoaderCDImportViewModel.Initialize(configuration, new NoViewModel(), progressHandler);
+            // Library Loader: CD Drive
+            progressHandler(taskCount, task++, 0, "Initializing CD Drive...");
+            _cdImporterViewModel.Initialize(configuration, new NoViewModel(), progressHandler);
 
-                // Library Loader: File Checker
-                progressHandler(taskCount, task++, 0, "Initializing File Checker...");
-                _libraryLoaderFileCheckerViewModel.Initialize(configuration, new NoViewModel(), progressHandler);
+            // Library Importer
+            progressHandler(taskCount, task++, 0, "Initializing Library Importer...");
+            _libraryImporterViewModel.Initialize(configuration, LoadImporterViewModel_CreateLoad(progressHandler), progressHandler);
 
-                // Library Loader: AcoustID
-                progressHandler(taskCount, task++, 0, "Initializing AcoustID...");
-                _libraryLoaderAcoustIDViewModel.Initialize(configuration, new NoViewModel(), progressHandler);
+            // Library Manager
+            progressHandler(taskCount, task++, 0, "Initializing Library Manager...");
+            _libraryManagerViewModel.Initialize(configuration, LibraryManagerViewModel_CreateLoad(progressHandler), progressHandler);
 
-                // Library Loader: Music Brainz (Basic)
-                progressHandler(taskCount, task++, 0, "Initializing Music Brainz (Basic)...");
-                _libraryLoaderMusicBrainzBasicViewModel.Initialize(configuration, new NoViewModel(), progressHandler);
-
-                // Library Loader: Music Brainz (Album Art)
-                progressHandler(taskCount, task++, 0, "Initializing Music Brainz (Album Art)...");
-                _libraryLoaderMusicBrainzAlbumArtViewModel.Initialize(configuration, new NoViewModel(), progressHandler);
-
-                // Library Importer
-                progressHandler(taskCount, task++, 0, "Initializing Library Importer...");
-                _libraryImporterViewModel.Initialize(configuration, LoadImporterViewModel_CreateLoad(progressHandler), progressHandler);
-
-                // Library Manager
-                progressHandler(taskCount, task++, 0, "Initializing Library Manager...");
-                _libraryManagerViewModel.Initialize(configuration, LibraryManagerViewModel_CreateLoad(progressHandler), progressHandler);
-
-                // Radio
-                progressHandler(taskCount, task++, 0, "Initializing Radio...");
-                _radioViewModel.Initialize(configuration, new NoViewModel(), progressHandler);
-            });
+            // Radio
+            progressHandler(taskCount, task++, 0, "Initializing Radio...");
+            _radioViewModel.Initialize(configuration, new NoViewModel(), progressHandler);
         }
 
         public PageResult<TrackViewModel> LoadEntryPage(PageRequest<Track, int> request)

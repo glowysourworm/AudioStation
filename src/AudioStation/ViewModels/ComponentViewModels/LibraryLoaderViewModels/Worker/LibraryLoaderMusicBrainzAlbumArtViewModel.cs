@@ -1,62 +1,59 @@
-﻿using System.Collections.ObjectModel;
-
-using AudioStation.Core.Component.LibraryLoaderComponent;
+﻿using AudioStation.Core.Component.LibraryLoaderComponent;
 using AudioStation.Core.Database.AudioStationDatabase;
 using AudioStation.Core.Database.AudioStationDatabase.Interface;
 using AudioStation.Core.Model.Interface;
 using AudioStation.EventHandler;
 using AudioStation.Service.Interface;
-using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels;
 using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Load;
 using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Output;
-using AudioStation.ViewModels.ComponentViewModels.LoadViewModels;
 
 using SimpleWpf.IocFramework.Application.Attribute;
 using SimpleWpf.IocFramework.EventAggregation;
 
-namespace AudioStation.ViewModels.ComponentViewModels
+namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Worker
 {
     [IocExportDefault]
-    public class LibraryLoaderMusicBrainzBasicViewModel : LibraryLoaderComponentViewModelBase
+    public class LibraryLoaderMusicBrainzAlbumArtViewModel : LibraryLoaderWorkerViewModelBase
     {
         private readonly IAudioStationDbClient _audioStationDbClient;
-        public override NoViewModel? Load { get; }
 
         [IocImportingConstructor]
-        public LibraryLoaderMusicBrainzBasicViewModel(
+        public LibraryLoaderMusicBrainzAlbumArtViewModel(
                 IIocEventAggregator eventAggregator,
-                ILibraryLoaderService libraryLoaderService,
+                ILibraryLoaderWorkerService libraryLoaderService,
                 IAudioStationDbClient audioStationDbClient)
             : base(eventAggregator, libraryLoaderService)
         {
             _audioStationDbClient = audioStationDbClient;
         }
 
-        protected override void InitializeComponent(IAudioStationConfiguration configuration, DialogEventHandlers.DialogProgressHandler progressHandler)
+        protected override void InitializeWorkItemsRun(IAudioStationConfiguration configuration, DialogEventHandlers.DialogProgressHandler progressHandler)
         {
             try
             {
-                var results = _audioStationDbClient.GetEntities<AcoustIDLookupResult>();
+                var results = _audioStationDbClient.GetEntities<TagSmallVendorMap>();
 
-                foreach (var result in results.GroupBy(x => x.MusicBrainzRecordingId))
+                foreach (var result in results.Where(x => x.MusicBrainzRecordingId != null))
                 {
                     this.WorkItems.Add(new LibraryWorkItemViewModel()
                     {
                         HasErrors = false,
                         InProgress = false,
                         IsCompleted = false,
+                        LoadType = LibraryLoadType.MusicBrainzAlbumArt,
                         Load = new LibraryLoaderLoadViewModel()
                         {
-                            DisplayText = result.First().FileName,
-                            Data = new LibraryLoaderEntitySetLoadViewModel<AcoustIDLookupResult>()
+                            // Vendor Lookup
+                            Data = new LibraryLoaderEntityLoadViewModel<TagSmallVendorMap>()
                             {
-                                EntitySet = new ObservableCollection<AcoustIDLookupResult>(result)
-                            }
+                                Entity = result
+                            },
+                            DisplayText = "Music Brainz Result:  " + result.TagSmall.Title
                         },
-                        LoadType = LibraryLoadType.MusicBrainzBasic,
                         Output = new LibraryLoaderOutputViewModel()
                         {
-                            Output = new LibraryLoaderEntitySetOutputViewModel<TagSmall>()
+                            // File Reference(s)
+                            Output = new LibraryLoaderEntitySetOutputViewModel<FileReference>()
                         },
                         Progress = 0
                     });

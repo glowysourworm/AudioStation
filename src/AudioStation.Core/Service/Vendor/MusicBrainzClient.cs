@@ -198,35 +198,32 @@ namespace AudioStation.Core.Service.Vendor
             }
         }
 
-        protected Task<bool> Authenticate()
+        protected bool Authenticate()
         {
             // There is no application identification for MusicBrainz, so most of the normal 
             // authentication data is not required to establish a connection. We'll just run
             // a simple query to verify
 
-            return Task.Run(() =>
+            try
             {
-                try
-                {
-                    OnStatusChanged(IAudioStationService.Status.Working);
+                OnStatusChanged(IAudioStationService.Status.Working);
 
-                    // Initialize MetaBrainz.MusicBrainz client
-                    var query = new Query();
-                    var searchResults = query.FindAllArtists("artist:Coldplay", 1);
+                // Initialize MetaBrainz.MusicBrainz client
+                var query = new Query();
+                var searchResults = query.FindAllArtists("artist:Coldplay", 1);
 
-                    OnStatusChanged(IAudioStationService.Status.Idle);
+                OnStatusChanged(IAudioStationService.Status.Idle);
 
-                    return true;
-                }
-                catch (Exception ex)
-                {
-                    ApplicationHelpers.Log("Music Brainz Client Error:  {0}", LogMessageServiceType.MusicBrainz, LogLevel.Error, ex, ex.Message?.Trim() ?? string.Empty);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                ApplicationHelpers.Log("Music Brainz Client Error:  {0}", LogMessageServiceType.MusicBrainz, LogLevel.Error, ex, ex.Message?.Trim() ?? string.Empty);
 
-                    OnStatusChanged(IAudioStationService.Status.Error);
+                OnStatusChanged(IAudioStationService.Status.Error);
 
-                    return false;
-                }
-            });
+                return false;
+            }
         }
 
         #region (private) Release ID Lookup
@@ -502,16 +499,28 @@ namespace AudioStation.Core.Service.Vendor
         {
             return _status;
         }
-        public async Task<IAudioStationService.Status> Initialize(AudioStationConfiguration configuration)
+        public IAudioStationService.Status Initialize(AudioStationConfiguration configuration)
         {
-            await Authenticate();
+            //_client = Authenticate();
 
             return _status;
         }
-        public Task<IAudioStationService.Status> ReInitialize(AudioStationConfiguration configuration)
+
+        public Task<IAudioStationService.Status> InitializeAsync(AudioStationConfiguration configuration)
         {
-            return Initialize(configuration);
+            return Task.Run(() => Initialize(configuration));
         }
+
+        public IAudioStationService.Status ReInitialize(AudioStationConfiguration configuration)
+        {
+            return IAudioStationService.Status.Idle;
+        }
+
+        public Task<IAudioStationService.Status> ReInitializeAsync(AudioStationConfiguration configuration)
+        {
+            return Task.FromResult(IAudioStationService.Status.Idle);
+        }
+
         public string GetStatusMessage()
         {
             return this.GetDisplayName() + " " + IAudioStationService.GetDefaultStatusMessage(_status);

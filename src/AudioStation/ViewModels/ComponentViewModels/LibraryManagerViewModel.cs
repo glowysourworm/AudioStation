@@ -4,13 +4,12 @@ using System.ComponentModel.DataAnnotations;
 using AudioStation.Core.Model.Interface;
 using AudioStation.Event;
 using AudioStation.Event.DialogEvents;
+using AudioStation.EventHandler;
 using AudioStation.ViewModels.ComponentViewModels.LoadViewModels;
 
 using SimpleWpf.Extensions.Command;
 using SimpleWpf.IocFramework.Application.Attribute;
 using SimpleWpf.IocFramework.EventAggregation;
-
-using static AudioStation.EventHandler.DialogEventHandlers;
 
 namespace AudioStation.ViewModels.ComponentViewModels
 {
@@ -100,7 +99,7 @@ namespace AudioStation.ViewModels.ComponentViewModels
             });
         }
 
-        public override void Initialize(IAudioStationConfiguration configuration, LibraryViewModel load, DialogProgressHandler progressHandler)
+        protected override void InitializeWork(IAudioStationConfiguration configuration, LibraryViewModel load, DialogEventHandlers.DialogProgressHandler progressHandler)
         {
             //try
             //{

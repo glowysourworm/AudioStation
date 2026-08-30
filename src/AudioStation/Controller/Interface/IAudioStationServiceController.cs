@@ -24,7 +24,7 @@ namespace AudioStation.Controller.Interface
         /// <summary>
         /// Runs primary initialization routines for each IAudioStationComponent. This should be run prior to showing the main window.
         /// </summary>
-        Task Initialize(DialogProgressHandler progressHandler);
+        void Initialize(DialogProgressHandler progressHandler);
 
         /// <summary>
         /// Returns componet based on (interface) type

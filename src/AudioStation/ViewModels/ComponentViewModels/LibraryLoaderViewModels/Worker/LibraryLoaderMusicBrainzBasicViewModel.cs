@@ -1,42 +1,41 @@
-﻿using AudioStation.Core.Component.LibraryLoaderComponent;
+﻿using System.Collections.ObjectModel;
+
+using AudioStation.Core.Component.LibraryLoaderComponent;
 using AudioStation.Core.Database.AudioStationDatabase;
 using AudioStation.Core.Database.AudioStationDatabase.Interface;
 using AudioStation.Core.Model.Interface;
 using AudioStation.EventHandler;
 using AudioStation.Service.Interface;
-using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels;
 using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Load;
-using AudioStation.ViewModels.ComponentViewModels.LoadViewModels;
+using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Output;
 
 using SimpleWpf.IocFramework.Application.Attribute;
 using SimpleWpf.IocFramework.EventAggregation;
 
-namespace AudioStation.ViewModels.ComponentViewModels
+namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Worker
 {
     [IocExportDefault]
-    public class LibraryLoaderFileCheckerViewModel : LibraryLoaderComponentViewModelBase
+    public class LibraryLoaderMusicBrainzBasicViewModel : LibraryLoaderWorkerViewModelBase
     {
         private readonly IAudioStationDbClient _audioStationDbClient;
-        public override NoViewModel? Load { get; }
 
         [IocImportingConstructor]
-        public LibraryLoaderFileCheckerViewModel(
+        public LibraryLoaderMusicBrainzBasicViewModel(
                 IIocEventAggregator eventAggregator,
-                ILibraryLoaderService libraryLoaderService,
+                ILibraryLoaderWorkerService libraryLoaderService,
                 IAudioStationDbClient audioStationDbClient)
             : base(eventAggregator, libraryLoaderService)
         {
             _audioStationDbClient = audioStationDbClient;
         }
 
-        protected override void InitializeComponent(IAudioStationConfiguration configuration, DialogEventHandlers.DialogProgressHandler progressHandler)
+        protected override void InitializeWorkItemsRun(IAudioStationConfiguration configuration, DialogEventHandlers.DialogProgressHandler progressHandler)
         {
             try
             {
-                var results = _audioStationDbClient.GetEntities<FileReference>();
+                var results = _audioStationDbClient.GetEntities<AcoustIDLookupResult>();
 
-                // TODO: Create an entity set load with progress updater (for several hundred at once)
-                foreach (var result in results)
+                foreach (var result in results.GroupBy(x => x.MusicBrainzRecordingId))
                 {
                     this.WorkItems.Add(new LibraryWorkItemViewModel()
                     {
@@ -45,16 +44,16 @@ namespace AudioStation.ViewModels.ComponentViewModels
                         IsCompleted = false,
                         Load = new LibraryLoaderLoadViewModel()
                         {
-                            DisplayText = result.FileName,
-                            Data = new LibraryLoaderEntityLoadViewModel<FileReference>()
+                            DisplayText = result.First().FileName,
+                            Data = new LibraryLoaderEntitySetLoadViewModel<AcoustIDLookupResult>()
                             {
-                                Entity = result
+                                EntitySet = new ObservableCollection<AcoustIDLookupResult>(result)
                             }
                         },
-                        LoadType = LibraryLoadType.FileChecker,
+                        LoadType = LibraryLoadType.MusicBrainzBasic,
                         Output = new LibraryLoaderOutputViewModel()
                         {
-                            Output = new NoViewModel()
+                            Output = new LibraryLoaderEntitySetOutputViewModel<TagSmall>()
                         },
                         Progress = 0
                     });

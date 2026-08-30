@@ -26,13 +26,13 @@ namespace AudioStation.Core.Service.Vendor
         //
         public event SimpleEventHandler<IAudioStationService, IAudioStationService.Status> StatusChangeEvent;
 
-        private readonly IConfigurationManager _configurationManager;
+        private readonly IAudioStationConfigurationManager _configurationManager;
         private readonly IOutputController _outputController;
 
         private IAudioStationService.Status _status;
 
         [IocImportingConstructor]
-        public LastFmClient(IConfigurationManager configurationManager, IOutputController outputController)
+        public LastFmClient(IAudioStationConfigurationManager configurationManager, IOutputController outputController)
         {
             _outputController = outputController;
             _configurationManager = configurationManager;
@@ -86,36 +86,33 @@ namespace AudioStation.Core.Service.Vendor
             }
         }
 
-        protected Task<LastfmClient?> Authenticate()
+        protected LastfmClient? Authenticate()
         {
-            return Task.Run(() =>
+            try
             {
-                try
-                {
-                    OnStatusChanged(IAudioStationService.Status.Working);
+                OnStatusChanged(IAudioStationService.Status.Working);
 
-                    var configuration = _configurationManager.GetConfiguration();
+                var configuration = _configurationManager.GetConfiguration();
 
-                    // Last FM API
-                    var client = new LastfmClient(configuration.LastFmAPIKey, configuration.LastFmAPISecret);
+                // Last FM API
+                var client = new LastfmClient(configuration.LastFmAPIKey, configuration.LastFmAPISecret);
 
-                    if (!client.Auth.Authenticated)
-                        OnStatusChanged(IAudioStationService.Status.Error);
-
-                    else
-                        OnStatusChanged(IAudioStationService.Status.Idle);
-
-                    return client;
-                }
-                catch (Exception ex)
-                {
-                    ApplicationHelpers.Log("Music Brainz Client Error:  {0}", LogMessageServiceType.LastFm, LogLevel.Error, ex, ex.Message);
-
+                if (!client.Auth.Authenticated)
                     OnStatusChanged(IAudioStationService.Status.Error);
 
-                    return null;
-                }
-            });
+                else
+                    OnStatusChanged(IAudioStationService.Status.Idle);
+
+                return client;
+            }
+            catch (Exception ex)
+            {
+                ApplicationHelpers.Log("Music Brainz Client Error:  {0}", LogMessageServiceType.LastFm, LogLevel.Error, ex, ex.Message);
+
+                OnStatusChanged(IAudioStationService.Status.Error);
+
+                return null;
+            }
         }
 
         #region (public) IAudioStationComponent Methods
@@ -131,15 +128,26 @@ namespace AudioStation.Core.Service.Vendor
         {
             return _status;
         }
-        public async Task<IAudioStationService.Status> Initialize(AudioStationConfiguration configuration)
+        public IAudioStationService.Status Initialize(AudioStationConfiguration configuration)
         {
-            _client = await Authenticate();
+            _client = Authenticate();
 
             return _status;
         }
-        public Task<IAudioStationService.Status> ReInitialize(AudioStationConfiguration configuration)
+
+        public Task<IAudioStationService.Status> InitializeAsync(AudioStationConfiguration configuration)
         {
-            return Initialize(configuration);
+            return Task.Run(() => Initialize(configuration));
+        }
+
+        public IAudioStationService.Status ReInitialize(AudioStationConfiguration configuration)
+        {
+            return IAudioStationService.Status.Idle;
+        }
+
+        public Task<IAudioStationService.Status> ReInitializeAsync(AudioStationConfiguration configuration)
+        {
+            return Task.FromResult(IAudioStationService.Status.Idle);
         }
         public string GetStatusMessage()
         {

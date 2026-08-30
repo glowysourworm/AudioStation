@@ -16,6 +16,7 @@ using AudioStation.Core.Service.Vendor.Interface;
 using AudioStation.Event;
 using AudioStation.Model;
 using AudioStation.ViewModels.ComponentViewModels;
+using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Worker;
 using AudioStation.ViewModels.Controls;
 using AudioStation.ViewModels.MainViewModels;
 using AudioStation.ViewModels.OtherViewModels;
@@ -51,7 +52,7 @@ public class MainViewModel : ViewModelBase
     BandcampViewModel _bandcamp;
     LibraryImporterViewModel _libraryImportViewModel;
     LibraryLoaderAcoustIDViewModel _libraryLoaderAcoustID;
-    LibraryLoaderCDImportViewModel _libraryLoaderCDImport;
+    CDImporterViewModel _libraryLoaderCDImport;
     LibraryLoaderFileCheckerViewModel _libraryLoaderFileChecker;
     LibraryLoaderMusicBrainzBasicViewModel _libraryLoaderMusicBrainzBasic;
     LibraryLoaderMusicBrainzAlbumArtViewModel _libraryLoaderMusicBrainzAlbumArt;
@@ -122,7 +123,7 @@ public class MainViewModel : ViewModelBase
         get { return _libraryLoaderAcoustID; }
         set { this.RaiseAndSetIfChanged(ref _libraryLoaderAcoustID, value); }
     }
-    public LibraryLoaderCDImportViewModel LibraryLoaderCDImport
+    public CDImporterViewModel LibraryLoaderCDImport
     {
         get { return _libraryLoaderCDImport; }
         set { this.RaiseAndSetIfChanged(ref _libraryLoaderCDImport, value); }
@@ -215,7 +216,7 @@ public class MainViewModel : ViewModelBase
     #endregion
 
     [IocImportingConstructor]
-    public MainViewModel(IConfigurationManager configurationManager,
+    public MainViewModel(IAudioStationConfigurationManager configurationManager,
                          IAudioStationMapper audioStationMapper,
                          IAudioStationServiceController componentController,
                          IDialogController dialogController,
@@ -229,7 +230,7 @@ public class MainViewModel : ViewModelBase
                          LogViewModel logViewModel,
                          LibraryImporterViewModel libraryImporterViewModel,
                          LibraryLoaderAcoustIDViewModel libraryLoaderAcoustIDViewModel,
-                         LibraryLoaderCDImportViewModel libraryLoaderCDImportViewModel,
+                         CDImporterViewModel libraryLoaderCDImportViewModel,
                          LibraryLoaderFileCheckerViewModel libraryLoaderFileChecker,
                          LibraryLoaderMusicBrainzBasicViewModel libraryLoaderMusicBrainzBasicViewModel,
                          LibraryLoaderMusicBrainzAlbumArtViewModel libraryLoaderMusicBrainzAlbumArtViewModel,

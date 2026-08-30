@@ -11,7 +11,7 @@ namespace AudioStation.Component.Interface
         /// <summary>
         /// Initialization of the view model - this should be run during startup
         /// </summary>
-        Task Initialize(DialogProgressHandler progressHandler);
+        void Initialize(DialogProgressHandler progressHandler);
 
         /// <summary>
         /// Runs AcoustID service on the staged files of the library importer

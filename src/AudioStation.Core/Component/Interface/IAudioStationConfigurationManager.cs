@@ -4,7 +4,7 @@
     /// Component responsible for managing the application's configuration (object!). After
     /// property change, the manager will save the configuration to file.
     /// </summary>
-    public interface IConfigurationManager
+    public interface IAudioStationConfigurationManager
     {
         void Initialize(string? configurationFile);
         AudioStationConfiguration GetValidConfiguration();

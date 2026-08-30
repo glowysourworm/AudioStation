@@ -20,12 +20,12 @@ namespace AudioStation.Service
     public class CDImportService : ICDImportService
     {
         private readonly IDialogController _dialogController;
-        private readonly IConfigurationManager _configurationManager;
+        private readonly IAudioStationConfigurationManager _configurationManager;
         private readonly ICDDrive _cdDrive;
         private readonly IFileController _fileController;
 
         [IocImportingConstructor]
-        public CDImportService(IConfigurationManager configurationManager,
+        public CDImportService(IAudioStationConfigurationManager configurationManager,
                                IDialogController dialogController,
                                ICDDrive cdDrive,
                                IFileController fileController)

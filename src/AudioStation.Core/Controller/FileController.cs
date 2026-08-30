@@ -19,7 +19,7 @@ namespace AudioStation.Core.Component
     [IocExport(typeof(IFileController))]
     public class FileController : IFileController
     {
-        private readonly IConfigurationManager _configurationManager;
+        private readonly IAudioStationConfigurationManager _configurationManager;
         private readonly IBitmapConverter _bitmapConverter;
 
         private const string FAN_ART_DIRECTORY_NAME = "FanArt";
@@ -29,7 +29,7 @@ namespace AudioStation.Core.Component
         public event SimpleEventHandler<IAudioStationService, IAudioStationService.Status> StatusChangeEvent;
 
         [IocImportingConstructor]
-        public FileController(IConfigurationManager configurationManager, IBitmapConverter bitmapConverter)
+        public FileController(IAudioStationConfigurationManager configurationManager, IBitmapConverter bitmapConverter)
         {
             _configurationManager = configurationManager;
             _bitmapConverter = bitmapConverter;
@@ -378,7 +378,14 @@ namespace AudioStation.Core.Component
         {
             return IAudioStationService.Status.Idle;
         }
-        public Task<IAudioStationService.Status> Initialize(AudioStationConfiguration configuration)
+        public Task<IAudioStationService.Status> InitializeAsync(AudioStationConfiguration configuration)
+        {
+            return Task.Run(() =>
+            {
+                return Initialize(configuration);
+            });
+        }
+        public IAudioStationService.Status Initialize(AudioStationConfiguration configuration)
         {
             // Create Configuration Folders
 
@@ -420,11 +427,15 @@ namespace AudioStation.Core.Component
                 }
             }
 
-            return Task.FromResult(IAudioStationService.Status.Idle);
+            return IAudioStationService.Status.Idle;
         }
-        public Task<IAudioStationService.Status> ReInitialize(AudioStationConfiguration configuration)
+        public Task<IAudioStationService.Status> ReInitializeAsync(AudioStationConfiguration configuration)
         {
-            return Task.FromResult(IAudioStationService.Status.Idle);
+            return Task.FromResult(ReInitialize(configuration));
+        }
+        public IAudioStationService.Status ReInitialize(AudioStationConfiguration configuration)
+        {
+            return IAudioStationService.Status.Idle;
         }
         public string GetStatusMessage()
         {

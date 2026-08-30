@@ -2,14 +2,13 @@
 
 using AudioStation.Core.Event;
 using AudioStation.Core.Model.Interface;
+using AudioStation.EventHandler;
 using AudioStation.Model;
 using AudioStation.ViewModels.ComponentViewModels.LogViewModels;
 
 using SimpleWpf.IocFramework.Application.Attribute;
 using SimpleWpf.IocFramework.EventAggregation;
 using SimpleWpf.Utilities;
-
-using static AudioStation.EventHandler.DialogEventHandlers;
 
 namespace AudioStation.ViewModels.ComponentViewModels
 {
@@ -26,7 +25,7 @@ namespace AudioStation.ViewModels.ComponentViewModels
             eventAggregator.GetEvent<LogEvent>().Subscribe(OnLog);
         }
 
-        public override void Initialize(IAudioStationConfiguration configuration, LogSetViewModel load, DialogProgressHandler progressHandler)
+        protected override void InitializeWork(IAudioStationConfiguration configuration, LogSetViewModel load, DialogEventHandlers.DialogProgressHandler progressHandler)
         {
             _viewModel = load;
         }

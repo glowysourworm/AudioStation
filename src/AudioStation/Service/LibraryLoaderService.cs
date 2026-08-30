@@ -1,159 +1,58 @@
-﻿using System.Collections.ObjectModel;
-
-using AudioStation.Core.Component.Interface;
-using AudioStation.Core.Component.LibraryLoaderComponent;
-using AudioStation.Core.Component.LibraryLoaderComponent.Load;
-using AudioStation.Core.Database.AudioStationDatabase;
-using AudioStation.Event.LibraryLoaderEvent;
+﻿using AudioStation.Core.Component.Interface;
+using AudioStation.EventHandler;
 using AudioStation.Service.Interface;
-using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels;
-using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Load;
-using AudioStation.ViewModels.ComponentViewModels.LogViewModels;
+using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Worker;
 
 using SimpleWpf.IocFramework.Application.Attribute;
-using SimpleWpf.IocFramework.EventAggregation;
 
 namespace AudioStation.Service
 {
     [IocExport(typeof(ILibraryLoaderService))]
     public class LibraryLoaderService : ILibraryLoaderService
     {
-        private readonly ILibraryLoader _libraryLoader;
-        private readonly IIocEventAggregator _eventAggregator;
+        private readonly IAudioStationConfigurationManager _audioStationConfigurationManager;
+
+        private readonly LibraryLoaderAcoustIDViewModel _libraryLoaderAcoustIDViewModel;
+        private readonly LibraryLoaderFileCheckerViewModel _libraryLoaderFileCheckerViewModel;
+        private readonly LibraryLoaderMusicBrainzBasicViewModel _libraryLoaderMusicBrainzBasicViewModel;
+        private readonly LibraryLoaderMusicBrainzAlbumArtViewModel _libraryLoaderMusicBrainzAlbumArtViewModel;
 
         [IocImportingConstructor]
-        public LibraryLoaderService(ILibraryLoader libraryLoader,
-                                    IIocEventAggregator eventAggregator)
+        public LibraryLoaderService(IAudioStationConfigurationManager audioStationConfigurationManager,
+                                    LibraryLoaderAcoustIDViewModel libraryLoaderAcoustIDViewModel,
+                                    LibraryLoaderFileCheckerViewModel libraryLoaderFileCheckerViewModel,
+                                    LibraryLoaderMusicBrainzBasicViewModel libraryLoaderMusicBrainzBasicViewModel,
+                                    LibraryLoaderMusicBrainzAlbumArtViewModel libraryLoaderMusicBrainzAlbumArtViewModel)
         {
-            _libraryLoader = libraryLoader;
-            _eventAggregator = eventAggregator;
-
-            libraryLoader.WorkItemComplete += LibraryLoader_WorkItemComplete;
-            libraryLoader.WorkItemUpdate += LibraryLoader_WorkItemUpdate;
+            _audioStationConfigurationManager = audioStationConfigurationManager;
+            _libraryLoaderAcoustIDViewModel = libraryLoaderAcoustIDViewModel;
+            _libraryLoaderFileCheckerViewModel = libraryLoaderFileCheckerViewModel;
+            _libraryLoaderMusicBrainzBasicViewModel = libraryLoaderMusicBrainzBasicViewModel;
+            _libraryLoaderMusicBrainzAlbumArtViewModel = libraryLoaderMusicBrainzAlbumArtViewModel;
         }
 
-        public int RunLoaderTaskAsync(LibraryWorkItemViewModel workItem)
+        public void Initialize(DialogEventHandlers.DialogProgressHandler progressHandler)
         {
-            switch (workItem.LoadType)
-            {
-                case LibraryLoadType.Import:
-                {
-                    var workLoad = workItem.Load.Data as LibraryLoaderImportLoadViewModel;
+            var configuration = _audioStationConfigurationManager.GetConfiguration();
 
-                    if (workLoad == null)
-                        throw new ArgumentException("Invalid work load for Library Loader Import");
+            var taskCount = 4;
+            var task = 1;
 
-                    return _libraryLoader.RunLoaderTaskAsync(LibraryLoadType.Import,
-                        new LibraryLoaderImportLoad(workLoad.SourceFolder,
-                                                    workLoad.DestinationFolder,
-                                                    workLoad.SourceFile,
-                                                    workLoad.GroupingType,
-                                                    workLoad.NamingType,
-                                                    workLoad.IncludeMusicBrainzDetail,
-                                                    workLoad.IdentifyUsingAcoustID,
-                                                    workLoad.ImportFileMigration,
-                                                    workLoad.MigrationDeleteSourceFiles,
-                                                    workLoad.MigrationDeleteSourceFolders,
-                                                    workLoad.MigrationOverwriteDestinationFiles));
-                }
-                case LibraryLoadType.AcoustID:
-                {
-                    var workLoad = workItem.Load.Data as LibraryLoaderFileLoadViewModel;
+            // Library Loader: File Checker
+            progressHandler(taskCount, task++, 0, "Initializing File Checker...");
+            _libraryLoaderFileCheckerViewModel.InitializeWorkItems(configuration, progressHandler);
 
-                    if (workLoad == null)
-                        throw new ArgumentException("Invalid work load for Library Loader AcoustID Lookup");
+            // Library Loader: AcoustID
+            progressHandler(taskCount, task++, 0, "Initializing AcoustID...");
+            _libraryLoaderAcoustIDViewModel.InitializeWorkItems(configuration, progressHandler);
 
-                    return _libraryLoader.RunLoaderTaskAsync(LibraryLoadType.AcoustID, new LibraryLoaderFileLoad(workLoad.FullPath));
-                }
-                case LibraryLoadType.MusicBrainzBasic:
-                {
-                    var workLoad = workItem.Load.Data as LibraryLoaderEntitySetLoadViewModel<AcoustIDLookupResult>;
+            // Library Loader: Music Brainz (Basic)
+            progressHandler(taskCount, task++, 0, "Initializing Music Brainz (Basic)...");
+            _libraryLoaderMusicBrainzBasicViewModel.InitializeWorkItems(configuration, progressHandler);
 
-                    if (workLoad == null)
-                        throw new ArgumentException("Invalid work load for Library Loader Music Brainz Import");
-
-                    return _libraryLoader.RunLoaderTaskAsync(LibraryLoadType.MusicBrainzBasic, new LibraryLoaderEntitySetLoad<AcoustIDLookupResult>(workLoad.EntitySet));
-                }
-                case LibraryLoadType.MusicBrainzAlbumArt:
-                {
-                    var workLoad = workItem.Load.Data as LibraryLoaderEntityLoadViewModel<TagSmallVendorMap>;
-
-                    if (workLoad == null)
-                        throw new ArgumentException("Invalid work load for Library Loader Music Brainz Album Art");
-
-                    return _libraryLoader.RunLoaderTaskAsync(LibraryLoadType.MusicBrainzAlbumArt, new LibraryLoaderEntityLoad<TagSmallVendorMap>(workLoad.Entity));
-                }
-                case LibraryLoadType.FileChecker:
-                {
-                    var workLoad = workItem.Load.Data as LibraryLoaderEntityLoadViewModel<FileReference>;
-
-                    if (workLoad == null)
-                        throw new ArgumentException("Invalid work load for Library Loader File Checker");
-
-                    return _libraryLoader.RunLoaderTaskAsync(LibraryLoadType.FileChecker, new LibraryLoaderEntityLoad<FileReference>(workLoad.Entity));
-                }
-                case LibraryLoadType.ImportRadio:
-                default:
-                    throw new Exception("Unhandled Libary Loader load type");
-            }
-        }
-
-        private void LibraryLoader_WorkItemUpdate(LibraryLoaderWorkItemUpdate sender)
-        {
-            var viewModel = new LibraryWorkItemViewModel()
-            {
-                Id = sender.Id,
-                LoadType = sender.Type,
-                LogMessages = new ObservableCollection<LogMessageViewModel>(sender.Log.Select(x => new LogMessageViewModel()
-                {
-                    Level = x.Level,
-                    Message = x.Message,
-                    Timestamp = x.Timestamp,
-                    Type = x.Type
-                })),
-                IsCompleted = sender.IsCompleted,
-                WorkSteps = new ObservableCollection<LibraryLoaderWorkStepViewModel>(sender.ResultStepsCompleted.Select(x => new LibraryLoaderWorkStepViewModel()
-                {
-                    Complete = x.Completed,
-                    Message = x.Message,
-                    StepNumber = x.StepNumber,
-                    Success = x.Result
-                })),
-                HasErrors = !sender.ResultStepsCompleted.Any() ? false : sender.ResultStepsCompleted.Any(x => !x.Result),
-                InProgress = true,
-                Progress = !sender.ResultStepsCompleted.Any() ? 0 : (sender.ResultStepsCompleted.Count() / (double)sender.ResultStepCount)
-            };
-
-            _eventAggregator.GetEvent<LibraryLoaderWorkItemUpdateEvent>().Publish(viewModel);
-        }
-
-        private void LibraryLoader_WorkItemComplete(LibraryLoaderWorkItem sender)
-        {
-            var viewModel = new LibraryWorkItemViewModel()
-            {
-                Id = sender.GetId(),
-                LoadType = sender.GetLoadType(),
-                LogMessages = new ObservableCollection<LogMessageViewModel>(sender.GetOutputItem().GetLog().Select(x => new LogMessageViewModel()
-                {
-                    Level = x.Level,
-                    Message = x.Message,
-                    Timestamp = x.Timestamp,
-                    Type = x.Type
-                })),
-                IsCompleted = true,
-                WorkSteps = new ObservableCollection<LibraryLoaderWorkStepViewModel>(sender.GetOutputItem().GetResults().Select(x => new LibraryLoaderWorkStepViewModel()
-                {
-                    Complete = x.Completed,
-                    Message = x.Message,
-                    StepNumber = x.StepNumber,
-                    Success = x.Result
-                })),
-                HasErrors = !sender.GetOutputItem().GetResults().Any() ? false : sender.GetOutputItem().GetResults().Any(x => !x.Result),
-                InProgress = false,
-                Progress = 1
-            };
-
-            _eventAggregator.GetEvent<LibraryLoaderWorkItemCompleteEvent>().Publish(viewModel);
+            // Library Loader: Music Brainz (Album Art)
+            progressHandler(taskCount, task++, 0, "Initializing Music Brainz (Album Art)...");
+            _libraryLoaderMusicBrainzAlbumArtViewModel.InitializeWorkItems(configuration, progressHandler);
         }
     }
 }

@@ -18,7 +18,7 @@ namespace AudioStation.Controller
         public event SimpleEventHandler<IAudioStationService, IAudioStationService.Status> ComponentInitializedEvent;
         public event SimpleEventHandler<IAudioStationService, IAudioStationService.Status> ComponentStatusChangedEvent;
 
-        private readonly IConfigurationManager _configurationManager;
+        private readonly IAudioStationConfigurationManager _configurationManager;
 
         // IAudioStationService
         private readonly IAudioStationDbClient _audioStationDbClient;
@@ -34,7 +34,7 @@ namespace AudioStation.Controller
         private readonly ISpotifyClient _spotifyClient;
 
         [IocImportingConstructor]
-        public AudioStationServiceController(IConfigurationManager configurationManager,
+        public AudioStationServiceController(IAudioStationConfigurationManager configurationManager,
                                              IAudioStationDbClient audioStationDbClient,
                                              IAudioController audioController,
                                              IOutputController outputController,
@@ -74,7 +74,7 @@ namespace AudioStation.Controller
             _spotifyClient.StatusChangeEvent += IAudioStationComponent_StatusChangeEvent;
         }
 
-        public async Task Initialize(DialogEventHandlers.DialogProgressHandler progressHandler)
+        public void Initialize(DialogEventHandlers.DialogProgressHandler progressHandler)
         {
             // Procedure
             // 
@@ -90,23 +90,23 @@ namespace AudioStation.Controller
 
             // IAudioStationComponent (these display their status on the status bar)
             //
-            await InitializeImpl(_outputController, task++, taskCount, progressHandler);
-            await InitializeImpl(_audioStationDbClient, task++, taskCount, progressHandler);
-            await InitializeImpl(_audioController, task++, taskCount, progressHandler);
-            await InitializeImpl(_bandcampClient, task++, taskCount, progressHandler);
-            await InitializeImpl(_acoustIDClient, task++, taskCount, progressHandler);
-            await InitializeImpl(_discogsClient, task++, taskCount, progressHandler);
-            await InitializeImpl(_fanartClient, task++, taskCount, progressHandler);
-            await InitializeImpl(_iTunesClient, task++, taskCount, progressHandler);
-            await InitializeImpl(_lastFmClient, task++, taskCount, progressHandler);
-            await InitializeImpl(_musicBrainzClient, task++, taskCount, progressHandler);
-            await InitializeImpl(_spotifyClient, task++, taskCount, progressHandler);
+            InitializeImpl(_outputController, task++, taskCount, progressHandler);
+            InitializeImpl(_audioStationDbClient, task++, taskCount, progressHandler);
+            InitializeImpl(_audioController, task++, taskCount, progressHandler);
+            InitializeImpl(_bandcampClient, task++, taskCount, progressHandler);
+            InitializeImpl(_acoustIDClient, task++, taskCount, progressHandler);
+            InitializeImpl(_discogsClient, task++, taskCount, progressHandler);
+            InitializeImpl(_fanartClient, task++, taskCount, progressHandler);
+            InitializeImpl(_iTunesClient, task++, taskCount, progressHandler);
+            InitializeImpl(_lastFmClient, task++, taskCount, progressHandler);
+            InitializeImpl(_musicBrainzClient, task++, taskCount, progressHandler);
+            InitializeImpl(_spotifyClient, task++, taskCount, progressHandler);
         }
 
-        private async Task InitializeImpl(IAudioStationService service, int taskNumber, int taskCount, DialogEventHandlers.DialogProgressHandler progressHandler)
+        private void InitializeImpl(IAudioStationService service, int taskNumber, int taskCount, DialogEventHandlers.DialogProgressHandler progressHandler)
         {
             progressHandler(taskCount, taskNumber, 0, string.Format("Initializing {0}", service.GetDisplayName()));
-            var status = await service.Initialize(_configurationManager.GetConfiguration());
+            var status = service.Initialize(_configurationManager.GetConfiguration());
 
             if (this.ComponentInitializedEvent != null)
                 this.ComponentInitializedEvent(service, status);

@@ -12,6 +12,7 @@ using AudioStation.Core.Model.Vendor.ATLExtension.Interface;
 using AudioStation.Core.Utility;
 using AudioStation.Event;
 using AudioStation.Event.DialogEvents;
+using AudioStation.EventHandler;
 using AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.Import;
 using AudioStation.ViewModels.TagViewModels;
 using AudioStation.ViewModels.Vendor.AcoustIDViewModel;
@@ -24,17 +25,14 @@ using SimpleWpf.Extensions.Command;
 using SimpleWpf.Extensions.ObservableCollection;
 using SimpleWpf.IocFramework.Application.Attribute;
 using SimpleWpf.IocFramework.EventAggregation;
-using SimpleWpf.Utilities;
 using SimpleWpf.ViewModel;
-
-using static AudioStation.EventHandler.DialogEventHandlers;
 
 namespace AudioStation.ViewModels.ComponentViewModels
 {
     [IocExportDefault]
     public class LibraryImporterViewModel : ComponentViewModelBase<LibraryImporterTreeViewModel>
     {
-        private readonly IConfigurationManager _configurationManager;
+        private readonly IAudioStationConfigurationManager _configurationManager;
         private readonly IAudioStationMapper _audioStationMapper;
         private readonly IDialogController _dialogController;
         private readonly IIocEventAggregator _eventAggregator;
@@ -157,7 +155,7 @@ namespace AudioStation.ViewModels.ComponentViewModels
         }
 
         [IocImportingConstructor]
-        public LibraryImporterViewModel(IConfigurationManager configurationManager,
+        public LibraryImporterViewModel(IAudioStationConfigurationManager configurationManager,
                                         IAudioStationMapper audioStationMapper,
                                         IDialogController dialogController,
                                         IIocEventAggregator eventAggregator,
@@ -189,34 +187,28 @@ namespace AudioStation.ViewModels.ComponentViewModels
             this.UnstageCommand = new SimpleCommand(UnstageFiles, CanUnstageFiles);
         }
 
-        public override void Initialize(IAudioStationConfiguration configuration, LibraryImporterTreeViewModel load, DialogProgressHandler progressHandler)
+        protected override void InitializeWork(IAudioStationConfiguration configuration, LibraryImporterTreeViewModel load, DialogEventHandlers.DialogProgressHandler progressHandler)
         {
-            if (BasicHelpers.IsDispatcher() == ApplicationIsDispatcherResult.False)
-                BasicHelpers.BeginInvokeDispatcher(Initialize, System.Windows.Threading.DispatcherPriority.Background, configuration, load, progressHandler);
+            //// Set View Model (Load)
+            //this.SourceDirectory = load;
 
-            else
-            {
-                //// Set View Model (Load)
-                //this.SourceDirectory = load;
+            //// Initialization:     This task is run during initialization.
+            //// 
+            //// Task / Dispatcher:  We have to invoke the dispatcher from here so that the view model
+            ////                     bindings to the UI don't throw exceptions.
+            ////
+            //// Hook Events (Recursively)
+            //foreach (var sourceFile in this.SourceDirectory.RecursiveWhere(x => !x.IsDirectory)
+            //                                               .Cast<LibraryImporterFileViewModel>())
+            //{
+            //    sourceFile.SelectAcoustIDEvent += ShowAcoustIDResults;
+            //    sourceFile.SelectMusicBrainzEvent += ShowMusicBrainzResults;
+            //    sourceFile.PlayAudioEvent += ShowSmallAudioPlayer;
+            //    //sourceFile.PropertyChanged += SourceFile_PropertyChanged;
+            //}
 
-                //// Initialization:     This task is run during initialization.
-                //// 
-                //// Task / Dispatcher:  We have to invoke the dispatcher from here so that the view model
-                ////                     bindings to the UI don't throw exceptions.
-                ////
-                //// Hook Events (Recursively)
-                //foreach (var sourceFile in this.SourceDirectory.RecursiveWhere(x => !x.IsDirectory)
-                //                                               .Cast<LibraryImporterFileViewModel>())
-                //{
-                //    sourceFile.SelectAcoustIDEvent += ShowAcoustIDResults;
-                //    sourceFile.SelectMusicBrainzEvent += ShowMusicBrainzResults;
-                //    sourceFile.PlayAudioEvent += ShowSmallAudioPlayer;
-                //    //sourceFile.PropertyChanged += SourceFile_PropertyChanged;
-                //}
-
-                //// Set View Model
-                //this.SourceDirectory.ItemPropertyChanged += SourceDirectory_ItemPropertyChanged;
-            }
+            //// Set View Model
+            //this.SourceDirectory.ItemPropertyChanged += SourceDirectory_ItemPropertyChanged;
         }
         public override void Dispose()
         {

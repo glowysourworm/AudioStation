@@ -34,7 +34,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
         }
 
         [IocImportingConstructor]
-        public LibraryImporterRadioViewModel(IConfigurationManager configurationManager, IDialogController dialogController)
+        public LibraryImporterRadioViewModel(IAudioStationConfigurationManager configurationManager, IDialogController dialogController)
         {
             var configuration = configurationManager.GetConfiguration();
 

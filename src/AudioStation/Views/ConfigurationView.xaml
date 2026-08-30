@@ -58,7 +58,7 @@
                                     <Trigger Property="ItemsControl.AlternationIndex" Value="0">
                                         <Setter Property="Background" Value="#01FFFFFF" />
                                     </Trigger>
-                                    <Trigger Property="ItemsControl.AlternationIndex" Value="0">
+                                    <Trigger Property="ItemsControl.AlternationIndex" Value="1">
                                         <Setter Property="Background" Value="AliceBlue" />
                                     </Trigger>
 
@@ -134,7 +134,10 @@
 
                     <!-- Add Library Directory -->
                     <StackPanel Orientation="Horizontal" Grid.Row="1" HorizontalAlignment="Right">
-                        <xceed:WatermarkTextBox x:Name="NewDirectoryTB" Watermark="Directory Label..." Style="{StaticResource UserInputTextBox}" Width="260" Margin="5" />
+                        <xceed:WatermarkTextBox x:Name="NewDirectoryTB" 
+                                                Watermark="Directory Label..." 
+                                                IsEnabled="{Binding ConfigurationLocked, Converter={StaticResource BoolInverseConverter}}"
+                                                Style="{StaticResource UserInputTextBox}" Width="260" Margin="5" />
                         <Button Margin="5" 
                                 Style="{StaticResource UserControlButton}"
                                 CommandParameter="{Binding ElementName=NewDirectoryTB, Path=Text}"
@@ -195,7 +198,7 @@
                                     <Trigger Property="ItemsControl.AlternationIndex" Value="0">
                                         <Setter Property="Background" Value="#01FFFFFF" />
                                     </Trigger>
-                                    <Trigger Property="ItemsControl.AlternationIndex" Value="0">
+                                    <Trigger Property="ItemsControl.AlternationIndex" Value="1">
                                         <Setter Property="Background" Value="AliceBlue" />
                                     </Trigger>
 

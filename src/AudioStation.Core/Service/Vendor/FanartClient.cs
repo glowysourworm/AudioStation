@@ -14,7 +14,7 @@ namespace AudioStation.Core.Service.Vendor
     [IocExport(typeof(IFanartClient))]
     public class FanartClient : IFanartClient
     {
-        private readonly IConfigurationManager _configurationManager;
+        private readonly IAudioStationConfigurationManager _configurationManager;
 
         // IAudioStationComponent
         //
@@ -23,7 +23,7 @@ namespace AudioStation.Core.Service.Vendor
         private IAudioStationService.Status _status;
 
         [IocImportingConstructor]
-        public FanartClient(IConfigurationManager confiugrationManager)
+        public FanartClient(IAudioStationConfigurationManager confiugrationManager)
         {
             _configurationManager = confiugrationManager;
         }
@@ -83,7 +83,7 @@ namespace AudioStation.Core.Service.Vendor
         {
             return _status;
         }
-        public async Task<IAudioStationService.Status> Initialize(AudioStationConfiguration configuration)
+        public IAudioStationService.Status Initialize(AudioStationConfiguration configuration)
         {
             // No formal authentication (these keys are set in their nuget package. They should probably be substituted
             // with my API key
@@ -100,9 +100,20 @@ namespace AudioStation.Core.Service.Vendor
 
             return _status;
         }
-        public Task<IAudioStationService.Status> ReInitialize(AudioStationConfiguration configuration)
+
+        public Task<IAudioStationService.Status> InitializeAsync(AudioStationConfiguration configuration)
         {
-            return Initialize(configuration);
+            return Task.Run(() => Initialize(configuration));
+        }
+
+        public IAudioStationService.Status ReInitialize(AudioStationConfiguration configuration)
+        {
+            return IAudioStationService.Status.Idle;
+        }
+
+        public Task<IAudioStationService.Status> ReInitializeAsync(AudioStationConfiguration configuration)
+        {
+            return Task.FromResult(IAudioStationService.Status.Idle);
         }
         public string GetStatusMessage()
         {

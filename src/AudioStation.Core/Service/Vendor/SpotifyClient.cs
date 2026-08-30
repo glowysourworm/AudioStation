@@ -20,7 +20,7 @@ namespace AudioStation.Core.Service.Vendor
     [IocExport(typeof(ISpotifyClient))]
     public class SpotifyClient : ISpotifyClient
     {
-        private readonly IConfigurationManager _configurationManager;
+        private readonly IAudioStationConfigurationManager _configurationManager;
         private readonly IOutputController _outputController;
 
         //private const string SPOTIFY_WEB_SEARCH = "https://api.spotify.com/v1/search";
@@ -36,7 +36,7 @@ namespace AudioStation.Core.Service.Vendor
         private IAudioStationService.Status _status;
 
         [IocImportingConstructor]
-        public SpotifyClient(IConfigurationManager configurationManager, IOutputController outputController)
+        public SpotifyClient(IAudioStationConfigurationManager configurationManager, IOutputController outputController)
         {
             _configurationManager = configurationManager;
             _outputController = outputController;
@@ -91,29 +91,25 @@ namespace AudioStation.Core.Service.Vendor
             });
         }
 
-        protected Task<SpotifyAPI.Web.SpotifyClient?> Authenticate()
+        protected SpotifyAPI.Web.SpotifyClient? Authenticate(AudioStationConfiguration configuration)
         {
-            return Task.Run(async () =>
+            try
             {
-                try
-                {
-                    var configuration = _configurationManager.GetConfiguration();
-                    var authenticator = new ClientCredentialsAuthenticator(configuration.SpotifyClientId, configuration.SpotifyClientSecret);
+                var authenticator = new ClientCredentialsAuthenticator(configuration.SpotifyClientId, configuration.SpotifyClientSecret);
 
-                    // Not sure why I need to supply some of these components.. 
-                    var clientConfiguration = new SpotifyClientConfig(new Uri(SPOTIFY_WEB_BASE),
-                                                                      authenticator, new NewtonsoftJSONSerializer(),
-                                                                      new SpotifyAPI.Web.Http.NetHttpClient(), null, null, null);
+                // Not sure why I need to supply some of these components.. 
+                var clientConfiguration = new SpotifyClientConfig(new Uri(SPOTIFY_WEB_BASE),
+                                                                  authenticator, new NewtonsoftJSONSerializer(),
+                                                                  new SpotifyAPI.Web.Http.NetHttpClient(), null, null, null);
 
-                    //var connector = new APIConnector(new Uri(SPOTIFY_WEB_BASE), authenticator);
-                    return new SpotifyAPI.Web.SpotifyClient(clientConfiguration);
-                }
-                catch (Exception ex)
-                {
-                    ApplicationHelpers.Log("Error connecting to Spotify API:  {0}", LogMessageServiceType.Spotify, LogLevel.Error, ex, ex.Message);
-                    return null;
-                }
-            });
+                //var connector = new APIConnector(new Uri(SPOTIFY_WEB_BASE), authenticator);
+                return new SpotifyAPI.Web.SpotifyClient(clientConfiguration);
+            }
+            catch (Exception ex)
+            {
+                ApplicationHelpers.Log("Error connecting to Spotify API:  {0}", LogMessageServiceType.Spotify, LogLevel.Error, ex, ex.Message);
+                return null;
+            }
         }
 
         #region (public) IAudioStationComponent Methods
@@ -129,7 +125,7 @@ namespace AudioStation.Core.Service.Vendor
         {
             return _status;
         }
-        public async Task<IAudioStationService.Status> Initialize(AudioStationConfiguration configuration)
+        public IAudioStationService.Status Initialize(AudioStationConfiguration configuration)
         {
             if (string.IsNullOrWhiteSpace(configuration.SpotifyClientId))
                 OnStatusChanged(IAudioStationService.Status.Disabled);
@@ -137,7 +133,7 @@ namespace AudioStation.Core.Service.Vendor
             if (string.IsNullOrWhiteSpace(configuration.SpotifyClientSecret))
                 OnStatusChanged(IAudioStationService.Status.Disabled);
 
-            _client = await Authenticate();
+            _client = Authenticate(configuration);
 
             // -> Error
             if (_client == null)
@@ -149,9 +145,20 @@ namespace AudioStation.Core.Service.Vendor
 
             return _status;
         }
-        public Task<IAudioStationService.Status> ReInitialize(AudioStationConfiguration configuration)
+
+        public Task<IAudioStationService.Status> InitializeAsync(AudioStationConfiguration configuration)
         {
-            return Initialize(configuration);
+            return Task.Run(() => Initialize(configuration));
+        }
+
+        public IAudioStationService.Status ReInitialize(AudioStationConfiguration configuration)
+        {
+            return IAudioStationService.Status.Idle;
+        }
+
+        public Task<IAudioStationService.Status> ReInitializeAsync(AudioStationConfiguration configuration)
+        {
+            return Task.FromResult(IAudioStationService.Status.Idle);
         }
         public string GetStatusMessage()
         {

@@ -62,7 +62,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
             set { RaiseAndSetIfChanged(ref _selectSourceFolderCommand, value); }
         }
 
-        public LibraryImporterConfigurationViewModel(IConfigurationManager configurationManager, IDialogController dialogController)
+        public LibraryImporterConfigurationViewModel(IAudioStationConfigurationManager configurationManager, IDialogController dialogController)
         {
             var configuration = configurationManager.GetConfiguration();
 

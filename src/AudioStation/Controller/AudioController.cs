@@ -271,15 +271,24 @@ namespace AudioStation.Controller
             // TODO
             return IAudioStationService.Status.Idle;
         }
-        public async Task<IAudioStationService.Status> Initialize(AudioStationConfiguration configuration)
+        public IAudioStationService.Status Initialize(AudioStationConfiguration configuration)
         {
-            // TODO
             return IAudioStationService.Status.Idle;
         }
-        public async Task<IAudioStationService.Status> ReInitialize(AudioStationConfiguration configuration)
+
+        public Task<IAudioStationService.Status> InitializeAsync(AudioStationConfiguration configuration)
         {
-            // TODO
+            return Task.Run(() => Initialize(configuration));
+        }
+
+        public IAudioStationService.Status ReInitialize(AudioStationConfiguration configuration)
+        {
             return IAudioStationService.Status.Idle;
+        }
+
+        public Task<IAudioStationService.Status> ReInitializeAsync(AudioStationConfiguration configuration)
+        {
+            return Task.FromResult(IAudioStationService.Status.Idle);
         }
         public string GetStatusMessage()
         {

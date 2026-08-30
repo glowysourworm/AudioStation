@@ -10,8 +10,8 @@ using SimpleWpf.IocFramework.Application.Attribute;
 
 namespace AudioStation.Core.Component
 {
-    [IocExport(typeof(IConfigurationManager))]
-    public class ConfigurationManager : IConfigurationManager
+    [IocExport(typeof(IAudioStationConfigurationManager))]
+    public class AudioStationConfigurationManager : IAudioStationConfigurationManager
     {
         private readonly IAudioStationMapper _audioStationMapper;
 
@@ -20,7 +20,7 @@ namespace AudioStation.Core.Component
         AudioStationConfiguration _configuration;
 
         [IocImportingConstructor]
-        public ConfigurationManager(IAudioStationMapper audioStationMapper)
+        public AudioStationConfigurationManager(IAudioStationMapper audioStationMapper)
         {
             _audioStationMapper = audioStationMapper;
         }

@@ -1,20 +1,21 @@
 ﻿using System.Collections.ObjectModel;
+using System.Windows.Threading;
 
 using AudioStation.Core.Model.Interface;
 using AudioStation.Event.LibraryLoaderEvent;
 using AudioStation.EventHandler;
 using AudioStation.Service.Interface;
-using AudioStation.ViewModels.ComponentViewModels.LoadViewModels;
 
 using SimpleWpf.Extensions.Command;
 using SimpleWpf.IocFramework.EventAggregation;
 using SimpleWpf.Utilities;
+using SimpleWpf.ViewModel;
 
 namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels
 {
-    public abstract class LibraryLoaderComponentViewModelBase : ComponentViewModelBase<NoViewModel>
+    public abstract class LibraryLoaderWorkerViewModelBase : ViewModelBase, IDisposable
     {
-        private readonly ILibraryLoaderService _libraryLoaderService;
+        private readonly ILibraryLoaderWorkerService _libraryLoaderService;
 
         ObservableCollection<LibraryWorkItemViewModel> _workItems;
 
@@ -22,6 +23,8 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels
         int _workItemsInProgress;
         int _workItemsSuccessful;
         int _workItemsError;
+
+        bool _loading;
 
         SimpleCommand _executeCommand;
 
@@ -51,21 +54,26 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels
             set { this.RaiseAndSetIfChanged(ref _workItemsError, value); }
         }
 
+        public bool Loading
+        {
+            get { return _loading; }
+            set { this.RaiseAndSetIfChanged(ref _loading, value); }
+        }
+
         public SimpleCommand ExecuteCommand
         {
             get { return _executeCommand; }
             set { this.RaiseAndSetIfChanged(ref _executeCommand, value); }
         }
 
-        public override NoViewModel? Load { get; }
-
-        public LibraryLoaderComponentViewModelBase(IIocEventAggregator eventAggregator, ILibraryLoaderService libraryLoaderService)
+        public LibraryLoaderWorkerViewModelBase(IIocEventAggregator eventAggregator, ILibraryLoaderWorkerService libraryLoaderService)
         {
             _libraryLoaderService = libraryLoaderService;
 
             this.WorkItems = new ObservableCollection<LibraryWorkItemViewModel>();
 
             this.ExecuteCommand = new SimpleCommand(Execute, CanExecute);
+            this.Loading = false;
 
             eventAggregator.GetEvent<LibraryLoaderWorkItemCompleteEvent>().Subscribe(OnWorkItemComplete);
             eventAggregator.GetEvent<LibraryLoaderWorkItemUpdateEvent>().Subscribe(OnWorkItemUpdate);
@@ -145,25 +153,31 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels
         }
 
         /// <summary>
-        /// Function to initialize the component (this is called from the Dispatcher)
+        /// Function to initialize work items - will forward the request to the dispatcher thread
         /// </summary>
-        protected abstract void InitializeComponent(IAudioStationConfiguration configuration, DialogEventHandlers.DialogProgressHandler progressHandler);
-
-        public override void Initialize(IAudioStationConfiguration configuration, NoViewModel load, DialogEventHandlers.DialogProgressHandler progressHandler)
+        /// <param name="configuration">Valid configuration</param>
+        /// <param name="progressHandler">Progress callback</param>
+        public void InitializeWorkItems(IAudioStationConfiguration configuration, DialogEventHandlers.DialogProgressHandler progressHandler)
         {
+            // Synchronous Invoke:  This should be used where there is no (async / await). Also, it is needed for completing the work during
+            //                      the application's initialization waiter. So, there is already a waiter for this load; but the work must
+            //                      be completed on the main thread because of view model binding.
+            //
             if (BasicHelpers.IsDispatcher() == ApplicationIsDispatcherResult.False)
-                BasicHelpers.BeginInvokeDispatcher(Initialize, System.Windows.Threading.DispatcherPriority.Background, configuration, load, progressHandler);
+                BasicHelpers.InvokeDispatcher(InitializeWorkItems, DispatcherPriority.Background, configuration, progressHandler);
 
             else
             {
-                InitializeComponent(configuration, progressHandler);
+                InitializeWorkItemsRun(configuration, progressHandler);
                 OnUpdate();
             }
         }
 
-        public override void Dispose()
-        {
-            // Nothing to do
-        }
+        /// <summary>
+        /// Function to initialize the component (this is called from the Dispatcher)
+        /// </summary>
+        protected abstract void InitializeWorkItemsRun(IAudioStationConfiguration configuration, DialogEventHandlers.DialogProgressHandler progressHandler);
+
+        public abstract void Dispose();
     }
 }

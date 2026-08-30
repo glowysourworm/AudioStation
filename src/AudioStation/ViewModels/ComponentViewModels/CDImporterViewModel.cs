@@ -6,7 +6,6 @@ using AudioStation.Core.Model.Interface;
 using AudioStation.Event;
 using AudioStation.EventHandler;
 using AudioStation.Service.Interface;
-using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels;
 using AudioStation.ViewModels.ComponentViewModels.LoadViewModels;
 
 using SimpleWpf.Extensions.Command;
@@ -16,7 +15,7 @@ using SimpleWpf.IocFramework.EventAggregation;
 namespace AudioStation.ViewModels.ComponentViewModels
 {
     [IocExportDefault]
-    public class LibraryLoaderCDImportViewModel : ComponentViewModelBase<NoViewModel>
+    public class CDImporterViewModel : ComponentViewModelBase<NoViewModel>
     {
         private readonly ICDImportService _cdImportService;
 
@@ -26,7 +25,7 @@ namespace AudioStation.ViewModels.ComponentViewModels
         int _discCount;
         string _artist;
         string _album;
-        ObservableCollection<LibraryLoaderCDImportTrackViewModel> _tracks;
+        ObservableCollection<CDImporterTrackViewModel> _tracks;
 
         SimpleCommand _importCommand;
 
@@ -60,7 +59,7 @@ namespace AudioStation.ViewModels.ComponentViewModels
             get { return _album; }
             set { this.RaiseAndSetIfChanged(ref _album, value); }
         }
-        public ObservableCollection<LibraryLoaderCDImportTrackViewModel> Tracks
+        public ObservableCollection<CDImporterTrackViewModel> Tracks
         {
             get { return _tracks; }
             set { this.RaiseAndSetIfChanged(ref _tracks, value); }
@@ -75,7 +74,7 @@ namespace AudioStation.ViewModels.ComponentViewModels
         public override NoViewModel? Load { get; }
 
         [IocImportingConstructor]
-        public LibraryLoaderCDImportViewModel(IIocEventAggregator eventAggregator,
+        public CDImporterViewModel(IIocEventAggregator eventAggregator,
                                               ICDImportService cdImportService)
         {
             _cdImportService = cdImportService;
@@ -83,7 +82,7 @@ namespace AudioStation.ViewModels.ComponentViewModels
             this.CDPlayerLoaded = false;
             this.Artist = string.Empty;
             this.Album = string.Empty;
-            this.Tracks = new ObservableCollection<LibraryLoaderCDImportTrackViewModel>();
+            this.Tracks = new ObservableCollection<CDImporterTrackViewModel>();
 
             // CD-ROM
             eventAggregator.GetEvent<CDPlayerLoadEvent>().Subscribe(OnCDPlayerLoaded);
@@ -123,7 +122,7 @@ namespace AudioStation.ViewModels.ComponentViewModels
 
                 for (int index = 0; index < args.TrackCount; index++)
                 {
-                    this.Tracks.Add(new LibraryLoaderCDImportTrackViewModel()
+                    this.Tracks.Add(new CDImporterTrackViewModel()
                     {
                         Complete = false,
                         Progress = 0,
@@ -141,8 +140,9 @@ namespace AudioStation.ViewModels.ComponentViewModels
             this.ImportCommand.RaiseCanExecuteChanged();
         }
 
-        public override void Initialize(IAudioStationConfiguration configuration, NoViewModel load, DialogEventHandlers.DialogProgressHandler progressHandler)
+        protected override void InitializeWork(IAudioStationConfiguration configuration, NoViewModel load, DialogEventHandlers.DialogProgressHandler progressHandler)
         {
+
         }
     }
 }

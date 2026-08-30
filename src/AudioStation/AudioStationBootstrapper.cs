@@ -13,6 +13,8 @@ using AudioStation.Core.Model.Vendor.ATLExtension;
 using AudioStation.Core.Model.Vendor.ATLExtension.Interface;
 using AudioStation.Event;
 using AudioStation.Event.DialogEvents;
+using AudioStation.EventHandler;
+using AudioStation.Service.Interface;
 using AudioStation.ViewModels;
 using AudioStation.ViewModels.MainViewModels;
 using AudioStation.ViewModels.TagViewModels;
@@ -41,7 +43,7 @@ namespace AudioStation
 
         }
 
-        protected override async void UserPreModuleInitialize()
+        protected override void UserPreModuleInitialize()
         {
             // This must happen first; and the dialog window must be called after initializing
             // the (base) "pre-module initialize" method because it tries to create the shell
@@ -62,20 +64,31 @@ namespace AudioStation
 
             if (configurationValid)
             {
-                await Application.Current
-                                 .Dispatcher
-                                 .BeginInvoke(InitializeLibrary, DispatcherPriority.Background);
+                Task.Run(() =>
+                {
+                    Application.Current
+                               .Dispatcher
+                               .Invoke(InitializeLibrary, DispatcherPriority.Normal);
+
+                }).ContinueWith((state) =>
+                {
+                    Application.Current.Dispatcher.Invoke(() =>
+                    {
+                        // Show Main Window
+                        Application.Current.MainWindow.WindowState = WindowState.Normal;
+
+                    }, DispatcherPriority.ApplicationIdle);
+                });
             }
 
-
-
-
-
-            // Show Main Window
-            Application.Current.MainWindow.WindowState = WindowState.Normal;
+            else
+            {
+                // Show Main Window
+                Application.Current.MainWindow.WindowState = WindowState.Normal;
+            }
         }
 
-        private async Task InitializeLibrary()
+        private async void InitializeLibrary()
         {
             if (BasicHelpers.IsDispatcher() == ApplicationIsDispatcherResult.False)
                 throw new Exception("Initialization of the library must be on the main dispatcher thread");
@@ -113,34 +126,51 @@ namespace AudioStation
             // Initialize Components -> Component View Models
             var componentController = IocContainer.Get<IAudioStationServiceController>();
             var componentViewModelLoader = IocContainer.Get<IComponentViewModelLoader>();
+            var libraryServiceLoader = IocContainer.Get<ILibraryLoaderService>();
+
+            // Dialog Update Func (make the code here smaller)
+            var dialogUpdater = new DialogEventHandlers.DialogProgressHandler((taskCount, tasksComplete, tasksError, message) =>
+            {
+                // Dispatcher Awareness:  The binding for the view must be on the dispatcher to show anything to the user..! So,
+                //                        These callbacks have been careful to make sure there are no forwards from Task threads.
+                //
+                //                        However, if there are, we can always forward those to the dispatcher. The problem is
+                //                        that MSFT isn't allowing the render updates to process anything while the background
+                //                        tasks are sharing Dispatcher time on splices of the thread (if that's what is happening).
+                //
+                // Rendering:             The view model binding will not be processed until the dispatcher is forced to render.
+                //                        I'm not aware of how this is required since we are async/await-ing and there is supposedly
+                //                        time splicing of the thread. (I tried priority, also)
+                //
+                //                        The below solution worked.
+                //
+                //                        Should there be other Task waiters in the application there will be other methods 
+                //                        discussed on how to process them; and how to update the dialog window. It would be
+                //                        best to keep a base class, controller, or primary component in charge of calling
+                //                        the dispatcher. So, where non-dispatcher Task instances are needed, they are part
+                //                        of the interface; and should not introduce any issues with Dispatcher forwarding
+                //                        or resource multi-threading errors.
+                //
+                // Further Analysis:      All application Task instances; and how they are sharing interface components.
+                //
+
+                if (BasicHelpers.IsDispatcher() == ApplicationIsDispatcherResult.False)
+                    throw new Exception("Initialization of the library must be on the main dispatcher thread");
+
+                dialogViewModel.Progress = tasksComplete / (double)taskCount;
+                dialogViewModel.Message = message;
+                dialogViewModel.ShowProgressMessage = (message != string.Empty);
+                dialogViewModel.ShowProgressBar = dialogViewModel.Progress > 0;
+
+                // Dispatcher Render: This seems to be enough to force rendering.
+                //
+                Dispatcher.CurrentDispatcher.Invoke(() => { }, DispatcherPriority.Render);
+            });
 
             // (see DialogEventHandlers.cs) (Splash Screen Dialog)
-            await componentController.Initialize((taskCount, tasksComplete, tasksError, message) =>
-            {
-                // Update the status bar during initialization
-                BasicHelpers.InvokeDispatcher(() =>
-                {
-                    dialogViewModel.Progress = tasksComplete / (double)taskCount;
-                    dialogViewModel.Message = message;
-                    dialogViewModel.ShowProgressMessage = (message != string.Empty);
-                    dialogViewModel.ShowProgressBar = dialogViewModel.Progress > 0;
-
-                }, DispatcherPriority.Normal);
-            });
-
-
-            await componentViewModelLoader.Initialize((taskCount, tasksComplete, tasksError, message) =>
-            {
-                // Update the status bar during initialization
-                BasicHelpers.InvokeDispatcher(() =>
-                {
-                    dialogViewModel.Progress = tasksComplete / (double)taskCount;
-                    dialogViewModel.Message = message;
-                    dialogViewModel.ShowProgressMessage = (message != string.Empty);
-                    dialogViewModel.ShowProgressBar = dialogViewModel.Progress > 0;
-
-                }, DispatcherPriority.Normal);
-            });
+            componentController.Initialize(dialogUpdater);
+            componentViewModelLoader.Initialize(dialogUpdater);
+            libraryServiceLoader.Initialize(dialogUpdater);
 
             // Dismiss Splash Screen
             dialogWindow.Close();
@@ -218,7 +248,7 @@ namespace AudioStation
 
             // We can inject our initialize procedure(s) here
             //
-            var configurationManager = IocContainer.Get<IConfigurationManager>();
+            var configurationManager = IocContainer.Get<IAudioStationConfigurationManager>();
 
             // Get config file from the command line (or default to config folder as current executable directory)
             var configurationFile = Environment.GetCommandLineArgs().Length > 1 ? Environment.GetCommandLineArgs()[1] : string.Empty;

@@ -1,15 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using SimpleWpf.ViewModel;
 
-using SimpleWpf.Extensions;
-using SimpleWpf.ViewModel;
-
-namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels
+namespace AudioStation.ViewModels.ComponentViewModels
 {
-    public class LibraryLoaderCDImportTrackViewModel : ViewModelBase
+    public class CDImporterTrackViewModel : ViewModelBase
     {
         int _track;
         double _progress;
