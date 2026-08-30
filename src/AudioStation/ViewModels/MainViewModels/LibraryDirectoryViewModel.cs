@@ -12,6 +12,7 @@ namespace AudioStation.ViewModels.MainViewModels
     {
         string _directory;
         string _directoryLabel;
+        bool _isPrimary;
         TrackType _trackType;
         TrackGroupingType _trackGroupingType;
         TrackNamingType _trackNamingType;
@@ -27,6 +28,11 @@ namespace AudioStation.ViewModels.MainViewModels
         {
             get { return _directoryLabel; }
             set { this.RaiseAndSetIfChanged(ref _directoryLabel, value); }
+        }
+        public bool IsPrimary
+        {
+            get { return _isPrimary; }
+            set { this.RaiseAndSetIfChanged(ref _isPrimary, value); }
         }
         public TrackType TrackType
         {

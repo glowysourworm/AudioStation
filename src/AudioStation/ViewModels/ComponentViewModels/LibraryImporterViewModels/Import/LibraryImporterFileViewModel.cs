@@ -2,6 +2,7 @@
 
 using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Controller.Interface;
+using AudioStation.Core.Model.Interface;
 using AudioStation.Core.Model.Vendor.ATLExtension;
 using AudioStation.Core.Model.Vendor.ATLExtension.Interface;
 using AudioStation.Core.Utility;
@@ -155,9 +156,9 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
         /// </summary>
         public LibraryImporterFileViewModel(string fullPath,
                                             bool isDirectory,
-                                            string destinationDirectory,
+                                            ILibraryDirectory destinationDirectory,
                                             LibraryImporterConfigurationViewModel options)
-            : base(options.SourceFolder, fullPath)
+            : base(fullPath, fullPath)
         {
             _libraryImporter = IocContainer.Get<ILibraryImporter>();
             _tagCacheController = IocContainer.Get<ITagCacheController>();
@@ -166,16 +167,16 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
 
             this.ImportLoad = new LibraryLoaderImportLoadViewModel()
             {
-                DestinationFolder = destinationDirectory,
-                GroupingType = options.GroupingType,
+                DestinationFolder = destinationDirectory.Directory,
+                GroupingType = destinationDirectory.GroupingType,
                 IdentifyUsingAcoustID = options.IdentifyUsingAcoustID,
                 ImportFileMigration = options.ImportFileMigration,
                 IncludeMusicBrainzDetail = options.IncludeMusicBrainzDetail,
                 MigrationDeleteSourceFiles = options.MigrationDeleteSourceFiles,
                 MigrationDeleteSourceFolders = options.MigrationDeleteSourceFolders,
                 MigrationOverwriteDestinationFiles = options.MigrationOverwriteDestinationFiles,
-                NamingType = options.NamingType,
-                SourceFolder = options.SourceFolder,
+                NamingType = destinationDirectory.NamingType,
+                //SourceFolder = destinationDirectory.SourceFolder,
                 SourceFile = fullPath
             };
             this.Tag = new TagSmallEditViewModel();

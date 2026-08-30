@@ -183,18 +183,8 @@ namespace AudioStation.ViewModels.ComponentViewModels
             _filesCompletedSuccessfully = new ObservableCollection<LibraryImporterFileViewModel>();
             _filesCompletedWithError = new ObservableCollection<LibraryImporterFileViewModel>();
 
-            this.EditTagCommand = new SimpleCommand(() =>
-            {
-                EditTag();
-
-            }, CanEditTag);
-
-            this.EditTagGroupCommand = new SimpleCommand<string>((fieldName) =>
-            {
-                EditTagGroup(fieldName);
-
-            }, CanEditTagGroup);
-
+            this.EditTagCommand = new SimpleCommand(EditTag, CanEditTag);
+            this.EditTagGroupCommand = new SimpleCommand<string>(EditTagGroup, CanEditTagGroup);
             this.StageCommand = new SimpleCommand(StageFiles, CanStageFiles);
             this.UnstageCommand = new SimpleCommand(UnstageFiles, CanUnstageFiles);
         }
@@ -206,29 +196,26 @@ namespace AudioStation.ViewModels.ComponentViewModels
 
             else
             {
-                // Set View Model (Load)
-                this.SourceDirectory = load;
+                //// Set View Model (Load)
+                //this.SourceDirectory = load;
 
-                // Initialization:     This task is run during initialization.
-                // 
-                // Task / Dispatcher:  We have to invoke the dispatcher from here so that the view model
-                //                     bindings to the UI don't throw exceptions.
-                //
-                if (!string.IsNullOrEmpty(this.Options.SourceFolder))
-                {
-                    // Hook Events (Recursively)
-                    foreach (var sourceFile in this.SourceDirectory.RecursiveWhere(x => !x.IsDirectory)
-                                                                   .Cast<LibraryImporterFileViewModel>())
-                    {
-                        sourceFile.SelectAcoustIDEvent += ShowAcoustIDResults;
-                        sourceFile.SelectMusicBrainzEvent += ShowMusicBrainzResults;
-                        sourceFile.PlayAudioEvent += ShowSmallAudioPlayer;
-                        //sourceFile.PropertyChanged += SourceFile_PropertyChanged;
-                    }
+                //// Initialization:     This task is run during initialization.
+                //// 
+                //// Task / Dispatcher:  We have to invoke the dispatcher from here so that the view model
+                ////                     bindings to the UI don't throw exceptions.
+                ////
+                //// Hook Events (Recursively)
+                //foreach (var sourceFile in this.SourceDirectory.RecursiveWhere(x => !x.IsDirectory)
+                //                                               .Cast<LibraryImporterFileViewModel>())
+                //{
+                //    sourceFile.SelectAcoustIDEvent += ShowAcoustIDResults;
+                //    sourceFile.SelectMusicBrainzEvent += ShowMusicBrainzResults;
+                //    sourceFile.PlayAudioEvent += ShowSmallAudioPlayer;
+                //    //sourceFile.PropertyChanged += SourceFile_PropertyChanged;
+                //}
 
-                    // Set View Model
-                    this.SourceDirectory.ItemPropertyChanged += SourceDirectory_ItemPropertyChanged;
-                }
+                //// Set View Model
+                //this.SourceDirectory.ItemPropertyChanged += SourceDirectory_ItemPropertyChanged;
             }
         }
         public override void Dispose()

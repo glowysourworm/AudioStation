@@ -28,8 +28,8 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
             set { SetValueOverride(ref _areAllMinimumImportsValid, value); }
         }
 
-        public LibraryImporterDirectoryViewModel(string fullDirectoryPath, LibraryImporterConfigurationViewModel options)
-            : base(options.SourceFolder, fullDirectoryPath)
+        public LibraryImporterDirectoryViewModel(string fullDirectoryPath, string basePath)
+            : base(basePath, fullDirectoryPath)
         {
         }
 

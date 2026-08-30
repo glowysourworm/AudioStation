@@ -88,7 +88,7 @@ namespace AudioStation.Component
 
         public Task Initialize(DialogProgressHandler progressHandler)
         {
-            return Task.Run(async () =>
+            return Task.Run(() =>
             {
                 // Procedure
                 //
@@ -309,29 +309,24 @@ namespace AudioStation.Component
                 //// Configuration:  Calculate base directory from staging
                 ////
                 //var configuration = _configurationManager.GetConfiguration();
-                //var options = _libraryImporterViewModel.Options;
-
-                //if (string.IsNullOrWhiteSpace(configuration.DirectoryBase) ||
-                //    string.IsNullOrWhiteSpace(configuration.ImportFolder))
-                //    return null;
-
 
                 //// Calculate Migration (destination) Directory
-                //var destinationDirectory = System.IO.Path.Combine(configuration.DirectoryBase, configuration.ImportFolder);
+                //var source = configuration.StagingFolder;
+                //var destination = configuration.StagingFolder;
 
                 //try
                 //{
-                //    return DirectoryTreeLoader.Load(destinationDirectory, "*.mp3", directoryNode =>
+                //    return DirectoryTreeLoader.Load(destinationBase, "*.mp3", directoryNode =>
                 //    {
                 //        return new LibraryImporterTreeViewModel(directoryNode);
 
                 //    }, directoryPath =>
                 //    {
-                //        return new LibraryImporterDirectoryViewModel(directoryPath, options);
+                //        return new LibraryImporterDirectoryViewModel(directoryPath, destinationBase);
 
                 //    }, filePath =>
                 //    {
-                //        return new LibraryImporterFileViewModel(filePath, false, destinationDirectory, options);
+                //        return new LibraryImporterFileViewModel(filePath, false, destinationBase, destinationBase);
                 //    });
                 //}
                 //catch (Exception ex)

@@ -38,14 +38,22 @@
                           AlternationCount="2"
                           RowHeaderWidth="0"  
                           Background="White"
+                          ScrollViewer.HorizontalScrollBarVisibility="Hidden"
+                          ScrollViewer.VerticalScrollBarVisibility="Auto"
                           ItemsSource="{Binding Configuration.LibraryDirectories}">
 
                         <DataGrid.ItemContainerStyle>
                             <Style TargetType="DataGridRow">
 
                                 <Setter Property="Background" Value="Transparent" />
+                                <Setter Property="BorderBrush" Value="LightGray" />
+                                <Setter Property="BorderThickness" Value="1 1 1 1" />
 
                                 <Style.Triggers>
+
+                                    <DataTrigger Binding="{Binding IsPrimary}" Value="True">
+                                        <Setter Property="BorderBrush" Value="#8F000000" />
+                                    </DataTrigger>
 
                                     <Trigger Property="ItemsControl.AlternationIndex" Value="0">
                                         <Setter Property="Background" Value="#01FFFFFF" />
@@ -54,9 +62,6 @@
                                         <Setter Property="Background" Value="AliceBlue" />
                                     </Trigger>
 
-                                    <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter Property="Background" Value="#0F000000" />
-                                    </Trigger>
                                     <Trigger Property="IsSelected" Value="True">
                                         <Setter Property="Background" Value="#0F000000" />
                                     </Trigger>
@@ -71,6 +76,14 @@
                             <DataGridTextColumn Header="Label" Binding="{Binding DirectoryLabel}" Width="140" CellStyle="{StaticResource ManagerDataGridCellStyle}" />
                             <DataGridTextColumn Header="Directory" IsReadOnly="True"  
                                                 Binding="{Binding Directory}" Width="*" CellStyle="{StaticResource ManagerDataGridCellStyle}" />
+
+                            <DataGridTemplateColumn Header="Primary" Width="Auto" CellStyle="{StaticResource ManagerDataGridCellStyle}">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <RadioButton GroupName="IsPrimary" HorizontalAlignment="Center" IsChecked="{Binding IsPrimary, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
 
                             <DataGridTemplateColumn Header="Type" Width="120" CellStyle="{StaticResource ManagerDataGridCellStyle}">
                                 <DataGridTemplateColumn.CellTemplate>
@@ -186,9 +199,6 @@
                                         <Setter Property="Background" Value="AliceBlue" />
                                     </Trigger>
 
-                                    <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter Property="Background" Value="#0F000000" />
-                                    </Trigger>
                                     <Trigger Property="IsSelected" Value="True">
                                         <Setter Property="Background" Value="#0F000000" />
                                     </Trigger>

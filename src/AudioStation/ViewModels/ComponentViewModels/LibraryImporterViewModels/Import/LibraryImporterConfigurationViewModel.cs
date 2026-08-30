@@ -1,6 +1,5 @@
 ﻿using AudioStation.Controller.Interface;
 using AudioStation.Core.Component.Interface;
-using AudioStation.Core.Model;
 
 using SimpleWpf.Extensions.Command;
 using SimpleWpf.ViewModel;
@@ -11,12 +10,6 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
     {
         string _sourceFolder;
         string _destinationFolder;
-        string _destinationMusicSubFolder;
-        string _destinationAudioBooksSubFolder;
-
-        TrackType _importAsType;
-        TrackGroupingType _groupingType;
-        TrackNamingType _namingType;
 
         bool _includeMusicBrainzDetail;
         bool _identifyUsingAcoustID;
@@ -28,40 +21,10 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
 
         SimpleCommand _selectSourceFolderCommand;
 
-        public string SourceFolder
-        {
-            get { return _sourceFolder; }
-            set { RaiseAndSetIfChanged(ref _sourceFolder, value); }
-        }
         public string DestinationFolder
         {
             get { return _destinationFolder; }
             set { RaiseAndSetIfChanged(ref _destinationFolder, value); }
-        }
-        public string DestinationMusicSubFolder
-        {
-            get { return _destinationMusicSubFolder; }
-            set { RaiseAndSetIfChanged(ref _destinationMusicSubFolder, value); }
-        }
-        public string DestinationAudioBooksSubFolder
-        {
-            get { return _destinationAudioBooksSubFolder; }
-            set { RaiseAndSetIfChanged(ref _destinationAudioBooksSubFolder, value); }
-        }
-        public TrackType ImportAsType
-        {
-            get { return _importAsType; }
-            set { RaiseAndSetIfChanged(ref _importAsType, value); }
-        }
-        public TrackGroupingType GroupingType
-        {
-            get { return _groupingType; }
-            set { RaiseAndSetIfChanged(ref _groupingType, value); }
-        }
-        public TrackNamingType NamingType
-        {
-            get { return _namingType; }
-            set { RaiseAndSetIfChanged(ref _namingType, value); }
         }
         public bool IncludeMusicBrainzDetail
         {
@@ -114,13 +77,13 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
 
             this.SelectSourceFolderCommand = new SimpleCommand(() =>
             {
-                var originalFolder = this.SourceFolder;
-                var folder = dialogController.ShowSelectFolder();
+                //var originalFolder = this.SourceFolder;
+                //var folder = dialogController.ShowSelectFolder();
 
-                if (!string.IsNullOrEmpty(folder))
-                {
-                    this.SourceFolder = folder;
-                }
+                //if (!string.IsNullOrEmpty(folder))
+                //{
+                //    this.SourceFolder = folder;
+                //}
             });
         }
     }
