@@ -1,8 +1,12 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+
 namespace AudioStation.Core.Model
 {
-    public enum TrackGroupingType
+    [JsonConverter(typeof(StringEnumConverter))]
+    public enum TrackGroupingType : int
     {
         [Display(Name = "None", ShortName = "None", Description = "Keep folders as is")]
         None = 0,

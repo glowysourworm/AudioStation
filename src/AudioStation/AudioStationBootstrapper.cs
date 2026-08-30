@@ -47,7 +47,7 @@ namespace AudioStation
             // the (base) "pre-module initialize" method because it tries to create the shell
             // window - which uses the configuration.
             //
-            InitializeConfiguration();
+            var configurationValid = InitializeConfiguration();
 
             // Window Management:  The shell window must be defined as the main window before
             //                     opening another window (here, the dialog). So, perhaps it 
@@ -59,6 +59,26 @@ namespace AudioStation
             // model will wait (for the configuration) until it's used by the MainWindow.
             //
             base.UserPreModuleInitialize();
+
+            if (configurationValid)
+            {
+                await Application.Current
+                                 .Dispatcher
+                                 .BeginInvoke(InitializeLibrary, DispatcherPriority.Background);
+            }
+
+
+
+
+
+            // Show Main Window
+            Application.Current.MainWindow.WindowState = WindowState.Normal;
+        }
+
+        private async Task InitializeLibrary()
+        {
+            if (BasicHelpers.IsDispatcher() == ApplicationIsDispatcherResult.False)
+                throw new Exception("Initialization of the library must be on the main dispatcher thread");
 
             // Splash Screen (using Dialog pattern):  We're going to replicate some of our dialog code here
             //                                        to preserve the pattern. The owner of the dialog window
@@ -122,18 +142,14 @@ namespace AudioStation
                 }, DispatcherPriority.Normal);
             });
 
-
             // Dismiss Splash Screen
             dialogWindow.Close();
-
-            // Show Main Window
-            Application.Current.MainWindow.WindowState = WindowState.Normal;
         }
 
         /// <summary>
         /// Initialization of the configuration must occur before other components are initialized.
         /// </summary>
-        private void InitializeConfiguration()
+        private bool InitializeConfiguration()
         {
             // Mapper
             var mapper = IocContainer.Get<IAudioStationMapper>();
@@ -209,6 +225,8 @@ namespace AudioStation
 
             // Read / Create Configuration
             configurationManager.Initialize(configurationFile);
+
+            return configurationManager.ValidateConfiguration();
         }
 
         public override IEnumerable<ModuleDefinition> DefineModules()

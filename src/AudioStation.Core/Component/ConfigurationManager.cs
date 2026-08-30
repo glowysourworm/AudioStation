@@ -28,7 +28,7 @@ namespace AudioStation.Core.Component
         public void Initialize(string? configurationFile)
         {
             // Current working directory + configuration file name
-            var configFileName = configurationFile ?? Path.Combine(AppDomain.CurrentDomain.BaseDirectory, CONFIGURATION_FILE);
+            var configFileName = string.IsNullOrWhiteSpace(configurationFile) ? CONFIGURATION_FILE : configurationFile;
 
             _configuration = this.Open(configFileName);
         }

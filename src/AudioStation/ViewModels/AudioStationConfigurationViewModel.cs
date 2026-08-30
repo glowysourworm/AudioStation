@@ -10,6 +10,7 @@ namespace AudioStation.ViewModels
     public class AudioStationConfigurationViewModel : ViewModelBase//, IAudioStationConfiguration
     {
         SimpleCommand<string> _addDirectoryCommand;
+        SimpleCommand<LibraryDirectoryViewModel> _removeDirectoryCommand;
 
         ObservableCollection<LibraryDirectoryViewModel> _libraryDirectories;
 
@@ -58,6 +59,11 @@ namespace AudioStation.ViewModels
         {
             get { return _addDirectoryCommand; }
             set { this.RaiseAndSetIfChanged(ref _addDirectoryCommand, value); }
+        }
+        public SimpleCommand<LibraryDirectoryViewModel> RemoveDirectoryCommand
+        {
+            get { return _removeDirectoryCommand; }
+            set { this.RaiseAndSetIfChanged(ref _removeDirectoryCommand, value); }
         }
 
         public ObservableCollection<LibraryDirectoryViewModel> LibraryDirectories
@@ -239,6 +245,11 @@ namespace AudioStation.ViewModels
                     Directory = directory,
                     DirectoryLabel = label
                 });
+            });
+
+            this.RemoveDirectoryCommand = new SimpleCommand<LibraryDirectoryViewModel>((selectedDirectory) =>
+            {
+                this.LibraryDirectories.Remove(selectedDirectory);
             });
         }
     }

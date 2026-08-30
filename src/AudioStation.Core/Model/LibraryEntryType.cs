@@ -1,8 +1,11 @@
-﻿namespace AudioStation.Core.Model
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+
+namespace AudioStation.Core.Model
 {
-    public enum LibraryEntryType
+    public enum LibraryEntryType : int
     {
-        Track,
+        Track = 0,
         Album,
         Artist,
         Genre
@@ -11,7 +14,8 @@
     /// <summary>
     /// TODO: This has to be better integrated. What other types are there?
     /// </summary>
-    public enum TrackType
+    [JsonConverter(typeof(StringEnumConverter))]
+    public enum TrackType : int
     {
         Any = 0,
         Music = 1,

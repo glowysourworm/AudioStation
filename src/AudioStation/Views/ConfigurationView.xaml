@@ -42,6 +42,9 @@
 
                         <DataGrid.ItemContainerStyle>
                             <Style TargetType="DataGridRow">
+
+                                <Setter Property="Background" Value="Transparent" />
+
                                 <Style.Triggers>
 
                                     <Trigger Property="ItemsControl.AlternationIndex" Value="0">
@@ -52,10 +55,10 @@
                                     </Trigger>
 
                                     <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter Property="Background" Value="#01FFFFFF" />
+                                        <Setter Property="Background" Value="#0F000000" />
                                     </Trigger>
                                     <Trigger Property="IsSelected" Value="True">
-                                        <Setter Property="Background" Value="#02FFFFFF" />
+                                        <Setter Property="Background" Value="#0F000000" />
                                     </Trigger>
 
 
@@ -66,13 +69,14 @@
                         <DataGrid.Columns>
 
                             <DataGridTextColumn Header="Label" Binding="{Binding DirectoryLabel}" Width="140" CellStyle="{StaticResource ManagerDataGridCellStyle}" />
-                            <DataGridTextColumn Header="Directory" IsReadOnly="True" Binding="{Binding Directory}" Width="*" CellStyle="{StaticResource ManagerDataGridCellStyle}" />
+                            <DataGridTextColumn Header="Directory" IsReadOnly="True"  
+                                                Binding="{Binding Directory}" Width="*" CellStyle="{StaticResource ManagerDataGridCellStyle}" />
 
                             <DataGridTemplateColumn Header="Type" Width="120" CellStyle="{StaticResource ManagerDataGridCellStyle}">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <simpleUI:EnumComboBox EnumType="{x:Type coreModel:TrackType}" 
-                                                               EnumValue="{Binding TrackType}"
+                                                               EnumValue="{Binding TrackType, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                                IsEnabled="{Binding DataContext.ConfigurationLocked, Converter={StaticResource BoolInverseConverter}, RelativeSource={RelativeSource AncestorType=DataGrid}}"
                                                                />
                                     </DataTemplate>
@@ -83,7 +87,7 @@
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <simpleUI:EnumComboBox EnumType="{x:Type coreModel:TrackNamingType}" 
-                                                               EnumValue="{Binding NamingType}"
+                                                               EnumValue="{Binding NamingType, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                                IsEnabled="{Binding DataContext.ConfigurationLocked, Converter={StaticResource BoolInverseConverter}, RelativeSource={RelativeSource AncestorType=DataGrid}}"
                                                                />
                                     </DataTemplate>
@@ -94,7 +98,7 @@
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <simpleUI:EnumComboBox EnumType="{x:Type coreModel:TrackGroupingType}" 
-                                                               EnumValue="{Binding GroupingType}"
+                                                               EnumValue="{Binding GroupingType, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                                IsEnabled="{Binding DataContext.ConfigurationLocked, Converter={StaticResource BoolInverseConverter}, RelativeSource={RelativeSource AncestorType=DataGrid}}"
                                                                />
                                     </DataTemplate>
@@ -117,7 +121,7 @@
 
                     <!-- Add Library Directory -->
                     <StackPanel Orientation="Horizontal" Grid.Row="1" HorizontalAlignment="Right">
-                        <xceed:WatermarkTextBox x:Name="NewDirectoryTB" Watermark="Directory Label..." Style="{StaticResource UserInputTextBox}" Width="180" Margin="5" />
+                        <xceed:WatermarkTextBox x:Name="NewDirectoryTB" Watermark="Directory Label..." Style="{StaticResource UserInputTextBox}" Width="260" Margin="5" />
                         <Button Margin="5" 
                                 Style="{StaticResource UserControlButton}"
                                 CommandParameter="{Binding ElementName=NewDirectoryTB, Path=Text}"
@@ -128,8 +132,28 @@
                                 <fa5:SvgAwesome Icon="Solid_FolderPlus" Style="{StaticResource FontAwesomeIconDefault}" Margin="3" />
                             </StackPanel>
                         </Button>
+                        <Button Margin="5" 
+                                Style="{StaticResource UserControlButton}"
+                                CommandParameter="{Binding ElementName=LibraryFoldersDG, Path=SelectedItem}"
+                                Command="{Binding Configuration.RemoveDirectoryCommand}">
+                            <Button.IsEnabled>
+                                <MultiBinding Converter="{StaticResource BoolANDMultiConverter}">
+                                    <MultiBinding.Bindings>
+                                        <Binding Path="ConfigurationLocked" Converter="{StaticResource BoolInverseConverter}" />
+                                        <Binding ElementName="LibraryFoldersDG" 
+                                                 Path="SelectedItem" 
+                                                 Converter="{StaticResource NonNullBoolConverter}" />
+                                    </MultiBinding.Bindings>                                    
+                                </MultiBinding> 
+                            </Button.IsEnabled>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Remove Folder" Style="{StaticResource LabelTextBlock}" Margin="3" />
+                                <fa5:SvgAwesome Icon="Solid_FolderMinus" Style="{StaticResource FontAwesomeIconDefault}" Margin="3" />
+                            </StackPanel>
+                        </Button>                        
                     </StackPanel>
 
+                    <!-- Application Directories -->
                     <DataGrid x:Name="AudioStationFoldersDG" 
                               Grid.Row="2"
                               AutoGenerateColumns="False"
@@ -163,10 +187,10 @@
                                     </Trigger>
 
                                     <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter Property="Background" Value="#01FFFFFF" />
+                                        <Setter Property="Background" Value="#0F000000" />
                                     </Trigger>
                                     <Trigger Property="IsSelected" Value="True">
-                                        <Setter Property="Background" Value="#02FFFFFF" />
+                                        <Setter Property="Background" Value="#0F000000" />
                                     </Trigger>
 
 
@@ -177,13 +201,15 @@
                         <DataGrid.Columns>
 
                             <DataGridTextColumn Header="Label" Binding="{Binding DirectoryLabel}" Width="140" CellStyle="{StaticResource ManagerDataGridCellStyle}" />
-                            <DataGridTextColumn Header="Directory" IsReadOnly="True" Binding="{Binding Directory}" Width="*" CellStyle="{StaticResource ManagerDataGridCellStyle}" />
+                            <DataGridTextColumn Header="Directory" IsReadOnly="True" 
+                                                Binding="{Binding Directory}" 
+                                                Width="*" CellStyle="{StaticResource ManagerDataGridCellStyle}" />
 
                             <DataGridTemplateColumn Header="Type" Width="120" CellStyle="{StaticResource ManagerDataGridCellStyle}">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <simpleUI:EnumComboBox EnumType="{x:Type coreModel:TrackType}" 
-                                                               EnumValue="{Binding TrackType}"
+                                                               EnumValue="{Binding TrackType, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                                IsEnabled="{Binding DataContext.ConfigurationLocked, Converter={StaticResource BoolInverseConverter}, RelativeSource={RelativeSource AncestorType=DataGrid}}"
                                                                />
                                     </DataTemplate>
@@ -194,7 +220,7 @@
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <simpleUI:EnumComboBox EnumType="{x:Type coreModel:TrackNamingType}" 
-                                                               EnumValue="{Binding NamingType}"
+                                                               EnumValue="{Binding NamingType, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                                IsEnabled="{Binding DataContext.ConfigurationLocked, Converter={StaticResource BoolInverseConverter}, RelativeSource={RelativeSource AncestorType=DataGrid}}"
                                                                />
                                     </DataTemplate>
@@ -205,7 +231,7 @@
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <simpleUI:EnumComboBox EnumType="{x:Type coreModel:TrackGroupingType}" 
-                                                               EnumValue="{Binding GroupingType}"
+                                                               EnumValue="{Binding GroupingType, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                                IsEnabled="{Binding DataContext.ConfigurationLocked, Converter={StaticResource BoolInverseConverter}, RelativeSource={RelativeSource AncestorType=DataGrid}}"
                                                                />
                                     </DataTemplate>
@@ -223,6 +249,7 @@
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
+
                         </DataGrid.Columns>
                     </DataGrid>
 
