@@ -1,6 +1,7 @@
 ﻿using System.Windows.Controls;
 
 using AudioStation.Controls;
+using AudioStation.Service.Interface;
 using AudioStation.ViewModels.ComponentViewModels;
 using AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.Import;
 
@@ -11,9 +12,13 @@ namespace AudioStation.Views.LibraryImportViews
     [IocExportDefault]
     public partial class LibraryImportStagingView : UserControl
     {
+        private readonly ILibraryLoaderService _libraryLoaderService;
+
         [IocImportingConstructor]
-        public LibraryImportStagingView()
+        public LibraryImportStagingView(ILibraryLoaderService libraryLoaderService)
         {
+            _libraryLoaderService = libraryLoaderService;
+
             InitializeComponent();
         }
 
@@ -50,6 +55,22 @@ namespace AudioStation.Views.LibraryImportViews
                     treeItem.NodeValue.IsSelected = found;
                 }
             });
+        }
+
+        private void ImportTV_ItemExpandedEvent(object sender, bool isExpanded)
+        {
+            var viewModel = this.DataContext as LibraryImporterViewModel;
+            var directoryTree = (LibraryImporterTreeViewModel)sender;
+
+            if (directoryTree != null && viewModel != null)
+            {
+                if (directoryTree.NodeValue.IsDirectory &&
+                   !directoryTree.NodeValue.IsLoaded &&
+                    isExpanded)
+                {
+                    _libraryLoaderService.LoadImporterTreeNextDepth(ref directoryTree, viewModel.Options.SourceDirectory, viewModel.Options.DestinationDirectory, "*.mp3", viewModel.Options);
+                }
+            }
         }
     }
 }

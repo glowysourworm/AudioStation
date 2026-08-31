@@ -121,7 +121,7 @@
                                       Margin="3"
                                       ClickMode="Press"
                                       IsChecked="{Binding IsExpanded, Mode=TwoWay}"
-                                      Visibility="{Binding Children, Converter={StaticResource CollectionNonEmptyBoolConverter}}">
+                                      Visibility="{Binding CanHaveChildren, Converter={StaticResource BoolVisibilityCollapseConverter}}">
 
                             <ToggleButton.Template>
                                 <ControlTemplate TargetType="ToggleButton">

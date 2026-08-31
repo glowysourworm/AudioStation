@@ -44,7 +44,8 @@
                   HoverBrush="#0F33AAFF"
                   BorderBrush="LightGray"
                   BorderThickness="1"
-                  ItemsSource="{Binding SourceDirectory.Children}"
+                  ItemExpandedEvent="ImportTV_ItemExpandedEvent"
+                  ItemsSource="{Binding SourceDirectory}"
                   VirtualizingPanel.IsVirtualizing="True">
         </controls:MultiSelectTreeView>
         

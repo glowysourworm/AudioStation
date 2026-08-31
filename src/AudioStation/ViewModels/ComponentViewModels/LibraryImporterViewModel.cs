@@ -171,7 +171,7 @@ namespace AudioStation.ViewModels.ComponentViewModels
 
             var configuration = configurationManager.GetConfiguration();
 
-            this.Options = new LibraryImporterConfigurationViewModel(configurationManager, dialogController);
+            this.Options = new LibraryImporterConfigurationViewModel();
             this.SourceDirectory = null;
 
             _stagedFiles = new ObservableCollection<LibraryImporterFileViewModel>();
@@ -189,8 +189,8 @@ namespace AudioStation.ViewModels.ComponentViewModels
 
         protected override void InitializeWork(IAudioStationConfiguration configuration, LibraryImporterTreeViewModel load, DialogEventHandlers.DialogProgressHandler progressHandler)
         {
-            //// Set View Model (Load)
-            //this.SourceDirectory = load;
+            // Set View Model (Load)
+            this.SourceDirectory = load;
 
             //// Initialization:     This task is run during initialization.
             //// 
@@ -222,10 +222,11 @@ namespace AudioStation.ViewModels.ComponentViewModels
         }
         private bool CanStageFiles()
         {
+            return false;
             // TODO: Performance
-            return this.SourceDirectory
-                       .RecursiveWhere(x => x.IsSelected)
-                       .Any();
+            //return this.SourceDirectory
+            //           .RecursiveWhere(x => x.IsSelected)
+            //           .Any();
         }
         private bool CanEditTag()
         {

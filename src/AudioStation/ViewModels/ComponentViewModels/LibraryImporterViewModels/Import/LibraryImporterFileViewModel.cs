@@ -155,10 +155,10 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
         /// Constructor for an import file view model. This may represent either a file or a directory.
         /// </summary>
         public LibraryImporterFileViewModel(string fullPath,
-                                            bool isDirectory,
+                                            ILibraryDirectory sourceDirectory,              // This is the base path for the tree
                                             ILibraryDirectory destinationDirectory,
                                             LibraryImporterConfigurationViewModel options)
-            : base(fullPath, fullPath)
+            : base(sourceDirectory.Directory, fullPath, 0)
         {
             _libraryImporter = IocContainer.Get<ILibraryImporter>();
             _tagCacheController = IocContainer.Get<ITagCacheController>();
@@ -176,7 +176,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
                 MigrationDeleteSourceFolders = options.MigrationDeleteSourceFolders,
                 MigrationOverwriteDestinationFiles = options.MigrationOverwriteDestinationFiles,
                 NamingType = destinationDirectory.NamingType,
-                //SourceFolder = destinationDirectory.SourceFolder,
+                SourceFolder = sourceDirectory.Directory,
                 SourceFile = fullPath
             };
             this.Tag = new TagSmallEditViewModel();

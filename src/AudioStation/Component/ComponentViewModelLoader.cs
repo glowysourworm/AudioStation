@@ -8,11 +8,13 @@ using AudioStation.Core.Model;
 using AudioStation.Core.Utility;
 using AudioStation.Event;
 using AudioStation.Event.DialogEvents;
+using AudioStation.Service.Interface;
 using AudioStation.ViewModels.ComponentViewModels;
 using AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.Import;
 using AudioStation.ViewModels.ComponentViewModels.LibraryViewModels;
 using AudioStation.ViewModels.ComponentViewModels.LoadViewModels;
 using AudioStation.ViewModels.ComponentViewModels.LogViewModels;
+using AudioStation.ViewModels.MainViewModels;
 
 using Microsoft.Extensions.Logging;
 
@@ -30,7 +32,10 @@ namespace AudioStation.Component
     {
         private readonly IIocEventAggregator _eventAggregator;
 
+        private readonly IAudioStationMapper _audioStationMapper;
         private readonly ILibraryImporter _libraryImporter;
+
+        private readonly ILibraryLoaderService _libraryLoaderService;
 
         private readonly IAudioStationDbClient _audioStationDbClient;
         private readonly IAudioStationConfigurationManager _configurationManager;
@@ -47,7 +52,11 @@ namespace AudioStation.Component
             IIocEventAggregator eventAggregator,
 
             // Core Components
+            IAudioStationMapper audioStationMapper,
             ILibraryImporter libraryImporter,
+
+            // Services
+            ILibraryLoaderService libraryLoaderService,
 
             // View Models
             CDImporterViewModel cdImporterViewModel,
@@ -62,7 +71,10 @@ namespace AudioStation.Component
         {
             _eventAggregator = eventAggregator;
 
+            _audioStationMapper = audioStationMapper;
             _libraryImporter = libraryImporter;
+
+            _libraryLoaderService = libraryLoaderService;
 
             _cdImporterViewModel = cdImporterViewModel;
             _libraryImporterViewModel = libraryImporterViewModel;
@@ -268,44 +280,24 @@ namespace AudioStation.Component
             }
         }
 
-        private LibraryImporterTreeViewModel? LoadImporterViewModel_CreateLoad(DialogProgressHandler progressHandler)
+        private LibraryImporterTreeViewModel LoadImporterViewModel_CreateLoad(DialogProgressHandler progressHandler)
         {
-            if (BasicHelpers.IsDispatcher() == ApplicationIsDispatcherResult.False)
-                return BasicHelpers.InvokeDispatcher(() => { return LoadImporterViewModel_CreateLoad(progressHandler); }, DispatcherPriority.Background);
+            // Configuration:  Calculate base directory from staging
+            //
+            var configuration = _configurationManager.GetConfiguration();
 
-            else
-            {
-                //// Configuration:  Calculate base directory from staging
-                ////
-                //var configuration = _configurationManager.GetConfiguration();
+            // Typically start with staging. The library folders are imported once; but the user may select them
+            // and re-run the import process.
+            var sourceDirectory = configuration.StagingFolder;
+            var destinationDirectory = configuration.LibraryDirectories.FirstOrDefault(x => x.IsPrimary) ??
+                                       configuration.LibraryDirectories.FirstOrDefault();
 
-                //// Calculate Migration (destination) Directory
-                //var source = configuration.StagingFolder;
-                //var destination = configuration.StagingFolder;
+            var searchPattern = "*.mp3";
 
-                //try
-                //{
-                //    return DirectoryTreeLoader.Load(destinationBase, "*.mp3", directoryNode =>
-                //    {
-                //        return new LibraryImporterTreeViewModel(directoryNode);
+            _libraryImporterViewModel.Options.SourceDirectory = _audioStationMapper.Map<LibraryDirectory, LibraryDirectoryViewModel>(sourceDirectory);
+            _libraryImporterViewModel.Options.DestinationDirectory = _audioStationMapper.Map<LibraryDirectory, LibraryDirectoryViewModel>(destinationDirectory);
 
-                //    }, directoryPath =>
-                //    {
-                //        return new LibraryImporterDirectoryViewModel(directoryPath, destinationBase);
-
-                //    }, filePath =>
-                //    {
-                //        return new LibraryImporterFileViewModel(filePath, false, destinationBase, destinationBase);
-                //    });
-                //}
-                //catch (Exception ex)
-                //{
-                //    ApplicationHelpers.Log("Error loading import files:  {0}", LogLevel.Error, ex, ex.Message);
-                //    return null;
-                //}
-
-                return null;
-            }
+            return _libraryLoaderService.InitializeImporterTree(sourceDirectory, destinationDirectory, searchPattern, _libraryImporterViewModel.Options);
         }
 
         #endregion

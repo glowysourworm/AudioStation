@@ -22,7 +22,7 @@ namespace AudioStation.Views.StyleSelectors
             var viewModel = listBoxItem.DataContext as MultiSelectTreeItemViewModel;
 
             if (viewModel == null)
-                return null;
+                throw new NullReferenceException("Improper handling of MultiSelectTreeViewItemContainerStyleSelector");
 
             // Leaf Nodes (File)
             if (!viewModel.CanHaveChildren)

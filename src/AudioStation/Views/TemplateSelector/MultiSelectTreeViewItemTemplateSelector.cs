@@ -3,8 +3,6 @@ using System.Windows.Controls;
 
 using AudioStation.Controls;
 
-using SimpleWpf.Extensions.Collection;
-
 using Xceed.Wpf.Toolkit.Core.Utilities;
 
 namespace AudioStation.Views.TemplateSelector
@@ -26,16 +24,18 @@ namespace AudioStation.Views.TemplateSelector
             if (viewModel == null)
                 return null;
 
-            if (!viewModel.Children.None())
-                return listBoxItem.FindResource("MultiSelectTreeViewCollectionItemTemplate") as DataTemplate;
+            //if (!viewModel.Children.None())
+            //    return listBoxItem.FindResource("MultiSelectTreeViewCollectionItemTemplate") as DataTemplate;
 
-            else
-            {
-                if (!viewModel.CanHaveChildren)
-                    return listBoxItem.FindResource("MultiSelectTreeViewLeafNoIndentItemTemplate") as DataTemplate;
-                else
-                    return listBoxItem.FindResource("MultiSelectTreeViewLeafItemTemplate") as DataTemplate;
-            }
+            //else
+            //{
+            if (!viewModel.CanHaveChildren)
+                return listBoxItem.FindResource("MultiSelectTreeViewLeafNoIndentItemTemplate") as DataTemplate;
+            else //if (!viewModel.Children.None())
+                return listBoxItem.FindResource("MultiSelectTreeViewCollectionItemTemplate") as DataTemplate;
+            //else
+            //    return listBoxItem.FindResource("MultiSelectTreeViewLeafItemTemplate") as DataTemplate;
+            //}
 
         }
     }

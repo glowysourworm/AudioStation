@@ -8,14 +8,17 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
     /// </summary>
     public class LibraryImporterTreeViewModel : RecursiveDispatcherViewModel<PathViewModel>
     {
-        public LibraryImporterTreeViewModel(PathViewModel nodeValue, RecursiveDispatcherViewModel<PathViewModel> parent = null)
+        public string FileSearchPattern { get; private set; }
+
+        public LibraryImporterTreeViewModel(PathViewModel nodeValue, string searchPattern, RecursiveDispatcherViewModel<PathViewModel> parent = null)
             : base(nodeValue, parent)
         {
+            this.FileSearchPattern = searchPattern;
         }
 
         protected override RecursiveDispatcherViewModel<PathViewModel> Construct(PathViewModel nodeValue)
         {
-            return new LibraryImporterTreeViewModel(nodeValue, this);
+            return new LibraryImporterTreeViewModel(nodeValue, this.FileSearchPattern, this);
         }
 
         public bool HasSelectedParent()
@@ -30,6 +33,11 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
             }
 
             return false;
+        }
+
+        public override string ToString()
+        {
+            return this.NodeValue.ToString();
         }
     }
 }

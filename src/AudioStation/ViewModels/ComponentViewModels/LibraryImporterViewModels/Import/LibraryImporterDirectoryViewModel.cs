@@ -9,6 +9,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
     public class LibraryImporterDirectoryViewModel : PathViewModel
     {
         bool _inError;
+        bool _isLoaded;
         bool _areTagsDirty;
         bool _areAllMinimumImportsValid;
 
@@ -16,6 +17,15 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
         {
             get { return _inError; }
             set { SetValueOverride(ref _inError, value); }
+        }
+
+        /// <summary>
+        /// Set to true when the directory has been iterated to add file instances to the tree
+        /// </summary>
+        public bool IsLoaded
+        {
+            get { return _isLoaded; }
+            set { SetValueOverride(ref _isLoaded, value); }
         }
         public bool AreTagsDirty
         {
@@ -28,9 +38,10 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
             set { SetValueOverride(ref _areAllMinimumImportsValid, value); }
         }
 
-        public LibraryImporterDirectoryViewModel(string fullDirectoryPath, string basePath)
-            : base(basePath, fullDirectoryPath)
+        public LibraryImporterDirectoryViewModel(string fullDirectoryPath, string basePath, int directoryFileCount)
+            : base(basePath, fullDirectoryPath, directoryFileCount)
         {
+            this.IsLoaded = false;
         }
 
         public override string ToString()

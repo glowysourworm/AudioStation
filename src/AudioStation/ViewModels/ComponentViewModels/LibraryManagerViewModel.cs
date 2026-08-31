@@ -101,6 +101,8 @@ namespace AudioStation.ViewModels.ComponentViewModels
 
         protected override void InitializeWork(IAudioStationConfiguration configuration, LibraryViewModel load, DialogEventHandlers.DialogProgressHandler progressHandler)
         {
+            this.Library = load;
+
             //try
             //{
             //    // TODO: CHECK CONFIGURATION!

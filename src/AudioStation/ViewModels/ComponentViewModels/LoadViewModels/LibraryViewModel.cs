@@ -1,6 +1,5 @@
 ﻿using System.Collections.ObjectModel;
 
-using AudioStation.Component.Interface;
 using AudioStation.Core.Database.AudioStationDatabase;
 using AudioStation.Core.Model;
 using AudioStation.ViewModels.ComponentViewModels.LibraryViewModels;
@@ -13,7 +12,6 @@ namespace AudioStation.ViewModels.ComponentViewModels.LoadViewModels
 {
     public class LibraryViewModel : ViewModelBase
     {
-        private readonly IComponentViewModelLoader _viewModelLoader;
         private readonly int _trackPageSize = 100;
 
         ObservableCollection<TrackViewModel> _tracks;
@@ -263,24 +261,24 @@ namespace AudioStation.ViewModels.ComponentViewModels.LoadViewModels
 
             if (this.LibraryManagerFilterType == LibraryManagerErrorFilterType.None)
             {
-                result = _viewModelLoader.LoadEntryPage(new PageRequest<Track, int>()
-                {
-                    PageNumber = Math.Max(pageNumber, 0),
-                    PageSize = _trackPageSize,
-                    WhereCallback = (entity) => { return FilterEntityFields(entity); }
-                });
+                //result = _viewModelLoader.LoadEntryPage(new PageRequest<Track, int>()
+                //{
+                //    PageNumber = Math.Max(pageNumber, 0),
+                //    PageSize = _trackPageSize,
+                //    WhereCallback = (entity) => { return FilterEntityFields(entity); }
+                //});
             }
             else
             {
-                result = _viewModelLoader.LoadEntryPage(new PageRequest<Track, int>()
-                {
-                    PageNumber = Math.Max(pageNumber, 0),
-                    PageSize = _trackPageSize,
-                    WhereCallback = (entity) => { return FilterEntityFields(entity) && FilterFileErrors(entity); }
-                });
+                //result = _viewModelLoader.LoadEntryPage(new PageRequest<Track, int>()
+                //{
+                //    PageNumber = Math.Max(pageNumber, 0),
+                //    PageSize = _trackPageSize,
+                //    WhereCallback = (entity) => { return FilterEntityFields(entity) && FilterFileErrors(entity); }
+                //});
             }
 
-            LoadEntryPage(result, true);
+            //LoadEntryPage(result, true);
         }
 
         private bool FilterFileErrors(Track entity)

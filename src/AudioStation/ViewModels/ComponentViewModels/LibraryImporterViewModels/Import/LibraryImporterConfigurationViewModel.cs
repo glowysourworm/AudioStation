@@ -1,5 +1,4 @@
-﻿using AudioStation.Controller.Interface;
-using AudioStation.Core.Component.Interface;
+﻿using AudioStation.ViewModels.MainViewModels;
 
 using SimpleWpf.Extensions.Command;
 using SimpleWpf.ViewModel;
@@ -8,8 +7,8 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
 {
     public class LibraryImporterConfigurationViewModel : ViewModelBase
     {
-        string _sourceFolder;
-        string _destinationFolder;
+        LibraryDirectoryViewModel _sourceDirectory;
+        LibraryDirectoryViewModel _destinationDirectory;
 
         bool _includeMusicBrainzDetail;
         bool _identifyUsingAcoustID;
@@ -21,11 +20,17 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
 
         SimpleCommand _selectSourceFolderCommand;
 
-        public string DestinationFolder
+        public LibraryDirectoryViewModel SourceDirectory
         {
-            get { return _destinationFolder; }
-            set { RaiseAndSetIfChanged(ref _destinationFolder, value); }
+            get { return _sourceDirectory; }
+            set { this.RaiseAndSetIfChanged(ref _sourceDirectory, value); }
         }
+        public LibraryDirectoryViewModel DestinationDirectory
+        {
+            get { return _destinationDirectory; }
+            set { this.RaiseAndSetIfChanged(ref _destinationDirectory, value); }
+        }
+
         public bool IncludeMusicBrainzDetail
         {
             get { return _includeMusicBrainzDetail; }
@@ -56,24 +61,17 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
             get { return _migrationOverwriteDestinationFiles; }
             set { RaiseAndSetIfChanged(ref _migrationOverwriteDestinationFiles, value); }
         }
+
         public SimpleCommand SelectSourceFolderCommand
         {
             get { return _selectSourceFolderCommand; }
             set { RaiseAndSetIfChanged(ref _selectSourceFolderCommand, value); }
         }
 
-        public LibraryImporterConfigurationViewModel(IAudioStationConfigurationManager configurationManager, IDialogController dialogController)
+        public LibraryImporterConfigurationViewModel()
         {
-            var configuration = configurationManager.GetConfiguration();
-
-            //this.SourceFolder = configuration.StagingFolder.Dir%ectory;
-            //this.DestinationFolder = configuration.DirectoryBase;
-            //this.DestinationMusicSubFolder = configuration.MusicSubDirectory;
-            //this.DestinationAudioBooksSubFolder = configuration.AudioBooksSubDirectory;
-
-            //this.ImportAsType = TrackType.Music;
-            //this.GroupingType = TrackGroupingType.ArtistAlbum;
-            //this.NamingType = TrackNamingType.Standard;
+            this.SourceDirectory = new LibraryDirectoryViewModel();
+            this.DestinationDirectory = new LibraryDirectoryViewModel();
 
             this.SelectSourceFolderCommand = new SimpleCommand(() =>
             {

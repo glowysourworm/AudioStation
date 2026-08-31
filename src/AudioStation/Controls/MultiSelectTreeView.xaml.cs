@@ -7,6 +7,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 
 using SimpleWpf.Extensions;
+using SimpleWpf.Extensions.Event;
 using SimpleWpf.Extensions.ObservableCollection;
 
 namespace AudioStation.Controls
@@ -82,6 +83,12 @@ namespace AudioStation.Controls
 
         #endregion
 
+        /// <summary>
+        /// Event that occurs when a tree item is expanded or collapsed. The first argument is the sender (bound item). The
+        /// second is the current expanded state.
+        /// </summary>
+        public event SimpleEventHandler<object, bool> ItemExpandedEvent;
+
         protected NotifyingObservableCollection<MultiSelectTreeItemViewModel> InternalItemsSource;
 
         public MultiSelectTreeView()
@@ -136,6 +143,7 @@ namespace AudioStation.Controls
 
         }
 
+        // Our Internal Items Source
         private void OnItemSourceCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
         {
             RefreshTree();
@@ -156,13 +164,21 @@ namespace AudioStation.Controls
 
                 // Selection:  De-select anything not in this item's collection (if it is selected)
                 //
-                if (viewModel.IsSelected)
+                if (viewModel.IsSelected && e.PropertyName == "IsSelected")
                 {
                     RecursiveIterate(this.InternalItemsSource, item =>
                     {
                         if (item.Parent != viewModel.Parent)
                             item.IsSelected = false;
                     });
+                }
+
+                // Expansion:  This will trigger a loading of the tree for the selected node
+                //
+                if (viewModel.IsExpanded && e.PropertyName == "IsExpanded")
+                {
+                    if (this.ItemExpandedEvent != null)
+                        this.ItemExpandedEvent(viewModel.Item, viewModel.IsExpanded);
                 }
             }
         }
@@ -247,6 +263,19 @@ namespace AudioStation.Controls
         private static void OnItemsSourceChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             var control = d as MultiSelectTreeView;
+            var newNotifier = e.NewValue as INotifyCollectionChanged;
+            var oldNotifier = e.OldValue as INotifyCollectionChanged;
+
+            // Source Notifier (external)
+            //if (oldNotifier != null)
+            //    oldNotifier.CollectionChanged -= OnExternalItemSourceCollectionChanged;
+
+            if (newNotifier != null)
+                newNotifier.CollectionChanged += (sender, e) =>
+                {
+                    if (control != null)
+                        control.RefreshTree();
+                };
 
             if (control != null)
                 control.RefreshTree();

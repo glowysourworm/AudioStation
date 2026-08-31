@@ -46,7 +46,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Wo
                 }))
                 {
                     // Load Directory
-                    var directoryTree = DirectoryTreeLoader.Load(libraryDirectory.Directory, "*.mp3");
+                    var directoryTree = DirectoryTreeLoader.Load(libraryDirectory.Directory, "*.mp3", -1);
 
                     directoryTree.RecurseForEach(entry =>
                     {
