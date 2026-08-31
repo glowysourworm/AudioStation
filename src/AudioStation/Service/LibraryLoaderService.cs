@@ -91,7 +91,7 @@ namespace AudioStation.Service
             }
         }
 
-        public void LoadImporterTreeNextDepth(ref LibraryImporterTreeViewModel directory, ILibraryDirectory sourceDirectory, ILibraryDirectory destinationDirectory, string searchPattern, LibraryImporterConfigurationViewModel importerOptions)
+        public void LoadImporterTreeNextDepth(LibraryImporterTreeViewModel directory, ILibraryDirectory sourceDirectory, ILibraryDirectory destinationDirectory, string searchPattern, LibraryImporterConfigurationViewModel importerOptions)
         {
             try
             {

@@ -1,7 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 
-using AudioStation.Controls;
+using SimpleWpf.ViewModel;
 
 using Xceed.Wpf.Toolkit.Core.Utilities;
 
@@ -19,17 +19,17 @@ namespace AudioStation.Views.TemplateSelector
             if (listBoxItem == null)
                 throw new NullReferenceException("Improper handling of MultiSelectTreeViewItemTemplateSelector");
 
-            var viewModel = listBoxItem.DataContext as MultiSelectTreeItemViewModel;
+            var viewModel = listBoxItem.DataContext as RecursiveDispatcherViewModel<PathViewModel>;
 
             if (viewModel == null)
-                return null;
+                throw new NullReferenceException("Improper handling of MultiSelectTreeViewItemTemplateSelector");
 
             //if (!viewModel.Children.None())
             //    return listBoxItem.FindResource("MultiSelectTreeViewCollectionItemTemplate") as DataTemplate;
 
             //else
             //{
-            if (!viewModel.CanHaveChildren)
+            if (!viewModel.NodeValue.IsDirectory)
                 return listBoxItem.FindResource("MultiSelectTreeViewLeafNoIndentItemTemplate") as DataTemplate;
             else //if (!viewModel.Children.None())
                 return listBoxItem.FindResource("MultiSelectTreeViewCollectionItemTemplate") as DataTemplate;

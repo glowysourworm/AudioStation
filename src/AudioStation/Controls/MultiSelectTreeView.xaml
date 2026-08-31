@@ -13,7 +13,8 @@
             <Setter Property="BorderBrush" Value="Transparent" />
             <Setter Property="BorderThickness" Value="0" />
             <Setter Property="Background" Value="Transparent" />
-            <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />
+            <Setter Property="IsSelected" Value="{Binding NodeValue.IsSelected, Mode=TwoWay}" />
+
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="ListBoxItem">
@@ -33,7 +34,7 @@
         <Style TargetType="ListBoxItem" x:Key="MultiSelectTreeViewListBoxItemSelectionContainerStyle">
             <Setter Property="BorderBrush" Value="Transparent" />
             <Setter Property="BorderThickness" Value="0" />
-            <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />
+            <Setter Property="IsSelected" Value="{Binding NodeValue.IsSelected, Mode=TwoWay}" />
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="ListBoxItem">
@@ -72,13 +73,14 @@
             <Grid>
 
                 <!-- Header -->
-                <ContentPresenter Margin="29 3 3 3"
-                                  Content="{Binding ItemDisplay}"
-                                  HorizontalAlignment="Stretch"
-                                  VerticalAlignment="Stretch"
-                                  TextBlock.TextAlignment="Left"
-                                  TextBlock.FontSize="14">
-                </ContentPresenter>
+                <TextBlock 
+                    Text="{Binding NodeValue.ShortPath}"
+                    Margin="29 3 3 3"
+                    HorizontalAlignment="Stretch"
+                    VerticalAlignment="Stretch"
+                    TextBlock.TextAlignment="Left"
+                    TextBlock.FontSize="14">
+                </TextBlock>
                 
             </Grid>
 
@@ -90,14 +92,15 @@
             <Grid>
 
                 <!-- Header -->
-                <ContentPresenter Visibility="{Binding CanHaveChildren, Converter={StaticResource BoolVisibilityCollapseConverter}}"
-                                  Margin="3 3 3 3"
-                                  Content="{Binding ItemDisplay}"
-                                  HorizontalAlignment="Stretch"
-                                  VerticalAlignment="Stretch"
-                                  TextBlock.TextAlignment="Left"
-                                  TextBlock.FontSize="14">
-                </ContentPresenter>
+                <TextBlock 
+                    Text="{Binding NodeValue.ShortPath}" 
+                    Visibility="{Binding NodeValue.IsDirectory, Converter={StaticResource BoolVisibilityCollapseConverter}}"
+                    Margin="3 3 3 3"
+                    HorizontalAlignment="Stretch"
+                    VerticalAlignment="Stretch"
+                    TextBlock.TextAlignment="Left"
+                    TextBlock.FontSize="14">
+                </TextBlock>
 
             </Grid>
 
@@ -120,8 +123,8 @@
                         <ToggleButton x:Name="InputFileExpanderButton"
                                       Margin="3"
                                       ClickMode="Press"
-                                      IsChecked="{Binding IsExpanded, Mode=TwoWay}"
-                                      Visibility="{Binding CanHaveChildren, Converter={StaticResource BoolVisibilityCollapseConverter}}">
+                                      IsChecked="{Binding NodeValue.IsExpanded, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                      Visibility="{Binding NodeValue.IsDirectory, Converter={StaticResource BoolVisibilityCollapseConverter}}">
 
                             <ToggleButton.Template>
                                 <ControlTemplate TargetType="ToggleButton">
@@ -130,27 +133,24 @@
                                         <fa5:ImageAwesome Icon="Regular_Folder"                                                     
                                                     Style="{StaticResource FontAwesomeIconManagerViewPager}"
                                                     Margin="3"
-                                                    Visibility="{Binding IsExpanded, Converter={StaticResource BoolInverseVisibilityCollapseConverter}}" />
+                                                    Visibility="{Binding NodeValue.IsExpanded, Mode=OneWay, Converter={StaticResource BoolInverseVisibilityCollapseConverter}}" />
 
                                         <fa5:ImageAwesome Icon="Regular_FolderOpen"                                                     
                                                     Style="{StaticResource FontAwesomeIconManagerViewPager}"
                                                     Margin="3"
-                                                    Visibility="{Binding IsExpanded, Converter={StaticResource BoolVisibilityCollapseConverter}}" />
+                                                    Visibility="{Binding NodeValue.IsExpanded, Mode=OneWay, Converter={StaticResource BoolVisibilityCollapseConverter}}" />
                                     </Grid>
                                 </ControlTemplate>
                             </ToggleButton.Template>
                         </ToggleButton>
 
-
-                        <ContentPresenter 
-                            Grid.Column="1"
-                            Margin="3"
-                            Content="{Binding ItemDisplay}"
-                            HorizontalAlignment="Stretch"
-                            VerticalAlignment="Stretch"
-                            TextBlock.TextAlignment="Left"
-                            TextBlock.FontSize="14">
-                        </ContentPresenter>
+                        <TextBlock Text="{Binding NodeValue.ShortPath}"
+                                   Grid.Column="1"
+                                   Margin="3"
+                                   HorizontalAlignment="Stretch"
+                                   VerticalAlignment="Stretch"
+                                   TextBlock.TextAlignment="Left"
+                                   TextBlock.FontSize="14" />
                     </Grid>
                 </Border>
 
@@ -159,14 +159,13 @@
                          Grid.Row="1" 
                          Grid.Column="1"
                          ItemsSource="{Binding Children}"
-                         ItemTemplateSelector="{StaticResource MultiSelectTreeViewItemTemplateSelector}"
                          Style="{StaticResource MultiSelectTreeViewListBoxStyle}"
                          SelectionMode="Extended"
                          ScrollViewer.HorizontalScrollBarVisibility="Hidden"
                          ScrollViewer.VerticalScrollBarVisibility="Hidden"
                          ScrollViewer.CanContentScroll="False"                         
                          VirtualizingPanel.IsVirtualizing="True"
-                         Visibility="{Binding IsExpanded, Converter={StaticResource BoolVisibilityCollapseConverter}}">
+                         Visibility="{Binding NodeValue.IsExpanded, Converter={StaticResource BoolVisibilityCollapseConverter}}">
                 </ListBox>
 
             </Grid>
@@ -175,7 +174,7 @@
                 <Trigger Property="IsMouseOver" Value="True" SourceName="HeaderBorder">
                     <Setter TargetName="HeaderBorder" Property="Background" Value="{Binding HoverBrush, RelativeSource={RelativeSource AncestorType=UserControl}}" />
                 </Trigger>
-                <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                <DataTrigger Binding="{Binding NodeValue.IsSelected}" Value="True">
                     <Setter Property="Background" TargetName="HeaderBorder" Value="{Binding SelectionBrush, RelativeSource={RelativeSource AncestorType=UserControl}}" />
                 </DataTrigger>
             </DataTemplate.Triggers>
@@ -192,6 +191,7 @@
         <Grid>
 
             <ListBox x:Name="TheTreeView" 
+                     ItemsSource="{Binding ItemsSource, ElementName=BaseControl}"
                      Margin="{Binding Margin, ElementName=BaseControl}"
                      ScrollViewer.HorizontalScrollBarVisibility="Hidden"
                      ScrollViewer.VerticalScrollBarVisibility="Hidden"

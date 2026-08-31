@@ -96,6 +96,7 @@ namespace AudioStation.Utility
                                                     where TFile : PathViewModel
                                                     where TTree : RecursiveDispatcherViewModel<PathViewModel>
         {
+            // Stop Depth
             if (stopDepth < -1)
                 throw new ArgumentException("Must have a stop depth of -1 or greater. Please set stop depth properly.");
 
@@ -116,9 +117,13 @@ namespace AudioStation.Utility
 
                     // Recursion Stop Depth (Lazy Loading)
                     //
-                    if (currentDirectory.NodeValue.RecursionDepth >= stopDepth ||
-                        currentDirectory.NodeValue.IsLoaded)
+                    if (currentDirectory.NodeValue.RecursionDepth >= stopDepth)
                         break;
+
+                    // Previously Loaded 
+                    //
+                    if (currentDirectory.NodeValue.IsLoaded)
+                        continue;
 
                     // Current Directory
                     var fileData = BasicHelpers.FastGetFileData(currentDirectory.NodeValue.FullPath, fileSearchPattern, true, SearchOption.TopDirectoryOnly);

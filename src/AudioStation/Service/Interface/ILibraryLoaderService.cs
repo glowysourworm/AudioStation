@@ -28,7 +28,7 @@ namespace AudioStation.Service.Interface
         /// <param name="destinationDirectory"></param>
         /// <param name="searchPattern"></param>
         /// <param name="importerOptions"></param>
-        public void LoadImporterTreeNextDepth(ref LibraryImporterTreeViewModel directory,
+        public void LoadImporterTreeNextDepth(LibraryImporterTreeViewModel directory,
                                             ILibraryDirectory sourceDirectory,
                                             ILibraryDirectory destinationDirectory,
                                             string searchPattern,

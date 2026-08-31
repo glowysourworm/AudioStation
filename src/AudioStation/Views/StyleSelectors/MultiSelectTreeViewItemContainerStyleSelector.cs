@@ -1,7 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 
-using AudioStation.Controls;
+using SimpleWpf.ViewModel;
 
 using Xceed.Wpf.Toolkit.Core.Utilities;
 
@@ -19,13 +19,15 @@ namespace AudioStation.Views.StyleSelectors
             if (listBoxItem == null)
                 throw new NullReferenceException("Improper handling of MultiSelectTreeViewItemContainerStyleSelector");
 
-            var viewModel = listBoxItem.DataContext as MultiSelectTreeItemViewModel;
+            // SPECIFIC VIEW MODEL
+            //
+            var viewModel = listBoxItem.DataContext as RecursiveDispatcherViewModel<PathViewModel>;
 
             if (viewModel == null)
                 throw new NullReferenceException("Improper handling of MultiSelectTreeViewItemContainerStyleSelector");
 
             // Leaf Nodes (File)
-            if (!viewModel.CanHaveChildren)
+            if (!viewModel.NodeValue.IsDirectory)
                 return listBoxItem.FindResource("MultiSelectTreeViewListBoxItemSelectionContainerStyle") as Style;
 
             // Container Nodes (Directory)

@@ -96,7 +96,7 @@ namespace AudioStation.Controls
             InitializeComponent();
 
             this.InternalItemsSource = new NotifyingObservableCollection<MultiSelectTreeItemViewModel>();
-            this.TheTreeView.ItemsSource = this.InternalItemsSource;
+            //this.TheTreeView.ItemsSource = this.ItemsSource;
         }
 
         protected override void OnPreviewMouseWheel(MouseWheelEventArgs e)
@@ -262,23 +262,25 @@ namespace AudioStation.Controls
 
         private static void OnItemsSourceChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            var control = d as MultiSelectTreeView;
-            var newNotifier = e.NewValue as INotifyCollectionChanged;
-            var oldNotifier = e.OldValue as INotifyCollectionChanged;
+            //var control = d as MultiSelectTreeView;
+            //var newNotifier = e.NewValue as RecursiveDispatcherViewModel<PathViewModel>;
+            //var oldNotifier = e.OldValue as RecursiveDispatcherViewModel<PathViewModel>;
 
-            // Source Notifier (external)
-            //if (oldNotifier != null)
-            //    oldNotifier.CollectionChanged -= OnExternalItemSourceCollectionChanged;
+            ////control.TheTreeView.ItemsSource = e.NewValue as IEnumerable;
 
-            if (newNotifier != null)
-                newNotifier.CollectionChanged += (sender, e) =>
-                {
-                    if (control != null)
-                        control.RefreshTree();
-                };
+            //// Source Notifier (external)
+            ////if (oldNotifier != null)
+            ////    oldNotifier.CollectionChanged -= OnExternalItemSourceCollectionChanged;
 
-            if (control != null)
-                control.RefreshTree();
+            //if (newNotifier != null)
+            //    newNotifier.ItemPropertyChangedTreeEvent += (treeSender, sender, e) =>
+            //    {
+            //        if (control != null)
+            //            control.RefreshTree();
+            //    };
+
+            //if (control != null)
+            //    control.RefreshTree();
         }
     }
 }
