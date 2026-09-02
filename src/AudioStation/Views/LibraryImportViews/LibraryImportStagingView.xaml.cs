@@ -1,14 +1,13 @@
-﻿using System.Collections.Specialized;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Windows.Controls;
 
-using AudioStation.Controls;
 using AudioStation.Service.Interface;
 using AudioStation.ViewModels.ComponentViewModels;
 using AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.Import;
 
 using SimpleWpf.IocFramework.Application.Attribute;
-using SimpleWpf.ViewModel;
+using SimpleWpf.UI.ViewModel.FileTreeView;
+using SimpleWpf.UI.ViewModel.TreeView;
 
 namespace AudioStation.Views.LibraryImportViews
 {
@@ -39,74 +38,20 @@ namespace AudioStation.Views.LibraryImportViews
                 newVM.SourceDirectory.ItemPropertyChangedTreeEvent += OnImportTreeChanged;
         }
 
-        private void OnImportTreeChanged(RecursiveDispatcherViewModel<PathViewModel> treeSender, PathViewModel nodeValue, PropertyChangedEventArgs eventArgs)
+        private void OnImportTreeChanged(TreeViewModelBase<FileTreeNodeViewModel> treeSender, FileTreeNodeViewModel item, PropertyChangedEventArgs eventArgs)
         {
             var viewModel = this.DataContext as LibraryImporterViewModel;
+            var itemViewModel = treeSender as LibraryImporterTreeViewModel;
 
-            if (viewModel != null && nodeValue != null)
+            if (viewModel != null && itemViewModel != null && itemViewModel.NodeValue == item)
             {
-                if (nodeValue.IsDirectory &&
-                    nodeValue.IsExpanded &&
-                   !nodeValue.IsLoaded)
+                if (item.IsDirectory &&
+                    item.IsExpanded &&
+                   !item.IsLoaded)
                 {
-                    _libraryLoaderService.LoadImporterTreeNextDepth(viewModel.SourceDirectory, viewModel.Options.SourceDirectory, viewModel.Options.DestinationDirectory, "*.mp3", viewModel.Options);
+                    _libraryLoaderService.LoadImporterTreeNextDepth(itemViewModel, viewModel.Options.SourceDirectory, viewModel.Options.DestinationDirectory, "*.mp3", viewModel.Options);
                 }
             }
-        }
-
-        private void OnImportTreeChanged(RecursiveDispatcherViewModel<PathViewModel> treeSender, PathViewModel nodeValue, NotifyCollectionChangedEventArgs eventArgs)
-        {
-            var viewModel = this.DataContext as LibraryImporterViewModel;
-
-            if (viewModel != null && nodeValue != null)
-            {
-                if (nodeValue.IsDirectory &&
-                    nodeValue.IsExpanded &&
-                   !nodeValue.IsLoaded)
-                {
-                    _libraryLoaderService.LoadImporterTreeNextDepth(viewModel.SourceDirectory, viewModel.Options.SourceDirectory, viewModel.Options.DestinationDirectory, "*.mp3", viewModel.Options);
-                }
-            }
-        }
-
-        private void ImportTV_SelectedItemsChangedEvent(IEnumerable<MultiSelectTreeItemViewModel> selectedItems)
-        {
-            var viewModel = this.DataContext as LibraryImporterViewModel;
-
-            if (viewModel == null)
-                return;
-
-            // This collection holds an internal binding. So, the selection flag doesn't get passed
-            // on unless we force it to bind to our custom view model.
-
-            viewModel.SourceDirectory.RecurseForEach(treeItem =>
-            {
-                if (treeItem.NodeValue is LibraryImporterFileViewModel)
-                {
-                    bool found = false;
-
-                    foreach (var listBoxViewModel in selectedItems)
-                    {
-                        // Set IsSelected
-                        var path = treeItem.NodeValue.ShortPath;
-                        var otherPath = (string)listBoxViewModel.Item;
-
-                        if (path == otherPath)
-                        {
-                            found = true;
-                            break;
-                        }
-                    }
-
-                    // Set Selection
-                    treeItem.NodeValue.IsSelected = found;
-                }
-            });
-        }
-
-        private void ImportTV_ItemExpandedEvent(object sender, bool isExpanded)
-        {
-
         }
     }
 }

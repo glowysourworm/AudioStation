@@ -5,6 +5,7 @@
              xmlns:local="clr-namespace:AudioStation.Views"
              xmlns:xceed="http://schemas.xceed.com/wpf/xaml/toolkit"
              xmlns:simpleUI="clr-namespace:SimpleWpf.UI.Controls;assembly=SimpleWpf.UI"
+             xmlns:enumUI="clr-namespace:SimpleWpf.UI.Controls.EnumUI;assembly=SimpleWpf.UI"
              xmlns:coreModel="clr-namespace:AudioStation.Core.Model;assembly=AudioStation.Core"
              Background="White">
     
@@ -88,7 +89,7 @@
                             <DataGridTemplateColumn Header="Type" Width="120" CellStyle="{StaticResource ManagerDataGridCellStyle}">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
-                                        <simpleUI:EnumComboBox EnumType="{x:Type coreModel:TrackType}" 
+                                        <enumUI:SimpleEnumComboBox EnumType="{x:Type coreModel:TrackType}" 
                                                                EnumValue="{Binding TrackType, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                                IsEnabled="{Binding DataContext.ConfigurationLocked, Converter={StaticResource BoolInverseConverter}, RelativeSource={RelativeSource AncestorType=DataGrid}}"
                                                                />
@@ -99,7 +100,7 @@
                             <DataGridTemplateColumn Header="Naming" Width="140" CellStyle="{StaticResource ManagerDataGridCellStyle}">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
-                                        <simpleUI:EnumComboBox EnumType="{x:Type coreModel:TrackNamingType}" 
+                                        <enumUI:SimpleEnumComboBox EnumType="{x:Type coreModel:TrackNamingType}" 
                                                                EnumValue="{Binding NamingType, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                                IsEnabled="{Binding DataContext.ConfigurationLocked, Converter={StaticResource BoolInverseConverter}, RelativeSource={RelativeSource AncestorType=DataGrid}}"
                                                                />
@@ -110,7 +111,7 @@
                             <DataGridTemplateColumn Header="Grouping" Width="180" CellStyle="{StaticResource ManagerDataGridCellStyle}">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
-                                        <simpleUI:EnumComboBox EnumType="{x:Type coreModel:TrackGroupingType}" 
+                                        <enumUI:SimpleEnumComboBox EnumType="{x:Type coreModel:TrackGroupingType}" 
                                                                EnumValue="{Binding GroupingType, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                                IsEnabled="{Binding DataContext.ConfigurationLocked, Converter={StaticResource BoolInverseConverter}, RelativeSource={RelativeSource AncestorType=DataGrid}}"
                                                                />
@@ -221,7 +222,7 @@
                             <DataGridTemplateColumn Header="Type" Width="120" CellStyle="{StaticResource ManagerDataGridCellStyle}">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
-                                        <simpleUI:EnumComboBox EnumType="{x:Type coreModel:TrackType}" 
+                                        <enumUI:SimpleEnumComboBox EnumType="{x:Type coreModel:TrackType}" 
                                                                EnumValue="{Binding TrackType, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                                IsEnabled="{Binding DataContext.ConfigurationLocked, Converter={StaticResource BoolInverseConverter}, RelativeSource={RelativeSource AncestorType=DataGrid}}"
                                                                />
@@ -232,7 +233,7 @@
                             <DataGridTemplateColumn Header="Naming" Width="140" CellStyle="{StaticResource ManagerDataGridCellStyle}">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
-                                        <simpleUI:EnumComboBox EnumType="{x:Type coreModel:TrackNamingType}" 
+                                        <enumUI:SimpleEnumComboBox EnumType="{x:Type coreModel:TrackNamingType}" 
                                                                EnumValue="{Binding NamingType, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                                IsEnabled="{Binding DataContext.ConfigurationLocked, Converter={StaticResource BoolInverseConverter}, RelativeSource={RelativeSource AncestorType=DataGrid}}"
                                                                />
@@ -243,7 +244,7 @@
                             <DataGridTemplateColumn Header="Grouping" Width="180" CellStyle="{StaticResource ManagerDataGridCellStyle}">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
-                                        <simpleUI:EnumComboBox EnumType="{x:Type coreModel:TrackGroupingType}" 
+                                        <enumUI:SimpleEnumComboBox EnumType="{x:Type coreModel:TrackGroupingType}" 
                                                                EnumValue="{Binding GroupingType, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                                IsEnabled="{Binding DataContext.ConfigurationLocked, Converter={StaticResource BoolInverseConverter}, RelativeSource={RelativeSource AncestorType=DataGrid}}"
                                                                />

@@ -3,8 +3,8 @@ using AudioStation.Core.Model.Interface;
 
 using Microsoft.Win32;
 
-using SimpleWpf.Extensions.Command;
-using SimpleWpf.ViewModel;
+using SimpleWpf.UI.Command;
+using SimpleWpf.UI.ViewModel;
 
 namespace AudioStation.ViewModels.MainViewModels
 {

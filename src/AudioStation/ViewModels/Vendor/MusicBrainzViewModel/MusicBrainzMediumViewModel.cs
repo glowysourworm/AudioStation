@@ -1,7 +1,6 @@
 ﻿using MetaBrainz.MusicBrainz.Interfaces.Entities;
 
-using SimpleWpf.Extensions;
-using SimpleWpf.ViewModel;
+using SimpleWpf.UI.ViewModel;
 
 namespace AudioStation.ViewModels.Vendor.MusicBrainzViewModel
 {
@@ -86,8 +85,8 @@ namespace AudioStation.ViewModels.Vendor.MusicBrainzViewModel
         }
 
         Guid? _id;
-        public Guid? Id 
-        { 
+        public Guid? Id
+        {
             get { return _id; }
             set { this.RaiseAndSetIfChanged(ref _id, value); }
         }

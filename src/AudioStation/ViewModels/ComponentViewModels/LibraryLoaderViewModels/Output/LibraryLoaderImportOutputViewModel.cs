@@ -5,7 +5,7 @@ using AudioStation.Core.Database.AudioStationDatabase;
 using AudioStation.ViewModels.TagViewModels;
 using AudioStation.ViewModels.Vendor.AcoustIDViewModel;
 
-using SimpleWpf.ViewModel;
+using SimpleWpf.UI.ViewModel;
 
 namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Output
 {

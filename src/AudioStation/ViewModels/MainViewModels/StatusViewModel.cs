@@ -1,7 +1,7 @@
 ﻿using AudioStation.ViewModels.OtherViewModels;
 
 using SimpleWpf.IocFramework.Application.Attribute;
-using SimpleWpf.ViewModel;
+using SimpleWpf.UI.ViewModel;
 
 namespace AudioStation.ViewModels.MainViewModels
 {

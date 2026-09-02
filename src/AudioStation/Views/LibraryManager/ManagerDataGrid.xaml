@@ -5,7 +5,7 @@
              xmlns:xceed="http://schemas.xceed.com/wpf/xaml/toolkit"             
              xmlns:componentViewModel="clr-namespace:AudioStation.ViewModels.ComponentViewModels"             
              xmlns:system="clr-namespace:System;assembly=System.Runtime"             
-             xmlns:simpleUI="clr-namespace:SimpleWpf.UI.Controls;assembly=SimpleWpf.UI">
+             xmlns:enumUI="clr-namespace:SimpleWpf.UI.Controls.EnumUI;assembly=SimpleWpf.UI">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -24,11 +24,11 @@
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                     <TextBlock Text="Library Manager Filter" Style="{StaticResource LabelTextBlockInvert}" Margin="5" VerticalAlignment="Center" />
 
-                    <simpleUI:EnumComboBox EnumType="{x:Type componentViewModel:LibraryManagerErrorFilterType}"
-                                           EnumValue="{Binding LibraryManagerFilterType, Mode=TwoWay}"
-                                           EnumValueChanged="OnLibraryManagerFilterChanged"
-                                           VerticalAlignment="Center"
-                                           Width="200" Margin="5" />
+                    <enumUI:SimpleEnumComboBox EnumType="{x:Type componentViewModel:LibraryManagerErrorFilterType}"
+                                               EnumValue="{Binding LibraryManagerFilterType, Mode=TwoWay}"
+                                               EnumValueChanged="OnLibraryManagerFilterChanged"
+                                               VerticalAlignment="Center"
+                                               Width="200" Margin="5" />
                 </StackPanel>
             </Grid>
         </Border>

@@ -3,7 +3,7 @@
 using AudioStation.Core.Model.Vendor.ATLExtension.Interface;
 using AudioStation.Core.Utility.RecursiveComparer.Attribute;
 
-using SimpleWpf.ViewModel;
+using SimpleWpf.UI.ViewModel;
 
 namespace AudioStation.ViewModels.Vendor.ATLViewModel
 {

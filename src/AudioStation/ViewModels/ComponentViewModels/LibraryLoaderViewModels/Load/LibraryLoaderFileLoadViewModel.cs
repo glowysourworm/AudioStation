@@ -1,4 +1,4 @@
-﻿using SimpleWpf.ViewModel;
+﻿using SimpleWpf.UI.ViewModel;
 
 namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Load
 {

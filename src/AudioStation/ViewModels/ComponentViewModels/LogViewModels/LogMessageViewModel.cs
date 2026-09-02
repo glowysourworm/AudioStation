@@ -2,8 +2,7 @@
 
 using Microsoft.Extensions.Logging;
 
-using SimpleWpf.Extensions;
-using SimpleWpf.ViewModel;
+using SimpleWpf.UI.ViewModel;
 
 namespace AudioStation.ViewModels.ComponentViewModels.LogViewModels
 {

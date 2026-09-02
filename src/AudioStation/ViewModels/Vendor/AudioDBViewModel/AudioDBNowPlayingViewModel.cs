@@ -1,5 +1,4 @@
-﻿using SimpleWpf.Extensions;
-using SimpleWpf.ViewModel;
+﻿using SimpleWpf.UI.ViewModel;
 
 namespace AudioStation.ViewModels.Vendor.AudioDBViewModel
 {

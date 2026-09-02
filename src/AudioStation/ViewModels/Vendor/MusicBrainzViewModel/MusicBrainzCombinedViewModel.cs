@@ -1,12 +1,8 @@
-﻿using System.IO;
+﻿using AudioStation.ViewModels.OtherViewModels;
 
-using AudioStation.ViewModels.OtherViewModels;
-
-using MetaBrainz.MusicBrainz.CoverArt;
 using MetaBrainz.MusicBrainz.Interfaces.Entities;
 
-using SimpleWpf.Extensions;
-using SimpleWpf.ViewModel;
+using SimpleWpf.UI.ViewModel;
 
 namespace AudioStation.ViewModels.Vendor.MusicBrainzViewModel
 {

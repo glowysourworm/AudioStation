@@ -2,7 +2,7 @@
 using System.Windows.Controls;
 
 using SimpleWpf.Extensions.ObservableCollection;
-using SimpleWpf.ViewModel;
+using SimpleWpf.UI.ViewModel;
 
 namespace AudioStation.Event.DialogEvents
 {

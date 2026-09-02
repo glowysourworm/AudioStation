@@ -1,6 +1,6 @@
 ﻿using AudioStation.ViewModels.Vendor.ATLViewModel;
 
-using SimpleWpf.ViewModel;
+using SimpleWpf.UI.ViewModel;
 
 namespace AudioStation.Event.DialogEvents
 {

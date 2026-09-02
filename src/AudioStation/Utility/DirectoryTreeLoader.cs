@@ -1,9 +1,7 @@
 ﻿using System.IO;
 
-using AudioStation.ViewModels.OtherViewModels;
-
+using SimpleWpf.UI.ViewModel.FileTreeView;
 using SimpleWpf.Utilities;
-using SimpleWpf.ViewModel;
 
 namespace AudioStation.Utility
 {
@@ -18,19 +16,19 @@ namespace AudioStation.Utility
         /// <param name="stopDepth">Recursion can be halted to simulate lazy loading. The stop depth of -1 will indicate no stop depth. Anything less will cause an argument exception.</param>
         /// <param name="path">Root directory</param>
         /// <param name="fileSearchPattern">File search pattern to filter file lookup</param>
-        public static DirectoryTreeViewModel Load(string path, string fileSearchPattern, int stopDepth)
+        public static FileTreeViewModel Load(string path, string fileSearchPattern, int stopDepth)
         {
             return Load(path, fileSearchPattern, stopDepth, directory =>
             {
-                return new DirectoryTreeViewModel(directory);
+                return new FileTreeViewModel(fileSearchPattern, directory);
 
             }, (directory, fileCount) =>
             {
-                return new PathViewModel(path, directory, fileCount);
+                return new FileTreeNodeViewModel(path, directory, fileCount);
 
             }, file =>
             {
-                return new PathViewModel(path, file, 0);
+                return new FileTreeNodeViewModel(path, file, 0);
             });
         }
 
@@ -52,9 +50,9 @@ namespace AudioStation.Utility
                int stopDepth,
                Func<TDirectory, TTree> treeConstructor,
                Func<string, int, TDirectory> directoryConstructor,
-               Func<string, TFile> fileConstructor) where TDirectory : PathViewModel
-                                                    where TFile : PathViewModel
-                                                    where TTree : RecursiveDispatcherViewModel<PathViewModel>
+               Func<string, TFile> fileConstructor) where TDirectory : FileTreeNodeViewModel
+                                                    where TFile : FileTreeNodeViewModel
+                                                    where TTree : FileTreeViewModel
         {
             if (stopDepth < -1)
                 throw new ArgumentException("Must have a stop depth of -1 or greater. Please set stop depth properly.");
@@ -92,9 +90,9 @@ namespace AudioStation.Utility
                int stopDepth,
                Func<TDirectory, TTree> treeConstructor,
                Func<string, int, TDirectory> directoryConstructor,
-               Func<string, TFile> fileConstructor) where TDirectory : PathViewModel
-                                                    where TFile : PathViewModel
-                                                    where TTree : RecursiveDispatcherViewModel<PathViewModel>
+               Func<string, TFile> fileConstructor) where TDirectory : FileTreeNodeViewModel
+                                                    where TFile : FileTreeNodeViewModel
+                                                    where TTree : FileTreeViewModel
         {
             // Stop Depth
             if (stopDepth < -1)
@@ -123,7 +121,17 @@ namespace AudioStation.Utility
                     // Previously Loaded 
                     //
                     if (currentDirectory.NodeValue.IsLoaded)
+                    {
+                        // Load next directories to continue
+                        foreach (var item in currentDirectory.Children)
+                        {
+                            if (item.NodeValue.IsDirectory)
+                                directories.Push(item as TTree);
+                        }
+
                         continue;
+                    }
+
 
                     // Current Directory
                     var fileData = BasicHelpers.FastGetFileData(currentDirectory.NodeValue.FullPath, fileSearchPattern, true, SearchOption.TopDirectoryOnly);

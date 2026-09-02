@@ -6,7 +6,6 @@
              xmlns:fa5="http://schemas.fontawesome.com/icons/"
              xmlns:simpleEnum="clr-namespace:SimpleWpf.Extensions.BindingExtension;assembly=SimpleWpf"
              xmlns:simpleUI="clr-namespace:SimpleWpf.UI.Controls;assembly=SimpleWpf.UI"
-             xmlns:simpleUIModel="clr-namespace:SimpleWpf.UI.Controls.Model;assembly=SimpleWpf.UI"
              xmlns:propertyGrid="clr-namespace:AudioStation.Controls.PropertyGrid"
              xmlns:controls="clr-namespace:AudioStation.Controls"
              xmlns:system="clr-namespace:System;assembly=System"

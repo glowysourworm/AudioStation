@@ -1,6 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 
-using SimpleWpf.ViewModel;
+using SimpleWpf.UI.ViewModel;
 
 namespace AudioStation.ViewModels.ComponentViewModels.LogViewModels
 {

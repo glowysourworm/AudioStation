@@ -1,13 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using MetaBrainz.MusicBrainz.Interfaces.Entities;
 
-using MetaBrainz.MusicBrainz.Interfaces.Entities;
-
-using SimpleWpf.Extensions;
-using SimpleWpf.ViewModel;
+using SimpleWpf.UI.ViewModel;
 
 namespace AudioStation.ViewModels.Vendor.MusicBrainzViewModel
 {

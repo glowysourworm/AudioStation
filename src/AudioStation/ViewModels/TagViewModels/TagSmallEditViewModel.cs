@@ -1,7 +1,7 @@
 ﻿using AudioStation.Core.Model.Interface;
 using AudioStation.Core.Model.Vendor.ATLExtension.Interface;
 
-using SimpleWpf.ViewModel;
+using SimpleWpf.UI.ViewModel;
 
 namespace AudioStation.ViewModels.TagViewModels
 {

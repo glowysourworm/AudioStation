@@ -3,7 +3,7 @@
 using AudioStation.Core.Component.LibraryLoaderComponent;
 using AudioStation.ViewModels.ComponentViewModels.LogViewModels;
 
-using SimpleWpf.ViewModel;
+using SimpleWpf.UI.ViewModel;
 
 namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels
 {

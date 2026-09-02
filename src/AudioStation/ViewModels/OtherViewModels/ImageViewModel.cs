@@ -1,6 +1,6 @@
 ﻿using System.IO;
 
-using SimpleWpf.ViewModel;
+using SimpleWpf.UI.ViewModel;
 
 namespace AudioStation.ViewModels.OtherViewModels
 {

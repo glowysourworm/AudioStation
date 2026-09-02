@@ -13,9 +13,9 @@ using AudioStation.ViewModels.ComponentViewModels.RadioViewModels;
 
 using Microsoft.Extensions.Logging;
 
-using SimpleWpf.Extensions.Command;
 using SimpleWpf.Extensions.ObservableCollection;
 using SimpleWpf.IocFramework.Application.Attribute;
+using SimpleWpf.UI.Command;
 using SimpleWpf.Utilities;
 
 namespace AudioStation.ViewModels.ComponentViewModels

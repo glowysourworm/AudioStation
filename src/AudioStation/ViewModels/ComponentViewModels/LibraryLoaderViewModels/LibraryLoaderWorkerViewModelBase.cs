@@ -6,10 +6,10 @@ using AudioStation.Event.LibraryLoaderEvent;
 using AudioStation.EventHandler;
 using AudioStation.Service.Interface;
 
-using SimpleWpf.Extensions.Command;
 using SimpleWpf.IocFramework.EventAggregation;
 using SimpleWpf.Utilities;
-using SimpleWpf.ViewModel;
+using SimpleWpf.UI.ViewModel;
+using SimpleWpf.UI.Command;
 
 namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels
 {

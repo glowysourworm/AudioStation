@@ -1,4 +1,4 @@
-﻿using SimpleWpf.ViewModel;
+﻿using SimpleWpf.UI.ViewModel.FileTreeView;
 
 namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.Import
 {
@@ -6,19 +6,16 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
     /// Class that represents a recursive directory tree structure based on SimpleWpf's RecursiveViewModel base class. Public
     /// properties:  Children, Parent, NodeValue (which is the LibraryloaderImportFileViewModel).
     /// </summary>
-    public class LibraryImporterTreeViewModel : RecursiveDispatcherViewModel<PathViewModel>
+    public class LibraryImporterTreeViewModel : FileTreeViewModel
     {
-        public string FileSearchPattern { get; private set; }
-
-        public LibraryImporterTreeViewModel(PathViewModel nodeValue, string searchPattern, RecursiveDispatcherViewModel<PathViewModel> parent = null)
-            : base(nodeValue, parent)
+        public LibraryImporterTreeViewModel(FileTreeNodeViewModel nodeValue, string searchPattern, LibraryImporterTreeViewModel parent = null)
+            : base(searchPattern, nodeValue, parent)
         {
-            this.FileSearchPattern = searchPattern;
         }
 
-        protected override RecursiveDispatcherViewModel<PathViewModel> Construct(PathViewModel nodeValue)
+        protected override LibraryImporterTreeViewModel Construct(FileTreeNodeViewModel nodeValue)
         {
-            return new LibraryImporterTreeViewModel(nodeValue, this.FileSearchPattern, this);
+            return new LibraryImporterTreeViewModel(nodeValue, this.SearchPattern, this);
         }
 
         public bool HasSelectedParent()

@@ -1,7 +1,7 @@
 ﻿using AudioStation.ViewModels.MainViewModels;
 
-using SimpleWpf.Extensions.Command;
-using SimpleWpf.ViewModel;
+using SimpleWpf.UI.Command;
+using SimpleWpf.UI.ViewModel;
 
 namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.Import
 {

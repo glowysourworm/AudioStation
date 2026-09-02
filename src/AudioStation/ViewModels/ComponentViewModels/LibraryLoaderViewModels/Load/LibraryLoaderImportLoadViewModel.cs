@@ -1,7 +1,7 @@
 ﻿using AudioStation.Core.Component.LibraryLoaderComponent.Load.Interface;
 using AudioStation.Core.Model;
 
-using SimpleWpf.ViewModel;
+using SimpleWpf.UI.ViewModel;
 
 namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Load
 {

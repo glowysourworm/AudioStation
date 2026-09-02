@@ -41,10 +41,11 @@
     <PackageReference Include="SimpleWpf" Version="0.0.1" />
     <PackageReference Include="SimpleWpf.IocFramework" Version="0.0.1" />
     <PackageReference Include="SimpleWpf.Native" Version="0.0.1" />
+    <PackageReference Include="SimpleWpf.UI" Version="0.0.1" />
     <PackageReference Include="SimpleWpf.Utilities" Version="0.0.1" />
     <PackageReference Include="SpotifyAPI.Web" Version="7.4.2" />
     <PackageReference Include="System.IO.Hashing" Version="10.0.11" />
-    <PackageReference Include="z440.atl.core" Version="7.16.0" />
+    <PackageReference Include="z440.atl.core" Version="7.9.0" />
   </ItemGroup>
 
 </Project>

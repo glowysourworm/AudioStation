@@ -1,6 +1,6 @@
 ﻿using AudioStation.Core.Database.AudioStationDatabase;
 
-using SimpleWpf.ViewModel;
+using SimpleWpf.UI.ViewModel;
 
 namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Output
 {

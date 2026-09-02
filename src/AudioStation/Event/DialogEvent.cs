@@ -3,7 +3,7 @@
 using AudioStation.Event.DialogEvents;
 
 using SimpleWpf.IocFramework.EventAggregation;
-using SimpleWpf.ViewModel;
+using SimpleWpf.UI.ViewModel;
 
 namespace AudioStation.Event
 {

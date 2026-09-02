@@ -2,7 +2,7 @@
 using System.Windows.Controls;
 using System.Windows.Input;
 
-using SimpleWpf.Extensions.Command;
+using SimpleWpf.UI.Command;
 
 namespace AudioStation.Controls
 {

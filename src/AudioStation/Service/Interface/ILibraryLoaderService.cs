@@ -23,15 +23,10 @@ namespace AudioStation.Service.Interface
         /// <summary>
         /// Loads further directories of the importer tree
         /// </summary>
-        /// <param name="directory">Directory node (any)</param>
-        /// <param name="sourceDirectory"></param>
-        /// <param name="destinationDirectory"></param>
-        /// <param name="searchPattern"></param>
-        /// <param name="importerOptions"></param>
         public void LoadImporterTreeNextDepth(LibraryImporterTreeViewModel directory,
-                                            ILibraryDirectory sourceDirectory,
-                                            ILibraryDirectory destinationDirectory,
-                                            string searchPattern,
-                                            LibraryImporterConfigurationViewModel importerOptions);
+                                              ILibraryDirectory sourceDirectory,
+                                              ILibraryDirectory destinationDirectory,
+                                              string searchPattern,
+                                              LibraryImporterConfigurationViewModel importerOptions);
     }
 }

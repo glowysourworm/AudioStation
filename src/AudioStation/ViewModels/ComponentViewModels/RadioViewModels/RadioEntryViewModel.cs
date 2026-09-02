@@ -1,7 +1,7 @@
 ﻿using AudioStation.ViewModels.ComponentViewModels.LibraryViewModels.Comparer;
 
 using SimpleWpf.Extensions.ObservableCollection;
-using SimpleWpf.ViewModel;
+using SimpleWpf.UI.ViewModel;
 
 namespace AudioStation.ViewModels.ComponentViewModels.RadioViewModels
 {

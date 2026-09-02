@@ -3,7 +3,7 @@ using System.IO;
 
 using AudioStation.Core.Utility;
 
-using SimpleWpf.ViewModel;
+using SimpleWpf.UI.ViewModel;
 
 namespace AudioStation.ViewModels.Controls
 {

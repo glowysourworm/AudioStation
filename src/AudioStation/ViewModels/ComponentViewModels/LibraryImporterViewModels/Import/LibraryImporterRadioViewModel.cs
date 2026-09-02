@@ -3,9 +3,9 @@
 using AudioStation.Controller.Interface;
 using AudioStation.Core.Component.Interface;
 
-using SimpleWpf.Extensions.Command;
 using SimpleWpf.IocFramework.Application.Attribute;
-using SimpleWpf.ViewModel;
+using SimpleWpf.UI.Command;
+using SimpleWpf.UI.ViewModel;
 
 namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.Import
 {

@@ -3,7 +3,7 @@
 using AudioStation.Core.Model.Interface;
 
 using SimpleWpf.Utilities;
-using SimpleWpf.ViewModel;
+using SimpleWpf.UI.ViewModel;
 
 using static AudioStation.EventHandler.DialogEventHandlers;
 

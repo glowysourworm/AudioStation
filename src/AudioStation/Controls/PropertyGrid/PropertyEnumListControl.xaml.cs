@@ -4,8 +4,9 @@ using System.ComponentModel;
 using System.Windows;
 
 using SimpleWpf.Extensions;
-using SimpleWpf.UI.Controls.Model;
 using SimpleWpf.UI.Converter;
+
+using static SimpleWpf.UI.Controls.EnumUI.SimpleEnumComboBox;
 
 namespace AudioStation.Controls.PropertyGrid
 {

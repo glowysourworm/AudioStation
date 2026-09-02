@@ -6,7 +6,8 @@
              xmlns:propertyGrid="clr-namespace:AudioStation.Controls.PropertyGrid"
              xmlns:controls="clr-namespace:AudioStation.Controls"
              xmlns:coreModel="clr-namespace:AudioStation.Core.Model;assembly=AudioStation.Core"
-             xmlns:simpleUI="clr-namespace:SimpleWpf.UI.Controls;assembly=SimpleWpf.UI">
+             xmlns:simpleUI="clr-namespace:SimpleWpf.UI.Controls;assembly=SimpleWpf.UI"
+             xmlns:simpleUITreeview="clr-namespace:SimpleWpf.UI.Controls.TreeViewUI;assembly=SimpleWpf.UI">
     
     <Grid RowDefinitions="Auto, Auto, *" ColumnDefinitions="*, Auto, *">
 
@@ -33,21 +34,12 @@
                                 HorizontalAlignment="Stretch" />        
 
         <!-- Input Files -->
-        <controls:MultiSelectTreeView x:Name="ImportTV"
+        <simpleUITreeview:SimpleTreeView x:Name="ImportTV"
                   Margin="5"
                   Grid.Row="2"
-                  DisplayMemberPath="NodeValue.ShortPath"
-                  ChildItemsSourcePath="Children"
-                  CanHaveChildrenPath="NodeValue.IsDirectory"                
-                  IsSelectedPath="NodeValue.IsSelected"
-                  SelectionBrush="#2F33AAFF"
-                  HoverBrush="#0F33AAFF"
-                  BorderBrush="LightGray"
-                  BorderThickness="1"
-                  ItemExpandedEvent="ImportTV_ItemExpandedEvent"
-                  ItemsSource="{Binding SourceDirectory}"
-                  VirtualizingPanel.IsVirtualizing="True">
-        </controls:MultiSelectTreeView>
+                  Style="{StaticResource FileTreeViewItemStyle}"
+                  ItemsSource="{Binding SourceDirectory}">
+        </simpleUITreeview:SimpleTreeView>
         
         <!-- Stage / Unstage -->
         <StackPanel Orientation="Vertical" 

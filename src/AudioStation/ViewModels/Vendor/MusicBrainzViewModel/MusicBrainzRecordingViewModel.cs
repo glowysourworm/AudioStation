@@ -1,9 +1,8 @@
 ﻿using MetaBrainz.MusicBrainz;
 using MetaBrainz.MusicBrainz.Interfaces.Entities;
 
-using SimpleWpf.Extensions;
 using SimpleWpf.Extensions.Collection;
-using SimpleWpf.ViewModel;
+using SimpleWpf.UI.ViewModel;
 
 namespace AudioStation.ViewModels.Vendor.MusicBrainzViewModel
 {
@@ -182,15 +181,15 @@ namespace AudioStation.ViewModels.Vendor.MusicBrainzViewModel
             var discIndex = release?.Media?.IndexOf(media);
             var disc = 0;
 
-            if (discIndex >= 0 && 
-                release != null && 
-                release.Media != null && 
+            if (discIndex >= 0 &&
+                release != null &&
+                release.Media != null &&
                 release.Media.Count > 0 &&
                 media != null)
                 disc = discIndex.Value + 1;
 
-            return string.Format("Artist ({0}) Album ({1}) Title ({2}) Genre ({3}) Track ({4} of {5}) Disc ({6} of {7})", 
-                                 artist ?? string.Empty, 
+            return string.Format("Artist ({0}) Album ({1}) Title ({2}) Genre ({3}) Track ({4} of {5}) Disc ({6} of {7})",
+                                 artist ?? string.Empty,
                                  release?.Title ?? string.Empty,
                                  this.Title ?? string.Empty,
                                  this.Genres?.FirstOrDefault()?.Name ?? string.Empty,

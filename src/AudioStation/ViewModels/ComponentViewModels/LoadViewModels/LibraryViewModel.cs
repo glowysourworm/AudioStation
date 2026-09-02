@@ -4,9 +4,9 @@ using AudioStation.Core.Database.AudioStationDatabase;
 using AudioStation.Core.Model;
 using AudioStation.ViewModels.ComponentViewModels.LibraryViewModels;
 
-using SimpleWpf.Extensions.Command;
 using SimpleWpf.Extensions.ObservableCollection;
-using SimpleWpf.ViewModel;
+using SimpleWpf.UI.Command;
+using SimpleWpf.UI.ViewModel;
 
 namespace AudioStation.ViewModels.ComponentViewModels.LoadViewModels
 {

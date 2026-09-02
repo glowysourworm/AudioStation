@@ -1,7 +1,7 @@
 ﻿using AudioStation.ViewModels.ComponentViewModels.LibraryViewModels;
 using AudioStation.ViewModels.MainViewModels.Interface;
 
-using SimpleWpf.ViewModel;
+using SimpleWpf.UI.ViewModel;
 
 namespace AudioStation.ViewModels.MainViewModels
 {

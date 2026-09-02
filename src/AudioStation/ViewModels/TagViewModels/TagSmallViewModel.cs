@@ -2,7 +2,7 @@
 using AudioStation.ViewModels.Vendor.MusicBrainzViewModel;
 
 using SimpleWpf.Extensions.Collection;
-using SimpleWpf.ViewModel;
+using SimpleWpf.UI.ViewModel;
 
 namespace AudioStation.ViewModels.TagViewModels
 {

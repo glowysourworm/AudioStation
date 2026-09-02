@@ -21,11 +21,11 @@ using AudioStation.ViewModels.Vendor.ATLViewModel;
 using Microsoft.Extensions.Logging;
 
 using SimpleWpf.Extensions.Collection;
-using SimpleWpf.Extensions.Command;
 using SimpleWpf.Extensions.ObservableCollection;
 using SimpleWpf.IocFramework.Application.Attribute;
 using SimpleWpf.IocFramework.EventAggregation;
-using SimpleWpf.ViewModel;
+using SimpleWpf.UI.Command;
+using SimpleWpf.UI.ViewModel.FileTreeView;
 
 namespace AudioStation.ViewModels.ComponentViewModels
 {
@@ -237,7 +237,7 @@ namespace AudioStation.ViewModels.ComponentViewModels
             return this.SourceFileSelectedCount > 1;
         }
 
-        private void SourceDirectory_ItemPropertyChanged(PathViewModel item, PropertyChangedEventArgs propertyArgs)
+        private void SourceDirectory_ItemPropertyChanged(FileTreeNodeViewModel item, PropertyChangedEventArgs propertyArgs)
         {
             SourceTreeNotify();
         }

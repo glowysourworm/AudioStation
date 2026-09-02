@@ -13,10 +13,10 @@ using AudioStation.ViewModels.Vendor.AcoustIDViewModel;
 
 using Microsoft.Extensions.Logging;
 
-using SimpleWpf.Extensions.Command;
 using SimpleWpf.Extensions.Event;
 using SimpleWpf.IocFramework.Application;
-using SimpleWpf.ViewModel;
+using SimpleWpf.UI.Command;
+using SimpleWpf.UI.ViewModel.FileTreeView;
 
 namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.Import
 {
@@ -24,7 +24,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
     /// PathViewModel provides the node VALUE for the recursive directory structure. The "Path" view model is essentially
     /// the container for this value.
     /// </summary>
-    public class LibraryImporterFileViewModel : PathViewModel
+    public class LibraryImporterFileViewModel : FileTreeNodeViewModel
     {
         private readonly IAudioStationMapper _audioStationMapper;
         private readonly ILibraryImporter _libraryImporter;
@@ -64,89 +64,97 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
         public bool InError
         {
             get { return _inError; }
-            set { SetValueOverride(ref _inError, value); }
+            set { this.RaiseAndSetIfChanged(ref _inError, value); }
         }
         public bool IsTagDirty
         {
             get { return _isTagDirty; }
-            set { SetValueOverride(ref _isTagDirty, value); }
+            set { this.RaiseAndSetIfChanged(ref _isTagDirty, value); }
         }
         public string FileMigrationName
         {
             get { return _fileMigrationName; }
-            set { SetValueOverride(ref _fileMigrationName, value); }
+            set { this.RaiseAndSetIfChanged(ref _fileMigrationName, value); }
         }
         public string FileMigrationFullPath
         {
             get { return _fileMigrationFullPath; }
-            set { SetValueOverride(ref _fileMigrationFullPath, value); }
+            set { this.RaiseAndSetIfChanged(ref _fileMigrationFullPath, value); }
         }
         public bool MinimumImportValid
         {
             get { return _minimumImportValid; }
-            set { SetValueOverride(ref _minimumImportValid, value); }
+            set { this.RaiseAndSetIfChanged(ref _minimumImportValid, value); }
         }
         public TagSmallEditViewModel Tag
         {
             get { return _tag; }
-            set { SetValueOverride(ref _tag, value); }
+            set { this.RaiseAndSetIfChanged(ref _tag, value); }
         }
         public TagSmallViewModel MusicBrainzTag
         {
             get { return _musicBrainzTag; }
-            set { SetValueOverride(ref _musicBrainzTag, value); }
+            set { this.RaiseAndSetIfChanged(ref _musicBrainzTag, value); }
+        }
+        public AudioStationTag TagClean
+        {
+            get { return _tagClean; }
+            set { this.RaiseAndSetIfChanged(ref _tagClean, value); }
+        }
+        public AudioStationTag TagDirty
+        {
+            get { return _tagDirty; }
+            set { this.RaiseAndSetIfChanged(ref _tagDirty, value); }
         }
         public LibraryLoaderImportOutputViewModel ImportOutput
         {
             get { return _importOutput; }
-            set { SetValueOverride(ref _importOutput, value); }
+            set { this.RaiseAndSetIfChanged(ref _importOutput, value); }
         }
         public LibraryLoaderImportLoadViewModel ImportLoad
         {
             get { return _importLoad; }
-            set { SetValueOverride(ref _importLoad, value); }
+            set { this.RaiseAndSetIfChanged(ref _importLoad, value); }
         }
-
         public AcoustIDLookupResultViewModel SelectedAcoustIDResult
         {
             get { return _selectedAcoustIDResult; }
-            set { SetValueOverride(ref _selectedAcoustIDResult, value); Update(); }
+            set { this.RaiseAndSetIfChanged(ref _selectedAcoustIDResult, value); }
         }
         public TagSmallViewModel SelectedMusicBrainzRecordingMatch
         {
             get { return _selectedMusicBrainzRecordingMatch; }
-            set { SetValueOverride(ref _selectedMusicBrainzRecordingMatch, value); Update(); }
+            set { this.RaiseAndSetIfChanged(ref _selectedMusicBrainzRecordingMatch, value); }
         }
-
         public SimpleCommand SelectMusicBrainzCommand
         {
             get { return _selectMusicBrainzCommand; }
-            set { SetValueOverride(ref _selectMusicBrainzCommand, value); }
+            set { this.RaiseAndSetIfChanged(ref _selectMusicBrainzCommand, value); }
         }
         public SimpleCommand SelectAcoustIDCommand
         {
             get { return _selectAcoustIDCommand; }
-            set { SetValueOverride(ref _selectAcoustIDCommand, value); }
+            set { this.RaiseAndSetIfChanged(ref _selectAcoustIDCommand, value); }
         }
         public SimpleCommand PlayAudioCommand
         {
             get { return _playAudioCommand; }
-            set { SetValueOverride(ref _playAudioCommand, value); }
+            set { this.RaiseAndSetIfChanged(ref _playAudioCommand, value); }
         }
         public SimpleCommand SaveTagCommand
         {
             get { return _saveTagCommand; }
-            set { SetValueOverride(ref _saveTagCommand, value); }
+            set { this.RaiseAndSetIfChanged(ref _saveTagCommand, value); }
         }
         public SimpleCommand CopyMusicBrainzToTagCommand
         {
             get { return _copyMusicBrainzToTagCommand; }
-            set { SetValueOverride(ref _copyMusicBrainzToTagCommand, value); }
+            set { this.RaiseAndSetIfChanged(ref _copyMusicBrainzToTagCommand, value); }
         }
         public SimpleCommand RefreshCommand
         {
             get { return _refreshCommand; }
-            set { SetValueOverride(ref _refreshCommand, value); }
+            set { this.RaiseAndSetIfChanged(ref _refreshCommand, value); }
         }
 
         bool _updating;

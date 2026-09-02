@@ -7,9 +7,9 @@ using AudioStation.Event.DialogEvents;
 using AudioStation.EventHandler;
 using AudioStation.ViewModels.ComponentViewModels.LoadViewModels;
 
-using SimpleWpf.Extensions.Command;
 using SimpleWpf.IocFramework.Application.Attribute;
 using SimpleWpf.IocFramework.EventAggregation;
+using SimpleWpf.UI.Command;
 
 namespace AudioStation.ViewModels.ComponentViewModels
 {

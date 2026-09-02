@@ -1,10 +1,10 @@
 ﻿using AudioStation.Core.Service.Vendor.Bandcamp.Interface;
 using AudioStation.Event;
 
-using SimpleWpf.Extensions.Command;
 using SimpleWpf.IocFramework.Application.Attribute;
 using SimpleWpf.IocFramework.EventAggregation;
-using SimpleWpf.ViewModel;
+using SimpleWpf.UI.Command;
+using SimpleWpf.UI.ViewModel;
 
 namespace AudioStation.ViewModels.Vendor
 {

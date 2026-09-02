@@ -7,16 +7,12 @@ using AudioStation.Controller.Interface;
 using AudioStation.Controls;
 using AudioStation.Core.Controller.Interface;
 using AudioStation.Core.Service.Vendor.Interface;
-using AudioStation.Model;
 using AudioStation.ViewModels.ComponentViewModels.LibraryViewModels;
 using AudioStation.ViewModels.ComponentViewModels.LoadViewModels;
-using AudioStation.ViewModels.Vendor.ATLViewModel;
 using AudioStation.Views.LibraryEntryViews;
 
-using Microsoft.Extensions.Logging;
-
-using SimpleWpf.Extensions.Command;
 using SimpleWpf.IocFramework.Application.Attribute;
+using SimpleWpf.UI.Command;
 
 namespace AudioStation.Views.LibraryManager
 {
