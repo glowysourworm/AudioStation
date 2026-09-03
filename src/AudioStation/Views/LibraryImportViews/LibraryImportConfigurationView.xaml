@@ -5,67 +5,80 @@
              xmlns:fa5="http://schemas.fontawesome.com/icons/"
              xmlns:propertyGrid="clr-namespace:AudioStation.Controls.PropertyGrid"
              xmlns:coreModel="clr-namespace:AudioStation.Core.Model;assembly=AudioStation.Core"
-             xmlns:simpleUI="clr-namespace:SimpleWpf.UI.Controls;assembly=SimpleWpf.UI">
+             xmlns:simpleUI="clr-namespace:SimpleWpf.UI.Controls;assembly=SimpleWpf.UI"
+             xmlns:enumUI="clr-namespace:SimpleWpf.UI.Controls.EnumUI;assembly=SimpleWpf.UI"
+             xmlns:configurationView="clr-namespace:AudioStation.Views.Configuration">
 
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
-        </Grid.RowDefinitions>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="260" />
-            <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="Auto" />
-        </Grid.ColumnDefinitions>
+    <Grid RowDefinitions="Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto, *" ColumnDefinitions="260, *, Auto">
 
         <Border Grid.ColumnSpan="3" 
-                CornerRadius="5" 
                 Margin="5"
-                Background="#FFEEEEEE" 
-                BorderBrush="Gray" 
-                BorderThickness="1">
-            <TextBlock Style="{StaticResource LabelTextBlock}" Margin="10" TextWrapping="Wrap" 
-                       Text="This import task will load all files from your chosen directory (and sub directories) into the library's database - with options for how to gather their tag data. This will apply gathered tag data from AcoustID, and MusicBrainz, to the mp3 file; and then move it into its final location." />
+                Visibility="{Binding Options.ImportType, 
+                                     Converter={StaticResource ParameterVisibilityCollapsedConverter}, 
+                                     ConverterParameter={x:Static coreModel:LibraryImportType.InPlaceDirectory}}"
+                Style="{StaticResource InstructionsBorderStyle}">
+
+            <TextBlock Style="{StaticResource InstructionsTextBlockStyle}" TextWrapping="Wrap" 
+                       Text="In Place Migration:  Import files into the library AS IS. This will prevent Audio Station from migrating, writing, or deleting files or directories." />
         </Border>
 
-        <TextBlock Text="Import Source Directory" Style="{StaticResource LabelTextBlock}" Margin="5" Grid.Row="1" />
-        <TextBlock Text="Import Source Type" Style="{StaticResource LabelTextBlock}" Margin="5" Grid.Row="2" />
+        <Border Grid.ColumnSpan="3" 
+                Margin="5"
+                Visibility="{Binding Options.ImportType, 
+                                     Converter={StaticResource ParameterVisibilityCollapsedConverter}, 
+                                     ConverterParameter={x:Static coreModel:LibraryImportType.Migration}}"                
+                Style="{StaticResource InstructionsBorderStyle}">
+
+            <TextBlock Style="{StaticResource InstructionsTextBlockStyle}" TextWrapping="Wrap" 
+                       Text="Migration (recommended):  This will take files from one location, convert them (optionally), apply tag information to them, and move them into a neatly organized library directory." />
+        </Border>
+
+        <TextBlock Text="Import Type" Style="{StaticResource LabelTextBlock}" Margin="5" Grid.Row="1" />
+        <TextBlock Text="Import Source Directory" Style="{StaticResource LabelTextBlock}" Margin="5" Grid.Row="2" />
         <TextBlock Text="Import Music Brainz Detail" Style="{StaticResource LabelTextBlock}" Margin="5" Grid.Row="3" />
         <TextBlock Text="Identify Using Acoustic Fingerprinting" Style="{StaticResource LabelTextBlock}" Margin="5" Grid.Row="4" />
         <TextBlock Text="Import File Migration" Style="{StaticResource LabelTextBlock}" Margin="5" Grid.Row="5" />
 
-        <!-- Source Folder -->
-        <TextBox Text="{Binding SourceFolder}" Style="{StaticResource UserInputTextBoxReadonly}" Grid.Column="1" Grid.Row="1" Margin="5" />
-        <Button Grid.Column="2" Command="{Binding SelectSourceFolderCommand}" Margin="5" Style="{StaticResource SmallControlButton}" Grid.Row="1">
-            <fa5:SvgAwesome Icon="Regular_FolderOpen" Height="16" Width="16" />
-        </Button>
-
         <!-- Import As -->
-        <StackPanel Orientation="Horizontal" Grid.Row="2" Grid.Column="1">
-            <RadioButton VerticalContentAlignment="Center" Content="Music" Margin="5" IsChecked="{Binding ImportAsType, Converter={StaticResource ParameterEqualityBoolConverter}, ConverterParameter={x:Static coreModel:TrackType.Music}}" />
-            <RadioButton VerticalContentAlignment="Center" Content="Audio Book" Margin="5" IsChecked="{Binding ImportAsType, Converter={StaticResource ParameterEqualityBoolConverter}, ConverterParameter={x:Static coreModel:TrackType.AudioBook}}" />
-        </StackPanel>
+        <enumUI:SimpleEnumComboBox Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2"
+                                   EnumType="{x:Type coreModel:LibraryImportType}"
+                                   EnumValue="{Binding Options.ImportType, Mode=TwoWay}"
+                                   Margin="5" />        
+        
+        <!-- Source Folder (Migration) -->
+        <Grid Grid.Column="1" 
+              Grid.Row="2" 
+              ColumnDefinitions="*, Auto">
+            
+            <TextBox Text="{Binding SourceFolder}" Style="{StaticResource UserInputTextBoxReadonly}" Margin="5" Grid.Column="0" />
+            <Button Grid.Column="1" Command="{Binding SelectSourceFolderCommand}" Margin="5" Style="{StaticResource SmallControlButton}">
+                <fa5:SvgAwesome Icon="Regular_FolderOpen" Height="16" Width="16" />
+            </Button>
+            
+        </Grid>
+        
+        <!-- Source Folder (In Place, or Library reference directories) -->
+        <configurationView:ConfigurationLibraryDirectoriesView x:Name="LibraryDirectoriesView"
+                                                               Grid.Column="1" 
+                                                               Grid.Row="3" 
+                                                               Margin="5"
+                                                               ConfigurationLocked="True"
+                                                               />
 
         <!-- Import Music Brainz Detail -->
-        <CheckBox IsChecked="{Binding IncludeMusicBrainzDetail}" Grid.Row="3" Grid.Column="1" 
+        <CheckBox IsChecked="{Binding IncludeMusicBrainzDetail}" Grid.Row="4" Grid.Column="1" 
                   VerticalContentAlignment="Center"
                   Foreground="Gray"
                   Content="(This will use an available Music Brainz ID to fill out tag data needed for your import - overwriting existing tag data)" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5" />
 
         <!-- Identify Using AcoustID -->
-        <CheckBox IsChecked="{Binding IdentifyUsingAcoustID}" Grid.Row="4" Grid.Column="1" 
+        <CheckBox IsChecked="{Binding IdentifyUsingAcoustID}" Grid.Row="5" Grid.Column="1" 
                   VerticalContentAlignment="Center"
                   Foreground="Gray"
                   Content="(This will utilize the AcoustID service to gather tag data for the track using Music Brainz)" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5" />
 
         <!-- Is File Migration -->
-        <CheckBox IsChecked="{Binding ImportFileMigration}" Grid.Row="5" Grid.Column="1" 
+        <CheckBox IsChecked="{Binding ImportFileMigration}" Grid.Row="6" Grid.Column="1" 
                   VerticalContentAlignment="Center"
                   Foreground="Gray"
                   Content="(This will enable you to move and delete your library files while importing them)" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5" />
@@ -75,7 +88,7 @@
                   Foreground="Gray" 
                   Margin="5"
                   Grid.Column="1" 
-                  Grid.Row="6">
+                  Grid.Row="7">
             <StackPanel>
                 <propertyGrid:PropertyStringControl LabelColumnWidth="250" Value="{Binding DestinationFolder}" IsReadOnly="True" Margin="5" LabelText="Destination Folder Base" />
                 <propertyGrid:PropertyStringControl LabelColumnWidth="250" Value="{Binding DestinationMusicSubFolder}" IsReadOnly="True" Margin="5" LabelText="Destination Music Folder" />

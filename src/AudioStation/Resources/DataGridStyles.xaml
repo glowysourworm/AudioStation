@@ -179,4 +179,52 @@
         </Border>
     </DataTemplate>
 
+    <Style TargetType="DataGridRow" x:Key="LibraryFoldersDataGridRowStyle">
+
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderBrush" Value="LightGray" />
+        <Setter Property="BorderThickness" Value="1 1 1 1" />
+
+        <Style.Triggers>
+
+            <DataTrigger Binding="{Binding IsPrimary}" Value="True">
+                <Setter Property="BorderBrush" Value="#8F000000" />
+            </DataTrigger>
+
+            <Trigger Property="ItemsControl.AlternationIndex" Value="0">
+                <Setter Property="Background" Value="#01FFFFFF" />
+            </Trigger>
+            <Trigger Property="ItemsControl.AlternationIndex" Value="1">
+                <Setter Property="Background" Value="AliceBlue" />
+            </Trigger>
+
+            <Trigger Property="IsSelected" Value="True">
+                <Setter Property="Background" Value="#0F000000" />
+            </Trigger>
+
+
+        </Style.Triggers>
+    </Style>
+
+    <Style TargetType="DataGrid" x:Key="LibraryFoldersDataGridStyle">
+        <Setter Property="AutoGenerateColumns" Value="False" />
+        <Setter Property="GridLinesVisibility" Value="All" />
+        <Setter Property="BorderBrush" Value="LightGray" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="HorizontalGridLinesBrush" Value="LightGray" />
+        <Setter Property="VerticalGridLinesBrush" Value="LightGray" />
+        <Setter Property="CanUserAddRows" Value="False" />
+        <Setter Property="CanUserDeleteRows" Value="False" />
+        <Setter Property="CanUserReorderColumns" Value="False" />
+        <Setter Property="CanUserResizeColumns" Value="False" />
+        <Setter Property="AlternationCount" Value="2" />
+        <Setter Property="RowHeaderWidth" Value="0" />
+        <Setter Property="Background" Value="White" />
+        <Setter Property="ItemContainerStyle" Value="{StaticResource LibraryFoldersDataGridRowStyle}" />
+        <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Hidden" />
+        <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto" />
+        <Setter Property="SelectionMode" Value="Single" />
+        <Setter Property="SelectionUnit" Value="FullRow" />
+    </Style>
+
 </ResourceDictionary>

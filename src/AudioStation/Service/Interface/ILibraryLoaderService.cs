@@ -1,4 +1,5 @@
-﻿using AudioStation.Core.Model.Interface;
+﻿using AudioStation.Core;
+using AudioStation.Core.Model.Interface;
 using AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.Import;
 
 using static AudioStation.EventHandler.DialogEventHandlers;
@@ -10,7 +11,7 @@ namespace AudioStation.Service.Interface
         /// <summary>
         /// Initialization of the view model - this should be run during startup
         /// </summary>
-        void Initialize(DialogProgressHandler progressHandler);
+        void Initialize(AudioStationConfiguration configuration, DialogProgressHandler progressHandler);
 
         /// <summary>
         /// Initializes the library importer directory to recursion depth 0.

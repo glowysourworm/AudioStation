@@ -2,15 +2,17 @@
 using System.Windows.Threading;
 
 using AudioStation.Controller.Interface;
+using AudioStation.Core;
 using AudioStation.Core.Component.CDPlayer.Interface;
-using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Controller.Interface;
+using AudioStation.Core.Service.Interface;
 using AudioStation.Core.Utility.FileUtility;
 using AudioStation.Service.Interface;
 
 using NAudio.Lame;
 using NAudio.Wave;
 
+using SimpleWpf.Extensions.Event;
 using SimpleWpf.IocFramework.Application.Attribute;
 using SimpleWpf.Utilities;
 
@@ -20,17 +22,18 @@ namespace AudioStation.Service
     public class CDImportService : ICDImportService
     {
         private readonly IDialogController _dialogController;
-        private readonly IAudioStationConfigurationManager _configurationManager;
         private readonly ICDDrive _cdDrive;
         private readonly IFileController _fileController;
 
+        public event SimpleEventHandler<IAudioStationService, IAudioStationService.Status> StatusChangeEvent;
+
+        AudioStationConfiguration _configuration;
+
         [IocImportingConstructor]
-        public CDImportService(IAudioStationConfigurationManager configurationManager,
-                               IDialogController dialogController,
+        public CDImportService(IDialogController dialogController,
                                ICDDrive cdDrive,
                                IFileController fileController)
         {
-            _configurationManager = configurationManager;
             _dialogController = dialogController;
             _cdDrive = cdDrive;
             _fileController = fileController;
@@ -40,8 +43,6 @@ namespace AudioStation.Service
         {
             if (string.IsNullOrWhiteSpace(artist) || string.IsNullOrWhiteSpace(album))
                 throw new ArgumentException("Must have artist and album for the CD import");
-
-            var configuration = _configurationManager.GetValidConfiguration();
 
             return Task.Run(() =>
             {
@@ -72,7 +73,7 @@ namespace AudioStation.Service
                 }
 
 
-                var directory = configuration.StagingFolder.Directory;
+                var directory = _configuration.StagingFolder.Directory;
                 var artistFolder = MigrationHelpers.MakeFriendlyPath(false, artist);
                 var albumFolder = MigrationHelpers.MakeFriendlyPath(false, album);
                 var hasDiscFolder = discCount > 1;
@@ -117,5 +118,49 @@ namespace AudioStation.Service
                 }
             });
         }
+
+        #region (public) IAudioStationService
+
+        public string GetDisplayName()
+        {
+            return "CD Import Service";
+        }
+
+        public string GetName()
+        {
+            return "CDImportService";
+        }
+
+        public IAudioStationService.Status GetStatus()
+        {
+            return IAudioStationService.Status.Idle;
+        }
+
+        public string GetStatusMessage()
+        {
+            return IAudioStationService.GetDefaultStatusMessage(IAudioStationService.Status.Idle);
+        }
+        public IAudioStationService.Status Initialize(AudioStationConfiguration configuration)
+        {
+            _configuration = configuration;
+
+            return IAudioStationService.Status.Idle;
+        }
+
+        public Task<IAudioStationService.Status> InitializeAsync(AudioStationConfiguration configuration)
+        {
+            return Task.FromResult(Initialize(configuration));
+        }
+
+        public IAudioStationService.Status ReInitialize(AudioStationConfiguration configuration)
+        {
+            return Initialize(configuration);
+        }
+
+        public Task<IAudioStationService.Status> ReInitializeAsync(AudioStationConfiguration configuration)
+        {
+            return Task.FromResult(ReInitialize(configuration));
+        }
+        #endregion
     }
 }

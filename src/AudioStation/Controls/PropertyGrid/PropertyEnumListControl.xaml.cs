@@ -1,12 +1,4 @@
-﻿using System.Collections;
-using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Windows;
-
-using SimpleWpf.Extensions;
-using SimpleWpf.UI.Converter;
-
-using static SimpleWpf.UI.Controls.EnumUI.SimpleEnumComboBox;
+﻿using System.Windows;
 
 namespace AudioStation.Controls.PropertyGrid
 {
@@ -60,65 +52,65 @@ namespace AudioStation.Controls.PropertyGrid
 
         private static void OnEnumChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            var control = d as PropertyEnumListControl;
+            //var control = d as PropertyEnumListControl;
 
-            // Have to build this in code behind because we can't mix Binding / MultiBinding inside of
-            // a MultiBinding
-            //
-            if (control != null && control.EnumValue != null && control.EnumType != null)
-            {
-                // Create the ObservableCollection based on the settings we have
-                var converter = new EnumObservableCollectionConverter();
-                var collection = converter.Convert(control.EnumValue, null, null, null) as IList;
+            //// Have to build this in code behind because we can't mix Binding / MultiBinding inside of
+            //// a MultiBinding
+            ////
+            //if (control != null && control.EnumValue != null && control.EnumType != null)
+            //{
+            //    // Create the ObservableCollection based on the settings we have
+            //    var converter = new EnumObservableCollectionConverter();
+            //    var collection = converter.Convert(control.EnumValue, null, null, null) as IList;
 
-                // Use a separate source collection (the EnumObservableCollection was setup to be readonly)
-                var enumCollection = new ObservableCollection<EnumItem>();
+            //    // Use a separate source collection (the EnumObservableCollection was setup to be readonly)
+            //    var enumCollection = new ObservableCollection<EnumItem>();
 
-                var typeConverter = new TypeConverter();
+            //    var typeConverter = new TypeConverter();
 
-                // Filter the collection based on enum settings
-                foreach (var item in collection.Cast<EnumItem>())
-                {
-                    // Flags
-                    if (control.EnumType.GetAttribute<FlagsAttribute>() != null)
-                    {
-                        if (control.EnumFilter != null &&
-                           (item.Value as Enum).HasFlag(control.EnumFilter))
-                        {
-                            continue;
-                        }
+            //    // Filter the collection based on enum settings
+            //    foreach (var item in collection.Cast<EnumItem>())
+            //    {
+            //        // Flags
+            //        if (control.EnumType.GetAttribute<FlagsAttribute>() != null)
+            //        {
+            //            if (control.EnumFilter != null &&
+            //               (item.Value as Enum).HasFlag(control.EnumFilter))
+            //            {
+            //                continue;
+            //            }
 
-                        // Set Values Only
-                        if (control.ShowSetEnumValuesOnly &&
-                           !control.EnumValue.HasFlag(item.Value as Enum))
-                        {
-                            continue;
-                        }
+            //            // Set Values Only
+            //            if (control.ShowSetEnumValuesOnly &&
+            //               !control.EnumValue.HasFlag(item.Value as Enum))
+            //            {
+            //                continue;
+            //            }
 
-                        // Remove Zero Enum
-                        if (!control.ShowZeroEnum)
-                        {
-                            if (Enum.GetUnderlyingType(control.EnumType) == typeof(int))
-                            {
-                                if ((int)item.Value == 0)
-                                    continue;
-                            }
+            //            // Remove Zero Enum
+            //            if (!control.ShowZeroEnum)
+            //            {
+            //                if (Enum.GetUnderlyingType(control.EnumType) == typeof(int))
+            //                {
+            //                    if ((int)item.Value == 0)
+            //                        continue;
+            //                }
 
-                            else if (Enum.GetUnderlyingType(control.EnumType) == typeof(uint))
-                            {
-                                if ((uint)item.Value == 0)
-                                    continue;
-                            }
-                            else
-                                throw new Exception("Unhandled enum type:  PropertyEnumListControl.cs");
-                        }
-                    }
+            //                else if (Enum.GetUnderlyingType(control.EnumType) == typeof(uint))
+            //                {
+            //                    if ((uint)item.Value == 0)
+            //                        continue;
+            //                }
+            //                else
+            //                    throw new Exception("Unhandled enum type:  PropertyEnumListControl.cs");
+            //            }
+            //        }
 
-                    enumCollection.Add(item);
-                }
+            //        enumCollection.Add(item);
+            //    }
 
-                control.EnumLB.ItemsSource = enumCollection;
-            }
+            //    control.EnumLB.ItemsSource = enumCollection;
+            //}
         }
 
         public override bool Validate()

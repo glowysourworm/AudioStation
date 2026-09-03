@@ -1,28 +1,31 @@
 ﻿using System.IO;
 
-using AudioStation.Core.Component.Interface;
+using AudioStation.Component.Interface;
+using AudioStation.Core;
+using AudioStation.Core.Component;
 using AudioStation.Core.Utility;
+using AudioStation.Event;
 using AudioStation.Model;
 
 using Microsoft.Extensions.Logging;
 
+using SimpleWpf.Extensions.Event;
 using SimpleWpf.IocFramework.Application.Attribute;
 
-namespace AudioStation.Core.Component
+namespace AudioStation.Component
 {
     [IocExport(typeof(IAudioStationConfigurationManager))]
     public class AudioStationConfigurationManager : IAudioStationConfigurationManager
     {
-        private readonly IAudioStationMapper _audioStationMapper;
-
         private const string CONFIGURATION_FILE = ".AudioStation";
 
         AudioStationConfiguration _configuration;
 
+        public event SimpleEventHandler<AudioStationConfiguration, ConfigurationEventType, bool> ConfigurationEvent;
+
         [IocImportingConstructor]
-        public AudioStationConfigurationManager(IAudioStationMapper audioStationMapper)
+        public AudioStationConfigurationManager()
         {
-            _audioStationMapper = audioStationMapper;
         }
 
         public void Initialize(string? configurationFile)
@@ -31,10 +34,16 @@ namespace AudioStation.Core.Component
             var configFileName = string.IsNullOrWhiteSpace(configurationFile) ? CONFIGURATION_FILE : configurationFile;
 
             _configuration = this.Open(configFileName);
+
+            if (this.ConfigurationEvent != null)
+                this.ConfigurationEvent(_configuration, ConfigurationEventType.Open, ValidateConfiguration());
         }
 
         public AudioStationConfiguration GetConfiguration()
         {
+            if (_configuration == null)
+                throw new Exception("Configuration not properly initialized. Cannot get a valid configuration. Please make sure to properly set configuration path.");
+
             return _configuration;
         }
 
@@ -55,6 +64,9 @@ namespace AudioStation.Core.Component
         {
             _configuration = configuration;
 
+            if (this.ConfigurationEvent != null)
+                this.ConfigurationEvent(_configuration, ConfigurationEventType.Modified, ValidateConfiguration());
+
             Save();
         }
 
@@ -69,6 +81,9 @@ namespace AudioStation.Core.Component
                 Serializer.Serialize(_configuration, configPath);
 
                 ApplicationHelpers.Log("Configuration saved successfully: {0}", LogLevel.Information, null, configPath);
+
+                if (this.ConfigurationEvent != null)
+                    this.ConfigurationEvent(_configuration, ConfigurationEventType.Saved, ValidateConfiguration());
             }
             catch (Exception ex)
             {

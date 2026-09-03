@@ -1,15 +1,17 @@
 ﻿using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
 
+using AudioStation.Controller.Interface;
 using AudioStation.Core.Model.Interface;
 using AudioStation.Event;
 using AudioStation.Event.DialogEvents;
-using AudioStation.EventHandler;
 using AudioStation.ViewModels.ComponentViewModels.LoadViewModels;
 
 using SimpleWpf.IocFramework.Application.Attribute;
 using SimpleWpf.IocFramework.EventAggregation;
 using SimpleWpf.UI.Command;
+
+using static AudioStation.EventHandler.DialogEventHandlers;
 
 namespace AudioStation.ViewModels.ComponentViewModels
 {
@@ -26,7 +28,7 @@ namespace AudioStation.ViewModels.ComponentViewModels
     }
 
     [IocExportDefault]
-    public class LibraryManagerViewModel : ComponentViewModelBase<LibraryViewModel>
+    public class LibraryManagerViewModel : ComponentViewModelBase
     {
         LibraryViewModel _library;
 
@@ -54,8 +56,6 @@ namespace AudioStation.ViewModels.ComponentViewModels
             get { return _convertCommand; }
             set { this.RaiseAndSetIfChanged(ref _convertCommand, value); }
         }
-
-        public override LibraryViewModel Load { get { return this.Library; } }
 
         [IocImportingConstructor]
         public LibraryManagerViewModel(IIocEventAggregator eventAggregator)
@@ -99,9 +99,9 @@ namespace AudioStation.ViewModels.ComponentViewModels
             });
         }
 
-        protected override void InitializeWork(IAudioStationConfiguration configuration, LibraryViewModel load, DialogEventHandlers.DialogProgressHandler progressHandler)
+        protected override void InitializeWork(IAudioStationConfiguration configuration, IAudioStationViewModelController viewModelController, DialogProgressHandler progressHandler)
         {
-            this.Library = load;
+            //this.Library = load;
 
             //try
             //{
@@ -125,11 +125,6 @@ namespace AudioStation.ViewModels.ComponentViewModels
             //    ApplicationHelpers.Log("Error loading non-converted files:  {0}", LogLevel.Error, ex, ex.Message);
             //    this.NonConvertedFiles.Clear();
             //}
-        }
-
-        public override void Dispose()
-        {
-
         }
     }
 }

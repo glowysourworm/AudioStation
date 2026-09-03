@@ -5,10 +5,8 @@ using AudioStation.Core.Database.AudioStationDatabase;
 using AudioStation.Core.Model.Interface;
 using AudioStation.Core.Service.Vendor;
 using AudioStation.Core.Utility;
-using AudioStation.EventHandler;
 using AudioStation.Service.Interface;
 using AudioStation.ViewModels.ComponentViewModels.LibraryViewModels.Comparer;
-using AudioStation.ViewModels.ComponentViewModels.LoadViewModels;
 using AudioStation.ViewModels.ComponentViewModels.RadioViewModels;
 
 using Microsoft.Extensions.Logging;
@@ -18,10 +16,12 @@ using SimpleWpf.IocFramework.Application.Attribute;
 using SimpleWpf.UI.Command;
 using SimpleWpf.Utilities;
 
+using static AudioStation.EventHandler.DialogEventHandlers;
+
 namespace AudioStation.ViewModels.ComponentViewModels
 {
     [IocExportDefault]
-    public class RadioViewModel : ComponentViewModelBase<NoViewModel>
+    public class RadioViewModel : ComponentViewModelBase
     {
         // Our Primary Library Collections
         SortedObservableCollection<RadioEntryViewModel> _radioEntries;
@@ -51,7 +51,6 @@ namespace AudioStation.ViewModels.ComponentViewModels
             set { this.RaiseAndSetIfChanged(ref _importM3UCommand, value); }
         }
 
-        public override NoViewModel? Load { get; }
 
         [IocImportingConstructor]
         public RadioViewModel(ILibraryLoaderWorkerService libraryLoaderService,
@@ -74,13 +73,8 @@ namespace AudioStation.ViewModels.ComponentViewModels
             });
         }
 
-        protected override void InitializeWork(IAudioStationConfiguration configuration, NoViewModel load, DialogEventHandlers.DialogProgressHandler progressHandler)
+        protected override void InitializeWork(IAudioStationConfiguration configuration, IAudioStationViewModelController viewModelController, DialogProgressHandler progressHandler)
         {
-        }
-
-        public override void Dispose()
-        {
-
         }
 
         public async void SearchRadioBrowser(string search)

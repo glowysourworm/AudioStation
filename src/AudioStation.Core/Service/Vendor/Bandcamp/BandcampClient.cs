@@ -1,7 +1,5 @@
 ﻿using System.IO;
 
-using AudioStation.Core.Component.Interface;
-using AudioStation.Core.Controller.Interface;
 using AudioStation.Core.Service.Interface;
 using AudioStation.Core.Service.Vendor.Bandcamp.Interface;
 using AudioStation.Core.Utility;
@@ -18,25 +16,15 @@ namespace AudioStation.Core.Service.Vendor.Bandcamp
     [IocExport(typeof(IBandcampClient))]
     public class BandcampClient : IBandcampClient
     {
-        private readonly IAudioStationConfigurationManager _configurationManager;
-        private readonly IOutputController _outputController;
-        private readonly ILoggerFactory _loggerFactory;
-        private readonly IFileController _fileController;
+        AudioStationConfiguration _configuration;
 
         // IAudioStationComponent
         //
         public event SimpleEventHandler<IAudioStationService, IAudioStationService.Status> StatusChangeEvent;
 
         [IocImportingConstructor]
-        public BandcampClient(IAudioStationConfigurationManager configurationManager,
-                              IOutputController outputController,
-                              ILoggerFactory loggerFactory,
-                              IFileController fileController)
+        public BandcampClient()
         {
-            _configurationManager = configurationManager;
-            _outputController = outputController;
-            _loggerFactory = loggerFactory;
-            _fileController = fileController;
         }
 
         //public async Task Download(string artist)
@@ -95,8 +83,7 @@ namespace AudioStation.Core.Service.Vendor.Bandcamp
                     string.IsNullOrWhiteSpace(album.Title?.Title))
                     throw new Exception("Error reading data from Bandcamp API. Invalid or incomplete data set.");
 
-                var configuration = _configurationManager.GetValidConfiguration();
-                var baseFolder = Path.Combine(configuration.DownloadFolder.Directory, "Bandcamp");
+                var baseFolder = Path.Combine(_configuration.DownloadFolder.Directory, "Bandcamp");
                 var artistFolder = Path.Combine(baseFolder, MigrationHelpers.MakeFriendlyPath(false, album.Artist));
                 var albumFolder = Path.Combine(artistFolder, MigrationHelpers.MakeFriendlyPath(false, album.Title.Title));
 
@@ -154,6 +141,8 @@ namespace AudioStation.Core.Service.Vendor.Bandcamp
         }
         public IAudioStationService.Status Initialize(AudioStationConfiguration configuration)
         {
+            _configuration = configuration;
+
             return IAudioStationService.Status.Idle;
         }
 

@@ -1,8 +1,8 @@
 ﻿using System.Windows.Threading;
 
+using AudioStation.Controller.Interface;
 using AudioStation.Core.Event;
 using AudioStation.Core.Model.Interface;
-using AudioStation.EventHandler;
 using AudioStation.Model;
 using AudioStation.ViewModels.ComponentViewModels.LogViewModels;
 
@@ -10,13 +10,13 @@ using SimpleWpf.IocFramework.Application.Attribute;
 using SimpleWpf.IocFramework.EventAggregation;
 using SimpleWpf.Utilities;
 
+using static AudioStation.EventHandler.DialogEventHandlers;
+
 namespace AudioStation.ViewModels.ComponentViewModels
 {
     [IocExportDefault]
-    public class LogViewModel : ComponentViewModelBase<LogSetViewModel>
+    public class LogViewModel : ComponentViewModelBase
     {
-        public override LogSetViewModel? Load { get { return _viewModel; } }
-
         LogSetViewModel _viewModel;
 
         [IocImportingConstructor]
@@ -25,9 +25,9 @@ namespace AudioStation.ViewModels.ComponentViewModels
             eventAggregator.GetEvent<LogEvent>().Subscribe(OnLog);
         }
 
-        protected override void InitializeWork(IAudioStationConfiguration configuration, LogSetViewModel load, DialogEventHandlers.DialogProgressHandler progressHandler)
+        protected override void InitializeWork(IAudioStationConfiguration configuration, IAudioStationViewModelController viewModelController, DialogProgressHandler progressHandler)
         {
-            _viewModel = load;
+            //_viewModel = load;
         }
 
         private void OnLog(LogMessage message)
@@ -76,10 +76,6 @@ namespace AudioStation.ViewModels.ComponentViewModels
                     Timestamp = message.Timestamp
                 });
             }
-        }
-
-        public override void Dispose()
-        {
         }
     }
 }

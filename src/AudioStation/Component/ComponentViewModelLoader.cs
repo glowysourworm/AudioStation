@@ -1,6 +1,7 @@
 ﻿using System.Windows.Threading;
 
 using AudioStation.Component.Interface;
+using AudioStation.Core;
 using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Database.AudioStationDatabase;
 using AudioStation.Core.Database.AudioStationDatabase.Interface;
@@ -38,7 +39,6 @@ namespace AudioStation.Component
         private readonly ILibraryLoaderService _libraryLoaderService;
 
         private readonly IAudioStationDbClient _audioStationDbClient;
-        private readonly IAudioStationConfigurationManager _configurationManager;
 
         private readonly CDImporterViewModel _cdImporterViewModel;
         private readonly LibraryManagerViewModel _libraryManagerViewModel;
@@ -66,8 +66,7 @@ namespace AudioStation.Component
             LogViewModel logViewModel,
 
             // Controllers
-            IAudioStationDbClient audioStationDbClient,
-            IAudioStationConfigurationManager configurationManager)
+            IAudioStationDbClient audioStationDbClient)
         {
             _eventAggregator = eventAggregator;
 
@@ -83,10 +82,9 @@ namespace AudioStation.Component
             _logViewModel = logViewModel;
 
             _audioStationDbClient = audioStationDbClient;
-            _configurationManager = configurationManager;
         }
 
-        public void Initialize(DialogProgressHandler progressHandler)
+        public void Initialize(AudioStationConfiguration configuration, DialogProgressHandler progressHandler)
         {
             // Procedure
             //
@@ -99,27 +97,25 @@ namespace AudioStation.Component
             var taskCount = 5;
             var task = 1;
 
-            var configuration = _configurationManager.GetConfiguration();
-
             // Log (first)
             progressHandler(taskCount, task++, 0, "Initializing Log...");
-            _logViewModel.Initialize(configuration, LogViewModel_CreateLoad(progressHandler), progressHandler);
+            //_logViewModel.Initialize(configuration, LogViewModel_CreateLoad(progressHandler), progressHandler);
 
             // Library Loader: CD Drive
             progressHandler(taskCount, task++, 0, "Initializing CD Drive...");
-            _cdImporterViewModel.Initialize(configuration, new NoViewModel(), progressHandler);
+            //_cdImporterViewModel.Initialize(configuration, new NoViewModel(), progressHandler);
 
             // Library Importer
             progressHandler(taskCount, task++, 0, "Initializing Library Importer...");
-            _libraryImporterViewModel.Initialize(configuration, LoadImporterViewModel_CreateLoad(progressHandler), progressHandler);
+            // _libraryImporterViewModel.Initialize(configuration, LoadImporterViewModel_CreateLoad(configuration, progressHandler), progressHandler);
 
             // Library Manager
             progressHandler(taskCount, task++, 0, "Initializing Library Manager...");
-            _libraryManagerViewModel.Initialize(configuration, LibraryManagerViewModel_CreateLoad(progressHandler), progressHandler);
+            //_libraryManagerViewModel.Initialize(configuration, LibraryManagerViewModel_CreateLoad(progressHandler), progressHandler);
 
             // Radio
             progressHandler(taskCount, task++, 0, "Initializing Radio...");
-            _radioViewModel.Initialize(configuration, new NoViewModel(), progressHandler);
+            //_radioViewModel.Initialize(configuration, new NoViewModel(), progressHandler);
         }
 
         public PageResult<TrackViewModel> LoadEntryPage(PageRequest<Track, int> request)
@@ -173,8 +169,6 @@ namespace AudioStation.Component
 
         public Task ConvertFiles(IEnumerable<string> convertibleFiles, Action<double, string> progressCallback)
         {
-            var configuration = _configurationManager.GetConfiguration();
-
             return Task.Run(() =>
             {
                 //try
@@ -280,12 +274,8 @@ namespace AudioStation.Component
             }
         }
 
-        private LibraryImporterTreeViewModel LoadImporterViewModel_CreateLoad(DialogProgressHandler progressHandler)
+        private LibraryImporterTreeViewModel LoadImporterViewModel_CreateLoad(AudioStationConfiguration configuration, DialogProgressHandler progressHandler)
         {
-            // Configuration:  Calculate base directory from staging
-            //
-            var configuration = _configurationManager.GetConfiguration();
-
             // Typically start with staging. The library folders are imported once; but the user may select them
             // and re-run the import process.
             var sourceDirectory = configuration.StagingFolder;

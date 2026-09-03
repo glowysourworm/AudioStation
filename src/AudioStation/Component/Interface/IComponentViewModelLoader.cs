@@ -1,18 +1,12 @@
 ﻿using AudioStation.Core.Database.AudioStationDatabase;
 using AudioStation.Core.Model;
+using AudioStation.Interface;
 using AudioStation.ViewModels.ComponentViewModels.LibraryViewModels;
-
-using static AudioStation.EventHandler.DialogEventHandlers;
 
 namespace AudioStation.Component.Interface
 {
-    public interface IComponentViewModelLoader
+    public interface IComponentViewModelLoader : IAudioStationPrimaryInitializer
     {
-        /// <summary>
-        /// Initialization of the view model - this should be run during startup
-        /// </summary>
-        void Initialize(DialogProgressHandler progressHandler);
-
         /// <summary>
         /// Runs AcoustID service on the staged files of the library importer
         /// </summary>

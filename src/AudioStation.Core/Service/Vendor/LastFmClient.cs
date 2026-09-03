@@ -1,5 +1,4 @@
-﻿using AudioStation.Core.Component.Interface;
-using AudioStation.Core.Controller.Interface;
+﻿using AudioStation.Core.Controller.Interface;
 using AudioStation.Core.Model.Vendor;
 using AudioStation.Core.Service.Interface;
 using AudioStation.Core.Service.Vendor.Interface;
@@ -26,16 +25,14 @@ namespace AudioStation.Core.Service.Vendor
         //
         public event SimpleEventHandler<IAudioStationService, IAudioStationService.Status> StatusChangeEvent;
 
-        private readonly IAudioStationConfigurationManager _configurationManager;
         private readonly IOutputController _outputController;
 
         private IAudioStationService.Status _status;
 
         [IocImportingConstructor]
-        public LastFmClient(IAudioStationConfigurationManager configurationManager, IOutputController outputController)
+        public LastFmClient(IOutputController outputController)
         {
             _outputController = outputController;
-            _configurationManager = configurationManager;
             _client = null;
         }
 
@@ -86,13 +83,11 @@ namespace AudioStation.Core.Service.Vendor
             }
         }
 
-        protected LastfmClient? Authenticate()
+        protected LastfmClient? Authenticate(AudioStationConfiguration configuration)
         {
             try
             {
                 OnStatusChanged(IAudioStationService.Status.Working);
-
-                var configuration = _configurationManager.GetConfiguration();
 
                 // Last FM API
                 var client = new LastfmClient(configuration.LastFmAPIKey, configuration.LastFmAPISecret);
@@ -130,7 +125,7 @@ namespace AudioStation.Core.Service.Vendor
         }
         public IAudioStationService.Status Initialize(AudioStationConfiguration configuration)
         {
-            _client = Authenticate();
+            _client = Authenticate(configuration);
 
             return _status;
         }

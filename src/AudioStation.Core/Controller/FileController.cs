@@ -19,7 +19,7 @@ namespace AudioStation.Core.Component
     [IocExport(typeof(IFileController))]
     public class FileController : IFileController
     {
-        private readonly IAudioStationConfigurationManager _configurationManager;
+        private AudioStationConfiguration _configuration;
         private readonly IBitmapConverter _bitmapConverter;
 
         private const string FAN_ART_DIRECTORY_NAME = "FanArt";
@@ -29,9 +29,8 @@ namespace AudioStation.Core.Component
         public event SimpleEventHandler<IAudioStationService, IAudioStationService.Status> StatusChangeEvent;
 
         [IocImportingConstructor]
-        public FileController(IAudioStationConfigurationManager configurationManager, IBitmapConverter bitmapConverter)
+        public FileController(IBitmapConverter bitmapConverter)
         {
-            _configurationManager = configurationManager;
             _bitmapConverter = bitmapConverter;
         }
 
@@ -111,11 +110,9 @@ namespace AudioStation.Core.Component
 
             try
             {
-                var configuration = _configurationManager.GetValidConfiguration();
-
                 var libraryDirectory = (storageType == IFileController.StorageType.DiskCache) ?
-                                            configuration.ApplicationCacheFolder :
-                                            configuration.ApplicationStorageFolder;
+                                            _configuration.ApplicationCacheFolder :
+                                            _configuration.ApplicationStorageFolder;
 
                 // Calculate Path:  Also, create intermediate directories
                 var finalPath = CalculateFilePath(libraryDirectory, genre, artist, album, specificFileName, fileType, TrackType.Any, storageType);
@@ -143,7 +140,6 @@ namespace AudioStation.Core.Component
 
             try
             {
-                var configuration = _configurationManager.GetValidConfiguration();
                 var libraryDirectory = GetLibraryDirectory(stagedFilePath);
 
                 // Calculate Track File Name:  needs all info from a valid tag to proceed
@@ -335,24 +331,22 @@ namespace AudioStation.Core.Component
         {
             try
             {
-                var configuration = _configurationManager.GetValidConfiguration();
-
                 var directory = new DirectoryInfo(fileName);
 
-                if (directory.FullName == configuration.ApplicationCacheFolder.Directory)
-                    return configuration.ApplicationCacheFolder;
+                if (directory.FullName == _configuration.ApplicationCacheFolder.Directory)
+                    return _configuration.ApplicationCacheFolder;
 
-                else if (directory.FullName == configuration.ApplicationStorageFolder.Directory)
-                    return configuration.ApplicationStorageFolder;
+                else if (directory.FullName == _configuration.ApplicationStorageFolder.Directory)
+                    return _configuration.ApplicationStorageFolder;
 
-                else if (directory.FullName == configuration.StagingFolder.Directory)
-                    return configuration.StagingFolder;
+                else if (directory.FullName == _configuration.StagingFolder.Directory)
+                    return _configuration.StagingFolder;
 
-                else if (directory.FullName == configuration.DownloadFolder.Directory)
-                    return configuration.DownloadFolder;
+                else if (directory.FullName == _configuration.DownloadFolder.Directory)
+                    return _configuration.DownloadFolder;
 
-                var libraryDirectory = configuration.LibraryDirectories
-                                                    .FirstOrDefault(x => x.Directory == directory.FullName);
+                var libraryDirectory = _configuration.LibraryDirectories
+                                                     .FirstOrDefault(x => x.Directory == directory.FullName);
 
                 if (libraryDirectory == null)
                     throw new Exception("Directory does not exist");
@@ -387,6 +381,8 @@ namespace AudioStation.Core.Component
         }
         public IAudioStationService.Status Initialize(AudioStationConfiguration configuration)
         {
+            _configuration = configuration;
+
             // Create Configuration Folders
 
             // Cache

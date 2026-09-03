@@ -1,6 +1,4 @@
-﻿using AudioStation.Core.Component.Interface;
-using AudioStation.Core.Controller.Interface;
-using AudioStation.Core.Model.Vendor;
+﻿using AudioStation.Core.Model.Vendor;
 using AudioStation.Core.Service.Interface;
 using AudioStation.Core.Utility;
 using AudioStation.Model;
@@ -20,9 +18,6 @@ namespace AudioStation.Core.Service.Vendor
     [IocExport(typeof(ISpotifyClient))]
     public class SpotifyClient : ISpotifyClient
     {
-        private readonly IAudioStationConfigurationManager _configurationManager;
-        private readonly IOutputController _outputController;
-
         //private const string SPOTIFY_WEB_SEARCH = "https://api.spotify.com/v1/search";
         private const string SPOTIFY_WEB_BASE = "https://api.spotify.com";
 
@@ -36,10 +31,8 @@ namespace AudioStation.Core.Service.Vendor
         private IAudioStationService.Status _status;
 
         [IocImportingConstructor]
-        public SpotifyClient(IAudioStationConfigurationManager configurationManager, IOutputController outputController)
+        public SpotifyClient()
         {
-            _configurationManager = configurationManager;
-            _outputController = outputController;
         }
 
         public Task<SpotifyNowPlaying?> CreateNowPlaying(string artistName, string albumName)

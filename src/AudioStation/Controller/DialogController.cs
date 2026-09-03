@@ -95,7 +95,7 @@ namespace AudioStation.Controller
         public void ShowLogWindow(LogViewModel viewModel)
         {
             var window = new LogWindow();
-            window.DataContext = viewModel.Load;
+            window.DataContext = viewModel;
             window.Show();
         }
 

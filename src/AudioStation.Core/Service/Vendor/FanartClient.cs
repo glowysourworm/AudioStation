@@ -1,5 +1,4 @@
-﻿using AudioStation.Core.Component.Interface;
-using AudioStation.Core.Service.Interface;
+﻿using AudioStation.Core.Service.Interface;
 using AudioStation.Core.Service.Vendor.Interface;
 using AudioStation.Core.Utility;
 using AudioStation.Model;
@@ -14,8 +13,6 @@ namespace AudioStation.Core.Service.Vendor
     [IocExport(typeof(IFanartClient))]
     public class FanartClient : IFanartClient
     {
-        private readonly IAudioStationConfigurationManager _configurationManager;
-
         // IAudioStationComponent
         //
         public event SimpleEventHandler<IAudioStationService, IAudioStationService.Status> StatusChangeEvent;
@@ -23,9 +20,8 @@ namespace AudioStation.Core.Service.Vendor
         private IAudioStationService.Status _status;
 
         [IocImportingConstructor]
-        public FanartClient(IAudioStationConfigurationManager confiugrationManager)
+        public FanartClient()
         {
-            _configurationManager = confiugrationManager;
         }
 
         public Task<IEnumerable<string>> GetArtistBackgrounds(string musicBrainzArtistId)
@@ -88,7 +84,7 @@ namespace AudioStation.Core.Service.Vendor
             // No formal authentication (these keys are set in their nuget package. They should probably be substituted
             // with my API key
             //
-            FanartTv.API.Key = _configurationManager.GetConfiguration().FanartAPIKey;
+            FanartTv.API.Key = configuration.FanartAPIKey;
 
             // -> Error
             if (string.IsNullOrWhiteSpace(FanartTv.API.Key))

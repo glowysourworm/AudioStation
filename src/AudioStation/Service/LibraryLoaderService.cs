@@ -1,4 +1,4 @@
-﻿using AudioStation.Core.Component.Interface;
+﻿using AudioStation.Core;
 using AudioStation.Core.Model.Interface;
 using AudioStation.Core.Utility;
 using AudioStation.EventHandler;
@@ -16,31 +16,25 @@ namespace AudioStation.Service
     [IocExport(typeof(ILibraryLoaderService))]
     public class LibraryLoaderService : ILibraryLoaderService
     {
-        private readonly IAudioStationConfigurationManager _audioStationConfigurationManager;
-
         private readonly LibraryLoaderAcoustIDViewModel _libraryLoaderAcoustIDViewModel;
         private readonly LibraryLoaderFileCheckerViewModel _libraryLoaderFileCheckerViewModel;
         private readonly LibraryLoaderMusicBrainzBasicViewModel _libraryLoaderMusicBrainzBasicViewModel;
         private readonly LibraryLoaderMusicBrainzAlbumArtViewModel _libraryLoaderMusicBrainzAlbumArtViewModel;
 
         [IocImportingConstructor]
-        public LibraryLoaderService(IAudioStationConfigurationManager audioStationConfigurationManager,
-                                    LibraryLoaderAcoustIDViewModel libraryLoaderAcoustIDViewModel,
+        public LibraryLoaderService(LibraryLoaderAcoustIDViewModel libraryLoaderAcoustIDViewModel,
                                     LibraryLoaderFileCheckerViewModel libraryLoaderFileCheckerViewModel,
                                     LibraryLoaderMusicBrainzBasicViewModel libraryLoaderMusicBrainzBasicViewModel,
                                     LibraryLoaderMusicBrainzAlbumArtViewModel libraryLoaderMusicBrainzAlbumArtViewModel)
         {
-            _audioStationConfigurationManager = audioStationConfigurationManager;
             _libraryLoaderAcoustIDViewModel = libraryLoaderAcoustIDViewModel;
             _libraryLoaderFileCheckerViewModel = libraryLoaderFileCheckerViewModel;
             _libraryLoaderMusicBrainzBasicViewModel = libraryLoaderMusicBrainzBasicViewModel;
             _libraryLoaderMusicBrainzAlbumArtViewModel = libraryLoaderMusicBrainzAlbumArtViewModel;
         }
 
-        public void Initialize(DialogEventHandlers.DialogProgressHandler progressHandler)
+        public void Initialize(AudioStationConfiguration configuration, DialogEventHandlers.DialogProgressHandler progressHandler)
         {
-            var configuration = _audioStationConfigurationManager.GetConfiguration();
-
             var taskCount = 4;
             var task = 1;
 

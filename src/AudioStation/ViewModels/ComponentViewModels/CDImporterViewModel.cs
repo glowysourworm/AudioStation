@@ -1,21 +1,22 @@
 ﻿using System.Collections.ObjectModel;
 using System.IO;
 
+using AudioStation.Controller.Interface;
 using AudioStation.Core.Component.CDPlayer;
 using AudioStation.Core.Model.Interface;
 using AudioStation.Event;
-using AudioStation.EventHandler;
 using AudioStation.Service.Interface;
-using AudioStation.ViewModels.ComponentViewModels.LoadViewModels;
 
 using SimpleWpf.IocFramework.Application.Attribute;
 using SimpleWpf.IocFramework.EventAggregation;
 using SimpleWpf.UI.Command;
 
+using static AudioStation.EventHandler.DialogEventHandlers;
+
 namespace AudioStation.ViewModels.ComponentViewModels
 {
     [IocExportDefault]
-    public class CDImporterViewModel : ComponentViewModelBase<NoViewModel>
+    public class CDImporterViewModel : ComponentViewModelBase
     {
         private readonly ICDImportService _cdImportService;
 
@@ -71,11 +72,9 @@ namespace AudioStation.ViewModels.ComponentViewModels
             set { this.RaiseAndSetIfChanged(ref _importCommand, value); }
         }
 
-        public override NoViewModel? Load { get; }
-
         [IocImportingConstructor]
         public CDImporterViewModel(IIocEventAggregator eventAggregator,
-                                              ICDImportService cdImportService)
+                                   ICDImportService cdImportService)
         {
             _cdImportService = cdImportService;
 
@@ -99,11 +98,6 @@ namespace AudioStation.ViewModels.ComponentViewModels
                 }
 
             }, () => this.Tracks.Count > 0 && this.CDPlayerLoaded);
-        }
-
-        public override void Dispose()
-        {
-
         }
 
         private void OnCDPlayerRead(CDDataReadEventArgs args)
@@ -140,7 +134,7 @@ namespace AudioStation.ViewModels.ComponentViewModels
             this.ImportCommand.RaiseCanExecuteChanged();
         }
 
-        protected override void InitializeWork(IAudioStationConfiguration configuration, NoViewModel load, DialogEventHandlers.DialogProgressHandler progressHandler)
+        protected override void InitializeWork(IAudioStationConfiguration configuration, IAudioStationViewModelController viewModelController, DialogProgressHandler progressHandler)
         {
 
         }

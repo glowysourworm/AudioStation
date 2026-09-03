@@ -1,4 +1,9 @@
-﻿namespace AudioStation.Core.Component.Interface
+﻿using AudioStation.Core;
+using AudioStation.Event;
+
+using SimpleWpf.Extensions.Event;
+
+namespace AudioStation.Component.Interface
 {
     /// <summary>
     /// Component responsible for managing the application's configuration (object!). After
@@ -6,6 +11,8 @@
     /// </summary>
     public interface IAudioStationConfigurationManager
     {
+        event SimpleEventHandler<AudioStationConfiguration, ConfigurationEventType, bool> ConfigurationEvent;
+
         void Initialize(string? configurationFile);
         AudioStationConfiguration GetValidConfiguration();
         AudioStationConfiguration GetConfiguration();

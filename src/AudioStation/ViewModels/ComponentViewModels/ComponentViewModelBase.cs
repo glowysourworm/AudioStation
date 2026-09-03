@@ -6,6 +6,7 @@ using SimpleWpf.Utilities;
 using SimpleWpf.UI.ViewModel;
 
 using static AudioStation.EventHandler.DialogEventHandlers;
+using AudioStation.Controller.Interface;
 
 namespace AudioStation.ViewModels.ComponentViewModels
 {
@@ -14,7 +15,7 @@ namespace AudioStation.ViewModels.ComponentViewModels
     /// application's data. So, there is a life cycle pattern for handling the data from
     /// a controller. The "Load" data type will be used to send data to the view model.
     /// </summary>
-    public abstract class ComponentViewModelBase<TLoad> : ViewModelBase, IDisposable where TLoad : ViewModelBase
+    public abstract class ComponentViewModelBase : ViewModelBase
     {
         bool _loading;
 
@@ -28,29 +29,23 @@ namespace AudioStation.ViewModels.ComponentViewModels
         }
 
         /// <summary>
-        /// Returns the primary load of the view model
-        /// </summary>
-        public abstract TLoad? Load { get; }
-
-        /// <summary>
         /// Function to complete initialization. This will be called on the Dispatcher thread
         /// </summary>
-        protected abstract void InitializeWork(IAudioStationConfiguration configuration, TLoad load, DialogProgressHandler progressHandler);
+        protected abstract void InitializeWork(IAudioStationConfiguration configuration, IAudioStationViewModelController viewModelController, DialogProgressHandler progressHandler);
 
-        public void Initialize(IAudioStationConfiguration configuration, TLoad load, DialogProgressHandler progressHandler)
+        public void Initialize(IAudioStationConfiguration configuration, IAudioStationViewModelController viewModelController, DialogProgressHandler progressHandler)
         {
             // Synchronous Invoke:  This should be used where there is no (async / await). Also, it is needed for completing the work during
             //                      the application's initialization waiter. So, there is already a waiter for this load; but the work must
             //                      be completed on the main thread because of view model binding.
             //
             if (BasicHelpers.IsDispatcher() == ApplicationIsDispatcherResult.False)
-                BasicHelpers.InvokeDispatcher(Initialize, DispatcherPriority.Background, configuration, load, progressHandler);
+                BasicHelpers.InvokeDispatcher(Initialize, DispatcherPriority.Background, configuration, viewModelController, progressHandler);
 
             else
             {
-                InitializeWork(configuration, load, progressHandler);
+                InitializeWork(configuration, viewModelController, progressHandler);
             }
         }
-        public abstract void Dispose();
     }
 }

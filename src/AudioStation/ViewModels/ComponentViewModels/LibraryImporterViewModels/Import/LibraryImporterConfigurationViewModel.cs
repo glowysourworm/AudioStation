@@ -1,4 +1,5 @@
-﻿using AudioStation.ViewModels.MainViewModels;
+﻿using AudioStation.Core.Model;
+using AudioStation.ViewModels.MainViewModels;
 
 using SimpleWpf.UI.Command;
 using SimpleWpf.UI.ViewModel;
@@ -9,6 +10,8 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
     {
         LibraryDirectoryViewModel _sourceDirectory;
         LibraryDirectoryViewModel _destinationDirectory;
+
+        LibraryImportType _importType;
 
         bool _includeMusicBrainzDetail;
         bool _identifyUsingAcoustID;
@@ -29,6 +32,12 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
         {
             get { return _destinationDirectory; }
             set { this.RaiseAndSetIfChanged(ref _destinationDirectory, value); }
+        }
+
+        public LibraryImportType ImportType
+        {
+            get { return _importType; }
+            set { this.RaiseAndSetIfChanged(ref _importType, value); }
         }
 
         public bool IncludeMusicBrainzDetail
@@ -72,6 +81,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
         {
             this.SourceDirectory = new LibraryDirectoryViewModel();
             this.DestinationDirectory = new LibraryDirectoryViewModel();
+            this.ImportType = LibraryImportType.InPlaceDirectory;
 
             this.SelectSourceFolderCommand = new SimpleCommand(() =>
             {

@@ -1,5 +1,5 @@
 ﻿using AudioStation.Controller.Interface;
-using AudioStation.Core.Component.Interface;
+using AudioStation.Core;
 using AudioStation.Core.Controller.Interface;
 using AudioStation.Core.Database.AudioStationDatabase.Interface;
 using AudioStation.Core.Service.Interface;
@@ -18,8 +18,6 @@ namespace AudioStation.Controller
         public event SimpleEventHandler<IAudioStationService, IAudioStationService.Status> ComponentInitializedEvent;
         public event SimpleEventHandler<IAudioStationService, IAudioStationService.Status> ComponentStatusChangedEvent;
 
-        private readonly IAudioStationConfigurationManager _configurationManager;
-
         // IAudioStationService
         private readonly IAudioStationDbClient _audioStationDbClient;
         private readonly IOutputController _outputController;
@@ -34,8 +32,7 @@ namespace AudioStation.Controller
         private readonly ISpotifyClient _spotifyClient;
 
         [IocImportingConstructor]
-        public AudioStationServiceController(IAudioStationConfigurationManager configurationManager,
-                                             IAudioStationDbClient audioStationDbClient,
+        public AudioStationServiceController(IAudioStationDbClient audioStationDbClient,
                                              IAudioController audioController,
                                              IOutputController outputController,
                                              IAcoustIDClient acoustIDClient,
@@ -47,8 +44,6 @@ namespace AudioStation.Controller
                                              IMusicBrainzClient musicBrainzClient,
                                              ISpotifyClient spotifyClient)
         {
-            _configurationManager = configurationManager;
-
             _audioStationDbClient = audioStationDbClient;
             _audioController = audioController;
             _outputController = outputController;
@@ -74,7 +69,7 @@ namespace AudioStation.Controller
             _spotifyClient.StatusChangeEvent += IAudioStationComponent_StatusChangeEvent;
         }
 
-        public void Initialize(DialogEventHandlers.DialogProgressHandler progressHandler)
+        public void Initialize(AudioStationConfiguration configuration, DialogEventHandlers.DialogProgressHandler progressHandler)
         {
             // Procedure
             // 
@@ -90,23 +85,23 @@ namespace AudioStation.Controller
 
             // IAudioStationComponent (these display their status on the status bar)
             //
-            InitializeImpl(_outputController, task++, taskCount, progressHandler);
-            InitializeImpl(_audioStationDbClient, task++, taskCount, progressHandler);
-            InitializeImpl(_audioController, task++, taskCount, progressHandler);
-            InitializeImpl(_bandcampClient, task++, taskCount, progressHandler);
-            InitializeImpl(_acoustIDClient, task++, taskCount, progressHandler);
-            InitializeImpl(_discogsClient, task++, taskCount, progressHandler);
-            InitializeImpl(_fanartClient, task++, taskCount, progressHandler);
-            InitializeImpl(_iTunesClient, task++, taskCount, progressHandler);
-            InitializeImpl(_lastFmClient, task++, taskCount, progressHandler);
-            InitializeImpl(_musicBrainzClient, task++, taskCount, progressHandler);
-            InitializeImpl(_spotifyClient, task++, taskCount, progressHandler);
+            InitializeImpl(_outputController, configuration, task++, taskCount, progressHandler);
+            InitializeImpl(_audioStationDbClient, configuration, task++, taskCount, progressHandler);
+            InitializeImpl(_audioController, configuration, task++, taskCount, progressHandler);
+            InitializeImpl(_bandcampClient, configuration, task++, taskCount, progressHandler);
+            InitializeImpl(_acoustIDClient, configuration, task++, taskCount, progressHandler);
+            InitializeImpl(_discogsClient, configuration, task++, taskCount, progressHandler);
+            InitializeImpl(_fanartClient, configuration, task++, taskCount, progressHandler);
+            InitializeImpl(_iTunesClient, configuration, task++, taskCount, progressHandler);
+            InitializeImpl(_lastFmClient, configuration, task++, taskCount, progressHandler);
+            InitializeImpl(_musicBrainzClient, configuration, task++, taskCount, progressHandler);
+            InitializeImpl(_spotifyClient, configuration, task++, taskCount, progressHandler);
         }
 
-        private void InitializeImpl(IAudioStationService service, int taskNumber, int taskCount, DialogEventHandlers.DialogProgressHandler progressHandler)
+        private void InitializeImpl(IAudioStationService service, AudioStationConfiguration configuration, int taskNumber, int taskCount, DialogEventHandlers.DialogProgressHandler progressHandler)
         {
             progressHandler(taskCount, taskNumber, 0, string.Format("Initializing {0}", service.GetDisplayName()));
-            var status = service.Initialize(_configurationManager.GetConfiguration());
+            var status = service.Initialize(configuration);
 
             if (this.ComponentInitializedEvent != null)
                 this.ComponentInitializedEvent(service, status);

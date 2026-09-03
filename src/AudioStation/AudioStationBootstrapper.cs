@@ -2,7 +2,6 @@
 using System.Windows;
 using System.Windows.Threading;
 
-using AudioStation.Component.Interface;
 using AudioStation.Controller.Interface;
 using AudioStation.Core;
 using AudioStation.Core.Component.Interface;
@@ -14,7 +13,6 @@ using AudioStation.Core.Model.Vendor.ATLExtension.Interface;
 using AudioStation.Event;
 using AudioStation.Event.DialogEvents;
 using AudioStation.EventHandler;
-using AudioStation.Service.Interface;
 using AudioStation.ViewModels;
 using AudioStation.ViewModels.MainViewModels;
 using AudioStation.ViewModels.TagViewModels;
@@ -45,11 +43,11 @@ namespace AudioStation
 
         protected override void UserPreModuleInitialize()
         {
-            // This must happen first; and the dialog window must be called after initializing
-            // the (base) "pre-module initialize" method because it tries to create the shell
-            // window - which uses the configuration.
+            // This mapper configuration must get set first; and the dialog window must be
+            // called after initializing the (base) "pre-module initialize" method because
+            // it tries to create the shell window - which uses the configuration.
             //
-            var configurationValid = InitializeConfiguration();
+            InitializeMapperConfiguration();
 
             // Window Management:  The shell window must be defined as the main window before
             //                     opening another window (here, the dialog). So, perhaps it 
@@ -62,33 +60,27 @@ namespace AudioStation
             //
             base.UserPreModuleInitialize();
 
-            if (configurationValid)
+            // Get config file from the command line (or default to config folder as current executable directory)
+            var configurationFile = Environment.GetCommandLineArgs().Length > 1 ? Environment.GetCommandLineArgs()[1] : string.Empty;
+
+            Task.Run(() =>
             {
-                Task.Run(() =>
-                {
-                    Application.Current
-                               .Dispatcher
-                               .Invoke(InitializeLibrary, DispatcherPriority.Normal);
+                Application.Current
+                           .Dispatcher
+                           .Invoke(InitializeLibrary, DispatcherPriority.Normal, configurationFile);
 
-                }).ContinueWith((state) =>
-                {
-                    Application.Current.Dispatcher.Invoke(() =>
-                    {
-                        // Show Main Window
-                        Application.Current.MainWindow.WindowState = WindowState.Normal;
-
-                    }, DispatcherPriority.ApplicationIdle);
-                });
-            }
-
-            else
+            }).ContinueWith((state) =>
             {
-                // Show Main Window
-                Application.Current.MainWindow.WindowState = WindowState.Normal;
-            }
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    // Show Main Window
+                    Application.Current.MainWindow.WindowState = WindowState.Normal;
+
+                }, DispatcherPriority.ApplicationIdle);
+            });
         }
 
-        private async void InitializeLibrary()
+        private async void InitializeLibrary(string configurationFile)
         {
             if (BasicHelpers.IsDispatcher() == ApplicationIsDispatcherResult.False)
                 throw new Exception("Initialization of the library must be on the main dispatcher thread");
@@ -123,10 +115,12 @@ namespace AudioStation
             dialogWindow.WindowStartupLocation = WindowStartupLocation.CenterScreen;
             dialogWindow.Show();
 
-            // Initialize Components -> Component View Models
-            var componentController = IocContainer.Get<IAudioStationServiceController>();
-            var componentViewModelLoader = IocContainer.Get<IComponentViewModelLoader>();
-            var libraryServiceLoader = IocContainer.Get<ILibraryLoaderService>();
+            // Initialize -> IAudioStationController
+            //
+            // Primary controller calls initialize methods for the entire application's
+            // component graph..! 
+            //
+            var primaryController = IocContainer.Get<IAudioStationController>();
 
             // Dialog Update Func (make the code here smaller)
             var dialogUpdater = new DialogEventHandlers.DialogProgressHandler((taskCount, tasksComplete, tasksError, message) =>
@@ -167,19 +161,31 @@ namespace AudioStation
                 Dispatcher.CurrentDispatcher.Invoke(() => { }, DispatcherPriority.Render);
             });
 
-            // (see DialogEventHandlers.cs) (Splash Screen Dialog)
-            componentController.Initialize(dialogUpdater);
-            componentViewModelLoader.Initialize(dialogUpdater);
-            libraryServiceLoader.Initialize(dialogUpdater);
+            // Audio Station Initialize:
+            //
+            // 1) Open Configuration
+            // 2) Pass Configuration to other initializers
+            //      -> IAudioStationServiceController
+            //      -> IComponentViewModelLoader
+            //      -> ILibraryLoaderService
+            //
+            // 3) Call their Initialize routines
+            //
+
+            // Configuration
+            var configuration = primaryController.InitializeConfiguration(configurationFile, dialogUpdater);
+
+            // Initialize
+            primaryController.Initialize(configuration, dialogUpdater);
 
             // Dismiss Splash Screen
             dialogWindow.Close();
         }
 
         /// <summary>
-        /// Initialization of the configuration must occur before other components are initialized.
+        /// Initialization of the mapper configuration must occur before other components are initialized.
         /// </summary>
-        private bool InitializeConfiguration()
+        private void InitializeMapperConfiguration()
         {
             // Mapper
             var mapper = IocContainer.Get<IAudioStationMapper>();
@@ -245,18 +251,6 @@ namespace AudioStation
                       foreach (var item in source)
                           dest.Add(mapper.Map<LibraryDirectoryViewModel, LibraryDirectory>(item));
                   });
-
-            // We can inject our initialize procedure(s) here
-            //
-            var configurationManager = IocContainer.Get<IAudioStationConfigurationManager>();
-
-            // Get config file from the command line (or default to config folder as current executable directory)
-            var configurationFile = Environment.GetCommandLineArgs().Length > 1 ? Environment.GetCommandLineArgs()[1] : string.Empty;
-
-            // Read / Create Configuration
-            configurationManager.Initialize(configurationFile);
-
-            return configurationManager.ValidateConfiguration();
         }
 
         public override IEnumerable<ModuleDefinition> DefineModules()

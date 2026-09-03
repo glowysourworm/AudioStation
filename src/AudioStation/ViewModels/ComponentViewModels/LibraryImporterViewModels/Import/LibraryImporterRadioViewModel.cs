@@ -1,7 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 
 using AudioStation.Controller.Interface;
-using AudioStation.Core.Component.Interface;
 
 using SimpleWpf.IocFramework.Application.Attribute;
 using SimpleWpf.UI.Command;
@@ -34,10 +33,8 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
         }
 
         [IocImportingConstructor]
-        public LibraryImporterRadioViewModel(IAudioStationConfigurationManager configurationManager, IDialogController dialogController)
+        public LibraryImporterRadioViewModel(IDialogController dialogController)
         {
-            var configuration = configurationManager.GetConfiguration();
-
             //if (!string.IsNullOrEmpty(configuration.DirectoryBase))
             //{
             //    var files = ApplicationHelpers.FastGetFiles(configuration.DirectoryBase, "*.m3u", SearchOption.AllDirectories);

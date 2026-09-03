@@ -12,7 +12,6 @@ using AudioStation.Core.Model.Vendor.ATLExtension.Interface;
 using AudioStation.Core.Utility;
 using AudioStation.Event;
 using AudioStation.Event.DialogEvents;
-using AudioStation.EventHandler;
 using AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.Import;
 using AudioStation.ViewModels.TagViewModels;
 using AudioStation.ViewModels.Vendor.AcoustIDViewModel;
@@ -27,16 +26,15 @@ using SimpleWpf.IocFramework.EventAggregation;
 using SimpleWpf.UI.Command;
 using SimpleWpf.UI.ViewModel.FileTreeView;
 
+using static AudioStation.EventHandler.DialogEventHandlers;
+
 namespace AudioStation.ViewModels.ComponentViewModels
 {
     [IocExportDefault]
-    public class LibraryImporterViewModel : ComponentViewModelBase<LibraryImporterTreeViewModel>
+    public class LibraryImporterViewModel : ComponentViewModelBase
     {
-        private readonly IAudioStationConfigurationManager _configurationManager;
         private readonly IAudioStationMapper _audioStationMapper;
         private readonly IDialogController _dialogController;
-        private readonly IIocEventAggregator _eventAggregator;
-        private readonly ILibraryImporter _libraryImporter;
         private readonly ITagCacheController _tagCacheController;
 
         LibraryImporterConfigurationViewModel _options;
@@ -149,27 +147,15 @@ namespace AudioStation.ViewModels.ComponentViewModels
             set { this.RaiseAndSetIfChanged(ref _stagedSearch, value); }
         }
 
-        public override LibraryImporterTreeViewModel Load
-        {
-            get { return this.SourceDirectory; }
-        }
-
         [IocImportingConstructor]
-        public LibraryImporterViewModel(IAudioStationConfigurationManager configurationManager,
-                                        IAudioStationMapper audioStationMapper,
+        public LibraryImporterViewModel(IAudioStationMapper audioStationMapper,
                                         IDialogController dialogController,
                                         IIocEventAggregator eventAggregator,
-                                        ILibraryImporter libraryImporter,
                                         ITagCacheController tagCacheController)
         {
-            _configurationManager = configurationManager;
             _audioStationMapper = audioStationMapper;
             _dialogController = dialogController;
-            _libraryImporter = libraryImporter;
-            _eventAggregator = eventAggregator;
             _tagCacheController = tagCacheController;
-
-            var configuration = configurationManager.GetConfiguration();
 
             this.Options = new LibraryImporterConfigurationViewModel();
             this.SourceDirectory = null;
@@ -187,10 +173,10 @@ namespace AudioStation.ViewModels.ComponentViewModels
             this.UnstageCommand = new SimpleCommand(UnstageFiles, CanUnstageFiles);
         }
 
-        protected override void InitializeWork(IAudioStationConfiguration configuration, LibraryImporterTreeViewModel load, DialogEventHandlers.DialogProgressHandler progressHandler)
+        protected override void InitializeWork(IAudioStationConfiguration configuration, IAudioStationViewModelController viewModelController, DialogProgressHandler progressHandler)
         {
             // Set View Model (Load)
-            this.SourceDirectory = load;
+            //this.SourceDirectory = load;
 
             //// Initialization:     This task is run during initialization.
             //// 
@@ -209,10 +195,6 @@ namespace AudioStation.ViewModels.ComponentViewModels
 
             //// Set View Model
             //this.SourceDirectory.ItemPropertyChanged += SourceDirectory_ItemPropertyChanged;
-        }
-        public override void Dispose()
-        {
-            ClearSourceFiles();
         }
 
         private bool CanUnstageFiles()

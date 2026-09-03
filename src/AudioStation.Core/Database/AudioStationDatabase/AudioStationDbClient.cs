@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Database.AudioStationDatabase.Interface;
 using AudioStation.Core.Event;
 using AudioStation.Core.Model;
@@ -23,7 +22,7 @@ namespace AudioStation.Core.Database.AudioStationDatabase
     [IocExport(typeof(IAudioStationDbClient))]
     public class AudioStationDbClient : IAudioStationDbClient
     {
-        private readonly IAudioStationConfigurationManager _configurationManager;
+        private AudioStationConfiguration _configuration;
         private readonly IIocEventAggregator _eventAggregator;
 
         LogLevel _currentLogLevel;
@@ -37,10 +36,8 @@ namespace AudioStation.Core.Database.AudioStationDatabase
         private string _statusMessage;
 
         [IocImportingConstructor]
-        public AudioStationDbClient(IAudioStationConfigurationManager configurationManager,
-                                    IIocEventAggregator eventAggregator)
+        public AudioStationDbClient(IIocEventAggregator eventAggregator)
         {
-            _configurationManager = configurationManager;
             _eventAggregator = eventAggregator;
             _currentLogLevel = LogLevel.Trace;
             _currentLogVerbosity = true;
@@ -578,9 +575,7 @@ namespace AudioStation.Core.Database.AudioStationDatabase
 
         private AudioStationDbContext CreateContext()
         {
-            var configuration = _configurationManager.GetConfiguration();
-
-            var context = new AudioStationDbContext(configuration, _currentLogLevel, _currentLogVerbosity);
+            var context = new AudioStationDbContext(_configuration, _currentLogLevel, _currentLogVerbosity);
 
             return context;
         }
@@ -600,6 +595,8 @@ namespace AudioStation.Core.Database.AudioStationDatabase
         }
         public IAudioStationService.Status Initialize(AudioStationConfiguration configuration)
         {
+            _configuration = configuration;
+
             if (string.IsNullOrWhiteSpace(configuration.DatabaseHost))
                 OnStatusChanged(IAudioStationService.Status.Error, "database host not specified");
 

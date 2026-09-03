@@ -1,6 +1,8 @@
-﻿namespace AudioStation.Service.Interface
+﻿using AudioStation.Core.Service.Interface;
+
+namespace AudioStation.Service.Interface
 {
-    public interface ICDImportService
+    public interface ICDImportService : IAudioStationService
     {
 
 
