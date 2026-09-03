@@ -63,6 +63,13 @@ namespace AudioStation
             // Get config file from the command line (or default to config folder as current executable directory)
             var configurationFile = Environment.GetCommandLineArgs().Length > 1 ? Environment.GetCommandLineArgs()[1] : string.Empty;
 
+            // View Models:  The architecture of this application is to avoid too much
+            //               code in the way of view model instances. They're primarily
+            //               data-holders. The location, loading, getting, and setting
+            //               of "primary" view models is done by other components.
+            //
+            var viewModelController = IocContainer.Get<IAudioStationViewModelController>();
+
             Task.Run(() =>
             {
                 Application.Current
@@ -74,6 +81,7 @@ namespace AudioStation
                 Application.Current.Dispatcher.Invoke(() =>
                 {
                     // Show Main Window
+                    this.GetShell().Initialize(viewModelController.GetComponent<MainViewModel>());
                     Application.Current.MainWindow.WindowState = WindowState.Normal;
 
                 }, DispatcherPriority.ApplicationIdle);
@@ -265,6 +273,11 @@ namespace AudioStation
         public override Type DefineShell()
         {
             return typeof(MainWindow);
+        }
+
+        public MainWindow GetShell()
+        {
+            return Application.Current.MainWindow as MainWindow;
         }
     }
 }

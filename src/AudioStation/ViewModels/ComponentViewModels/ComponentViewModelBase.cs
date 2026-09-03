@@ -1,12 +1,12 @@
 ﻿using System.Windows.Threading;
 
+using AudioStation.Controller.Interface;
 using AudioStation.Core.Model.Interface;
 
-using SimpleWpf.Utilities;
 using SimpleWpf.UI.ViewModel;
+using SimpleWpf.Utilities;
 
 using static AudioStation.EventHandler.DialogEventHandlers;
-using AudioStation.Controller.Interface;
 
 namespace AudioStation.ViewModels.ComponentViewModels
 {
@@ -18,6 +18,7 @@ namespace AudioStation.ViewModels.ComponentViewModels
     public abstract class ComponentViewModelBase : ViewModelBase
     {
         bool _loading;
+        bool _initialized;
 
         /// <summary>
         /// (TODO: Controller pattern!!!) Component is currently running an operation
@@ -26,6 +27,17 @@ namespace AudioStation.ViewModels.ComponentViewModels
         {
             get { return _loading; }
             set { this.RaiseAndSetIfChanged(ref _loading, value); }
+        }
+        public bool Initialized
+        {
+            get { return _initialized; }
+            set { this.RaiseAndSetIfChanged(ref _initialized, value); }
+        }
+
+        public ComponentViewModelBase()
+        {
+            this.Loading = false;
+            this.Initialized = false;
         }
 
         /// <summary>
@@ -44,7 +56,13 @@ namespace AudioStation.ViewModels.ComponentViewModels
 
             else
             {
+                this.Loading = true;
+
                 InitializeWork(configuration, viewModelController, progressHandler);
+
+                // To be used by subclasses
+                this.Initialized = true;
+                this.Loading = false;
             }
         }
     }

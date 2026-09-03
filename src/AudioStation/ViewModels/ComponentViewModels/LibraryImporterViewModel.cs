@@ -21,7 +21,6 @@ using Microsoft.Extensions.Logging;
 
 using SimpleWpf.Extensions.Collection;
 using SimpleWpf.Extensions.ObservableCollection;
-using SimpleWpf.IocFramework.Application.Attribute;
 using SimpleWpf.IocFramework.EventAggregation;
 using SimpleWpf.UI.Command;
 using SimpleWpf.UI.ViewModel.FileTreeView;
@@ -30,7 +29,6 @@ using static AudioStation.EventHandler.DialogEventHandlers;
 
 namespace AudioStation.ViewModels.ComponentViewModels
 {
-    [IocExportDefault]
     public class LibraryImporterViewModel : ComponentViewModelBase
     {
         private readonly IAudioStationMapper _audioStationMapper;
@@ -147,7 +145,6 @@ namespace AudioStation.ViewModels.ComponentViewModels
             set { this.RaiseAndSetIfChanged(ref _stagedSearch, value); }
         }
 
-        [IocImportingConstructor]
         public LibraryImporterViewModel(IAudioStationMapper audioStationMapper,
                                         IDialogController dialogController,
                                         IIocEventAggregator eventAggregator,

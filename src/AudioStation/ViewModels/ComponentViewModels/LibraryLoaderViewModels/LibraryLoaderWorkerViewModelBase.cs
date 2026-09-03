@@ -1,19 +1,14 @@
 ﻿using System.Collections.ObjectModel;
-using System.Windows.Threading;
 
-using AudioStation.Core.Model.Interface;
 using AudioStation.Event.LibraryLoaderEvent;
-using AudioStation.EventHandler;
 using AudioStation.Service.Interface;
 
 using SimpleWpf.IocFramework.EventAggregation;
-using SimpleWpf.Utilities;
-using SimpleWpf.UI.ViewModel;
 using SimpleWpf.UI.Command;
 
 namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels
 {
-    public abstract class LibraryLoaderWorkerViewModelBase : ViewModelBase, IDisposable
+    public abstract class LibraryLoaderWorkerViewModelBase : ComponentViewModelBase
     {
         private readonly ILibraryLoaderWorkerService _libraryLoaderService;
 
@@ -151,33 +146,5 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels
             dest.Progress = source.Progress;
             dest.WorkSteps = source.WorkSteps;
         }
-
-        /// <summary>
-        /// Function to initialize work items - will forward the request to the dispatcher thread
-        /// </summary>
-        /// <param name="configuration">Valid configuration</param>
-        /// <param name="progressHandler">Progress callback</param>
-        public void InitializeWorkItems(IAudioStationConfiguration configuration, DialogEventHandlers.DialogProgressHandler progressHandler)
-        {
-            // Synchronous Invoke:  This should be used where there is no (async / await). Also, it is needed for completing the work during
-            //                      the application's initialization waiter. So, there is already a waiter for this load; but the work must
-            //                      be completed on the main thread because of view model binding.
-            //
-            if (BasicHelpers.IsDispatcher() == ApplicationIsDispatcherResult.False)
-                BasicHelpers.InvokeDispatcher(InitializeWorkItems, DispatcherPriority.Background, configuration, progressHandler);
-
-            else
-            {
-                InitializeWorkItemsRun(configuration, progressHandler);
-                OnUpdate();
-            }
-        }
-
-        /// <summary>
-        /// Function to initialize the component (this is called from the Dispatcher)
-        /// </summary>
-        protected abstract void InitializeWorkItemsRun(IAudioStationConfiguration configuration, DialogEventHandlers.DialogProgressHandler progressHandler);
-
-        public abstract void Dispose();
     }
 }

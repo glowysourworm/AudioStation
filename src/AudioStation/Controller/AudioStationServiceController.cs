@@ -6,6 +6,7 @@ using AudioStation.Core.Service.Interface;
 using AudioStation.Core.Service.Vendor.Bandcamp.Interface;
 using AudioStation.Core.Service.Vendor.Interface;
 using AudioStation.EventHandler;
+using AudioStation.Service.Interface;
 
 using SimpleWpf.Extensions.Event;
 using SimpleWpf.IocFramework.Application.Attribute;
@@ -24,6 +25,7 @@ namespace AudioStation.Controller
         private readonly IAudioController _audioController;
         private readonly IAcoustIDClient _acoustIDClient;
         private readonly IBandcampClient _bandcampClient;
+        private readonly ICDImportService _cdImportService;
         private readonly IDiscogsClient _discogsClient;
         private readonly IFanartClient _fanartClient;
         private readonly IITunesClient _iTunesClient;
@@ -37,6 +39,7 @@ namespace AudioStation.Controller
                                              IOutputController outputController,
                                              IAcoustIDClient acoustIDClient,
                                              IBandcampClient bandcampClient,
+                                             ICDImportService cdImportService,
                                              IDiscogsClient discogsClient,
                                              IFanartClient fanartClient,
                                              IITunesClient itunesClient,
@@ -49,6 +52,7 @@ namespace AudioStation.Controller
             _outputController = outputController;
             _acoustIDClient = acoustIDClient;
             _bandcampClient = bandcampClient;
+            _cdImportService = cdImportService;
             _discogsClient = discogsClient;
             _fanartClient = fanartClient;
             _iTunesClient = itunesClient;
@@ -118,8 +122,14 @@ namespace AudioStation.Controller
             else if (typeof(T) == typeof(IAcoustIDClient))
                 return (T)_acoustIDClient;
 
+            else if (typeof(T) == typeof(IAudioStationDbClient))
+                return (T)_audioStationDbClient;
+
             else if (typeof(T) == typeof(IBandcampClient))
                 return (T)_bandcampClient;
+
+            else if (typeof(T) == typeof(ICDImportService))
+                return (T)_cdImportService;
 
             else if (typeof(T) == typeof(IDiscogsClient))
                 return (T)_discogsClient;

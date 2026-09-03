@@ -7,7 +7,6 @@ using AudioStation.Core.Model.Interface;
 using AudioStation.Event;
 using AudioStation.Service.Interface;
 
-using SimpleWpf.IocFramework.Application.Attribute;
 using SimpleWpf.IocFramework.EventAggregation;
 using SimpleWpf.UI.Command;
 
@@ -15,7 +14,6 @@ using static AudioStation.EventHandler.DialogEventHandlers;
 
 namespace AudioStation.ViewModels.ComponentViewModels
 {
-    [IocExportDefault]
     public class CDImporterViewModel : ComponentViewModelBase
     {
         private readonly ICDImportService _cdImportService;
@@ -72,7 +70,6 @@ namespace AudioStation.ViewModels.ComponentViewModels
             set { this.RaiseAndSetIfChanged(ref _importCommand, value); }
         }
 
-        [IocImportingConstructor]
         public CDImporterViewModel(IIocEventAggregator eventAggregator,
                                    ICDImportService cdImportService)
         {

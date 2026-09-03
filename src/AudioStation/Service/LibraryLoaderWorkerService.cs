@@ -23,7 +23,7 @@ namespace AudioStation.Service
 
         [IocImportingConstructor]
         public LibraryLoaderWorkerService(ILibraryLoader libraryLoader,
-                                    IIocEventAggregator eventAggregator)
+                                          IIocEventAggregator eventAggregator)
         {
             _libraryLoader = libraryLoader;
             _eventAggregator = eventAggregator;

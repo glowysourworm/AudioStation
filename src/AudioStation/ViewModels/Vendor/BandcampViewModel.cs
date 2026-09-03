@@ -1,15 +1,16 @@
-﻿using AudioStation.Core.Service.Vendor.Bandcamp.Interface;
+﻿using AudioStation.Controller.Interface;
+using AudioStation.Core.Model.Interface;
+using AudioStation.Core.Service.Vendor.Bandcamp.Interface;
 using AudioStation.Event;
+using AudioStation.EventHandler;
+using AudioStation.ViewModels.ComponentViewModels;
 
-using SimpleWpf.IocFramework.Application.Attribute;
 using SimpleWpf.IocFramework.EventAggregation;
 using SimpleWpf.UI.Command;
-using SimpleWpf.UI.ViewModel;
 
 namespace AudioStation.ViewModels.Vendor
 {
-    [IocExportDefault]
-    public class BandcampViewModel : ViewModelBase
+    public class BandcampViewModel : ComponentViewModelBase
     {
         SimpleCommand<string> _searchBandcampCommand;
 
@@ -19,7 +20,6 @@ namespace AudioStation.ViewModels.Vendor
             set { RaiseAndSetIfChanged(ref _searchBandcampCommand, value); }
         }
 
-        [IocImportingConstructor]
         public BandcampViewModel(IBandcampClient bandcampClient, IIocEventAggregator eventAggregator)
         {
             this.SearchBandcampCommand = new SimpleCommand<string>(async (endpoint) =>
@@ -30,6 +30,11 @@ namespace AudioStation.ViewModels.Vendor
 
                 eventAggregator.GetEvent<DialogEvent>().Publish(DialogEventData.Dismiss());
             });
+        }
+
+        protected override void InitializeWork(IAudioStationConfiguration configuration, IAudioStationViewModelController viewModelController, DialogEventHandlers.DialogProgressHandler progressHandler)
+        {
+
         }
     }
 }

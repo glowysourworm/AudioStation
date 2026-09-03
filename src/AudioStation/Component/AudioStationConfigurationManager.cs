@@ -36,7 +36,7 @@ namespace AudioStation.Component
             _configuration = this.Open(configFileName);
 
             if (this.ConfigurationEvent != null)
-                this.ConfigurationEvent(_configuration, ConfigurationEventType.Open, ValidateConfiguration());
+                this.ConfigurationEvent(_configuration, ConfigurationEventType.Opened, ValidateConfiguration());
         }
 
         public AudioStationConfiguration GetConfiguration()

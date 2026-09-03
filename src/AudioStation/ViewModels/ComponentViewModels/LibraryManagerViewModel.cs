@@ -7,7 +7,6 @@ using AudioStation.Event;
 using AudioStation.Event.DialogEvents;
 using AudioStation.ViewModels.ComponentViewModels.LoadViewModels;
 
-using SimpleWpf.IocFramework.Application.Attribute;
 using SimpleWpf.IocFramework.EventAggregation;
 using SimpleWpf.UI.Command;
 
@@ -27,7 +26,6 @@ namespace AudioStation.ViewModels.ComponentViewModels
         FileUnavailable
     }
 
-    [IocExportDefault]
     public class LibraryManagerViewModel : ComponentViewModelBase
     {
         LibraryViewModel _library;
@@ -57,7 +55,6 @@ namespace AudioStation.ViewModels.ComponentViewModels
             set { this.RaiseAndSetIfChanged(ref _convertCommand, value); }
         }
 
-        [IocImportingConstructor]
         public LibraryManagerViewModel(IIocEventAggregator eventAggregator)
         {
             CONVERTIBLE_FILE_EXT = new string[]

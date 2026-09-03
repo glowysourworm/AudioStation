@@ -60,7 +60,7 @@ namespace AudioStation
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
-        private readonly MainViewModel _mainViewModel;
+        private MainViewModel _mainViewModel;
 
         // Needed by the framework
         public MainWindow()
@@ -75,20 +75,24 @@ namespace AudioStation
         [IocImportingConstructor]
         public MainWindow(IIocEventAggregator eventAggregator,
                           IDialogController dialogController,
-                          ICDDrive cdDrive,
-                          MainViewModel mainViewModel)
+                          ICDDrive cdDrive)
         {
             _eventAggregator = eventAggregator;
             _dialogController = dialogController;
-            _mainViewModel = mainViewModel;
+
 
             InitializeComponent();
-
-            this.DataContext = mainViewModel;
 
             // CD Drive
             _cdDrive = cdDrive;
             _cdDrive.TracksLoadedEvent += OnCDTracksLoaded;
+        }
+
+        public void Initialize(MainViewModel mainViewModel)
+        {
+            _mainViewModel = mainViewModel;
+
+            this.DataContext = mainViewModel;
         }
 
         protected override void OnSourceInitialized(EventArgs e)

@@ -4,7 +4,7 @@ using System.Windows.Documents;
 using System.Windows.Input;
 
 using AudioStation.Event;
-using AudioStation.ViewModels.MainViewModels;
+using AudioStation.ViewModels.ComponentViewModels;
 using AudioStation.ViewModels.MainViewModels.Interface;
 
 using SimpleWpf.IocFramework.Application.Attribute;

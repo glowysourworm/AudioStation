@@ -12,7 +12,6 @@ using AudioStation.ViewModels.ComponentViewModels.RadioViewModels;
 using Microsoft.Extensions.Logging;
 
 using SimpleWpf.Extensions.ObservableCollection;
-using SimpleWpf.IocFramework.Application.Attribute;
 using SimpleWpf.UI.Command;
 using SimpleWpf.Utilities;
 
@@ -20,7 +19,6 @@ using static AudioStation.EventHandler.DialogEventHandlers;
 
 namespace AudioStation.ViewModels.ComponentViewModels
 {
-    [IocExportDefault]
     public class RadioViewModel : ComponentViewModelBase
     {
         // Our Primary Library Collections
@@ -52,7 +50,6 @@ namespace AudioStation.ViewModels.ComponentViewModels
         }
 
 
-        [IocImportingConstructor]
         public RadioViewModel(ILibraryLoaderWorkerService libraryLoaderService,
                               IDialogController dialogController)
         {

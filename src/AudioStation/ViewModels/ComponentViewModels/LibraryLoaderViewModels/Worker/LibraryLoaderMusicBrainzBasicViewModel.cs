@@ -1,5 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 
+using AudioStation.Controller.Interface;
 using AudioStation.Core.Component.LibraryLoaderComponent;
 using AudioStation.Core.Database.AudioStationDatabase;
 using AudioStation.Core.Database.AudioStationDatabase.Interface;
@@ -9,17 +10,14 @@ using AudioStation.Service.Interface;
 using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Load;
 using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Output;
 
-using SimpleWpf.IocFramework.Application.Attribute;
 using SimpleWpf.IocFramework.EventAggregation;
 
 namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Worker
 {
-    [IocExportDefault]
     public class LibraryLoaderMusicBrainzBasicViewModel : LibraryLoaderWorkerViewModelBase
     {
         private readonly IAudioStationDbClient _audioStationDbClient;
 
-        [IocImportingConstructor]
         public LibraryLoaderMusicBrainzBasicViewModel(
                 IIocEventAggregator eventAggregator,
                 ILibraryLoaderWorkerService libraryLoaderService,
@@ -29,7 +27,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Wo
             _audioStationDbClient = audioStationDbClient;
         }
 
-        protected override void InitializeWorkItemsRun(IAudioStationConfiguration configuration, DialogEventHandlers.DialogProgressHandler progressHandler)
+        protected override void InitializeWork(IAudioStationConfiguration configuration, IAudioStationViewModelController viewModelController, DialogEventHandlers.DialogProgressHandler progressHandler)
         {
             try
             {
@@ -64,12 +62,5 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Wo
                 throw new Exception("Error initializing Library Loader component:  " + ex.Message);
             }
         }
-
-        public override void Dispose()
-        {
-
-        }
-
-
     }
 }

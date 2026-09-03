@@ -1,4 +1,5 @@
-﻿using AudioStation.Core.Component.LibraryLoaderComponent;
+﻿using AudioStation.Controller.Interface;
+using AudioStation.Core.Component.LibraryLoaderComponent;
 using AudioStation.Core.Database.AudioStationDatabase;
 using AudioStation.Core.Model;
 using AudioStation.Core.Model.Interface;
@@ -11,22 +12,19 @@ using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Output
 
 using Microsoft.Extensions.Logging;
 
-using SimpleWpf.IocFramework.Application.Attribute;
 using SimpleWpf.IocFramework.EventAggregation;
 
 namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Worker
 {
-    [IocExportDefault]
     public class LibraryLoaderAcoustIDViewModel : LibraryLoaderWorkerViewModelBase
     {
-        [IocImportingConstructor]
         public LibraryLoaderAcoustIDViewModel(IIocEventAggregator eventAggregator, ILibraryLoaderWorkerService libraryLoaderService)
             : base(eventAggregator, libraryLoaderService)
         {
         }
 
 
-        protected override void InitializeWorkItemsRun(IAudioStationConfiguration configuration, DialogEventHandlers.DialogProgressHandler progressHandler)
+        protected override void InitializeWork(IAudioStationConfiguration configuration, IAudioStationViewModelController viewModelController, DialogEventHandlers.DialogProgressHandler progressHandler)
         {
             try
             {
@@ -76,11 +74,6 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Wo
                 ApplicationHelpers.Log("Error loading import files:  {0}", LogLevel.Error, ex, ex.Message);
                 throw ex;
             }
-        }
-
-        public override void Dispose()
-        {
-            // Nothing to do
         }
     }
 }

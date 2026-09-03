@@ -1,13 +1,16 @@
 ﻿using System.Collections.ObjectModel;
 
+using AudioStation.Controller.Interface;
+using AudioStation.Core.Model.Interface;
+using AudioStation.EventHandler;
+using AudioStation.ViewModels.ComponentViewModels;
 using AudioStation.ViewModels.MainViewModels;
 
 using SimpleWpf.UI.Command;
-using SimpleWpf.UI.ViewModel;
 
 namespace AudioStation.ViewModels
 {
-    public class AudioStationConfigurationViewModel : ViewModelBase//, IAudioStationConfiguration
+    public class AudioStationConfigurationViewModel : ComponentViewModelBase
     {
         SimpleCommand<string> _addDirectoryCommand;
         SimpleCommand<LibraryDirectoryViewModel> _removeDirectoryCommand;
@@ -251,6 +254,11 @@ namespace AudioStation.ViewModels
             {
                 this.LibraryDirectories.Remove(selectedDirectory);
             });
+        }
+
+        protected override void InitializeWork(IAudioStationConfiguration configuration, IAudioStationViewModelController viewModelController, DialogEventHandlers.DialogProgressHandler progressHandler)
+        {
+            // THIS COULD BE USED TO MAP THE CONFIGURATION
         }
     }
 }

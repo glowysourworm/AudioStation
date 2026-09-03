@@ -1,12 +1,11 @@
-﻿using AudioStation.ViewModels.OtherViewModels;
+﻿using AudioStation.Controller.Interface;
+using AudioStation.Core.Model.Interface;
+using AudioStation.EventHandler;
+using AudioStation.ViewModels.OtherViewModels;
 
-using SimpleWpf.IocFramework.Application.Attribute;
-using SimpleWpf.UI.ViewModel;
-
-namespace AudioStation.ViewModels.MainViewModels
+namespace AudioStation.ViewModels.ComponentViewModels
 {
-    [IocExportDefault]
-    public class StatusViewModel : ViewModelBase
+    public class StatusViewModel : ComponentViewModelBase
     {
         string _primaryMessage;
 
@@ -85,7 +84,6 @@ namespace AudioStation.ViewModels.MainViewModels
             set { this.RaiseAndSetIfChanged(ref _spotifyClient, value); }
         }
 
-        [IocImportingConstructor]
         public StatusViewModel()
         {
             this.PrimaryMessage = string.Empty;
@@ -101,6 +99,11 @@ namespace AudioStation.ViewModels.MainViewModels
             this.LastFmClient = new StatusIconViewModel();
             this.MusicBrainzClient = new StatusIconViewModel();
             this.SpotifyClient = new StatusIconViewModel();
+        }
+
+        protected override void InitializeWork(IAudioStationConfiguration configuration, IAudioStationViewModelController viewModelController, DialogEventHandlers.DialogProgressHandler progressHandler)
+        {
+
         }
     }
 }

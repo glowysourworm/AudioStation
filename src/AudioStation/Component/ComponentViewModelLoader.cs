@@ -1,6 +1,7 @@
 ﻿using System.Windows.Threading;
 
 using AudioStation.Component.Interface;
+using AudioStation.Controller.Interface;
 using AudioStation.Core;
 using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Database.AudioStationDatabase;
@@ -59,11 +60,7 @@ namespace AudioStation.Component
             ILibraryLoaderService libraryLoaderService,
 
             // View Models
-            CDImporterViewModel cdImporterViewModel,
-            LibraryImporterViewModel libraryImporterViewModel,
-            LibraryManagerViewModel libraryManagerViewModel,
-            RadioViewModel radioViewModel,
-            LogViewModel logViewModel,
+            IAudioStationViewModelController viewModelController,
 
             // Controllers
             IAudioStationDbClient audioStationDbClient)
@@ -75,11 +72,11 @@ namespace AudioStation.Component
 
             _libraryLoaderService = libraryLoaderService;
 
-            _cdImporterViewModel = cdImporterViewModel;
-            _libraryImporterViewModel = libraryImporterViewModel;
-            _libraryManagerViewModel = libraryManagerViewModel;
-            _radioViewModel = radioViewModel;
-            _logViewModel = logViewModel;
+            _cdImporterViewModel = viewModelController.GetComponent<CDImporterViewModel>();
+            _libraryImporterViewModel = viewModelController.GetComponent<LibraryImporterViewModel>();
+            _libraryManagerViewModel = viewModelController.GetComponent<LibraryManagerViewModel>();
+            _radioViewModel = viewModelController.GetComponent<RadioViewModel>();
+            _logViewModel = viewModelController.GetComponent<LogViewModel>();
 
             _audioStationDbClient = audioStationDbClient;
         }

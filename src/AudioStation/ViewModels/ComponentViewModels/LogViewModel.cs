@@ -6,7 +6,6 @@ using AudioStation.Core.Model.Interface;
 using AudioStation.Model;
 using AudioStation.ViewModels.ComponentViewModels.LogViewModels;
 
-using SimpleWpf.IocFramework.Application.Attribute;
 using SimpleWpf.IocFramework.EventAggregation;
 using SimpleWpf.Utilities;
 
@@ -14,12 +13,10 @@ using static AudioStation.EventHandler.DialogEventHandlers;
 
 namespace AudioStation.ViewModels.ComponentViewModels
 {
-    [IocExportDefault]
     public class LogViewModel : ComponentViewModelBase
     {
         LogSetViewModel _viewModel;
 
-        [IocImportingConstructor]
         public LogViewModel(IIocEventAggregator eventAggregator)
         {
             eventAggregator.GetEvent<LogEvent>().Subscribe(OnLog);

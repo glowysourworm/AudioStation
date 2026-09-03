@@ -1,4 +1,5 @@
-﻿using AudioStation.Core;
+﻿using AudioStation.Controller.Interface;
+using AudioStation.Core;
 using AudioStation.Core.Model.Interface;
 using AudioStation.Core.Utility;
 using AudioStation.EventHandler;
@@ -16,43 +17,41 @@ namespace AudioStation.Service
     [IocExport(typeof(ILibraryLoaderService))]
     public class LibraryLoaderService : ILibraryLoaderService
     {
-        private readonly LibraryLoaderAcoustIDViewModel _libraryLoaderAcoustIDViewModel;
-        private readonly LibraryLoaderFileCheckerViewModel _libraryLoaderFileCheckerViewModel;
-        private readonly LibraryLoaderMusicBrainzBasicViewModel _libraryLoaderMusicBrainzBasicViewModel;
-        private readonly LibraryLoaderMusicBrainzAlbumArtViewModel _libraryLoaderMusicBrainzAlbumArtViewModel;
+        private LibraryLoaderAcoustIDViewModel _libraryLoaderAcoustIDViewModel;
+        private LibraryLoaderFileCheckerViewModel _libraryLoaderFileCheckerViewModel;
+        private LibraryLoaderMusicBrainzBasicViewModel _libraryLoaderMusicBrainzBasicViewModel;
+        private LibraryLoaderMusicBrainzAlbumArtViewModel _libraryLoaderMusicBrainzAlbumArtViewModel;
 
         [IocImportingConstructor]
-        public LibraryLoaderService(LibraryLoaderAcoustIDViewModel libraryLoaderAcoustIDViewModel,
-                                    LibraryLoaderFileCheckerViewModel libraryLoaderFileCheckerViewModel,
-                                    LibraryLoaderMusicBrainzBasicViewModel libraryLoaderMusicBrainzBasicViewModel,
-                                    LibraryLoaderMusicBrainzAlbumArtViewModel libraryLoaderMusicBrainzAlbumArtViewModel)
+        public LibraryLoaderService()
         {
-            _libraryLoaderAcoustIDViewModel = libraryLoaderAcoustIDViewModel;
-            _libraryLoaderFileCheckerViewModel = libraryLoaderFileCheckerViewModel;
-            _libraryLoaderMusicBrainzBasicViewModel = libraryLoaderMusicBrainzBasicViewModel;
-            _libraryLoaderMusicBrainzAlbumArtViewModel = libraryLoaderMusicBrainzAlbumArtViewModel;
         }
 
-        public void Initialize(AudioStationConfiguration configuration, DialogEventHandlers.DialogProgressHandler progressHandler)
+        public void Initialize(AudioStationConfiguration configuration, IAudioStationViewModelController audioStationViewModelController, DialogEventHandlers.DialogProgressHandler progressHandler)
         {
             var taskCount = 4;
             var task = 1;
 
+            _libraryLoaderAcoustIDViewModel = audioStationViewModelController.GetComponent<LibraryLoaderAcoustIDViewModel>();
+            _libraryLoaderFileCheckerViewModel = audioStationViewModelController.GetComponent<LibraryLoaderFileCheckerViewModel>(); ;
+            _libraryLoaderMusicBrainzBasicViewModel = audioStationViewModelController.GetComponent<LibraryLoaderMusicBrainzBasicViewModel>(); ;
+            _libraryLoaderMusicBrainzAlbumArtViewModel = audioStationViewModelController.GetComponent<LibraryLoaderMusicBrainzAlbumArtViewModel>(); ;
+
             // Library Loader: File Checker
             progressHandler(taskCount, task++, 0, "Initializing File Checker...");
-            _libraryLoaderFileCheckerViewModel.InitializeWorkItems(configuration, progressHandler);
+            _libraryLoaderFileCheckerViewModel.Initialize(configuration, audioStationViewModelController, progressHandler);
 
             // Library Loader: AcoustID
             progressHandler(taskCount, task++, 0, "Initializing AcoustID...");
-            _libraryLoaderAcoustIDViewModel.InitializeWorkItems(configuration, progressHandler);
+            _libraryLoaderAcoustIDViewModel.Initialize(configuration, audioStationViewModelController, progressHandler);
 
             // Library Loader: Music Brainz (Basic)
             progressHandler(taskCount, task++, 0, "Initializing Music Brainz (Basic)...");
-            _libraryLoaderMusicBrainzBasicViewModel.InitializeWorkItems(configuration, progressHandler);
+            _libraryLoaderMusicBrainzBasicViewModel.Initialize(configuration, audioStationViewModelController, progressHandler);
 
             // Library Loader: Music Brainz (Album Art)
             progressHandler(taskCount, task++, 0, "Initializing Music Brainz (Album Art)...");
-            _libraryLoaderMusicBrainzAlbumArtViewModel.InitializeWorkItems(configuration, progressHandler);
+            _libraryLoaderMusicBrainzAlbumArtViewModel.Initialize(configuration, audioStationViewModelController, progressHandler);
         }
 
         public LibraryImporterTreeViewModel InitializeImporterTree(

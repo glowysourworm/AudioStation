@@ -7,6 +7,7 @@ using AudioStation.Core.Component.CDPlayer.Interface;
 using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Controller.Interface;
 using AudioStation.Core.Database.AudioStationDatabase.Interface;
+using AudioStation.Core.Event;
 using AudioStation.Core.Model.Interface;
 using AudioStation.Core.Service.Interface;
 using AudioStation.Core.Service.Vendor.Bandcamp.Interface;
@@ -17,7 +18,6 @@ using AudioStation.Model;
 using AudioStation.ViewModels.ComponentViewModels;
 using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Worker;
 using AudioStation.ViewModels.Controls;
-using AudioStation.ViewModels.MainViewModels;
 using AudioStation.ViewModels.OtherViewModels;
 using AudioStation.ViewModels.Vendor;
 
@@ -214,257 +214,155 @@ public class MainViewModel : ComponentViewModelBase
     }
     #endregion
 
-    public MainViewModel(IAudioStationMapper audioStationMapper,
+    public MainViewModel(IAudioStationServiceController audioStationServiceController,
+                         IAudioStationMapper audioStationMapper,
                          IDialogController dialogController,
                          IIocEventAggregator eventAggregator,
                          ICDDrive cdDrive)
     {
-        //_eventAggregator = eventAggregator;
+        // IAudioStationComponent
+        var audioController = audioStationServiceController.GetComponent<IAudioController>();
 
-        //this.ConfigurationLocked = true;
-        //this.Configuration = audioStationMapper.Map<AudioStationConfiguration, AudioStationConfigurationViewModel>(configurationManager.GetConfiguration());
-        //this.EqualizerValues = new ObservableCollection<float>();
-        //this.EqualizerViewModel = new ObservableCollection<EqualizerBandViewModel>()
-        //{
-        //    // See SimpleMp3PlayerWithEqualizer (channel number won't be input.. just keeping things in sync w/ NAudio)
-        //    new EqualizerBandViewModel(100, 0, 0.8f, 1),
-        //    new EqualizerBandViewModel(200, 0, 0.8f, 1),
-        //    new EqualizerBandViewModel(400, 0, 0.8f, 1),
-        //    new EqualizerBandViewModel(800, 0, 0.8f, 1),
-        //    new EqualizerBandViewModel(1200, 0, 0.8f, 1),
-        //    new EqualizerBandViewModel(2400, 0, 0.8f, 1),
-        //    new EqualizerBandViewModel(4800, 0, 0.8f, 1),
-        //    new EqualizerBandViewModel(9600, 0, 0.8f, 1)
-        //};
+        audioController.CurrentTimeUpdated += OnCurrentTimeUpdated;
+        audioController.CurrentBandLevelsUpdated += OnCurrentBandLevelsUpdated;
 
-        //// Child View Models
-        //this.Log = logViewModel;
-        //this.NowPlaying = nowPlayingViewModel;
-        //this.PlayState = PlayStopPause.Stop;
-        //this.LibraryManager = libraryManagerViewModel;
-        //this.StatusViewModel = statusViewModel;
-        //this.Radio = radioViewModel;
-        //this.LibraryImporter = libraryImporterViewModel;
-        //this.LibraryLoaderAcoustID = libraryLoaderAcoustIDViewModel;
-        //this.LibraryLoaderCDImport = libraryLoaderCDImportViewModel;
-        //this.LibraryLoaderFileChecker = libraryLoaderFileChecker;
-        //this.LibraryLoaderMusicBrainzBasic = libraryLoaderMusicBrainzBasicViewModel;
-        //this.LibraryLoaderMusicBrainzAlbumArt = libraryLoaderMusicBrainzAlbumArtViewModel;
-        //this.Bandcamp = bandcampViewModel;
-        //this.Volume = 1.0f;
-        //this.Loading = false;
+        audioStationServiceController.ComponentInitializedEvent += IAudioStationComponent_StatusChangeEvent;
+        audioStationServiceController.ComponentStatusChangedEvent += IAudioStationComponent_StatusChangeEvent;
 
-        //// IAudioStationComponent
-        //var audioController = componentController.GetComponent<IAudioController>();
+        // Event Aggregator
+        eventAggregator.GetEvent<LogEvent>().Subscribe(OnLog);
+        eventAggregator.GetEvent<PlaybackStateChangedEvent>().Subscribe(OnPlaybackStateChanged);
+        eventAggregator.GetEvent<UpdateVolumeEvent>().Subscribe(OnUpdateVolume);
+        eventAggregator.GetEvent<UpdateEqualizerGainEvent>().Subscribe(OnUpdateEqualizer);
+        eventAggregator.GetEvent<PlaybackVolumeUpdatedEvent>().Subscribe(OnVolumeUpdated);
+        eventAggregator.GetEvent<DialogEvent>().Subscribe(OnMainLoadingChanged, IocEventPriority.High);
 
-        //audioController.CurrentTimeUpdated += OnCurrentTimeUpdated;
-        //audioController.CurrentBandLevelsUpdated += OnCurrentBandLevelsUpdated;
+        // -> Configuration
+        eventAggregator.GetEvent<ConfigurationEvent>().Subscribe((eventData) =>
+        {
+            switch (eventData.Type)
+            {
+                case ConfigurationEventType.Opened:
+                    this.Configuration = eventData.ViewModel;
+                    break;
+                case ConfigurationEventType.Modified:
+                    this.Configuration = eventData.ViewModel;
+                    break;
+                case ConfigurationEventType.Saved:
+                    this.Configuration = eventData.ViewModel;
+                    this.ConfigurationLocked = true;
+                    break;
+                case ConfigurationEventType.SaveRequest:
+                    break;
+                default:
+                    throw new Exception("Unhandled configuration event type");
+            }
+        });
 
-        //componentController.ComponentInitializedEvent += IAudioStationComponent_StatusChangeEvent;
-        //componentController.ComponentStatusChangedEvent += IAudioStationComponent_StatusChangeEvent;
+        // -> Configuration
+        this.SaveConfigurationCommand = new SimpleCommand(() =>
+        {
+            // Save Request
+            eventAggregator.GetEvent<ConfigurationEvent>().Publish(new ConfigurationEventData()
+            {
+                ViewModel = this.Configuration,
+                Type = ConfigurationEventType.SaveRequest
+            });
+        });
+        this.OpenLibraryFolderCommand = new SimpleCommand(() =>
+        {
+            var folder = dialogController.ShowSelectFolder();
 
-        //// Event Aggregator
-        //eventAggregator.GetEvent<LogEvent>().Subscribe(OnLog);
-        //eventAggregator.GetEvent<PlaybackStateChangedEvent>().Subscribe(OnPlaybackStateChanged);
-        //eventAggregator.GetEvent<UpdateVolumeEvent>().Subscribe(OnUpdateVolume);
-        //eventAggregator.GetEvent<UpdateEqualizerGainEvent>().Subscribe(OnUpdateEqualizer);
-        //eventAggregator.GetEvent<PlaybackVolumeUpdatedEvent>().Subscribe(OnVolumeUpdated);
-        //eventAggregator.GetEvent<DialogEvent>().Subscribe(OnMainLoadingChanged, IocEventPriority.High);
+            if (!string.IsNullOrEmpty(folder))
+            {
+                //this.Configuration.DirectoryBase = folder;
+            }
+        });
+        this.OpenMusicSubFolderCommand = new SimpleCommand(() =>
+        {
+            var folder = dialogController.ShowSelectFolder();
 
-        //// -> Configuration
-        //eventAggregator.GetEvent<ConfigurationEvent>().Subscribe((eventData) =>
-        //{
-        //    this.Configuration = eventData.ViewModel;
-        //});
+            if (!string.IsNullOrEmpty(folder))
+            {
+                //this.Configuration.MusicSubDirectory = Path.GetFileName(folder) ?? string.Empty;
+            }
+        });
+        this.OpenAudioBooksSubFolderCommand = new SimpleCommand(() =>
+        {
+            var folder = dialogController.ShowSelectFolder();
 
-        //this.SaveConfigurationCommand = new SimpleCommand(() =>
-        //{
-        //    var configuration = audioStationMapper.Map<AudioStationConfigurationViewModel, AudioStationConfiguration>(this.Configuration);
-        //    configurationManager.SaveConfiguration(configuration);
-        //    this.ConfigurationLocked = true;
-        //});
-        //this.OpenLibraryFolderCommand = new SimpleCommand(() =>
-        //{
-        //    var folder = dialogController.ShowSelectFolder();
+            if (!string.IsNullOrEmpty(folder))
+            {
+                //this.Configuration.AudioBooksSubDirectory = Path.GetFileName(folder) ?? string.Empty;
+            }
+        });
+        this.OpenImportFolderCommand = new SimpleCommand(() =>
+        {
+            var folder = dialogController.ShowSelectFolder();
 
-        //    if (!string.IsNullOrEmpty(folder))
-        //    {
-        //        //this.Configuration.DirectoryBase = folder;
-        //    }
-        //});
-        //this.OpenMusicSubFolderCommand = new SimpleCommand(() =>
-        //{
-        //    var folder = dialogController.ShowSelectFolder();
+            if (!string.IsNullOrEmpty(folder))
+            {
+                //this.Configuration.ImportFolder = folder;
+            }
+        });
+        this.OpenCacheFolderCommand = new SimpleCommand(() =>
+        {
+            var folder = dialogController.ShowSelectFolder();
 
-        //    if (!string.IsNullOrEmpty(folder))
-        //    {
-        //        //this.Configuration.MusicSubDirectory = Path.GetFileName(folder) ?? string.Empty;
-        //    }
-        //});
-        //this.OpenAudioBooksSubFolderCommand = new SimpleCommand(() =>
-        //{
-        //    var folder = dialogController.ShowSelectFolder();
+            if (!string.IsNullOrEmpty(folder))
+            {
+                //this.Configuration.ApplicationCacheFolder = folder;
+            }
+        });
+        this.OpenStorageFolderCommand = new SimpleCommand(() =>
+        {
+            var folder = dialogController.ShowSelectFolder();
 
-        //    if (!string.IsNullOrEmpty(folder))
-        //    {
-        //        //this.Configuration.AudioBooksSubDirectory = Path.GetFileName(folder) ?? string.Empty;
-        //    }
-        //});
-        //this.OpenImportFolderCommand = new SimpleCommand(() =>
-        //{
-        //    var folder = dialogController.ShowSelectFolder();
-
-        //    if (!string.IsNullOrEmpty(folder))
-        //    {
-        //        //this.Configuration.ImportFolder = folder;
-        //    }
-        //});
-        //this.OpenCacheFolderCommand = new SimpleCommand(() =>
-        //{
-        //    var folder = dialogController.ShowSelectFolder();
-
-        //    if (!string.IsNullOrEmpty(folder))
-        //    {
-        //        //this.Configuration.ApplicationCacheFolder = folder;
-        //    }
-        //});
-        //this.OpenStorageFolderCommand = new SimpleCommand(() =>
-        //{
-        //    var folder = dialogController.ShowSelectFolder();
-
-        //    if (!string.IsNullOrEmpty(folder))
-        //    {
-        //        //this.Configuration.ApplicationStorageFolder = folder;
-        //    }
-        //});
-        //this.UnlockConfigurationCommand = new SimpleCommand(() =>
-        //{
-        //    this.ConfigurationLocked = false;
-        //});
+            if (!string.IsNullOrEmpty(folder))
+            {
+                //this.Configuration.ApplicationStorageFolder = folder;
+            }
+        });
+        this.UnlockConfigurationCommand = new SimpleCommand(() =>
+        {
+            this.ConfigurationLocked = false;
+        });
     }
 
     protected override void InitializeWork(IAudioStationConfiguration configuration, IAudioStationViewModelController viewModelController, DialogEventHandlers.DialogProgressHandler progressHandler)
     {
-        //this.ConfigurationLocked = true;
-        //this.Configuration = audioStationMapper.Map<AudioStationConfiguration, AudioStationConfigurationViewModel>(configuration);
-        //this.EqualizerValues = new ObservableCollection<float>();
-        //this.EqualizerViewModel = new ObservableCollection<EqualizerBandViewModel>()
-        //{
-        //    // See SimpleMp3PlayerWithEqualizer (channel number won't be input.. just keeping things in sync w/ NAudio)
-        //    new EqualizerBandViewModel(100, 0, 0.8f, 1),
-        //    new EqualizerBandViewModel(200, 0, 0.8f, 1),
-        //    new EqualizerBandViewModel(400, 0, 0.8f, 1),
-        //    new EqualizerBandViewModel(800, 0, 0.8f, 1),
-        //    new EqualizerBandViewModel(1200, 0, 0.8f, 1),
-        //    new EqualizerBandViewModel(2400, 0, 0.8f, 1),
-        //    new EqualizerBandViewModel(4800, 0, 0.8f, 1),
-        //    new EqualizerBandViewModel(9600, 0, 0.8f, 1)
-        //};
+        this.ConfigurationLocked = true;
+        this.Configuration = viewModelController.GetComponent<AudioStationConfigurationViewModel>();
+        this.EqualizerValues = new ObservableCollection<float>();
+        this.EqualizerViewModel = new ObservableCollection<EqualizerBandViewModel>()
+        {
+            // See SimpleMp3PlayerWithEqualizer (channel number won't be input.. just keeping things in sync w/ NAudio)
+            new EqualizerBandViewModel(100, 0, 0.8f, 1),
+            new EqualizerBandViewModel(200, 0, 0.8f, 1),
+            new EqualizerBandViewModel(400, 0, 0.8f, 1),
+            new EqualizerBandViewModel(800, 0, 0.8f, 1),
+            new EqualizerBandViewModel(1200, 0, 0.8f, 1),
+            new EqualizerBandViewModel(2400, 0, 0.8f, 1),
+            new EqualizerBandViewModel(4800, 0, 0.8f, 1),
+            new EqualizerBandViewModel(9600, 0, 0.8f, 1)
+        };
 
-        //// Child View Models
-        //this.Log = logViewModel;
-        //this.NowPlaying = nowPlayingViewModel;
-        //this.PlayState = PlayStopPause.Stop;
-        //this.LibraryManager = libraryManagerViewModel;
-        //this.StatusViewModel = statusViewModel;
-        //this.Radio = radioViewModel;
-        //this.LibraryImporter = libraryImporterViewModel;
-        //this.LibraryLoaderAcoustID = libraryLoaderAcoustIDViewModel;
-        //this.LibraryLoaderCDImport = libraryLoaderCDImportViewModel;
-        //this.LibraryLoaderFileChecker = libraryLoaderFileChecker;
-        //this.LibraryLoaderMusicBrainzBasic = libraryLoaderMusicBrainzBasicViewModel;
-        //this.LibraryLoaderMusicBrainzAlbumArt = libraryLoaderMusicBrainzAlbumArtViewModel;
-        //this.Bandcamp = bandcampViewModel;
-        //this.Volume = 1.0f;
-        //this.Loading = false;
-
-        //// IAudioStationComponent
-        //var audioController = componentController.GetComponent<IAudioController>();
-
-        //audioController.CurrentTimeUpdated += OnCurrentTimeUpdated;
-        //audioController.CurrentBandLevelsUpdated += OnCurrentBandLevelsUpdated;
-
-        //componentController.ComponentInitializedEvent += IAudioStationComponent_StatusChangeEvent;
-        //componentController.ComponentStatusChangedEvent += IAudioStationComponent_StatusChangeEvent;
-
-        //// Event Aggregator
-        //eventAggregator.GetEvent<LogEvent>().Subscribe(OnLog);
-        //eventAggregator.GetEvent<PlaybackStateChangedEvent>().Subscribe(OnPlaybackStateChanged);
-        //eventAggregator.GetEvent<UpdateVolumeEvent>().Subscribe(OnUpdateVolume);
-        //eventAggregator.GetEvent<UpdateEqualizerGainEvent>().Subscribe(OnUpdateEqualizer);
-        //eventAggregator.GetEvent<PlaybackVolumeUpdatedEvent>().Subscribe(OnVolumeUpdated);
-        //eventAggregator.GetEvent<DialogEvent>().Subscribe(OnMainLoadingChanged, IocEventPriority.High);
-
-        //// -> Configuration
-        //eventAggregator.GetEvent<ConfigurationEvent>().Subscribe((eventData) =>
-        //{
-        //    this.Configuration = eventData.ViewModel;
-        //});
-
-        //this.SaveConfigurationCommand = new SimpleCommand(() =>
-        //{
-        //    var configuration = audioStationMapper.Map<AudioStationConfigurationViewModel, AudioStationConfiguration>(this.Configuration);
-        //    configurationManager.SaveConfiguration(configuration);
-        //    this.ConfigurationLocked = true;
-        //});
-        //this.OpenLibraryFolderCommand = new SimpleCommand(() =>
-        //{
-        //    var folder = dialogController.ShowSelectFolder();
-
-        //    if (!string.IsNullOrEmpty(folder))
-        //    {
-        //        //this.Configuration.DirectoryBase = folder;
-        //    }
-        //});
-        //this.OpenMusicSubFolderCommand = new SimpleCommand(() =>
-        //{
-        //    var folder = dialogController.ShowSelectFolder();
-
-        //    if (!string.IsNullOrEmpty(folder))
-        //    {
-        //        //this.Configuration.MusicSubDirectory = Path.GetFileName(folder) ?? string.Empty;
-        //    }
-        //});
-        //this.OpenAudioBooksSubFolderCommand = new SimpleCommand(() =>
-        //{
-        //    var folder = dialogController.ShowSelectFolder();
-
-        //    if (!string.IsNullOrEmpty(folder))
-        //    {
-        //        //this.Configuration.AudioBooksSubDirectory = Path.GetFileName(folder) ?? string.Empty;
-        //    }
-        //});
-        //this.OpenImportFolderCommand = new SimpleCommand(() =>
-        //{
-        //    var folder = dialogController.ShowSelectFolder();
-
-        //    if (!string.IsNullOrEmpty(folder))
-        //    {
-        //        //this.Configuration.ImportFolder = folder;
-        //    }
-        //});
-        //this.OpenCacheFolderCommand = new SimpleCommand(() =>
-        //{
-        //    var folder = dialogController.ShowSelectFolder();
-
-        //    if (!string.IsNullOrEmpty(folder))
-        //    {
-        //        //this.Configuration.ApplicationCacheFolder = folder;
-        //    }
-        //});
-        //this.OpenStorageFolderCommand = new SimpleCommand(() =>
-        //{
-        //    var folder = dialogController.ShowSelectFolder();
-
-        //    if (!string.IsNullOrEmpty(folder))
-        //    {
-        //        //this.Configuration.ApplicationStorageFolder = folder;
-        //    }
-        //});
-        //this.UnlockConfigurationCommand = new SimpleCommand(() =>
-        //{
-        //    this.ConfigurationLocked = false;
-        //});
+        // Child View Models
+        this.Log = viewModelController.GetComponent<LogViewModel>();
+        this.NowPlaying = viewModelController.GetComponent<NowPlayingViewModel>();
+        this.PlayState = PlayStopPause.Stop;
+        this.LibraryManager = viewModelController.GetComponent<LibraryManagerViewModel>();
+        this.StatusViewModel = viewModelController.GetComponent<StatusViewModel>();
+        this.Radio = viewModelController.GetComponent<RadioViewModel>();
+        this.LibraryImporter = viewModelController.GetComponent<LibraryImporterViewModel>();
+        this.LibraryLoaderAcoustID = viewModelController.GetComponent<LibraryLoaderAcoustIDViewModel>();
+        this.LibraryLoaderCDImport = viewModelController.GetComponent<CDImporterViewModel>();
+        this.LibraryLoaderFileChecker = viewModelController.GetComponent<LibraryLoaderFileCheckerViewModel>();
+        this.LibraryLoaderMusicBrainzBasic = viewModelController.GetComponent<LibraryLoaderMusicBrainzBasicViewModel>();
+        this.LibraryLoaderMusicBrainzAlbumArt = viewModelController.GetComponent<LibraryLoaderMusicBrainzAlbumArtViewModel>();
+        this.Bandcamp = viewModelController.GetComponent<BandcampViewModel>();
+        this.Volume = 1.0f;
+        this.Loading = false;
     }
 
     private void OnLog(LogMessage message)
@@ -473,6 +371,10 @@ public class MainViewModel : ComponentViewModelBase
     }
     private void IAudioStationComponent_StatusChangeEvent(IAudioStationService sender, IAudioStationService.Status status)
     {
+        // Still not initialized
+        if (!this.Initialized)
+            return;
+
         StatusIconViewModel viewModel = null;
 
         if (sender is IOutputController)

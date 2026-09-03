@@ -1,20 +1,21 @@
 ﻿using System.Collections.ObjectModel;
 
+using AudioStation.Controller.Interface;
 using AudioStation.Core.Component;
 using AudioStation.Core.Model;
+using AudioStation.Core.Model.Interface;
 using AudioStation.Event;
+using AudioStation.EventHandler;
+using AudioStation.ViewModels.MainViewModels;
 using AudioStation.ViewModels.MainViewModels.Interface;
 
 using SimpleWpf.Extensions.Collection;
 using SimpleWpf.Extensions.ObservableCollection;
-using SimpleWpf.IocFramework.Application.Attribute;
 using SimpleWpf.IocFramework.EventAggregation;
-using SimpleWpf.UI.ViewModel;
 
-namespace AudioStation.ViewModels.MainViewModels
+namespace AudioStation.ViewModels.ComponentViewModels
 {
-    [IocExportDefault]
-    public class NowPlayingViewModel : ViewModelBase
+    public class NowPlayingViewModel : ComponentViewModelBase
     {
         PlaylistViewModel _playlist;
 
@@ -72,7 +73,6 @@ namespace AudioStation.ViewModels.MainViewModels
 
         private readonly IIocEventAggregator _eventAggregator;
 
-        [IocImportingConstructor]
         public NowPlayingViewModel(IIocEventAggregator eventAggregator)
         {
             _eventAggregator = eventAggregator;
@@ -187,6 +187,11 @@ namespace AudioStation.ViewModels.MainViewModels
             {
                 OnLoadNextTrack();
             }
+        }
+
+        protected override void InitializeWork(IAudioStationConfiguration configuration, IAudioStationViewModelController viewModelController, DialogEventHandlers.DialogProgressHandler progressHandler)
+        {
+
         }
     }
 }

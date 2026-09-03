@@ -19,6 +19,7 @@ namespace AudioStation.Controller
         IAudioStationMapper _audioStationMapper;
         IAudioStationConfigurationManager _audioStationConfigurationManager;
         IAudioStationServiceController _audioStationServiceController;
+        IAudioStationViewModelController _audioStationViewModelController;
         IComponentViewModelLoader _componentViewModelLoader;
         ILibraryLoaderService _libraryLoaderService;
 
@@ -30,6 +31,7 @@ namespace AudioStation.Controller
                                       IAudioStationMapper audioStationMapper,
                                       IAudioStationConfigurationManager audioStationConfigurationManager,
                                       IAudioStationServiceController audioStationServiceController,
+                                      IAudioStationViewModelController audioStationViewModelController,
                                       IComponentViewModelLoader componentViewModelLoader,
                                       ILibraryLoaderService libraryLoaderService)
         {
@@ -37,6 +39,7 @@ namespace AudioStation.Controller
             _eventAggregator = eventAggregator;
             _audioStationConfigurationManager = audioStationConfigurationManager;
             _audioStationServiceController = audioStationServiceController;
+            _audioStationViewModelController = audioStationViewModelController;
             _componentViewModelLoader = componentViewModelLoader;
             _libraryLoaderService = libraryLoaderService;
 
@@ -62,8 +65,9 @@ namespace AudioStation.Controller
             // Initialize:  Primary Component Initializers -> Primary Components (Initialize)
             //
             _audioStationServiceController.Initialize(configuration, progressHandler);
+            _audioStationViewModelController.Initialize(configuration, progressHandler);
             _componentViewModelLoader.Initialize(configuration, progressHandler);
-            _libraryLoaderService.Initialize(configuration, progressHandler);
+            _libraryLoaderService.Initialize(configuration, _audioStationViewModelController, progressHandler);
         }
 
         private void OnConfigurationEvent(AudioStationConfiguration configuration, ConfigurationEventType eventType, bool configurationValid)
@@ -72,8 +76,10 @@ namespace AudioStation.Controller
             _audioStationMapper.MapOnto(configuration, _audioStationConfigurationViewModel);
 
             // -> Listeners (AudioStation assembly only) (other listeners will be re-initialized due to new configuration)
-            _eventAggregator.GetEvent<ConfigurationEvent>().Publish(new ConfigurationEventData(configuration, _audioStationConfigurationViewModel)
+            _eventAggregator.GetEvent<ConfigurationEvent>().Publish(new ConfigurationEventData()
             {
+                Configuration = configuration,
+                ViewModel = _audioStationConfigurationViewModel,
                 IsConfigurationValid = configurationValid,
                 Type = eventType
             });
