@@ -253,6 +253,7 @@ public class MainViewModel : ComponentViewModelBase
                     this.ConfigurationLocked = true;
                     break;
                 case ConfigurationEventType.SaveRequest:
+                case ConfigurationEventType.ModifyRequest:
                     break;
                 default:
                     throw new Exception("Unhandled configuration event type");

@@ -9,7 +9,7 @@
              xmlns:enumUI="clr-namespace:SimpleWpf.UI.Controls.EnumUI;assembly=SimpleWpf.UI"
              xmlns:configurationView="clr-namespace:AudioStation.Views.Configuration">
 
-    <Grid RowDefinitions="Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto, *" ColumnDefinitions="260, *, Auto">
+    <Grid RowDefinitions="Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto, *" ColumnDefinitions="260, *, Auto">
 
         <Border Grid.ColumnSpan="3" 
                 Margin="5"
@@ -35,9 +35,9 @@
 
         <TextBlock Text="Import Type" Style="{StaticResource LabelTextBlock}" Margin="5" Grid.Row="1" />
         <TextBlock Text="Import Source Directory" Style="{StaticResource LabelTextBlock}" Margin="5" Grid.Row="2" />
-        <TextBlock Text="Import Music Brainz Detail" Style="{StaticResource LabelTextBlock}" Margin="5" Grid.Row="3" />
-        <TextBlock Text="Identify Using Acoustic Fingerprinting" Style="{StaticResource LabelTextBlock}" Margin="5" Grid.Row="4" />
-        <TextBlock Text="Import File Migration" Style="{StaticResource LabelTextBlock}" Margin="5" Grid.Row="5" />
+        <TextBlock Text="Library Directories" Style="{StaticResource LabelTextBlock}" VerticalAlignment="Top" Margin="5" Grid.Row="3" />
+        <TextBlock Text="Identify Using Acoustic Fingerprinting" Style="{StaticResource LabelTextBlock}" Margin="5" Grid.Row="5" />
+        <TextBlock Text="Import File Migration" Style="{StaticResource LabelTextBlock}" Margin="5" Grid.Row="6" />
 
         <!-- Import As -->
         <enumUI:SimpleEnumComboBox Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2"
@@ -48,7 +48,10 @@
         <!-- Source Folder (Migration) -->
         <Grid Grid.Column="1" 
               Grid.Row="2" 
-              ColumnDefinitions="*, Auto">
+              ColumnDefinitions="*, Auto"
+              Visibility="{Binding Options.ImportType, 
+                                   Converter={StaticResource ParameterVisibilityCollapsedConverter}, 
+                                   ConverterParameter={x:Static coreModel:LibraryImportType.Migration}}">
             
             <TextBox Text="{Binding SourceFolder}" Style="{StaticResource UserInputTextBoxReadonly}" Margin="5" Grid.Column="0" />
             <Button Grid.Column="1" Command="{Binding SelectSourceFolderCommand}" Margin="5" Style="{StaticResource SmallControlButton}">
@@ -56,7 +59,21 @@
             </Button>
             
         </Grid>
-        
+
+        <!-- Source Folder (In Place) -->
+        <Grid Grid.Column="1" 
+              Grid.Row="2" 
+              ColumnDefinitions="*, Auto"
+              Visibility="{Binding Options.ImportType, 
+                                   Converter={StaticResource ParameterVisibilityCollapsedConverter}, 
+                                   ConverterParameter={x:Static coreModel:LibraryImportType.InPlaceDirectory}}">
+
+            <ComboBox x:Name="LibraryDirectoriesCB" 
+                      DisplayMemberPath="DirectoryLabel"
+                      SelectedItem="{Binding SourceDirectory, Mode=OneWay}" Margin="5" />
+
+        </Grid>
+
         <!-- Source Folder (In Place, or Library reference directories) -->
         <configurationView:ConfigurationLibraryDirectoriesView x:Name="LibraryDirectoriesView"
                                                                Grid.Column="1" 
@@ -64,21 +81,35 @@
                                                                Margin="5"
                                                                ConfigurationLocked="True"
                                                                />
+        
+        <!-- Source Folder:  Add Directory (In Place) -->
+        <Button x:Name="AddDirectoryButton"
+                Style="{StaticResource UserControlButton}" 
+                Click="AddDirectoryButton_Click"
+                Grid.Row="4" 
+                Grid.Column="1"
+                Margin="5"
+                HorizontalAlignment="Right">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="Add Directory" Style="{StaticResource LabelTextBlock}" Margin="3" />
+                <fa5:SvgAwesome Icon="Solid_FolderPlus" Style="{StaticResource FontAwesomeIconDefault}" Margin="3" />
+            </StackPanel>
+        </Button>
 
         <!-- Import Music Brainz Detail -->
-        <CheckBox IsChecked="{Binding IncludeMusicBrainzDetail}" Grid.Row="4" Grid.Column="1" 
+        <CheckBox IsChecked="{Binding IncludeMusicBrainzDetail}" Grid.Row="5" Grid.Column="1" 
                   VerticalContentAlignment="Center"
                   Foreground="Gray"
                   Content="(This will use an available Music Brainz ID to fill out tag data needed for your import - overwriting existing tag data)" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5" />
 
         <!-- Identify Using AcoustID -->
-        <CheckBox IsChecked="{Binding IdentifyUsingAcoustID}" Grid.Row="5" Grid.Column="1" 
+        <CheckBox IsChecked="{Binding IdentifyUsingAcoustID}" Grid.Row="6" Grid.Column="1" 
                   VerticalContentAlignment="Center"
                   Foreground="Gray"
                   Content="(This will utilize the AcoustID service to gather tag data for the track using Music Brainz)" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5" />
 
         <!-- Is File Migration -->
-        <CheckBox IsChecked="{Binding ImportFileMigration}" Grid.Row="6" Grid.Column="1" 
+        <CheckBox IsChecked="{Binding ImportFileMigration}" Grid.Row="7" Grid.Column="1" 
                   VerticalContentAlignment="Center"
                   Foreground="Gray"
                   Content="(This will enable you to move and delete your library files while importing them)" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5" />
@@ -88,7 +119,7 @@
                   Foreground="Gray" 
                   Margin="5"
                   Grid.Column="1" 
-                  Grid.Row="7">
+                  Grid.Row="8">
             <StackPanel>
                 <propertyGrid:PropertyStringControl LabelColumnWidth="250" Value="{Binding DestinationFolder}" IsReadOnly="True" Margin="5" LabelText="Destination Folder Base" />
                 <propertyGrid:PropertyStringControl LabelColumnWidth="250" Value="{Binding DestinationMusicSubFolder}" IsReadOnly="True" Margin="5" LabelText="Destination Music Folder" />

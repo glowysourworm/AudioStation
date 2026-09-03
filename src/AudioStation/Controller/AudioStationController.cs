@@ -45,7 +45,38 @@ namespace AudioStation.Controller
 
             _audioStationConfigurationViewModel = new AudioStationConfigurationViewModel();
 
+            // Configuration (source)
             audioStationConfigurationManager.ConfigurationEvent += OnConfigurationEvent;
+
+            // Configuration (target)
+            eventAggregator.GetEvent<ConfigurationEvent>().Subscribe(eventData =>
+            {
+                switch (eventData.Type)
+                {
+                    // Configuration (source) 
+                    case ConfigurationEventType.Opened:
+                    case ConfigurationEventType.Modified:
+                    case ConfigurationEventType.Saved:
+                        break;
+
+                    // Configuration (target) (these had different meanings.. I guess it really doesn't matter)
+                    case ConfigurationEventType.ModifyRequest:
+                    case ConfigurationEventType.SaveRequest:
+
+                        // Mapper -> View Model (broadcast to listeners)
+                        var configuration = audioStationConfigurationManager.GetConfiguration();
+
+                        // -> AudioStationConfiguration (source)
+                        _audioStationMapper.MapOnto(_audioStationConfigurationViewModel, configuration);
+
+                        // Save -> Broadcast
+                        audioStationConfigurationManager.SaveConfiguration();
+
+                        break;
+                    default:
+                        throw new Exception("Unhandled configuration event type");
+                }
+            });
         }
 
         public AudioStationConfiguration InitializeConfiguration(string configurationFile, DialogEventHandlers.DialogProgressHandler progressHandler)

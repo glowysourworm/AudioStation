@@ -34,9 +34,9 @@
                 </StackPanel>
             </Button>
             <Button Margin="5" 
-                                Style="{StaticResource UserControlButton}"
-                                CommandParameter="{Binding ElementName=LibraryFoldersDG, Path=SelectedItem}"
-                                Command="{Binding Configuration.RemoveDirectoryCommand}">
+                    Style="{StaticResource UserControlButton}"
+                    CommandParameter="{Binding ElementName=LibraryDirectoriesView, Path=SelectedItem}"
+                    Command="{Binding Configuration.RemoveDirectoryCommand}">
                 <Button.IsEnabled>
                     <MultiBinding Converter="{StaticResource BoolANDMultiConverter}">
                         <MultiBinding.Bindings>

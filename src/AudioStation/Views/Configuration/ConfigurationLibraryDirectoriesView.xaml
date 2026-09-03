@@ -14,6 +14,7 @@
         <DataGrid x:Name="LibraryFoldersDG" 
                   Style="{StaticResource LibraryFoldersDataGridStyle}"
                   VerticalAlignment="Top"
+                  SelectedItem="{Binding SelectedItem, Mode=TwoWay, ElementName=BaseControl}"
                   IsReadOnly="{Binding ConfigurationLocked, ElementName=BaseControl}"
                   ItemsSource="{Binding ItemsSource, ElementName=BaseControl}">
 
