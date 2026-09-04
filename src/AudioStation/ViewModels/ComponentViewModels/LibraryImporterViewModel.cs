@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Windows.Controls;
 
+using AudioStation.Component.Interface;
 using AudioStation.Controller.Interface;
 using AudioStation.Core.Component;
 using AudioStation.Core.Component.Interface;
@@ -12,6 +13,7 @@ using AudioStation.Core.Model.Vendor.ATLExtension.Interface;
 using AudioStation.Core.Utility;
 using AudioStation.Event;
 using AudioStation.Event.DialogEvents;
+using AudioStation.EventHandler;
 using AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.Import;
 using AudioStation.ViewModels.TagViewModels;
 using AudioStation.ViewModels.Vendor.AcoustIDViewModel;
@@ -170,7 +172,7 @@ namespace AudioStation.ViewModels.ComponentViewModels
             this.UnstageCommand = new SimpleCommand(UnstageFiles, CanUnstageFiles);
         }
 
-        protected override void InitializeWork(IAudioStationConfiguration configuration, IAudioStationViewModelController viewModelController, DialogProgressHandler progressHandler)
+        protected override void InitializeImpl(IAudioStationConfiguration configuration, IAudioStationViewModelController viewModelController, DialogProgressHandler progressHandler)
         {
             // Set View Model (Load)
             //this.SourceDirectory = load;
@@ -193,7 +195,11 @@ namespace AudioStation.ViewModels.ComponentViewModels
             //// Set View Model
             //this.SourceDirectory.ItemPropertyChanged += SourceDirectory_ItemPropertyChanged;
         }
-
+        protected override void LoadImpl(IAudioStationConfiguration configuration, IComponentViewModelLoader viewModelLoader, DialogEventHandlers.DialogProgressHandler progressHandler)
+        {
+            if (this.Options.ImportDirectory == null)
+                return;
+        }
         private bool CanUnstageFiles()
         {
             // TODO: Performance

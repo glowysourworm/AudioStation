@@ -6,6 +6,7 @@
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="{Binding LabelColumnWidth, RelativeSource={RelativeSource AncestorType=UserControl}}" />
+            <ColumnDefinition Width="Auto" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
 
@@ -13,9 +14,21 @@
 				   Style="{StaticResource PropertyGridLabel}" />
 
         <CheckBox Grid.Column="1" 
-                  VerticalContentAlignment="Center"
+                  VerticalAlignment="Center"
+                  HorizontalAlignment="Left"
+                  Margin="3"
                   BorderBrush="{Binding IsValid, Converter={StaticResource ValidationBrushConverter}, ConverterParameter={StaticResource PropertyGridControlDefaultBorder}, RelativeSource={RelativeSource AncestorType=UserControl}}"
 				  IsChecked="{Binding Value, RelativeSource={RelativeSource AncestorType=UserControl}}" 
 				  IsEnabled="{Binding IsReadOnly, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BoolInverseConverter}}" />
+
+        <TextBlock Text="{Binding Description, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                   Visibility="{Binding Description, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource NonNullVisibilityConverter}}"
+                   Style="{StaticResource PropertyGridLabel}"
+                   TextWrapping="Wrap"
+                   TextTrimming="None"
+                   VerticalAlignment="Top"
+                   HorizontalAlignment="Left"
+                   Margin="3"
+                   Grid.Column="2" />
     </Grid>
 </local:PropertyGridControl>

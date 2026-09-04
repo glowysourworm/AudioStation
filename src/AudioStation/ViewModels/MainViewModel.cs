@@ -1,6 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 
 using AudioStation.Component.AudioProcessing;
+using AudioStation.Component.Interface;
 using AudioStation.Controller.Interface;
 using AudioStation.Core.Component;
 using AudioStation.Core.Component.CDPlayer.Interface;
@@ -330,7 +331,7 @@ public class MainViewModel : ComponentViewModelBase
         });
     }
 
-    protected override void InitializeWork(IAudioStationConfiguration configuration, IAudioStationViewModelController viewModelController, DialogEventHandlers.DialogProgressHandler progressHandler)
+    protected override void InitializeImpl(IAudioStationConfiguration configuration, IAudioStationViewModelController viewModelController, DialogEventHandlers.DialogProgressHandler progressHandler)
     {
         this.ConfigurationLocked = true;
         this.Configuration = viewModelController.GetComponent<AudioStationConfigurationViewModel>();
@@ -365,7 +366,10 @@ public class MainViewModel : ComponentViewModelBase
         this.Volume = 1.0f;
         this.Loading = false;
     }
+    protected override void LoadImpl(IAudioStationConfiguration configuration, IComponentViewModelLoader viewModelLoader, DialogEventHandlers.DialogProgressHandler progressHandler)
+    {
 
+    }
     private void OnLog(LogMessage message)
     {
         // --> IOuptutController (IAudioStationComponent)      

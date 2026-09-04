@@ -4,7 +4,7 @@
              xmlns:local="clr-namespace:AudioStation.Controls.PropertyGrid"
              xmlns:simpleUI="clr-namespace:SimpleWpf.UI.Controls;assembly=SimpleWpf.UI"
              xmlns:enumUI="clr-namespace:SimpleWpf.UI.Controls.EnumUI;assembly=SimpleWpf.UI">
-    <Grid>
+    <Grid RowDefinitions="Auto, Auto">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="{Binding LabelColumnWidth, RelativeSource={RelativeSource AncestorType=UserControl}}" />
             <ColumnDefinition Width="*" />
@@ -18,5 +18,14 @@
                                    EnumType="{Binding EnumType, RelativeSource={RelativeSource AncestorType=UserControl}}"
 				                   EnumValue="{Binding Value, RelativeSource={RelativeSource AncestorType=UserControl}}" 
 				                   IsEnabled="{Binding IsReadOnly, RelativeSource={RelativeSource AncestorType=UserControl}}" />
+
+
+        <TextBlock Text="{Binding Description, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                   Visibility="{Binding Description, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource NonNullVisibilityConverter}}"
+                   Style="{StaticResource PropertyGridLabel}"
+                   TextWrapping="Wrap"
+                   TextTrimming="None"
+                   Grid.Row="1"
+                   Grid.Column="1" />
     </Grid>
 </local:PropertyGridControl>

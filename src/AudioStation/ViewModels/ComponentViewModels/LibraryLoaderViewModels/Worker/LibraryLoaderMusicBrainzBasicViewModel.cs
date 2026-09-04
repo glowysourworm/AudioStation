@@ -1,5 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 
+using AudioStation.Component.Interface;
 using AudioStation.Controller.Interface;
 using AudioStation.Core.Component.LibraryLoaderComponent;
 using AudioStation.Core.Database.AudioStationDatabase;
@@ -27,7 +28,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Wo
             _audioStationDbClient = audioStationDbClient;
         }
 
-        protected override void InitializeWork(IAudioStationConfiguration configuration, IAudioStationViewModelController viewModelController, DialogEventHandlers.DialogProgressHandler progressHandler)
+        protected override void InitializeImpl(IAudioStationConfiguration configuration, IAudioStationViewModelController viewModelController, DialogEventHandlers.DialogProgressHandler progressHandler)
         {
             try
             {
@@ -61,6 +62,10 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Wo
             {
                 throw new Exception("Error initializing Library Loader component:  " + ex.Message);
             }
+        }
+        protected override void LoadImpl(IAudioStationConfiguration configuration, IComponentViewModelLoader viewModelLoader, DialogEventHandlers.DialogProgressHandler progressHandler)
+        {
+
         }
     }
 }

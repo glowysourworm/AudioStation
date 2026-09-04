@@ -3,7 +3,7 @@
                              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                              xmlns:local="clr-namespace:AudioStation.Controls.PropertyGrid"
                              xmlns:simpleUIValidation="clr-namespace:SimpleWpf.UI.ValidationRules;assembly=SimpleWpf.UI">
-    <Grid>
+    <Grid RowDefinitions="Auto, Auto">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="{Binding LabelColumnWidth, RelativeSource={RelativeSource AncestorType=UserControl}}" />
             <ColumnDefinition Width="*" />
@@ -16,9 +16,20 @@
                  Style="{StaticResource PropertyGridTextBox}"
                  BorderBrush="{Binding IsValid, Converter={StaticResource ValidationBrushConverter},ConverterParameter={StaticResource PropertyGridControlDefaultBorder},  RelativeSource={RelativeSource AncestorType=UserControl}}"
                  Text="{Binding Value, RelativeSource={RelativeSource AncestorType=UserControl}, UpdateSourceTrigger=PropertyChanged}"
+                 Margin="3"
                  TextWrapping="NoWrap"
                  IsReadOnly="{Binding IsReadOnly, RelativeSource={RelativeSource AncestorType=UserControl}}">
         </TextBox>
+
+
+        <TextBlock Text="{Binding Description, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                   Visibility="{Binding Description, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource NonNullVisibilityConverter}}"
+                   Style="{StaticResource PropertyGridLabel}"
+                   TextWrapping="Wrap"
+                   TextTrimming="None"
+                   Margin="3"
+                   Grid.Row="1"
+                   Grid.Column="1" />
     </Grid>
     
 </local:PropertyGridControl>

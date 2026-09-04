@@ -1,10 +1,12 @@
 ﻿using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
 
+using AudioStation.Component.Interface;
 using AudioStation.Controller.Interface;
 using AudioStation.Core.Model.Interface;
 using AudioStation.Event;
 using AudioStation.Event.DialogEvents;
+using AudioStation.EventHandler;
 using AudioStation.ViewModels.ComponentViewModels.LoadViewModels;
 
 using SimpleWpf.IocFramework.EventAggregation;
@@ -96,7 +98,7 @@ namespace AudioStation.ViewModels.ComponentViewModels
             });
         }
 
-        protected override void InitializeWork(IAudioStationConfiguration configuration, IAudioStationViewModelController viewModelController, DialogProgressHandler progressHandler)
+        protected override void InitializeImpl(IAudioStationConfiguration configuration, IAudioStationViewModelController viewModelController, DialogProgressHandler progressHandler)
         {
             //this.Library = load;
 
@@ -122,6 +124,10 @@ namespace AudioStation.ViewModels.ComponentViewModels
             //    ApplicationHelpers.Log("Error loading non-converted files:  {0}", LogLevel.Error, ex, ex.Message);
             //    this.NonConvertedFiles.Clear();
             //}
+        }
+        protected override void LoadImpl(IAudioStationConfiguration configuration, IComponentViewModelLoader viewModelLoader, DialogEventHandlers.DialogProgressHandler progressHandler)
+        {
+
         }
     }
 }

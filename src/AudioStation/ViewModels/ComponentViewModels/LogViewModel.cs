@@ -1,8 +1,10 @@
 ﻿using System.Windows.Threading;
 
+using AudioStation.Component.Interface;
 using AudioStation.Controller.Interface;
 using AudioStation.Core.Event;
 using AudioStation.Core.Model.Interface;
+using AudioStation.EventHandler;
 using AudioStation.Model;
 using AudioStation.ViewModels.ComponentViewModels.LogViewModels;
 
@@ -22,11 +24,14 @@ namespace AudioStation.ViewModels.ComponentViewModels
             eventAggregator.GetEvent<LogEvent>().Subscribe(OnLog);
         }
 
-        protected override void InitializeWork(IAudioStationConfiguration configuration, IAudioStationViewModelController viewModelController, DialogProgressHandler progressHandler)
+        protected override void InitializeImpl(IAudioStationConfiguration configuration, IAudioStationViewModelController viewModelController, DialogProgressHandler progressHandler)
         {
             //_viewModel = load;
         }
+        protected override void LoadImpl(IAudioStationConfiguration configuration, IComponentViewModelLoader viewModelLoader, DialogEventHandlers.DialogProgressHandler progressHandler)
+        {
 
+        }
         private void OnLog(LogMessage message)
         {
             // During Initialization

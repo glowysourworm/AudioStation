@@ -34,6 +34,8 @@ namespace AudioStation.Component
     {
         private readonly IIocEventAggregator _eventAggregator;
 
+        private readonly IAudioStationViewModelController _audioStationViewModelController;
+
         private readonly IAudioStationMapper _audioStationMapper;
         private readonly ILibraryImporter _libraryImporter;
 
@@ -60,23 +62,25 @@ namespace AudioStation.Component
             ILibraryLoaderService libraryLoaderService,
 
             // View Models
-            IAudioStationViewModelController viewModelController,
+            IAudioStationViewModelController audioStationViewModelController,
 
             // Controllers
             IAudioStationDbClient audioStationDbClient)
         {
             _eventAggregator = eventAggregator;
 
+            _audioStationViewModelController = audioStationViewModelController;
+
             _audioStationMapper = audioStationMapper;
             _libraryImporter = libraryImporter;
 
             _libraryLoaderService = libraryLoaderService;
 
-            _cdImporterViewModel = viewModelController.GetComponent<CDImporterViewModel>();
-            _libraryImporterViewModel = viewModelController.GetComponent<LibraryImporterViewModel>();
-            _libraryManagerViewModel = viewModelController.GetComponent<LibraryManagerViewModel>();
-            _radioViewModel = viewModelController.GetComponent<RadioViewModel>();
-            _logViewModel = viewModelController.GetComponent<LogViewModel>();
+            _cdImporterViewModel = audioStationViewModelController.GetComponent<CDImporterViewModel>();
+            _libraryImporterViewModel = audioStationViewModelController.GetComponent<LibraryImporterViewModel>();
+            _libraryManagerViewModel = audioStationViewModelController.GetComponent<LibraryManagerViewModel>();
+            _radioViewModel = audioStationViewModelController.GetComponent<RadioViewModel>();
+            _logViewModel = audioStationViewModelController.GetComponent<LogViewModel>();
 
             _audioStationDbClient = audioStationDbClient;
         }
@@ -96,23 +100,23 @@ namespace AudioStation.Component
 
             // Log (first)
             progressHandler(taskCount, task++, 0, "Initializing Log...");
-            //_logViewModel.Initialize(configuration, LogViewModel_CreateLoad(progressHandler), progressHandler);
+            _logViewModel.Initialize(configuration, _audioStationViewModelController, progressHandler);
 
             // Library Loader: CD Drive
             progressHandler(taskCount, task++, 0, "Initializing CD Drive...");
-            //_cdImporterViewModel.Initialize(configuration, new NoViewModel(), progressHandler);
+            _cdImporterViewModel.Initialize(configuration, _audioStationViewModelController, progressHandler);
 
             // Library Importer
             progressHandler(taskCount, task++, 0, "Initializing Library Importer...");
-            // _libraryImporterViewModel.Initialize(configuration, LoadImporterViewModel_CreateLoad(configuration, progressHandler), progressHandler);
+            _libraryImporterViewModel.Initialize(configuration, _audioStationViewModelController, progressHandler);
 
             // Library Manager
             progressHandler(taskCount, task++, 0, "Initializing Library Manager...");
-            //_libraryManagerViewModel.Initialize(configuration, LibraryManagerViewModel_CreateLoad(progressHandler), progressHandler);
+            _libraryManagerViewModel.Initialize(configuration, _audioStationViewModelController, progressHandler);
 
             // Radio
             progressHandler(taskCount, task++, 0, "Initializing Radio...");
-            //_radioViewModel.Initialize(configuration, new NoViewModel(), progressHandler);
+            _radioViewModel.Initialize(configuration, _audioStationViewModelController, progressHandler);
         }
 
         public PageResult<TrackViewModel> LoadEntryPage(PageRequest<Track, int> request)
@@ -281,8 +285,7 @@ namespace AudioStation.Component
 
             var searchPattern = "*.mp3";
 
-            _libraryImporterViewModel.Options.SourceDirectory = _audioStationMapper.Map<LibraryDirectory, LibraryDirectoryViewModel>(sourceDirectory);
-            _libraryImporterViewModel.Options.DestinationDirectory = _audioStationMapper.Map<LibraryDirectory, LibraryDirectoryViewModel>(destinationDirectory);
+            _libraryImporterViewModel.Options.ImportDirectory = _audioStationMapper.Map<LibraryDirectory, LibraryDirectoryViewModel>(sourceDirectory);
 
             return _libraryLoaderService.InitializeImporterTree(sourceDirectory, destinationDirectory, searchPattern, _libraryImporterViewModel.Options);
         }

@@ -13,9 +13,10 @@ namespace AudioStation.ViewModels.MainViewModels
         string _directory;
         string _directoryLabel;
         bool _isPrimary;
-        TrackType _trackType;
+        TrackCategory _trackCategory;
         TrackGroupingType _trackGroupingType;
         TrackNamingType _trackNamingType;
+        LibraryImportType _importType;
 
         SimpleCommand _openFolderCommand;
 
@@ -34,10 +35,10 @@ namespace AudioStation.ViewModels.MainViewModels
             get { return _isPrimary; }
             set { this.RaiseAndSetIfChanged(ref _isPrimary, value); }
         }
-        public TrackType TrackType
+        public TrackCategory TrackCategory
         {
-            get { return _trackType; }
-            set { this.RaiseAndSetIfChanged(ref _trackType, value); }
+            get { return _trackCategory; }
+            set { this.RaiseAndSetIfChanged(ref _trackCategory, value); }
         }
         public TrackGroupingType GroupingType
         {
@@ -48,6 +49,11 @@ namespace AudioStation.ViewModels.MainViewModels
         {
             get { return _trackNamingType; }
             set { this.RaiseAndSetIfChanged(ref _trackNamingType, value); }
+        }
+        public LibraryImportType ImportType
+        {
+            get { return _importType; }
+            set { this.RaiseAndSetIfChanged(ref _importType, value); }
         }
 
         public SimpleCommand OpenFolderCommand
@@ -60,7 +66,7 @@ namespace AudioStation.ViewModels.MainViewModels
         {
             this.Directory = string.Empty;
             this.DirectoryLabel = string.Empty;
-            this.TrackType = TrackType.Any;
+            this.TrackCategory = TrackCategory.Any;
             this.GroupingType = TrackGroupingType.None;
             this.NamingType = TrackNamingType.None;
 

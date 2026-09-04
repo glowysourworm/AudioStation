@@ -1,5 +1,6 @@
 ﻿using System.Windows.Threading;
 
+using AudioStation.Component.Interface;
 using AudioStation.Controller.Interface;
 using AudioStation.Core.Model.Interface;
 
@@ -43,7 +44,15 @@ namespace AudioStation.ViewModels.ComponentViewModels
         /// <summary>
         /// Function to complete initialization. This will be called on the Dispatcher thread
         /// </summary>
-        protected abstract void InitializeWork(IAudioStationConfiguration configuration, IAudioStationViewModelController viewModelController, DialogProgressHandler progressHandler);
+        protected abstract void InitializeImpl(IAudioStationConfiguration configuration, IAudioStationViewModelController viewModelController, DialogProgressHandler progressHandler);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="configuration"></param>
+        /// <param name="viewModelLoader"></param>
+        /// <param name="progressHandler"></param>
+        protected abstract void LoadImpl(IAudioStationConfiguration configuration, IComponentViewModelLoader viewModelLoader, DialogProgressHandler progressHandler);
 
         public void Initialize(IAudioStationConfiguration configuration, IAudioStationViewModelController viewModelController, DialogProgressHandler progressHandler)
         {
@@ -58,10 +67,36 @@ namespace AudioStation.ViewModels.ComponentViewModels
             {
                 this.Loading = true;
 
-                InitializeWork(configuration, viewModelController, progressHandler);
+                InitializeImpl(configuration, viewModelController, progressHandler);
 
                 // To be used by subclasses
                 this.Initialized = true;
+                this.Loading = false;
+            }
+        }
+
+        /// <summary>
+        /// Function to load component view model. This would be called when a a view is loaded; or when needed in the application.
+        /// </summary>
+        /// <exception cref="Exception">Component must have first been initialized</exception>
+        public void Load(IAudioStationConfiguration configuration, IComponentViewModelLoader viewModelLoader, DialogProgressHandler progressHandler)
+        {
+            if (!this.Initialized)
+                throw new Exception("Must first initialize ComponentViewModelBase before calling Load");
+
+            // Synchronous Invoke:  This should be used where there is no (async / await). Also, it is needed for completing the work during
+            //                      the application's initialization waiter. So, there is already a waiter for this load; but the work must
+            //                      be completed on the main thread because of view model binding.
+            //
+            if (BasicHelpers.IsDispatcher() == ApplicationIsDispatcherResult.False)
+                BasicHelpers.InvokeDispatcher(Load, DispatcherPriority.Background, configuration, viewModelLoader, progressHandler);
+
+            else
+            {
+                this.Loading = true;
+
+                LoadImpl(configuration, viewModelLoader, progressHandler);
+
                 this.Loading = false;
             }
         }

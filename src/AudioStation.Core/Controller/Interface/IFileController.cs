@@ -39,7 +39,7 @@ namespace AudioStation.Core.Controller.Interface
         /// <param name="genre">Genre related to the image (from database entities)</param>
         /// <param name="overwrite">Option to overwrite existing file</param>
         /// <returns>File name of music file for database reference</returns>
-        string SaveAudioFile(string stagedFilePath, TrackType trackType, string genre, string artist, string album, string track, int trackNumber, int trackCount, bool overwrite = false);
+        string SaveAudioFile(string stagedFilePath, TrackCategory trackType, string genre, string artist, string album, string track, int trackNumber, int trackCount, bool overwrite = false);
 
         /// <summary>
         /// Stores image given album / artist / genre / file type / (storage type)

@@ -2,19 +2,37 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
     <SolidColorBrush x:Key="InstructionsBackground">AliceBlue</SolidColorBrush>
-    
+    <SolidColorBrush x:Key="InstructionsWarningBackground">#0FFF0000</SolidColorBrush>
+
+    <SolidColorBrush x:Key="InstructionsForeground">#AF000000</SolidColorBrush>
+    <SolidColorBrush x:Key="InstructionsWarningForeground">Red</SolidColorBrush>
+
     <Style TargetType="TextBlock" x:Key="InstructionsTextBlockStyle" BasedOn="{StaticResource LabelTextBlock}">
         <Setter Property="FontWeight" Value="Bold" />
+        <Setter Property="Foreground" Value="{StaticResource InstructionsForeground}" />
     </Style>
-    
+
+    <Style TargetType="TextBlock" x:Key="InstructionsWarningTextBlockStyle" BasedOn="{StaticResource LabelTextBlock}">
+        <Setter Property="FontWeight" Value="Bold" />
+        <Setter Property="Foreground" Value="{StaticResource InstructionsWarningForeground}" />
+    </Style>
+
     <Style TargetType="Border" x:Key="InstructionsBorderStyle">
         <Setter Property="CornerRadius" Value="5" />
         <Setter Property="Padding" Value="10" />
         <Setter Property="Background" Value="{StaticResource InstructionsBackground}" />
-        <Setter Property="BorderBrush" Value="{StaticResource SmallButtonBorder}" />
+        <Setter Property="BorderBrush" Value="{StaticResource InstructionsForeground}" />
         <Setter Property="BorderThickness" Value="1" />
     </Style>
-    
+
+    <Style TargetType="Border" x:Key="InstructionsWarningBorderStyle">
+        <Setter Property="CornerRadius" Value="5" />
+        <Setter Property="Padding" Value="10" />
+        <Setter Property="Background" Value="{StaticResource InstructionsWarningBackground}" />
+        <Setter Property="BorderBrush" Value="{StaticResource InstructionsWarningForeground}" />
+        <Setter Property="BorderThickness" Value="1" />
+    </Style>
+
     <Style TargetType="GroupBox" x:Key="TagIssuesGroupBoxStyle">
         <Setter Property="Foreground" Value="{StaticResource HeaderTitleForeground}" />
         <Setter Property="BorderBrush" Value="{StaticResource UserControlButtonBorder}" />

@@ -49,7 +49,7 @@ namespace AudioStation.Views.LibraryImportViews
                     item.IsExpanded &&
                    !item.IsLoaded)
                 {
-                    _libraryLoaderService.LoadImporterTreeNextDepth(itemViewModel, viewModel.Options.SourceDirectory, viewModel.Options.DestinationDirectory, "*.mp3", viewModel.Options);
+                    //_libraryLoaderService.LoadImporterTreeNextDepth(itemViewModel, viewModel.Options.ImportDirectory, viewModel.Options.DestinationDirectory, "*.mp3", viewModel.Options);
                 }
             }
         }

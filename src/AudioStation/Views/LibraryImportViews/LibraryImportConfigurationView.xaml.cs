@@ -33,7 +33,8 @@ namespace AudioStation.Views.LibraryImportViews
                 _configuration = eventData.ViewModel;
 
                 this.LibraryDirectoriesView.ItemsSource = eventData.ViewModel.LibraryDirectories;
-                this.LibraryDirectoriesCB.ItemsSource = eventData.ViewModel.LibraryDirectories;
+                this.LibraryDirectoriesCB1.ItemsSource = eventData.ViewModel.LibraryDirectories;
+                this.LibraryDirectoriesCB2.ItemsSource = eventData.ViewModel.LibraryDirectories;
             });
         }
 

@@ -1,4 +1,5 @@
-﻿using AudioStation.Controller.Interface;
+﻿using AudioStation.Component.Interface;
+using AudioStation.Controller.Interface;
 using AudioStation.Core.Model.Interface;
 using AudioStation.EventHandler;
 using AudioStation.ViewModels.OtherViewModels;
@@ -101,7 +102,12 @@ namespace AudioStation.ViewModels.ComponentViewModels
             this.SpotifyClient = new StatusIconViewModel();
         }
 
-        protected override void InitializeWork(IAudioStationConfiguration configuration, IAudioStationViewModelController viewModelController, DialogEventHandlers.DialogProgressHandler progressHandler)
+        protected override void InitializeImpl(IAudioStationConfiguration configuration, IAudioStationViewModelController viewModelController, DialogEventHandlers.DialogProgressHandler progressHandler)
+        {
+
+        }
+
+        protected override void LoadImpl(IAudioStationConfiguration configuration, IComponentViewModelLoader viewModelLoader, DialogEventHandlers.DialogProgressHandler progressHandler)
         {
 
         }

@@ -115,7 +115,7 @@ namespace AudioStation.Core.Component
                                             _configuration.ApplicationStorageFolder;
 
                 // Calculate Path:  Also, create intermediate directories
-                var finalPath = CalculateFilePath(libraryDirectory, genre, artist, album, specificFileName, fileType, TrackType.Any, storageType);
+                var finalPath = CalculateFilePath(libraryDirectory, genre, artist, album, specificFileName, fileType, TrackCategory.Any, storageType);
 
                 // -> Save
                 StoreImageFileImpl(imageData, finalPath, overwrite);
@@ -128,7 +128,7 @@ namespace AudioStation.Core.Component
             }
         }
 
-        public string SaveAudioFile(string stagedFilePath, TrackType trackType, string genre, string artist, string album, string track, int trackNumber, int trackCount, bool overwrite = false)
+        public string SaveAudioFile(string stagedFilePath, TrackCategory trackType, string genre, string artist, string album, string track, int trackNumber, int trackCount, bool overwrite = false)
         {
             // Procedure:
             //
@@ -194,7 +194,7 @@ namespace AudioStation.Core.Component
                                          string album,
                                          string fileName,
                                          FileTypes fileType,
-                                         TrackType trackType,
+                                         TrackCategory trackType,
                                          IFileController.StorageType storageType)
         {
             // Path off of the library directory

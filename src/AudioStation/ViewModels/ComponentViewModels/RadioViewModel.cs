@@ -1,10 +1,12 @@
 ﻿using System.Windows.Threading;
 
+using AudioStation.Component.Interface;
 using AudioStation.Controller.Interface;
 using AudioStation.Core.Database.AudioStationDatabase;
 using AudioStation.Core.Model.Interface;
 using AudioStation.Core.Service.Vendor;
 using AudioStation.Core.Utility;
+using AudioStation.EventHandler;
 using AudioStation.Service.Interface;
 using AudioStation.ViewModels.ComponentViewModels.LibraryViewModels.Comparer;
 using AudioStation.ViewModels.ComponentViewModels.RadioViewModels;
@@ -70,10 +72,13 @@ namespace AudioStation.ViewModels.ComponentViewModels
             });
         }
 
-        protected override void InitializeWork(IAudioStationConfiguration configuration, IAudioStationViewModelController viewModelController, DialogProgressHandler progressHandler)
+        protected override void InitializeImpl(IAudioStationConfiguration configuration, IAudioStationViewModelController viewModelController, DialogProgressHandler progressHandler)
         {
         }
+        protected override void LoadImpl(IAudioStationConfiguration configuration, IComponentViewModelLoader viewModelLoader, DialogEventHandlers.DialogProgressHandler progressHandler)
+        {
 
+        }
         public async void SearchRadioBrowser(string search)
         {
             try

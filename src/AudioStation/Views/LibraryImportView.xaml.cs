@@ -37,6 +37,8 @@ namespace AudioStation.Views
 
         private readonly IComponentViewModelLoader _componentViewModelLoader;
 
+        LibraryImporterViewModel _viewModel;
+
         public LibraryImportView()
         {
             InitializeComponent();
@@ -49,11 +51,11 @@ namespace AudioStation.Views
         {
             InitializeComponent();
 
-            this.DataContextChanged += LibraryImportView_DataContextChanged;
-
             _regionManager = regionManager;
             _dialogController = dialogController;
             _componentViewModelLoader = componentViewModelLoader;
+
+            this.DataContextChanged += LibraryImportView_DataContextChanged;
         }
 
         private void LibraryImportView_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
@@ -72,14 +74,14 @@ namespace AudioStation.Views
             // Hook
             if (e.NewValue != null)
             {
-                var viewModel = e.NewValue as LibraryImporterViewModel;
+                _viewModel = e.NewValue as LibraryImporterViewModel;
 
-                if (viewModel != null)
+                if (_viewModel != null)
                 {
-                    viewModel.PropertyChanged += ViewModel_PropertyChanged;
+                    _viewModel.PropertyChanged += ViewModel_PropertyChanged;
 
                     // Initialize Buttons
-                    RefreshFromDataContext(viewModel);
+                    RefreshFromDataContext(_viewModel);
                 }
             }
         }
@@ -96,6 +98,10 @@ namespace AudioStation.Views
         {
             return true;
         }
+        private bool AreConfigurationOptionsRequirementsMet(LibraryImporterViewModel viewModel)
+        {
+            return true;
+        }
         private bool AreFinalRequirementsMet(LibraryImporterViewModel viewModel)
         {
             return true;
@@ -108,6 +114,13 @@ namespace AudioStation.Views
             {
                 this.NextStepReady = AreConfigurationRequirementsMet(viewModel);
                 this.PreviousStepReady = false;
+            }
+
+            // Configuration Options
+            else if (_regionManager.GetRegion("LibraryImporterControlRegion").Content is LibraryImportConfigurationOptionsView)
+            {
+                this.NextStepReady = AreConfigurationOptionsRequirementsMet(viewModel);
+                this.PreviousStepReady = true;
             }
 
             // Staging
@@ -139,21 +152,46 @@ namespace AudioStation.Views
 
         private bool ConfirmImportStep(Type viewType)
         {
-            // Configuration
-            if (viewType == typeof(LibraryImportConfigurationView))
+            // Configuration Options
+            if (viewType == typeof(LibraryImportConfigurationOptionsView))
             {
-                // TODO
-                return true;
+                // Run Acoust ID -> Music Brainz (cache results)
+                if (_dialogController.ShowConfirmation("Continue to Configuration Options?",
+                    string.Format("You have chosen import type:  {0}", _viewModel.Options.ImportType),
+                    "",
+                    "Are you ready to proceed?"))
+                {
+                    return true;
+                }
+                else
+                    return false;
             }
 
-            // Staging
+            // Staging -> Tag Completion
             else if (viewType == typeof(LibraryImportStagingView))
             {
+                // Run Acoust ID -> Music Brainz (cache results)
+                if (_dialogController.ShowConfirmation("Continue to Staging?",
+                    "You have now completed the import configuration.",
+                    "",
+                    "It is STRONGLY RECOMMENDED that you backup your files!",
+                    "",
+                    "Are you ready to proceed?"))
+                {
+                    return true;
+                }
+                else
+                    return false;
+            }
+
+            // Staging -> Tag Completion
+            else if (viewType == typeof(LibraryImportTagCompletionView))
+            {
                 // TODO
                 return true;
             }
 
-            // Tag Completion 
+            // Tag Completion -> Import
             else if (viewType == typeof(LibraryImportTagCompletionView))
             {
                 // Run Acoust ID -> Music Brainz (cache results)
@@ -191,6 +229,12 @@ namespace AudioStation.Views
             {
                 // Configuration
                 if (viewType == typeof(LibraryImportConfigurationView))
+                {
+                    // TODO
+                }
+
+                // Configuration Options
+                else if (viewType == typeof(LibraryImportConfigurationOptionsView))
                 {
                     // TODO
                 }
@@ -241,10 +285,16 @@ namespace AudioStation.Views
                 // Nothing to do
             }
 
+            // Configuration Options
+            else if (_regionManager.GetRegion("LibraryImporterControlRegion").Content is LibraryImportConfigurationOptionsView)
+            {
+                await MoveToImportStep<LibraryImportConfigurationView>(true);
+            }
+
             // Staging 
             else if (_regionManager.GetRegion("LibraryImporterControlRegion").Content is LibraryImportStagingView)
             {
-                await MoveToImportStep<LibraryImportConfigurationView>(true);
+                await MoveToImportStep<LibraryImportConfigurationOptionsView>(true);
             }
 
             // Tag Completion
@@ -264,19 +314,25 @@ namespace AudioStation.Views
 
         private async void NextButton_Click(object sender, RoutedEventArgs e)
         {
-            // Staging
+            // Configuration
             if (_regionManager.GetRegion("LibraryImporterControlRegion").Content is LibraryImportConfigurationView)
+            {
+                await MoveToImportStep<LibraryImportConfigurationOptionsView>(false);
+            }
+
+            // Configuration Options
+            else if (_regionManager.GetRegion("LibraryImporterControlRegion").Content is LibraryImportConfigurationOptionsView)
             {
                 await MoveToImportStep<LibraryImportStagingView>(false);
             }
 
-            // Tag Completion
+            // Staging
             else if (_regionManager.GetRegion("LibraryImporterControlRegion").Content is LibraryImportStagingView)
             {
                 await MoveToImportStep<LibraryImportTagCompletionView>(false);
             }
 
-            // Configuration
+            // Tag Completinon
             else if (_regionManager.GetRegion("LibraryImporterControlRegion").Content is LibraryImportTagCompletionView)
             {
                 await MoveToImportStep<LibraryImportFinalView>(false);

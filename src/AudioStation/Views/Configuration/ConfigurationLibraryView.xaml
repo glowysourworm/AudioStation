@@ -68,11 +68,11 @@
                                                 Binding="{Binding Directory}" 
                                                 Width="*" CellStyle="{StaticResource ManagerDataGridCellStyle}" />
 
-                <DataGridTemplateColumn Header="Type" Width="120" CellStyle="{StaticResource ManagerDataGridCellStyle}">
+                <DataGridTemplateColumn Header="Category" Width="120" CellStyle="{StaticResource ManagerDataGridCellStyle}">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <enumUI:SimpleEnumComboBox EnumType="{x:Type coreModel:TrackType}" 
-                                                               EnumValue="{Binding TrackType, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                            <enumUI:SimpleEnumComboBox EnumType="{x:Type coreModel:TrackCategory}" 
+                                                               EnumValue="{Binding TrackCategory, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                                IsEnabled="{Binding DataContext.ConfigurationLocked, Converter={StaticResource BoolInverseConverter}, RelativeSource={RelativeSource AncestorType=DataGrid}}"
                                                                />
                         </DataTemplate>

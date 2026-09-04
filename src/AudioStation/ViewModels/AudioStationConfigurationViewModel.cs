@@ -1,5 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 
+using AudioStation.Component.Interface;
 using AudioStation.Controller.Interface;
 using AudioStation.Core.Model.Interface;
 using AudioStation.EventHandler;
@@ -256,9 +257,13 @@ namespace AudioStation.ViewModels
             });
         }
 
-        protected override void InitializeWork(IAudioStationConfiguration configuration, IAudioStationViewModelController viewModelController, DialogEventHandlers.DialogProgressHandler progressHandler)
+        protected override void InitializeImpl(IAudioStationConfiguration configuration, IAudioStationViewModelController viewModelController, DialogEventHandlers.DialogProgressHandler progressHandler)
         {
             // THIS COULD BE USED TO MAP THE CONFIGURATION
+        }
+        protected override void LoadImpl(IAudioStationConfiguration configuration, IComponentViewModelLoader viewModelLoader, DialogEventHandlers.DialogProgressHandler progressHandler)
+        {
+            // Nothing to do
         }
     }
 }

@@ -7,17 +7,19 @@ namespace AudioStation.Core.Model
         public string DirectoryLabel { get; set; }
         public string Directory { get; set; }
         public bool IsPrimary { get; set; }
-        public TrackType TrackType { get; set; }
+        public TrackCategory TrackCategory { get; set; }
         public TrackGroupingType GroupingType { get; set; }
         public TrackNamingType NamingType { get; set; }
+        public LibraryImportType ImportType { get; set; }
 
         public LibraryDirectory()
         {
             this.DirectoryLabel = string.Empty;
             this.Directory = string.Empty;
-            this.TrackType = TrackType.Any;
+            this.TrackCategory = TrackCategory.Any;
             this.GroupingType = TrackGroupingType.None;
             this.NamingType = TrackNamingType.None;
+            this.ImportType = LibraryImportType.InPlaceDirectory;       // READ ONLY!
         }
     }
 }

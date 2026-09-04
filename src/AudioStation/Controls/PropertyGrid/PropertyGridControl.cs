@@ -1,13 +1,14 @@
-﻿using System.ComponentModel;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Documents;
 using System.Windows.Media;
 
 namespace AudioStation.Controls.PropertyGrid
 {
     public abstract class PropertyGridControl : UserControl
     {
+        public static readonly DependencyProperty DescriptionProperty =
+            DependencyProperty.Register("Description", typeof(string), typeof(PropertyGridControl));
+
         public static readonly DependencyProperty LabelTextProperty =
             DependencyProperty.Register("LabelText", typeof(string), typeof(PropertyGridControl));
 
@@ -26,6 +27,11 @@ namespace AudioStation.Controls.PropertyGrid
         public static readonly DependencyProperty IsValidProperty =
             DependencyProperty.Register("IsValid", typeof(bool), typeof(PropertyGridControl));
 
+        public string Description
+        {
+            get { return (string)GetValue(DescriptionProperty); }
+            set { SetValue(DescriptionProperty, value); }
+        }
         public string LabelText
         {
             get { return (string)GetValue(LabelTextProperty); }
@@ -96,7 +102,7 @@ namespace AudioStation.Controls.PropertyGrid
             if (e.Property.Name == "Value")
             {
                 this.IsValid = !this.IsRequired || Validate();
-            }            
+            }
         }
     }
 }
