@@ -21,7 +21,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Wo
                 IIocEventAggregator eventAggregator,
                 ILibraryLoaderWorkerService libraryLoaderService,
                 IAudioStationDbClient audioStationDbClient)
-            : base(eventAggregator, libraryLoaderService)
+            : base("Music Brainz (album art)", "Downloads album art for any recordings which have a Music Brainz ID in the library", eventAggregator, libraryLoaderService)
         {
             _audioStationDbClient = audioStationDbClient;
         }

@@ -12,17 +12,30 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels
     {
         private readonly ILibraryLoaderWorkerService _libraryLoaderService;
 
+        string _name;
+        string _description;
+
         ObservableCollection<LibraryWorkItemViewModel> _workItems;
 
         int _workItemsWaiting;
         int _workItemsInProgress;
         int _workItemsSuccessful;
         int _workItemsError;
-
-        bool _loading;
+        double _workProgress;
+        bool _isWorkComplete;
 
         SimpleCommand _executeCommand;
 
+        public string Name
+        {
+            get { return _name; }
+            set { this.RaiseAndSetIfChanged(ref _name, value); }
+        }
+        public string Description
+        {
+            get { return _description; }
+            set { this.RaiseAndSetIfChanged(ref _description, value); }
+        }
         public ObservableCollection<LibraryWorkItemViewModel> WorkItems
         {
             get { return _workItems; }
@@ -48,11 +61,15 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels
             get { return _workItemsError; }
             set { this.RaiseAndSetIfChanged(ref _workItemsError, value); }
         }
-
-        public bool Loading
+        public double WorkProgress
         {
-            get { return _loading; }
-            set { this.RaiseAndSetIfChanged(ref _loading, value); }
+            get { return _workProgress; }
+            set { this.RaiseAndSetIfChanged(ref _workProgress, value); }
+        }
+        public bool IsWorkComplete
+        {
+            get { return _isWorkComplete; }
+            set { this.RaiseAndSetIfChanged(ref _isWorkComplete, value); }
         }
 
         public SimpleCommand ExecuteCommand
@@ -61,10 +78,12 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels
             set { this.RaiseAndSetIfChanged(ref _executeCommand, value); }
         }
 
-        public LibraryLoaderWorkerViewModelBase(IIocEventAggregator eventAggregator, ILibraryLoaderWorkerService libraryLoaderService)
+        public LibraryLoaderWorkerViewModelBase(string name, string description, IIocEventAggregator eventAggregator, ILibraryLoaderWorkerService libraryLoaderService)
         {
             _libraryLoaderService = libraryLoaderService;
 
+            this.Name = name;
+            this.Description = description;
             this.WorkItems = new ObservableCollection<LibraryWorkItemViewModel>();
 
             this.ExecuteCommand = new SimpleCommand(Execute, CanExecute);
@@ -74,8 +93,11 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels
             eventAggregator.GetEvent<LibraryLoaderWorkItemUpdateEvent>().Subscribe(OnWorkItemUpdate);
         }
 
-        private void Execute()
+        public void Execute()
         {
+            if (!CanExecute())
+                throw new Exception("Loader task currently running. Please call 'CanExecute' first to verify it is finished.");
+
             foreach (var workItem in this.WorkItems)
             {
                 workItem.Progress = 0;
@@ -86,9 +108,9 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels
 
             OnUpdate();
         }
-        private bool CanExecute()
+        public bool CanExecute()
         {
-            return !this.Loading;
+            return this.Initialized && !this.Loading && !this.IsWorkComplete;           // Reset must be done from loader component
         }
 
         protected override void OnPropertyChanged(string name)
@@ -122,16 +144,19 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels
         }
         private void OnUpdate()
         {
-            if (this.ExecuteCommand != null)
+            if (this.Initialized)
             {
-                this.ExecuteCommand.RaiseCanExecuteChanged();
-
                 this.Loading = this.WorkItems.Any(x => x.InProgress);
                 this.WorkItemsWaiting = this.WorkItems.Count(x => !x.InProgress && !x.IsCompleted);
                 this.WorkItemsInProgress = this.WorkItems.Count(x => x.InProgress);
                 this.WorkItemsSuccessful = this.WorkItems.Count(x => !x.InProgress && x.IsCompleted && !x.HasErrors);
                 this.WorkItemsError = this.WorkItems.Count(x => !x.InProgress && x.IsCompleted && x.HasErrors);
+                this.WorkProgress = (this.WorkItemsSuccessful + this.WorkItemsError) / (double)this.WorkItems.Count;
+                this.IsWorkComplete = this.WorkItems.All(x => x.IsCompleted);
             }
+
+            if (this.ExecuteCommand != null)
+                this.ExecuteCommand.RaiseCanExecuteChanged();
         }
         private void Map(LibraryWorkItemViewModel source, LibraryWorkItemViewModel dest)
         {

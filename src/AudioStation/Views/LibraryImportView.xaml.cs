@@ -8,7 +8,6 @@ using AudioStation.Views.LibraryImportViews;
 
 using SimpleWpf.IocFramework.Application.Attribute;
 using SimpleWpf.IocFramework.RegionManagement.Interface;
-using SimpleWpf.Utilities;
 
 namespace AudioStation.Views
 {
@@ -102,6 +101,10 @@ namespace AudioStation.Views
         {
             return true;
         }
+        private bool AreImportLoaderRequirementsMet(LibraryImporterViewModel viewModel)
+        {
+            return true;
+        }
         private bool AreFinalRequirementsMet(LibraryImporterViewModel viewModel)
         {
             return true;
@@ -130,19 +133,29 @@ namespace AudioStation.Views
                 this.PreviousStepReady = true;
             }
 
+            // Import Loader
+            else if (_regionManager.GetRegion("LibraryImporterControlRegion").Content is LibraryImportLoaderView)
+            {
+                this.NextStepReady = AreImportLoaderRequirementsMet(viewModel);
+                this.PreviousStepReady = true;
+            }
+
             // Tag Completion 
-            if (_regionManager.GetRegion("LibraryImporterControlRegion").Content is LibraryImportTagCompletionView)
+            else if (_regionManager.GetRegion("LibraryImporterControlRegion").Content is LibraryImportTagCompletionView)
             {
                 this.NextStepReady = AreTagCompletionRequirementsMet(viewModel);
                 this.PreviousStepReady = true;
             }
 
             // Final View (User can go back as long as they haven't pressed "Execute")
-            if (_regionManager.GetRegion("LibraryImporterControlRegion").Content is LibraryImportFinalView)
+            else if (_regionManager.GetRegion("LibraryImporterControlRegion").Content is LibraryImportFinalView)
             {
                 this.NextStepReady = AreFinalRequirementsMet(viewModel);
                 this.PreviousStepReady = true;
             }
+
+            else
+                throw new Exception("Unhandled region view type");
         }
 
         private void LoadImportView(Type viewType, bool previous, bool ignoreTransition)
@@ -167,7 +180,7 @@ namespace AudioStation.Views
                     return false;
             }
 
-            // Staging -> Tag Completion
+            // Staging -> Import Loader
             else if (viewType == typeof(LibraryImportStagingView))
             {
                 // Run Acoust ID -> Music Brainz (cache results)
@@ -184,23 +197,29 @@ namespace AudioStation.Views
                     return false;
             }
 
-            // Staging -> Tag Completion
-            else if (viewType == typeof(LibraryImportTagCompletionView))
+            // Import Loader -> Tag Completion
+            else if (viewType == typeof(LibraryImportLoaderView))
             {
-                // TODO
                 return true;
             }
 
-            // Tag Completion -> Import
+            // Tag Completion -> Finalize
             else if (viewType == typeof(LibraryImportTagCompletionView))
             {
                 // Run Acoust ID -> Music Brainz (cache results)
-                if (_dialogController.ShowConfirmation("Continue to Tag Completion?",
-                    "This will begin the process of importing your Mp3's using the",
-                    "AcoustID (and) Music Brainz services; but will not finalize the",
-                    "import. That part is left to you to do after you review the results.",
+                if (_dialogController.ShowConfirmation("Continue to Finalize Import?",
+                    "Your current tag information will be imported for {0} tags",
                     "",
-                    "This may take some time... Are you ready to import Mp3 data?"))
+                    "These tracks will be imported into your library. However, you can",
+                    "come back later on to revisit this import and complete tags that",
+                    "have not yet been completed:  ({1} tags)",
+                    "",
+                    "You may also change your library data at any time using Audio Station's",
+                    "Library Maintainence features - which essentially allow you to detail",
+                    "you library tracks using Music Brainz, LastFm, and other available data",
+                    "services at any time.",
+                    "",
+                    "Are you ready to finalize your import?"))
                 {
                     return true;
                 }
@@ -208,63 +227,13 @@ namespace AudioStation.Views
                     return false;
             }
 
-            // Final View (User can go back as long as they haven't pressed "Execute")
+            // Final View
             else if (viewType == typeof(LibraryImportFinalView))
             {
                 return true;
             }
             else
                 throw new Exception("Unhandled view type");
-        }
-
-        /// <summary>
-        /// Runs initial process just after loading the view
-        /// </summary>
-        private async Task InitializeImportStep(Type viewType)
-        {
-            if (BasicHelpers.IsDispatcher() != ApplicationIsDispatcherResult.True)
-                await BasicHelpers.InvokeDispatcher(InitializeImportStep, System.Windows.Threading.DispatcherPriority.Background, viewType);
-
-            else
-            {
-                // Configuration
-                if (viewType == typeof(LibraryImportConfigurationView))
-                {
-                    // TODO
-                }
-
-                // Configuration Options
-                else if (viewType == typeof(LibraryImportConfigurationOptionsView))
-                {
-                    // TODO
-                }
-
-                // Staging
-                else if (viewType == typeof(LibraryImportStagingView))
-                {
-                    // TODO
-                }
-
-                // Tag Completion 
-                else if (viewType == typeof(LibraryImportTagCompletionView))
-                {
-                    // Procedure
-                    //
-                    // 1) Run AcoustID
-                    // 2) Run Music Brainz (for all AcoustID entries)
-                    // 3) Show result for best score
-                    //
-                    await _componentViewModelLoader.LibraryImporter_RunAcoustID();
-                    await _componentViewModelLoader.LibraryImporter_RunMusicBrainz();
-                }
-
-                // Final View (User can go back as long as they haven't pressed "Execute")
-                else if (viewType == typeof(LibraryImportFinalView))
-                {
-                }
-                else
-                    throw new Exception("Unhandled view type");
-            }
         }
 
         private void ViewModel_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -297,10 +266,16 @@ namespace AudioStation.Views
                 await MoveToImportStep<LibraryImportConfigurationOptionsView>(true);
             }
 
+            // Import Loader
+            else if (_regionManager.GetRegion("LibraryImporterControlRegion").Content is LibraryImportLoaderView)
+            {
+                await MoveToImportStep<LibraryImportStagingView>(true);
+            }
+
             // Tag Completion
             if (_regionManager.GetRegion("LibraryImporterControlRegion").Content is LibraryImportTagCompletionView)
             {
-                await MoveToImportStep<LibraryImportStagingView>(true);
+                await MoveToImportStep<LibraryImportLoaderView>(true);
             }
 
             // Final View (User can go back as long as they haven't pressed "Execute")
@@ -329,6 +304,12 @@ namespace AudioStation.Views
             // Staging
             else if (_regionManager.GetRegion("LibraryImporterControlRegion").Content is LibraryImportStagingView)
             {
+                await MoveToImportStep<LibraryImportLoaderView>(false);
+            }
+
+            // Import Loader
+            else if (_regionManager.GetRegion("LibraryImporterControlRegion").Content is LibraryImportLoaderView)
+            {
                 await MoveToImportStep<LibraryImportTagCompletionView>(false);
             }
 
@@ -351,10 +332,13 @@ namespace AudioStation.Views
         {
             var viewType = typeof(T);
 
-            if (ConfirmImportStep(viewType))
+            if (isPrevious)
             {
                 LoadImportView(viewType, isPrevious, true);
-                await InitializeImportStep(viewType);
+            }
+            else if (ConfirmImportStep(viewType))
+            {
+                LoadImportView(viewType, isPrevious, true);
             }
         }
     }

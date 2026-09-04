@@ -38,6 +38,7 @@ namespace AudioStation.ViewModels.ComponentViewModels
         private readonly ITagCacheController _tagCacheController;
 
         LibraryImporterConfigurationViewModel _options;
+        LibraryImporterLoaderViewModel _loaderWorkflow;
 
         // Import Source Directory
         //
@@ -69,6 +70,11 @@ namespace AudioStation.ViewModels.ComponentViewModels
         {
             get { return _options; }
             set { RaiseAndSetIfChanged(ref _options, value); }
+        }
+        public LibraryImporterLoaderViewModel LoaderWorkflow
+        {
+            get { return _loaderWorkflow; }
+            set { this.RaiseAndSetIfChanged(ref _loaderWorkflow, value); }
         }
         public LibraryImporterTreeViewModel SourceDirectory
         {
@@ -157,6 +163,7 @@ namespace AudioStation.ViewModels.ComponentViewModels
             _tagCacheController = tagCacheController;
 
             this.Options = new LibraryImporterConfigurationViewModel();
+            this.LoaderWorkflow = new LibraryImporterLoaderViewModel(this.Options);
             this.SourceDirectory = null;
 
             _stagedFiles = new ObservableCollection<LibraryImporterFileViewModel>();
@@ -174,6 +181,9 @@ namespace AudioStation.ViewModels.ComponentViewModels
 
         protected override void InitializeImpl(IAudioStationConfiguration configuration, IAudioStationViewModelController viewModelController, DialogProgressHandler progressHandler)
         {
+            // Sub-component(s)
+            this.LoaderWorkflow.Initialize(configuration, viewModelController, progressHandler);
+
             // Set View Model (Load)
             //this.SourceDirectory = load;
 
@@ -199,6 +209,9 @@ namespace AudioStation.ViewModels.ComponentViewModels
         {
             if (this.Options.ImportDirectory == null)
                 return;
+
+            // Sub-component(s)
+            this.LoaderWorkflow.Load(configuration, viewModelLoader, progressHandler);
         }
         private bool CanUnstageFiles()
         {

@@ -21,7 +21,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Wo
                 IIocEventAggregator eventAggregator,
                 ILibraryLoaderWorkerService libraryLoaderService,
                 IAudioStationDbClient audioStationDbClient)
-            : base(eventAggregator, libraryLoaderService)
+            : base("File Checker", "Verifies integrity of files related to Audio Station's library", eventAggregator, libraryLoaderService)
         {
             _audioStationDbClient = audioStationDbClient;
         }

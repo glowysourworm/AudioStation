@@ -20,7 +20,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Wo
     public class LibraryLoaderAcoustIDViewModel : LibraryLoaderWorkerViewModelBase
     {
         public LibraryLoaderAcoustIDViewModel(IIocEventAggregator eventAggregator, ILibraryLoaderWorkerService libraryLoaderService)
-            : base(eventAggregator, libraryLoaderService)
+            : base("AcoustID", "Identifies recordings using AcoustID acoustic fingerprint service", eventAggregator, libraryLoaderService)
         {
         }
 

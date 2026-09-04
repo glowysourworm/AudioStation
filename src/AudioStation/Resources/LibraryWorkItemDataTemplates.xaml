@@ -34,6 +34,16 @@
         </Style.Triggers>
     </Style>
 
+    <Style x:Key="LibraryLoaderWorkflowItemProgressBarStyle" TargetType="{x:Type controls:ProgressBar}">
+        <Setter Property="Foreground" Value="#AF000000" />
+        <Setter Property="Background" Value="LightGray" />
+        <Setter Property="ProgressBrush" Value="DodgerBlue" />
+        <Setter Property="Height" Value="24" />
+        <Setter Property="CornerRadius" Value="5" />
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="FontFamily" Value="{Binding FontFamily, RelativeSource={RelativeSource AncestorType=Window}}" />
+    </Style>
+
     <Style x:Key="LibraryWorkItemContainerStyleNormal" TargetType="ListBoxItem">
         <Setter Property="Background" Value="White" />
         <Setter Property="Foreground" Value="{StaticResource LabelForeground}" />
@@ -83,6 +93,31 @@
 
             </Grid>
         </Border>
+    </DataTemplate>
+
+    <DataTemplate x:Key="LibraryImporterWorkflowItemTemplate" DataType="{x:Type viewModel:LibraryLoaderWorkerViewModelBase}">
+
+        <Grid RowDefinitions="Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto">
+
+            <TextBlock Grid.Row="0" Text="{Binding Name}" Style="{StaticResource LabelTextBlock}" />
+            
+            <TextBlock Grid.Row="1" Margin="5" Text="{Binding Description}" Style="{StaticResource LabelDetailTextBlock}" />
+
+            <controls:ProgressBar Progress="{Binding WorkProgress}" 
+                                  Grid.Row="2" 
+                                  Margin="5"
+                                  Style="{StaticResource LibraryLoaderWorkflowItemProgressBarStyle}">
+            </controls:ProgressBar>
+
+            <TextBlock Grid.Row="3" Margin="5" Text="{Binding WorkItemsInProgress}" Style="{StaticResource LabelDetailTextBlock}" />
+            <TextBlock Grid.Row="4" Margin="5" Text="{Binding WorkItemsWaiting}" Style="{StaticResource LabelDetailTextBlock}" />
+            <TextBlock Grid.Row="5" Margin="5" Text="{Binding WorkItemsSuccessful}" Style="{StaticResource LabelDetailTextBlock}" />
+            <TextBlock Grid.Row="6" Margin="5" Text="{Binding WorkItemsError}" Style="{StaticResource LabelDetailTextBlock}" />
+
+            <TextBlock Grid.Row="7" Margin="5" Text="Running" Style="{StaticResource LabelDetailTextBlock}" Visibility="{Binding IsWorkComplete, Converter={StaticResource BoolInverseVisibilityCollapseConverter}}" />
+            <TextBlock Grid.Row="8" Margin="5" Text="Completed" Style="{StaticResource LabelDetailTextBlock}" Visibility="{Binding IsWorkComplete, Converter={StaticResource BoolVisibilityCollapseConverter}}" />
+
+        </Grid>
     </DataTemplate>
 
 </ResourceDictionary>
