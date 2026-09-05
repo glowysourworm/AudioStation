@@ -4,6 +4,7 @@ using System.Windows.Controls;
 using AudioStation.Component.Interface;
 using AudioStation.Controller.Interface;
 using AudioStation.ViewModels.ComponentViewModels;
+using AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels;
 using AudioStation.Views.LibraryImportViews;
 
 using SimpleWpf.IocFramework.Application.Attribute;
@@ -56,7 +57,15 @@ namespace AudioStation.Views
 
             this.DataContextChanged += LibraryImportView_DataContextChanged;
         }
+        private void ViewModel_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            var viewModel = this.DataContext as LibraryImporterViewModel;
 
+            if (viewModel == null)
+                return;
+
+            RefreshFromDataContext(viewModel);
+        }
         private void LibraryImportView_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
             // Unhook
@@ -236,14 +245,45 @@ namespace AudioStation.Views
                 throw new Exception("Unhandled view type");
         }
 
-        private void ViewModel_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+        private void InitializeImportStep(Type viewType)
         {
-            var viewModel = this.DataContext as LibraryImporterViewModel;
+            // Configuration
+            if (viewType == typeof(LibraryImportConfigurationView))
+            {
+                // Nothing to do
+            }
 
-            if (viewModel == null)
-                return;
+            // Configuration Options
+            if (viewType == typeof(LibraryImportConfigurationOptionsView))
+            {
+                // Nothing to do
+            }
 
-            RefreshFromDataContext(viewModel);
+            // Staging
+            else if (viewType == typeof(LibraryImportStagingView))
+            {
+                _componentViewModelLoader.LoadComponent<LibraryImporterStagingViewModel>();
+            }
+
+            // Import Loader
+            else if (viewType == typeof(LibraryImportLoaderView))
+            {
+                _componentViewModelLoader.LoadComponent<LibraryImporterLoaderViewModel>();
+            }
+
+            // Tag Completion
+            else if (viewType == typeof(LibraryImportTagCompletionView))
+            {
+
+            }
+
+            // Final View
+            else if (viewType == typeof(LibraryImportFinalView))
+            {
+
+            }
+            else
+                throw new Exception("Unhandled view type");
         }
 
         private async void PreviousButton_Click(object sender, RoutedEventArgs e)
@@ -338,6 +378,7 @@ namespace AudioStation.Views
             }
             else if (ConfirmImportStep(viewType))
             {
+                InitializeImportStep(viewType);
                 LoadImportView(viewType, isPrevious, true);
             }
         }

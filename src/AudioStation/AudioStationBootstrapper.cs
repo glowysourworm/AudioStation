@@ -17,10 +17,9 @@ using AudioStation.ViewModels;
 using AudioStation.ViewModels.MainViewModels;
 using AudioStation.ViewModels.TagViewModels;
 using AudioStation.ViewModels.Vendor.ATLViewModel;
-using AudioStation.Views.DialogViews;
-using AudioStation.Windows;
 
 using SimpleWpf.IocFramework.Application;
+using SimpleWpf.IocFramework.EventAggregation;
 using SimpleWpf.Utilities;
 
 namespace AudioStation
@@ -93,17 +92,11 @@ namespace AudioStation
             if (BasicHelpers.IsDispatcher() == ApplicationIsDispatcherResult.False)
                 throw new Exception("Initialization of the library must be on the main dispatcher thread");
 
-            // Splash Screen (using Dialog pattern):  We're going to replicate some of our dialog code here
-            //                                        to preserve the pattern. The owner of the dialog window
-            //                                        can't be established until the main window is shown. So,
-            //                                        this code will run it in the center of the primary window.
+            // Splash Screen (using Dialog pattern):  (please see IDialogController)
             //
+            var eventAggregator = IocContainer.Get<IIocEventAggregator>();
 
-            // NOTE***  The dispatcher thread must be available to create ViewModel instances. So, this
-            //          initialization had some problems down stream when it is not initialized on the
-            //          dispatcher. We'll try to use Dispatcher methods to await the initialization.
-            //
-            var dialogWindow = new DialogWindow();
+            // Send view model along with the workload
             var dialogViewModel = new DialogSplashScreenViewModel()
             {
                 Message = "(Initializing Components)",
@@ -111,17 +104,8 @@ namespace AudioStation
                 ShowProgressBar = false,
                 ShowProgressMessage = true
             };
-            var dialogEventData = new DialogEventData(dialogViewModel);
 
-            dialogWindow.DataContext = new SplashScreenView()
-            {
-                DataContext = dialogEventData.DataContext
-            };
-
-            dialogWindow.HeaderContainer.Visibility = Visibility.Collapsed;
-            dialogWindow.ButtonPanel.Visibility = Visibility.Collapsed;
-            dialogWindow.WindowStartupLocation = WindowStartupLocation.CenterScreen;
-            dialogWindow.Show();
+            eventAggregator.GetEvent<DialogEvent>().Publish(new DialogEventData(dialogViewModel));
 
             // Initialize -> IAudioStationController
             //
@@ -187,7 +171,7 @@ namespace AudioStation
             primaryController.Initialize(configuration, dialogUpdater);
 
             // Dismiss Splash Screen
-            dialogWindow.Close();
+            eventAggregator.GetEvent<DialogEvent>().Publish(DialogEventData.Dismiss());
         }
 
         /// <summary>

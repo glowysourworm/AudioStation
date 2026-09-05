@@ -1,16 +1,16 @@
 ﻿using AudioStation.Controller.Interface;
 using AudioStation.Core;
-using AudioStation.Core.Model.Interface;
 using AudioStation.Core.Utility;
 using AudioStation.EventHandler;
 using AudioStation.Service.Interface;
 using AudioStation.Utility;
-using AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.Import;
+using AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels;
 using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Worker;
 
 using Microsoft.Extensions.Logging;
 
 using SimpleWpf.IocFramework.Application.Attribute;
+using SimpleWpf.UI.ViewModel.FileTreeView;
 
 namespace AudioStation.Service
 {
@@ -54,56 +54,52 @@ namespace AudioStation.Service
             _libraryLoaderMusicBrainzAlbumArtViewModel.Initialize(configuration, audioStationViewModelController, progressHandler);
         }
 
-        public LibraryImporterTreeViewModel InitializeImporterTree(
-                    ILibraryDirectory sourceDirectory,
-                    ILibraryDirectory destinationDirectory,
-                    string searchPattern,
-                    LibraryImporterConfigurationViewModel importerOptions)
+        public FileTreeViewModel InitializeImporterTree(
+                                                string directory,
+                                                string searchPattern,
+                                                LibraryImporterConfigurationViewModel importerOptions)
         {
             try
             {
                 // Load first depth of the tree (TODO: Fix showing only the root, instead of starting with the child nodes)
-                return DirectoryTreeLoader.Load(sourceDirectory.Directory, searchPattern, 1, directoryNode =>
+                return DirectoryTreeLoader.Load(directory, searchPattern, -1, directoryNode =>
                 {
-                    return new LibraryImporterTreeViewModel(directoryNode, searchPattern);
+                    return new FileTreeViewModel(searchPattern, directoryNode);
 
                 }, (directoryPath, directoryFileCount) =>
                 {
-                    return new LibraryImporterDirectoryViewModel(directoryPath, sourceDirectory.Directory, directoryFileCount);
+                    return new FileTreeNodeViewModel(directory, directoryPath, directoryFileCount);
 
                 }, filePath =>
                 {
-                    return new LibraryImporterFileViewModel(filePath, sourceDirectory, destinationDirectory, importerOptions);
+                    return new FileTreeNodeViewModel(directory, filePath, 0);
                 });
             }
             catch (Exception ex)
             {
                 ApplicationHelpers.Log("Error loading import files:  {0}", LogLevel.Error, ex, ex.Message);
-
                 throw ex;
             }
         }
 
         public void LoadImporterTreeNextDepth(
-                        LibraryImporterTreeViewModel directory,
-                        ILibraryDirectory sourceDirectory,
-                        ILibraryDirectory destinationDirectory,
-                        string searchPattern,
-                        LibraryImporterConfigurationViewModel importerOptions)
+                        FileTreeViewModel treeRoot,
+                        int currentDepth,
+                        string searchPattern)
         {
             try
             {
-                DirectoryTreeLoader.LoadToDepth(directory, searchPattern, directory.NodeValue.RecursionDepth + 1, directoryNode =>
+                DirectoryTreeLoader.LoadToDepth(treeRoot, searchPattern, currentDepth + 1, directoryNode =>
                 {
-                    return new LibraryImporterTreeViewModel(directoryNode, searchPattern);
+                    return new FileTreeViewModel(searchPattern, directoryNode);
 
                 }, (directoryPath, directoryFileCount) =>
                 {
-                    return new LibraryImporterDirectoryViewModel(directoryPath, sourceDirectory.Directory, directoryFileCount);
+                    return new FileTreeNodeViewModel(treeRoot.NodeValue.FullPath, directoryPath, directoryFileCount);
 
                 }, filePath =>
                 {
-                    return new LibraryImporterFileViewModel(filePath, sourceDirectory, destinationDirectory, importerOptions);
+                    return new FileTreeNodeViewModel(treeRoot.NodeValue.FullPath, filePath, 0);
                 });
             }
             catch (Exception ex)

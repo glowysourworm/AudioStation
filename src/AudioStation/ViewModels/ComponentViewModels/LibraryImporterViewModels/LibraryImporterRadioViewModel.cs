@@ -6,7 +6,7 @@ using SimpleWpf.IocFramework.Application.Attribute;
 using SimpleWpf.UI.Command;
 using SimpleWpf.UI.ViewModel;
 
-namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.Import
+namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels
 {
     [IocExportDefault]
     public class LibraryImporterRadioViewModel : ViewModelBase

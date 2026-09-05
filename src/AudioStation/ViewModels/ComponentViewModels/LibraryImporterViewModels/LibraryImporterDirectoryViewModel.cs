@@ -1,6 +1,6 @@
 ﻿using SimpleWpf.UI.ViewModel.FileTreeView;
 
-namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.Import
+namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels
 {
     /// <summary>
     /// PathViewModelUI provides the node VALUE for the recursive directory structure. The "Path" view model is essentially

@@ -1,6 +1,6 @@
 ﻿using SimpleWpf.UI.ViewModel.FileTreeView;
 
-namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.Import
+namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels
 {
     /// <summary>
     /// Class that represents a recursive directory tree structure based on SimpleWpf's RecursiveViewModel base class. Public

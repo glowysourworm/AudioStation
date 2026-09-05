@@ -115,7 +115,8 @@ namespace AudioStation.Utility
 
                     // Recursion Stop Depth (Lazy Loading)
                     //
-                    if (currentDirectory.NodeValue.RecursionDepth >= stopDepth)
+                    if (currentDirectory.NodeValue.RecursionDepth >= stopDepth &&
+                        stopDepth != -1)
                         break;
 
                     // Previously Loaded 

@@ -1,6 +1,7 @@
 ﻿using AudioStation.Core.Database.AudioStationDatabase;
 using AudioStation.Core.Model;
 using AudioStation.Interface;
+using AudioStation.ViewModels.ComponentViewModels;
 using AudioStation.ViewModels.ComponentViewModels.LibraryViewModels;
 
 namespace AudioStation.Component.Interface
@@ -8,19 +9,22 @@ namespace AudioStation.Component.Interface
     public interface IComponentViewModelLoader : IAudioStationPrimaryInitializer
     {
         /// <summary>
-        /// Runs AcoustID service on the staged files of the library importer
+        /// Returns a component from the application's view model tree
         /// </summary>
-        Task LibraryImporter_RunAcoustID();
+        /// <typeparam name="T">Component type</typeparam>
+        T GetComponent<T>() where T : ComponentViewModelBase;
 
         /// <summary>
-        /// Runs Music Brainz service on the staged files of the library importer
+        /// Loads or re-initializes a component to prepare for work load
         /// </summary>
-        Task LibraryImporter_RunMusicBrainz();
+        /// <typeparam name="T">Component type</typeparam>
+        void LoadComponent<T>() where T : ComponentViewModelBase;
 
         /// <summary>
-        /// Runs import on staged files of the library importer
+        /// Asynchronously loads or re-initializes a component to prepare for work load
         /// </summary>
-        Task LibraryImporter_RunImport();
+        /// <typeparam name="T">Component type</typeparam>
+        Task LoadComponentAsync<T>() where T : ComponentViewModelBase;
 
         /// <summary>
         /// Loads a collection of LibraryEntryViewModel ordered by ID; and translates the PageResult into 

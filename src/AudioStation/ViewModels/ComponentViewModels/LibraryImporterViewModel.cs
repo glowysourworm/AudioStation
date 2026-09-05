@@ -1,6 +1,5 @@
 ﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Windows.Controls;
 
 using AudioStation.Component.Interface;
 using AudioStation.Controller.Interface;
@@ -9,20 +8,11 @@ using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Controller.Interface;
 using AudioStation.Core.Model;
 using AudioStation.Core.Model.Interface;
-using AudioStation.Core.Model.Vendor.ATLExtension.Interface;
-using AudioStation.Core.Utility;
 using AudioStation.Event;
 using AudioStation.Event.DialogEvents;
 using AudioStation.EventHandler;
-using AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.Import;
-using AudioStation.ViewModels.TagViewModels;
-using AudioStation.ViewModels.Vendor.AcoustIDViewModel;
-using AudioStation.ViewModels.Vendor.ATLViewModel;
+using AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels;
 
-using Microsoft.Extensions.Logging;
-
-using SimpleWpf.Extensions.Collection;
-using SimpleWpf.Extensions.ObservableCollection;
 using SimpleWpf.IocFramework.EventAggregation;
 using SimpleWpf.UI.Command;
 using SimpleWpf.UI.ViewModel.FileTreeView;
@@ -38,26 +28,15 @@ namespace AudioStation.ViewModels.ComponentViewModels
         private readonly ITagCacheController _tagCacheController;
 
         LibraryImporterConfigurationViewModel _options;
-        LibraryImporterLoaderViewModel _loaderWorkflow;
+        LibraryImporterLoaderViewModel _loader;
+        LibraryImporterStagingViewModel _staging;
 
-        // Import Source Directory
-        //
-        LibraryImporterTreeViewModel _sourceDirectory;
-
-        // Staged Files:  These will keep changes to the tag in memory until the tag data is saved (to
-        //                the same file in the source direcotry. An "import" is complete when the file 
-        //                finished - with the bare minimum tag data - and moved into the library's 
-        //                directory structure.
-        //
-        ObservableCollection<LibraryImporterFileViewModel> _stagedFiles;
         ObservableCollection<LibraryImporterFileViewModel> _acoustIDCompletedSuccessfully;
         ObservableCollection<LibraryImporterFileViewModel> _musicBrainzCompletedSuccessfully;
         ObservableCollection<LibraryImporterFileViewModel> _filesReadyToImport;
         ObservableCollection<LibraryImporterFileViewModel> _filesCompletedSuccessfully;
         ObservableCollection<LibraryImporterFileViewModel> _filesCompletedWithError;
 
-        SimpleCommand _stageCommand;
-        SimpleCommand _unstageCommand;
         SimpleCommand _editTagCommand;
         SimpleCommand<string> _editTagGroupCommand;
         SimpleCommand _runImportCommand;
@@ -71,20 +50,15 @@ namespace AudioStation.ViewModels.ComponentViewModels
             get { return _options; }
             set { RaiseAndSetIfChanged(ref _options, value); }
         }
-        public LibraryImporterLoaderViewModel LoaderWorkflow
+        public LibraryImporterLoaderViewModel Loader
         {
-            get { return _loaderWorkflow; }
-            set { this.RaiseAndSetIfChanged(ref _loaderWorkflow, value); }
+            get { return _loader; }
+            set { this.RaiseAndSetIfChanged(ref _loader, value); }
         }
-        public LibraryImporterTreeViewModel SourceDirectory
+        public LibraryImporterStagingViewModel Staging
         {
-            get { return _sourceDirectory; }
-            set { RaiseAndSetIfChanged(ref _sourceDirectory, value); }
-        }
-        public ObservableCollection<LibraryImporterFileViewModel> StagedFiles
-        {
-            get { return _stagedFiles; }
-            set { this.RaiseAndSetIfChanged(ref _stagedFiles, value); }
+            get { return _staging; }
+            set { this.RaiseAndSetIfChanged(ref _staging, value); }
         }
         public ObservableCollection<LibraryImporterFileViewModel> AcoustIDCompletedSuccessfully
         {
@@ -111,26 +85,7 @@ namespace AudioStation.ViewModels.ComponentViewModels
             get { return _filesCompletedWithError; }
             set { this.RaiseAndSetIfChanged(ref _filesCompletedWithError, value); }
         }
-        public int SourceFileSelectedCount
-        {
-            get { return _sourceDirectory == null ? 0 : _sourceDirectory.RecursiveCount(x => !x.IsDirectory && x.IsSelected); }
-            set { OnPropertyChanged("SourceFileSelectedCount"); }
-        }
-        public int SourceFileCount
-        {
-            get { return _sourceDirectory == null ? 0 : _sourceDirectory.RecursiveCount(x => !x.IsDirectory); }
-            set { OnPropertyChanged("SourceFileCount"); }
-        }
-        public SimpleCommand StageCommand
-        {
-            get { return _stageCommand; }
-            set { this.RaiseAndSetIfChanged(ref _stageCommand, value); }
-        }
-        public SimpleCommand UnstageCommand
-        {
-            get { return _unstageCommand; }
-            set { this.RaiseAndSetIfChanged(ref _unstageCommand, value); }
-        }
+
         public SimpleCommand EditTagCommand
         {
             get { return _editTagCommand; }
@@ -163,10 +118,9 @@ namespace AudioStation.ViewModels.ComponentViewModels
             _tagCacheController = tagCacheController;
 
             this.Options = new LibraryImporterConfigurationViewModel();
-            this.LoaderWorkflow = new LibraryImporterLoaderViewModel(this.Options);
-            this.SourceDirectory = null;
+            this.Loader = new LibraryImporterLoaderViewModel(this.Options);
+            this.Staging = new LibraryImporterStagingViewModel(this.Options);
 
-            _stagedFiles = new ObservableCollection<LibraryImporterFileViewModel>();
             _acoustIDCompletedSuccessfully = new ObservableCollection<LibraryImporterFileViewModel>();
             _musicBrainzCompletedSuccessfully = new ObservableCollection<LibraryImporterFileViewModel>();
             _filesReadyToImport = new ObservableCollection<LibraryImporterFileViewModel>();
@@ -175,14 +129,13 @@ namespace AudioStation.ViewModels.ComponentViewModels
 
             this.EditTagCommand = new SimpleCommand(EditTag, CanEditTag);
             this.EditTagGroupCommand = new SimpleCommand<string>(EditTagGroup, CanEditTagGroup);
-            this.StageCommand = new SimpleCommand(StageFiles, CanStageFiles);
-            this.UnstageCommand = new SimpleCommand(UnstageFiles, CanUnstageFiles);
         }
 
         protected override void InitializeImpl(IAudioStationConfiguration configuration, IAudioStationViewModelController viewModelController, DialogProgressHandler progressHandler)
         {
             // Sub-component(s)
-            this.LoaderWorkflow.Initialize(configuration, viewModelController, progressHandler);
+            this.Loader.Initialize(configuration, viewModelController, progressHandler);
+            this.Staging.Initialize(configuration, viewModelController, progressHandler);
 
             // Set View Model (Load)
             //this.SourceDirectory = load;
@@ -211,12 +164,14 @@ namespace AudioStation.ViewModels.ComponentViewModels
                 return;
 
             // Sub-component(s)
-            this.LoaderWorkflow.Load(configuration, viewModelLoader, progressHandler);
+            this.Loader.Load(configuration, viewModelLoader, progressHandler);
+            this.Staging.Load(configuration, viewModelLoader, progressHandler);
         }
         private bool CanUnstageFiles()
         {
             // TODO: Performance
-            return this.StagedFiles.Any();
+            //return this.StagedFiles.Any();
+            return false;
         }
         private bool CanStageFiles()
         {
@@ -228,11 +183,13 @@ namespace AudioStation.ViewModels.ComponentViewModels
         }
         private bool CanEditTag()
         {
-            return this.SourceFileSelectedCount == 1;
+            //return this.SourceFileSelectedCount == 1;
+            return false;
         }
         private bool CanEditTagGroup(string fieldName)
         {
-            return this.SourceFileSelectedCount > 1;
+            //return this.SourceFileSelectedCount > 1;
+            return false;
         }
 
         private void SourceDirectory_ItemPropertyChanged(FileTreeNodeViewModel item, PropertyChangedEventArgs propertyArgs)
@@ -249,204 +206,202 @@ namespace AudioStation.ViewModels.ComponentViewModels
             OnPropertyChanged("SourceFileSelectedCount");
             OnPropertyChanged("SourceFileCount");
 
-            this.StageCommand.RaiseCanExecuteChanged();
-            this.UnstageCommand.RaiseCanExecuteChanged();
             this.EditTagCommand.RaiseCanExecuteChanged();
             this.EditTagGroupCommand.RaiseCanExecuteChanged(string.Empty);
         }
 
         private void ClearSourceFiles()
         {
-            // Un-Hook Events (Recursively)
-            foreach (var file in this.SourceDirectory.RecursiveWhere(x => !x.IsDirectory).Cast<LibraryImporterFileViewModel>())
-            {
-                file.PlayAudioEvent -= ShowSmallAudioPlayer;
-                file.SelectAcoustIDEvent -= ShowAcoustIDResults;
-                file.SelectMusicBrainzEvent -= ShowMusicBrainzResults;
-                file.PropertyChanged -= SourceFile_PropertyChanged;
-            }
-            // Nodes have list properties
-            this.SourceDirectory.ItemPropertyChanged -= SourceDirectory_ItemPropertyChanged;
+            //// Un-Hook Events (Recursively)
+            //foreach (var file in this.SourceDirectory.RecursiveWhere(x => !x.IsDirectory).Cast<LibraryImporterFileViewModel>())
+            //{
+            //    file.PlayAudioEvent -= ShowSmallAudioPlayer;
+            //    file.SelectAcoustIDEvent -= ShowAcoustIDResults;
+            //    file.SelectMusicBrainzEvent -= ShowMusicBrainzResults;
+            //    file.PropertyChanged -= SourceFile_PropertyChanged;
+            //}
+            //// Nodes have list properties
+            //this.SourceDirectory.ItemPropertyChanged -= SourceDirectory_ItemPropertyChanged;
         }
 
         private void StageFiles()
         {
-            // Initialization (?)
-            if (this.SourceDirectory == null)
-                return;
+            //// Initialization (?)
+            //if (this.SourceDirectory == null)
+            //    return;
 
-            this.SourceDirectory.RecurseForEach(path =>
-            {
-                var pathNode = path as LibraryImporterTreeViewModel;
+            //this.SourceDirectory.RecurseForEach(path =>
+            //{
+            //    var pathNode = path as LibraryImporterTreeViewModel;
 
-                if (pathNode.HasSelectedParent() ||
-                    pathNode.NodeValue.IsSelected)
-                {
-                    // File
-                    if (!pathNode.NodeValue.IsDirectory &&
-                        !this.StagedFiles.Any(x => x.FullPath == pathNode.NodeValue.FullPath))
-                    {
-                        this.StagedFiles.Add(path.NodeValue as LibraryImporterFileViewModel);
-                    }
+            //    if (pathNode.HasSelectedParent() ||
+            //        pathNode.NodeValue.IsSelected)
+            //    {
+            //        // File
+            //        if (!pathNode.NodeValue.IsDirectory &&
+            //            !this.StagedFiles.Any(x => x.FullPath == pathNode.NodeValue.FullPath))
+            //        {
+            //            this.StagedFiles.Add(path.NodeValue as LibraryImporterFileViewModel);
+            //        }
 
-                    // Directory
-                    else
-                    {
-                        // Nothing to do
-                    }
-                }
-            });
+            //        // Directory
+            //        else
+            //        {
+            //            // Nothing to do
+            //        }
+            //    }
+            //});
         }
 
         private void UnstageFiles()
         {
-            // Initialization (?)
-            if (this.SourceDirectory == null)
-                return;
+            //// Initialization (?)
+            //if (this.SourceDirectory == null)
+            //    return;
 
-            // Remove unstaged files
-            var removedFiles = this.StagedFiles.Remove(x => x.IsSelected);
+            //// Remove unstaged files
+            //var removedFiles = this.StagedFiles.Remove(x => x.IsSelected);
 
-            // Unhook
-            foreach (var file in removedFiles)
-            {
-                file.PropertyChanged -= SourceFile_PropertyChanged;
-            }
+            //// Unhook
+            //foreach (var file in removedFiles)
+            //{
+            //    file.PropertyChanged -= SourceFile_PropertyChanged;
+            //}
         }
 
         private void EditTag()
         {
-            var inputFiles = this.SourceDirectory.RecursiveWhere(x => !x.IsDirectory && x.IsSelected).Cast<LibraryImporterFileViewModel>().ToList();
-            var firstFile = inputFiles.FirstOrDefault();
+            //var inputFiles = this.SourceDirectory.RecursiveWhere(x => !x.IsDirectory && x.IsSelected).Cast<LibraryImporterFileViewModel>().ToList();
+            //var firstFile = inputFiles.FirstOrDefault();
 
-            if (firstFile == null)
-                return;
+            //if (firstFile == null)
+            //    return;
 
-            // Base the tag view model on the first input. Then, build a group tag
-            // from there.
-            //
-            try
-            {
-                // Get the current working tag
-                var tag = firstFile.GetTagCopy();
+            //// Base the tag view model on the first input. Then, build a group tag
+            //// from there.
+            ////
+            //try
+            //{
+            //    // Get the current working tag
+            //    var tag = firstFile.GetTagCopy();
 
-                // Map tag to view model
-                var viewModel = _audioStationMapper.Map<IAudioStationTag, TagViewModel>(tag);
+            //    // Map tag to view model
+            //    var viewModel = _audioStationMapper.Map<IAudioStationTag, TagViewModel>(tag);
 
-                // Show Tag Editor (ONLY UPDATES NEW VIEW-MODEL! WE MUST MAP THE RESULT BACK!)
-                var dialogResult = _dialogController.ShowDialogWindowSync(DialogEventData.ShowDialogEditor("Tag Editor (" + firstFile.ShortPath + ")", DialogEditorView.TagView, viewModel));
+            //    // Show Tag Editor (ONLY UPDATES NEW VIEW-MODEL! WE MUST MAP THE RESULT BACK!)
+            //    var dialogResult = _dialogController.ShowDialogWindowSync(DialogEventData.ShowDialogEditor("Tag Editor (" + firstFile.ShortPath + ")", DialogEditorView.TagView, viewModel));
 
-                // User wishes to save the data
-                if (dialogResult)
-                {
-                    // Update Import File (view model)(still in new memory only)
-                    firstFile.SaveTagEdit(viewModel);
-                }
-            }
-            catch (Exception ex)
-            {
-                ApplicationHelpers.Log("Application error:  {0}", LogLevel.Error, ex, ex.Message);
-                throw ex;
-            }
+            //    // User wishes to save the data
+            //    if (dialogResult)
+            //    {
+            //        // Update Import File (view model)(still in new memory only)
+            //        firstFile.SaveTagEdit(viewModel);
+            //    }
+            //}
+            //catch (Exception ex)
+            //{
+            //    ApplicationHelpers.Log("Application error:  {0}", LogLevel.Error, ex, ex.Message);
+            //    throw ex;
+            //}
         }
 
         private void EditTagGroup(string fieldName)
         {
-            var inputFiles = this.SourceDirectory.RecursiveWhere(x => !x.IsDirectory && x.IsSelected).Cast<LibraryImporterFileViewModel>().ToList();
-            var firstFile = inputFiles.FirstOrDefault();
+            //var inputFiles = this.SourceDirectory.RecursiveWhere(x => !x.IsDirectory && x.IsSelected).Cast<LibraryImporterFileViewModel>().ToList();
+            //var firstFile = inputFiles.FirstOrDefault();
 
-            if (firstFile == null)
-                return;
+            //if (firstFile == null)
+            //    return;
 
-            // Base the tag view model on the first input. Then, build a group tag
-            // from there.
-            //
-            try
-            {
-                // Create view model for editing
-                var viewModel = new DialogTagFieldEditorViewModel()
-                {
-                    TagFieldName = fieldName
-                };
+            //// Base the tag view model on the first input. Then, build a group tag
+            //// from there.
+            ////
+            //try
+            //{
+            //    // Create view model for editing
+            //    var viewModel = new DialogTagFieldEditorViewModel()
+            //    {
+            //        TagFieldName = fieldName
+            //    };
 
-                // Show Tag Editor (ONLY UPDATES NEW VIEW-MODEL! WE MUST MAP THE RESULT BACK!)
-                var dialogResult = _dialogController.ShowDialogWindowSync(DialogEventData.ShowDialogEditor("Tag Editor (Group)", DialogEditorView.TagFieldView, viewModel));
+            //    // Show Tag Editor (ONLY UPDATES NEW VIEW-MODEL! WE MUST MAP THE RESULT BACK!)
+            //    var dialogResult = _dialogController.ShowDialogWindowSync(DialogEventData.ShowDialogEditor("Tag Editor (Group)", DialogEditorView.TagFieldView, viewModel));
 
-                // User wishes to save the data
-                if (dialogResult)
-                {
-                    foreach (var file in inputFiles)
-                    {
-                        // Update Import File:  Group Fields Only (view model) (still in new memory only)
-                        file.SaveTagFieldEdit(fieldName, viewModel.Tag);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                ApplicationHelpers.Log("Application error:  {0}", LogLevel.Error, ex, ex.Message);
-                throw ex;
-            }
+            //    // User wishes to save the data
+            //    if (dialogResult)
+            //    {
+            //        foreach (var file in inputFiles)
+            //        {
+            //            // Update Import File:  Group Fields Only (view model) (still in new memory only)
+            //            file.SaveTagFieldEdit(fieldName, viewModel.Tag);
+            //        }
+            //    }
+            //}
+            //catch (Exception ex)
+            //{
+            //    ApplicationHelpers.Log("Application error:  {0}", LogLevel.Error, ex, ex.Message);
+            //    throw ex;
+            //}
         }
 
         private void ShowAcoustIDResults(LibraryImporterFileViewModel selectedFile)
         {
-            // Format AcoustID Output
-            var format = "Id={0}\nScore={1:P2}\nMusic Brainz Id={2}";
+            //// Format AcoustID Output
+            //var format = "Id={0}\nScore={1:P2}\nMusic Brainz Id={2}";
 
-            var oldSelection = selectedFile.SelectedAcoustIDResult;
-            var dialogViewModel = new DialogSelectionListViewModel()
-            {
-                SelectionMode = SelectionMode.Single,
-                SelectionList = new NotifyingObservableCollection<SelectionViewModel>(
-                                    selectedFile.ImportOutput
-                                                .AcoustIDResults
-                                                .Select(x => new SelectionViewModel(x, string.Format(format, x.Id, x.Score, x.MusicBrainzRecordingId),
-                                                                                       x == selectedFile.SelectedAcoustIDResult)))
-            };
+            //var oldSelection = selectedFile.SelectedAcoustIDResult;
+            //var dialogViewModel = new DialogSelectionListViewModel()
+            //{
+            //    SelectionMode = SelectionMode.Single,
+            //    SelectionList = new NotifyingObservableCollection<SelectionViewModel>(
+            //                        selectedFile.ImportOutput
+            //                                    .AcoustIDResults
+            //                                    .Select(x => new SelectionViewModel(x, string.Format(format, x.Id, x.Score, x.MusicBrainzRecordingId),
+            //                                                                           x == selectedFile.SelectedAcoustIDResult)))
+            //};
 
-            // Show Dialog (MODAL)
-            _dialogController.ShowDialogWindowSync(new DialogEventData("Acoust ID Results (Min Score = 30%)", dialogViewModel));
+            //// Show Dialog (MODAL)
+            //_dialogController.ShowDialogWindowSync(new DialogEventData("Acoust ID Results (Min Score = 30%)", dialogViewModel));
 
-            // Take Selection
-            selectedFile.SelectedAcoustIDResult = (AcoustIDLookupResultViewModel)dialogViewModel.SelectionList.Single(x => x.Selected).Item;
+            //// Take Selection
+            //selectedFile.SelectedAcoustIDResult = (AcoustIDLookupResultViewModel)dialogViewModel.SelectionList.Single(x => x.Selected).Item;
 
-            if (selectedFile.SelectedAcoustIDResult != oldSelection)
-                selectedFile.SelectedMusicBrainzRecordingMatch = null;
+            //if (selectedFile.SelectedAcoustIDResult != oldSelection)
+            //    selectedFile.SelectedMusicBrainzRecordingMatch = null;
         }
 
         private void ShowMusicBrainzResults(LibraryImporterFileViewModel selectedFile)
         {
-            // Format Music Brainz Output
-            var format = "Id={0}\nArtist={1}\nAlbum={2}\nTrack={3}";
+            //// Format Music Brainz Output
+            //var format = "Id={0}\nArtist={1}\nAlbum={2}\nTrack={3}";
 
-            var zippedCollections = selectedFile.ImportOutput
-                                                .AcoustIDResults
-                                                .Zip(selectedFile.ImportOutput.MusicBrainzRecordingMatches);
+            //var zippedCollections = selectedFile.ImportOutput
+            //                                    .AcoustIDResults
+            //                                    .Zip(selectedFile.ImportOutput.MusicBrainzRecordingMatches);
 
-            var dialogViewModel = new DialogSelectionListViewModel()
-            {
-                SelectionMode = SelectionMode.Single,
-                SelectionList = new NotifyingObservableCollection<SelectionViewModel>(
-                                    zippedCollections
-                                        .Select(x => x.Second)
-                                        .Select(x => new SelectionViewModel(x, string.Format(format, x,
-                                                                                                    x.AlbumArtist,
-                                                                                                    x.Album,
-                                                                                                    x.Title ?? string.Empty),
-                                                                               x == selectedFile.SelectedMusicBrainzRecordingMatch)))
-            };
+            //var dialogViewModel = new DialogSelectionListViewModel()
+            //{
+            //    SelectionMode = SelectionMode.Single,
+            //    SelectionList = new NotifyingObservableCollection<SelectionViewModel>(
+            //                        zippedCollections
+            //                            .Select(x => x.Second)
+            //                            .Select(x => new SelectionViewModel(x, string.Format(format, x,
+            //                                                                                        x.AlbumArtist,
+            //                                                                                        x.Album,
+            //                                                                                        x.Title ?? string.Empty),
+            //                                                                   x == selectedFile.SelectedMusicBrainzRecordingMatch)))
+            //};
 
-            // Show Dialog (MODAL)
-            _dialogController.ShowDialogWindowSync(new DialogEventData("Music Brainz Results", dialogViewModel));
+            //// Show Dialog (MODAL)
+            //_dialogController.ShowDialogWindowSync(new DialogEventData("Music Brainz Results", dialogViewModel));
 
-            // Take Selection
-            var result = (TagSmallViewModel)dialogViewModel.SelectionList.Single(x => x.Selected).Item;
-            var acoustIDResult = zippedCollections.Where(x => x.Second == result).Select(z => z.First).Single();
+            //// Take Selection
+            //var result = (TagSmallViewModel)dialogViewModel.SelectionList.Single(x => x.Selected).Item;
+            //var acoustIDResult = zippedCollections.Where(x => x.Second == result).Select(z => z.First).Single();
 
-            // Select Both Records
-            selectedFile.SelectedMusicBrainzRecordingMatch = result;
-            selectedFile.SelectedAcoustIDResult = acoustIDResult;
+            //// Select Both Records
+            //selectedFile.SelectedMusicBrainzRecordingMatch = result;
+            //selectedFile.SelectedAcoustIDResult = acoustIDResult;
         }
 
         private void ShowSmallAudioPlayer(LibraryImporterFileViewModel selectedFile)

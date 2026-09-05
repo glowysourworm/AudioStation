@@ -4,7 +4,7 @@ using AudioStation.Core.Model.Interface;
 using AudioStation.EventHandler;
 using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Worker;
 
-namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.Import
+namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels
 {
     /// <summary>
     /// Sub-component of LibraryImporterViewModel

@@ -9,13 +9,26 @@
              xmlns:simpleUI="clr-namespace:SimpleWpf.UI.Controls;assembly=SimpleWpf.UI"
              xmlns:simpleUITreeview="clr-namespace:SimpleWpf.UI.Controls.TreeViewUI;assembly=SimpleWpf.UI">
     
-    <Grid RowDefinitions="Auto, Auto, *" ColumnDefinitions="*, Auto, *">
+    <Grid RowDefinitions="Auto, Auto, *" ColumnDefinitions="*, Auto, *" DataContext="{Binding Staging}">
 
-        <!-- Input Files -->
+        <!-- Input Files (In Place) -->
         <TextBox Margin="5" 
                  IsReadOnly="True"
                  Style="{StaticResource UserInputTextBoxReadonly}"
-                 Text="{Binding SourceDirectory.NodeValue.FullPath}" 
+                 Text="{Binding ImportDirectory.NodeValue.FullPath}" 
+                 Visibility="{Binding ImportOptions.ImportType, 
+                                      Converter={StaticResource ParameterVisibilityCollapsedConverter}, 
+                                      ConverterParameter={x:Static coreModel:LibraryImportType.InPlaceDirectory}}"
+                 HorizontalAlignment="Stretch" />
+
+        <!-- Input Files (Migration) -->
+        <TextBox Margin="5" 
+                 IsReadOnly="True"
+                 Style="{StaticResource UserInputTextBoxReadonly}"
+                 Text="{Binding ImportOptions.MigrationSourceDirectory}" 
+                 Visibility="{Binding ImportOptions.ImportType, 
+                                      Converter={StaticResource ParameterVisibilityCollapsedConverter}, 
+                                      ConverterParameter={x:Static coreModel:LibraryImportType.Migration}}"
                  HorizontalAlignment="Stretch" />
 
         <xceed:WatermarkTextBox Margin="5" 
@@ -38,7 +51,7 @@
                   Margin="5"
                   Grid.Row="2"
                   Style="{StaticResource FileTreeViewItemStyle}"
-                  ItemsSource="{Binding SourceDirectory}">
+                  ItemsSource="{Binding ImportDirectory}">
         </simpleUITreeview:SimpleTreeView>
         
         <!-- Stage / Unstage -->

@@ -105,7 +105,6 @@ namespace AudioStation.Controller
             window.DataContext = viewModel;
             window.ShowDialog();
         }
-
         public bool ShowDialogWindowSync(DialogEventData eventData)
         {
             if (!eventData.UserDismissalMode)
@@ -181,7 +180,7 @@ namespace AudioStation.Controller
                     };
                     break;
                 case DialogView.SplashScreenLoading:
-                    _dialogWindow.DataContext = new LoadingView()
+                    _dialogWindow.DataContext = new SplashScreenView()
                     {
                         DataContext = data.DataContext
                     };

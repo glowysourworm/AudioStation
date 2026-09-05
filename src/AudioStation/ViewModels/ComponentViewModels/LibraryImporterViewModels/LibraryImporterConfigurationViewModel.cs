@@ -6,7 +6,7 @@ using Microsoft.Win32;
 using SimpleWpf.UI.Command;
 using SimpleWpf.UI.ViewModel;
 
-namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.Import
+namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels
 {
     public class LibraryImporterConfigurationViewModel : ViewModelBase
     {

@@ -126,8 +126,4 @@
     </None>
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="ViewModels\ComponentViewModels\LibraryImporterViewModels\Staging\" />
-  </ItemGroup>
-
 </Project>
