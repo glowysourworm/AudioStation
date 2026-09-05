@@ -20,6 +20,7 @@ namespace AudioStation.ViewModels.ComponentViewModels
     {
         bool _loading;
         bool _initialized;
+        string _displayName;
 
         /// <summary>
         /// (TODO: Controller pattern!!!) Component is currently running an operation
@@ -34,11 +35,17 @@ namespace AudioStation.ViewModels.ComponentViewModels
             get { return _initialized; }
             set { this.RaiseAndSetIfChanged(ref _initialized, value); }
         }
+        public string DisplayName
+        {
+            get { return _displayName; }
+            set { this.RaiseAndSetIfChanged(ref _displayName, value); }
+        }
 
-        public ComponentViewModelBase()
+        public ComponentViewModelBase(string displayName)
         {
             this.Loading = false;
             this.Initialized = false;
+            this.DisplayName = displayName;
         }
 
         /// <summary>

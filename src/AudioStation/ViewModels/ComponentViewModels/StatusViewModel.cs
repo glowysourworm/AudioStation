@@ -85,7 +85,7 @@ namespace AudioStation.ViewModels.ComponentViewModels
             set { this.RaiseAndSetIfChanged(ref _spotifyClient, value); }
         }
 
-        public StatusViewModel()
+        public StatusViewModel() : base("Status")
         {
             this.PrimaryMessage = string.Empty;
 

@@ -39,7 +39,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels
             set { this.RaiseAndSetIfChanged(ref _musicBrainzAlbumArtWorker, value); }
         }
 
-        public LibraryImporterLoaderViewModel(LibraryImporterConfigurationViewModel importOptions)
+        public LibraryImporterLoaderViewModel(LibraryImporterConfigurationViewModel importOptions) : base("Library Importer (loader)")
         {
             _importOptions = importOptions;
         }

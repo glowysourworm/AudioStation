@@ -73,7 +73,7 @@ namespace AudioStation.ViewModels.ComponentViewModels
         }
 
         public CDImporterViewModel(IIocEventAggregator eventAggregator,
-                                   ICDImportService cdImportService)
+                                   ICDImportService cdImportService) : base("CD Importer")
         {
             _cdImportService = cdImportService;
 

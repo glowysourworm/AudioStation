@@ -7,6 +7,7 @@ using AudioStation.ViewModels.ComponentViewModels;
 using SimpleWpf.IocFramework.Application.Attribute;
 using SimpleWpf.UI.ViewModel.FileTreeView;
 using SimpleWpf.UI.ViewModel.TreeView;
+using SimpleWpf.UI.ViewModel.TreeView.Interface;
 
 namespace AudioStation.Views.LibraryImportViews
 {
@@ -37,18 +38,18 @@ namespace AudioStation.Views.LibraryImportViews
                 newVM.Staging.ImportDirectory?.ItemPropertyChangedTreeEvent += OnImportTreeChanged;
         }
 
-        private void OnImportTreeChanged(TreeViewModelBase<FileTreeNodeViewModel> treeSender, FileTreeNodeViewModel item, PropertyChangedEventArgs eventArgs)
+        private void OnImportTreeChanged(TreeViewModelBase treeSender, ITreeViewNode item, PropertyChangedEventArgs eventArgs)
         {
             var viewModel = this.DataContext as LibraryImporterViewModel;
             var itemViewModel = treeSender as FileTreeViewModel;
 
             if (viewModel != null && itemViewModel != null && itemViewModel.NodeValue == item)
             {
-                if (item.IsDirectory &&
-                    item.IsExpanded &&
+                if (itemViewModel.GetNodeValue().IsDirectory &&
+                    itemViewModel.GetNodeValue().IsExpanded &&
                    !item.IsLoaded)
                 {
-                    _libraryLoaderService.LoadImporterTreeNextDepth(itemViewModel, itemViewModel.NodeValue.RecursionDepth, "*.mp3");
+                    _libraryLoaderService.LoadImporterTreeNextDepth(itemViewModel, itemViewModel.NodeValue.RecursionDepth, "*.mp3", null);
                 }
             }
         }

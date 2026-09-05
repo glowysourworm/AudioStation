@@ -194,6 +194,17 @@ namespace AudioStation.Event
             });
         }
 
+        public static DialogEventData ShowLoadingWithProgress(string title)
+        {
+            return new DialogEventData(new DialogLoadingViewModel()
+            {
+                Title = title,
+                ShowProgressBar = true,
+                Message = string.Empty,
+                Progress = 0
+            });
+        }
+
         /// <summary>
         /// Creates a dialog editor with the specified view
         /// </summary>

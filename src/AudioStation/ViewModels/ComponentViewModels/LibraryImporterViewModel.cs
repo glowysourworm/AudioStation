@@ -111,7 +111,7 @@ namespace AudioStation.ViewModels.ComponentViewModels
         public LibraryImporterViewModel(IAudioStationMapper audioStationMapper,
                                         IDialogController dialogController,
                                         IIocEventAggregator eventAggregator,
-                                        ITagCacheController tagCacheController)
+                                        ITagCacheController tagCacheController) : base("Library Importer")
         {
             _audioStationMapper = audioStationMapper;
             _dialogController = dialogController;
@@ -119,7 +119,7 @@ namespace AudioStation.ViewModels.ComponentViewModels
 
             this.Options = new LibraryImporterConfigurationViewModel();
             this.Loader = new LibraryImporterLoaderViewModel(this.Options);
-            this.Staging = new LibraryImporterStagingViewModel(this.Options);
+            this.Staging = new LibraryImporterStagingViewModel(eventAggregator, this.Options);
 
             _acoustIDCompletedSuccessfully = new ObservableCollection<LibraryImporterFileViewModel>();
             _musicBrainzCompletedSuccessfully = new ObservableCollection<LibraryImporterFileViewModel>();

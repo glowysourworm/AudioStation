@@ -3,6 +3,8 @@
 using SimpleWpf.UI.ViewModel.FileTreeView;
 using SimpleWpf.Utilities;
 
+using static AudioStation.EventHandler.DialogEventHandlers;
+
 namespace AudioStation.Utility
 {
     public static class DirectoryTreeLoader
@@ -16,7 +18,7 @@ namespace AudioStation.Utility
         /// <param name="stopDepth">Recursion can be halted to simulate lazy loading. The stop depth of -1 will indicate no stop depth. Anything less will cause an argument exception.</param>
         /// <param name="path">Root directory</param>
         /// <param name="fileSearchPattern">File search pattern to filter file lookup</param>
-        public static FileTreeViewModel Load(string path, string fileSearchPattern, int stopDepth)
+        public static FileTreeViewModel Load(string path, string fileSearchPattern, int stopDepth, DialogProgressHandler? progressHandler = null)
         {
             return Load(path, fileSearchPattern, stopDepth, directory =>
             {
@@ -29,7 +31,8 @@ namespace AudioStation.Utility
             }, file =>
             {
                 return new FileTreeNodeViewModel(path, file, 0);
-            });
+
+            }, progressHandler);
         }
 
         /// <summary>
@@ -50,9 +53,10 @@ namespace AudioStation.Utility
                int stopDepth,
                Func<TDirectory, TTree> treeConstructor,
                Func<string, int, TDirectory> directoryConstructor,
-               Func<string, TFile> fileConstructor) where TDirectory : FileTreeNodeViewModel
-                                                    where TFile : FileTreeNodeViewModel
-                                                    where TTree : FileTreeViewModel
+               Func<string, TFile> fileConstructor,
+               DialogProgressHandler? progressHandler = null) where TDirectory : FileTreeNodeViewModel
+                                                              where TFile : FileTreeNodeViewModel
+                                                              where TTree : FileTreeViewModel
         {
             if (stopDepth < -1)
                 throw new ArgumentException("Must have a stop depth of -1 or greater. Please set stop depth properly.");
@@ -68,7 +72,7 @@ namespace AudioStation.Utility
             var root = treeConstructor(rootValue);
 
             // Load to depth
-            LoadToDepth(root, fileSearchPattern, stopDepth, treeConstructor, directoryConstructor, fileConstructor);
+            LoadToDepth(root, fileSearchPattern, stopDepth, treeConstructor, directoryConstructor, fileConstructor, progressHandler);
 
             return root;
         }
@@ -90,9 +94,10 @@ namespace AudioStation.Utility
                int stopDepth,
                Func<TDirectory, TTree> treeConstructor,
                Func<string, int, TDirectory> directoryConstructor,
-               Func<string, TFile> fileConstructor) where TDirectory : FileTreeNodeViewModel
-                                                    where TFile : FileTreeNodeViewModel
-                                                    where TTree : FileTreeViewModel
+               Func<string, TFile> fileConstructor,
+               DialogProgressHandler? progressHandler = null) where TDirectory : FileTreeNodeViewModel
+                                                              where TFile : FileTreeNodeViewModel
+                                                              where TTree : FileTreeViewModel
         {
             // Stop Depth
             if (stopDepth < -1)
@@ -126,7 +131,7 @@ namespace AudioStation.Utility
                         // Load next directories to continue
                         foreach (var item in currentDirectory.Children)
                         {
-                            if (item.NodeValue.IsDirectory)
+                            if (item.NodeValue.CanHaveChildren)
                                 directories.Push(item as TTree);
                         }
 
@@ -135,11 +140,14 @@ namespace AudioStation.Utility
 
 
                     // Current Directory
-                    var fileData = BasicHelpers.FastGetFileData(currentDirectory.NodeValue.FullPath, fileSearchPattern, true, SearchOption.TopDirectoryOnly);
+                    var fileData = BasicHelpers.FastGetFileData(currentDirectory.GetNodeValue().FullPath, fileSearchPattern, true, SearchOption.TopDirectoryOnly);
+                    var fileCount = fileData.Count();
+                    var fileIndex = 0;
 
                     foreach (var file in fileData)
                     {
-                        //progressHandler(fileCount, fileIndex++, 0, "Loading Import Files");
+                        if (progressHandler != null)
+                            progressHandler(fileCount, fileIndex++, 0, "Loading Import Files");
 
                         // Directory (stack)
                         if (file.IsDirectory)

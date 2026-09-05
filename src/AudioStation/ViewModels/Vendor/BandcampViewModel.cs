@@ -21,7 +21,7 @@ namespace AudioStation.ViewModels.Vendor
             set { RaiseAndSetIfChanged(ref _searchBandcampCommand, value); }
         }
 
-        public BandcampViewModel(IBandcampClient bandcampClient, IIocEventAggregator eventAggregator)
+        public BandcampViewModel(IBandcampClient bandcampClient, IIocEventAggregator eventAggregator) : base("Bandcamp")
         {
             this.SearchBandcampCommand = new SimpleCommand<string>(async (endpoint) =>
             {

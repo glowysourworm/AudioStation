@@ -57,7 +57,7 @@ namespace AudioStation.ViewModels.ComponentViewModels
             set { this.RaiseAndSetIfChanged(ref _convertCommand, value); }
         }
 
-        public LibraryManagerViewModel(IIocEventAggregator eventAggregator)
+        public LibraryManagerViewModel(IIocEventAggregator eventAggregator) : base("Library Manager")
         {
             CONVERTIBLE_FILE_EXT = new string[]
             {

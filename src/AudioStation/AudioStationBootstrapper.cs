@@ -99,9 +99,9 @@ namespace AudioStation
             // Send view model along with the workload
             var dialogViewModel = new DialogSplashScreenViewModel()
             {
-                Message = "(Initializing Components)",
+                Message = "Initializing Components",
                 Progress = 0,
-                ShowProgressBar = false,
+                ShowProgressBar = true,
                 ShowProgressMessage = true
             };
 
@@ -128,7 +128,11 @@ namespace AudioStation
                 //                        I'm not aware of how this is required since we are async/await-ing and there is supposedly
                 //                        time splicing of the thread. (I tried priority, also)
                 //
-                //                        The below solution worked.
+                //                        The below solution worked. (which I moved to the IDialogController to handle other dialogs)
+                //
+                //                        Dispatcher Render: This seems to be enough to force rendering.
+                //
+                //                                           Dispatcher.CurrentDispatcher.Invoke(() => { }, DispatcherPriority.Render);
                 //
                 //                        Should there be other Task waiters in the application there will be other methods 
                 //                        discussed on how to process them; and how to update the dialog window. It would be
@@ -146,9 +150,10 @@ namespace AudioStation
                 dialogViewModel.Progress = tasksComplete / (double)taskCount;
                 dialogViewModel.Message = message;
                 dialogViewModel.ShowProgressMessage = (message != string.Empty);
-                dialogViewModel.ShowProgressBar = dialogViewModel.Progress > 0;
 
-                // Dispatcher Render: This seems to be enough to force rendering.
+                // This extra call immediately forces the data for a smoother progress bar. The
+                // alternative is to wait for the INotifyPropertyChanged to hit the IDialogController;
+                // and that was a little bit slower, somehow.
                 //
                 Dispatcher.CurrentDispatcher.Invoke(() => { }, DispatcherPriority.Render);
             });

@@ -94,6 +94,7 @@
                  HorizontalContentAlignment="Stretch"
                  VirtualizingPanel.IsVirtualizing="True"
                  VirtualizingPanel.VirtualizationMode="Recycling"
+                 VirtualizingPanel.CacheLengthUnit="Item"
                  VirtualizingPanel.CacheLength="3">
 
             <ListBox.ContextMenu>

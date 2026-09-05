@@ -10,13 +10,18 @@ using SimpleWpf.IocFramework.Application;
 using SimpleWpf.UI.Command;
 using SimpleWpf.UI.ViewModel.FileTreeView;
 using SimpleWpf.Extensions.Collection;
-using SimpleWpf.UI.ViewModel.TreeView;
 using System.ComponentModel;
+using SimpleWpf.UI.ViewModel.TreeView;
+using SimpleWpf.UI.ViewModel.TreeView.Interface;
+using SimpleWpf.IocFramework.EventAggregation;
+using AudioStation.Event;
+using AudioStation.Event.DialogEvents;
 
 namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels
 {
     public class LibraryImporterStagingViewModel : ComponentViewModelBase
     {
+        private readonly IIocEventAggregator _eventAggregator;
         private LibraryImporterConfigurationViewModel _importOptions;
 
         SimpleCommand _stageCommand;
@@ -60,8 +65,11 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels
             set { this.RaiseAndSetIfChanged(ref _unstageCommand, value); }
         }
 
-        public LibraryImporterStagingViewModel(LibraryImporterConfigurationViewModel options)
+        public LibraryImporterStagingViewModel(IIocEventAggregator eventAggregator, LibraryImporterConfigurationViewModel options)
+            : base("Library Importer (staging)")
         {
+            _eventAggregator = eventAggregator;
+
             this.ImportOptions = options;
             this.StagedFiles = new ObservableCollection<LibraryImporterFileViewModel>();
 
@@ -71,26 +79,57 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels
 
         public void Stage()
         {
+            var stagedFiles = new Dictionary<string, LibraryImporterFileViewModel>();
+
+            var eventData = DialogEventData.ShowLoadingWithProgress("Staging Files");
+            var dialogViewModel = eventData.DataContext as DialogLoadingViewModel;
+
+            _eventAggregator.GetEvent<DialogEvent>().Publish(eventData);
+
             // Selected Nodes
-            var selectedNodes = this.ImportDirectory.GetSelection(true);
+            var selectedNodes = this.ImportDirectory.GetSelection(true).ToList();
+            var counter = 0;
 
             // -> Select any selected files or any files in a sub-directory recursively
-            foreach (var node in selectedNodes)
+            foreach (var nodeBase in selectedNodes)
             {
+                dialogViewModel.ShowProgressBar = true;
+                dialogViewModel.Progress = Math.Clamp((counter++ / (double)selectedNodes.Count), 0, 1);
+
+                var node = nodeBase.GetNodeValue();
+                var subCounter = 0;
+
                 // Directory:  Recurse down this sub-tree and add files only
-                if (node.NodeValue.IsDirectory)
+                if (node.IsDirectory)
                 {
-                    node.RecurseForEach(subNode =>
+                    nodeBase.RecurseForEach(subNodeBase =>
                     {
-                        if (!subNode.NodeValue.IsDirectory && !this.StagedFiles.Any(x => x.FullPath == subNode.NodeValue.FullPath))
-                            this.StagedFiles.Add(new LibraryImporterFileViewModel(subNode.NodeValue.FullPath, subNode.NodeValue.BaseDirectory, this.ImportOptions.ImportType));
+                        dialogViewModel.Progress = Math.Clamp((subCounter++ / (double)nodeBase.Children.Count), 0, 1);
+
+                        var subNode = subNodeBase.NodeValue as FileTreeNodeViewModel;
+
+                        if (!subNode.IsDirectory && !stagedFiles.ContainsKey(subNode.FullPath))
+                        {
+                            var file = new LibraryImporterFileViewModel(subNode.FullPath, subNode.BaseDirectory, this.ImportOptions.ImportType);
+
+                            stagedFiles.Add(file.FullPath, file);
+                            this.StagedFiles.Add(file);
+                        }
+
                     });
                 }
 
                 // Other Files
-                else if (!this.StagedFiles.Any(x => x.FullPath == node.NodeValue.FullPath))
-                    this.StagedFiles.Add(new LibraryImporterFileViewModel(node.NodeValue.FullPath, node.NodeValue.BaseDirectory, this.ImportOptions.ImportType));
+                else if (!stagedFiles.ContainsKey(node.FullPath))
+                {
+                    var stagedFile = new LibraryImporterFileViewModel(node.FullPath, node.BaseDirectory, this.ImportOptions.ImportType);
+
+                    stagedFiles.Add(node.FullPath, stagedFile);
+                    this.StagedFiles.Add(stagedFile);
+                }
             }
+
+            _eventAggregator.GetEvent<DialogEvent>().Publish(DialogEventData.Dismiss());
         }
         public void Unstage()
         {
@@ -121,7 +160,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels
             // Import Directory:  1) Not Initialized; or 2) A different directory
             //
             if (this.ImportDirectory == null ||
-                this.ImportDirectory.NodeValue.BaseDirectory != this.ImportOptions.ImportDirectory.Directory)
+                this.ImportDirectory.GetNodeValue().BaseDirectory != this.ImportOptions.ImportDirectory.Directory)
             {
                 var libraryLoaderService = IocContainer.Get<ILibraryLoaderService>();
                 var directory = (this.ImportOptions.ImportType == Core.Model.LibraryImportType.Migration) ? this.ImportOptions.MigrationSourceDirectory :
@@ -130,14 +169,14 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels
                 // Unhook
                 this.ImportDirectory?.ItemPropertyChangedTreeEvent -= OnImportTreePropertyChanged;
 
-                this.ImportDirectory = libraryLoaderService.InitializeImporterTree(directory, searchPattern, this.ImportOptions);
+                this.ImportDirectory = libraryLoaderService.InitializeImporterTree(directory, searchPattern, this.ImportOptions, progressHandler);
 
                 // Hook
                 this.ImportDirectory.ItemPropertyChangedTreeEvent += OnImportTreePropertyChanged;
             }
         }
 
-        private void OnImportTreePropertyChanged(TreeViewModelBase<FileTreeNodeViewModel> treeSender, FileTreeNodeViewModel item, PropertyChangedEventArgs eventArgs)
+        private void OnImportTreePropertyChanged(TreeViewModelBase treeSender, ITreeViewNode item, PropertyChangedEventArgs eventArgs)
         {
             this.StageCommand.RaiseCanExecuteChanged();
             this.UnstageCommand.RaiseCanExecuteChanged();

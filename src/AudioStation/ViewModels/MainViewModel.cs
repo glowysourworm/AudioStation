@@ -219,7 +219,7 @@ public class MainViewModel : ComponentViewModelBase
                          IAudioStationMapper audioStationMapper,
                          IDialogController dialogController,
                          IIocEventAggregator eventAggregator,
-                         ICDDrive cdDrive)
+                         ICDDrive cdDrive) : base("Main")
     {
         // IAudioStationComponent
         var audioController = audioStationServiceController.GetComponent<IAudioController>();

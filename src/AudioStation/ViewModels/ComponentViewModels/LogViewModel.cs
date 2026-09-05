@@ -19,7 +19,7 @@ namespace AudioStation.ViewModels.ComponentViewModels
     {
         LogSetViewModel _viewModel;
 
-        public LogViewModel(IIocEventAggregator eventAggregator)
+        public LogViewModel(IIocEventAggregator eventAggregator) : base("Log")
         {
             eventAggregator.GetEvent<LogEvent>().Subscribe(OnLog);
         }

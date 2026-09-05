@@ -12,6 +12,8 @@ using Microsoft.Extensions.Logging;
 using SimpleWpf.IocFramework.Application.Attribute;
 using SimpleWpf.UI.ViewModel.FileTreeView;
 
+using static AudioStation.EventHandler.DialogEventHandlers;
+
 namespace AudioStation.Service
 {
     [IocExport(typeof(ILibraryLoaderService))]
@@ -57,7 +59,8 @@ namespace AudioStation.Service
         public FileTreeViewModel InitializeImporterTree(
                                                 string directory,
                                                 string searchPattern,
-                                                LibraryImporterConfigurationViewModel importerOptions)
+                                                LibraryImporterConfigurationViewModel importerOptions,
+                                                DialogProgressHandler progressHandler)
         {
             try
             {
@@ -73,7 +76,8 @@ namespace AudioStation.Service
                 }, filePath =>
                 {
                     return new FileTreeNodeViewModel(directory, filePath, 0);
-                });
+
+                }, progressHandler);
             }
             catch (Exception ex)
             {
@@ -85,7 +89,8 @@ namespace AudioStation.Service
         public void LoadImporterTreeNextDepth(
                         FileTreeViewModel treeRoot,
                         int currentDepth,
-                        string searchPattern)
+                        string searchPattern,
+                        DialogProgressHandler progressHandler)
         {
             try
             {
@@ -95,12 +100,13 @@ namespace AudioStation.Service
 
                 }, (directoryPath, directoryFileCount) =>
                 {
-                    return new FileTreeNodeViewModel(treeRoot.NodeValue.FullPath, directoryPath, directoryFileCount);
+                    return new FileTreeNodeViewModel(treeRoot.GetNodeValue().FullPath, directoryPath, directoryFileCount);
 
                 }, filePath =>
                 {
-                    return new FileTreeNodeViewModel(treeRoot.NodeValue.FullPath, filePath, 0);
-                });
+                    return new FileTreeNodeViewModel(treeRoot.GetNodeValue().FullPath, filePath, 0);
+
+                }, progressHandler);
             }
             catch (Exception ex)
             {

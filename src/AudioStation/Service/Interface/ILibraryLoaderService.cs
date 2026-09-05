@@ -20,13 +20,15 @@ namespace AudioStation.Service.Interface
         /// </summary>
         public FileTreeViewModel InitializeImporterTree(string directory,
                                                         string searchPattern,
-                                                        LibraryImporterConfigurationViewModel importerOptions);
+                                                        LibraryImporterConfigurationViewModel importerOptions,
+                                                        DialogProgressHandler progressHandler);
 
         /// <summary>
         /// Loads further directories of the importer tree
         /// </summary>
         public void LoadImporterTreeNextDepth(FileTreeViewModel treeRoot,
                                               int currentDepth,
-                                              string searchPattern);
+                                              string searchPattern,
+                                              DialogProgressHandler progressHandler);
     }
 }

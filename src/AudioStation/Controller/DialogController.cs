@@ -1,4 +1,5 @@
 ﻿using System.Windows;
+using System.Windows.Threading;
 
 using AudioStation.Controller.Interface;
 using AudioStation.Event;
@@ -13,6 +14,7 @@ using Microsoft.Win32;
 using SimpleWpf.Extensions.Collection;
 using SimpleWpf.IocFramework.Application.Attribute;
 using SimpleWpf.IocFramework.EventAggregation;
+using SimpleWpf.UI.ViewModel;
 
 namespace AudioStation.Controller
 {
@@ -22,6 +24,7 @@ namespace AudioStation.Controller
         private readonly IIocEventAggregator _eventAggregator;
 
         private DialogWindow _dialogWindow;
+        private ViewModelBase _dialogDataContext;
 
         [IocImportingConstructor]
         public DialogController(IIocEventAggregator eventAggregator)
@@ -142,11 +145,7 @@ namespace AudioStation.Controller
             // Dismiss
             if (!data.Show)
             {
-                if (_dialogWindow != null)
-                {
-                    _dialogWindow.Close();
-                    _dialogWindow = null;
-                }
+                Dispose();
 
                 // Finished with our task.
                 return false;
@@ -239,11 +238,24 @@ namespace AudioStation.Controller
             _dialogWindow.Height = data.DialogHeight;
             _dialogWindow.Width = data.DialogWidth;
 
+            // Data Context (need invalidators during loading)
+            _dialogDataContext = data.DataContext;
+            _dialogDataContext.PropertyChanged += OnDialogDataContextPropertyChanged;
+
             // Can't show the loading screen as a dialog window; but the window will appear as
             // a non-closeable window.
             _dialogWindow.Owner = Application.Current.MainWindow;
 
             return true;
+        }
+
+        private void OnDialogDataContextPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (_dialogWindow.WindowState != WindowState.Normal)
+                throw new Exception("Mishandled dialog data context. Must dispose of the previous context before re-issuing the window");
+
+            // Force Render / Update of the UI
+            Dispatcher.CurrentDispatcher.Invoke(() => { }, DispatcherPriority.Render);
         }
 
         public void Dispose()
@@ -252,6 +264,9 @@ namespace AudioStation.Controller
             {
                 _dialogWindow.Close();
                 _dialogWindow = null;
+
+                // Data Context Events
+                _dialogDataContext.PropertyChanged -= OnDialogDataContextPropertyChanged;
             }
         }
     }

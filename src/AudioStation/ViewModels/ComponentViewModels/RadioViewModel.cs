@@ -53,7 +53,7 @@ namespace AudioStation.ViewModels.ComponentViewModels
 
 
         public RadioViewModel(ILibraryLoaderWorkerService libraryLoaderService,
-                              IDialogController dialogController)
+                              IDialogController dialogController) : base("Radio")
         {
             this.RadioEntries = new SortedObservableCollection<RadioEntryViewModel>(new PropertyComparer<string, RadioEntryViewModel>(x => x.Name));
             this.RadioBrowserSearchResults = new SortedObservableCollection<RadioStationViewModel>(new PropertyComparer<string, RadioStationViewModel>(x => x.Name));

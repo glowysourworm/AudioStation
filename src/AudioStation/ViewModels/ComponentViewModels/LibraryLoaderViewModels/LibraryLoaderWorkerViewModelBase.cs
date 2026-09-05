@@ -79,6 +79,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels
         }
 
         public LibraryLoaderWorkerViewModelBase(string name, string description, IIocEventAggregator eventAggregator, ILibraryLoaderWorkerService libraryLoaderService)
+            : base(name)
         {
             _libraryLoaderService = libraryLoaderService;
 

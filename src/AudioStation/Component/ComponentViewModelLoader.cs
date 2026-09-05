@@ -293,16 +293,17 @@ namespace AudioStation.Component
 
         public void LoadComponent<T>() where T : ComponentViewModelBase
         {
+            if (_configuration == null)
+                throw new Exception("Configuration is not yet loaded. Must load configuration before loading components");
+
             var component = GetComponent<T>();
 
             // Dialog (Loading)
-            var dialogViewModel = new DialogSplashScreenViewModel()
-            {
-                Message = "(Initializing Components)",
-                Progress = 0,
-                ShowProgressBar = false,
-                ShowProgressMessage = true
-            };
+            var eventData = DialogEventData.ShowLoadingWithProgress("Loading " + component.DisplayName);
+            var dialogViewModel = eventData.DataContext as DialogLoadingViewModel;
+
+            if (dialogViewModel == null)
+                throw new InvalidCastException("Dialog loading view model cast in not correct");
 
             // Dialog Update Func
             var dialogUpdater = new DialogEventHandlers.DialogProgressHandler((taskCount, tasksComplete, tasksError, message) =>
@@ -312,16 +313,14 @@ namespace AudioStation.Component
 
                 dialogViewModel.Progress = tasksComplete / (double)taskCount;
                 dialogViewModel.Message = message;
-                dialogViewModel.ShowProgressMessage = (message != string.Empty);
-                dialogViewModel.ShowProgressBar = dialogViewModel.Progress > 0;
 
                 // Dispatcher Render: This seems to be enough to force rendering.
                 //
-                Dispatcher.CurrentDispatcher.Invoke(() => { }, DispatcherPriority.Render);
+                //Dispatcher.CurrentDispatcher.Invoke(() => { }, DispatcherPriority.Render);
             });
 
             // Dialog Show
-            _eventAggregator.GetEvent<DialogEvent>().Publish(new DialogEventData(dialogViewModel));
+            _eventAggregator.GetEvent<DialogEvent>().Publish(eventData);
 
             // Load Component
             component.Load(_configuration, this, dialogUpdater);

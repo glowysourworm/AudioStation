@@ -74,7 +74,7 @@ namespace AudioStation.ViewModels.ComponentViewModels
 
         private readonly IIocEventAggregator _eventAggregator;
 
-        public NowPlayingViewModel(IIocEventAggregator eventAggregator)
+        public NowPlayingViewModel(IIocEventAggregator eventAggregator) : base("Now Playing")
         {
             _eventAggregator = eventAggregator;
 

@@ -1,4 +1,6 @@
 ﻿using SimpleWpf.UI.ViewModel.FileTreeView;
+using SimpleWpf.UI.ViewModel.TreeView;
+using SimpleWpf.UI.ViewModel.TreeView.Interface;
 
 namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels
 {
@@ -12,10 +14,9 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels
             : base(searchPattern, nodeValue, parent)
         {
         }
-
-        protected override LibraryImporterTreeViewModel Construct(FileTreeNodeViewModel nodeValue)
+        protected override TreeViewModelBase Construct(ITreeViewNode nodeValue)
         {
-            return new LibraryImporterTreeViewModel(nodeValue, this.SearchPattern, this);
+            return new LibraryImporterTreeViewModel(nodeValue as FileTreeNodeViewModel, this.SearchPattern, this);
         }
 
         public bool HasSelectedParent()

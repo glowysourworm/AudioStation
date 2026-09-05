@@ -232,7 +232,7 @@ namespace AudioStation.ViewModels
             set { this.RaiseAndSetIfChanged(ref _acoustIDAPIKey, value); }
         }
 
-        public AudioStationConfigurationViewModel()
+        public AudioStationConfigurationViewModel() : base("Audio Station Configuration")
         {
             this.LibraryDirectories = new ObservableCollection<LibraryDirectoryViewModel>();
             this.ApplicationCacheFolder = new LibraryDirectoryViewModel();

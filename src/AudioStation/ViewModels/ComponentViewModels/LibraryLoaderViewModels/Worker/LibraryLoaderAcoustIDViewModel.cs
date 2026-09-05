@@ -14,6 +14,7 @@ using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Output
 using Microsoft.Extensions.Logging;
 
 using SimpleWpf.IocFramework.EventAggregation;
+using SimpleWpf.UI.ViewModel.FileTreeView;
 
 namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Worker
 {
@@ -49,7 +50,9 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Wo
 
                     directoryTree.RecurseForEach(entry =>
                     {
-                        if (!entry.NodeValue.IsDirectory)
+                        var tree = entry as FileTreeViewModel;
+
+                        if (!tree.GetNodeValue().IsDirectory)
                             this.WorkItems.Add(new LibraryWorkItemViewModel()
                             {
                                 HasErrors = false,
@@ -57,8 +60,8 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Wo
                                 LoadType = LibraryLoadType.AcoustID,
                                 Load = new LibraryLoaderLoadViewModel()
                                 {
-                                    DisplayText = entry.NodeValue.FullPath,
-                                    Data = new LibraryLoaderFileLoadViewModel(entry.NodeValue.FullPath, entry.NodeValue.ShortPath)
+                                    DisplayText = tree.GetNodeValue().FullPath,
+                                    Data = new LibraryLoaderFileLoadViewModel(tree.GetNodeValue().FullPath, tree.GetNodeValue().ShortPath)
                                 },
                                 Output = new LibraryLoaderOutputViewModel()
                                 {
