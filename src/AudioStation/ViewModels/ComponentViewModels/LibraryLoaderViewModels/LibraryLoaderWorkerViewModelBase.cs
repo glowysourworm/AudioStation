@@ -71,6 +71,23 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels
             get { return _isWorkComplete; }
             set { this.RaiseAndSetIfChanged(ref _isWorkComplete, value); }
         }
+        public string Status
+        {
+            get
+            {
+                if (!this.Initialized)
+                    return "Not Initialized";
+
+                else if (this.Loading)
+                    return "Working";
+
+                else if (this.IsWorkComplete)
+                    return "Completed";
+
+                else
+                    return "Idle";
+            }
+        }
 
         public SimpleCommand ExecuteCommand
         {
@@ -116,7 +133,11 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels
 
         protected override void OnPropertyChanged(string name)
         {
-            base.OnPropertyChanged(name);
+            if (name != "Status")
+                base.OnPropertyChanged(name);
+
+            else
+                OnPropertyChanged("Status");
 
             OnUpdate();
         }

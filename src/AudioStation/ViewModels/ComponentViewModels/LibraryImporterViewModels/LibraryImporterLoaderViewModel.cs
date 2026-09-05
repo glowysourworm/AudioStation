@@ -41,7 +41,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels
 
         public LibraryImporterLoaderViewModel(LibraryImporterConfigurationViewModel importOptions) : base("Library Importer (loader)")
         {
-            _importOptions = importOptions;
+            this.ImportOptions = importOptions;
         }
 
         public void Execute()

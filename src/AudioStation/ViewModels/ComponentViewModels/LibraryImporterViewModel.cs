@@ -121,6 +121,9 @@ namespace AudioStation.ViewModels.ComponentViewModels
             this.Loader = new LibraryImporterLoaderViewModel(this.Options);
             this.Staging = new LibraryImporterStagingViewModel(eventAggregator, this.Options);
 
+            this.Loader.PropertyChanged += OnImportStepUpdate;
+            this.Staging.PropertyChanged += OnImportStepUpdate;
+
             _acoustIDCompletedSuccessfully = new ObservableCollection<LibraryImporterFileViewModel>();
             _musicBrainzCompletedSuccessfully = new ObservableCollection<LibraryImporterFileViewModel>();
             _filesReadyToImport = new ObservableCollection<LibraryImporterFileViewModel>();
@@ -129,6 +132,11 @@ namespace AudioStation.ViewModels.ComponentViewModels
 
             this.EditTagCommand = new SimpleCommand(EditTag, CanEditTag);
             this.EditTagGroupCommand = new SimpleCommand<string>(EditTagGroup, CanEditTagGroup);
+        }
+
+        private void OnImportStepUpdate(object? sender, PropertyChangedEventArgs e)
+        {
+            this.Loading = this.Loader.Loading || this.Staging.Loading;
         }
 
         protected override void InitializeImpl(IAudioStationConfiguration configuration, IAudioStationViewModelController viewModelController, DialogProgressHandler progressHandler)

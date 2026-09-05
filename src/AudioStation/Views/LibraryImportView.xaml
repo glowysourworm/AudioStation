@@ -29,7 +29,8 @@
                     VerticalAlignment="Center"
                     HorizontalAlignment="Right"
                     Margin="5 0 5 5"
-                    Grid.Row="1">
+                    Grid.Row="1"
+                    Visibility="{Binding Loading, Converter={StaticResource BoolInverseVisibilityCollapseConverter}}">
 
             <!-- Previous -->
             <Button x:Name="PreviousButton"
@@ -51,7 +52,7 @@
                     Style="{StaticResource UserControlButton}">
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="Next" Style="{StaticResource LabelTextBlock}" Margin="5" />
-                    <fa5:SvgAwesome Icon="Solid_ArrowRight" Style="{StaticResource FontAwesomeIconDefault}" Margin="5" />                    
+                    <fa5:SvgAwesome Icon="Solid_ArrowRight" Style="{StaticResource FontAwesomeIconDefault}" Margin="5" />
                 </StackPanel>
             </Button>
 

@@ -21,6 +21,9 @@ namespace AudioStation.Views
         public static readonly DependencyProperty PreviousStepReadyProperty =
             DependencyProperty.Register("PreviousStepReady", typeof(bool), typeof(LibraryImportView));
 
+        public static readonly DependencyProperty ExecuteReadyProperty =
+            DependencyProperty.Register("ExecuteReady", typeof(bool), typeof(LibraryImportView));
+
         public bool NextStepReady
         {
             get { return (bool)GetValue(NextStepReadyProperty); }
