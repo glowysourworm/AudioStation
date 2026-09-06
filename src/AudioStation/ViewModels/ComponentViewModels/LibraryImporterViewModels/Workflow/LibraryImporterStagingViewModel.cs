@@ -17,9 +17,9 @@ using SimpleWpf.IocFramework.EventAggregation;
 using AudioStation.Event;
 using AudioStation.Event.DialogEvents;
 
-namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels
+namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.Workflow
 {
-    public class LibraryImporterStagingViewModel : ComponentViewModelBase
+    public class LibraryImporterStagingViewModel : WorkflowComponentViewModelBase
     {
         private readonly IIocEventAggregator _eventAggregator;
         private LibraryImporterConfigurationViewModel _importOptions;

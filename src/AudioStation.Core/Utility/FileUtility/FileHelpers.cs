@@ -23,6 +23,14 @@ namespace AudioStation.Core.Utility.FileUtility
         }
 
         /// <summary>
+        /// Replaces the current extension with the provided extension
+        /// </summary>
+        public static string ReplaceExtension(string fileName, string extension)
+        {
+            return Path.GetFileNameWithoutExtension(fileName) + extension;
+        }
+
+        /// <summary>
         /// Creates a unique label using the convention:  "Label" -> "Label (x)" where x is the next integer to create
         /// a unique string.
         /// </summary>

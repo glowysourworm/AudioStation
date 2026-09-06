@@ -38,8 +38,14 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent
         /// <summary>
         /// Checks integrity of FileReference table, and all related entities
         /// </summary>
-        [Display(Name = "Music Brainz Album Art", Description = "This task will retrieve basic Music Brainz album artwork for all (basic) data retrieved using library loader services")]
-        FileChecker
+        [Display(Name = "File Checker", Description = "This task will chek the integrity of files (tracks and file info, files are not stored in the library database) in the library against files on disk")]
+        FileChecker,
+
+        /// <summary>
+        /// Checks integrity of FileReference table, and all related entities
+        /// </summary>
+        [Display(Name = "File Converter", Description = "This task will convert audio files from / to specified format")]
+        FileConverter
     }
     public enum LibraryWorkItemState
     {

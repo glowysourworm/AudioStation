@@ -12,6 +12,7 @@ using AudioStation.Event;
 using AudioStation.Event.DialogEvents;
 using AudioStation.EventHandler;
 using AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels;
+using AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.Workflow;
 
 using SimpleWpf.IocFramework.EventAggregation;
 using SimpleWpf.UI.Command;

@@ -24,6 +24,7 @@ namespace AudioStation.Core.Component
         private readonly IAudioStationDbClient _audioStationDbClient;
         private readonly IAcoustIDClient _acoustIDClient;
         private readonly IMusicBrainzClient _musicBrainzClient;
+        private readonly IAudioConverter _audioConverter;
 
         // Cannot use multi threading on the database until we have proper 
         // table locking, or transactions!
@@ -47,7 +48,8 @@ namespace AudioStation.Core.Component
                              IAcoustIDClient acoustIDClient,
                              IMusicBrainzClient musicBrainzClient,
                              ILibraryImporter libraryImporter,
-                             IFileController fileController)
+                             IFileController fileController,
+                             IAudioConverter audioConverter)
         {
             _audioStationMapper = audioStationMapper;
             _audioStationDbClient = audioStationDbClient;
@@ -55,6 +57,7 @@ namespace AudioStation.Core.Component
             _acoustIDClient = acoustIDClient;
             _libraryImporter = libraryImporter;
             _fileController = fileController;
+            _audioConverter = audioConverter;
 
             _workQueue = new Queue<LibraryLoaderWorkItem>();
             _workItemsWorking = new List<LibraryLoaderWorkItem>();
@@ -103,6 +106,12 @@ namespace AudioStation.Core.Component
                 {
                     workItem = new LibraryLoaderWorkItem(_workItemIdCounter, LibraryLoadType.FileChecker);
                     workItem.Initialize(LibraryWorkItemState.Pending, new LibraryLoaderLoad(loadType, load), new LibraryLoaderOutput(loadType, new LibraryLoaderNoOutput(), LibraryLoaderFileCheckerWorker.GetNumberSteps()));
+                }
+                break;
+                case LibraryLoadType.FileConverter:
+                {
+                    workItem = new LibraryLoaderWorkItem(_workItemIdCounter, LibraryLoadType.FileConverter);
+                    workItem.Initialize(LibraryWorkItemState.Pending, new LibraryLoaderLoad(loadType, load), new LibraryLoaderOutput(loadType, new LibraryLoaderNoOutput(), LibraryLoaderFileConverterWorker.GetNumberSteps()));
                 }
                 break;
                 case LibraryLoadType.ImportRadio:
@@ -154,6 +163,11 @@ namespace AudioStation.Core.Component
                     case LibraryLoadType.FileChecker:
                     {
                         thread = new LibraryLoaderFileCheckerWorker(_audioStationDbClient, workItem);
+                    }
+                    break;
+                    case LibraryLoadType.FileConverter:
+                    {
+                        thread = new LibraryLoaderFileConverterWorker(_audioConverter, workItem);
                     }
                     break;
                     case LibraryLoadType.MusicBrainzBasic:

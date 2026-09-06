@@ -4,7 +4,6 @@ using System.Windows.Controls;
 using AudioStation.Component.Interface;
 using AudioStation.Controller.Interface;
 using AudioStation.ViewModels.ComponentViewModels;
-using AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels;
 using AudioStation.Views.LibraryImportViews;
 
 using SimpleWpf.IocFramework.Application.Attribute;
@@ -265,13 +264,17 @@ namespace AudioStation.Views
             // Staging
             else if (viewType == typeof(LibraryImportStagingView))
             {
-                _componentViewModelLoader.LoadComponent<LibraryImporterStagingViewModel>();
+                // This gets moved to workflow loader (probably just use the view model to call the sub-components)
+
+                //_componentViewModelLoader.LoadComponent<LibraryImporterStagingViewModel>();
             }
 
             // Import Loader
             else if (viewType == typeof(LibraryImportLoaderView))
             {
-                _componentViewModelLoader.LoadComponent<LibraryImporterLoaderViewModel>();
+                // This gets moved to workflow loader (probably just use the view model to call the sub-components)
+
+                //_componentViewModelLoader.LoadComponent<LibraryImporterLoaderViewModel>();
             }
 
             // Tag Completion

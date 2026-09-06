@@ -92,6 +92,20 @@ namespace AudioStation.Service
 
                     return _libraryLoader.RunLoaderTaskAsync(LibraryLoadType.FileChecker, new LibraryLoaderEntityLoad<FileReference>(workLoad.Entity));
                 }
+                case LibraryLoadType.FileConverter:
+                {
+                    var workLoad = workItem.Load.Data as LibraryLoaderFileConverterLoadViewModel;
+
+                    if (workLoad == null)
+                        throw new ArgumentException("Invalid work load for Library Loader File Converter");
+
+                    return _libraryLoader.RunLoaderTaskAsync(LibraryLoadType.FileChecker, new LibraryLoaderFileConverterLoad()
+                    {
+                        EncoderInfo = workLoad.EncoderInfo,
+                        FileIn = workLoad.FileIn,
+                        FileOut = workLoad.FileOut
+                    });
+                }
                 case LibraryLoadType.ImportRadio:
                 default:
                     throw new Exception("Unhandled Libary Loader load type");

@@ -4,12 +4,12 @@ using AudioStation.Core.Model.Interface;
 using AudioStation.EventHandler;
 using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Worker;
 
-namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels
+namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.Workflow
 {
     /// <summary>
     /// Sub-component of LibraryImporterViewModel
     /// </summary>
-    public class LibraryImporterLoaderViewModel : ComponentViewModelBase
+    public class LibraryImporterLoaderViewModel : WorkflowComponentViewModelBase
     {
         private LibraryImporterConfigurationViewModel _importOptions;
 
