@@ -1,7 +1,11 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+
 namespace AudioStation.Core.Model
 {
+    [JsonConverter(typeof(StringEnumConverter))]
     public enum LibraryImportType
     {
         /// <summary>

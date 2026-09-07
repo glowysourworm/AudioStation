@@ -18,8 +18,8 @@
                                    Style="{StaticResource PropertyGridSimpleEnumComboBox}"
                                    BorderBrush="{Binding IsValid, Converter={StaticResource ValidationBrushConverter}, ConverterParameter={StaticResource PropertyGridControlDefaultBorder}, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                    EnumType="{Binding EnumType, RelativeSource={RelativeSource AncestorType=UserControl}}"
-				                   EnumValue="{Binding Value, RelativeSource={RelativeSource AncestorType=UserControl}}" 
-				                   IsEnabled="{Binding IsReadOnly, RelativeSource={RelativeSource AncestorType=UserControl}}" />
+				                   EnumValue="{Binding Value, Mode=TwoWay, RelativeSource={RelativeSource AncestorType=UserControl}}" 
+				                   IsEnabled="{Binding IsReadOnly, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BoolInverseConverter}}" />
 
 
         <TextBlock Text="{Binding Description, RelativeSource={RelativeSource AncestorType=UserControl}}"

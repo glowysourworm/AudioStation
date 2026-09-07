@@ -71,8 +71,8 @@
     </Style>
 
     <Style x:Key="PropertyGridSimpleEnumComboBox" TargetType="{x:Type enumUI:SimpleEnumComboBox}">
-        <Setter Property="FontSize" Value="14" />
-        <Setter Property="Margin" Value="1" />
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="Margin" Value="3" />
         <Setter Property="HorizontalAlignment" Value="Stretch" />
         <Setter Property="VerticalAlignment" Value="Center" />
         <Setter Property="HorizontalContentAlignment" Value="Stretch" />

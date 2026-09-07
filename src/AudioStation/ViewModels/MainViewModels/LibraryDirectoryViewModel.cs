@@ -81,6 +81,16 @@ namespace AudioStation.ViewModels.MainViewModels
             set { this.RaiseAndSetIfChanged(ref _openFolderCommand, value); }
         }
 
+        IAudioEncoderInfo ILibraryDirectory.FormatPreference
+        {
+            get { return _formatPreference; }
+            set
+            {
+                _formatPreference = value as AudioEncoderViewModel;
+                OnPropertyChanged("FormatPreference");
+            }
+        }
+
         public LibraryDirectoryViewModel()
         {
             this.Directory = string.Empty;

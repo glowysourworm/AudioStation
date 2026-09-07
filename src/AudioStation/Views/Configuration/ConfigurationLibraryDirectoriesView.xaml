@@ -26,26 +26,33 @@
                 <DataTemplate>
                     <Border Background="White">
                         
-                        <Grid RowDefinitions="Auto, Auto, Auto">
-                            <propertyGrid:PropertyBooleanControl LabelColumnWidth="240" Grid.Column="1"
-                                                                 LabelText="Readonly" 
-                                                                 Value="{Binding IsReadOnly}" 
-                                                                 IsReadOnly="{Binding IsReadOnly, RelativeSource={RelativeSource AncestorType=DataGrid}}"
-                                                                 Style="{StaticResource PropertyGridUserControl}" />
-
-                            <propertyGrid:PropertyBooleanControl LabelColumnWidth="240" Grid.Row="1" Grid.Column="1"
-                                                                 LabelText="Delete Empty Folders (auto)" 
-                                                                 Value="{Binding DeleteUnusedFolders}" 
-                                                                 IsReadOnly="{Binding IsReadOnly, RelativeSource={RelativeSource AncestorType=DataGrid}}"
-                                                                 Style="{StaticResource PropertyGridUserControl}" />
-
+                        <Grid RowDefinitions="Auto, Auto, Auto, Auto">
+                            
+                            <propertyGrid:PropertyEnumControl LabelColumnWidth="240" Grid.Row="0" Grid.Column="1"
+                                                              LabelText="Import Type" 
+                                                              IsReadOnly="{Binding IsReadOnly, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                                              EnumType="{x:Type coreModel:LibraryImportType}"
+                                                              Value="{Binding ImportType, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />                            
+                            
                             <propertyGrid:PropertyValueSelectorControl x:Name="AudioFormatCB" 
-                                                                       LabelColumnWidth="240" Grid.Row="2" Grid.Column="1"
+                                                                       LabelColumnWidth="240" Grid.Row="1" Grid.Column="1"
                                                                        LabelText="Audio Format Preference" 
                                                                        DisplayMemberPath="Name"
                                                                        IsReadOnly="{Binding IsReadOnly, RelativeSource={RelativeSource AncestorType=DataGrid}}"
                                                                        ItemsSource="{Binding DataContext.Encoders, RelativeSource={RelativeSource AncestorType=DataGrid}}"
-                                                                       Value="{Binding FormatPreference, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" />
+                                                                       Value="{Binding FormatPreference, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" />                            
+                            
+                            <propertyGrid:PropertyBooleanControl LabelColumnWidth="240" Grid.Row="2" Grid.Column="1"
+                                                                 LabelText="Readonly" 
+                                                                 Value="{Binding IsReadOnly, Mode=TwoWay}" 
+                                                                 IsReadOnly="{Binding IsReadOnly, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                                                 Style="{StaticResource PropertyGridUserControl}" />
+
+                            <propertyGrid:PropertyBooleanControl LabelColumnWidth="240" Grid.Row="3" Grid.Column="1"
+                                                                 LabelText="Delete Empty Folders (auto)" 
+                                                                 Value="{Binding DeleteUnusedFolders, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                                                 IsReadOnly="{Binding IsReadOnly, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                                                 Style="{StaticResource PropertyGridUserControl}" />
                         </Grid>
                     </Border>
 

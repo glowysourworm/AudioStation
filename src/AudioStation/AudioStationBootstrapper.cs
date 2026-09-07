@@ -221,8 +221,10 @@ namespace AudioStation
                   .DeclareSourceInterface<IAudioStationTag>();
 
             // Configuration
-            mapper.ConfigureMap<AudioEncoderInfo, AudioEncoderViewModel>();
-            mapper.ConfigureMap<AudioEncoderViewModel, AudioEncoderInfo>();
+            mapper.ConfigureMap<AudioEncoderInfo, AudioEncoderViewModel>()
+                  .DeclareSourceInterface<IAudioEncoderInfo>();
+            mapper.ConfigureMap<AudioEncoderViewModel, AudioEncoderInfo>()
+                  .DeclareSourceInterface<IAudioEncoderInfo>();
 
             mapper.ConfigureMap<LibraryDirectory, LibraryDirectoryViewModel>()
                   .DeclareSourceInterface<ILibraryDirectory>();

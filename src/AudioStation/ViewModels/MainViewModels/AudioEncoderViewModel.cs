@@ -1,10 +1,12 @@
-﻿using CSCore;
+﻿using AudioStation.Core.Model.Interface;
+
+using CSCore;
 
 using SimpleWpf.UI.ViewModel;
 
 namespace AudioStation.ViewModels.MainViewModels
 {
-    public class AudioEncoderViewModel : ViewModelBase
+    public class AudioEncoderViewModel : ViewModelBase, IAudioEncoderInfo
     {
         string _extension;
         string _filter;
@@ -30,6 +32,24 @@ namespace AudioStation.ViewModels.MainViewModels
         {
             get { return _encoding; }
             set { this.RaiseAndSetIfChanged(ref _encoding, value); }
+        }
+
+        public override bool Equals(object? obj)
+        {
+            var other = obj as AudioEncoderViewModel;
+
+            if (other == null)
+                return false;
+
+            return other.Encoding == this.Encoding &&
+                other.Extension == this.Extension &&
+                other.Filter == this.Filter &&
+                other.Name == this.Name;
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(this.Encoding, this.Extension, this.Filter, this.Name);
         }
 
         public AudioEncoderViewModel()
