@@ -2,7 +2,8 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:xceed="http://schemas.xceed.com/wpf/xaml/toolkit"
                     xmlns:controls="clr-namespace:AudioStation.Controls"
-                    xmlns:propertyGrid="clr-namespace:AudioStation.Controls.PropertyGrid">
+                    xmlns:propertyGrid="clr-namespace:AudioStation.Controls.PropertyGrid"
+                    xmlns:enumUI="clr-namespace:SimpleWpf.UI.Controls.EnumUI;assembly=SimpleWpf.UI">
     
     <ResourceDictionary.MergedDictionaries>
         <ResourceDictionary Source="/Resources/ButtonStyles.xaml" />
@@ -45,7 +46,7 @@
     <Style x:Key="PropertyGridLabel" TargetType="TextBlock">
         <Setter Property="Margin" Value="2" />
         <Setter Property="HorizontalAlignment" Value="Left" />
-        <Setter Property="VerticalAlignment" Value="Top" />
+        <Setter Property="VerticalAlignment" Value="Center" />
     </Style>
 
     <Style x:Key="PropertyGridLargeLabel" TargetType="TextBlock" BasedOn="{StaticResource PropertyGridLabel}">
@@ -61,6 +62,22 @@
             </Trigger>
         </Style.Triggers>
     </Style>
+
+    <Style x:Key="PropertyGridComboBox" TargetType="ComboBox">
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="Margin" Value="3" />
+        <Setter Property="HorizontalAlignment" Value="Stretch" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+
+    <Style x:Key="PropertyGridSimpleEnumComboBox" TargetType="{x:Type enumUI:SimpleEnumComboBox}">
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="Margin" Value="1" />
+        <Setter Property="HorizontalAlignment" Value="Stretch" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+    </Style>
+    
 
     <Style x:Key="PropertyGridWatermarkTextBox" TargetType="{x:Type xceed:WatermarkTextBox}">
         <Setter Property="VerticalContentAlignment" Value="Center" />

@@ -54,6 +54,7 @@ namespace AudioStation.Component
         private readonly RadioViewModel _radioViewModel;
         private readonly LogViewModel _logViewModel;
         private readonly LibraryImporterViewModel _libraryImporterViewModel;
+        private readonly LibraryLoaderViewModel _libraryLoaderViewModel;
 
         // Configuration
         private AudioStationConfiguration? _configuration;
@@ -90,9 +91,11 @@ namespace AudioStation.Component
 
             _cdImporterViewModel = audioStationViewModelController.GetComponent<CDImporterViewModel>();
             _libraryImporterViewModel = audioStationViewModelController.GetComponent<LibraryImporterViewModel>();
+            _libraryLoaderViewModel = audioStationViewModelController.GetComponent<LibraryLoaderViewModel>();
             _libraryManagerViewModel = audioStationViewModelController.GetComponent<LibraryManagerViewModel>();
             _radioViewModel = audioStationViewModelController.GetComponent<RadioViewModel>();
             _logViewModel = audioStationViewModelController.GetComponent<LogViewModel>();
+
 
             _audioStationDbClient = audioStationDbClient;
 
@@ -126,9 +129,13 @@ namespace AudioStation.Component
             progressHandler(taskCount, task++, 0, "Initializing CD Drive...");
             _cdImporterViewModel.Initialize(configuration, _audioStationViewModelController, progressHandler);
 
-            // Library Importer
-            progressHandler(taskCount, task++, 0, "Initializing Library Importer...");
-            _libraryImporterViewModel.Initialize(configuration, _audioStationViewModelController, progressHandler);
+            //// Library Loader
+            //progressHandler(taskCount, task++, 0, "Initializing Library Loader...");
+            //_libraryLoaderViewModel.Initialize(configuration, _audioStationViewModelController, progressHandler);
+
+            //// Library Importer
+            //progressHandler(taskCount, task++, 0, "Initializing Library Importer...");
+            //_libraryImporterViewModel.Initialize(configuration, _audioStationViewModelController, progressHandler);
 
             // Library Manager
             progressHandler(taskCount, task++, 0, "Initializing Library Manager...");
@@ -279,6 +286,9 @@ namespace AudioStation.Component
 
             else if (type == typeof(LibraryImporterViewModel))
                 return _libraryImporterViewModel as T;
+
+            else if (type == typeof(LibraryLoaderViewModel))
+                return _libraryLoaderViewModel as T;
 
             // Libary Importer Sub-Components
             //

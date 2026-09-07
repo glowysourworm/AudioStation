@@ -13,10 +13,13 @@ namespace AudioStation.ViewModels.MainViewModels
         string _directory;
         string _directoryLabel;
         bool _isPrimary;
+        bool _isReadOnly;
+        bool _deleteUnusedFolders;
         TrackCategory _trackCategory;
-        TrackGroupingType _trackGroupingType;
-        TrackNamingType _trackNamingType;
+        TrackGroupingType _groupingType;
+        TrackNamingType _namingType;
         LibraryImportType _importType;
+        AudioEncoderViewModel _formatPreference;
 
         SimpleCommand _openFolderCommand;
 
@@ -35,6 +38,16 @@ namespace AudioStation.ViewModels.MainViewModels
             get { return _isPrimary; }
             set { this.RaiseAndSetIfChanged(ref _isPrimary, value); }
         }
+        public bool IsReadOnly
+        {
+            get { return _isReadOnly; }
+            set { this.RaiseAndSetIfChanged(ref _isReadOnly, value); }
+        }
+        public bool DeleteUnusedFolders
+        {
+            get { return _deleteUnusedFolders; }
+            set { this.RaiseAndSetIfChanged(ref _deleteUnusedFolders, value); }
+        }
         public TrackCategory TrackCategory
         {
             get { return _trackCategory; }
@@ -42,19 +55,25 @@ namespace AudioStation.ViewModels.MainViewModels
         }
         public TrackGroupingType GroupingType
         {
-            get { return _trackGroupingType; }
-            set { this.RaiseAndSetIfChanged(ref _trackGroupingType, value); }
+            get { return _groupingType; }
+            set { this.RaiseAndSetIfChanged(ref _groupingType, value); }
         }
         public TrackNamingType NamingType
         {
-            get { return _trackNamingType; }
-            set { this.RaiseAndSetIfChanged(ref _trackNamingType, value); }
+            get { return _namingType; }
+            set { this.RaiseAndSetIfChanged(ref _namingType, value); }
         }
         public LibraryImportType ImportType
         {
             get { return _importType; }
             set { this.RaiseAndSetIfChanged(ref _importType, value); }
         }
+        public AudioEncoderViewModel FormatPreference
+        {
+            get { return _formatPreference; }
+            set { this.RaiseAndSetIfChanged(ref _formatPreference, value); }
+        }
+
 
         public SimpleCommand OpenFolderCommand
         {
@@ -69,6 +88,9 @@ namespace AudioStation.ViewModels.MainViewModels
             this.TrackCategory = TrackCategory.Any;
             this.GroupingType = TrackGroupingType.None;
             this.NamingType = TrackNamingType.None;
+            this.IsReadOnly = true;
+            this.DeleteUnusedFolders = false;
+            this.FormatPreference = new AudioEncoderViewModel();
 
             this.OpenFolderCommand = new SimpleCommand(() =>
             {

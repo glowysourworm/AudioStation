@@ -14,7 +14,7 @@ namespace AudioStation.ViewModels.ComponentViewModels
     /// <summary>
     /// Component base to specify further sub-tasks primarily for the importer
     /// </summary>
-    public abstract class WorkflowComponentViewModelBase : ViewModelBase
+    public abstract class ComponentPartViewModelBase : ViewModelBase
     {
         bool _working;
         bool _loading;
@@ -42,7 +42,7 @@ namespace AudioStation.ViewModels.ComponentViewModels
             set { this.RaiseAndSetIfChanged(ref _displayName, value); }
         }
 
-        public WorkflowComponentViewModelBase(string displayName)
+        public ComponentPartViewModelBase(string displayName)
         {
             this.Working = false;
             this.Initialized = false;

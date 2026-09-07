@@ -1,9 +1,8 @@
 ﻿using System.Collections.ObjectModel;
 using System.IO;
 
-using AudioStation.Core.Utility;
-
 using SimpleWpf.UI.ViewModel;
+using SimpleWpf.Utilities;
 
 namespace AudioStation.ViewModels.Controls
 {
@@ -89,9 +88,9 @@ namespace AudioStation.ViewModels.Controls
                 this.FileNameOrDirectoryName = Path.GetRelativePath(directoryName, fullPathBase);
 
                 // Recurse
-                foreach (var path in ApplicationHelpers.FastGetFileData(fullPath, searchPattern, true, SearchOption.AllDirectories))
+                foreach (var path in BasicHelpers.FastGetFileData(fullPath, searchPattern, true, SearchOption.AllDirectories))
                 {
-                    this.DirectoryFiles.Add(new FileItemViewModel(path.Path, path.Attributes.HasFlag(FileAttributes.Directory), searchPattern));
+                    this.DirectoryFiles.Add(new FileItemViewModel(path.FullPath, path.Attributes.HasFlag(FileAttributes.Directory), searchPattern));
                 }
             }
             else

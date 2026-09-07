@@ -16,6 +16,7 @@ namespace AudioStation.Event
         LibraryLoaderMusicBrainzBasic,
         LibraryLoaderMusicBrainzAlbumArt,
         LibraryImporter,
+        LibraryLoader,
         LibraryManager,
         ArtistSearch,
         NowPlaying,

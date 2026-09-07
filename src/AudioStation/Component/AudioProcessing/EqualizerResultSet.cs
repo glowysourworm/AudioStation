@@ -1,4 +1,4 @@
-﻿using NAudio.Dsp;
+﻿using System.Numerics;
 
 namespace AudioStation.Component.AudioProcessing
 {
@@ -94,8 +94,8 @@ namespace AudioStation.Component.AudioProcessing
                 // Current output "channel"
                 var bucketIndex = index / bucketSize;
 
-                var fftOutput = (float)Math.Sqrt((fftBuffer[index].X * fftBuffer[index].X) +
-                                                 (fftBuffer[index].Y * fftBuffer[index].Y));
+                var fftOutput = (float)Math.Sqrt((fftBuffer[index].Real * fftBuffer[index].Real) +
+                                                 (fftBuffer[index].Imaginary * fftBuffer[index].Imaginary));
 
                 if (lastBucketIndex != bucketIndex)
                 {

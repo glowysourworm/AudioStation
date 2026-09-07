@@ -1,11 +1,17 @@
-﻿using AudioStation.Core.Component.Interface;
+﻿using System.IO;
+
+using AudioStation.Core.Component.Interface;
+using AudioStation.Core.Model;
 using AudioStation.Core.Utility;
+
+using CSCore;
+using CSCore.Codecs;
+using CSCore.Codecs.WAV;
 
 using Microsoft.Extensions.Logging;
 
-using NAudio.MediaFoundation;
-using NAudio.Wave;
-
+using SimpleWpf.Extensions;
+using SimpleWpf.Extensions.Collection;
 using SimpleWpf.IocFramework.Application.Attribute;
 
 namespace AudioStation.Core.Component
@@ -18,16 +24,41 @@ namespace AudioStation.Core.Component
 
         }
 
-        public void ConvertTo(string fileNameIn, string fileNameOut, AudioEncoderInfo encoderInfo)
+        public void ConvertTo(string filePathIn, string filePathOut, AudioEncoderInfo outputEncoding)
         {
+            if (string.IsNullOrWhiteSpace(filePathIn))
+                throw new ArgumentException("Invalid input file");
+
+            if (string.IsNullOrWhiteSpace(filePathOut))
+                throw new ArgumentException("Invalid input file");
+
+            if (Path.GetExtension(filePathOut) != outputEncoding.Extension)
+                throw new ArgumentException("Invalid output file: extension does not match valid OS audio file extension");
+
             try
             {
-                // NAudio Media Foundation Reader (Windows)
-                using (var reader = new MediaFoundationReader(fileNameIn))
+                using (var source = CodecFactory.Instance.GetCodec(filePathIn))
                 {
-                    using (var writer = new MediaFoundationEncoder(encoderInfo.NAudioType))
+                    // -> Output Format
+                    var format = new WaveFormat(source.WaveFormat.SampleRate,
+                                                source.WaveFormat.BitsPerSample,
+                                                source.WaveFormat.Channels,
+                                                outputEncoding.Encoding);
+
+                    using (var encoder = new WaveWriter(filePathOut, format))
                     {
-                        writer.Encode(fileNameOut, reader);
+                        // -> One Second Buffer
+                        byte[] buffer = new byte[source.WaveFormat.BytesPerSecond];
+                        int read;
+
+                        while ((read = source.Read(buffer, 0, buffer.Length)) > 0)
+                        {
+                            encoder.Write(buffer, 0, read);
+
+                            // TODO: Progress Callback
+                            //Console.CursorLeft = 0;
+                            //Console.Write("{0:P}/{1:P}", (double)source.Position / source.Length, 1);
+                        }
                     }
                 }
             }
@@ -46,51 +77,117 @@ namespace AudioStation.Core.Component
             });
         }
 
-        public IEnumerable<AudioEncoderInfo> GetSupportedFormats()
+        public string GetSupportedFileDialogFilter()
         {
-            // NAudio:  This mess of code seems to have an example putting together the user end
-            //          information you'd usually use:  file extension, encoding type, bitrate, ...
-            //
-            return new List<AudioEncoderInfo>
-            {
-                new AudioEncoderInfo() { Name = "AAC", SubTypeId = AudioSubtypes.MFAudioFormat_AAC, Extension = ".mp4" }, // Windows 8 can do a .aac extension as well
-                new AudioEncoderInfo() { Name = "Apple Lossless (ALAC)", SubTypeId = AudioSubtypes.MFAudioFormat_ALAC, Extension = ".m4a" },
-                new AudioEncoderInfo() { Name = "MP3", SubTypeId = AudioSubtypes.MFAudioFormat_MP3, Extension = ".mp3" },
-                new AudioEncoderInfo() { Name = "Windows Media Audio", SubTypeId = AudioSubtypes.MFAudioFormat_WMAudioV8, Extension = ".wma" },
-                new AudioEncoderInfo() { Name = "Windows Media Audio Professional", SubTypeId = AudioSubtypes.MFAudioFormat_WMAudioV9, Extension = ".wma" },
-                new AudioEncoderInfo() { Name = "Windows Media Audio Voice", SubTypeId = AudioSubtypes.MFAudioFormat_MSP1, Extension = ".wma" },
-                new AudioEncoderInfo() { Name = "Windows Media Audio Lossless", SubTypeId = AudioSubtypes.MFAudioFormat_WMAudio_Lossless, Extension = ".wma" },
-                new AudioEncoderInfo() { Name = "FLAC", SubTypeId = AudioSubtypes.MFAudioFormat_FLAC, Extension = ".flac" }
-            };
+            return CodecFactory.SupportedFilesFilterEn;
         }
 
-        public IEnumerable<AudioEncoderInfo> GetSupportedOutputFormats(string file)
+        public IEnumerable<string> GetSupportedFileExtensions()
         {
-            try
+            return CodecFactory.Instance.GetSupportedFileExtensions();
+        }
+
+        public string GetSupportedFileSearchPattern()
+        {
+            return CodecFactory.Instance.GetSupportedFileExtensions().Select(x => "*." + x).Join("|", x => x);
+        }
+
+        public IEnumerable<AudioEncoderInfo> GetSupportedFormats()
+        {
+            return new List<AudioEncoderInfo>
             {
-                // NAudio Media Foundation Reader (Windows)
-                var reader = new MediaFoundationReader(file);
-
-                // Use wave format creation of media type data
-                var mediaType = new MediaType(reader.WaveFormat);
-
-                var subTypes = MediaFoundationEncoder.GetOutputMediaTypes(mediaType.SubType);
-
-                return subTypes.Select(x => new AudioEncoderInfo()
+                // MP3
+                new AudioEncoderInfo()
                 {
-                    Extension = "",
-                    TypeId = x.MajorType,
-                    Name = x.MediaFoundationObject.ToString() ?? "",
-                    SubTypeId = x.SubType,
-                    NAudioType = x
+                    Encoding = AudioEncoding.MpegLayer3,
+                    Extension = ".mp3",
+                    Filter = "*.mp3",
+                    Name = "Mpeg Layer 3"
+                },
 
-                }).ToList();
-            }
-            catch (Exception ex)
-            {
-                ApplicationHelpers.Log("Error converting audio file:  " + ex.Message, LogLevel.Error, ex, null);
-                throw ex;
-            }
+                // WMA
+                new AudioEncoderInfo()
+                {
+                    Encoding = AudioEncoding.WindowsMediaAudio,
+                    Extension = ".wma",
+                    Filter = "*.wma",
+                    Name = "Windows Media Audio"
+                },
+                new AudioEncoderInfo()
+                {
+                    Encoding = AudioEncoding.WindowsMediaAudioLosseless,
+                    Extension = ".wma",
+                    Filter = "*.wma",
+                    Name = "Windows Media Audio (Lossless)"
+                },
+                new AudioEncoderInfo()
+                {
+                    Encoding = AudioEncoding.WindowsMediaAudioProfessional,
+                    Extension = ".wma",
+                    Filter = "*.wma",
+                    Name = "Windows Media Audio (Professional)"
+                },
+                new AudioEncoderInfo()
+                {
+                    Encoding = AudioEncoding.WindowsMediaAudioSpdif,
+                    Extension = ".wma",
+                    Filter = "*.wma",
+                    Name = "Windows Media Audio (Spdif)"
+                },
+
+                //WAV
+                new AudioEncoderInfo()
+                {
+                    Encoding = AudioEncoding.Pcm,
+                    Extension = ".wav",
+                    Filter = "*.wav",
+                    Name = "Wave File"
+                },
+
+                // FLAC
+                new AudioEncoderInfo()
+                {
+                    Encoding = AudioEncoding.WAVE_FORMAT_FLAC,
+                    Extension = ".flac",
+                    Filter = "*.flac",
+                    Name = "Free Lossless Audio Codec"
+                },
+
+                
+                // AAC
+                new AudioEncoderInfo()
+                {
+                    Encoding = AudioEncoding.RawAac,
+                    Extension = ".aac",
+                    Filter = "*.aac",
+                    Name = "Advanced Audio Codec (Raw)"
+                },
+                new AudioEncoderInfo()
+                {
+                    Encoding = AudioEncoding.MPEG_RAW_AAC,
+                    Extension = ".aac",
+                    Filter = "*.aac",
+                    Name = "Advanced Audio Codec (Mpeg Raw)"
+                },
+
+                // RAW
+                new AudioEncoderInfo()
+                {
+                    Encoding = AudioEncoding.Pcm,
+                    Extension = ".raw",
+                    Filter = "*.raw",
+                    Name = "CD-Audio (PCM 16-bit)"
+                },
+
+                // OGG
+                new AudioEncoderInfo()
+                {
+                    Encoding = AudioEncoding.Vorbis1,
+                    Extension = ".raw",
+                    Filter = "*.raw",
+                    Name = "Vorbis (version 1)"
+                }
+            };
         }
     }
 }

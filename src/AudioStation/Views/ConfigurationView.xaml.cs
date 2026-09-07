@@ -26,11 +26,11 @@ namespace AudioStation.Views
                 this.BandcampPasswordTB.Password = viewModel.Configuration.BandcampPassword;
 
                 // Problem adding DataGridRow
-                this.LibraryView.AudioStationFoldersDG.Items.Clear();
-                this.LibraryView.AudioStationFoldersDG.Items.Add(viewModel.Configuration.ApplicationCacheFolder);
-                this.LibraryView.AudioStationFoldersDG.Items.Add(viewModel.Configuration.ApplicationStorageFolder);
-                this.LibraryView.AudioStationFoldersDG.Items.Add(viewModel.Configuration.StagingFolder);
-                this.LibraryView.AudioStationFoldersDG.Items.Add(viewModel.Configuration.DownloadFolder);
+                this.LibraryView.ApplicationDirectoriesView.LibraryFoldersDG.Items.Clear();
+                this.LibraryView.ApplicationDirectoriesView.LibraryFoldersDG.Items.Add(viewModel.Configuration.ApplicationCacheFolder);
+                this.LibraryView.ApplicationDirectoriesView.LibraryFoldersDG.Items.Add(viewModel.Configuration.ApplicationStorageFolder);
+                this.LibraryView.ApplicationDirectoriesView.LibraryFoldersDG.Items.Add(viewModel.Configuration.StagingFolder);
+                this.LibraryView.ApplicationDirectoriesView.LibraryFoldersDG.Items.Add(viewModel.Configuration.DownloadFolder);
             }
         }
 

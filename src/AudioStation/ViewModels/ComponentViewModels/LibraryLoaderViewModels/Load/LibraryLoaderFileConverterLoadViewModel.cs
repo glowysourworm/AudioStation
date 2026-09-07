@@ -1,4 +1,4 @@
-﻿using AudioStation.Core.Component;
+﻿using AudioStation.Core.Model;
 
 using SimpleWpf.UI.ViewModel;
 

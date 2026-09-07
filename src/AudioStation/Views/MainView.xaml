@@ -40,29 +40,6 @@
                     <local:ConfigurationView x:Name="ConfigurationView" />
                 </controls:TabItemPressable>
 
-                <controls:TabItemPressable x:Name="LibraryLoaderAcoustIDTab" Header="Library Loader (AcoustID)" FontSize="14" Margin="0" Style="{StaticResource MainTabItemControlStyle}">
-                    <region:IocRegion region:IocRegionManager.DefaultViewType="{x:Type loaderView:LibraryLoaderAcoustIDView}"
-                                      DataContext="{Binding LibraryLoaderAcoustID}" />
-                </controls:TabItemPressable>
-
-                <controls:TabItemPressable x:Name="LibraryLoaderFileCheckerTab" Header="Library Loader (File Integrity)" FontSize="14" Margin="0" Style="{StaticResource MainTabItemControlStyle}">
-                    <region:IocRegion region:IocRegionManager.DefaultViewType="{x:Type loaderView:LibraryLoaderFileCheckerView}"
-                                      DataContext="{Binding LibraryLoaderFileChecker}">
-                    </region:IocRegion>
-                </controls:TabItemPressable>
-
-                <controls:TabItemPressable x:Name="LibraryLoaderMusicBrainzBasicTab" Header="Library Loader (Music Brainz / Basic)" FontSize="14" Margin="0" Style="{StaticResource MainTabItemControlStyle}">
-                    <region:IocRegion region:IocRegionManager.DefaultViewType="{x:Type loaderView:LibraryLoaderMusicBrainzBasicView}"
-                                      DataContext="{Binding LibraryLoaderMusicBrainzBasic}">
-                    </region:IocRegion>
-                </controls:TabItemPressable>
-
-                <controls:TabItemPressable x:Name="LibraryLoaderMusicBrainzAlbumArtTab" Header="Library Loader (Music Brainz / Album Art)" FontSize="14" Margin="0" Style="{StaticResource MainTabItemControlStyle}">
-                    <region:IocRegion region:IocRegionManager.DefaultViewType="{x:Type loaderView:LibraryLoaderMusicBrainzAlbumArtView}"
-                                      DataContext="{Binding LibraryLoaderMusicBrainzAlbumArt}">
-                    </region:IocRegion>
-                </controls:TabItemPressable>
-
                 <controls:TabItemPressable x:Name="LibraryLoaderImportCDTab" Header="Library Loader (CD Import)" FontSize="14" Margin="0" Style="{StaticResource MainTabItemControlStyle}">
                     <region:IocRegion region:IocRegionManager.DefaultViewType="{x:Type loaderView:LibraryLoaderCDImportView}" 
                                       DataContext="{Binding LibraryLoaderCDImport}"
@@ -73,6 +50,13 @@
                     <region:IocRegion region:IocRegionManager.RegionName="LibraryImportRegion"
                                       region:IocRegionManager.DefaultViewType="{x:Type local:LibraryImportView}"
                                       DataContext="{Binding LibraryImporter}">
+                    </region:IocRegion>
+                </controls:TabItemPressable>
+
+                <controls:TabItemPressable x:Name="LibraryLoaderTab" Header="Library Loader" FontSize="14" Margin="0" Style="{StaticResource MainTabItemControlStyle}">
+                    <region:IocRegion region:IocRegionManager.RegionName="LibraryLoaderRegion"
+                                      region:IocRegionManager.DefaultViewType="{x:Type local:LibraryLoaderView}"
+                                      DataContext="{Binding LibraryLoader}">
                     </region:IocRegion>
                 </controls:TabItemPressable>
 

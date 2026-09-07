@@ -5,17 +5,15 @@ using System.Windows.Threading;
 using AudioStation.Component.AudioProcessing.Interface;
 using AudioStation.Core.Model;
 
-using NAudio.Wave;
+using CSCore;
+using CSCore.SoundOut;
 
 using SimpleWpf.Extensions.Event;
 using SimpleWpf.Utilities;
 
 namespace AudioStation.Component.AudioProcessing
 {
-    /// <summary>
-    /// NAudio based Mp3 Player (see their docs)
-    /// </summary>
-    public class SimpleMp3Player : IAudioPlayer
+    public class SimpleFileAudioPlayer : IAudioPlayer
     {
         const int CURRENT_TIME_UPDATE_MILLISECONDS = 10;
 
@@ -33,7 +31,7 @@ namespace AudioStation.Component.AudioProcessing
             get { return _player?.HasAudio ?? false; }
         }
 
-        public SimpleMp3Player()
+        public SimpleFileAudioPlayer()
         {
             _player = new MediaPlayer();
             _player.MediaOpened += OnMediaOpened;

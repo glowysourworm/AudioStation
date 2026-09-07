@@ -179,11 +179,16 @@
         </Border>
     </DataTemplate>
 
+    <Style TargetType="DataGridCell" x:Key="LibraryFoldersDataGridCellStyle" BasedOn="{StaticResource ManagerDataGridCellStyle}">
+        <Setter Property="Padding" Value="0" />
+    </Style>
+
     <Style TargetType="DataGridRow" x:Key="LibraryFoldersDataGridRowStyle">
 
         <Setter Property="Background" Value="Transparent" />
         <Setter Property="BorderBrush" Value="LightGray" />
         <Setter Property="BorderThickness" Value="1 1 1 1" />
+        <Setter Property="Padding" Value="0" />
 
         <Style.Triggers>
 
@@ -202,7 +207,6 @@
                 <Setter Property="Background" Value="#0F000000" />
             </Trigger>
 
-
         </Style.Triggers>
     </Style>
 
@@ -220,6 +224,7 @@
         <Setter Property="AlternationCount" Value="2" />
         <Setter Property="RowHeaderWidth" Value="0" />
         <Setter Property="Background" Value="White" />
+        <Setter Property="CellStyle" Value="{StaticResource LibraryFoldersDataGridCellStyle}" />
         <Setter Property="ItemContainerStyle" Value="{StaticResource LibraryFoldersDataGridRowStyle}" />
         <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Hidden" />
         <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto" />

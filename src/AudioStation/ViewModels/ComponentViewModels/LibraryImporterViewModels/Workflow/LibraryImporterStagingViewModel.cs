@@ -19,7 +19,7 @@ using AudioStation.Event.DialogEvents;
 
 namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.Workflow
 {
-    public class LibraryImporterStagingViewModel : WorkflowComponentViewModelBase
+    public class LibraryImporterStagingViewModel : ComponentPartViewModelBase
     {
         private readonly IIocEventAggregator _eventAggregator;
         private LibraryImporterConfigurationViewModel _importOptions;
@@ -137,6 +137,10 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
         }
         public bool CanStage()
         {
+            // This needs to be completed... (Return bools from Initialize  and Load)
+            if (this.ImportDirectory == null)
+                return false;
+
             return this.ImportDirectory.RecursiveCount(x => x.IsSelected) > 0;
         }
         public bool CanUnstage()

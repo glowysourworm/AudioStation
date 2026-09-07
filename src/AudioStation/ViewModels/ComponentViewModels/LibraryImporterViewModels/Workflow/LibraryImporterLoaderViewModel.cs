@@ -9,7 +9,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
     /// <summary>
     /// Sub-component of LibraryImporterViewModel
     /// </summary>
-    public class LibraryImporterLoaderViewModel : WorkflowComponentViewModelBase
+    public class LibraryImporterLoaderViewModel : ComponentPartViewModelBase
     {
         private LibraryImporterConfigurationViewModel _importOptions;
 

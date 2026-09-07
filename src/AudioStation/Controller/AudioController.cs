@@ -9,7 +9,8 @@ using AudioStation.Core.Model;
 using AudioStation.Core.Service.Interface;
 using AudioStation.Event;
 
-using NAudio.Wave;
+using CSCore;
+using CSCore.SoundOut;
 
 using SimpleWpf.Extensions.Event;
 using SimpleWpf.IocFramework.Application.Attribute;
@@ -146,10 +147,10 @@ namespace AudioStation.Controller
                 switch (_streamSourceType)
                 {
                     case StreamSourceType.File:
-                        _player = new SimpleMp3PlayerWithEqualizer();
+                        _player = new SimpleAudioPlayerWithEqualizer();
                         break;
                     case StreamSourceType.Network:
-                        _player = new StreamMp3Player();
+                        _player = new SimpleStreamAudioPlayer();
                         break;
                     default:
                         throw new Exception("Unhandled StreamSourceType:  AudioController.cs");

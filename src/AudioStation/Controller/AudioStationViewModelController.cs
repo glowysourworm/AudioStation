@@ -25,8 +25,10 @@ namespace AudioStation.Controller
         private readonly BandcampViewModel _bandcampViewModel;
         private readonly CDImporterViewModel _cdImporterViewModel;
         private readonly LibraryImporterViewModel _libraryImporterViewModel;
+        private readonly LibraryLoaderViewModel _libraryLoaderViewModel;
         private readonly LibraryLoaderAcoustIDViewModel _libraryLoaderAcoustIDViewModel;
         private readonly LibraryLoaderFileCheckerViewModel _libraryLoaderFileCheckerViewModel;
+        private readonly LibraryLoaderFileConverterViewModel _libraryLoaderFileConverterViewModel;
         private readonly LibraryLoaderMusicBrainzBasicViewModel _libraryLoaderMusicBrainzBasicViewModel;
         private readonly LibraryLoaderMusicBrainzAlbumArtViewModel _libraryLoaderMusicBrainzAlbumArtViewModel;
         private readonly LibraryManagerViewModel _libraryManagerViewModel;
@@ -42,6 +44,7 @@ namespace AudioStation.Controller
                                                IAudioStationServiceController audioStationServiceController,
                                                IAudioStationMapper audioStationMapper,
                                                ICDDrive cdDrive,
+                                               IAudioConverter audioConverter,
                                                IDialogController dialogController,
                                                ILibraryLoaderService libraryLoaderService,
                                                ILibraryLoaderWorkerService libraryLoaderWorkerService,
@@ -58,13 +61,15 @@ namespace AudioStation.Controller
             _bandcampViewModel = new BandcampViewModel(bandcampClient, eventAggregator);
             _cdImporterViewModel = new CDImporterViewModel(eventAggregator, cdImportService);
             _libraryImporterViewModel = new LibraryImporterViewModel(audioStationMapper, dialogController, eventAggregator, tagCacheController);
+            _libraryLoaderViewModel = new LibraryLoaderViewModel();
             _libraryLoaderAcoustIDViewModel = new LibraryLoaderAcoustIDViewModel(eventAggregator, libraryLoaderWorkerService);
             _libraryLoaderFileCheckerViewModel = new LibraryLoaderFileCheckerViewModel(eventAggregator, libraryLoaderWorkerService, audioStationDbClient);
+            _libraryLoaderFileConverterViewModel = new LibraryLoaderFileConverterViewModel(audioConverter, eventAggregator, libraryLoaderWorkerService);
             _libraryLoaderMusicBrainzBasicViewModel = new LibraryLoaderMusicBrainzBasicViewModel(eventAggregator, libraryLoaderWorkerService, audioStationDbClient);
             _libraryLoaderMusicBrainzAlbumArtViewModel = new LibraryLoaderMusicBrainzAlbumArtViewModel(eventAggregator, libraryLoaderWorkerService, audioStationDbClient);
             _libraryManagerViewModel = new LibraryManagerViewModel(eventAggregator);
             _logViewModel = new LogViewModel(eventAggregator);
-            _mainViewModel = new MainViewModel(audioStationServiceController, audioStationMapper, dialogController, eventAggregator, cdDrive);
+            _mainViewModel = new MainViewModel(audioStationServiceController, audioStationMapper, dialogController, eventAggregator, cdDrive, audioConverter);
             _nowPlayingViewModel = new NowPlayingViewModel(eventAggregator);
             _radioViewModel = new RadioViewModel(libraryLoaderWorkerService, dialogController);
             _statusViewModel = new StatusViewModel();
@@ -93,11 +98,17 @@ namespace AudioStation.Controller
             else if (type == _libraryImporterViewModel.GetType())
                 return _libraryImporterViewModel as T;
 
+            else if (type == _libraryLoaderViewModel.GetType())
+                return _libraryLoaderViewModel as T;
+
             else if (type == _libraryLoaderAcoustIDViewModel.GetType())
                 return _libraryLoaderAcoustIDViewModel as T;
 
             else if (type == _libraryLoaderFileCheckerViewModel.GetType())
                 return _libraryLoaderFileCheckerViewModel as T;
+
+            else if (type == _libraryLoaderFileConverterViewModel.GetType())
+                return _libraryLoaderFileConverterViewModel as T;
 
             else if (type == _libraryLoaderMusicBrainzBasicViewModel.GetType())
                 return _libraryLoaderMusicBrainzBasicViewModel as T;
@@ -132,6 +143,7 @@ namespace AudioStation.Controller
             _bandcampViewModel.Initialize(configuration, this, progressHandler);
             _cdImporterViewModel.Initialize(configuration, this, progressHandler);
             _libraryImporterViewModel.Initialize(configuration, this, progressHandler);
+            _libraryLoaderViewModel.Initialize(configuration, this, progressHandler);
             _libraryLoaderAcoustIDViewModel.Initialize(configuration, this, progressHandler);
             _libraryLoaderFileCheckerViewModel.Initialize(configuration, this, progressHandler);
             _libraryLoaderMusicBrainzBasicViewModel.Initialize(configuration, this, progressHandler);

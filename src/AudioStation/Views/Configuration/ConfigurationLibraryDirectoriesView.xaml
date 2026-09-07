@@ -4,13 +4,17 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:fa5="http://schemas.fontawesome.com/icons/"
              xmlns:local="clr-namespace:AudioStation.Views"
+             xmlns:viewModel="clr-namespace:AudioStation.ViewModels"
              xmlns:xceed="http://schemas.xceed.com/wpf/xaml/toolkit"
+             xmlns:propertyGrid="clr-namespace:AudioStation.Controls.PropertyGrid"
              xmlns:simpleUI="clr-namespace:SimpleWpf.UI.Controls;assembly=SimpleWpf.UI"
              xmlns:enumUI="clr-namespace:SimpleWpf.UI.Controls.EnumUI;assembly=SimpleWpf.UI"
              xmlns:coreModel="clr-namespace:AudioStation.Core.Model;assembly=AudioStation.Core"
+             xmlns:csCore="clr-namespace:CSCore;assembly=CSCore"
              Background="White">
 
-    <Grid>
+    <Grid RowDefinitions="Auto, Auto">
+        
         <DataGrid x:Name="LibraryFoldersDG" 
                   Style="{StaticResource LibraryFoldersDataGridStyle}"
                   VerticalAlignment="Top"
@@ -18,65 +22,137 @@
                   IsReadOnly="{Binding ConfigurationLocked, ElementName=BaseControl}"
                   ItemsSource="{Binding ItemsSource, ElementName=BaseControl}">
 
+            <DataGrid.RowDetailsTemplate>
+                <DataTemplate>
+                    <Border Background="White">
+                        
+                        <Grid RowDefinitions="Auto, Auto, Auto">
+                            <propertyGrid:PropertyBooleanControl LabelColumnWidth="240" Grid.Column="1"
+                                                                 LabelText="Readonly" 
+                                                                 Value="{Binding IsReadOnly}" 
+                                                                 IsReadOnly="{Binding IsReadOnly, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                                                 Style="{StaticResource PropertyGridUserControl}" />
+
+                            <propertyGrid:PropertyBooleanControl LabelColumnWidth="240" Grid.Row="1" Grid.Column="1"
+                                                                 LabelText="Delete Empty Folders (auto)" 
+                                                                 Value="{Binding DeleteUnusedFolders}" 
+                                                                 IsReadOnly="{Binding IsReadOnly, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                                                 Style="{StaticResource PropertyGridUserControl}" />
+
+                            <propertyGrid:PropertyValueSelectorControl x:Name="AudioFormatCB" 
+                                                                       LabelColumnWidth="240" Grid.Row="2" Grid.Column="1"
+                                                                       LabelText="Audio Format Preference" 
+                                                                       DisplayMemberPath="Name"
+                                                                       IsReadOnly="{Binding IsReadOnly, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                                                       ItemsSource="{Binding DataContext.Encoders, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                                                       Value="{Binding FormatPreference, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" />
+                        </Grid>
+                    </Border>
+
+                </DataTemplate>
+            </DataGrid.RowDetailsTemplate>
+
             <DataGrid.Columns>
 
-                <DataGridTextColumn Header="Label" Binding="{Binding DirectoryLabel}" Width="140" CellStyle="{StaticResource ManagerDataGridCellStyle}" />
-                <DataGridTextColumn Header="Directory" IsReadOnly="True"  
-                                                Binding="{Binding Directory}" Width="*" CellStyle="{StaticResource ManagerDataGridCellStyle}" />
+                <DataGridTextColumn Header="Label" Binding="{Binding DirectoryLabel}" Width="140" />
+                <DataGridTextColumn Header="Directory" Binding="{Binding Directory}" Width="*" IsReadOnly="True" />
 
-                <DataGridTemplateColumn Header="Primary" Width="Auto" CellStyle="{StaticResource ManagerDataGridCellStyle}">
+                <DataGridTemplateColumn Header="Primary" Width="Auto">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <RadioButton GroupName="IsPrimary" HorizontalAlignment="Center" IsChecked="{Binding IsPrimary, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                            <RadioButton GroupName="IsPrimary" 
+                                         HorizontalAlignment="Center" 
+                                         IsEnabled="{Binding IsReadOnly, RelativeSource={RelativeSource AncestorType=DataGridCell}, Converter={StaticResource BoolInverseConverter}}"
+                                         IsChecked="{Binding IsPrimary, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
 
-                <DataGridTemplateColumn Header="Category" Width="120" CellStyle="{StaticResource ManagerDataGridCellStyle}">
+                <DataGridTemplateColumn Header="Category" Width="120">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <enumUI:SimpleEnumComboBox EnumType="{x:Type coreModel:TrackCategory}" 
-                                                               EnumValue="{Binding TrackCategory, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                                               IsEnabled="{Binding ConfigurationLocked, Converter={StaticResource BoolInverseConverter}, ElementName=BaseControl}"
-                                                               />
+                                                       EnumValue="{Binding TrackCategory, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                                       IsEnabled="{Binding IsReadOnly, RelativeSource={RelativeSource AncestorType=DataGridCell}, Converter={StaticResource BoolInverseConverter}}"
+                                                       />
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
 
-                <DataGridTemplateColumn Header="Naming" Width="140" CellStyle="{StaticResource ManagerDataGridCellStyle}">
+                <DataGridTemplateColumn Header="Naming" Width="140">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <enumUI:SimpleEnumComboBox EnumType="{x:Type coreModel:TrackNamingType}" 
-                                                               EnumValue="{Binding NamingType, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                                               IsEnabled="{Binding ConfigurationLocked, Converter={StaticResource BoolInverseConverter}, ElementName=BaseControl}"
-                                                               />
+                                                       EnumValue="{Binding NamingType, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                       IsEnabled="{Binding IsReadOnly, RelativeSource={RelativeSource AncestorType=DataGridCell}, Converter={StaticResource BoolInverseConverter}}"
+                                                       />
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
 
-                <DataGridTemplateColumn Header="Grouping" Width="180" CellStyle="{StaticResource ManagerDataGridCellStyle}">
+                <DataGridTemplateColumn Header="Grouping" Width="180">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <enumUI:SimpleEnumComboBox EnumType="{x:Type coreModel:TrackGroupingType}" 
-                                                               EnumValue="{Binding GroupingType, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                                               IsEnabled="{Binding ConfigurationLocked, Converter={StaticResource BoolInverseConverter}, ElementName=BaseControl}"
-                                                               />
+                                                       EnumValue="{Binding GroupingType, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                       IsEnabled="{Binding IsReadOnly, RelativeSource={RelativeSource AncestorType=DataGridCell}, Converter={StaticResource BoolInverseConverter}}"
+                                                       />
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
 
-                <DataGridTemplateColumn CellStyle="{StaticResource ManagerDataGridCellStyle}">
+                <DataGridTemplateColumn>
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <Button Command="{Binding OpenFolderCommand}" 
-                                                Style="{StaticResource SmallControlButton}"
-                                                IsEnabled="{Binding ConfigurationLocked, Converter={StaticResource BoolInverseConverter}, ElementName=BaseControl}">
+                                    Style="{StaticResource SmallControlButton}"
+                                    IsEnabled="{Binding IsReadOnly, RelativeSource={RelativeSource AncestorType=DataGridCell}, Converter={StaticResource BoolInverseConverter}}">
                                 <fa5:SvgAwesome Icon="Regular_FolderOpen" Height="16" Width="16" />
                             </Button>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
             </DataGrid.Columns>
-        </DataGrid>        
+        </DataGrid>
+
+        <!-- Add Library Directory -->
+        <StackPanel Orientation="Horizontal" 
+                    Grid.Row="1" 
+                    HorizontalAlignment="Right"
+                    Visibility="{Binding IsApplicationDirectoryView, Converter={StaticResource BoolInverseVisibilityCollapseConverter}, ElementName=BaseControl}">
+            <xceed:WatermarkTextBox x:Name="NewDirectoryTB" 
+                                                Watermark="Directory Label..." 
+                                                IsEnabled="{Binding ConfigurationLocked, Converter={StaticResource BoolInverseConverter}}"
+                                                Style="{StaticResource UserInputTextBox}" Width="260" Margin="5" />
+            <Button Margin="5" 
+                                Style="{StaticResource UserControlButton}"
+                                CommandParameter="{Binding ElementName=NewDirectoryTB, Path=Text}"
+                                Command="{Binding Configuration.AddDirectoryCommand}"
+                                IsEnabled="{Binding ConfigurationLocked, Converter={StaticResource BoolInverseConverter}}">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Add Folder" Style="{StaticResource LabelTextBlock}" Margin="3" />
+                    <fa5:SvgAwesome Icon="Solid_FolderPlus" Style="{StaticResource FontAwesomeIconDefault}" Margin="3" />
+                </StackPanel>
+            </Button>
+            <Button Margin="5" 
+                    Style="{StaticResource UserControlButton}"
+                    CommandParameter="{Binding ElementName=LibraryDirectoriesView, Path=SelectedItem}"
+                    Command="{Binding Configuration.RemoveDirectoryCommand}">
+                <Button.IsEnabled>
+                    <MultiBinding Converter="{StaticResource BoolANDMultiConverter}">
+                        <MultiBinding.Bindings>
+                            <Binding Path="ConfigurationLocked" Converter="{StaticResource BoolInverseConverter}" />
+                            <Binding ElementName="LibraryFoldersDG" 
+                                                 Path="SelectedItem" 
+                                                 Converter="{StaticResource NonNullBoolConverter}" />
+                        </MultiBinding.Bindings>
+                    </MultiBinding>
+                </Button.IsEnabled>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Remove Folder" Style="{StaticResource LabelTextBlock}" Margin="3" />
+                    <fa5:SvgAwesome Icon="Solid_FolderMinus" Style="{StaticResource FontAwesomeIconDefault}" Margin="3" />
+                </StackPanel>
+            </Button>
+        </StackPanel>
     </Grid>
 </UserControl>

@@ -1,16 +1,16 @@
 ﻿using System.Windows.Media;
 
-using AudioStation.Component.AudioProcessing;
 using AudioStation.Component.AudioProcessing.Interface;
 using AudioStation.Core.Model;
 
-using NAudio.Wave;
+using CSCore;
+using CSCore.SoundOut;
 
 using SimpleWpf.Extensions.Event;
 
 namespace AudioStation.Component.AudioProcessing
 {
-    public class StreamMp3Player : IAudioPlayer
+    public class SimpleStreamAudioPlayer : IAudioPlayer
     {
         MediaPlayer _player;
 
@@ -24,7 +24,7 @@ namespace AudioStation.Component.AudioProcessing
             get { return _player?.HasAudio ?? false; }
         }
 
-        public StreamMp3Player()
+        public SimpleStreamAudioPlayer()
         {
             _player = new MediaPlayer();
             _player.MediaEnded += OnMediaEnded;

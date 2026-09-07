@@ -6,8 +6,6 @@ using HtmlAgilityPack;
 
 using Newtonsoft.Json;
 
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.StartPanel;
-
 namespace AudioStation.Core.Service.Vendor.Bandcamp
 {
     // Replacing the nuget package (BCDownloader), mainly to put a limit on download intervals

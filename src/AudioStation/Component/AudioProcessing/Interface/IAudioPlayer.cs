@@ -1,7 +1,7 @@
-﻿using AudioStation.Component.AudioProcessing;
-using AudioStation.Core.Model;
+﻿using AudioStation.Core.Model;
 
-using NAudio.Wave;
+using CSCore;
+using CSCore.SoundOut;
 
 using SimpleWpf.Extensions.Event;
 

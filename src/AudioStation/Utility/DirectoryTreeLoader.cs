@@ -139,7 +139,7 @@ namespace AudioStation.Utility
                     }
 
 
-                    // Current Directory
+                    // Current Directory (FILES ONLY)
                     var fileData = BasicHelpers.FastGetFileData(currentDirectory.GetNodeValue().FullPath, fileSearchPattern, true, SearchOption.TopDirectoryOnly);
                     var fileCount = fileData.Count();
                     var fileIndex = 0;
@@ -153,10 +153,10 @@ namespace AudioStation.Utility
                         if (file.IsDirectory)
                         {
                             // Need file count for directory
-                            var directoryData = BasicHelpers.FastGetFileData(file.Path, fileSearchPattern, true, SearchOption.TopDirectoryOnly);
+                            var directoryData = BasicHelpers.FastGetFileData(file.FullPath, fileSearchPattern, true, SearchOption.TopDirectoryOnly);
 
                             // Next Directory
-                            var nodeValue = directoryConstructor(file.Path, directoryData.Count(x => !x.IsDirectory));
+                            var nodeValue = directoryConstructor(file.FullPath, directoryData.Count(x => !x.IsDirectory));
 
                             // Current -> Next (adds parent)
                             var nextDirectory = currentDirectory.Add(nodeValue) as TTree;
@@ -166,7 +166,7 @@ namespace AudioStation.Utility
                         }
 
                         else
-                            currentDirectory.Add(fileConstructor(file.Path));
+                            currentDirectory.Add(fileConstructor(file.FullPath));
                     }
 
                     // Current Directory: IsLoaded = true

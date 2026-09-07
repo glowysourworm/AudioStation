@@ -9,6 +9,7 @@ using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Controller.Interface;
 using AudioStation.Core.Database.AudioStationDatabase.Interface;
 using AudioStation.Core.Event;
+using AudioStation.Core.Model;
 using AudioStation.Core.Model.Interface;
 using AudioStation.Core.Service.Interface;
 using AudioStation.Core.Service.Vendor.Bandcamp.Interface;
@@ -19,10 +20,12 @@ using AudioStation.Model;
 using AudioStation.ViewModels.ComponentViewModels;
 using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Worker;
 using AudioStation.ViewModels.Controls;
+using AudioStation.ViewModels.MainViewModels;
 using AudioStation.ViewModels.OtherViewModels;
 using AudioStation.ViewModels.Vendor;
 
 using SimpleWpf.Extensions.Collection;
+using SimpleWpf.IocFramework.Application;
 using SimpleWpf.IocFramework.EventAggregation;
 using SimpleWpf.UI.Command;
 
@@ -31,18 +34,15 @@ namespace AudioStation.ViewModels;
 public class MainViewModel : ComponentViewModelBase
 {
     private readonly IIocEventAggregator _eventAggregator;
-    private readonly IAudioStationMapper _audioStationMapper;
-    private readonly IDialogController _dialogController;
-    private readonly ICDDrive _cdDrive;
 
-    bool _disposed = false;
 
     #region Backing Fields
     AudioStationConfigurationViewModel _configuration;
     bool _loadedFromConfiguration;
     float _volume;
-    bool _loading;
     bool _configurationLocked;
+
+    ObservableCollection<AudioEncoderViewModel> _encoders;
 
     LibraryManagerViewModel _libraryManager;
     StatusViewModel _statusViewModel;
@@ -51,6 +51,7 @@ public class MainViewModel : ComponentViewModelBase
     NowPlayingViewModel _nowPlaying;
     BandcampViewModel _bandcamp;
     LibraryImporterViewModel _libraryImportViewModel;
+    LibraryLoaderViewModel _libraryLoaderViewModel;
     LibraryLoaderAcoustIDViewModel _libraryLoaderAcoustID;
     CDImporterViewModel _libraryLoaderCDImport;
     LibraryLoaderFileCheckerViewModel _libraryLoaderFileChecker;
@@ -93,15 +94,15 @@ public class MainViewModel : ComponentViewModelBase
         get { return _volume; }
         set { this.RaiseAndSetIfChanged(ref _volume, value); }
     }
-    public bool Loading
-    {
-        get { return _loading; }
-        set { this.RaiseAndSetIfChanged(ref _loading, value); }
-    }
     public bool ConfigurationLocked
     {
         get { return _configurationLocked; }
         set { this.RaiseAndSetIfChanged(ref _configurationLocked, value); }
+    }
+    public ObservableCollection<AudioEncoderViewModel> Encoders
+    {
+        get { return _encoders; }
+        set { this.RaiseAndSetIfChanged(ref _encoders, value); }
     }
     public LibraryManagerViewModel LibraryManager
     {
@@ -112,6 +113,11 @@ public class MainViewModel : ComponentViewModelBase
     {
         get { return _libraryImportViewModel; }
         set { this.RaiseAndSetIfChanged(ref _libraryImportViewModel, value); }
+    }
+    public LibraryLoaderViewModel LibraryLoader
+    {
+        get { return _libraryLoaderViewModel; }
+        set { this.RaiseAndSetIfChanged(ref _libraryLoaderViewModel, value); }
     }
     public LibraryLoaderFileCheckerViewModel LibraryLoaderFileChecker
     {
@@ -215,11 +221,21 @@ public class MainViewModel : ComponentViewModelBase
     }
     #endregion
 
+    public MainViewModel() :
+        this(IocContainer.Get<IAudioStationServiceController>(),
+             IocContainer.Get<IAudioStationMapper>(),
+             IocContainer.Get<IDialogController>(),
+             IocContainer.Get<IIocEventAggregator>(),
+             IocContainer.Get<ICDDrive>(),
+             IocContainer.Get<IAudioConverter>())
+    {
+    }
     public MainViewModel(IAudioStationServiceController audioStationServiceController,
                          IAudioStationMapper audioStationMapper,
                          IDialogController dialogController,
                          IIocEventAggregator eventAggregator,
-                         ICDDrive cdDrive) : base("Main")
+                         ICDDrive cdDrive,
+                         IAudioConverter audioConverter) : base("Main")
     {
         // IAudioStationComponent
         var audioController = audioStationServiceController.GetComponent<IAudioController>();
@@ -260,6 +276,14 @@ public class MainViewModel : ComponentViewModelBase
                     throw new Exception("Unhandled configuration event type");
             }
         });
+
+        var encoders = audioConverter.GetSupportedFormats();
+        this.Encoders = new ObservableCollection<AudioEncoderViewModel>();
+
+        foreach (var encoder in encoders)
+        {
+            this.Encoders.Add(audioStationMapper.Map<AudioEncoderInfo, AudioEncoderViewModel>(encoder));
+        }
 
         // -> Configuration
         this.SaveConfigurationCommand = new SimpleCommand(() =>
@@ -357,6 +381,7 @@ public class MainViewModel : ComponentViewModelBase
         this.StatusViewModel = viewModelController.GetComponent<StatusViewModel>();
         this.Radio = viewModelController.GetComponent<RadioViewModel>();
         this.LibraryImporter = viewModelController.GetComponent<LibraryImporterViewModel>();
+        this.LibraryLoader = viewModelController.GetComponent<LibraryLoaderViewModel>();
         this.LibraryLoaderAcoustID = viewModelController.GetComponent<LibraryLoaderAcoustIDViewModel>();
         this.LibraryLoaderCDImport = viewModelController.GetComponent<CDImporterViewModel>();
         this.LibraryLoaderFileChecker = viewModelController.GetComponent<LibraryLoaderFileCheckerViewModel>();

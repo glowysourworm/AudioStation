@@ -1,5 +1,4 @@
-﻿using System.IO;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Threading;
 
 using AudioStation.Core.Controller.Interface;
@@ -9,7 +8,6 @@ using AudioStation.Model;
 using Microsoft.Extensions.Logging;
 
 using SimpleWpf.IocFramework.Application;
-using SimpleWpf.Native.IO;
 using SimpleWpf.Utilities;
 
 namespace AudioStation.Core.Utility
@@ -30,29 +28,6 @@ namespace AudioStation.Core.Utility
         private static ILoggerFactory GetLoggerFactory()
         {
             return IocContainer.Get<ILoggerFactory>();
-        }
-
-        public static IEnumerable<string> FastGetFiles(string baseDirectory, string searchPattern, SearchOption option)
-        {
-            // Scan directories for files (Use NativeIO for much faster iteration. Less managed memory loading)
-            using (var fastDirectory = new FastDirectoryIO(baseDirectory, searchPattern, option))
-            {
-                return fastDirectory.GetFiles()
-                                    .Where(x => !x.IsDirectory)
-                                    .Select(x => x.Path)
-                                    .ToList();
-            }
-        }
-
-        public static IEnumerable<FastDirectoryResult> FastGetFileData(string baseDirectory, string searchPattern, bool includeDirectories, SearchOption option)
-        {
-            // Scan directories for files (Use NativeIO for much faster iteration. Less managed memory loading)
-            using (var fastDirectory = new FastDirectoryIO(baseDirectory, searchPattern, option))
-            {
-                return fastDirectory.GetFiles()
-                                    .Where(x => !x.IsDirectory || includeDirectories)
-                                    .ToList();
-            }
         }
 
         /// <summary>

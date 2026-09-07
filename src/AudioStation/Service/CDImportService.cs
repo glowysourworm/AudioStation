@@ -9,8 +9,8 @@ using AudioStation.Core.Service.Interface;
 using AudioStation.Core.Utility.FileUtility;
 using AudioStation.Service.Interface;
 
-using NAudio.Lame;
-using NAudio.Wave;
+using CSCore.Codecs.RAW;
+using CSCore.Codecs.WAV;
 
 using SimpleWpf.Extensions.Event;
 using SimpleWpf.IocFramework.Application.Attribute;
@@ -101,19 +101,22 @@ namespace AudioStation.Service
                 var buffer = bufferData.ToArray();
 
                 // Convert .raw format to .wav format
-                using (var reader = new RawSourceWaveStream(buffer, 0, buffer.Length, new WaveFormat()))
+                using (var memoryStream = new MemoryStream(buffer))
                 {
-                    ID3TagData tag = new ID3TagData
-                    {
-                        Title = "Track " + trackNumber.ToString(),
-                        Artist = artist,
-                        Album = album
-                    };
+                    // TODO: Get better source for CD format
+                    var waveFormat = new CSCore.WaveFormat(44100, 16, 2);
 
-                    // NAudio.Lame (extension package)
-                    using (var writer = new LameMP3FileWriter(filePath, reader.WaveFormat, 128, tag))
+                    using (var decoder = new RawDataReader(memoryStream, waveFormat))
                     {
-                        reader.CopyTo(writer);
+                        using (var encoder = new WaveWriter(filePath, decoder.WaveFormat))
+                        {
+                            var outputBuffer = new byte[decoder.WaveFormat.BytesPerBlock];
+                            int read = 0;
+                            while ((read = decoder.Read(outputBuffer, 0, outputBuffer.Length)) > 0)
+                            {
+                                encoder.Write(outputBuffer, 0, outputBuffer.Length);
+                            }
+                        }
                     }
                 }
             });

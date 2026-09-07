@@ -2,6 +2,7 @@
 using System.Windows;
 using System.Windows.Controls;
 
+using AudioStation.ViewModels;
 using AudioStation.ViewModels.MainViewModels;
 
 namespace AudioStation.Views.Configuration
@@ -15,7 +16,10 @@ namespace AudioStation.Views.Configuration
             DependencyProperty.Register("SelectedItem", typeof(LibraryDirectoryViewModel), typeof(ConfigurationLibraryDirectoriesView));
 
         public static readonly DependencyProperty ConfigurationLockedProperty =
-            DependencyProperty.Register("ConfigurationLocked", typeof(bool), typeof(ConfigurationLibraryDirectoriesView));
+            DependencyProperty.Register("ConfigurationLocked", typeof(bool), typeof(ConfigurationLibraryDirectoriesView), new PropertyMetadata(OnReadonlyChanged));
+
+        public static readonly DependencyProperty IsApplicationDirectoryViewProperty =
+            DependencyProperty.Register("IsApplicationDirectoryView", typeof(bool), typeof(ConfigurationLibraryDirectoriesView), new PropertyMetadata(OnReadonlyChanged));
 
         public IEnumerable ItemsSource
         {
@@ -33,9 +37,42 @@ namespace AudioStation.Views.Configuration
             set { SetValue(ConfigurationLockedProperty, value); }
         }
 
+        public bool IsApplicationDirectoryView
+        {
+            get { return (bool)GetValue(IsApplicationDirectoryViewProperty); }
+            set { SetValue(IsApplicationDirectoryViewProperty, value); }
+        }
+
         public ConfigurationLibraryDirectoriesView()
         {
             InitializeComponent();
+        }
+
+        private void UpdateColumns()
+        {
+            var viewModel = this.DataContext as MainViewModel;
+
+            if (viewModel != null)
+            {
+                // Update columns by hand (binding proxy has issues)
+                foreach (var column in this.LibraryFoldersDG.Columns)
+                {
+                    column.IsReadOnly = viewModel.ConfigurationLocked;
+
+                    if (column.Header?.Equals("Primary") ?? false)
+                    {
+                        column.Visibility = !this.IsApplicationDirectoryView ? Visibility.Visible : Visibility.Collapsed;
+                    }
+                }
+            }
+        }
+
+        private static void OnReadonlyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            var control = d as ConfigurationLibraryDirectoriesView;
+
+            if (control != null)
+                control.UpdateColumns();
         }
     }
 }

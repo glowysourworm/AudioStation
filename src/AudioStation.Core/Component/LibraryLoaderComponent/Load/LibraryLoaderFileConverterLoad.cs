@@ -1,4 +1,6 @@
-﻿namespace AudioStation.Core.Component.LibraryLoaderComponent.Load
+﻿using AudioStation.Core.Model;
+
+namespace AudioStation.Core.Component.LibraryLoaderComponent.Load
 {
     public class LibraryLoaderFileConverterLoad
     {
