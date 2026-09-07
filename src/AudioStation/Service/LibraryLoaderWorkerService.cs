@@ -99,7 +99,7 @@ namespace AudioStation.Service
                     if (workLoad == null)
                         throw new ArgumentException("Invalid work load for Library Loader File Converter");
 
-                    return _libraryLoader.RunLoaderTaskAsync(LibraryLoadType.FileChecker, new LibraryLoaderFileConverterLoad()
+                    return _libraryLoader.RunLoaderTaskAsync(LibraryLoadType.FileConverter, new LibraryLoaderFileConverterLoad()
                     {
                         EncoderInfo = workLoad.EncoderInfo,
                         FileIn = workLoad.FileIn,

@@ -42,9 +42,6 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Wo
             {
                 _workItemDict.Clear();
 
-                // Get supported output types (this could be done without reading files.. just a first try)
-                var mp3Format = _audioConverter.GetSupportedFormats().First(x => x.Extension == ".mp3");
-
                 foreach (var format in _audioConverter.GetSupportedFormats())
                 {
                     foreach (var libraryDirectory in configuration.LibraryDirectories.Union(new LibraryDirectory[]
@@ -53,6 +50,14 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Wo
                         configuration.DownloadFolder
                     }))
                     {
+                        // Read-only directories
+                        if (libraryDirectory.IsReadOnly)
+                            continue;
+
+                        // Only need to look for non-converted files
+                        if (format.Encoding == libraryDirectory.FormatPreference.Encoding)
+                            continue;
+
                         using (var nativeIO = new FastDirectoryIO(libraryDirectory.Directory, format.Filter, SearchOption.AllDirectories))
                         {
                             var audioFiles = nativeIO.GetFiles().Where(x => !x.IsDirectory).ToList();
@@ -74,15 +79,15 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Wo
                                     IsCompleted = false,
                                     Load = new LibraryLoaderLoadViewModel()
                                     {
-                                        DisplayText = file.FileName,
+                                        DisplayText = file.FullPath,
                                         Data = new LibraryLoaderFileConverterLoadViewModel()
                                         {
                                             FileIn = file.FullPath,
-                                            FileOut = FileHelpers.ReplaceExtension(file.FullPath, mp3Format.Extension),
-                                            EncoderInfo = mp3Format
+                                            FileOut = FileHelpers.ReplaceExtension(file.FullPath, libraryDirectory.FormatPreference.Extension),
+                                            EncoderInfo = libraryDirectory.FormatPreference
                                         }
                                     },
-                                    LoadType = LibraryLoadType.FileChecker,
+                                    LoadType = LibraryLoadType.FileConverter,
                                     Output = new LibraryLoaderOutputViewModel()
                                     {
                                         Output = new NoViewModel()

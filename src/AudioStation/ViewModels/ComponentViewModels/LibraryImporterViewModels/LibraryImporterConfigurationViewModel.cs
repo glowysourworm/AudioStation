@@ -1,5 +1,4 @@
-﻿using AudioStation.Core.Model;
-using AudioStation.ViewModels.MainViewModels;
+﻿using AudioStation.ViewModels.MainViewModels;
 
 using Microsoft.Win32;
 
@@ -12,8 +11,6 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels
     {
         // Library Directorys (only)
         LibraryDirectoryViewModel _importDirectory;
-
-        LibraryImportType _importType;
 
         // Service Options
         bool _identifyUsingAcoustID;
@@ -33,11 +30,6 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels
         {
             get { return _importDirectory; }
             set { this.RaiseAndSetIfChanged(ref _importDirectory, value); }
-        }
-        public LibraryImportType ImportType
-        {
-            get { return _importType; }
-            set { this.RaiseAndSetIfChanged(ref _importType, value); }
         }
         public bool IdentifyUsingAcoustID
         {
@@ -89,7 +81,6 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels
         public LibraryImporterConfigurationViewModel()
         {
             this.ImportDirectory = new LibraryDirectoryViewModel();
-            this.ImportType = LibraryImportType.InPlaceDirectory;
 
             this.SelectSourceFolderCommand = new SimpleCommand(() =>
             {

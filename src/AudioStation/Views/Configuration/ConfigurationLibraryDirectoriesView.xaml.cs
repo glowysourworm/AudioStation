@@ -16,10 +16,10 @@ namespace AudioStation.Views.Configuration
             DependencyProperty.Register("SelectedItem", typeof(LibraryDirectoryViewModel), typeof(ConfigurationLibraryDirectoriesView));
 
         public static readonly DependencyProperty ConfigurationLockedProperty =
-            DependencyProperty.Register("ConfigurationLocked", typeof(bool), typeof(ConfigurationLibraryDirectoriesView), new PropertyMetadata(OnReadonlyChanged));
+            DependencyProperty.Register("ConfigurationLocked", typeof(bool), typeof(ConfigurationLibraryDirectoriesView), new PropertyMetadata(OnChanged));
 
         public static readonly DependencyProperty IsApplicationDirectoryViewProperty =
-            DependencyProperty.Register("IsApplicationDirectoryView", typeof(bool), typeof(ConfigurationLibraryDirectoriesView), new PropertyMetadata(OnReadonlyChanged));
+            DependencyProperty.Register("IsApplicationDirectoryView", typeof(bool), typeof(ConfigurationLibraryDirectoriesView), new PropertyMetadata(OnChanged));
 
         public IEnumerable ItemsSource
         {
@@ -48,7 +48,7 @@ namespace AudioStation.Views.Configuration
             InitializeComponent();
         }
 
-        private void UpdateColumns()
+        private void Update()
         {
             var viewModel = this.DataContext as MainViewModel;
 
@@ -64,15 +64,22 @@ namespace AudioStation.Views.Configuration
                         column.Visibility = !this.IsApplicationDirectoryView ? Visibility.Visible : Visibility.Collapsed;
                     }
                 }
+
+                // Update row details visibility (this binding was finiky)
+                if (this.IsApplicationDirectoryView)
+                    this.LibraryFoldersDG.RowDetailsVisibilityMode = DataGridRowDetailsVisibilityMode.Collapsed;
+
+                else
+                    this.LibraryFoldersDG.RowDetailsVisibilityMode = DataGridRowDetailsVisibilityMode.VisibleWhenSelected;
             }
         }
 
-        private static void OnReadonlyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        private static void OnChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             var control = d as ConfigurationLibraryDirectoriesView;
 
             if (control != null)
-                control.UpdateColumns();
+                control.Update();
         }
     }
 }

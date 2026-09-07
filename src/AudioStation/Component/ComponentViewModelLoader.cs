@@ -14,7 +14,6 @@ using AudioStation.EventHandler;
 using AudioStation.Service.Interface;
 using AudioStation.ViewModels.ComponentViewModels;
 using AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels;
-using AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.Workflow;
 using AudioStation.ViewModels.ComponentViewModels.LibraryViewModels;
 using AudioStation.ViewModels.ComponentViewModels.LoadViewModels;
 using AudioStation.ViewModels.ComponentViewModels.LogViewModels;
@@ -292,11 +291,11 @@ namespace AudioStation.Component
 
             // Libary Importer Sub-Components
             //
-            else if (type == typeof(LibraryImporterLoaderViewModel))
-                return _libraryImporterViewModel.Loader as T;
+            //else if (type == typeof(LibraryImporterLoaderViewModel))
+            //    return _libraryImporterViewModel.Loader as T;
 
-            else if (type == typeof(LibraryImporterStagingViewModel))
-                return _libraryImporterViewModel.Staging as T;
+            //else if (type == typeof(LibraryImporterStagingViewModel))
+            //    return _libraryImporterViewModel.Staging as T;
 
             else
                 throw new Exception("Unhandled component view model type:  " + type.Name);

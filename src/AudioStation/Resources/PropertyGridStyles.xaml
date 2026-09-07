@@ -49,6 +49,11 @@
         <Setter Property="VerticalAlignment" Value="Center" />
     </Style>
 
+    <Style x:Key="PropertyGridLabelDetail" TargetType="TextBlock" BasedOn="{StaticResource PropertyGridLabel}">
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="FontStyle" Value="Italic" />
+    </Style>
+
     <Style x:Key="PropertyGridLargeLabel" TargetType="TextBlock" BasedOn="{StaticResource PropertyGridLabel}">
         <Setter Property="FontSize" Value="18" />
     </Style>

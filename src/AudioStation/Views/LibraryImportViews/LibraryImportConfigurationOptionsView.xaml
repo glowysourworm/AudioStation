@@ -12,7 +12,7 @@
     <Grid RowDefinitions="Auto, Auto, *">
 
         <Border Margin="5"
-                Visibility="{Binding Options.ImportType, 
+                Visibility="{Binding Options.ImportDirectory.ImportType, 
                                      Converter={StaticResource ParameterVisibilityCollapsedConverter}, 
                                      ConverterParameter={x:Static coreModel:LibraryImportType.InPlaceDirectory}}"
                 Style="{StaticResource InstructionsBorderStyle}">
@@ -22,7 +22,7 @@
         </Border>
 
         <Border Margin="5"
-                Visibility="{Binding Options.ImportType, 
+                Visibility="{Binding Options.ImportDirectory.ImportType, 
                                      Converter={StaticResource ParameterVisibilityCollapsedConverter}, 
                                      ConverterParameter={x:Static coreModel:LibraryImportType.Migration}}"                
                 Style="{StaticResource InstructionsWarningBorderStyle}">
@@ -33,7 +33,7 @@
 
         <Border Grid.Row="1"
                 Margin="5"
-                Visibility="{Binding Options.ImportType, 
+                Visibility="{Binding Options.ImportDirectory.ImportType, 
                                      Converter={StaticResource ParameterVisibilityCollapsedConverter}, 
                                      ConverterParameter={x:Static coreModel:LibraryImportType.InPlaceDirectory}}"
                 Style="{StaticResource InstructionsWarningBorderStyle}">
@@ -44,7 +44,7 @@
 
         <Border Grid.Row="1"
                 Margin="5"
-                Visibility="{Binding Options.ImportType, 
+                Visibility="{Binding Options.ImportDirectory.ImportType, 
                                      Converter={StaticResource ParameterVisibilityCollapsedConverter}, 
                                      ConverterParameter={x:Static coreModel:LibraryImportType.Migration}}"                
                 Style="{StaticResource InstructionsWarningBorderStyle}">
@@ -59,7 +59,7 @@
                   Grid.Column="0" 
                   Grid.ColumnSpan="2"
                   Grid.Row="2"
-                  Visibility="{Binding Options.ImportType, 
+                  Visibility="{Binding Options.ImportDirectory.ImportType, 
                         Converter={StaticResource ParameterVisibilityCollapsedConverter}, 
                         ConverterParameter={x:Static coreModel:LibraryImportType.InPlaceDirectory}}">
             <StackPanel>
@@ -85,7 +85,7 @@
                   Grid.Column="0" 
                   Grid.ColumnSpan="2"
                   Grid.Row="2"
-                  Visibility="{Binding Options.ImportType, 
+                  Visibility="{Binding Options.ImportDirectory.ImportType, 
                         Converter={StaticResource ParameterVisibilityCollapsedConverter}, 
                         ConverterParameter={x:Static coreModel:LibraryImportType.Migration}}">
             <StackPanel>

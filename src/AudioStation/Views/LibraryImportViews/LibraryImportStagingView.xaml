@@ -16,7 +16,7 @@
                  IsReadOnly="True"
                  Style="{StaticResource UserInputTextBoxReadonly}"
                  Text="{Binding ImportDirectory.NodeValue.FullPath}" 
-                 Visibility="{Binding ImportOptions.ImportType, 
+                 Visibility="{Binding ImportOptions.ImportDirectory.ImportType, 
                                       Converter={StaticResource ParameterVisibilityCollapsedConverter}, 
                                       ConverterParameter={x:Static coreModel:LibraryImportType.InPlaceDirectory}}"
                  HorizontalAlignment="Stretch" />
@@ -26,7 +26,7 @@
                  IsReadOnly="True"
                  Style="{StaticResource UserInputTextBoxReadonly}"
                  Text="{Binding ImportOptions.MigrationSourceDirectory}" 
-                 Visibility="{Binding ImportOptions.ImportType, 
+                 Visibility="{Binding ImportOptions.ImportDirectory.ImportType, 
                                       Converter={StaticResource ParameterVisibilityCollapsedConverter}, 
                                       ConverterParameter={x:Static coreModel:LibraryImportType.Migration}}"
                  HorizontalAlignment="Stretch" />

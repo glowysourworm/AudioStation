@@ -181,7 +181,7 @@ namespace AudioStation.Views
             {
                 // Run Acoust ID -> Music Brainz (cache results)
                 if (_dialogController.ShowConfirmation("Continue to Configuration Options?",
-                    string.Format("You have chosen import type:  {0}", _viewModel.Options.ImportType),
+                    string.Format("You have chosen import type:  {0}", _viewModel.Options.ImportDirectory.ImportType),
                     "",
                     "Are you ready to proceed?"))
                 {
@@ -266,7 +266,7 @@ namespace AudioStation.Views
             {
                 // This gets moved to workflow loader (probably just use the view model to call the sub-components)
 
-                //_componentViewModelLoader.LoadComponent<LibraryImporterStagingViewModel>();
+                _componentViewModelLoader.LoadComponent<LibraryImporterViewModel>();
             }
 
             // Import Loader
@@ -274,7 +274,7 @@ namespace AudioStation.Views
             {
                 // This gets moved to workflow loader (probably just use the view model to call the sub-components)
 
-                //_componentViewModelLoader.LoadComponent<LibraryImporterLoaderViewModel>();
+                _componentViewModelLoader.LoadComponent<LibraryImporterViewModel>();
             }
 
             // Tag Completion

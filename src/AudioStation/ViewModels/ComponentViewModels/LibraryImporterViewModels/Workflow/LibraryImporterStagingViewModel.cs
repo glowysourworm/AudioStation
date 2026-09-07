@@ -110,7 +110,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
 
                         if (!subNode.IsDirectory && !stagedFiles.ContainsKey(subNode.FullPath))
                         {
-                            var file = new LibraryImporterFileViewModel(subNode.FullPath, subNode.BaseDirectory, this.ImportOptions.ImportType);
+                            var file = new LibraryImporterFileViewModel(subNode.FullPath, subNode.BaseDirectory, this.ImportOptions.ImportDirectory.ImportType);
 
                             stagedFiles.Add(file.FullPath, file);
                             this.StagedFiles.Add(file);
@@ -122,7 +122,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
                 // Other Files
                 else if (!stagedFiles.ContainsKey(node.FullPath))
                 {
-                    var stagedFile = new LibraryImporterFileViewModel(node.FullPath, node.BaseDirectory, this.ImportOptions.ImportType);
+                    var stagedFile = new LibraryImporterFileViewModel(node.FullPath, node.BaseDirectory, this.ImportOptions.ImportDirectory.ImportType);
 
                     stagedFiles.Add(node.FullPath, stagedFile);
                     this.StagedFiles.Add(stagedFile);
@@ -167,8 +167,8 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
                 this.ImportDirectory.GetNodeValue().BaseDirectory != this.ImportOptions.ImportDirectory.Directory)
             {
                 var libraryLoaderService = IocContainer.Get<ILibraryLoaderService>();
-                var directory = (this.ImportOptions.ImportType == Core.Model.LibraryImportType.Migration) ? this.ImportOptions.MigrationSourceDirectory :
-                                                                                                            this.ImportOptions.ImportDirectory.Directory;
+                var directory = (this.ImportOptions.ImportDirectory.ImportType == Core.Model.LibraryImportType.Migration) ? this.ImportOptions.MigrationSourceDirectory :
+                                                                                                                            this.ImportOptions.ImportDirectory.Directory;
 
                 // Unhook
                 this.ImportDirectory?.ItemPropertyChangedTreeEvent -= OnImportTreePropertyChanged;

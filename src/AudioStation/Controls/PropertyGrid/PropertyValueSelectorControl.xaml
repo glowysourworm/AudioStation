@@ -25,7 +25,7 @@
 
         <TextBlock Text="{Binding Description, RelativeSource={RelativeSource AncestorType=UserControl}}"
                    Visibility="{Binding Description, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource NonNullVisibilityConverter}}"
-                   Style="{StaticResource PropertyGridLabel}"
+                   Style="{StaticResource PropertyGridLabelDetail}"
                    TextWrapping="Wrap"
                    TextTrimming="None"
                    Grid.Row="1"

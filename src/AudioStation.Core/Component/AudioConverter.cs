@@ -7,6 +7,7 @@ using AudioStation.Core.Utility;
 using CSCore;
 using CSCore.Codecs;
 using CSCore.Codecs.WAV;
+using CSCore.MediaFoundation;
 
 using Microsoft.Extensions.Logging;
 
@@ -37,27 +38,30 @@ namespace AudioStation.Core.Component
 
             try
             {
-                using (var source = CodecFactory.Instance.GetCodec(filePathIn))
+                using (var fileStream = File.OpenRead(filePathIn))
                 {
-                    // -> Output Format
-                    var format = new WaveFormat(source.WaveFormat.SampleRate,
-                                                source.WaveFormat.BitsPerSample,
-                                                source.WaveFormat.Channels,
-                                                outputEncoding.Encoding);
-
-                    using (var encoder = new WaveWriter(filePathOut, format))
+                    using (var source = new MediaFoundationDecoder(fileStream))
                     {
-                        // -> One Second Buffer
-                        byte[] buffer = new byte[source.WaveFormat.BytesPerSecond];
-                        int read;
+                        // -> Output Format
+                        var format = new WaveFormat(source.WaveFormat.SampleRate,
+                                                    source.WaveFormat.BitsPerSample,
+                                                    source.WaveFormat.Channels,
+                                                    outputEncoding.Encoding);
 
-                        while ((read = source.Read(buffer, 0, buffer.Length)) > 0)
+                        using (var encoder = new WaveWriter(filePathOut, format))
                         {
-                            encoder.Write(buffer, 0, read);
+                            // -> One Second Buffer
+                            byte[] buffer = new byte[source.WaveFormat.BytesPerSecond];
+                            int read;
 
-                            // TODO: Progress Callback
-                            //Console.CursorLeft = 0;
-                            //Console.Write("{0:P}/{1:P}", (double)source.Position / source.Length, 1);
+                            while ((read = source.Read(buffer, 0, buffer.Length)) > 0)
+                            {
+                                encoder.Write(buffer, 0, read);
+
+                                // TODO: Progress Callback
+                                //Console.CursorLeft = 0;
+                                //Console.Write("{0:P}/{1:P}", (double)source.Position / source.Length, 1);
+                            }
                         }
                     }
                 }

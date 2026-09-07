@@ -13,6 +13,7 @@ using AudioStation.Event.DialogEvents;
 using AudioStation.EventHandler;
 using AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels;
 using AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.Workflow;
+using AudioStation.ViewModels.MainViewModels;
 
 using SimpleWpf.IocFramework.EventAggregation;
 using SimpleWpf.UI.Command;
@@ -28,9 +29,16 @@ namespace AudioStation.ViewModels.ComponentViewModels
         private readonly IDialogController _dialogController;
         private readonly ITagCacheController _tagCacheController;
 
+        // Configuration:  This is for the partial configuration editing control area for library directories.
+        //
+        AudioStationConfigurationViewModel _configuration;
+        ObservableCollection<AudioEncoderViewModel> _encoders;
+
+
         LibraryImporterConfigurationViewModel _options;
         LibraryImporterLoaderViewModel _loader;
         LibraryImporterStagingViewModel _staging;
+
 
         ObservableCollection<LibraryImporterFileViewModel> _acoustIDCompletedSuccessfully;
         ObservableCollection<LibraryImporterFileViewModel> _musicBrainzCompletedSuccessfully;
@@ -46,6 +54,16 @@ namespace AudioStation.ViewModels.ComponentViewModels
         string _sourceFolderSearch;
         string _stagedSearch;
 
+        public AudioStationConfigurationViewModel Configuration
+        {
+            get { return _configuration; }
+            set { this.RaiseAndSetIfChanged(ref _configuration, value); }
+        }
+        public ObservableCollection<AudioEncoderViewModel> Encoders
+        {
+            get { return _encoders; }
+            set { this.RaiseAndSetIfChanged(ref _encoders, value); }
+        }
         public LibraryImporterConfigurationViewModel Options
         {
             get { return _options; }
@@ -145,6 +163,8 @@ namespace AudioStation.ViewModels.ComponentViewModels
             // Sub-component(s)
             this.Loader.Initialize(configuration, viewModelController, progressHandler);
             this.Staging.Initialize(configuration, viewModelController, progressHandler);
+            this.Configuration = viewModelController.GetComponent<AudioStationConfigurationViewModel>();
+            this.Encoders = viewModelController.GetComponent<MainViewModel>().Encoders;
 
             // Set View Model (Load)
             //this.SourceDirectory = load;

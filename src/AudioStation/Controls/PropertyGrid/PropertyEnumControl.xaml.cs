@@ -1,6 +1,4 @@
 ﻿using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Media;
 
 namespace AudioStation.Controls.PropertyGrid
 {
@@ -10,16 +8,16 @@ namespace AudioStation.Controls.PropertyGrid
             DependencyProperty.Register("EnumType", typeof(Type), typeof(PropertyEnumControl));
 
         public static readonly DependencyProperty ValueProperty =
-            DependencyProperty.Register("Value", typeof(Enum), typeof(PropertyEnumControl));
+            DependencyProperty.Register("Value", typeof(object), typeof(PropertyEnumControl));
 
         public Type EnumType
         {
             get { return (Type)GetValue(EnumTypeProperty); }
             set { SetValue(EnumTypeProperty, value); }
         }
-        public Enum Value
+        public object Value
         {
-            get { return (Enum)GetValue(ValueProperty); }
+            get { return (object)GetValue(ValueProperty); }
             set { SetValue(ValueProperty, value); }
         }
 

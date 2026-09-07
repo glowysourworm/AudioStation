@@ -17,7 +17,7 @@
         
         <DataGrid x:Name="LibraryFoldersDG" 
                   Style="{StaticResource LibraryFoldersDataGridStyle}"
-                  VerticalAlignment="Top"
+                  VerticalAlignment="Top"    
                   SelectedItem="{Binding SelectedItem, Mode=TwoWay, ElementName=BaseControl}"
                   IsReadOnly="{Binding ConfigurationLocked, ElementName=BaseControl}"
                   ItemsSource="{Binding ItemsSource, ElementName=BaseControl}">
@@ -32,11 +32,13 @@
                                                               LabelText="Import Type" 
                                                               IsReadOnly="{Binding IsReadOnly, RelativeSource={RelativeSource AncestorType=DataGrid}}"
                                                               EnumType="{x:Type coreModel:LibraryImportType}"
+                                                              Description="This will determine how Audio Station typically looks for new files to import into the library"
                                                               Value="{Binding ImportType, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />                            
                             
                             <propertyGrid:PropertyValueSelectorControl x:Name="AudioFormatCB" 
                                                                        LabelColumnWidth="240" Grid.Row="1" Grid.Column="1"
                                                                        LabelText="Audio Format Preference" 
+                                                                       Description="The default format for audio files in the library. Other formats will be flagged in Library Maintainence."
                                                                        DisplayMemberPath="Name"
                                                                        IsReadOnly="{Binding IsReadOnly, RelativeSource={RelativeSource AncestorType=DataGrid}}"
                                                                        ItemsSource="{Binding DataContext.Encoders, RelativeSource={RelativeSource AncestorType=DataGrid}}"
@@ -44,7 +46,7 @@
                             
                             <propertyGrid:PropertyBooleanControl LabelColumnWidth="240" Grid.Row="2" Grid.Column="1"
                                                                  LabelText="Readonly" 
-                                                                 Value="{Binding IsReadOnly, Mode=TwoWay}" 
+                                                                 Value="{Binding IsReadOnly, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
                                                                  IsReadOnly="{Binding IsReadOnly, RelativeSource={RelativeSource AncestorType=DataGrid}}"
                                                                  Style="{StaticResource PropertyGridUserControl}" />
 
@@ -125,8 +127,13 @@
         <!-- Add Library Directory -->
         <StackPanel Orientation="Horizontal" 
                     Grid.Row="1" 
-                    HorizontalAlignment="Right"
-                    Visibility="{Binding IsApplicationDirectoryView, Converter={StaticResource BoolInverseVisibilityCollapseConverter}, ElementName=BaseControl}">
+                    HorizontalAlignment="Right">
+            <StackPanel.Visibility>
+                <MultiBinding Converter="{StaticResource BoolANDVisibilityMultiConverter}">
+                    <Binding Path="IsApplicationDirectoryView" Converter="{StaticResource BoolInverseConverter}" ElementName="BaseControl" />
+                    <Binding Path="ConfigurationLocked" Converter="{StaticResource BoolInverseConverter}" ElementName="BaseControl" />
+                </MultiBinding>
+            </StackPanel.Visibility>
             <xceed:WatermarkTextBox x:Name="NewDirectoryTB" 
                                                 Watermark="Directory Label..." 
                                                 IsEnabled="{Binding ConfigurationLocked, Converter={StaticResource BoolInverseConverter}}"
@@ -143,7 +150,7 @@
             </Button>
             <Button Margin="5" 
                     Style="{StaticResource UserControlButton}"
-                    CommandParameter="{Binding ElementName=LibraryDirectoriesView, Path=SelectedItem}"
+                    CommandParameter="{Binding ElementName=LibraryFoldersDG, Path=SelectedItem}"
                     Command="{Binding Configuration.RemoveDirectoryCommand}">
                 <Button.IsEnabled>
                     <MultiBinding Converter="{StaticResource BoolANDMultiConverter}">
