@@ -47,6 +47,7 @@
                             <propertyGrid:PropertyBooleanControl LabelColumnWidth="240" Grid.Row="2" Grid.Column="1"
                                                                  LabelText="Readonly" 
                                                                  Value="{Binding IsReadOnly, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                                                 IsRequired="False"
                                                                  IsReadOnly="{Binding IsReadOnly, RelativeSource={RelativeSource AncestorType=DataGrid}}"
                                                                  Style="{StaticResource PropertyGridUserControl}" />
 
@@ -54,6 +55,7 @@
                                                                  LabelText="Delete Empty Folders (auto)" 
                                                                  Value="{Binding DeleteUnusedFolders, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
                                                                  IsReadOnly="{Binding IsReadOnly, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                                                 IsRequired="False"
                                                                  Style="{StaticResource PropertyGridUserControl}" />
                         </Grid>
                     </Border>

@@ -18,7 +18,7 @@
                   HorizontalAlignment="Left"
                   Margin="3"
                   BorderBrush="{Binding IsValid, Converter={StaticResource ValidationBrushConverter}, ConverterParameter={StaticResource PropertyGridControlDefaultBorder}, RelativeSource={RelativeSource AncestorType=UserControl}}"
-				  IsChecked="{Binding Value, Mode=TwoWay, RelativeSource={RelativeSource AncestorType=UserControl}}" 
+				  IsChecked="{Binding Value, Mode=TwoWay, NotifyOnSourceUpdated=True, NotifyOnTargetUpdated=True, UpdateSourceTrigger=PropertyChanged, RelativeSource={RelativeSource AncestorType=UserControl}}" 
 				  IsEnabled="{Binding IsReadOnly, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BoolInverseConverter}}" />
 
         <TextBlock Text="{Binding Description, RelativeSource={RelativeSource AncestorType=UserControl}}"

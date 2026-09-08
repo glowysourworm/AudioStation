@@ -99,7 +99,7 @@ namespace AudioStation.Controls.PropertyGrid
         {
             base.OnPropertyChanged(e);
 
-            if (e.Property.Name == "Value")
+            if (e.Property.Name == "Value" || e.Property.Name == "IsRequired")
             {
                 this.IsValid = !this.IsRequired || Validate();
             }

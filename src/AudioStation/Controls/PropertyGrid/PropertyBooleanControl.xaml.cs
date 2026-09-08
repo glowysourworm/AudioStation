@@ -16,6 +16,8 @@ namespace AudioStation.Controls.PropertyGrid
         public PropertyBooleanControl()
         {
             InitializeComponent();
+
+            OnPropertyChanged(new DependencyPropertyChangedEventArgs(PropertyBooleanControl.ValueProperty, null, null));
         }
 
         public override bool Validate()
@@ -25,7 +27,7 @@ namespace AudioStation.Controls.PropertyGrid
 
         public override void CommitChanges()
         {
-            
+
         }
     }
 }
