@@ -41,7 +41,7 @@
                                                                        Description="The default format for audio files in the library. Other formats will be flagged in Library Maintainence."
                                                                        DisplayMemberPath="Name"
                                                                        IsReadOnly="{Binding IsReadOnly, RelativeSource={RelativeSource AncestorType=DataGrid}}"
-                                                                       ItemsSource="{Binding DataContext.Encoders, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                                                       ItemsSource="{Binding Encoders, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                                        Value="{Binding FormatPreference, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" />                            
                             
                             <propertyGrid:PropertyBooleanControl LabelColumnWidth="240" Grid.Row="2" Grid.Column="1"

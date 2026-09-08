@@ -12,6 +12,9 @@ namespace AudioStation.Views.Configuration
         public static readonly DependencyProperty ItemsSourceProperty =
             DependencyProperty.Register("ItemsSource", typeof(IEnumerable), typeof(ConfigurationLibraryDirectoriesView));
 
+        public static readonly DependencyProperty EncodersProperty =
+            DependencyProperty.Register("Encoders", typeof(IEnumerable), typeof(ConfigurationLibraryDirectoriesView));
+
         public static readonly DependencyProperty SelectedItemProperty =
             DependencyProperty.Register("SelectedItem", typeof(LibraryDirectoryViewModel), typeof(ConfigurationLibraryDirectoriesView));
 
@@ -25,6 +28,11 @@ namespace AudioStation.Views.Configuration
         {
             get { return (IEnumerable)GetValue(ItemsSourceProperty); }
             set { SetValue(ItemsSourceProperty, value); }
+        }
+        public IEnumerable Encoders
+        {
+            get { return (IEnumerable)GetValue(EncodersProperty); }
+            set { SetValue(EncodersProperty, value); }
         }
         public LibraryDirectoryViewModel SelectedItem
         {

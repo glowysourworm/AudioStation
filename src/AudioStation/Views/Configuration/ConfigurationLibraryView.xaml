@@ -16,6 +16,7 @@
             <configurationView:ConfigurationLibraryDirectoriesView x:Name="LibraryDirectoriesView"
                                                                ItemsSource="{Binding Configuration.LibraryDirectories}"
                                                                IsApplicationDirectoryView="False"
+                                                               Encoders="{Binding Encoders}"
                                                                ConfigurationLocked="{Binding ConfigurationLocked}" />
 
             <!-- Application Directories -->
