@@ -27,6 +27,26 @@ namespace AudioStation.Core.Controller.Interface
         BitmapImageData GetImage(string filePath);
 
         /// <summary>
+        /// Checks library directories to make sure file path is valid
+        /// </summary>
+        bool CanWriteToPath(string filePath);
+
+        /// <summary>
+        /// Calculates file name of music (or) audio books file given the destination directory
+        /// </summary>
+        /// <param name="sourceFilePath">Full file path to source file</param>
+        /// <param name="destinationDirectory">File full path of staged file (this should be already validated for migration)</param>
+        /// <param name="trackType">Type of audio track (music, audiobook, ...)</param>
+        /// <param name="track">Track title for the audio track</param>
+        /// <param name="trackCount">Track count for the album</param>
+        /// <param name="trackNumber">Track number for the track</param>
+        /// <param name="album">Album related to the image (from database entities)</param>
+        /// <param name="artist">Artist related to the image (from database entities)</param>
+        /// <param name="genre">Genre related to the image (from database entities)</param>
+        /// <returns>File name of music file for database reference</returns>
+        string CalculateGivenFileName(string sourceFilePath, string destinationDirectory, TrackCategory trackType, string genre, string artist, string album, string track, int trackNumber, int trackCount, bool createIntermediateDirectories);
+
+        /// <summary>
         /// Save audio file to music (or) audio books library permanent storage
         /// </summary>
         /// <param name="stagedFilePath">File full path of staged file (this should be already validated for migration)</param>

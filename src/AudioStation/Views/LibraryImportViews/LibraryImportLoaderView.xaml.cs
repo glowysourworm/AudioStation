@@ -42,6 +42,7 @@ namespace AudioStation.Views.LibraryImportViews
                 this.LoaderLB.Items.Add(viewModel.Loader.AcoustIDWorker);
                 this.LoaderLB.Items.Add(viewModel.Loader.MusicBrainzBasicWorker);
                 this.LoaderLB.Items.Add(viewModel.Loader.MusicBrainzAlbumArtWorker);
+                this.LoaderLB.Items.Add(viewModel.Loader.FileConverterWorker);
             }
         }
 

@@ -5,6 +5,8 @@ using System.Windows.Threading;
 using AudioStation.Controller.Interface;
 using AudioStation.Core;
 using AudioStation.Core.Component.Interface;
+using AudioStation.Core.Component.LibraryLoaderComponent.Load;
+using AudioStation.Core.Component.LibraryLoaderComponent.Load.Interface;
 using AudioStation.Core.Database.AudioStationDatabase;
 using AudioStation.Core.Model;
 using AudioStation.Core.Model.Interface;
@@ -14,6 +16,7 @@ using AudioStation.Event;
 using AudioStation.Event.DialogEvents;
 using AudioStation.EventHandler;
 using AudioStation.ViewModels;
+using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Load;
 using AudioStation.ViewModels.MainViewModels;
 using AudioStation.ViewModels.TagViewModels;
 using AudioStation.ViewModels.Vendor.ATLViewModel;
@@ -204,7 +207,7 @@ namespace AudioStation
             //
             // Add mappers for each complex type sub-mapping
 
-            // Tag Types
+            // Audio Station Core (model)
             mapper.ConfigureMap<AudioStationTag, AudioStationTag>()
                   .DeclareSourceInterface<IAudioStationTag>();
 
@@ -219,6 +222,13 @@ namespace AudioStation
 
             mapper.ConfigureMap<TagViewModel, AudioStationTag>()
                   .DeclareSourceInterface<IAudioStationTag>();
+
+            // Audio Station Services
+            mapper.ConfigureMap<LibraryLoaderImportLoadViewModel, LibraryLoaderImportLoad>()
+                  .DeclareSourceInterface<ILibraryLoaderImportLoad>();
+
+            mapper.ConfigureMap<LibraryLoaderImportLoad, LibraryLoaderImportLoadViewModel>()
+                  .DeclareSourceInterface<ILibraryLoaderImportLoad>();
 
             // Configuration
             mapper.ConfigureMap<AudioEncoderInfo, AudioEncoderViewModel>()

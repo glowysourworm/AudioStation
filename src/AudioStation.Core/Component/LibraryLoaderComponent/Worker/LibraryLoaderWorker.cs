@@ -53,6 +53,10 @@
         {
             this.Output.Log(message);
         }
+        protected void Log(string message, params object[] formatParameters)
+        {
+            this.Output.Log(string.Format(message, formatParameters));
+        }
 
         protected abstract bool Work(int stepNumber, ref string message);
 

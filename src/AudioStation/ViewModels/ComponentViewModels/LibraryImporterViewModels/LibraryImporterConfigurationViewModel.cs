@@ -16,10 +16,10 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels
         bool _identifyUsingAcoustID;
         bool _identifyUsingMusicBrainz;
         bool _includeMusicBrainzArtwork;
+        bool _convertAudioFormat;
 
         // Migration
         string _migrationSourceDirectory;
-        bool _migrationConvertAudioFiles;
         bool _migrationDeleteSourceFiles;
         bool _migrationDeleteSourceFolders;
         bool _migrationOverwriteDestinationFiles;
@@ -46,15 +46,15 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels
             get { return _includeMusicBrainzArtwork; }
             set { this.RaiseAndSetIfChanged(ref _includeMusicBrainzArtwork, value); }
         }
+        public bool ConvertAudioFormat
+        {
+            get { return _convertAudioFormat; }
+            set { this.RaiseAndSetIfChanged(ref _convertAudioFormat, value); }
+        }
         public string MigrationSourceDirectory
         {
             get { return _migrationSourceDirectory; }
             set { this.RaiseAndSetIfChanged(ref _migrationSourceDirectory, value); }
-        }
-        public bool MigrationConvertAudioFiles
-        {
-            get { return _migrationConvertAudioFiles; }
-            set { this.RaiseAndSetIfChanged(ref _migrationConvertAudioFiles, value); }
         }
         public bool MigrationDeleteSourceFiles
         {

@@ -8,9 +8,6 @@ using AudioStation.Core.Service;
 using AudioStation.Core.Service.Payload;
 using AudioStation.Core.Service.Vendor.Interface;
 using AudioStation.Core.Utility;
-using AudioStation.Core.Utility.FileUtility;
-
-using Microsoft.Extensions.Logging;
 
 using SimpleWpf.Extensions.Collection;
 using SimpleWpf.IocFramework.Application.Attribute;
@@ -44,11 +41,13 @@ namespace AudioStation.Core.Component
 
         public bool CanImportAcoustID(ILibraryLoaderImportLoad workInput, ILibraryLoaderImportOutput workOutput)
         {
-            return workInput.IdentifyUsingAcoustID;
+            throw new NotImplementedException();
+            //return workInput.IdentifyUsingAcoustID;
         }
         public bool CanImportMusicBrainzBasic(ILibraryLoaderImportLoad workInput, ILibraryLoaderImportOutput workOutput)
         {
-            return CanImportAcoustID(workInput, workOutput) && workInput.IncludeMusicBrainzDetail;
+            throw new NotImplementedException();
+            //return CanImportAcoustID(workInput, workOutput) && workInput.IncludeMusicBrainzDetail;
         }
         public bool CanImportMusicBrainzDetail(ILibraryLoaderImportLoad workInput, ILibraryLoaderImportOutput workOutput)
         {
@@ -63,30 +62,34 @@ namespace AudioStation.Core.Component
         }
         public bool CanImportEntity(ILibraryLoaderImportLoad workInput, ILibraryLoaderImportOutput workOutput)
         {
-            var message = string.Empty;
+            throw new NotImplementedException();
+            //var message = string.Empty;
 
-            var tagFile = _tagCacheController.Get(workInput.SourceFile);
+            //var tagFile = _tagCacheController.Get(workInput.SourceFile);
 
-            var validation = TagValidator.ValidateTagImport(tagFile);
+            //var validation = TagValidator.ValidateTagImport(tagFile);
 
-            return validation.IsValid;
+            //return validation.IsValid;
 
         }
         public bool CanImportMigrateFile(ILibraryLoaderImportLoad workInput, ILibraryLoaderImportOutput workOutput)
         {
-            return workOutput.Mp3FileImportSuccess && MigrationHelpers.CanMigrateFile(workInput.SourceFile, workOutput.DestinationPathCalculated);
+            throw new NotImplementedException();
+
+            //return workOutput.Mp3FileImportSuccess && MigrationHelpers.CanMigrateFile(workInput.SourceFile, workOutput.DestinationPathCalculated);
         }
 
 
         public async Task<bool> WorkAcoustID(ILibraryLoaderImportLoad workInput, ILibraryLoaderImportOutput workOutput)
         {
-            var acoustIDResults = await _acoustIDClient.IdentifyFingerprintAsync(workInput.SourceFile, ACOUSTID_MIN_SCORE);
+            throw new NotImplementedException();
+            //var acoustIDResults = await _acoustIDClient.IdentifyFingerprintAsync(workInput.SourceFile, ACOUSTID_MIN_SCORE);
 
-            // Output -> AcoustID Results
-            workOutput.AcoustIDResults = acoustIDResults;
-            workOutput.AcoustIDSuccess = acoustIDResults != null && acoustIDResults.Any();
+            //// Output -> AcoustID Results
+            //workOutput.AcoustIDResults = acoustIDResults;
+            //workOutput.AcoustIDSuccess = acoustIDResults != null && acoustIDResults.Any();
 
-            return workOutput.AcoustIDSuccess;
+            //return workOutput.AcoustIDSuccess;
         }
         public async Task<bool> WorkMusicBrainzDetail(ILibraryLoaderImportLoad workInput, ILibraryLoaderImportOutput workOutput)
         {
@@ -141,14 +144,15 @@ namespace AudioStation.Core.Component
         }
         public bool WorkImportEntity(ILibraryLoaderImportLoad workInput, ILibraryLoaderImportOutput workOutput)
         {
-            var tagFile = _tagCacheController.Get(workInput.SourceFile);
+            throw new NotImplementedException();
+            //var tagFile = _tagCacheController.Get(workInput.SourceFile);
 
-            // Import Record:  Save imported entity for output
-            //workOutput.ImportedRecord = _modelController.AddUpdateLibraryEntry(workInput.SourceFile, tagFile);
+            //// Import Record:  Save imported entity for output
+            ////workOutput.ImportedRecord = _modelController.AddUpdateLibraryEntry(workInput.SourceFile, tagFile);
 
-            workOutput.Mp3FileImportSuccess = workOutput.ImportedRecord != null;
+            //workOutput.Mp3FileImportSuccess = workOutput.ImportedRecord != null;
 
-            return workOutput.Mp3FileImportSuccess;
+            //return workOutput.Mp3FileImportSuccess;
         }
         public bool WorkMigrateFile(ILibraryLoaderImportLoad workInput, ILibraryLoaderImportOutput workOutput)
         {
@@ -214,9 +218,8 @@ namespace AudioStation.Core.Component
         }
         private void CalculateFileName(ILibraryLoaderImportLoad workInput, ILibraryLoaderImportOutput workOutput)
         {
-            var tagFile = _tagCacheController.Get(workInput.SourceFile);
-
             throw new NotImplementedException();
+            //var tagFile = _tagCacheController.Get(workInput.SourceFile);
 
             //// Calculate standard file name for the import
             //var calculatedFileName = _fileController.CalculateFileName(tagFile, workInput.NamingType);
@@ -231,18 +234,19 @@ namespace AudioStation.Core.Component
         }
         private bool EmbedTagData(ILibraryLoaderImportLoad workInput, ILibraryLoaderImportOutput workOutput)
         {
-            if (string.IsNullOrEmpty(workInput.SourceFile))
-                throw new ArgumentException("Invalid media file name");
+            throw new NotImplementedException();
+            //if (string.IsNullOrEmpty(workInput.SourceFile))
+            //    throw new ArgumentException("Invalid media file name");
 
             //if (workOutput.FinalQueryRecord == null)
             //    throw new ArgumentException("Final query record not yet completed. Embedding of tag data halted.");
 
             try
             {
-                var fileRef = _tagCacheController.Get(workInput.SourceFile);
+                //var fileRef = _tagCacheController.Get(workInput.SourceFile);
 
-                if (fileRef == null)
-                    return false;
+                //if (fileRef == null)
+                //    return false;
 
                 //fileRef.Album = workOutput.FinalQueryRecord.Release.Title;
                 //fileRef.AlbumArtists = workOutput.FinalQueryRecord.Artists.Select(x => x.Name).ToArray();
@@ -274,7 +278,7 @@ namespace AudioStation.Core.Component
                 //fileRef.Year = (int)(workOutput.FinalQueryRecord.Release?.Date?.Year ?? 0);
 
                 // Save tag data to file
-                _tagCacheController.SetData(workInput.SourceFile, fileRef, true);
+                //_tagCacheController.SetData(workInput.SourceFile, fileRef, true);
 
                 return true;
             }
@@ -287,21 +291,21 @@ namespace AudioStation.Core.Component
         {
             try
             {
-                // Evict the cache (also, prior to moving in case the move fails)
-                _tagCacheController.Evict(workInput.SourceFile);
+                //// Evict the cache (also, prior to moving in case the move fails)
+                //_tagCacheController.Evict(workInput.SourceFile);
 
-                // Migrate File
-                MigrationHelpers.MigrateFile(workInput.SourceFile,
-                                            workOutput.DestinationPathCalculated,
-                                            workInput.MigrationOverwriteDestinationFiles,
-                                            workInput.MigrationDeleteSourceFiles,
-                                            workInput.MigrationDeleteSourceFolders);
+                //// Migrate File
+                //MigrationHelpers.MigrateFile(workInput.SourceFile,
+                //                            workOutput.DestinationPathCalculated,
+                //                            workInput.MigrationOverwriteDestinationFiles,
+                //                            workInput.MigrationDeleteSourceFiles,
+                //                            workInput.MigrationDeleteSourceFolders);
 
                 return true;
             }
             catch (Exception ex)
             {
-                ApplicationHelpers.Log("Error migrating file:  {0} to {1}", LogLevel.Error, ex, workInput.SourceFile, workOutput.DestinationPathCalculated);
+                //ApplicationHelpers.Log("Error migrating file:  {0} to {1}", LogLevel.Error, ex, workInput.SourceFile, workOutput.DestinationPathCalculated);
                 return false;
             }
         }

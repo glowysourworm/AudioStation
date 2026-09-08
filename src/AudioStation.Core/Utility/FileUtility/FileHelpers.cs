@@ -1,4 +1,6 @@
 ﻿using System.IO;
+using System.Security.AccessControl;
+using System.Security.Principal;
 using System.Text.RegularExpressions;
 
 namespace AudioStation.Core.Utility.FileUtility
@@ -20,6 +22,67 @@ namespace AudioStation.Core.Utility.FileUtility
             crcHash.Append(fileBytes);
 
             return crcHash.GetCurrentHash(fileBytes);
+        }
+
+        public static bool HasWritePermissions(string path)
+        {
+            try
+            {
+                var directoryInfo = new DirectoryInfo(path);
+
+                var accessRules = directoryInfo.GetAccessControl()
+                                               .GetAccessRules(true, true, typeof(SecurityIdentifier));
+
+                if (accessRules == null)
+                    return false;
+
+                foreach (FileSystemAccessRule rule in accessRules)
+                {
+                    if ((FileSystemRights.Write & rule.FileSystemRights) != FileSystemRights.Write)
+                        continue;
+
+                    if (rule.AccessControlType == AccessControlType.Allow)
+                        return true;
+                }
+
+                return false;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error checking write permissions:  " + ex.Message, ex);
+            }
+        }
+
+        /// <summary>
+        /// Checks to see if file has directory as an ancestor
+        /// </summary>
+        public static bool IsAncestor(string path, string directory)
+        {
+            if (string.IsNullOrWhiteSpace(path))
+                throw new ArgumentException("Invalid file path:  FileHelpers.IsAncestor");
+
+            if (string.IsNullOrWhiteSpace(directory))
+                throw new ArgumentException("Invalid file path:  FileHelpers.IsAncestor");
+
+            try
+            {
+                DirectoryInfo? parent = null;
+
+                do
+                {
+                    parent = Directory.GetParent(path);
+
+                    if (parent?.FullName == directory)
+                        return true;
+
+                } while (parent != null);
+
+                return false;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
         }
 
         /// <summary>

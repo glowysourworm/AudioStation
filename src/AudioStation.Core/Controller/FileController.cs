@@ -115,7 +115,7 @@ namespace AudioStation.Core.Component
                                             _configuration.ApplicationStorageFolder;
 
                 // Calculate Path:  Also, create intermediate directories
-                var finalPath = CalculateFilePath(libraryDirectory, genre, artist, album, specificFileName, fileType, TrackCategory.Any, storageType);
+                var finalPath = CalculateFilePath(libraryDirectory, genre, artist, album, specificFileName, fileType, TrackCategory.Any, storageType, true);
 
                 // -> Save
                 StoreImageFileImpl(imageData, finalPath, overwrite);
@@ -146,7 +146,7 @@ namespace AudioStation.Core.Component
                 var fileName = CalculateTrackFileName(libraryDirectory.NamingType, stagedFilePath, track, artist, album, trackNumber, trackCount);
 
                 // Calculate Path:  Also, create intermediate directories
-                var finalPath = CalculateFilePath(libraryDirectory, genre, artist, album, fileName, FileTypes.AudioFile, trackType, IFileController.StorageType.DiskPermanent);
+                var finalPath = CalculateFilePath(libraryDirectory, genre, artist, album, fileName, FileTypes.AudioFile, trackType, IFileController.StorageType.DiskPermanent, true);
 
                 if (File.Exists(finalPath))
                 {
@@ -168,6 +168,57 @@ namespace AudioStation.Core.Component
             catch (Exception ex)
             {
                 throw new Exception("Error storing image file", ex);
+            }
+        }
+
+        public bool CanWriteToPath(string filePath)
+        {
+            try
+            {
+                var libraryDirectory = GetLibraryDirectory(filePath);
+
+                // -> Check Security
+                if (libraryDirectory == null)
+                {
+                    return FileHelpers.HasWritePermissions(filePath);
+                }
+
+                else
+                    return !libraryDirectory.IsReadOnly && FileHelpers.HasWritePermissions(filePath);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error checking file path:  " + ex.Message, ex);
+            }
+        }
+
+        public string CalculateGivenFileName(string sourceFilePath, string destinationDirectory, TrackCategory trackType, string genre, string artist, string album, string track, int trackNumber, int trackCount, bool createIntermediateDirectories)
+        {
+            // Procedure:
+            //
+            // 0) Get file storage preferences from configuration
+            // 1) Calculate file name for the file
+            // 2) Return the file name
+            //
+
+            try
+            {
+                var libraryDirectory = GetLibraryDirectory(destinationDirectory);
+
+                // Calculate Track File Name:  needs all info from a valid tag to proceed
+                var fileName = CalculateTrackFileName(libraryDirectory.NamingType, sourceFilePath, track, artist, album, trackNumber, trackCount);
+
+                if (libraryDirectory.IsReadOnly && createIntermediateDirectories)
+                    throw new Exception("Trying to create directories in a readonly library folder");
+
+                // Calculate Path:  DO NOT CREATE DIRECTORIES
+                var finalPath = CalculateFilePath(libraryDirectory, genre, artist, album, fileName, FileTypes.AudioFile, trackType, IFileController.StorageType.DiskPermanent, createIntermediateDirectories);
+
+                return finalPath;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error calculating file path", ex);
             }
         }
 
@@ -195,8 +246,12 @@ namespace AudioStation.Core.Component
                                          string fileName,
                                          FileTypes fileType,
                                          TrackCategory trackType,
-                                         IFileController.StorageType storageType)
+                                         IFileController.StorageType storageType,
+                                         bool createIntermediateDirectories = false)
         {
+            if (createIntermediateDirectories && libraryDirectory.IsReadOnly)
+                throw new ArgumentException("Trying to create directories in a read-only Library Directory");
+
             // Path off of the library directory
             string folderPath = string.Empty;
 
@@ -327,26 +382,24 @@ namespace AudioStation.Core.Component
             }
         }
 
-        private ILibraryDirectory GetLibraryDirectory(string fileName)
+        private ILibraryDirectory GetLibraryDirectory(string path)
         {
             try
             {
-                var directory = new DirectoryInfo(fileName);
-
-                if (directory.FullName == _configuration.ApplicationCacheFolder.Directory)
+                if (FileHelpers.IsAncestor(path, _configuration.ApplicationCacheFolder.Directory))
                     return _configuration.ApplicationCacheFolder;
 
-                else if (directory.FullName == _configuration.ApplicationStorageFolder.Directory)
+                if (FileHelpers.IsAncestor(path, _configuration.ApplicationStorageFolder.Directory))
                     return _configuration.ApplicationStorageFolder;
 
-                else if (directory.FullName == _configuration.StagingFolder.Directory)
+                if (FileHelpers.IsAncestor(path, _configuration.StagingFolder.Directory))
                     return _configuration.StagingFolder;
 
-                else if (directory.FullName == _configuration.DownloadFolder.Directory)
+                if (FileHelpers.IsAncestor(path, _configuration.DownloadFolder.Directory))
                     return _configuration.DownloadFolder;
 
                 var libraryDirectory = _configuration.LibraryDirectories
-                                                     .FirstOrDefault(x => x.Directory == directory.FullName);
+                                                     .FirstOrDefault(x => FileHelpers.IsAncestor(path, x.Directory));
 
                 if (libraryDirectory == null)
                     throw new Exception("Directory does not exist");
@@ -355,7 +408,7 @@ namespace AudioStation.Core.Component
             }
             catch (Exception ex)
             {
-                throw new Exception("Library directory error for:  " + fileName, ex);
+                throw new Exception("Library directory error for:  " + path, ex);
             }
         }
 

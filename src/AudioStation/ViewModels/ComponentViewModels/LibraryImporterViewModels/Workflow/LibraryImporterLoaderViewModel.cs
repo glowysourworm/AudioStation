@@ -17,6 +17,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
         LibraryLoaderAcoustIDViewModel _acoustIDWorker;
         LibraryLoaderMusicBrainzBasicViewModel _musicBrainzBasicWorker;
         LibraryLoaderMusicBrainzAlbumArtViewModel _musicBrainzAlbumArtWorker;
+        LibraryLoaderFileConverterViewModel _fileConverterWorker;
 
         public LibraryImporterConfigurationViewModel ImportOptions
         {
@@ -38,6 +39,12 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
             get { return _musicBrainzAlbumArtWorker; }
             set { this.RaiseAndSetIfChanged(ref _musicBrainzAlbumArtWorker, value); }
         }
+        public LibraryLoaderFileConverterViewModel FileConverterWorker
+        {
+            get { return _fileConverterWorker; }
+            set { this.RaiseAndSetIfChanged(ref _fileConverterWorker, value); }
+        }
+
 
         public LibraryImporterLoaderViewModel(LibraryImporterConfigurationViewModel importOptions) : base("Library Importer (loader)")
         {
@@ -66,6 +73,13 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
                 this.Loading = true;
                 this.MusicBrainzAlbumArtWorker.Execute();
             }
+
+            // Workflow 4:  Convert Audio Files (post migration)
+            if (_importOptions.ConvertAudioFormat && this.FileConverterWorker.CanExecute())
+            {
+                this.Loading = true;
+                this.FileConverterWorker.Execute();
+            }
         }
 
         public bool CanExecute()
@@ -78,6 +92,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
             this.AcoustIDWorker = viewModelController.GetComponent<LibraryLoaderAcoustIDViewModel>();
             this.MusicBrainzBasicWorker = viewModelController.GetComponent<LibraryLoaderMusicBrainzBasicViewModel>();
             this.MusicBrainzAlbumArtWorker = viewModelController.GetComponent<LibraryLoaderMusicBrainzAlbumArtViewModel>();
+            this.FileConverterWorker = viewModelController.GetComponent<LibraryLoaderFileConverterViewModel>();
         }
 
         protected override void LoadImpl(IAudioStationConfiguration configuration, IComponentViewModelLoader viewModelLoader, DialogEventHandlers.DialogProgressHandler progressHandler)
@@ -86,6 +101,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
             this.AcoustIDWorker.Load(configuration, viewModelLoader, progressHandler);
             this.MusicBrainzBasicWorker.Load(configuration, viewModelLoader, progressHandler);
             this.MusicBrainzAlbumArtWorker.Load(configuration, viewModelLoader, progressHandler);
+            this.FileConverterWorker.Load(configuration, viewModelLoader, progressHandler);
         }
     }
 }

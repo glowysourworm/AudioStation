@@ -18,13 +18,16 @@ namespace AudioStation.Service
     [IocExport(typeof(ILibraryLoaderWorkerService))]
     public class LibraryLoaderWorkerService : ILibraryLoaderWorkerService
     {
+        private readonly IAudioStationMapper _audioStationMapper;
         private readonly ILibraryLoader _libraryLoader;
         private readonly IIocEventAggregator _eventAggregator;
 
         [IocImportingConstructor]
-        public LibraryLoaderWorkerService(ILibraryLoader libraryLoader,
+        public LibraryLoaderWorkerService(IAudioStationMapper audioStationMapper,
+                                          ILibraryLoader libraryLoader,
                                           IIocEventAggregator eventAggregator)
         {
+            _audioStationMapper = audioStationMapper;
             _libraryLoader = libraryLoader;
             _eventAggregator = eventAggregator;
 
@@ -43,18 +46,7 @@ namespace AudioStation.Service
                     if (workLoad == null)
                         throw new ArgumentException("Invalid work load for Library Loader Import");
 
-                    return _libraryLoader.RunLoaderTaskAsync(LibraryLoadType.Import,
-                        new LibraryLoaderImportLoad(workLoad.SourceFolder,
-                                                    workLoad.DestinationFolder,
-                                                    workLoad.SourceFile,
-                                                    workLoad.GroupingType,
-                                                    workLoad.NamingType,
-                                                    workLoad.IncludeMusicBrainzDetail,
-                                                    workLoad.IdentifyUsingAcoustID,
-                                                    workLoad.ImportFileMigration,
-                                                    workLoad.MigrationDeleteSourceFiles,
-                                                    workLoad.MigrationDeleteSourceFolders,
-                                                    workLoad.MigrationOverwriteDestinationFiles));
+                    return _libraryLoader.RunLoaderTaskAsync(LibraryLoadType.Import, _audioStationMapper.Map<LibraryLoaderImportLoadViewModel, LibraryLoaderImportLoad>(workLoad));
                 }
                 case LibraryLoadType.AcoustID:
                 {
