@@ -1,5 +1,5 @@
 ﻿using AudioStation.Core;
-using AudioStation.EventHandler;
+using AudioStation.Event;
 
 namespace AudioStation.Interface
 {

@@ -1,18 +1,16 @@
 ﻿using System.Collections.ObjectModel;
 using System.IO;
 
-using AudioStation.Component.Interface;
 using AudioStation.Controller.Interface;
 using AudioStation.Core.Component.CDPlayer;
 using AudioStation.Core.Model.Interface;
 using AudioStation.Event;
-using AudioStation.EventHandler;
 using AudioStation.Service.Interface;
 
 using SimpleWpf.IocFramework.EventAggregation;
 using SimpleWpf.UI.Command;
 
-using static AudioStation.EventHandler.DialogEventHandlers;
+using static AudioStation.Event.DialogEventHandlers;
 
 namespace AudioStation.ViewModels.ComponentViewModels
 {
@@ -133,11 +131,11 @@ namespace AudioStation.ViewModels.ComponentViewModels
             this.ImportCommand.RaiseCanExecuteChanged();
         }
 
-        protected override void InitializeImpl(IAudioStationConfiguration configuration, IAudioStationViewModelController viewModelController, DialogProgressHandler progressHandler)
+        protected override void InitializeImpl(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogProgressHandler progressHandler)
         {
 
         }
-        protected override void LoadImpl(IAudioStationConfiguration configuration, IComponentViewModelLoader viewModelLoader, DialogEventHandlers.DialogProgressHandler progressHandler)
+        protected override void LoadImpl(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
         {
 
         }

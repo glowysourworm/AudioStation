@@ -238,11 +238,11 @@ namespace AudioStation.Core.Service.Vendor.Bandcamp
         {
             throw new NotImplementedException();
         }
-        public IAudioStationService.Status GetStatus()
+        public IAudioStationDataService.Status GetStatus()
         {
             throw new NotImplementedException();
         }
-        public Task<IAudioStationService.Status> Initialize()
+        public Task<IAudioStationDataService.Status> Initialize()
         {
             throw new NotImplementedException();
         }

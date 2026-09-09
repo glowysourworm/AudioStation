@@ -27,9 +27,9 @@ namespace AudioStation.Core.Controller
 
         // IAudioStationComponent
         //
-        public event SimpleEventHandler<IAudioStationService, IAudioStationService.Status> StatusChangeEvent;
+        public event SimpleEventHandler<IAudioStationDataService, IAudioStationDataService.Status> StatusChangeEvent;
 
-        private IAudioStationService.Status _status;
+        private IAudioStationDataService.Status _status;
 
         [IocImportingConstructor]
         public OutputController(IIocEventAggregator eventAggregator)
@@ -232,30 +232,30 @@ namespace AudioStation.Core.Controller
         {
             return "Log";
         }
-        public IAudioStationService.Status GetStatus()
+        public IAudioStationDataService.Status GetStatus()
         {
             // TODO: This status should maintain the "new log" / "logs viewed" status.
 
-            return IAudioStationService.Status.Idle;
+            return IAudioStationDataService.Status.Idle;
         }
-        public IAudioStationService.Status Initialize(AudioStationConfiguration configuration)
+        public IAudioStationDataService.Status Initialize(AudioStationConfiguration configuration)
         {
-            return IAudioStationService.Status.Idle;
-        }
-
-        public Task<IAudioStationService.Status> InitializeAsync(AudioStationConfiguration configuration)
-        {
-            return Task.FromResult(IAudioStationService.Status.Idle);
+            return IAudioStationDataService.Status.Idle;
         }
 
-        public IAudioStationService.Status ReInitialize(AudioStationConfiguration configuration)
+        public Task<IAudioStationDataService.Status> InitializeAsync(AudioStationConfiguration configuration)
         {
-            return IAudioStationService.Status.Idle;
+            return Task.FromResult(IAudioStationDataService.Status.Idle);
         }
 
-        public Task<IAudioStationService.Status> ReInitializeAsync(AudioStationConfiguration configuration)
+        public IAudioStationDataService.Status ReInitialize(AudioStationConfiguration configuration)
         {
-            return Task.FromResult(IAudioStationService.Status.Idle);
+            return IAudioStationDataService.Status.Idle;
+        }
+
+        public Task<IAudioStationDataService.Status> ReInitializeAsync(AudioStationConfiguration configuration)
+        {
+            return Task.FromResult(IAudioStationDataService.Status.Idle);
         }
         public string GetStatusMessage()
         {

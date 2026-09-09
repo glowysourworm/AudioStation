@@ -14,8 +14,8 @@ using AudioStation.Core.Model.Vendor.ATLExtension;
 using AudioStation.Core.Model.Vendor.ATLExtension.Interface;
 using AudioStation.Event;
 using AudioStation.Event.DialogEvents;
-using AudioStation.EventHandler;
 using AudioStation.ViewModels;
+using AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels;
 using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Load;
 using AudioStation.ViewModels.MainViewModels;
 using AudioStation.ViewModels.TagViewModels;
@@ -70,7 +70,7 @@ namespace AudioStation
             //               data-holders. The location, loading, getting, and setting
             //               of "primary" view models is done by other components.
             //
-            var viewModelController = IocContainer.Get<IAudioStationViewModelController>();
+            var mainController = IocContainer.Get<IAudioStationController>();
 
             Task.Run(() =>
             {
@@ -83,7 +83,7 @@ namespace AudioStation
                 Application.Current.Dispatcher.Invoke(() =>
                 {
                     // Show Main Window
-                    this.GetShell().Initialize(viewModelController.GetComponent<MainViewModel>());
+                    this.GetShell().Initialize(mainController.ComponentController.GetComponent<MainViewModel>());
                     Application.Current.MainWindow.WindowState = WindowState.Normal;
 
                 }, DispatcherPriority.ApplicationIdle);
@@ -206,6 +206,9 @@ namespace AudioStation
             //
             //
             // Add mappers for each complex type sub-mapping
+
+            // Audio Station Core (database)
+            mapper.ConfigureMap<ImportWorkflow, LibraryImporterWorkflowViewModel>();
 
             // Audio Station Core (model)
             mapper.ConfigureMap<AudioStationTag, AudioStationTag>()

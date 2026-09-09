@@ -20,7 +20,7 @@ namespace AudioStation.Core.Service.Vendor.Bandcamp
 
         // IAudioStationComponent
         //
-        public event SimpleEventHandler<IAudioStationService, IAudioStationService.Status> StatusChangeEvent;
+        public event SimpleEventHandler<IAudioStationDataService, IAudioStationDataService.Status> StatusChangeEvent;
 
         [IocImportingConstructor]
         public BandcampClient()
@@ -134,31 +134,31 @@ namespace AudioStation.Core.Service.Vendor.Bandcamp
         {
             return "Bandcamp Client";
         }
-        public IAudioStationService.Status GetStatus()
+        public IAudioStationDataService.Status GetStatus()
         {
             // TODO
-            return IAudioStationService.Status.Idle;
+            return IAudioStationDataService.Status.Idle;
         }
-        public IAudioStationService.Status Initialize(AudioStationConfiguration configuration)
+        public IAudioStationDataService.Status Initialize(AudioStationConfiguration configuration)
         {
             _configuration = configuration;
 
-            return IAudioStationService.Status.Idle;
+            return IAudioStationDataService.Status.Idle;
         }
 
-        public Task<IAudioStationService.Status> InitializeAsync(AudioStationConfiguration configuration)
+        public Task<IAudioStationDataService.Status> InitializeAsync(AudioStationConfiguration configuration)
         {
             return Task.Run(() => Initialize(configuration));
         }
 
-        public IAudioStationService.Status ReInitialize(AudioStationConfiguration configuration)
+        public IAudioStationDataService.Status ReInitialize(AudioStationConfiguration configuration)
         {
-            return IAudioStationService.Status.Idle;
+            return IAudioStationDataService.Status.Idle;
         }
 
-        public Task<IAudioStationService.Status> ReInitializeAsync(AudioStationConfiguration configuration)
+        public Task<IAudioStationDataService.Status> ReInitializeAsync(AudioStationConfiguration configuration)
         {
-            return Task.FromResult(IAudioStationService.Status.Idle);
+            return Task.FromResult(IAudioStationDataService.Status.Idle);
         }
         public string GetStatusMessage()
         {

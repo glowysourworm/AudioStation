@@ -1,12 +1,10 @@
 ﻿using System.Collections.ObjectModel;
 
-using AudioStation.Component.Interface;
 using AudioStation.Controller.Interface;
 using AudioStation.Core.Component;
 using AudioStation.Core.Model;
 using AudioStation.Core.Model.Interface;
 using AudioStation.Event;
-using AudioStation.EventHandler;
 using AudioStation.ViewModels.MainViewModels;
 using AudioStation.ViewModels.MainViewModels.Interface;
 
@@ -190,11 +188,11 @@ namespace AudioStation.ViewModels.ComponentViewModels
             }
         }
 
-        protected override void InitializeImpl(IAudioStationConfiguration configuration, IAudioStationViewModelController viewModelController, DialogEventHandlers.DialogProgressHandler progressHandler)
+        protected override void InitializeImpl(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
         {
 
         }
-        protected override void LoadImpl(IAudioStationConfiguration configuration, IComponentViewModelLoader viewModelLoader, DialogEventHandlers.DialogProgressHandler progressHandler)
+        protected override void LoadImpl(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
         {
 
         }

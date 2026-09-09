@@ -1,12 +1,11 @@
 ﻿using System.Windows.Threading;
 
-using AudioStation.Component.Interface;
 using AudioStation.Controller.Interface;
 using AudioStation.Core.Database.AudioStationDatabase;
 using AudioStation.Core.Model.Interface;
 using AudioStation.Core.Service.Vendor;
 using AudioStation.Core.Utility;
-using AudioStation.EventHandler;
+using AudioStation.Event;
 using AudioStation.Service.Interface;
 using AudioStation.ViewModels.ComponentViewModels.LibraryViewModels.Comparer;
 using AudioStation.ViewModels.ComponentViewModels.RadioViewModels;
@@ -17,7 +16,7 @@ using SimpleWpf.Extensions.ObservableCollection;
 using SimpleWpf.UI.Command;
 using SimpleWpf.Utilities;
 
-using static AudioStation.EventHandler.DialogEventHandlers;
+using static AudioStation.Event.DialogEventHandlers;
 
 namespace AudioStation.ViewModels.ComponentViewModels
 {
@@ -72,10 +71,10 @@ namespace AudioStation.ViewModels.ComponentViewModels
             });
         }
 
-        protected override void InitializeImpl(IAudioStationConfiguration configuration, IAudioStationViewModelController viewModelController, DialogProgressHandler progressHandler)
+        protected override void InitializeImpl(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogProgressHandler progressHandler)
         {
         }
-        protected override void LoadImpl(IAudioStationConfiguration configuration, IComponentViewModelLoader viewModelLoader, DialogEventHandlers.DialogProgressHandler progressHandler)
+        protected override void LoadImpl(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
         {
 
         }

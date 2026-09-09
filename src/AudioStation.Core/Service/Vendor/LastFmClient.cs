@@ -23,11 +23,11 @@ namespace AudioStation.Core.Service.Vendor
 
         // IAudioStationComponent
         //
-        public event SimpleEventHandler<IAudioStationService, IAudioStationService.Status> StatusChangeEvent;
+        public event SimpleEventHandler<IAudioStationDataService, IAudioStationDataService.Status> StatusChangeEvent;
 
         private readonly IOutputController _outputController;
 
-        private IAudioStationService.Status _status;
+        private IAudioStationDataService.Status _status;
 
         [IocImportingConstructor]
         public LastFmClient(IOutputController outputController)
@@ -87,16 +87,16 @@ namespace AudioStation.Core.Service.Vendor
         {
             try
             {
-                OnStatusChanged(IAudioStationService.Status.Working);
+                OnStatusChanged(IAudioStationDataService.Status.Working);
 
                 // Last FM API
                 var client = new LastfmClient(configuration.LastFmAPIKey, configuration.LastFmAPISecret);
 
                 if (!client.Auth.Authenticated)
-                    OnStatusChanged(IAudioStationService.Status.Error);
+                    OnStatusChanged(IAudioStationDataService.Status.Error);
 
                 else
-                    OnStatusChanged(IAudioStationService.Status.Idle);
+                    OnStatusChanged(IAudioStationDataService.Status.Idle);
 
                 return client;
             }
@@ -104,7 +104,7 @@ namespace AudioStation.Core.Service.Vendor
             {
                 ApplicationHelpers.Log("Music Brainz Client Error:  {0}", LogMessageServiceType.LastFm, LogLevel.Error, ex, ex.Message);
 
-                OnStatusChanged(IAudioStationService.Status.Error);
+                OnStatusChanged(IAudioStationDataService.Status.Error);
 
                 return null;
             }
@@ -119,37 +119,37 @@ namespace AudioStation.Core.Service.Vendor
         {
             return "LastFm Client";
         }
-        public IAudioStationService.Status GetStatus()
+        public IAudioStationDataService.Status GetStatus()
         {
             return _status;
         }
-        public IAudioStationService.Status Initialize(AudioStationConfiguration configuration)
+        public IAudioStationDataService.Status Initialize(AudioStationConfiguration configuration)
         {
             _client = Authenticate(configuration);
 
             return _status;
         }
 
-        public Task<IAudioStationService.Status> InitializeAsync(AudioStationConfiguration configuration)
+        public Task<IAudioStationDataService.Status> InitializeAsync(AudioStationConfiguration configuration)
         {
             return Task.Run(() => Initialize(configuration));
         }
 
-        public IAudioStationService.Status ReInitialize(AudioStationConfiguration configuration)
+        public IAudioStationDataService.Status ReInitialize(AudioStationConfiguration configuration)
         {
-            return IAudioStationService.Status.Idle;
+            return IAudioStationDataService.Status.Idle;
         }
 
-        public Task<IAudioStationService.Status> ReInitializeAsync(AudioStationConfiguration configuration)
+        public Task<IAudioStationDataService.Status> ReInitializeAsync(AudioStationConfiguration configuration)
         {
-            return Task.FromResult(IAudioStationService.Status.Idle);
+            return Task.FromResult(IAudioStationDataService.Status.Idle);
         }
         public string GetStatusMessage()
         {
-            return this.GetDisplayName() + " " + IAudioStationService.GetDefaultStatusMessage(_status);
+            return this.GetDisplayName() + " " + IAudioStationDataService.GetDefaultStatusMessage(_status);
         }
 
-        private void OnStatusChanged(IAudioStationService.Status status)
+        private void OnStatusChanged(IAudioStationDataService.Status status)
         {
             _status = status;
 

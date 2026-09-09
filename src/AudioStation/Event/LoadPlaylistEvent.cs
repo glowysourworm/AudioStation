@@ -1,4 +1,4 @@
-﻿using AudioStation.Component.Model;
+﻿using AudioStation.Model;
 
 using SimpleWpf.IocFramework.EventAggregation;
 

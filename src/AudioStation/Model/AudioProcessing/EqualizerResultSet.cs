@@ -1,6 +1,6 @@
 ﻿using System.Numerics;
 
-namespace AudioStation.Component.AudioProcessing
+namespace AudioStation.Model.AudioProcessing
 {
     public class EqualizerResultSet
     {

@@ -1,6 +1,6 @@
 ﻿using AudioStation.ViewModels.MainViewModels.Interface;
 
-namespace AudioStation.Component.Model
+namespace AudioStation.Model
 {
     public class NowPlayingData
     {
@@ -11,6 +11,6 @@ namespace AudioStation.Component.Model
         public IEnumerable<string> BackgroundImages { get; set; }
         public IEnumerable<string> ExternalLinks { get; set; }
         public IEnumerable<IPlaylistEntryViewModel> Entries { get; set; }
-        public IPlaylistEntryViewModel NowPlaying {  get; set; }
+        public IPlaylistEntryViewModel NowPlaying { get; set; }
     }
 }

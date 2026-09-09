@@ -13,7 +13,7 @@ namespace AudioStation.Views.LibraryImportViews
     public partial class LibraryImportConfigurationView : UserControl
     {
         [IocImportingConstructor]
-        public LibraryImportConfigurationView(IIocEventAggregator eventAggregator, IAudioStationViewModelController audioStationViewModelController)
+        public LibraryImportConfigurationView(IIocEventAggregator eventAggregator, IAudioStationController audioStationController)
         {
             InitializeComponent();
 
@@ -24,8 +24,8 @@ namespace AudioStation.Views.LibraryImportViews
                 if (eventData.Type == ConfigurationEventType.Opened)
                 {
                     // Initial Configuration
-                    this.LibraryDirectoriesView.ItemsSource = audioStationViewModelController.GetComponent<AudioStationConfigurationViewModel>().LibraryDirectories;
-                    this.LibraryDirectoriesView.Encoders = audioStationViewModelController.GetComponent<MainViewModel>().Encoders;
+                    this.LibraryDirectoriesView.ItemsSource = audioStationController.ComponentController.GetComponent<AudioStationConfigurationViewModel>().LibraryDirectories;
+                    this.LibraryDirectoriesView.Encoders = audioStationController.ComponentController.GetComponent<MainViewModel>().Encoders;
 
                     this.LibraryDirectoriesView.ItemsSource = eventData.ViewModel.LibraryDirectories;
                     this.LibraryDirectoriesCB.ItemsSource = eventData.ViewModel.LibraryDirectories;

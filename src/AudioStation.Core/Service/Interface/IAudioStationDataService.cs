@@ -8,7 +8,7 @@ namespace AudioStation.Core.Service.Interface
     /// each piece has had some malfunction; and this interface will be called during startup to gather
     /// component status and initialize the service.
     /// </summary>
-    public interface IAudioStationService
+    public interface IAudioStationDataService
     {
         public enum Status
         {
@@ -45,7 +45,7 @@ namespace AudioStation.Core.Service.Interface
         /// <summary>
         /// Signals a status change event
         /// </summary>
-        event SimpleEventHandler<IAudioStationService, Status> StatusChangeEvent;
+        event SimpleEventHandler<IAudioStationDataService, Status> StatusChangeEvent;
 
         /// <summary>
         /// Returns current status of component

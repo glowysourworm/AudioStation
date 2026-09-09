@@ -3,7 +3,7 @@
 using SimpleWpf.UI.ViewModel.FileTreeView;
 using SimpleWpf.Utilities;
 
-using static AudioStation.EventHandler.DialogEventHandlers;
+using static AudioStation.Event.DialogEventHandlers;
 
 namespace AudioStation.Utility
 {

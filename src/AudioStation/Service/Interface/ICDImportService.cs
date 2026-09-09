@@ -2,7 +2,7 @@
 
 namespace AudioStation.Service.Interface
 {
-    public interface ICDImportService : IAudioStationService
+    public interface ICDImportService : IAudioStationDataService
     {
 
 

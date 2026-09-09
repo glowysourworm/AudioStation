@@ -1,11 +1,12 @@
 ﻿using AudioStation.Core.Model;
+using AudioStation.Model.AudioProcessing;
 
 using CSCore;
 using CSCore.SoundOut;
 
 using SimpleWpf.Extensions.Event;
 
-namespace AudioStation.Component.AudioProcessing.Interface
+namespace AudioStation.Model.AudioProcessing.Interface
 {
     public interface IAudioPlayer : IDisposable
     {

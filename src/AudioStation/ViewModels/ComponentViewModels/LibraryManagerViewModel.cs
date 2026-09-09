@@ -1,18 +1,16 @@
 ﻿using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
 
-using AudioStation.Component.Interface;
 using AudioStation.Controller.Interface;
 using AudioStation.Core.Model.Interface;
 using AudioStation.Event;
 using AudioStation.Event.DialogEvents;
-using AudioStation.EventHandler;
 using AudioStation.ViewModels.ComponentViewModels.LoadViewModels;
 
 using SimpleWpf.IocFramework.EventAggregation;
 using SimpleWpf.UI.Command;
 
-using static AudioStation.EventHandler.DialogEventHandlers;
+using static AudioStation.Event.DialogEventHandlers;
 
 namespace AudioStation.ViewModels.ComponentViewModels
 {
@@ -98,7 +96,7 @@ namespace AudioStation.ViewModels.ComponentViewModels
             });
         }
 
-        protected override void InitializeImpl(IAudioStationConfiguration configuration, IAudioStationViewModelController viewModelController, DialogProgressHandler progressHandler)
+        protected override void InitializeImpl(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogProgressHandler progressHandler)
         {
             //this.Library = load;
 
@@ -125,7 +123,7 @@ namespace AudioStation.ViewModels.ComponentViewModels
             //    this.NonConvertedFiles.Clear();
             //}
         }
-        protected override void LoadImpl(IAudioStationConfiguration configuration, IComponentViewModelLoader viewModelLoader, DialogEventHandlers.DialogProgressHandler progressHandler)
+        protected override void LoadImpl(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
         {
 
         }

@@ -1,5 +1,7 @@
-﻿using AudioStation.Core.Service.Interface;
-using AudioStation.Interface;
+﻿using AudioStation.Core;
+using AudioStation.Core.Service.Interface;
+using AudioStation.Event;
+using AudioStation.Service.Interface;
 
 using SimpleWpf.Extensions.Event;
 
@@ -8,21 +10,28 @@ namespace AudioStation.Controller.Interface
     /// <summary>
     /// Component controller to report and contain all IAudioStationComponent instances
     /// </summary>
-    public interface IAudioStationServiceController : IAudioStationPrimaryInitializer
+    public interface IAudioStationServiceController
     {
+        void Initialize(AudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler);
+
         /// <summary>
         /// Occurs when component is initialized
         /// </summary>
-        event SimpleEventHandler<IAudioStationService, IAudioStationService.Status> ComponentInitializedEvent;
+        event SimpleEventHandler<IAudioStationDataService, IAudioStationDataService.Status> ComponentInitializedEvent;
 
         /// <summary>
         /// Occurs when component status changes
         /// </summary>
-        event SimpleEventHandler<IAudioStationService, IAudioStationService.Status> ComponentStatusChangedEvent;
+        event SimpleEventHandler<IAudioStationDataService, IAudioStationDataService.Status> ComponentStatusChangedEvent;
 
         /// <summary>
-        /// Returns componet based on (interface) type
+        /// Returns data service component based on interface type
         /// </summary>
-        T GetComponent<T>() where T : IAudioStationService;
+        T GetDataService<T>() where T : IAudioStationDataService;
+
+        /// <summary>
+        /// Returns service component based on interface type
+        /// </summary>
+        T GetService<T>() where T : IAudioStationService;
     }
 }

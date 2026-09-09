@@ -3,12 +3,13 @@
 using AudioStation.Event.LibraryLoaderEvent;
 using AudioStation.Service.Interface;
 
+using SimpleWpf.Extensions.Event;
 using SimpleWpf.IocFramework.EventAggregation;
 using SimpleWpf.UI.Command;
 
 namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels
 {
-    public abstract class LibraryLoaderWorkerViewModelBase : ComponentViewModelBase
+    public abstract class LibraryLoaderWorkerViewModelBase : ComponentPartViewModelBase
     {
         private readonly ILibraryLoaderWorkerService _libraryLoaderService;
 
@@ -25,6 +26,11 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels
         bool _isWorkComplete;
 
         SimpleCommand _executeCommand;
+
+        /// <summary>
+        /// Executes when the library loader worker has changed status
+        /// </summary>
+        public event SimpleEventHandler<LibraryLoaderWorkerViewModelBase> StatusChangeEvent;
 
         public string Name
         {

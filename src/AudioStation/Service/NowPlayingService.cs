@@ -1,8 +1,8 @@
-﻿using AudioStation.Component.Interface;
-using AudioStation.Component.Model;
-using AudioStation.Core.Controller.Interface;
+﻿using AudioStation.Core.Controller.Interface;
 using AudioStation.Core.Service.Vendor.Interface;
 using AudioStation.Core.Utility;
+using AudioStation.Model;
+using AudioStation.Service.Interface;
 using AudioStation.ViewModels.ComponentViewModels.LibraryViewModels;
 using AudioStation.ViewModels.MainViewModels;
 
@@ -10,10 +10,10 @@ using Microsoft.Extensions.Logging;
 
 using SimpleWpf.IocFramework.Application.Attribute;
 
-namespace AudioStation.Component
+namespace AudioStation.Service
 {
-    [IocExport(typeof(INowPlayingViewModelLoader))]
-    public class NowPlayingViewModelLoader : INowPlayingViewModelLoader
+    [IocExport(typeof(INowPlayingService))]
+    public class NowPlayingService : INowPlayingService
     {
         private readonly ILastFmClient _lastFmClient;
         private readonly ISpotifyClient _spotifyClient;
@@ -22,7 +22,7 @@ namespace AudioStation.Component
         private readonly IOutputController _outputController;
 
         [IocImportingConstructor]
-        public NowPlayingViewModelLoader(ILastFmClient lastFmClient,
+        public NowPlayingService(ILastFmClient lastFmClient,
                                          ISpotifyClient spotifyClient,
                                          IMusicBrainzClient musicBrainzClient,
                                          IFanartClient fanartClient,

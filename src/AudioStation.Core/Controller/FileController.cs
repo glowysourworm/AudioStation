@@ -26,7 +26,7 @@ namespace AudioStation.Core.Component
         private const string FRONT_COVER_FILE_NAME = "FrontCover.bmp";
         private const string BACK_COVER_FILE_NAME = "BackCover.bmp";
 
-        public event SimpleEventHandler<IAudioStationService, IAudioStationService.Status> StatusChangeEvent;
+        public event SimpleEventHandler<IAudioStationDataService, IAudioStationDataService.Status> StatusChangeEvent;
 
         [IocImportingConstructor]
         public FileController(IBitmapConverter bitmapConverter)
@@ -482,18 +482,18 @@ namespace AudioStation.Core.Component
         {
             return "File Controller";
         }
-        public IAudioStationService.Status GetStatus()
+        public IAudioStationDataService.Status GetStatus()
         {
-            return IAudioStationService.Status.Idle;
+            return IAudioStationDataService.Status.Idle;
         }
-        public Task<IAudioStationService.Status> InitializeAsync(AudioStationConfiguration configuration)
+        public Task<IAudioStationDataService.Status> InitializeAsync(AudioStationConfiguration configuration)
         {
             return Task.Run(() =>
             {
                 return Initialize(configuration);
             });
         }
-        public IAudioStationService.Status Initialize(AudioStationConfiguration configuration)
+        public IAudioStationDataService.Status Initialize(AudioStationConfiguration configuration)
         {
             _configuration = configuration;
 
@@ -537,19 +537,19 @@ namespace AudioStation.Core.Component
                 }
             }
 
-            return IAudioStationService.Status.Idle;
+            return IAudioStationDataService.Status.Idle;
         }
-        public Task<IAudioStationService.Status> ReInitializeAsync(AudioStationConfiguration configuration)
+        public Task<IAudioStationDataService.Status> ReInitializeAsync(AudioStationConfiguration configuration)
         {
             return Task.FromResult(ReInitialize(configuration));
         }
-        public IAudioStationService.Status ReInitialize(AudioStationConfiguration configuration)
+        public IAudioStationDataService.Status ReInitialize(AudioStationConfiguration configuration)
         {
-            return IAudioStationService.Status.Idle;
+            return IAudioStationDataService.Status.Idle;
         }
         public string GetStatusMessage()
         {
-            return IAudioStationService.GetDefaultStatusMessage(GetStatus());
+            return IAudioStationDataService.GetDefaultStatusMessage(GetStatus());
         }
         #endregion
     }

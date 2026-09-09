@@ -11,7 +11,7 @@ namespace AudioStation.Core.Controller.Interface
     /// have to find other ways to manage it; but view binding is expected to be the biggest amount
     /// of memory. (so, please use virtual scrolling)
     /// </summary>
-    public interface IOutputController : ILogger, IDisposable, IAudioStationService
+    public interface IOutputController : ILogger, IDisposable, IAudioStationDataService
     {
         void Log(LogMessage message);
         void Log(string message, LogMessageType type = LogMessageType.General, params object[] parameters);

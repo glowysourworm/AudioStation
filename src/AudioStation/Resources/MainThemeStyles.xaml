@@ -52,7 +52,7 @@
                         <MultiDataTrigger>
                             <MultiDataTrigger.Conditions>
                                 <Condition Binding="{Binding ElementName=FaIcon, Path=IsMouseOver}" Value="True" />
-                                <Condition Binding="{Binding Status}" Value="{x:Static coreInterface:IAudioStationService+Status.Idle}" />
+                                <Condition Binding="{Binding Status}" Value="{x:Static coreInterface:IAudioStationDataService+Status.Idle}" />
                             </MultiDataTrigger.Conditions>
                             <MultiDataTrigger.Setters>
                                 <Setter Property="Foreground" Value="#FF555555" />
@@ -63,7 +63,7 @@
                         <MultiDataTrigger>
                             <MultiDataTrigger.Conditions>
                                 <Condition Binding="{Binding ElementName=FaIcon, Path=IsMouseOver}" Value="True" />
-                                <Condition Binding="{Binding Status}" Value="{x:Static coreInterface:IAudioStationService+Status.Working}" />
+                                <Condition Binding="{Binding Status}" Value="{x:Static coreInterface:IAudioStationDataService+Status.Working}" />
                             </MultiDataTrigger.Conditions>
                             <MultiDataTrigger.Setters>
                                 <Setter Property="Foreground" Value="DeepSkyBlue" />
@@ -74,7 +74,7 @@
                         <MultiDataTrigger>
                             <MultiDataTrigger.Conditions>
                                 <Condition Binding="{Binding ElementName=FaIcon, Path=IsMouseOver}" Value="True" />
-                                <Condition Binding="{Binding Status}" Value="{x:Static coreInterface:IAudioStationService+Status.Error}" />
+                                <Condition Binding="{Binding Status}" Value="{x:Static coreInterface:IAudioStationDataService+Status.Error}" />
                             </MultiDataTrigger.Conditions>
                             <MultiDataTrigger.Setters>
                                 <Setter Property="Foreground" Value="Crimson"/>
@@ -85,7 +85,7 @@
                         <MultiDataTrigger>
                             <MultiDataTrigger.Conditions>
                                 <Condition Binding="{Binding ElementName=FaIcon, Path=IsMouseOver}" Value="False" />
-                                <Condition Binding="{Binding Status}" Value="{x:Static coreInterface:IAudioStationService+Status.Disabled}" />
+                                <Condition Binding="{Binding Status}" Value="{x:Static coreInterface:IAudioStationDataService+Status.Disabled}" />
                             </MultiDataTrigger.Conditions>
                             <MultiDataTrigger.Setters>
                                 <Setter Property="Foreground" Value="#FFAAAAAA" />
@@ -96,7 +96,7 @@
                         <MultiDataTrigger>
                             <MultiDataTrigger.Conditions>
                                 <Condition Binding="{Binding ElementName=FaIcon, Path=IsMouseOver}" Value="False" />
-                                <Condition Binding="{Binding Status}" Value="{x:Static coreInterface:IAudioStationService+Status.Idle}" />
+                                <Condition Binding="{Binding Status}" Value="{x:Static coreInterface:IAudioStationDataService+Status.Idle}" />
                             </MultiDataTrigger.Conditions>
                             <MultiDataTrigger.Setters>
                                 <Setter Property="Foreground" Value="Gray" />
@@ -108,7 +108,7 @@
                         <MultiDataTrigger>
                             <MultiDataTrigger.Conditions>
                                 <Condition Binding="{Binding ElementName=FaIcon, Path=IsMouseOver}" Value="False" />
-                                <Condition Binding="{Binding Status}" Value="{x:Static coreInterface:IAudioStationService+Status.Working}" />
+                                <Condition Binding="{Binding Status}" Value="{x:Static coreInterface:IAudioStationDataService+Status.Working}" />
                             </MultiDataTrigger.Conditions>
                             <MultiDataTrigger.Setters>
                                 <Setter Property="Foreground" Value="{StaticResource ScrubberTimelinePlayedDefaultBrush}" />
@@ -119,7 +119,7 @@
                         <MultiDataTrigger>
                             <MultiDataTrigger.Conditions>
                                 <Condition Binding="{Binding ElementName=FaIcon, Path=IsMouseOver}" Value="False" />
-                                <Condition Binding="{Binding Status}" Value="{x:Static coreInterface:IAudioStationService+Status.Error}" />
+                                <Condition Binding="{Binding Status}" Value="{x:Static coreInterface:IAudioStationDataService+Status.Error}" />
                             </MultiDataTrigger.Conditions>
                             <MultiDataTrigger.Setters>
                                 <Setter Property="Foreground" Value="Red" />

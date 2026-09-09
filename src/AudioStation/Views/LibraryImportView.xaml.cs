@@ -1,7 +1,6 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 
-using AudioStation.Component.Interface;
 using AudioStation.Controller.Interface;
 using AudioStation.ViewModels.ComponentViewModels;
 using AudioStation.Views.LibraryImportViews;
@@ -37,7 +36,7 @@ namespace AudioStation.Views
         private readonly IIocRegionManager _regionManager;
         private readonly IDialogController _dialogController;
 
-        private readonly IComponentViewModelLoader _componentViewModelLoader;
+        private readonly IAudioStationComponentController _componentViewModelLoader;
 
         LibraryImporterViewModel _viewModel;
 
@@ -49,7 +48,7 @@ namespace AudioStation.Views
         }
 
         [IocImportingConstructor]
-        public LibraryImportView(IIocRegionManager regionManager, IDialogController dialogController, IComponentViewModelLoader componentViewModelLoader)
+        public LibraryImportView(IIocRegionManager regionManager, IDialogController dialogController, IAudioStationComponentController componentViewModelLoader)
         {
             InitializeComponent();
 

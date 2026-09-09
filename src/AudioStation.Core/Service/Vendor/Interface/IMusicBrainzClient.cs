@@ -2,7 +2,7 @@
 
 namespace AudioStation.Core.Service.Vendor.Interface
 {
-    public interface IMusicBrainzClient : IAudioStationService, IAudioStationTagService
+    public interface IMusicBrainzClient : IAudioStationDataService, IAudioStationTagDataService
     {
 
     }

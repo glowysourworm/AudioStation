@@ -1,9 +1,7 @@
-﻿using AudioStation.Component.Interface;
-using AudioStation.Controller.Interface;
+﻿using AudioStation.Controller.Interface;
 using AudioStation.Core.Model.Interface;
 using AudioStation.Core.Service.Vendor.Bandcamp.Interface;
 using AudioStation.Event;
-using AudioStation.EventHandler;
 using AudioStation.ViewModels.ComponentViewModels;
 
 using SimpleWpf.IocFramework.EventAggregation;
@@ -33,11 +31,11 @@ namespace AudioStation.ViewModels.Vendor
             });
         }
 
-        protected override void InitializeImpl(IAudioStationConfiguration configuration, IAudioStationViewModelController viewModelController, DialogEventHandlers.DialogProgressHandler progressHandler)
+        protected override void InitializeImpl(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
         {
 
         }
-        protected override void LoadImpl(IAudioStationConfiguration configuration, IComponentViewModelLoader viewModelLoader, DialogEventHandlers.DialogProgressHandler progressHandler)
+        protected override void LoadImpl(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
         {
 
         }

@@ -25,7 +25,7 @@ namespace AudioStation.Service
         private readonly ICDDrive _cdDrive;
         private readonly IFileController _fileController;
 
-        public event SimpleEventHandler<IAudioStationService, IAudioStationService.Status> StatusChangeEvent;
+        public event SimpleEventHandler<IAudioStationDataService, IAudioStationDataService.Status> StatusChangeEvent;
 
         AudioStationConfiguration _configuration;
 
@@ -134,33 +134,33 @@ namespace AudioStation.Service
             return "CDImportService";
         }
 
-        public IAudioStationService.Status GetStatus()
+        public IAudioStationDataService.Status GetStatus()
         {
-            return IAudioStationService.Status.Idle;
+            return IAudioStationDataService.Status.Idle;
         }
 
         public string GetStatusMessage()
         {
-            return IAudioStationService.GetDefaultStatusMessage(IAudioStationService.Status.Idle);
+            return IAudioStationDataService.GetDefaultStatusMessage(IAudioStationDataService.Status.Idle);
         }
-        public IAudioStationService.Status Initialize(AudioStationConfiguration configuration)
+        public IAudioStationDataService.Status Initialize(AudioStationConfiguration configuration)
         {
             _configuration = configuration;
 
-            return IAudioStationService.Status.Idle;
+            return IAudioStationDataService.Status.Idle;
         }
 
-        public Task<IAudioStationService.Status> InitializeAsync(AudioStationConfiguration configuration)
+        public Task<IAudioStationDataService.Status> InitializeAsync(AudioStationConfiguration configuration)
         {
             return Task.FromResult(Initialize(configuration));
         }
 
-        public IAudioStationService.Status ReInitialize(AudioStationConfiguration configuration)
+        public IAudioStationDataService.Status ReInitialize(AudioStationConfiguration configuration)
         {
             return Initialize(configuration);
         }
 
-        public Task<IAudioStationService.Status> ReInitializeAsync(AudioStationConfiguration configuration)
+        public Task<IAudioStationDataService.Status> ReInitializeAsync(AudioStationConfiguration configuration)
         {
             return Task.FromResult(ReInitialize(configuration));
         }

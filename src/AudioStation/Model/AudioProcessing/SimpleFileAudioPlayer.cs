@@ -2,8 +2,8 @@
 using System.Windows.Media;
 using System.Windows.Threading;
 
-using AudioStation.Component.AudioProcessing.Interface;
 using AudioStation.Core.Model;
+using AudioStation.Model.AudioProcessing.Interface;
 
 using CSCore;
 using CSCore.SoundOut;
@@ -11,7 +11,7 @@ using CSCore.SoundOut;
 using SimpleWpf.Extensions.Event;
 using SimpleWpf.Utilities;
 
-namespace AudioStation.Component.AudioProcessing
+namespace AudioStation.Model.AudioProcessing
 {
     public class SimpleFileAudioPlayer : IAudioPlayer
     {

@@ -1,12 +1,12 @@
-﻿using AudioStation.Component.AudioProcessing.Interface;
-using AudioStation.Core.Model;
+﻿using AudioStation.Core.Model;
+using AudioStation.Model.AudioProcessing.Interface;
 
 using CSCore;
 using CSCore.SoundOut;
 
 using SimpleWpf.Extensions.Event;
 
-namespace AudioStation.Component.AudioProcessing
+namespace AudioStation.Model.AudioProcessing
 {
     public class SimpleAudioPlayerWithEqualizer : IAudioPlayer
     {

@@ -3,7 +3,7 @@ using AudioStation.Core.Service.Interface;
 
 namespace AudioStation.Core.Service.Vendor.Interface
 {
-    public interface ILastFmClient : IAudioStationService
+    public interface ILastFmClient : IAudioStationDataService
     {
         Task<LastFmNowPlaying> GetNowPlayingInfo(string artist, string album);
     }

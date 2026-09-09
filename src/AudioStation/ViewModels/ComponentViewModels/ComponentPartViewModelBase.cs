@@ -1,13 +1,12 @@
 ﻿using System.Windows.Threading;
 
-using AudioStation.Component.Interface;
 using AudioStation.Controller.Interface;
 using AudioStation.Core.Model.Interface;
 
 using SimpleWpf.UI.ViewModel;
 using SimpleWpf.Utilities;
 
-using static AudioStation.EventHandler.DialogEventHandlers;
+using static AudioStation.Event.DialogEventHandlers;
 
 namespace AudioStation.ViewModels.ComponentViewModels
 {
@@ -52,7 +51,7 @@ namespace AudioStation.ViewModels.ComponentViewModels
         /// <summary>
         /// Function to complete initialization. This will be called on the Dispatcher thread
         /// </summary>
-        protected abstract void InitializeImpl(IAudioStationConfiguration configuration, IAudioStationViewModelController viewModelController, DialogProgressHandler progressHandler);
+        protected abstract void InitializeImpl(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogProgressHandler progressHandler);
 
         /// <summary>
         /// 
@@ -60,22 +59,22 @@ namespace AudioStation.ViewModels.ComponentViewModels
         /// <param name="configuration"></param>
         /// <param name="viewModelLoader"></param>
         /// <param name="progressHandler"></param>
-        protected abstract void LoadImpl(IAudioStationConfiguration configuration, IComponentViewModelLoader viewModelLoader, DialogProgressHandler progressHandler);
+        protected abstract void LoadImpl(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogProgressHandler progressHandler);
 
-        public void Initialize(IAudioStationConfiguration configuration, IAudioStationViewModelController viewModelController, DialogProgressHandler progressHandler)
+        public void Initialize(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogProgressHandler progressHandler)
         {
             // Synchronous Invoke:  This should be used where there is no (async / await). Also, it is needed for completing the work during
             //                      the application's initialization waiter. So, there is already a waiter for this load; but the work must
             //                      be completed on the main thread because of view model binding.
             //
             if (BasicHelpers.IsDispatcher() == ApplicationIsDispatcherResult.False)
-                BasicHelpers.InvokeDispatcher(Initialize, DispatcherPriority.Background, configuration, viewModelController, progressHandler);
+                BasicHelpers.InvokeDispatcher(Initialize, DispatcherPriority.Background, configuration, audioStationController, progressHandler);
 
             else
             {
                 this.Loading = true;
 
-                InitializeImpl(configuration, viewModelController, progressHandler);
+                InitializeImpl(configuration, audioStationController, progressHandler);
 
                 // To be used by subclasses
                 this.Initialized = true;
@@ -87,7 +86,7 @@ namespace AudioStation.ViewModels.ComponentViewModels
         /// Function to load component view model. This would be called when a a view is loaded; or when needed in the application.
         /// </summary>
         /// <exception cref="Exception">Component must have first been initialized</exception>
-        public void Load(IAudioStationConfiguration configuration, IComponentViewModelLoader viewModelLoader, DialogProgressHandler progressHandler)
+        public void Load(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogProgressHandler progressHandler)
         {
             if (!this.Initialized)
                 throw new Exception("Must first initialize WorkflowComponentViewModelBase before calling Load");
@@ -97,13 +96,13 @@ namespace AudioStation.ViewModels.ComponentViewModels
             //                      be completed on the main thread because of view model binding.
             //
             if (BasicHelpers.IsDispatcher() == ApplicationIsDispatcherResult.False)
-                BasicHelpers.InvokeDispatcher(Load, DispatcherPriority.Background, configuration, viewModelLoader, progressHandler);
+                BasicHelpers.InvokeDispatcher(Load, DispatcherPriority.Background, configuration, audioStationController, progressHandler);
 
             else
             {
                 this.Working = true;
 
-                LoadImpl(configuration, viewModelLoader, progressHandler);
+                LoadImpl(configuration, audioStationController, progressHandler);
 
                 this.Working = false;
             }

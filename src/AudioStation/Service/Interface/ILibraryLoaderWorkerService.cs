@@ -2,7 +2,7 @@
 
 namespace AudioStation.Service.Interface
 {
-    public interface ILibraryLoaderWorkerService
+    public interface ILibraryLoaderWorkerService : IAudioStationService
     {
         /// <summary>
         /// Work item that is initialized by another component. The load type will designate how to 

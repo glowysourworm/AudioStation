@@ -1,7 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
 
-using AudioStation.Component.Interface;
 using AudioStation.Controller.Interface;
 using AudioStation.Core.Component;
 using AudioStation.Core.Component.Interface;
@@ -10,7 +9,6 @@ using AudioStation.Core.Model;
 using AudioStation.Core.Model.Interface;
 using AudioStation.Event;
 using AudioStation.Event.DialogEvents;
-using AudioStation.EventHandler;
 using AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels;
 using AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.Workflow;
 using AudioStation.ViewModels.MainViewModels;
@@ -19,7 +17,7 @@ using SimpleWpf.IocFramework.EventAggregation;
 using SimpleWpf.UI.Command;
 using SimpleWpf.UI.ViewModel.FileTreeView;
 
-using static AudioStation.EventHandler.DialogEventHandlers;
+using static AudioStation.Event.DialogEventHandlers;
 
 namespace AudioStation.ViewModels.ComponentViewModels
 {
@@ -34,11 +32,13 @@ namespace AudioStation.ViewModels.ComponentViewModels
         AudioStationConfigurationViewModel _configuration;
         ObservableCollection<AudioEncoderViewModel> _encoders;
 
-
+        // Workflow View Models
         LibraryImporterConfigurationViewModel _options;
         LibraryImporterLoaderViewModel _loader;
         LibraryImporterStagingViewModel _staging;
 
+        // Saved Workflow(s)
+        ObservableCollection<LibraryImporterWorkflowViewModel> _savedWorkflows;
 
         ObservableCollection<LibraryImporterFileViewModel> _acoustIDCompletedSuccessfully;
         ObservableCollection<LibraryImporterFileViewModel> _musicBrainzCompletedSuccessfully;
@@ -78,6 +78,11 @@ namespace AudioStation.ViewModels.ComponentViewModels
         {
             get { return _staging; }
             set { this.RaiseAndSetIfChanged(ref _staging, value); }
+        }
+        public ObservableCollection<LibraryImporterWorkflowViewModel> SavedWorkflows
+        {
+            get { return _savedWorkflows; }
+            set { this.RaiseAndSetIfChanged(ref _savedWorkflows, value); }
         }
         public ObservableCollection<LibraryImporterFileViewModel> AcoustIDCompletedSuccessfully
         {
@@ -128,6 +133,7 @@ namespace AudioStation.ViewModels.ComponentViewModels
         }
 
         public LibraryImporterViewModel(IAudioStationMapper audioStationMapper,
+                                        IAudioConverter audioConverter,
                                         IDialogController dialogController,
                                         IIocEventAggregator eventAggregator,
                                         ITagCacheController tagCacheController) : base("Library Importer")
@@ -137,8 +143,10 @@ namespace AudioStation.ViewModels.ComponentViewModels
             _tagCacheController = tagCacheController;
 
             this.Options = new LibraryImporterConfigurationViewModel();
-            this.Loader = new LibraryImporterLoaderViewModel(this.Options);
+            this.Loader = new LibraryImporterLoaderViewModel(eventAggregator, audioConverter, this.Options);
             this.Staging = new LibraryImporterStagingViewModel(eventAggregator, this.Options);
+
+            this.SavedWorkflows = new ObservableCollection<LibraryImporterWorkflowViewModel>();
 
             this.Loader.PropertyChanged += OnImportStepUpdate;
             this.Staging.PropertyChanged += OnImportStepUpdate;
@@ -158,13 +166,13 @@ namespace AudioStation.ViewModels.ComponentViewModels
             this.Loading = this.Loader.Loading || this.Staging.Loading;
         }
 
-        protected override void InitializeImpl(IAudioStationConfiguration configuration, IAudioStationViewModelController viewModelController, DialogProgressHandler progressHandler)
+        protected override void InitializeImpl(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogProgressHandler progressHandler)
         {
             // Sub-component(s)
-            this.Loader.Initialize(configuration, viewModelController, progressHandler);
-            this.Staging.Initialize(configuration, viewModelController, progressHandler);
-            this.Configuration = viewModelController.GetComponent<AudioStationConfigurationViewModel>();
-            this.Encoders = viewModelController.GetComponent<MainViewModel>().Encoders;
+            this.Loader.Initialize(configuration, audioStationController, progressHandler);
+            this.Staging.Initialize(configuration, audioStationController, progressHandler);
+            this.Configuration = audioStationController.ComponentController.GetComponent<AudioStationConfigurationViewModel>();
+            this.Encoders = audioStationController.ComponentController.GetComponent<MainViewModel>().Encoders;
 
             // Set View Model (Load)
             //this.SourceDirectory = load;
@@ -187,14 +195,14 @@ namespace AudioStation.ViewModels.ComponentViewModels
             //// Set View Model
             //this.SourceDirectory.ItemPropertyChanged += SourceDirectory_ItemPropertyChanged;
         }
-        protected override void LoadImpl(IAudioStationConfiguration configuration, IComponentViewModelLoader viewModelLoader, DialogEventHandlers.DialogProgressHandler progressHandler)
+        protected override void LoadImpl(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
         {
             if (this.Options.ImportDirectory == null)
                 return;
 
             // Sub-component(s)
-            this.Loader.Load(configuration, viewModelLoader, progressHandler);
-            this.Staging.Load(configuration, viewModelLoader, progressHandler);
+            this.Loader.Load(configuration, audioStationController, progressHandler);
+            this.Staging.Load(configuration, audioStationController, progressHandler);
         }
         private bool CanUnstageFiles()
         {

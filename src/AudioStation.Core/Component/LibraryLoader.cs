@@ -19,7 +19,6 @@ namespace AudioStation.Core.Component
     public class LibraryLoader : ILibraryLoader
     {
         private readonly IAudioStationMapper _audioStationMapper;
-        private readonly ILibraryImporter _libraryImporter;
         private readonly IFileController _fileController;
         private readonly IAudioStationDbClient _audioStationDbClient;
         private readonly IAcoustIDClient _acoustIDClient;
@@ -48,7 +47,6 @@ namespace AudioStation.Core.Component
                              IAudioStationDbClient audioStationDbClient,
                              IAcoustIDClient acoustIDClient,
                              IMusicBrainzClient musicBrainzClient,
-                             ILibraryImporter libraryImporter,
                              IFileController fileController,
                              IAudioConverter audioConverter,
                              ITagCacheController tagCacheController)
@@ -57,7 +55,6 @@ namespace AudioStation.Core.Component
             _audioStationDbClient = audioStationDbClient;
             _musicBrainzClient = musicBrainzClient;
             _acoustIDClient = acoustIDClient;
-            _libraryImporter = libraryImporter;
             _fileController = fileController;
             _audioConverter = audioConverter;
             _tagCacheController = tagCacheController;

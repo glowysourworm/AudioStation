@@ -1,7 +1,8 @@
 ﻿using AudioStation.Core;
 using AudioStation.Interface;
+using AudioStation.Service.Interface;
 
-using static AudioStation.EventHandler.DialogEventHandlers;
+using static AudioStation.Event.DialogEventHandlers;
 
 namespace AudioStation.Controller.Interface
 {
@@ -11,6 +12,11 @@ namespace AudioStation.Controller.Interface
     /// </summary>
     public interface IAudioStationController : IAudioStationPrimaryInitializer
     {
+        IAudioStationConfigurationController ConfigurationController { get; }
+        IAudioStationServiceController ServiceController { get; }
+        IAudioStationComponentController ComponentController { get; }
+        ILibraryLoaderService LibraryLoaderService { get; }
+
         /// <summary>
         /// (Primary Initializer!) Startup must handle configuration first. Then call Initialize(...)
         /// </summary>

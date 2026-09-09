@@ -31,9 +31,9 @@ namespace AudioStation.Core.Service.Vendor
     {
         // IAudioStationComponent
         //
-        public event SimpleEventHandler<IAudioStationService, IAudioStationService.Status> StatusChangeEvent;
+        public event SimpleEventHandler<IAudioStationDataService, IAudioStationDataService.Status> StatusChangeEvent;
 
-        private IAudioStationService.Status _status;
+        private IAudioStationDataService.Status _status;
         private uint _throttleLimitMilliseconds;
         private DateTime _lastServiceCall;
         private const int SERVICE_WAIT_MILLISEC = 100;
@@ -42,7 +42,7 @@ namespace AudioStation.Core.Service.Vendor
         [IocImportingConstructor]
         public MusicBrainzClient()
         {
-            _status = IAudioStationService.Status.Disabled;
+            _status = IAudioStationDataService.Status.Disabled;
             _throttleLimitMilliseconds = 3000;
             _lastServiceCall = DateTime.MinValue;
         }
@@ -65,13 +65,13 @@ namespace AudioStation.Core.Service.Vendor
 
             try
             {
-                OnStatusChanged(IAudioStationService.Status.Working);
+                OnStatusChanged(IAudioStationDataService.Status.Working);
 
                 // Initialize MetaBrainz.MusicBrainz client
                 var query = new Query();
                 var result = await query.LookupRecordingAsync(recordingId, CreateIncludeRecording());
 
-                OnStatusChanged(IAudioStationService.Status.Idle);
+                OnStatusChanged(IAudioStationDataService.Status.Idle);
 
                 return result;
             }
@@ -79,7 +79,7 @@ namespace AudioStation.Core.Service.Vendor
             {
                 ApplicationHelpers.Log("Music Brainz Client Error:  {0}", LogMessageServiceType.MusicBrainz, LogLevel.Error, ex, ex.Message?.Trim() ?? string.Empty);
 
-                OnStatusChanged(IAudioStationService.Status.Error);
+                OnStatusChanged(IAudioStationDataService.Status.Error);
 
                 throw new Exception("Music Brainz Client Error", ex);
             }
@@ -91,13 +91,13 @@ namespace AudioStation.Core.Service.Vendor
 
             try
             {
-                OnStatusChanged(IAudioStationService.Status.Working);
+                OnStatusChanged(IAudioStationDataService.Status.Working);
 
                 // Initialize MetaBrainz.MusicBrainz client
                 var query = new Query();
                 var result = await query.LookupReleaseAsync(releaseId, CreateIncludeRelease());
 
-                OnStatusChanged(IAudioStationService.Status.Idle);
+                OnStatusChanged(IAudioStationDataService.Status.Idle);
 
                 return result;
             }
@@ -105,7 +105,7 @@ namespace AudioStation.Core.Service.Vendor
             {
                 ApplicationHelpers.Log("Music Brainz Client Error:  {0}", LogMessageServiceType.MusicBrainz, LogLevel.Error, ex, ex.Message?.Trim() ?? string.Empty);
 
-                OnStatusChanged(IAudioStationService.Status.Error);
+                OnStatusChanged(IAudioStationDataService.Status.Error);
 
                 throw new Exception("Music Brainz Client Error", ex);
             }
@@ -117,7 +117,7 @@ namespace AudioStation.Core.Service.Vendor
 
             try
             {
-                OnStatusChanged(IAudioStationService.Status.Working);
+                OnStatusChanged(IAudioStationDataService.Status.Working);
 
                 // Initialize MetaBrainz.MusicBrainz client
                 var query = new Query();
@@ -126,7 +126,7 @@ namespace AudioStation.Core.Service.Vendor
                 if (searchResults.Results.Count > 1)
                     ApplicationHelpers.Log("Music Brainz artist/album/title search is returning more than one result with 100% score:  {0}/{1}/{2}", LogMessageServiceType.MusicBrainz, LogLevel.Warning, null, artist, album, title);
 
-                OnStatusChanged(IAudioStationService.Status.Idle);
+                OnStatusChanged(IAudioStationDataService.Status.Idle);
 
                 return searchResults.Results
                                     .Where(result => result.Score >= 100)
@@ -136,7 +136,7 @@ namespace AudioStation.Core.Service.Vendor
             {
                 ApplicationHelpers.Log("Music Brainz Client Error:  {0}", LogMessageServiceType.MusicBrainz, LogLevel.Error, ex, ex.Message?.Trim() ?? string.Empty);
 
-                OnStatusChanged(IAudioStationService.Status.Error);
+                OnStatusChanged(IAudioStationDataService.Status.Error);
 
                 throw new Exception("Music Brainz Client Error", ex);
             }
@@ -151,12 +151,12 @@ namespace AudioStation.Core.Service.Vendor
                 // Query Release
                 var release = await ReleaseQuery(releaseId);
 
-                OnStatusChanged(IAudioStationService.Status.Working);
+                OnStatusChanged(IAudioStationDataService.Status.Working);
 
                 var client = new CoverArt();
                 var art = await client.FetchFrontAsync(release.Id);
 
-                OnStatusChanged(IAudioStationService.Status.Idle);
+                OnStatusChanged(IAudioStationDataService.Status.Idle);
 
                 return art;
             }
@@ -164,7 +164,7 @@ namespace AudioStation.Core.Service.Vendor
             {
                 ApplicationHelpers.Log("Music Brainz Client Error:  {0}", LogMessageServiceType.MusicBrainz, LogLevel.Error, ex, ex.Message?.Trim() ?? string.Empty);
 
-                OnStatusChanged(IAudioStationService.Status.Error);
+                OnStatusChanged(IAudioStationDataService.Status.Error);
 
                 throw new Exception("Music Brainz Client Error", ex);
             }
@@ -179,12 +179,12 @@ namespace AudioStation.Core.Service.Vendor
                 // Query Release
                 var release = await ReleaseQuery(releaseId);
 
-                OnStatusChanged(IAudioStationService.Status.Working);
+                OnStatusChanged(IAudioStationDataService.Status.Working);
 
                 var client = new CoverArt();
                 var art = await client.FetchBackAsync(release.Id);
 
-                OnStatusChanged(IAudioStationService.Status.Idle);
+                OnStatusChanged(IAudioStationDataService.Status.Idle);
 
                 return art;
             }
@@ -192,7 +192,7 @@ namespace AudioStation.Core.Service.Vendor
             {
                 ApplicationHelpers.Log("Music Brainz Client Error:  {0}", LogMessageServiceType.MusicBrainz, LogLevel.Error, ex, ex.Message?.Trim() ?? string.Empty);
 
-                OnStatusChanged(IAudioStationService.Status.Error);
+                OnStatusChanged(IAudioStationDataService.Status.Error);
 
                 throw new Exception("Music Brainz Client Error", ex);
             }
@@ -206,13 +206,13 @@ namespace AudioStation.Core.Service.Vendor
 
             try
             {
-                OnStatusChanged(IAudioStationService.Status.Working);
+                OnStatusChanged(IAudioStationDataService.Status.Working);
 
                 // Initialize MetaBrainz.MusicBrainz client
                 var query = new Query();
                 var searchResults = query.FindAllArtists("artist:Coldplay", 1);
 
-                OnStatusChanged(IAudioStationService.Status.Idle);
+                OnStatusChanged(IAudioStationDataService.Status.Idle);
 
                 return true;
             }
@@ -220,7 +220,7 @@ namespace AudioStation.Core.Service.Vendor
             {
                 ApplicationHelpers.Log("Music Brainz Client Error:  {0}", LogMessageServiceType.MusicBrainz, LogLevel.Error, ex, ex.Message?.Trim() ?? string.Empty);
 
-                OnStatusChanged(IAudioStationService.Status.Error);
+                OnStatusChanged(IAudioStationDataService.Status.Error);
 
                 return false;
             }
@@ -495,37 +495,37 @@ namespace AudioStation.Core.Service.Vendor
         {
             return "Music Brainz Client";
         }
-        public IAudioStationService.Status GetStatus()
+        public IAudioStationDataService.Status GetStatus()
         {
             return _status;
         }
-        public IAudioStationService.Status Initialize(AudioStationConfiguration configuration)
+        public IAudioStationDataService.Status Initialize(AudioStationConfiguration configuration)
         {
             //_client = Authenticate();
 
             return _status;
         }
 
-        public Task<IAudioStationService.Status> InitializeAsync(AudioStationConfiguration configuration)
+        public Task<IAudioStationDataService.Status> InitializeAsync(AudioStationConfiguration configuration)
         {
             return Task.Run(() => Initialize(configuration));
         }
 
-        public IAudioStationService.Status ReInitialize(AudioStationConfiguration configuration)
+        public IAudioStationDataService.Status ReInitialize(AudioStationConfiguration configuration)
         {
-            return IAudioStationService.Status.Idle;
+            return IAudioStationDataService.Status.Idle;
         }
 
-        public Task<IAudioStationService.Status> ReInitializeAsync(AudioStationConfiguration configuration)
+        public Task<IAudioStationDataService.Status> ReInitializeAsync(AudioStationConfiguration configuration)
         {
-            return Task.FromResult(IAudioStationService.Status.Idle);
+            return Task.FromResult(IAudioStationDataService.Status.Idle);
         }
 
         public string GetStatusMessage()
         {
-            return this.GetDisplayName() + " " + IAudioStationService.GetDefaultStatusMessage(_status);
+            return this.GetDisplayName() + " " + IAudioStationDataService.GetDefaultStatusMessage(_status);
         }
-        private void OnStatusChanged(IAudioStationService.Status status)
+        private void OnStatusChanged(IAudioStationDataService.Status status)
         {
             _status = status;
 

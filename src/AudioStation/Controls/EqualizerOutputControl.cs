@@ -1,7 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Media;
 
-using AudioStation.Component.AudioProcessing;
+using AudioStation.Model.AudioProcessing;
 
 namespace AudioStation.Controls
 {

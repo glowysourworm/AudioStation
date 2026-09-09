@@ -1,9 +1,9 @@
-﻿using AudioStation.Component.Model;
+﻿using AudioStation.Model;
 using AudioStation.ViewModels.ComponentViewModels.LibraryViewModels;
 
-namespace AudioStation.Component.Interface
+namespace AudioStation.Service.Interface
 {
-    public interface INowPlayingViewModelLoader
+    public interface INowPlayingService : IAudioStationService
     {
         Task<NowPlayingData> LoadPlaylist(ArtistViewModel artist, AlbumViewModel album, TrackViewModel startTrack);
     }

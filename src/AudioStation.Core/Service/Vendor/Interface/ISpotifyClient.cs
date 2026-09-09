@@ -3,7 +3,7 @@ using AudioStation.Core.Service.Interface;
 
 namespace AudioStation.Core.Service.Vendor.Interface
 {
-    public interface ISpotifyClient : IAudioStationService
+    public interface ISpotifyClient : IAudioStationDataService
     {
         Task<SpotifyNowPlaying?> CreateNowPlaying(string artistName, string albumName);
     }

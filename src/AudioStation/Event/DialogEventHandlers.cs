@@ -1,4 +1,4 @@
-﻿namespace AudioStation.EventHandler
+﻿namespace AudioStation.Event
 {
     public static class DialogEventHandlers
     {

@@ -2,7 +2,7 @@
 
 namespace AudioStation.Core.Service.Vendor.Interface
 {
-    public interface IFanartClient : IAudioStationService
+    public interface IFanartClient : IAudioStationDataService
     {
         Task<IEnumerable<string>> GetArtistBackgrounds(string musicBrainzArtistId);
         Task<IEnumerable<string>> GetArtistImages(string musicBrainzArtistId);

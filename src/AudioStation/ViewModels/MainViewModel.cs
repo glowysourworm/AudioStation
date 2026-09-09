@@ -1,7 +1,5 @@
 ﻿using System.Collections.ObjectModel;
 
-using AudioStation.Component.AudioProcessing;
-using AudioStation.Component.Interface;
 using AudioStation.Controller.Interface;
 using AudioStation.Core.Component;
 using AudioStation.Core.Component.CDPlayer.Interface;
@@ -15,10 +13,9 @@ using AudioStation.Core.Service.Interface;
 using AudioStation.Core.Service.Vendor.Bandcamp.Interface;
 using AudioStation.Core.Service.Vendor.Interface;
 using AudioStation.Event;
-using AudioStation.EventHandler;
 using AudioStation.Model;
+using AudioStation.Model.AudioProcessing;
 using AudioStation.ViewModels.ComponentViewModels;
-using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Worker;
 using AudioStation.ViewModels.Controls;
 using AudioStation.ViewModels.MainViewModels;
 using AudioStation.ViewModels.OtherViewModels;
@@ -52,11 +49,7 @@ public class MainViewModel : ComponentViewModelBase
     BandcampViewModel _bandcamp;
     LibraryImporterViewModel _libraryImportViewModel;
     LibraryLoaderViewModel _libraryLoaderViewModel;
-    LibraryLoaderAcoustIDViewModel _libraryLoaderAcoustID;
     CDImporterViewModel _libraryLoaderCDImport;
-    LibraryLoaderFileCheckerViewModel _libraryLoaderFileChecker;
-    LibraryLoaderMusicBrainzBasicViewModel _libraryLoaderMusicBrainzBasic;
-    LibraryLoaderMusicBrainzAlbumArtViewModel _libraryLoaderMusicBrainzAlbumArt;
 
     ObservableCollection<float> _equalizerValues;
     ObservableCollection<EqualizerBandViewModel> _equalizerViewModel;
@@ -119,30 +112,10 @@ public class MainViewModel : ComponentViewModelBase
         get { return _libraryLoaderViewModel; }
         set { this.RaiseAndSetIfChanged(ref _libraryLoaderViewModel, value); }
     }
-    public LibraryLoaderFileCheckerViewModel LibraryLoaderFileChecker
-    {
-        get { return _libraryLoaderFileChecker; }
-        set { this.RaiseAndSetIfChanged(ref _libraryLoaderFileChecker, value); }
-    }
-    public LibraryLoaderAcoustIDViewModel LibraryLoaderAcoustID
-    {
-        get { return _libraryLoaderAcoustID; }
-        set { this.RaiseAndSetIfChanged(ref _libraryLoaderAcoustID, value); }
-    }
     public CDImporterViewModel LibraryLoaderCDImport
     {
         get { return _libraryLoaderCDImport; }
         set { this.RaiseAndSetIfChanged(ref _libraryLoaderCDImport, value); }
-    }
-    public LibraryLoaderMusicBrainzBasicViewModel LibraryLoaderMusicBrainzBasic
-    {
-        get { return _libraryLoaderMusicBrainzBasic; }
-        set { this.RaiseAndSetIfChanged(ref _libraryLoaderMusicBrainzBasic, value); }
-    }
-    public LibraryLoaderMusicBrainzAlbumArtViewModel LibraryLoaderMusicBrainzAlbumArt
-    {
-        get { return _libraryLoaderMusicBrainzAlbumArt; }
-        set { this.RaiseAndSetIfChanged(ref _libraryLoaderMusicBrainzAlbumArt, value); }
     }
     public RadioViewModel Radio
     {
@@ -222,7 +195,7 @@ public class MainViewModel : ComponentViewModelBase
     #endregion
 
     public MainViewModel() :
-        this(IocContainer.Get<IAudioStationServiceController>(),
+        this(IocContainer.Get<IAudioController>(),
              IocContainer.Get<IAudioStationMapper>(),
              IocContainer.Get<IDialogController>(),
              IocContainer.Get<IIocEventAggregator>(),
@@ -230,21 +203,15 @@ public class MainViewModel : ComponentViewModelBase
              IocContainer.Get<IAudioConverter>())
     {
     }
-    public MainViewModel(IAudioStationServiceController audioStationServiceController,
+    public MainViewModel(IAudioController audioController,
                          IAudioStationMapper audioStationMapper,
                          IDialogController dialogController,
                          IIocEventAggregator eventAggregator,
                          ICDDrive cdDrive,
                          IAudioConverter audioConverter) : base("Main")
     {
-        // IAudioStationComponent
-        var audioController = audioStationServiceController.GetComponent<IAudioController>();
-
         audioController.CurrentTimeUpdated += OnCurrentTimeUpdated;
         audioController.CurrentBandLevelsUpdated += OnCurrentBandLevelsUpdated;
-
-        audioStationServiceController.ComponentInitializedEvent += IAudioStationComponent_StatusChangeEvent;
-        audioStationServiceController.ComponentStatusChangedEvent += IAudioStationComponent_StatusChangeEvent;
 
         // Event Aggregator
         eventAggregator.GetEvent<LogEvent>().Subscribe(OnLog);
@@ -355,10 +322,13 @@ public class MainViewModel : ComponentViewModelBase
         });
     }
 
-    protected override void InitializeImpl(IAudioStationConfiguration configuration, IAudioStationViewModelController viewModelController, DialogEventHandlers.DialogProgressHandler progressHandler)
+    protected override void InitializeImpl(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
     {
+        audioStationController.ServiceController.ComponentInitializedEvent += IAudioStationComponent_StatusChangeEvent;
+        audioStationController.ServiceController.ComponentStatusChangedEvent += IAudioStationComponent_StatusChangeEvent;
+
         this.ConfigurationLocked = true;
-        this.Configuration = viewModelController.GetComponent<AudioStationConfigurationViewModel>();
+        this.Configuration = audioStationController.ComponentController.GetComponent<AudioStationConfigurationViewModel>();
         this.EqualizerValues = new ObservableCollection<float>();
         this.EqualizerViewModel = new ObservableCollection<EqualizerBandViewModel>()
         {
@@ -374,24 +344,20 @@ public class MainViewModel : ComponentViewModelBase
         };
 
         // Child View Models
-        this.Log = viewModelController.GetComponent<LogViewModel>();
-        this.NowPlaying = viewModelController.GetComponent<NowPlayingViewModel>();
+        this.Log = audioStationController.ComponentController.GetComponent<LogViewModel>();
+        this.NowPlaying = audioStationController.ComponentController.GetComponent<NowPlayingViewModel>();
         this.PlayState = PlayStopPause.Stop;
-        this.LibraryManager = viewModelController.GetComponent<LibraryManagerViewModel>();
-        this.StatusViewModel = viewModelController.GetComponent<StatusViewModel>();
-        this.Radio = viewModelController.GetComponent<RadioViewModel>();
-        this.LibraryImporter = viewModelController.GetComponent<LibraryImporterViewModel>();
-        this.LibraryLoader = viewModelController.GetComponent<LibraryLoaderViewModel>();
-        this.LibraryLoaderAcoustID = viewModelController.GetComponent<LibraryLoaderAcoustIDViewModel>();
-        this.LibraryLoaderCDImport = viewModelController.GetComponent<CDImporterViewModel>();
-        this.LibraryLoaderFileChecker = viewModelController.GetComponent<LibraryLoaderFileCheckerViewModel>();
-        this.LibraryLoaderMusicBrainzBasic = viewModelController.GetComponent<LibraryLoaderMusicBrainzBasicViewModel>();
-        this.LibraryLoaderMusicBrainzAlbumArt = viewModelController.GetComponent<LibraryLoaderMusicBrainzAlbumArtViewModel>();
-        this.Bandcamp = viewModelController.GetComponent<BandcampViewModel>();
+        this.LibraryManager = audioStationController.ComponentController.GetComponent<LibraryManagerViewModel>();
+        this.StatusViewModel = audioStationController.ComponentController.GetComponent<StatusViewModel>();
+        this.Radio = audioStationController.ComponentController.GetComponent<RadioViewModel>();
+        this.LibraryImporter = audioStationController.ComponentController.GetComponent<LibraryImporterViewModel>();
+        this.LibraryLoader = audioStationController.ComponentController.GetComponent<LibraryLoaderViewModel>();
+        this.LibraryLoaderCDImport = audioStationController.ComponentController.GetComponent<CDImporterViewModel>();
+        this.Bandcamp = audioStationController.ComponentController.GetComponent<BandcampViewModel>();
         this.Volume = 1.0f;
         this.Loading = false;
     }
-    protected override void LoadImpl(IAudioStationConfiguration configuration, IComponentViewModelLoader viewModelLoader, DialogEventHandlers.DialogProgressHandler progressHandler)
+    protected override void LoadImpl(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
     {
 
     }
@@ -399,7 +365,7 @@ public class MainViewModel : ComponentViewModelBase
     {
         // --> IOuptutController (IAudioStationComponent)      
     }
-    private void IAudioStationComponent_StatusChangeEvent(IAudioStationService sender, IAudioStationService.Status status)
+    private void IAudioStationComponent_StatusChangeEvent(IAudioStationDataService sender, IAudioStationDataService.Status status)
     {
         // Still not initialized
         if (!this.Initialized)

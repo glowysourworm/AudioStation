@@ -3,13 +3,13 @@ using AudioStation.Event;
 
 using SimpleWpf.Extensions.Event;
 
-namespace AudioStation.Component.Interface
+namespace AudioStation.Controller.Interface
 {
     /// <summary>
     /// Component responsible for managing the application's configuration (object!). After
     /// property change, the manager will save the configuration to file.
     /// </summary>
-    public interface IAudioStationConfigurationManager
+    public interface IAudioStationConfigurationController
     {
         event SimpleEventHandler<AudioStationConfiguration, ConfigurationEventType, bool> ConfigurationEvent;
 

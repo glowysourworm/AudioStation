@@ -1,9 +1,7 @@
-﻿using AudioStation.Component.Interface;
-using AudioStation.Controller.Interface;
+﻿using AudioStation.Controller.Interface;
 using AudioStation.Core;
 using AudioStation.Core.Component.Interface;
 using AudioStation.Event;
-using AudioStation.EventHandler;
 using AudioStation.Service.Interface;
 using AudioStation.ViewModels;
 
@@ -17,30 +15,34 @@ namespace AudioStation.Controller
     {
         IIocEventAggregator _eventAggregator;
         IAudioStationMapper _audioStationMapper;
-        IAudioStationConfigurationManager _audioStationConfigurationManager;
+        IAudioStationConfigurationController _audioStationConfigurationManager;
         IAudioStationServiceController _audioStationServiceController;
-        IAudioStationViewModelController _audioStationViewModelController;
-        IComponentViewModelLoader _componentViewModelLoader;
+        IAudioStationComponentController _audioStationComponentController;
         ILibraryLoaderService _libraryLoaderService;
 
         // Primary Configuration View Model
         AudioStationConfigurationViewModel _audioStationConfigurationViewModel;
 
+        #region (public) IAudioStationController
+        public IAudioStationConfigurationController ConfigurationController { get { return _audioStationConfigurationManager; } }
+        public IAudioStationServiceController ServiceController { get { return _audioStationServiceController; } }
+        public IAudioStationComponentController ComponentController { get { return _audioStationComponentController; } }
+        public ILibraryLoaderService LibraryLoaderService { get { return _libraryLoaderService; } }
+        #endregion
+
         [IocImportingConstructor]
         public AudioStationController(IIocEventAggregator eventAggregator,
                                       IAudioStationMapper audioStationMapper,
-                                      IAudioStationConfigurationManager audioStationConfigurationManager,
+                                      IAudioStationConfigurationController audioStationConfigurationManager,
                                       IAudioStationServiceController audioStationServiceController,
-                                      IAudioStationViewModelController audioStationViewModelController,
-                                      IComponentViewModelLoader componentViewModelLoader,
+                                      IAudioStationComponentController componentViewModelLoader,
                                       ILibraryLoaderService libraryLoaderService)
         {
             _audioStationMapper = audioStationMapper;
             _eventAggregator = eventAggregator;
             _audioStationConfigurationManager = audioStationConfigurationManager;
             _audioStationServiceController = audioStationServiceController;
-            _audioStationViewModelController = audioStationViewModelController;
-            _componentViewModelLoader = componentViewModelLoader;
+            _audioStationComponentController = componentViewModelLoader;
             _libraryLoaderService = libraryLoaderService;
 
             _audioStationConfigurationViewModel = new AudioStationConfigurationViewModel();
@@ -95,10 +97,8 @@ namespace AudioStation.Controller
 
             // Initialize:  Primary Component Initializers -> Primary Components (Initialize)
             //
-            _audioStationServiceController.Initialize(configuration, progressHandler);
-            _audioStationViewModelController.Initialize(configuration, progressHandler);
-            _componentViewModelLoader.Initialize(configuration, progressHandler);
-            _libraryLoaderService.Initialize(configuration, _audioStationViewModelController, progressHandler);
+            _audioStationServiceController.Initialize(configuration, this, progressHandler);
+            _audioStationComponentController.Initialize(configuration, this, progressHandler);
         }
 
         private void OnConfigurationEvent(AudioStationConfiguration configuration, ConfigurationEventType eventType, bool configurationValid)

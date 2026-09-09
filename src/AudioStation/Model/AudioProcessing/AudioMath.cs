@@ -1,6 +1,6 @@
-﻿using static AudioStation.Component.AudioProcessing.AudioScale;
+﻿using static AudioStation.Model.AudioProcessing.AudioScale;
 
-namespace AudioStation.Component.AudioProcessing
+namespace AudioStation.Model.AudioProcessing
 {
     public class AudioScale
     {

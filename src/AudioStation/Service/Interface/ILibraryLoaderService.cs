@@ -1,34 +1,41 @@
-﻿using AudioStation.Controller.Interface;
-using AudioStation.Core;
+﻿using AudioStation.Core.Database.AudioStationDatabase;
+using AudioStation.Core.Model;
 using AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels;
+using AudioStation.ViewModels.ComponentViewModels.LibraryViewModels;
+using AudioStation.ViewModels.ComponentViewModels.LoadViewModels;
 
 using SimpleWpf.UI.ViewModel.FileTreeView;
 
-using static AudioStation.EventHandler.DialogEventHandlers;
+using static AudioStation.Event.DialogEventHandlers;
 
 namespace AudioStation.Service.Interface
 {
-    public interface ILibraryLoaderService
+    public interface ILibraryLoaderService : IAudioStationService
     {
         /// <summary>
-        /// Initialization of the view model - this should be run during startup
+        /// Initializes Audio Station Library with entities from the database
         /// </summary>
-        void Initialize(AudioStationConfiguration configuration, IAudioStationViewModelController audioStationViewModelController, DialogProgressHandler progressHandler);
+        LibraryViewModel LoadLibrary(DialogProgressHandler progressHandler);
+
+        /// <summary>
+        /// Loads a library entry page from the database
+        /// </summary>
+        PageResult<TrackViewModel> LoadEntryPage(PageRequest<Track, int> request);
 
         /// <summary>
         /// Initializes the library importer directory to recursion depth 0.
         /// </summary>
-        public FileTreeViewModel InitializeImporterTree(string directory,
-                                                        string searchPattern,
-                                                        LibraryImporterConfigurationViewModel importerOptions,
-                                                        DialogProgressHandler progressHandler);
+        FileTreeViewModel InitializeImporterTree(string directory,
+                                                    string searchPattern,
+                                                    LibraryImporterConfigurationViewModel importerOptions,
+                                                    DialogProgressHandler progressHandler);
 
         /// <summary>
         /// Loads further directories of the importer tree
         /// </summary>
-        public void LoadImporterTreeNextDepth(FileTreeViewModel treeRoot,
-                                              int currentDepth,
-                                              string searchPattern,
-                                              DialogProgressHandler progressHandler);
+        void LoadImporterTreeNextDepth(FileTreeViewModel treeRoot,
+                                        int currentDepth,
+                                        string searchPattern,
+                                        DialogProgressHandler progressHandler);
     }
 }

@@ -30,9 +30,9 @@ namespace AudioStation.Core.Database.AudioStationDatabase
 
         // IAudioStationService
         //
-        public event SimpleEventHandler<IAudioStationService, IAudioStationService.Status> StatusChangeEvent;
+        public event SimpleEventHandler<IAudioStationDataService, IAudioStationDataService.Status> StatusChangeEvent;
 
-        private IAudioStationService.Status _status;
+        private IAudioStationDataService.Status _status;
         private string _statusMessage;
 
         [IocImportingConstructor]
@@ -42,7 +42,7 @@ namespace AudioStation.Core.Database.AudioStationDatabase
             _currentLogLevel = LogLevel.Trace;
             _currentLogVerbosity = true;
 
-            _status = IAudioStationService.Status.Disabled;
+            _status = IAudioStationDataService.Status.Disabled;
             _statusMessage = "Not Initialized";
 
             // Update log output configuration
@@ -589,25 +589,25 @@ namespace AudioStation.Core.Database.AudioStationDatabase
         {
             return "Audio Station Database";
         }
-        public IAudioStationService.Status GetStatus()
+        public IAudioStationDataService.Status GetStatus()
         {
             return _status;
         }
-        public IAudioStationService.Status Initialize(AudioStationConfiguration configuration)
+        public IAudioStationDataService.Status Initialize(AudioStationConfiguration configuration)
         {
             _configuration = configuration;
 
             if (string.IsNullOrWhiteSpace(configuration.DatabaseHost))
-                OnStatusChanged(IAudioStationService.Status.Error, "database host not specified");
+                OnStatusChanged(IAudioStationDataService.Status.Error, "database host not specified");
 
             else if (string.IsNullOrWhiteSpace(configuration.DatabaseName))
-                OnStatusChanged(IAudioStationService.Status.Error, "database name not specified");
+                OnStatusChanged(IAudioStationDataService.Status.Error, "database name not specified");
 
             else if (string.IsNullOrWhiteSpace(configuration.DatabaseUser))
-                OnStatusChanged(IAudioStationService.Status.Error, "database user not specified");
+                OnStatusChanged(IAudioStationDataService.Status.Error, "database user not specified");
 
             else if (string.IsNullOrWhiteSpace(configuration.DatabasePassword))
-                OnStatusChanged(IAudioStationService.Status.Error, "database password not specified");
+                OnStatusChanged(IAudioStationDataService.Status.Error, "database password not specified");
 
             // Test Connection (Initialize:  Vendor table must be filled out)
             try
@@ -659,36 +659,36 @@ namespace AudioStation.Core.Database.AudioStationDatabase
                     context.SaveChanges();
                 }
 
-                OnStatusChanged(IAudioStationService.Status.Idle, "database configuration OK!");
+                OnStatusChanged(IAudioStationDataService.Status.Idle, "database configuration OK!");
             }
             catch (Exception ex)
             {
-                OnStatusChanged(IAudioStationService.Status.Error, "database connection failed!");
+                OnStatusChanged(IAudioStationDataService.Status.Error, "database connection failed!");
                 //ApplicationHelpers.Log("Database connection failed!", LogMessageType.)
             }
 
             return _status;
         }
-        public Task<IAudioStationService.Status> InitializeAsync(AudioStationConfiguration configuration)
+        public Task<IAudioStationDataService.Status> InitializeAsync(AudioStationConfiguration configuration)
         {
             return Task.Run(() => Initialize(configuration));
         }
 
-        public IAudioStationService.Status ReInitialize(AudioStationConfiguration configuration)
+        public IAudioStationDataService.Status ReInitialize(AudioStationConfiguration configuration)
         {
-            return IAudioStationService.Status.Idle;
+            return IAudioStationDataService.Status.Idle;
         }
 
-        public Task<IAudioStationService.Status> ReInitializeAsync(AudioStationConfiguration configuration)
+        public Task<IAudioStationDataService.Status> ReInitializeAsync(AudioStationConfiguration configuration)
         {
-            return Task.FromResult(IAudioStationService.Status.Idle);
+            return Task.FromResult(IAudioStationDataService.Status.Idle);
         }
         public string GetStatusMessage()
         {
             return this.GetDisplayName() + ": " + _statusMessage;
         }
 
-        private void OnStatusChanged(IAudioStationService.Status status, string message)
+        private void OnStatusChanged(IAudioStationDataService.Status status, string message)
         {
             _status = status;
             _statusMessage = message;

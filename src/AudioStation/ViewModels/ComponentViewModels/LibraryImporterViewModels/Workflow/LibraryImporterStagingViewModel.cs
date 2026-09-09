@@ -1,9 +1,6 @@
 ﻿using System.Collections.ObjectModel;
-
-using AudioStation.Component.Interface;
 using AudioStation.Controller.Interface;
 using AudioStation.Core.Model.Interface;
-using AudioStation.EventHandler;
 using AudioStation.Service.Interface;
 
 using SimpleWpf.IocFramework.Application;
@@ -148,12 +145,12 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
             return this.StagedFiles.Any(x => x.IsSelected);
         }
 
-        protected override void InitializeImpl(IAudioStationConfiguration configuration, IAudioStationViewModelController viewModelController, DialogEventHandlers.DialogProgressHandler progressHandler)
+        protected override void InitializeImpl(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
         {
 
         }
 
-        protected override void LoadImpl(IAudioStationConfiguration configuration, IComponentViewModelLoader viewModelLoader, DialogEventHandlers.DialogProgressHandler progressHandler)
+        protected override void LoadImpl(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
         {
             if (this.ImportOptions == null)
                 return;

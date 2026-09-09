@@ -1,6 +1,6 @@
 ﻿using System.IO;
 
-using AudioStation.Component.Interface;
+using AudioStation.Controller.Interface;
 using AudioStation.Core;
 using AudioStation.Core.Component;
 using AudioStation.Core.Utility;
@@ -12,10 +12,10 @@ using Microsoft.Extensions.Logging;
 using SimpleWpf.Extensions.Event;
 using SimpleWpf.IocFramework.Application.Attribute;
 
-namespace AudioStation.Component
+namespace AudioStation.Controller
 {
-    [IocExport(typeof(IAudioStationConfigurationManager))]
-    public class AudioStationConfigurationManager : IAudioStationConfigurationManager
+    [IocExport(typeof(IAudioStationConfigurationController))]
+    public class AudioStationConfigurationController : IAudioStationConfigurationController
     {
         private const string CONFIGURATION_FILE = ".AudioStation";
 
@@ -24,7 +24,7 @@ namespace AudioStation.Component
         public event SimpleEventHandler<AudioStationConfiguration, ConfigurationEventType, bool> ConfigurationEvent;
 
         [IocImportingConstructor]
-        public AudioStationConfigurationManager()
+        public AudioStationConfigurationController()
         {
         }
 

@@ -4,7 +4,7 @@ using AudioStation.Core.Service.Interface;
 
 namespace AudioStation.Core.Controller.Interface
 {
-    public interface IFileController : IAudioStationService
+    public interface IFileController : IAudioStationDataService
     {
         public enum StorageType
         {

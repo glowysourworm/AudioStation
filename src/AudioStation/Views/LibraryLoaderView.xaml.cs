@@ -11,11 +11,11 @@ namespace AudioStation.Views
     public partial class LibraryLoaderView : UserControl
     {
         [IocImportingConstructor]
-        public LibraryLoaderView(IAudioStationViewModelController audioStationViewModelController)
+        public LibraryLoaderView(IAudioStationController audioStationController)
         {
             InitializeComponent();
 
-            this.DataContext = audioStationViewModelController.GetComponent<LibraryLoaderViewModel>();
+            this.DataContext = audioStationController.ComponentController.GetComponent<LibraryLoaderViewModel>();
         }
     }
 }
