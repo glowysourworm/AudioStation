@@ -22,6 +22,11 @@ namespace AudioStation.Core.Database.AudioStationDatabase
         public int? DurationMilliseconds { get; set; }
         public int? Year { get; set; }
 
+        [ForeignKey("ImportWorkflow")]
+        public int? ImportWorkflowId { get; set; }
+
+        public ImportWorkflow ImportWorkflow { get; set; }
+
         public TagSmall()
         {
         }

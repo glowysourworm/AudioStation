@@ -5,7 +5,7 @@
 -- Dumped from database version 17.4
 -- Dumped by pg_dump version 17.4
 
--- Started on 2026-08-27 20:52:06
+-- Started on 2026-09-09 05:59:21
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -34,7 +34,8 @@ CREATE TABLE public."AcoustIDLookupResult" (
     "MusicBrainzRecordingId" uuid NOT NULL,
     "Score" double precision NOT NULL,
     "Fingerprint" character varying NOT NULL,
-    "FileName" character varying NOT NULL
+    "FileName" character varying NOT NULL,
+    "ImportWorkflowId" integer
 );
 
 
@@ -89,7 +90,7 @@ CREATE TABLE public."AlbumFileReferenceMap" (
 ALTER TABLE public."AlbumFileReferenceMap" OWNER TO postgres;
 
 --
--- TOC entry 5021 (class 0 OID 0)
+-- TOC entry 5030 (class 0 OID 0)
 -- Dependencies: 242
 -- Name: TABLE "AlbumFileReferenceMap"; Type: COMMENT; Schema: public; Owner: postgres
 --
@@ -220,6 +221,37 @@ CREATE TABLE public."Genre" (
 ALTER TABLE public."Genre" OWNER TO postgres;
 
 --
+-- TOC entry 250 (class 1259 OID 52610)
+-- Name: ImportWorkflow; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public."ImportWorkflow" (
+    "Id" integer NOT NULL,
+    "Directory" character varying NOT NULL,
+    "Created" timestamp with time zone NOT NULL,
+    "Modified" timestamp with time zone NOT NULL,
+    "StepNumber" integer NOT NULL
+);
+
+
+ALTER TABLE public."ImportWorkflow" OWNER TO postgres;
+
+--
+-- TOC entry 249 (class 1259 OID 52609)
+-- Name: ImportWorkflow_Id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+ALTER TABLE public."ImportWorkflow" ALTER COLUMN "Id" ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public."ImportWorkflow_Id_seq"
+    START WITH 0
+    INCREMENT BY 1
+    MINVALUE 0
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
 -- TOC entry 218 (class 1259 OID 16769)
 -- Name: M3UStream; Type: TABLE; Schema: public; Owner: postgres
 --
@@ -239,7 +271,7 @@ CREATE TABLE public."M3UStream" (
 ALTER TABLE public."M3UStream" OWNER TO postgres;
 
 --
--- TOC entry 5022 (class 0 OID 0)
+-- TOC entry 5031 (class 0 OID 0)
 -- Dependencies: 218
 -- Name: TABLE "M3UStream"; Type: COMMENT; Schema: public; Owner: postgres
 --
@@ -389,7 +421,7 @@ CREATE TABLE public."Track" (
 ALTER TABLE public."Track" OWNER TO postgres;
 
 --
--- TOC entry 5023 (class 0 OID 0)
+-- TOC entry 5032 (class 0 OID 0)
 -- Dependencies: 221
 -- Name: TABLE "Track"; Type: COMMENT; Schema: public; Owner: postgres
 --
@@ -457,7 +489,8 @@ CREATE TABLE public."TagSmall" (
     "MediaTotal" integer,
     "MediaFormat" character varying,
     "DurationMilliseconds" integer,
-    "Year" integer
+    "Year" integer,
+    "ImportWorkflowId" integer
 );
 
 
@@ -566,7 +599,7 @@ ALTER TABLE public."Vendor" ALTER COLUMN "Id" ADD GENERATED ALWAYS AS IDENTITY (
 
 
 --
--- TOC entry 4838 (class 2606 OID 50667)
+-- TOC entry 4843 (class 2606 OID 50667)
 -- Name: AcoustIDLookupResult AcoustIDResult_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -575,7 +608,7 @@ ALTER TABLE ONLY public."AcoustIDLookupResult"
 
 
 --
--- TOC entry 4846 (class 2606 OID 52174)
+-- TOC entry 4851 (class 2606 OID 52174)
 -- Name: AlbumFileReferenceMap AlbumFileReferenceMap_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -584,7 +617,7 @@ ALTER TABLE ONLY public."AlbumFileReferenceMap"
 
 
 --
--- TOC entry 4848 (class 2606 OID 52179)
+-- TOC entry 4853 (class 2606 OID 52179)
 -- Name: ArtistFileReferenceMap ArtistFileReferenceMap_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -593,7 +626,7 @@ ALTER TABLE ONLY public."ArtistFileReferenceMap"
 
 
 --
--- TOC entry 4834 (class 2606 OID 16879)
+-- TOC entry 4839 (class 2606 OID 16879)
 -- Name: TrackArtistMap ArtistMap_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -602,7 +635,7 @@ ALTER TABLE ONLY public."TrackArtistMap"
 
 
 --
--- TOC entry 4844 (class 2606 OID 50712)
+-- TOC entry 4849 (class 2606 OID 50712)
 -- Name: FileReference FileReference_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -611,7 +644,7 @@ ALTER TABLE ONLY public."FileReference"
 
 
 --
--- TOC entry 4850 (class 2606 OID 52186)
+-- TOC entry 4855 (class 2606 OID 52186)
 -- Name: FileType FileType_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -620,7 +653,7 @@ ALTER TABLE ONLY public."FileType"
 
 
 --
--- TOC entry 4836 (class 2606 OID 16900)
+-- TOC entry 4841 (class 2606 OID 16900)
 -- Name: TrackGenreMap GenreMap_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -629,7 +662,16 @@ ALTER TABLE ONLY public."TrackGenreMap"
 
 
 --
--- TOC entry 4821 (class 2606 OID 16775)
+-- TOC entry 4859 (class 2606 OID 52616)
+-- Name: ImportWorkflow ImportWorkflow_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."ImportWorkflow"
+    ADD CONSTRAINT "ImportWorkflow_pkey" PRIMARY KEY ("Id");
+
+
+--
+-- TOC entry 4826 (class 2606 OID 16775)
 -- Name: M3UStream M3UInfo_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -638,7 +680,7 @@ ALTER TABLE ONLY public."M3UStream"
 
 
 --
--- TOC entry 4830 (class 2606 OID 16850)
+-- TOC entry 4835 (class 2606 OID 16850)
 -- Name: Album Mp3FileReferenceAlbum_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -647,7 +689,7 @@ ALTER TABLE ONLY public."Album"
 
 
 --
--- TOC entry 4828 (class 2606 OID 16837)
+-- TOC entry 4833 (class 2606 OID 16837)
 -- Name: Artist Mp3FileReferenceArtist_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -656,7 +698,7 @@ ALTER TABLE ONLY public."Artist"
 
 
 --
--- TOC entry 4832 (class 2606 OID 16863)
+-- TOC entry 4837 (class 2606 OID 16863)
 -- Name: Genre Mp3FileReferenceGenre_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -665,7 +707,7 @@ ALTER TABLE ONLY public."Genre"
 
 
 --
--- TOC entry 4826 (class 2606 OID 16829)
+-- TOC entry 4831 (class 2606 OID 16829)
 -- Name: Track Mp3FileReference_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -674,7 +716,7 @@ ALTER TABLE ONLY public."Track"
 
 
 --
--- TOC entry 4824 (class 2606 OID 16821)
+-- TOC entry 4829 (class 2606 OID 16821)
 -- Name: RadioBrowserStation RadioBrowserStation_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -683,7 +725,7 @@ ALTER TABLE ONLY public."RadioBrowserStation"
 
 
 --
--- TOC entry 4852 (class 2606 OID 52223)
+-- TOC entry 4857 (class 2606 OID 52223)
 -- Name: TagSmallFileReferenceMap TagSmallFileReferenceMap_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -692,7 +734,7 @@ ALTER TABLE ONLY public."TagSmallFileReferenceMap"
 
 
 --
--- TOC entry 4840 (class 2606 OID 50675)
+-- TOC entry 4845 (class 2606 OID 50675)
 -- Name: TagSmall VendorTagSmall_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -701,7 +743,7 @@ ALTER TABLE ONLY public."TagSmall"
 
 
 --
--- TOC entry 4842 (class 2606 OID 50683)
+-- TOC entry 4847 (class 2606 OID 50683)
 -- Name: Vendor VendorType_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -710,7 +752,7 @@ ALTER TABLE ONLY public."Vendor"
 
 
 --
--- TOC entry 4822 (class 1259 OID 17220)
+-- TOC entry 4827 (class 1259 OID 17220)
 -- Name: NameIndex; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -718,7 +760,16 @@ CREATE INDEX "NameIndex" ON public."M3UStream" USING btree ("Name") WITH (dedupl
 
 
 --
--- TOC entry 4853 (class 2606 OID 16869)
+-- TOC entry 4868 (class 2606 OID 52617)
+-- Name: AcoustIDLookupResult AcoustID_Workflow_FK; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."AcoustIDLookupResult"
+    ADD CONSTRAINT "AcoustID_Workflow_FK" FOREIGN KEY ("ImportWorkflowId") REFERENCES public."ImportWorkflow"("Id") NOT VALID;
+
+
+--
+-- TOC entry 4860 (class 2606 OID 16869)
 -- Name: Track Album_ForeignKey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -727,7 +778,7 @@ ALTER TABLE ONLY public."Track"
 
 
 --
--- TOC entry 4857 (class 2606 OID 16885)
+-- TOC entry 4864 (class 2606 OID 16885)
 -- Name: TrackArtistMap Artist_ForeignKey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -736,7 +787,7 @@ ALTER TABLE ONLY public."TrackArtistMap"
 
 
 --
--- TOC entry 4854 (class 2606 OID 16890)
+-- TOC entry 4861 (class 2606 OID 16890)
 -- Name: Track Artist_ForeignKey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -745,7 +796,7 @@ ALTER TABLE ONLY public."Track"
 
 
 --
--- TOC entry 4855 (class 2606 OID 50713)
+-- TOC entry 4862 (class 2606 OID 50713)
 -- Name: Track FileReference_ForeignKey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -754,7 +805,7 @@ ALTER TABLE ONLY public."Track"
 
 
 --
--- TOC entry 4859 (class 2606 OID 16906)
+-- TOC entry 4866 (class 2606 OID 16906)
 -- Name: TrackGenreMap Genre_ForeignKey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -763,7 +814,7 @@ ALTER TABLE ONLY public."TrackGenreMap"
 
 
 --
--- TOC entry 4856 (class 2606 OID 17237)
+-- TOC entry 4863 (class 2606 OID 17237)
 -- Name: Track Genre_ForeignKey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -772,7 +823,7 @@ ALTER TABLE ONLY public."Track"
 
 
 --
--- TOC entry 4863 (class 2606 OID 52202)
+-- TOC entry 4872 (class 2606 OID 52202)
 -- Name: AlbumFileReferenceMap Map_Album_FK; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -781,7 +832,7 @@ ALTER TABLE ONLY public."AlbumFileReferenceMap"
 
 
 --
--- TOC entry 4866 (class 2606 OID 52187)
+-- TOC entry 4875 (class 2606 OID 52187)
 -- Name: ArtistFileReferenceMap Map_Artist_FK; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -790,7 +841,7 @@ ALTER TABLE ONLY public."ArtistFileReferenceMap"
 
 
 --
--- TOC entry 4867 (class 2606 OID 52192)
+-- TOC entry 4876 (class 2606 OID 52192)
 -- Name: ArtistFileReferenceMap Map_FileReference_FK; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -799,7 +850,7 @@ ALTER TABLE ONLY public."ArtistFileReferenceMap"
 
 
 --
--- TOC entry 4864 (class 2606 OID 52207)
+-- TOC entry 4873 (class 2606 OID 52207)
 -- Name: AlbumFileReferenceMap Map_FileReference_FK; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -808,7 +859,7 @@ ALTER TABLE ONLY public."AlbumFileReferenceMap"
 
 
 --
--- TOC entry 4869 (class 2606 OID 52229)
+-- TOC entry 4878 (class 2606 OID 52229)
 -- Name: TagSmallFileReferenceMap Map_FileReference_FK; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -817,7 +868,7 @@ ALTER TABLE ONLY public."TagSmallFileReferenceMap"
 
 
 --
--- TOC entry 4868 (class 2606 OID 52197)
+-- TOC entry 4877 (class 2606 OID 52197)
 -- Name: ArtistFileReferenceMap Map_FileType_FK; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -826,7 +877,7 @@ ALTER TABLE ONLY public."ArtistFileReferenceMap"
 
 
 --
--- TOC entry 4865 (class 2606 OID 52212)
+-- TOC entry 4874 (class 2606 OID 52212)
 -- Name: AlbumFileReferenceMap Map_FileType_FK; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -835,7 +886,7 @@ ALTER TABLE ONLY public."AlbumFileReferenceMap"
 
 
 --
--- TOC entry 4870 (class 2606 OID 52224)
+-- TOC entry 4879 (class 2606 OID 52224)
 -- Name: TagSmallFileReferenceMap Map_TagSmall_FK; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -844,7 +895,7 @@ ALTER TABLE ONLY public."TagSmallFileReferenceMap"
 
 
 --
--- TOC entry 4861 (class 2606 OID 52123)
+-- TOC entry 4870 (class 2606 OID 52123)
 -- Name: TagSmallVendorMap TagSmallVendorMap_TagSmall_FK; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -853,7 +904,7 @@ ALTER TABLE ONLY public."TagSmallVendorMap"
 
 
 --
--- TOC entry 4862 (class 2606 OID 52118)
+-- TOC entry 4871 (class 2606 OID 52118)
 -- Name: TagSmallVendorMap TagSmallVendorMap_Vendor_FK; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -862,7 +913,16 @@ ALTER TABLE ONLY public."TagSmallVendorMap"
 
 
 --
--- TOC entry 4858 (class 2606 OID 16880)
+-- TOC entry 4869 (class 2606 OID 52622)
+-- Name: TagSmall TagSmall_ImportWorkflowId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."TagSmall"
+    ADD CONSTRAINT "TagSmall_ImportWorkflowId_fkey" FOREIGN KEY ("ImportWorkflowId") REFERENCES public."ImportWorkflow"("Id") NOT VALID;
+
+
+--
+-- TOC entry 4865 (class 2606 OID 16880)
 -- Name: TrackArtistMap Track_ForeignKey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -871,7 +931,7 @@ ALTER TABLE ONLY public."TrackArtistMap"
 
 
 --
--- TOC entry 4860 (class 2606 OID 16901)
+-- TOC entry 4867 (class 2606 OID 16901)
 -- Name: TrackGenreMap Track_ForeignKey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -879,7 +939,7 @@ ALTER TABLE ONLY public."TrackGenreMap"
     ADD CONSTRAINT "Track_ForeignKey" FOREIGN KEY ("TrackId") REFERENCES public."Track"("Id");
 
 
--- Completed on 2026-08-27 20:52:06
+-- Completed on 2026-09-09 05:59:21
 
 --
 -- PostgreSQL database dump complete

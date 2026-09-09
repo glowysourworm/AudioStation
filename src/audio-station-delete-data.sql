@@ -1,8 +1,19 @@
-delete from "public"."Mp3FileReferenceGenreMap";
-delete from "public"."Mp3FileReferenceArtistMap";
-delete from "public"."Mp3FileReference";
-delete from "public"."Mp3FileReferenceGenre";
-delete from "public"."Mp3FileReferenceArtist";
-delete from "public"."Mp3FileReferenceAlbum";
-delete from "public"."M3UStream";
-delete from "public"."RadioBrowserStation";
+DELETE FROM public."ImportWorkflow";
+DELETE FROM public."AcoustIDLookupResult";
+DELETE FROM public."AlbumFileReferenceMap";
+DELETE FROM public."ArtistFileReferenceMap";
+DELETE FROM public."TagSmallVendorMap";
+DELETE FROM public."TagSmallFileReferenceMap";
+DELETE FROM public."TrackGenreMap";
+DELETE FROM public."TrackArtistMap";
+
+DELETE FROM public."M3UStream";
+DELETE FROM public."Genre";
+DELETE FROM public."Artist";
+DELETE FROM public."Album";
+DELETE FROM public."RadioBrowserStation";
+DELETE FROM public."FileType";
+DELETE FROM public."FileReference";
+DELETE FROM public."Vendor";
+DELETE FROM public."TagSmall";
+DELETE FROM public."Track";

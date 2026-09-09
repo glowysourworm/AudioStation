@@ -19,6 +19,11 @@ namespace AudioStation.Core.Database.AudioStationDatabase
         public double Score { get; set; }
         public string Fingerprint { get; set; }
 
+        [ForeignKey("ImportWorkflow")]
+        public int? ImportWorkflowId { get; set; }
+
+        public ImportWorkflow ImportWorkflow { get; set; }
+
         public AcoustIDLookupResult()
         {
         }
