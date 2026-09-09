@@ -179,12 +179,73 @@ namespace AudioStation.Core.Component
 
                 // -> Check Security
                 if (libraryDirectory == null)
-                {
                     return FileHelpers.HasWritePermissions(filePath);
-                }
-
                 else
                     return !libraryDirectory.IsReadOnly && FileHelpers.HasWritePermissions(filePath);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error checking file path:  " + ex.Message, ex);
+            }
+        }
+
+        public void CopyFileTo(string source, string destination, bool overwrite)
+        {
+            try
+            {
+                var libraryDirectory = GetLibraryDirectory(destination);
+                var isReadOnly = libraryDirectory?.IsReadOnly ?? false;
+
+                if (isReadOnly)
+                    throw new Exception("Library directory has been marked readonly!");
+
+                else
+                {
+                    File.Copy(source, destination, overwrite);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error checking file path:  " + ex.Message, ex);
+            }
+        }
+
+        public void DeleteFile(string filePath)
+        {
+            try
+            {
+                var libraryDirectory = GetLibraryDirectory(filePath);
+                var isReadOnly = libraryDirectory?.IsReadOnly ?? false;
+
+                if (isReadOnly)
+                    throw new Exception("Library directory has been marked readonly!");
+
+                else
+                {
+                    File.Delete(filePath);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error checking file path:  " + ex.Message, ex);
+            }
+        }
+
+        public void DeleteEmptyDirectory(string directory)
+        {
+            try
+            {
+                var libraryDirectory = GetLibraryDirectory(directory);
+                var isReadOnly = libraryDirectory?.IsReadOnly ?? false;
+
+                if (isReadOnly)
+                    throw new Exception("Library directory has been marked readonly!");
+
+                else if (Directory.GetFiles(directory).Length >= 0)
+                    throw new Exception("Directory is not empty! Cannot delete directory:  " + directory);
+
+                else
+                    Directory.Delete(directory);
             }
             catch (Exception ex)
             {

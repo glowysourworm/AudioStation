@@ -32,6 +32,22 @@ namespace AudioStation.Core.Controller.Interface
         bool CanWriteToPath(string filePath);
 
         /// <summary>
+        /// Copies file from source path to destination path checking the properties of the
+        /// library directories.
+        /// </summary>
+        void CopyFileTo(string source, string destination, bool overwrite);
+
+        /// <summary>
+        /// Deletes file from disk checking the propertis of library directories.
+        /// </summary>
+        void DeleteFile(string filePath);
+
+        /// <summary>
+        /// Deletes (EMPTY) directory from disk checking library directory properties.
+        /// </summary>
+        void DeleteEmptyDirectory(string directory);
+
+        /// <summary>
         /// Calculates file name of music (or) audio books file given the destination directory
         /// </summary>
         /// <param name="sourceFilePath">Full file path to source file</param>

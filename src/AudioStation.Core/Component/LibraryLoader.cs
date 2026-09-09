@@ -25,6 +25,7 @@ namespace AudioStation.Core.Component
         private readonly IAcoustIDClient _acoustIDClient;
         private readonly IMusicBrainzClient _musicBrainzClient;
         private readonly IAudioConverter _audioConverter;
+        private readonly ITagCacheController _tagCacheController;
 
         // Cannot use multi threading on the database until we have proper 
         // table locking, or transactions!
@@ -49,7 +50,8 @@ namespace AudioStation.Core.Component
                              IMusicBrainzClient musicBrainzClient,
                              ILibraryImporter libraryImporter,
                              IFileController fileController,
-                             IAudioConverter audioConverter)
+                             IAudioConverter audioConverter,
+                             ITagCacheController tagCacheController)
         {
             _audioStationMapper = audioStationMapper;
             _audioStationDbClient = audioStationDbClient;
@@ -58,6 +60,7 @@ namespace AudioStation.Core.Component
             _libraryImporter = libraryImporter;
             _fileController = fileController;
             _audioConverter = audioConverter;
+            _tagCacheController = tagCacheController;
 
             _workQueue = new Queue<LibraryLoaderWorkItem>();
             _workItemsWorking = new List<LibraryLoaderWorkItem>();
@@ -152,7 +155,7 @@ namespace AudioStation.Core.Component
                 {
                     case LibraryLoadType.Import:
                     {
-                        thread = new LibraryLoaderImportWorker(workItem, _audioStationDbClient, _fileController);
+                        thread = new LibraryLoaderImportWorker(workItem, _audioStationDbClient, _fileController, _tagCacheController);
                     }
                     break;
                     case LibraryLoadType.AcoustID:

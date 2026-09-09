@@ -61,21 +61,21 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
             }
 
             // Workflow 2:  Music Brainz Basic
-            if (_importOptions.IdentifyUsingMusicBrainz && this.MusicBrainzBasicWorker.CanExecute())
+            else if (_importOptions.IdentifyUsingMusicBrainz && this.MusicBrainzBasicWorker.CanExecute())
             {
                 this.Loading = true;
                 this.MusicBrainzBasicWorker.Execute();
             }
 
             // Workflow 3:  Music Brainz Album Art
-            if (_importOptions.IncludeMusicBrainzArtwork && this.MusicBrainzAlbumArtWorker.CanExecute())
+            else if (_importOptions.IncludeMusicBrainzArtwork && this.MusicBrainzAlbumArtWorker.CanExecute())
             {
                 this.Loading = true;
                 this.MusicBrainzAlbumArtWorker.Execute();
             }
 
             // Workflow 4:  Convert Audio Files (post migration)
-            if (_importOptions.ConvertAudioFormat && this.FileConverterWorker.CanExecute())
+            else if (_importOptions.ConvertAudioFormat && this.FileConverterWorker.CanExecute())
             {
                 this.Loading = true;
                 this.FileConverterWorker.Execute();
