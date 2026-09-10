@@ -4,18 +4,15 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels
 {
     public class LibraryImporterWorkflowViewModel : ViewModelBase
     {
-        string _directory;
+        string _name;
         DateTime _createdDate;
         DateTime _modifiedDate;
-        int _stepNumber;
+        LibraryImporterConfigurationViewModel _configuration;
 
-        int _lastUIStepNumber;
-        bool _improperShutdown;
-
-        public string Directory
+        public string Name
         {
-            get { return _directory; }
-            set { this.RaiseAndSetIfChanged(ref _directory, value); }
+            get { return _name; }
+            set { this.RaiseAndSetIfChanged(ref _name, value); }
         }
         public DateTime CreatedDate
         {
@@ -27,27 +24,17 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels
             get { return _modifiedDate; }
             set { this.RaiseAndSetIfChanged(ref _modifiedDate, value); }
         }
-        public int StepNumber
+        public LibraryImporterConfigurationViewModel Configuration
         {
-            get { return _stepNumber; }
-            set { this.RaiseAndSetIfChanged(ref _stepNumber, value); }
-        }
-
-        public int LastUIStepNumber
-        {
-            get { return _lastUIStepNumber; }
-            set { this.RaiseAndSetIfChanged(ref _lastUIStepNumber, value); }
-        }
-        public bool ImproperShutdown
-        {
-            get { return _improperShutdown; }
-            set { this.RaiseAndSetIfChanged(ref _improperShutdown, value); }
+            get { return _configuration; }
+            set { this.RaiseAndSetIfChanged(ref _configuration, value); }
         }
 
 
         public LibraryImporterWorkflowViewModel()
         {
-            this.Directory = string.Empty;
+            this.Name = string.Empty;
+            this.Configuration = new LibraryImporterConfigurationViewModel();
         }
     }
 }

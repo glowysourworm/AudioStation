@@ -1,9 +1,16 @@
-﻿using AudioStation.Core.Database.AudioStationDatabase;
+﻿using System.IO;
+
+using AudioStation.Controller.Interface;
+using AudioStation.Core;
+using AudioStation.Core.Component;
+using AudioStation.Core.Component.Interface;
+using AudioStation.Core.Database.AudioStationDatabase;
 using AudioStation.Core.Database.AudioStationDatabase.Interface;
 using AudioStation.Core.Model;
 using AudioStation.Core.Utility;
 using AudioStation.Service.Interface;
 using AudioStation.Utility;
+using AudioStation.ViewModels;
 using AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels;
 using AudioStation.ViewModels.ComponentViewModels.LibraryViewModels;
 using AudioStation.ViewModels.ComponentViewModels.LoadViewModels;
@@ -11,10 +18,10 @@ using AudioStation.ViewModels.ComponentViewModels.LoadViewModels;
 using Microsoft.Extensions.Logging;
 
 using SimpleWpf.Extensions.Collection;
+using SimpleWpf.Extensions.ObservableCollection;
 using SimpleWpf.IocFramework.Application.Attribute;
 using SimpleWpf.UI.ViewModel.FileTreeView;
 using SimpleWpf.Utilities;
-using SimpleWpf.Extensions.ObservableCollection;
 
 using static AudioStation.Event.DialogEventHandlers;
 
@@ -23,14 +30,105 @@ namespace AudioStation.Service
     [IocExport(typeof(ILibraryLoaderService))]
     public class LibraryLoaderService : ILibraryLoaderService
     {
-        private readonly IAudioStationDbClient _audioStationDbClient;
         private readonly ILibraryMapperService _libraryMapperService;
 
+        private readonly IAudioStationDbClient _audioStationDbClient;
+        private readonly IAudioStationMapper _audioStationMapper;
+
+        // Initialize (prior to loading)
+        IAudioStationComponentController _audioStationComponentController;
+
         [IocImportingConstructor]
-        public LibraryLoaderService(IAudioStationDbClient audioStationDbClient, ILibraryMapperService libraryMapperService)
+        public LibraryLoaderService(IAudioStationDbClient audioStationDbClient, ILibraryMapperService libraryMapperService, IAudioStationMapper audioStationMapper)
         {
             _audioStationDbClient = audioStationDbClient;
             _libraryMapperService = libraryMapperService;
+            _audioStationMapper = audioStationMapper;
+        }
+
+        public void Initialize(AudioStationConfiguration configuration, IAudioStationController audioStationController, DialogProgressHandler progressHandler)
+        {
+            _audioStationComponentController = audioStationController.ComponentController;
+        }
+
+        public void AddOrUpdateImportWorkflow(LibraryImporterWorkflowViewModel workflow)
+        {
+            try
+            {
+                var entity = _audioStationDbClient.FirstEntity<ImportWorkflow>(x => x.Name == workflow.Name);
+
+                // Add
+                if (entity == null)
+                {
+                    entity = new ImportWorkflow()
+                    {
+                        Modified = DateTime.Now.ToUniversalTime(),
+                        Created = DateTime.Now.ToUniversalTime(),
+                        Name = workflow.Name,
+                        ConfigurationJson = null
+                    };
+
+                    _audioStationDbClient.AddEntity(entity);
+                }
+
+                // Serialize Import Workflow Configuration
+                using (var stream = new MemoryStream())
+                {
+                    Serializer.Serialize(workflow.Configuration, stream);
+
+                    entity.ConfigurationJson = stream.GetBuffer();
+                    entity.Modified = DateTime.Now.ToUniversalTime();
+                }
+
+                _audioStationDbClient.UpdateEntity(entity);
+            }
+            catch (Exception ex)
+            {
+                ApplicationHelpers.Log("Error adding workflow to database:  " + ex.Message, ex);
+                throw ex;
+            }
+        }
+
+        public IEnumerable<LibraryImporterWorkflowViewModel> GetWorkflows()
+        {
+            try
+            {
+                // Configuration (current)
+                var configuration = _audioStationComponentController.GetComponent<AudioStationConfigurationViewModel>();
+
+                var result = new List<LibraryImporterWorkflowViewModel>();
+
+                // Workflow Entities
+                var entities = _audioStationDbClient.GetEntities<ImportWorkflow>();
+
+                foreach (var entity in entities)
+                {
+                    // Deserialize Import Workflow Configuration
+                    var configurationViewModel = entity.ConfigurationJson != null ? Serializer.Deserialize<LibraryImporterConfigurationViewModel>(entity.ConfigurationJson)
+                                                                                  : new LibraryImporterConfigurationViewModel();
+
+                    // Link configuration to the application's library directories
+                    configurationViewModel.ImportDirectory = !string.IsNullOrWhiteSpace(configurationViewModel.ImportDirectory.Directory) ?
+                                                                   configuration.LibraryDirectories.FirstOrDefault(x => x.Directory == configurationViewModel.ImportDirectory.Directory)
+                                                                 : null;
+
+
+                    result.Add(new LibraryImporterWorkflowViewModel()
+                    {
+                        Configuration = configurationViewModel,
+                        CreatedDate = entity.Created,
+                        ModifiedDate = entity.Modified,
+                        Name = entity.Name
+                    });
+                }
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                ApplicationHelpers.Log("Error retrieving workflows from database:  " + ex.Message, ex);
+                throw ex;
+            }
         }
 
         public LibraryViewModel LoadLibrary(DialogProgressHandler progressHandler)

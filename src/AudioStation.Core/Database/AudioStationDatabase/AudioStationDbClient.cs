@@ -544,6 +544,9 @@ namespace AudioStation.Core.Database.AudioStationDatabase
             else if (typeof(TEntity) == typeof(Genre))
                 return context.Genres as DbSet<TEntity>;
 
+            else if (typeof(TEntity) == typeof(ImportWorkflow))
+                return context.ImportWorkflows as DbSet<TEntity>;
+
             else if (typeof(TEntity) == typeof(M3UStream))
                 return context.M3UStreams as DbSet<TEntity>;
 

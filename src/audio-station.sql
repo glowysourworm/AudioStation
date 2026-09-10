@@ -5,7 +5,7 @@
 -- Dumped from database version 17.4
 -- Dumped by pg_dump version 17.4
 
--- Started on 2026-09-09 05:59:21
+-- Started on 2026-09-09 21:56:57
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -227,10 +227,10 @@ ALTER TABLE public."Genre" OWNER TO postgres;
 
 CREATE TABLE public."ImportWorkflow" (
     "Id" integer NOT NULL,
-    "Directory" character varying NOT NULL,
     "Created" timestamp with time zone NOT NULL,
     "Modified" timestamp with time zone NOT NULL,
-    "StepNumber" integer NOT NULL
+    "Name" character varying NOT NULL,
+    "ConfigurationJson" bytea
 );
 
 
@@ -939,7 +939,7 @@ ALTER TABLE ONLY public."TrackGenreMap"
     ADD CONSTRAINT "Track_ForeignKey" FOREIGN KEY ("TrackId") REFERENCES public."Track"("Id");
 
 
--- Completed on 2026-09-09 05:59:21
+-- Completed on 2026-09-09 21:56:57
 
 --
 -- PostgreSQL database dump complete

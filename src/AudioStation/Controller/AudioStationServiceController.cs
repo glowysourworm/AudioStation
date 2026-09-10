@@ -93,8 +93,12 @@ namespace AudioStation.Controller
         {
             // Procedure
             // 
-            // 1) Load IAudioStationComponent instances
-            //      -> Errors:  Show User / Exit
+            // 0) Load IAudioStationService instances
+            //      -> Errors:  Show User / Exit (optionally)
+            //      -> Success: Continue
+            //
+            // 1) Load IAudioStationDataService instances
+            //      -> Errors:  Show User / Exit (optionally)
             //      -> Success: Continue
             //
             // 2) Report between components
@@ -103,7 +107,15 @@ namespace AudioStation.Controller
             var taskCount = 11;
             var task = 0;
 
-            // IAudioStationComponent (these display their status on the status bar)
+            // IAudioStationService (these are primary service components)
+            //
+            _cdImportService.Initialize(configuration);
+            _libraryLoaderService.Initialize(configuration, audioStationController, progressHandler);
+            _libraryLoaderWorkerService.Initialize(configuration, audioStationController, progressHandler);
+            _libraryMapperService.Initialize(configuration, audioStationController, progressHandler);
+            _nowPlayingService.Initialize(configuration, audioStationController, progressHandler);
+
+            // IAudioStationDataService (these display their status on the status bar)
             //
             InitializeImpl(_outputController, configuration, task++, taskCount, progressHandler);
             InitializeImpl(_audioStationDbClient, configuration, task++, taskCount, progressHandler);

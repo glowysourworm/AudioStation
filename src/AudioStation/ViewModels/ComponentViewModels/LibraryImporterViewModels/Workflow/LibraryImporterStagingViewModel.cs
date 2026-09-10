@@ -19,7 +19,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
     public class LibraryImporterStagingViewModel : ComponentPartViewModelBase
     {
         private readonly IIocEventAggregator _eventAggregator;
-        private LibraryImporterConfigurationViewModel _importOptions;
+        private LibraryImporterWorkflowViewModel _workflow;
 
         SimpleCommand _stageCommand;
         SimpleCommand _unstageCommand;
@@ -35,10 +35,10 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
         //
         ObservableCollection<LibraryImporterFileViewModel> _stagedFiles;
 
-        public LibraryImporterConfigurationViewModel ImportOptions
+        public LibraryImporterWorkflowViewModel Workflow
         {
-            get { return _importOptions; }
-            set { this.RaiseAndSetIfChanged(ref _importOptions, value); }
+            get { return _workflow; }
+            set { this.RaiseAndSetIfChanged(ref _workflow, value); }
         }
         public FileTreeViewModel ImportDirectory
         {
@@ -62,12 +62,12 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
             set { this.RaiseAndSetIfChanged(ref _unstageCommand, value); }
         }
 
-        public LibraryImporterStagingViewModel(IIocEventAggregator eventAggregator, LibraryImporterConfigurationViewModel options)
+        public LibraryImporterStagingViewModel(IIocEventAggregator eventAggregator, LibraryImporterWorkflowViewModel workflow)
             : base("Library Importer (staging)")
         {
             _eventAggregator = eventAggregator;
 
-            this.ImportOptions = options;
+            this.Workflow = workflow;
             this.StagedFiles = new ObservableCollection<LibraryImporterFileViewModel>();
 
             this.StageCommand = new SimpleCommand(Stage, CanStage);
@@ -107,7 +107,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
 
                         if (!subNode.IsDirectory && !stagedFiles.ContainsKey(subNode.FullPath))
                         {
-                            var file = new LibraryImporterFileViewModel(subNode.FullPath, subNode.BaseDirectory, this.ImportOptions.ImportDirectory.ImportType);
+                            var file = new LibraryImporterFileViewModel(subNode.FullPath, subNode.BaseDirectory, this.Workflow.Configuration.ImportDirectory.ImportType);
 
                             stagedFiles.Add(file.FullPath, file);
                             this.StagedFiles.Add(file);
@@ -119,7 +119,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
                 // Other Files
                 else if (!stagedFiles.ContainsKey(node.FullPath))
                 {
-                    var stagedFile = new LibraryImporterFileViewModel(node.FullPath, node.BaseDirectory, this.ImportOptions.ImportDirectory.ImportType);
+                    var stagedFile = new LibraryImporterFileViewModel(node.FullPath, node.BaseDirectory, this.Workflow.Configuration.ImportDirectory.ImportType);
 
                     stagedFiles.Add(node.FullPath, stagedFile);
                     this.StagedFiles.Add(stagedFile);
@@ -152,25 +152,22 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
 
         protected override void LoadImpl(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
         {
-            if (this.ImportOptions == null)
-                return;
-
             // TODO: Put this somewhere and verify convertible files on startup
             var searchPattern = "*.mp3";
 
             // Import Directory:  1) Not Initialized; or 2) A different directory
             //
             if (this.ImportDirectory == null ||
-                this.ImportDirectory.GetNodeValue().BaseDirectory != this.ImportOptions.ImportDirectory.Directory)
+                this.ImportDirectory.GetNodeValue().BaseDirectory != this.Workflow.Configuration.ImportDirectory.Directory)
             {
                 var libraryLoaderService = IocContainer.Get<ILibraryLoaderService>();
-                var directory = (this.ImportOptions.ImportDirectory.ImportType == Core.Model.LibraryImportType.Migration) ? this.ImportOptions.MigrationSourceDirectory :
-                                                                                                                            this.ImportOptions.ImportDirectory.Directory;
+                var directory = (this.Workflow.Configuration.ImportDirectory.ImportType == Core.Model.LibraryImportType.Migration) ? this.Workflow.Configuration.MigrationSourceDirectory :
+                                                                                                                            this.Workflow.Configuration.ImportDirectory.Directory;
 
                 // Unhook
                 this.ImportDirectory?.ItemPropertyChangedTreeEvent -= OnImportTreePropertyChanged;
 
-                this.ImportDirectory = libraryLoaderService.InitializeImporterTree(directory, searchPattern, this.ImportOptions, progressHandler);
+                this.ImportDirectory = libraryLoaderService.InitializeImporterTree(directory, searchPattern, this.Workflow.Configuration, progressHandler);
 
                 // Hook
                 this.ImportDirectory.ItemPropertyChangedTreeEvent += OnImportTreePropertyChanged;

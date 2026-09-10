@@ -1,9 +1,12 @@
 ﻿using System.Collections.ObjectModel;
 
+using AudioStation.Controller.Interface;
+using AudioStation.Core;
 using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Component.LibraryLoaderComponent;
 using AudioStation.Core.Component.LibraryLoaderComponent.Load;
 using AudioStation.Core.Database.AudioStationDatabase;
+using AudioStation.Event;
 using AudioStation.Event.LibraryLoaderEvent;
 using AudioStation.Service.Interface;
 using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels;
@@ -33,6 +36,11 @@ namespace AudioStation.Service
 
             libraryLoader.WorkItemComplete += LibraryLoader_WorkItemComplete;
             libraryLoader.WorkItemUpdate += LibraryLoader_WorkItemUpdate;
+        }
+
+        public void Initialize(AudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
+        {
+
         }
 
         public int RunLoaderTaskAsync(LibraryWorkItemViewModel workItem)

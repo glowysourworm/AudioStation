@@ -3,6 +3,8 @@ using AudioStation.Core.Model.Interface;
 
 using Microsoft.Win32;
 
+using Newtonsoft.Json;
+
 using SimpleWpf.UI.Command;
 using SimpleWpf.UI.ViewModel;
 
@@ -74,13 +76,14 @@ namespace AudioStation.ViewModels.MainViewModels
             set { this.RaiseAndSetIfChanged(ref _formatPreference, value); }
         }
 
-
+        [JsonIgnore]
         public SimpleCommand OpenFolderCommand
         {
             get { return _openFolderCommand; }
             set { this.RaiseAndSetIfChanged(ref _openFolderCommand, value); }
         }
 
+        [JsonIgnore]
         IAudioEncoderInfo ILibraryDirectory.FormatPreference
         {
             get { return _formatPreference; }

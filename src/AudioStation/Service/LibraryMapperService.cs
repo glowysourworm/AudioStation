@@ -1,4 +1,7 @@
-﻿using AudioStation.Core.Database.AudioStationDatabase;
+﻿using AudioStation.Controller.Interface;
+using AudioStation.Core;
+using AudioStation.Core.Database.AudioStationDatabase;
+using AudioStation.Event;
 using AudioStation.Service.Interface;
 using AudioStation.ViewModels.ComponentViewModels.LibraryViewModels;
 
@@ -12,6 +15,11 @@ namespace AudioStation.Service
     {
         [IocImportingConstructor]
         public LibraryMapperService()
+        {
+
+        }
+
+        public void Initialize(AudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
         {
 
         }

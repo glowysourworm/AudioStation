@@ -8,9 +8,9 @@ namespace AudioStation.Core.Database.AudioStationDatabase
     [Table("ImportWorkflow", Schema = "public")]
     public class ImportWorkflow : AudioStationEntityBase
     {
-        public string Directory { get; set; }
+        public string Name { get; set; }
         public DateTime Created { get; set; }
         public DateTime Modified { get; set; }
-        public int StepNumber { get; set; }
+        public byte[]? ConfigurationJson { get; set; }
     }
 }

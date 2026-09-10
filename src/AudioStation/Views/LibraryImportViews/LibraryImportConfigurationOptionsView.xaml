@@ -11,7 +11,7 @@
 
     <Grid RowDefinitions="Auto, Auto, *">
         <Border Margin="5"
-                Visibility="{Binding Options.ImportDirectory.ImportType, 
+                Visibility="{Binding Workflow.Configuration.ImportDirectory.ImportType, 
                                      Converter={StaticResource ParameterVisibilityCollapsedConverter}, 
                                      ConverterParameter={x:Static coreModel:LibraryImportType.InPlaceDirectory}}"
                 Style="{StaticResource InstructionsBorderStyle}">
@@ -21,7 +21,7 @@
         </Border>
 
         <Border Margin="5"
-                Visibility="{Binding Options.ImportDirectory.ImportType, 
+                Visibility="{Binding Workflow.Configuration.ImportDirectory.ImportType, 
                                      Converter={StaticResource ParameterVisibilityCollapsedConverter}, 
                                      ConverterParameter={x:Static coreModel:LibraryImportType.Migration}}"                
                 Style="{StaticResource InstructionsWarningBorderStyle}">
@@ -32,7 +32,7 @@
 
         <Border Grid.Row="1"
                 Margin="5"
-                Visibility="{Binding Options.ImportDirectory.ImportType, 
+                Visibility="{Binding Workflow.Configuration.ImportDirectory.ImportType, 
                                      Converter={StaticResource ParameterVisibilityCollapsedConverter}, 
                                      ConverterParameter={x:Static coreModel:LibraryImportType.InPlaceDirectory}}"
                 Style="{StaticResource InstructionsWarningBorderStyle}">
@@ -43,7 +43,7 @@
 
         <Border Grid.Row="1"
                 Margin="5"
-                Visibility="{Binding Options.ImportDirectory.ImportType, 
+                Visibility="{Binding Workflow.Configuration.ImportDirectory.ImportType, 
                                      Converter={StaticResource ParameterVisibilityCollapsedConverter}, 
                                      ConverterParameter={x:Static coreModel:LibraryImportType.Migration}}"                
                 Style="{StaticResource InstructionsWarningBorderStyle}">
@@ -57,60 +57,99 @@
                 <Grid>
 
                     <StackPanel
-                            Visibility="{Binding Options.ImportDirectory.ImportType, 
+                            Visibility="{Binding Workflow.Configuration.ImportDirectory.ImportType, 
                             Converter={StaticResource ParameterVisibilityCollapsedConverter}, 
                             ConverterParameter={x:Static coreModel:LibraryImportType.InPlaceDirectory}}">
-                        
-                        <propertyGrid:PropertyStringControl LabelColumnWidth="250" Value="{Binding Options.ImportDirectory.Directory}" IsReadOnly="True" Margin="1" LabelText="Import Directory" />
-                        <propertyGrid:PropertyEnumControl EnumType="{x:Type coreModel:TrackCategory}" Value="{Binding Options.ImportDirectory.TrackCategory}" LabelColumnWidth="250" IsReadOnly="True" Margin="1" LabelText="Destination File Category" />
-                        <propertyGrid:PropertyEnumControl EnumType="{x:Type coreModel:TrackNamingType}" Value="{Binding Options.ImportDirectory.NamingType}" LabelColumnWidth="250" IsReadOnly="True" Margin="1" LabelText="Destination File Naming" />
-                        <propertyGrid:PropertyEnumControl EnumType="{x:Type coreModel:TrackGroupingType}" Value="{Binding Options.ImportDirectory.GroupingType}" LabelColumnWidth="250" IsReadOnly="True" Margin="1" LabelText="Destination File Grouping" />
+
+                        <propertyGrid:PropertyStringControl LabelColumnWidth="250" Value="{Binding Workflow.Configuration.ImportDirectory.Directory}" IsReadOnly="True" Margin="1" LabelText="Import Directory" />
+                        <propertyGrid:PropertyEnumControl EnumType="{x:Type coreModel:TrackCategory}" Value="{Binding Workflow.Configuration.ImportDirectory.TrackCategory}" LabelColumnWidth="250" IsReadOnly="True" Margin="1" LabelText="Destination File Category" />
+                        <propertyGrid:PropertyEnumControl EnumType="{x:Type coreModel:TrackNamingType}" Value="{Binding Workflow.Configuration.ImportDirectory.NamingType}" LabelColumnWidth="250" IsReadOnly="True" Margin="1" LabelText="Destination File Naming" />
+                        <propertyGrid:PropertyEnumControl EnumType="{x:Type coreModel:TrackGroupingType}" Value="{Binding Workflow.Configuration.ImportDirectory.GroupingType}" LabelColumnWidth="250" IsReadOnly="True" Margin="1" LabelText="Destination File Grouping" />
                     </StackPanel>
 
                     <StackPanel
-                              Visibility="{Binding Options.ImportDirectory.ImportType, 
+                              Visibility="{Binding Workflow.Configuration.ImportDirectory.ImportType, 
                               Converter={StaticResource ParameterVisibilityCollapsedConverter}, 
                               ConverterParameter={x:Static coreModel:LibraryImportType.Migration}}">
-                        
-                        <propertyGrid:PropertyStringControl LabelColumnWidth="250" Value="{Binding Options.MigrationSourceDirectory}" IsRequired="True" IsReadOnly="True" Margin="1" LabelText="Source Folder" />
-                        <propertyGrid:PropertyStringControl LabelColumnWidth="250" Value="{Binding Options.ImportDirectory.Directory}" IsRequired="True" IsReadOnly="True" Margin="1" LabelText="Destination Folder" />
-                        <propertyGrid:PropertyEnumControl EnumType="{x:Type coreModel:TrackCategory}" Value="{Binding Options.ImportDirectory.TrackCategory}" LabelColumnWidth="250" IsReadOnly="True" Margin="1" LabelText="Destination File Category" />
-                        <propertyGrid:PropertyEnumControl EnumType="{x:Type coreModel:TrackNamingType}" Value="{Binding Options.ImportDirectory.NamingType}" LabelColumnWidth="250" IsReadOnly="True" Margin="1" LabelText="Destination File Naming" />
-                        <propertyGrid:PropertyEnumControl EnumType="{x:Type coreModel:TrackGroupingType}" Value="{Binding Options.ImportDirectory.GroupingType}" LabelColumnWidth="250" IsReadOnly="True" Margin="1" LabelText="Destination File Grouping" />
+
+                        <propertyGrid:PropertyStringControl LabelColumnWidth="250" Value="{Binding Workflow.Configuration.MigrationSourceDirectory}" IsRequired="True" IsReadOnly="True" Margin="1" LabelText="Source Folder" />
+                        <propertyGrid:PropertyStringControl LabelColumnWidth="250" Value="{Binding Workflow.Configuration.ImportDirectory.Directory}" IsRequired="True" IsReadOnly="True" Margin="1" LabelText="Destination Folder" />
+                        <propertyGrid:PropertyEnumControl EnumType="{x:Type coreModel:TrackCategory}" Value="{Binding Workflow.Configuration.ImportDirectory.TrackCategory}" LabelColumnWidth="250" IsReadOnly="True" Margin="1" LabelText="Destination File Category" />
+                        <propertyGrid:PropertyEnumControl EnumType="{x:Type coreModel:TrackNamingType}" Value="{Binding Workflow.Configuration.ImportDirectory.NamingType}" LabelColumnWidth="250" IsReadOnly="True" Margin="1" LabelText="Destination File Naming" />
+                        <propertyGrid:PropertyEnumControl EnumType="{x:Type coreModel:TrackGroupingType}" Value="{Binding Workflow.Configuration.ImportDirectory.GroupingType}" LabelColumnWidth="250" IsReadOnly="True" Margin="1" LabelText="Destination File Grouping" />
 
                         <propertyGrid:PropertyBooleanControl LabelColumnWidth="250" 
                                                      IsRequired="False"
                                                      Description="(Migration) Delete source files after copying to the destination directory"
-                                                     Value="{Binding Options.MigrationDeleteSourceFiles}" IsReadOnly="False" Margin="1" LabelText="Delete Source File(s)" />
+                                                     Value="{Binding Workflow.Configuration.MigrationDeleteSourceFiles, Mode=TwoWay}" IsReadOnly="False" Margin="1" LabelText="Delete Source File(s)" />
                         <propertyGrid:PropertyBooleanControl LabelColumnWidth="250" 
                                                      IsRequired="False"
                                                      Description="(Migration) Delete source folders after copying files to the destination directory (this excludes any configured library or application directories unless they are sub-directories that are no longer needed)"
-                                                     Value="{Binding Options.MigrationDeleteSourceFolders}" IsReadOnly="False" Margin="1" LabelText="Delete Source Folder(s)" />
-                        <propertyGrid:PropertyBooleanControl LabelColumnWidth="250" 
-                                                     IsRequired="False"
-                                                     Description="(Migration) Overwrite destination file(s) with the same name"
-                                                     Value="{Binding Options.MigrationOverwriteDestinationFiles}" IsReadOnly="False" Margin="1" LabelText="Overwrite Destination File(s)" />
+                                                     Value="{Binding Workflow.Configuration.MigrationDeleteSourceFolders, Mode=TwoWay}" IsReadOnly="False" Margin="1" LabelText="Delete Source Folder(s)" />
                     </StackPanel>
                 </Grid>
             </TabItem>
-            
+
+            <TabItem Header="Import Conflict Resolution">
+                <StackPanel>
+
+                    <!-- Migration -->
+                    <propertyGrid:PropertyBooleanControl LabelColumnWidth="250" 
+                                                     IsRequired="False"
+                                                     Description="(Migration) Overwrite destination file(s) with the same name"
+                                                     Value="{Binding Workflow.Configuration.MigrationOverwriteDestinationFiles, Mode=TwoWay}" IsReadOnly="False" Margin="1" LabelText="Overwrite Destination File(s)" />
+
+                    <propertyGrid:PropertyBooleanControl LabelColumnWidth="250" 
+                                                     Description="(Database) Overwrites existing library [FileReference] records when conflicts are found"
+                                                     Value="{Binding Workflow.Configuration.LibraryOverwriteExistingFiles, Mode=TwoWay}" IsReadOnly="False" Margin="1" LabelText="Overwrite File References" />
+
+                    <propertyGrid:PropertyBooleanControl LabelColumnWidth="250" 
+                                                     Description="(Database) Overwrites existing library [Track] records when conflicts are found"
+                                                     Value="{Binding Workflow.Configuration.LibraryOverwriteExistingTracks, Mode=TwoWay}" IsReadOnly="False" Margin="1" LabelText="Overwrite Tracks" />
+
+                    <propertyGrid:PropertyBooleanControl LabelColumnWidth="250" 
+                                                     Description="(Database) Overwrites existing library [Album] records when conflicts are found"
+                                                     Value="{Binding Workflow.Configuration.LibraryOverwriteExistingAlbums, Mode=TwoWay}" IsReadOnly="False" Margin="1" LabelText="Overwrite Albums" />
+
+                    <propertyGrid:PropertyBooleanControl LabelColumnWidth="250" 
+                                                     Description="(Database) Overwrites existing library [Artist] records when conflicts are found"
+                                                     Value="{Binding Workflow.Configuration.LibraryOverwriteExistingArtists, Mode=TwoWay}" IsReadOnly="False" Margin="1" LabelText="Overwrite Artists" />
+
+                    <propertyGrid:PropertyBooleanControl LabelColumnWidth="250" 
+                                                     Description="(Database) Overwrites existing library [Genre] records when conflicts are found"
+                                                     Value="{Binding Workflow.Configuration.LibraryOverwriteExistingGenres, Mode=TwoWay}" IsReadOnly="False" Margin="1" LabelText="Overwrite Genres" />
+
+                    <propertyGrid:PropertyBooleanControl LabelColumnWidth="250" 
+                                                     Description="(Service) Overwrites existing library [AcoustIDLookupResult] records when conflicts are found"
+                                                     Value="{Binding Workflow.Configuration.ServiceOverwriteAcoustID, Mode=TwoWay}" IsReadOnly="False" Margin="1" LabelText="Overwrite AcoustID" />
+
+                    <propertyGrid:PropertyBooleanControl LabelColumnWidth="250" 
+                                                     Description="(Service) Overwrites existing library [TagSmall] records when conflicts are found"
+                                                     Value="{Binding Workflow.Configuration.ServiceOverwriteMusicBrainzBasic, Mode=TwoWay}" IsReadOnly="False" Margin="1" LabelText="Overwrite Music Brainz" />
+
+                    <propertyGrid:PropertyBooleanControl LabelColumnWidth="250" 
+                                                     Description="(Service) Overwrites existing library album artwork files when conflicts are found"
+                                                     Value="{Binding Workflow.Configuration.ServiceOverwriteMusicBrainzArtwork, Mode=TwoWay}" IsReadOnly="False" Margin="1" LabelText="Overwrite Music Brainz Artwork" />
+                </StackPanel>
+            </TabItem>
+
             <TabItem Header="Import Services">
                 <StackPanel>
                     <propertyGrid:PropertyBooleanControl LabelColumnWidth="250" 
                                                      Description="Use the AcoustID service to identify recordings based on chroma-print audio fingerprinting"
-                                                     Value="{Binding Options.IdentifyUsingAcoustID}" IsReadOnly="False" Margin="1" LabelText="Use AcoustID" />
+                                                     Value="{Binding Workflow.Configuration.ServiceIncludeAcoustID, Mode=TwoWay}" IsReadOnly="False" Margin="1" LabelText="Use AcoustID" />
 
                     <propertyGrid:PropertyBooleanControl LabelColumnWidth="250" 
                                                      Description="Identify the AcoustID data using the provided Music Brainz ID to lookup tag detail"
-                                                     Value="{Binding Options.IdentifyUsingMusicBrainz}" IsReadOnly="False" Margin="1" LabelText="Use Music Brainz" />
+                                                     Value="{Binding Workflow.Configuration.ServiceIncludeMusicBrainzBasic, Mode=TwoWay}" IsReadOnly="False" Margin="1" LabelText="Use Music Brainz" />
 
                     <propertyGrid:PropertyBooleanControl LabelColumnWidth="250" 
                                                      Description="Download album artwork from Music Brainz (this can be done after import)"
-                                                     Value="{Binding Options.IncludeMusicBrainzArtwork}" IsReadOnly="False" Margin="1" LabelText="Include Album Artwork" />
+                                                     Value="{Binding Workflow.Configuration.ServiceIncludeMusicBrainzArtwork, Mode=TwoWay}" IsReadOnly="False" Margin="1" LabelText="Include Album Artwork" />
 
                     <propertyGrid:PropertyBooleanControl LabelColumnWidth="250" 
                                                      Description="Convert audio formats to folder preference (this can be done after import)"
-                                                     Value="{Binding Options.ConvertAudioFormat}" IsReadOnly="False" Margin="1" LabelText="Convert Audio Format(s)" />
+                                                     Value="{Binding Workflow.Configuration.ConvertAudioFormat, Mode=TwoWay}" IsReadOnly="False" Margin="1" LabelText="Convert Audio Format(s)" />
                 </StackPanel>
             </TabItem>
         </TabControl>

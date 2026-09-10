@@ -13,6 +13,17 @@ namespace AudioStation.Service.Interface
     public interface ILibraryLoaderService : IAudioStationService
     {
         /// <summary>
+        /// Adds workflow entity to the database from the view-model
+        /// </summary>
+        void AddOrUpdateImportWorkflow(LibraryImporterWorkflowViewModel workflow);
+
+        /// <summary>
+        /// Gets saved workflow(s) from the database and maps them to the view model namespace
+        /// </summary>
+        /// <returns></returns>
+        IEnumerable<LibraryImporterWorkflowViewModel> GetWorkflows();
+
+        /// <summary>
         /// Initializes Audio Station Library with entities from the database
         /// </summary>
         LibraryViewModel LoadLibrary(DialogProgressHandler progressHandler);

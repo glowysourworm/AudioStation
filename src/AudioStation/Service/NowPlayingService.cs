@@ -1,6 +1,9 @@
-﻿using AudioStation.Core.Controller.Interface;
+﻿using AudioStation.Controller.Interface;
+using AudioStation.Core;
+using AudioStation.Core.Controller.Interface;
 using AudioStation.Core.Service.Vendor.Interface;
 using AudioStation.Core.Utility;
+using AudioStation.Event;
 using AudioStation.Model;
 using AudioStation.Service.Interface;
 using AudioStation.ViewModels.ComponentViewModels.LibraryViewModels;
@@ -33,6 +36,11 @@ namespace AudioStation.Service
             _musicBrainzClient = musicBrainzClient;
             _fanartClient = fanartClient;
             _outputController = outputController;
+        }
+
+        public void Initialize(AudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
+        {
+
         }
 
         public async Task<NowPlayingData> LoadPlaylist(ArtistViewModel artist, AlbumViewModel album, TrackViewModel startTrack)

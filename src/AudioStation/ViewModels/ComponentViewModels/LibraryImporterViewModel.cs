@@ -9,10 +9,12 @@ using AudioStation.Core.Model;
 using AudioStation.Core.Model.Interface;
 using AudioStation.Event;
 using AudioStation.Event.DialogEvents;
+using AudioStation.Service.Interface;
 using AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels;
 using AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.Workflow;
 using AudioStation.ViewModels.MainViewModels;
 
+using SimpleWpf.Extensions.ObservableCollection;
 using SimpleWpf.IocFramework.EventAggregation;
 using SimpleWpf.UI.Command;
 using SimpleWpf.UI.ViewModel.FileTreeView;
@@ -23,9 +25,16 @@ namespace AudioStation.ViewModels.ComponentViewModels
 {
     public class LibraryImporterViewModel : ComponentViewModelBase
     {
+        // TODO: Try (Initialize, Load, Execute, and Save) for the component view model base
+        //       to clean up this view model issue. We need components injected for other
+        //       functions.
+        private ILibraryLoaderService _libraryLoaderService;
+
         private readonly IAudioStationMapper _audioStationMapper;
         private readonly IDialogController _dialogController;
         private readonly ITagCacheController _tagCacheController;
+
+
 
         // Configuration:  This is for the partial configuration editing control area for library directories.
         //
@@ -33,7 +42,7 @@ namespace AudioStation.ViewModels.ComponentViewModels
         ObservableCollection<AudioEncoderViewModel> _encoders;
 
         // Workflow View Models
-        LibraryImporterConfigurationViewModel _options;
+        LibraryImporterWorkflowViewModel _workflow;
         LibraryImporterLoaderViewModel _loader;
         LibraryImporterStagingViewModel _staging;
 
@@ -64,10 +73,20 @@ namespace AudioStation.ViewModels.ComponentViewModels
             get { return _encoders; }
             set { this.RaiseAndSetIfChanged(ref _encoders, value); }
         }
-        public LibraryImporterConfigurationViewModel Options
+        public LibraryImporterWorkflowViewModel Workflow
         {
-            get { return _options; }
-            set { RaiseAndSetIfChanged(ref _options, value); }
+            get { return _workflow; }
+            set
+            {
+                RaiseAndSetIfChanged(ref _workflow, value);
+
+                // Also, have to set component parts
+                if (this.Loader != null)
+                    this.Loader.Workflow = value;
+
+                if (this.Staging != null)
+                    this.Staging.Workflow = value;
+            }
         }
         public LibraryImporterLoaderViewModel Loader
         {
@@ -142,9 +161,12 @@ namespace AudioStation.ViewModels.ComponentViewModels
             _dialogController = dialogController;
             _tagCacheController = tagCacheController;
 
-            this.Options = new LibraryImporterConfigurationViewModel();
-            this.Loader = new LibraryImporterLoaderViewModel(eventAggregator, audioConverter, this.Options);
-            this.Staging = new LibraryImporterStagingViewModel(eventAggregator, this.Options);
+            this.Workflow = new LibraryImporterWorkflowViewModel()
+            {
+                Name = "New Workflow"
+            };
+            this.Loader = new LibraryImporterLoaderViewModel(eventAggregator, audioConverter, this.Workflow);
+            this.Staging = new LibraryImporterStagingViewModel(eventAggregator, this.Workflow);
 
             this.SavedWorkflows = new ObservableCollection<LibraryImporterWorkflowViewModel>();
 
@@ -161,6 +183,15 @@ namespace AudioStation.ViewModels.ComponentViewModels
             this.EditTagGroupCommand = new SimpleCommand<string>(EditTagGroup, CanEditTagGroup);
         }
 
+        /// <summary>
+        /// Saves current workflow changes
+        /// </summary>
+        public void SaveCurrentWorkflow()
+        {
+            // EXCEPTION (TODO)
+            _libraryLoaderService.AddOrUpdateImportWorkflow(this.Workflow);
+        }
+
         private void OnImportStepUpdate(object? sender, PropertyChangedEventArgs e)
         {
             this.Loading = this.Loader.Loading || this.Staging.Loading;
@@ -168,11 +199,20 @@ namespace AudioStation.ViewModels.ComponentViewModels
 
         protected override void InitializeImpl(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogProgressHandler progressHandler)
         {
+            // TODO: Try making a new couple of pattern methods for components (Save, and Execute)
+            _libraryLoaderService = audioStationController.LibraryLoaderService;
+
             // Sub-component(s)
             this.Loader.Initialize(configuration, audioStationController, progressHandler);
             this.Staging.Initialize(configuration, audioStationController, progressHandler);
             this.Configuration = audioStationController.ComponentController.GetComponent<AudioStationConfigurationViewModel>();
             this.Encoders = audioStationController.ComponentController.GetComponent<MainViewModel>().Encoders;
+
+            // EXCEPTION (TODO)
+            this.SavedWorkflows.AddRange(audioStationController.LibraryLoaderService.GetWorkflows());
+
+            if (this.SavedWorkflows.Any())
+                this.Workflow = this.SavedWorkflows.First();
 
             // Set View Model (Load)
             //this.SourceDirectory = load;
@@ -197,7 +237,7 @@ namespace AudioStation.ViewModels.ComponentViewModels
         }
         protected override void LoadImpl(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
         {
-            if (this.Options.ImportDirectory == null)
+            if (this.Workflow.Configuration.ImportDirectory == null)
                 return;
 
             // Sub-component(s)

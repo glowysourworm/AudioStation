@@ -38,6 +38,7 @@ namespace AudioStation.Event
     public enum DialogEditorView
     {
         None,
+        SingleTextField,
         TagView,
         TagFieldView,
     }

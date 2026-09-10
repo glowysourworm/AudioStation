@@ -21,16 +21,26 @@ namespace AudioStation.Views.LibraryImportViews
             eventAggregator.GetEvent<ConfigurationEvent>().Subscribe(eventData =>
             {
                 // TODO: Make this for a "application ready" broadcast, not just the configuration
-                if (eventData.Type == ConfigurationEventType.Opened)
+                if (eventData.Type == ConfigurationEventType.Modified ||
+                    eventData.Type == ConfigurationEventType.Opened)
                 {
-                    // Initial Configuration
-                    this.LibraryDirectoriesView.ItemsSource = audioStationController.ComponentController.GetComponent<AudioStationConfigurationViewModel>().LibraryDirectories;
-                    this.LibraryDirectoriesView.Encoders = audioStationController.ComponentController.GetComponent<MainViewModel>().Encoders;
-
-                    this.LibraryDirectoriesView.ItemsSource = eventData.ViewModel.LibraryDirectories;
-                    this.LibraryDirectoriesCB.ItemsSource = eventData.ViewModel.LibraryDirectories;
+                    UpdateConfiguration(audioStationController);
                 }
             });
+
+            this.Loaded += (sender, e) => UpdateConfiguration(audioStationController);
+        }
+
+        private void UpdateConfiguration(IAudioStationController audioStationController)
+        {
+            var configuration = audioStationController.ComponentController.GetComponent<AudioStationConfigurationViewModel>();
+
+            // Initial Configuration
+            this.LibraryDirectoriesView.ItemsSource = configuration.LibraryDirectories;
+            this.LibraryDirectoriesView.Encoders = audioStationController.ComponentController.GetComponent<MainViewModel>().Encoders;
+
+            this.LibraryDirectoriesView.ItemsSource = configuration.LibraryDirectories;
+            this.LibraryDirectoriesCB.ItemsSource = configuration.LibraryDirectories;
         }
     }
 }
