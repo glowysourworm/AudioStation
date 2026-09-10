@@ -5,10 +5,9 @@ using SimpleWpf.IocFramework.Application.Attribute;
 namespace AudioStation.Views.LibraryImportViews
 {
     [IocExportDefault]
-    public partial class LibraryImportFinalView : UserControl
+    public partial class LibraryImportMigrationView : UserControl
     {
-        [IocImportingConstructor]
-        public LibraryImportFinalView()
+        public LibraryImportMigrationView()
         {
             InitializeComponent();
         }

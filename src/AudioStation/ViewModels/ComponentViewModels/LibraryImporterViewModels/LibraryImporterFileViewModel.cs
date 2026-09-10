@@ -32,6 +32,8 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels
 
         bool _inError;
         bool _isTagDirty;
+        bool _libraryConflict;
+        bool _fileConflict;
 
         string _fileMigrationName;
         string _fileMigrationFullPath;
@@ -68,6 +70,16 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels
         {
             get { return _isTagDirty; }
             set { this.RaiseAndSetIfChanged(ref _isTagDirty, value); }
+        }
+        public bool LibraryConflict
+        {
+            get { return _libraryConflict; }
+            set { this.RaiseAndSetIfChanged(ref _libraryConflict, value); }
+        }
+        public bool FileConflict
+        {
+            get { return _fileConflict; }
+            set { this.RaiseAndSetIfChanged(ref _fileConflict, value); }
         }
         public string FileMigrationName
         {

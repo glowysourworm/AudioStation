@@ -9,7 +9,7 @@
              xmlns:simpleUI="clr-namespace:SimpleWpf.UI.Controls;assembly=SimpleWpf.UI"
              xmlns:simpleUITreeview="clr-namespace:SimpleWpf.UI.Controls.TreeViewUI;assembly=SimpleWpf.UI">
     
-    <Grid RowDefinitions="Auto, Auto, *" ColumnDefinitions="*, Auto, *" DataContext="{Binding Staging}">
+    <Grid RowDefinitions="Auto, Auto, *, Auto" ColumnDefinitions="*, Auto, *" DataContext="{Binding Staging}">
 
         <!-- Input Files (In Place) -->
         <TextBox Margin="5" 
@@ -48,10 +48,11 @@
 
         <!-- Input Files -->
         <simpleUITreeview:SimpleTreeView x:Name="ImportTV"
-                  Margin="5"
-                  Grid.Row="2"
-                  Style="{StaticResource FileTreeViewItemStyle}"
-                  ItemsSource="{Binding ImportDirectory}">
+                                         SelectedItemsChanged="ImportTV_SelectedItemsChanged"
+                                         Margin="5"
+                                         Grid.Row="2"
+                                         Style="{StaticResource FileTreeViewItemStyle}"
+                                         ItemsSource="{Binding ImportDirectory}">
         </simpleUITreeview:SimpleTreeView>
         
         <!-- Stage / Unstage -->
@@ -83,6 +84,7 @@
         <!-- Staged Files -->
         <ListBox x:Name="StagedLB"
                  ItemsSource="{Binding StagedFiles}"
+                 SelectionChanged="StagedLB_SelectionChanged"
                  Grid.Column="2"
                  Grid.Row="2"
                  Margin="5"
@@ -91,11 +93,7 @@
                  SelectedValuePath="IsSelected"
                  SelectionMode="Extended"
                  AlternationCount="2"                 
-                 HorizontalContentAlignment="Stretch"
-                 VirtualizingPanel.IsVirtualizing="True"
-                 VirtualizingPanel.VirtualizationMode="Recycling"
-                 VirtualizingPanel.CacheLengthUnit="Item"
-                 VirtualizingPanel.CacheLength="3">
+                 HorizontalContentAlignment="Stretch">
 
             <ListBox.ContextMenu>
                 <ContextMenu>
@@ -144,6 +142,36 @@
             </ListBox.ContextMenu>
             
         </ListBox>
+
+        <Border Grid.Column="0" 
+                Grid.Row="3" 
+                Margin="5" 
+                Style="{StaticResource FooterBorderStyle}">
+            <Grid ColumnDefinitions="Auto, *" RowDefinitions="Auto, Auto, Auto">
+                <TextBlock Text="Total File(s)" Style="{StaticResource LabelDetailDarkTextBlock}" Grid.Column="0" />
+                <TextBlock Text="Total Director(y|ies)" Style="{StaticResource LabelDetailDarkTextBlock}" Grid.Column="0" Grid.Row="1" />
+                <TextBlock Text="Selected File(s)" Style="{StaticResource LabelDetailDarkTextBlock}" Grid.Column="0" Grid.Row="2" />
+
+                <TextBlock Text="{Binding TotalFileCount}" Style="{StaticResource LabelDetailDarkTextBlock}" Grid.Column="1" HorizontalAlignment="Right" />
+                <TextBlock Text="{Binding TotalDirectoryCount}" Style="{StaticResource LabelDetailDarkTextBlock}" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Right" />
+                <TextBlock Text="{Binding SelectedFileCount}" Style="{StaticResource LabelDetailDarkTextBlock}" Grid.Column="1" Grid.Row="2" HorizontalAlignment="Right" />
+            </Grid>
+        </Border>
+
+        <Border Grid.Column="2" 
+                Grid.Row="3" 
+                Margin="5" 
+                Style="{StaticResource FooterBorderStyle}">
+            <Grid ColumnDefinitions="Auto, *" RowDefinitions="Auto, Auto, Auto">
+                <TextBlock Text="Total File(s)" Style="{StaticResource LabelDetailDarkTextBlock}" Grid.Column="0" />
+                <TextBlock Text="Selected File(s)" Style="{StaticResource LabelDetailDarkTextBlock}" Grid.Column="0" Grid.Row="1" />
+                <TextBlock Text="Library Conflict(s)" Style="{StaticResource LabelDetailDarkTextBlock}" Grid.Column="0" Grid.Row="2" />
+
+                <TextBlock Text="{Binding StagedFiles.Count}" Style="{StaticResource LabelDetailDarkTextBlock}" Grid.Column="1" HorizontalAlignment="Right" />
+                <TextBlock Text="{Binding StagedSelectedCount}" Style="{StaticResource LabelDetailDarkTextBlock}" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Right" />
+                <TextBlock Text="{Binding LibraryConflictCount}" Style="{StaticResource LabelDetailDarkTextBlock}" Grid.Column="1" Grid.Row="2" HorizontalAlignment="Right" />
+            </Grid>
+        </Border>
 
         <!--ScrollViewer Grid.Row="1" Margin="5" VerticalScrollBarVisibility="Auto">
             

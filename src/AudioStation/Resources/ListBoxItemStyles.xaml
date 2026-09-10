@@ -311,7 +311,7 @@
         <Setter Property="Foreground" Value="{StaticResource HoverSelectForeground_LibraryImporter}" />
         
         <!-- Specific IsSelected Binding! -->
-        <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />
+        <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
 
         <Setter Property="Template">
             <Setter.Value>

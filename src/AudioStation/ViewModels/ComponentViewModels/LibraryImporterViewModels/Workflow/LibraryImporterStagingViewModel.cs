@@ -1,24 +1,28 @@
-﻿using System.Collections.ObjectModel;
-using AudioStation.Controller.Interface;
-using AudioStation.Core.Model.Interface;
-using AudioStation.Service.Interface;
+﻿using System.ComponentModel;
 
-using SimpleWpf.IocFramework.Application;
-using SimpleWpf.UI.Command;
-using SimpleWpf.UI.ViewModel.FileTreeView;
-using SimpleWpf.Extensions.Collection;
-using System.ComponentModel;
-using SimpleWpf.UI.ViewModel.TreeView;
-using SimpleWpf.UI.ViewModel.TreeView.Interface;
-using SimpleWpf.IocFramework.EventAggregation;
+using AudioStation.Controller.Interface;
+using AudioStation.Core.Database.AudioStationDatabase;
+using AudioStation.Core.Database.AudioStationDatabase.Interface;
+using AudioStation.Core.Model.Interface;
 using AudioStation.Event;
 using AudioStation.Event.DialogEvents;
+using AudioStation.Service.Interface;
+
+using SimpleWpf.Extensions.Collection;
+using SimpleWpf.Extensions.ObservableCollection;
+using SimpleWpf.IocFramework.Application;
+using SimpleWpf.IocFramework.EventAggregation;
+using SimpleWpf.UI.Command;
+using SimpleWpf.UI.ViewModel.FileTreeView;
+using SimpleWpf.UI.ViewModel.TreeView;
+using SimpleWpf.UI.ViewModel.TreeView.Interface;
 
 namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.Workflow
 {
     public class LibraryImporterStagingViewModel : ComponentPartViewModelBase
     {
         private readonly IIocEventAggregator _eventAggregator;
+        private IAudioStationDbClient _audioStationDbClient;
         private LibraryImporterWorkflowViewModel _workflow;
 
         SimpleCommand _stageCommand;
@@ -33,7 +37,16 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
         //                finished - with the bare minimum tag data - and moved into the library's 
         //                directory structure.
         //
-        ObservableCollection<LibraryImporterFileViewModel> _stagedFiles;
+        NotifyingObservableCollection<LibraryImporterFileViewModel> _stagedFiles;
+
+        int _libraryConflictCount;
+        int _stagedSelectedCount;
+
+        // Import Directory:  Selected file count
+        //
+        int _totalFileCount;
+        int _totalDirectoryCount;
+        int _selectedFileCount;
 
         public LibraryImporterWorkflowViewModel Workflow
         {
@@ -45,10 +58,35 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
             get { return _importDirectory; }
             set { this.RaiseAndSetIfChanged(ref _importDirectory, value); }
         }
-        public ObservableCollection<LibraryImporterFileViewModel> StagedFiles
+        public NotifyingObservableCollection<LibraryImporterFileViewModel> StagedFiles
         {
             get { return _stagedFiles; }
             set { this.RaiseAndSetIfChanged(ref _stagedFiles, value); }
+        }
+        public int LibraryConflictCount
+        {
+            get { return _libraryConflictCount; }
+            set { this.RaiseAndSetIfChanged(ref _libraryConflictCount, value); }
+        }
+        public int StagedSelectedCount
+        {
+            get { return _stagedSelectedCount; }
+            set { this.RaiseAndSetIfChanged(ref _stagedSelectedCount, value); }
+        }
+        public int TotalFileCount
+        {
+            get { return _totalFileCount; }
+            set { this.RaiseAndSetIfChanged(ref _totalFileCount, value); }
+        }
+        public int TotalDirectoryCount
+        {
+            get { return _totalDirectoryCount; }
+            set { this.RaiseAndSetIfChanged(ref _totalDirectoryCount, value); }
+        }
+        public int SelectedFileCount
+        {
+            get { return _selectedFileCount; }
+            set { this.RaiseAndSetIfChanged(ref _selectedFileCount, value); }
         }
 
         public SimpleCommand StageCommand
@@ -68,7 +106,8 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
             _eventAggregator = eventAggregator;
 
             this.Workflow = workflow;
-            this.StagedFiles = new ObservableCollection<LibraryImporterFileViewModel>();
+            this.StagedFiles = new NotifyingObservableCollection<LibraryImporterFileViewModel>();
+            this.StagedFiles.ItemPropertyChanged += StagedFiles_ItemPropertyChanged;
 
             this.StageCommand = new SimpleCommand(Stage, CanStage);
             this.UnstageCommand = new SimpleCommand(Unstage, CanUnstage);
@@ -76,7 +115,18 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
 
         public void Stage()
         {
+            // Library Files
+            var libraryFiles = _audioStationDbClient.GetEntities<FileReference>().ToDictionary(x => x.FileName);
+
+            // (performance) Staged File Dictionary 
             var stagedFiles = new Dictionary<string, LibraryImporterFileViewModel>();
+
+            // Initialize with any staged files
+            foreach (var file in this.StagedFiles)
+            {
+                if (!file.IsDirectory && !stagedFiles.ContainsKey(file.FullPath))
+                    stagedFiles.Add(file.FullPath, file);
+            }
 
             var eventData = DialogEventData.ShowLoadingWithProgress("Staging Files");
             var dialogViewModel = eventData.DataContext as DialogLoadingViewModel;
@@ -109,6 +159,11 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
                         {
                             var file = new LibraryImporterFileViewModel(subNode.FullPath, subNode.BaseDirectory, this.Workflow.Configuration.ImportDirectory.ImportType);
 
+                            // Check For Library Conflict
+                            //
+                            file.LibraryConflict = libraryFiles.ContainsKey(file.FullPath);
+                            file.FileConflict = false;                                          // Calculate migration path
+
                             stagedFiles.Add(file.FullPath, file);
                             this.StagedFiles.Add(file);
                         }
@@ -120,6 +175,11 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
                 else if (!stagedFiles.ContainsKey(node.FullPath))
                 {
                     var stagedFile = new LibraryImporterFileViewModel(node.FullPath, node.BaseDirectory, this.Workflow.Configuration.ImportDirectory.ImportType);
+
+                    // Check For Library Conflict
+                    //
+                    stagedFile.LibraryConflict = libraryFiles.ContainsKey(stagedFile.FullPath);
+                    stagedFile.FileConflict = false;                                                  // Calculate migration path
 
                     stagedFiles.Add(node.FullPath, stagedFile);
                     this.StagedFiles.Add(stagedFile);
@@ -147,7 +207,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
 
         protected override void InitializeImpl(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
         {
-
+            _audioStationDbClient = audioStationController.ServiceController.GetDataService<IAudioStationDbClient>();
         }
 
         protected override void LoadImpl(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
@@ -163,11 +223,16 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
                 var libraryLoaderService = IocContainer.Get<ILibraryLoaderService>();
                 var directory = (this.Workflow.Configuration.ImportDirectory.ImportType == Core.Model.LibraryImportType.Migration) ? this.Workflow.Configuration.MigrationSourceDirectory :
                                                                                                                             this.Workflow.Configuration.ImportDirectory.Directory;
+                // Clear Staged
+                this.StagedFiles.Clear();
 
                 // Unhook
                 this.ImportDirectory?.ItemPropertyChangedTreeEvent -= OnImportTreePropertyChanged;
 
                 this.ImportDirectory = libraryLoaderService.InitializeImporterTree(directory, searchPattern, this.Workflow.Configuration, progressHandler);
+
+                this.TotalFileCount = this.ImportDirectory.RecursiveCount(x => !x.CanHaveChildren);
+                this.TotalDirectoryCount = this.ImportDirectory.RecursiveCount(x => x.CanHaveChildren);
 
                 // Hook
                 this.ImportDirectory.ItemPropertyChangedTreeEvent += OnImportTreePropertyChanged;
@@ -178,6 +243,18 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
         {
             this.StageCommand.RaiseCanExecuteChanged();
             this.UnstageCommand.RaiseCanExecuteChanged();
+        }
+        private void StagedFiles_ItemPropertyChanged(LibraryImporterFileViewModel item, PropertyChangedEventArgs propertyArgs)
+        {
+            if (propertyArgs.PropertyName == "IsSelected")
+            {
+                this.StageCommand.RaiseCanExecuteChanged();
+                this.UnstageCommand.RaiseCanExecuteChanged();
+
+                // Selection Counts (PERFORMANCE LAG)
+                //this.StagedSelectedCount = this.StagedFiles.Count(x => x.IsSelected);
+                //this.LibraryConflictCount = this.StagedFiles.Count(x => x.LibraryConflict);
+            }
         }
     }
 }

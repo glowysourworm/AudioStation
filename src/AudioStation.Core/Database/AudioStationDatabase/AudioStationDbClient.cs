@@ -383,6 +383,23 @@ namespace AudioStation.Core.Database.AudioStationDatabase
             }
         }
 
+
+        public int GetCount<TEntity>() where TEntity : AudioStationEntityBase
+        {
+            try
+            {
+                using (var context = CreateContext())
+                {
+                    return GetEntitySet<TEntity>(context).Count();
+                }
+            }
+            catch (Exception ex)
+            {
+                ApplicationHelpers.Log("Error in AudioStationDbClient:  {0}", LogMessageDbType.AudioStation, LogLevel.Error, ex, ex.Message);
+                throw ex;
+            }
+        }
+
         public PageResult<TEntity> GetPage<TEntity, TOrder>(PageRequest<TEntity, TOrder> request) where TEntity : AudioStationEntityBase
         {
             try

@@ -1,13 +1,11 @@
-﻿using System.ComponentModel;
-using System.Windows.Controls;
+﻿using System.Windows.Controls;
 
 using AudioStation.Service.Interface;
 using AudioStation.ViewModels.ComponentViewModels;
 
 using SimpleWpf.IocFramework.Application.Attribute;
-using SimpleWpf.UI.ViewModel.FileTreeView;
+using SimpleWpf.UI.Controls.TreeViewUI;
 using SimpleWpf.UI.ViewModel.TreeView;
-using SimpleWpf.UI.ViewModel.TreeView.Interface;
 
 namespace AudioStation.Views.LibraryImportViews
 {
@@ -22,35 +20,26 @@ namespace AudioStation.Views.LibraryImportViews
             _libraryLoaderService = libraryLoaderService;
 
             InitializeComponent();
-
-            this.DataContextChanged += LibraryImportStagingView_DataContextChanged;
         }
-
-        private void LibraryImportStagingView_DataContextChanged(object sender, System.Windows.DependencyPropertyChangedEventArgs e)
-        {
-            var newVM = e.NewValue as LibraryImporterViewModel;
-            var oldVM = e.OldValue as LibraryImporterViewModel;
-
-            if (oldVM != null)
-                oldVM.Staging.ImportDirectory?.ItemPropertyChangedTreeEvent -= OnImportTreeChanged;
-
-            if (newVM != null)
-                newVM.Staging.ImportDirectory?.ItemPropertyChangedTreeEvent += OnImportTreeChanged;
-        }
-
-        private void OnImportTreeChanged(TreeViewModelBase treeSender, ITreeViewNode item, PropertyChangedEventArgs eventArgs)
+        private void ImportTV_SelectedItemsChanged(SimpleTreeView treeView, IEnumerable<TreeViewModelBase> selectedItems)
         {
             var viewModel = this.DataContext as LibraryImporterViewModel;
-            var itemViewModel = treeSender as FileTreeViewModel;
 
-            if (viewModel != null && itemViewModel != null && itemViewModel.NodeValue == item)
+            if (viewModel != null)
             {
-                if (itemViewModel.GetNodeValue().IsDirectory &&
-                    itemViewModel.GetNodeValue().IsExpanded &&
-                   !item.IsLoaded)
-                {
-                    _libraryLoaderService.LoadImporterTreeNextDepth(itemViewModel, itemViewModel.NodeValue.RecursionDepth, "*.mp3", null);
-                }
+                viewModel.Staging.SelectedFileCount = selectedItems.Count(x => !x.CanHaveChildren);
+            }
+        }
+
+        private void StagedLB_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            var viewModel = this.DataContext as LibraryImporterViewModel;
+
+            if (viewModel != null)
+            {
+                // Selection Counts
+                viewModel.Staging.StagedSelectedCount = viewModel.Staging.StagedFiles.Count(x => x.IsSelected);
+                viewModel.Staging.LibraryConflictCount = viewModel.Staging.StagedFiles.Count(x => x.LibraryConflict);
             }
         }
     }

@@ -119,6 +119,10 @@ namespace AudioStation.Views
         {
             return true;
         }
+        private bool AreMigrationRequirementsMet(LibraryImporterViewModel viewModel)
+        {
+            return true;
+        }
         private bool AreFinalRequirementsMet(LibraryImporterViewModel viewModel)
         {
             return true;
@@ -155,7 +159,7 @@ namespace AudioStation.Views
             }
 
             // Import Loader
-            else if (_regionManager.GetRegion("LibraryImporterControlRegion").Content is LibraryImportLoaderView)
+            else if (_regionManager.GetRegion("LibraryImporterControlRegion").Content is LibraryImportServiceWorkersView)
             {
                 this.NextStepReady = AreImportLoaderRequirementsMet(viewModel);
                 this.PreviousStepReady = true;
@@ -168,8 +172,15 @@ namespace AudioStation.Views
                 this.PreviousStepReady = true;
             }
 
+            // Migration
+            else if (_regionManager.GetRegion("LibraryImporterControlRegion").Content is LibraryImportMigrationView)
+            {
+                this.NextStepReady = AreMigrationRequirementsMet(viewModel);
+                this.PreviousStepReady = true;
+            }
+
             // Final View (User can go back as long as they haven't pressed "Execute")
-            else if (_regionManager.GetRegion("LibraryImporterControlRegion").Content is LibraryImportFinalView)
+            else if (_regionManager.GetRegion("LibraryImporterControlRegion").Content is LibraryImportFinalReportView)
             {
                 this.NextStepReady = AreFinalRequirementsMet(viewModel);
                 this.PreviousStepReady = true;
@@ -247,12 +258,12 @@ namespace AudioStation.Views
             }
 
             // Import Loader -> Tag Completion
-            else if (viewType == typeof(LibraryImportLoaderView))
+            else if (viewType == typeof(LibraryImportServiceWorkersView))
             {
                 return true;
             }
 
-            // Tag Completion -> Finalize
+            // Tag Completion -> Migration
             else if (viewType == typeof(LibraryImportTagCompletionView))
             {
                 // Run Acoust ID -> Music Brainz (cache results)
@@ -276,8 +287,14 @@ namespace AudioStation.Views
                     return false;
             }
 
+            // Migration -> Final Report
+            else if (viewType == typeof(LibraryImportMigrationView))
+            {
+                return true;
+            }
+
             // Final View
-            else if (viewType == typeof(LibraryImportFinalView))
+            else if (viewType == typeof(LibraryImportFinalReportView))
             {
                 return true;
             }
@@ -313,7 +330,7 @@ namespace AudioStation.Views
             }
 
             // Import Loader
-            else if (viewType == typeof(LibraryImportLoaderView))
+            else if (viewType == typeof(LibraryImportServiceWorkersView))
             {
                 // This gets moved to workflow loader (probably just use the view model to call the sub-components)
 
@@ -326,8 +343,14 @@ namespace AudioStation.Views
 
             }
 
+            // Migration
+            else if (viewType == typeof(LibraryImportMigrationView))
+            {
+
+            }
+
             // Final View
-            else if (viewType == typeof(LibraryImportFinalView))
+            else if (viewType == typeof(LibraryImportFinalReportView))
             {
 
             }
@@ -364,7 +387,7 @@ namespace AudioStation.Views
             }
 
             // Import Loader
-            else if (viewType == typeof(LibraryImportLoaderView))
+            else if (viewType == typeof(LibraryImportServiceWorkersView))
             {
             }
 
@@ -374,8 +397,14 @@ namespace AudioStation.Views
 
             }
 
+            // Migration
+            else if (viewType == typeof(LibraryImportMigrationView))
+            {
+
+            }
+
             // Final View
-            else if (viewType == typeof(LibraryImportFinalView))
+            else if (viewType == typeof(LibraryImportFinalReportView))
             {
 
             }
@@ -409,22 +438,28 @@ namespace AudioStation.Views
                 MoveToImportStep<LibraryImportStagingView, LibraryImportConfigurationOptionsView>(true);
             }
 
-            // Import Loader
-            else if (_regionManager.GetRegion("LibraryImporterControlRegion").Content is LibraryImportLoaderView)
+            // Import Service (Workers...)
+            else if (_regionManager.GetRegion("LibraryImporterControlRegion").Content is LibraryImportServiceWorkersView)
             {
-                MoveToImportStep<LibraryImportLoaderView, LibraryImportStagingView>(true);
+                MoveToImportStep<LibraryImportServiceWorkersView, LibraryImportStagingView>(true);
             }
 
             // Tag Completion
-            if (_regionManager.GetRegion("LibraryImporterControlRegion").Content is LibraryImportTagCompletionView)
+            else if (_regionManager.GetRegion("LibraryImporterControlRegion").Content is LibraryImportTagCompletionView)
             {
-                MoveToImportStep<LibraryImportTagCompletionView, LibraryImportLoaderView>(true);
+                MoveToImportStep<LibraryImportTagCompletionView, LibraryImportServiceWorkersView>(true);
             }
 
-            // Final View (User can go back as long as they haven't pressed "Execute")
-            if (_regionManager.GetRegion("LibraryImporterControlRegion").Content is LibraryImportFinalView)
+            // Migration
+            else if (_regionManager.GetRegion("LibraryImporterControlRegion").Content is LibraryImportMigrationView)
             {
-                MoveToImportStep<LibraryImportFinalView, LibraryImportTagCompletionView>(true);
+                MoveToImportStep<LibraryImportMigrationView, LibraryImportTagCompletionView>(true);
+            }
+
+            // Final Report
+            else if (_regionManager.GetRegion("LibraryImporterControlRegion").Content is LibraryImportFinalReportView)
+            {
+                MoveToImportStep<LibraryImportFinalReportView, LibraryImportMigrationView>(true);
             }
 
             RefreshFromDataContext(this.DataContext as LibraryImporterViewModel);
@@ -453,23 +488,23 @@ namespace AudioStation.Views
             // Staging
             else if (_regionManager.GetRegion("LibraryImporterControlRegion").Content is LibraryImportStagingView)
             {
-                MoveToImportStep<LibraryImportStagingView, LibraryImportLoaderView>(false);
+                MoveToImportStep<LibraryImportStagingView, LibraryImportServiceWorkersView>(false);
             }
 
             // Import Loader
-            else if (_regionManager.GetRegion("LibraryImporterControlRegion").Content is LibraryImportLoaderView)
+            else if (_regionManager.GetRegion("LibraryImporterControlRegion").Content is LibraryImportServiceWorkersView)
             {
-                MoveToImportStep<LibraryImportLoaderView, LibraryImportTagCompletionView>(false);
+                MoveToImportStep<LibraryImportServiceWorkersView, LibraryImportTagCompletionView>(false);
             }
 
             // Tag Completinon
             else if (_regionManager.GetRegion("LibraryImporterControlRegion").Content is LibraryImportTagCompletionView)
             {
-                MoveToImportStep<LibraryImportTagCompletionView, LibraryImportFinalView>(false);
+                MoveToImportStep<LibraryImportTagCompletionView, LibraryImportFinalReportView>(false);
             }
 
             // Final View (User can go back as long as they haven't pressed "Execute")
-            else if (_regionManager.GetRegion("LibraryImporterControlRegion").Content is LibraryImportFinalView)
+            else if (_regionManager.GetRegion("LibraryImporterControlRegion").Content is LibraryImportFinalReportView)
             {
                 // Nothing to do
             }

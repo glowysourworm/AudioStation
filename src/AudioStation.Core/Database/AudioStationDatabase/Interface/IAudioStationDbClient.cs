@@ -49,6 +49,11 @@ namespace AudioStation.Core.Database.AudioStationDatabase.Interface
         bool UpdateEntity<TEntity>(TEntity entity) where TEntity : AudioStationEntityBase;
 
         /// <summary>
+        /// Returns count of entity table
+        /// </summary>
+        int GetCount<TEntity>() where TEntity : AudioStationEntityBase;
+
+        /// <summary>
         /// Requests a page of data from the database
         /// </summary>
         /// <typeparam name="TEntity">The specific entity type</typeparam>

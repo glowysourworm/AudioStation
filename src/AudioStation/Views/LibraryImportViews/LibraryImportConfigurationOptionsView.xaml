@@ -96,6 +96,9 @@
                     <!-- Migration -->
                     <propertyGrid:PropertyBooleanControl LabelColumnWidth="250" 
                                                      IsRequired="False"
+                                                     Visibility="{Binding Workflow.Configuration.ImportDirectory.ImportType, 
+                                                     Converter={StaticResource ParameterVisibilityCollapsedConverter}, 
+                                                     ConverterParameter={x:Static coreModel:LibraryImportType.Migration}}"                                                         
                                                      Description="(Migration) Overwrite destination file(s) with the same name"
                                                      Value="{Binding Workflow.Configuration.MigrationOverwriteDestinationFiles, Mode=TwoWay}" IsReadOnly="False" Margin="1" LabelText="Overwrite Destination File(s)" />
 

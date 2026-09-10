@@ -9,9 +9,9 @@ using SimpleWpf.IocFramework.Application.Attribute;
 namespace AudioStation.Views.LibraryImportViews
 {
     [IocExportDefault]
-    public partial class LibraryImportLoaderView : UserControl
+    public partial class LibraryImportServiceWorkersView : UserControl
     {
-        public LibraryImportLoaderView()
+        public LibraryImportServiceWorkersView()
         {
             InitializeComponent();
 
