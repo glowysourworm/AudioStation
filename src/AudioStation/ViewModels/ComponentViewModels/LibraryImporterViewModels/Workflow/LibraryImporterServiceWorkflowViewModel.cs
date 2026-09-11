@@ -1,5 +1,4 @@
 ﻿using AudioStation.Controller.Interface;
-using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Database.AudioStationDatabase.Interface;
 using AudioStation.Core.Model.Interface;
 using AudioStation.Core.Utility;
@@ -15,16 +14,13 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
     /// <summary>
     /// Sub-component of LibraryImporterViewModel
     /// </summary>
-    public class LibraryImporterLoaderViewModel : ComponentPartViewModelBase
+    public class LibraryImporterServiceWorkflowViewModel : ComponentPartViewModelBase
     {
-        private LibraryImporterConfigurationViewModel _importOptions;
-        private readonly IAudioConverter _audioConverter;
         private readonly IIocEventAggregator _eventAggregator;
 
         LibraryLoaderAcoustIDViewModel _acoustIDWorker;
         LibraryLoaderMusicBrainzBasicViewModel _musicBrainzBasicWorker;
         LibraryLoaderMusicBrainzAlbumArtViewModel _musicBrainzAlbumArtWorker;
-        LibraryLoaderFileConverterViewModel _fileConverterWorker;
 
         // Workflow
         LibraryImporterWorkflowViewModel _workflow;
@@ -44,21 +40,15 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
             get { return _musicBrainzAlbumArtWorker; }
             set { this.RaiseAndSetIfChanged(ref _musicBrainzAlbumArtWorker, value); }
         }
-        public LibraryLoaderFileConverterViewModel FileConverterWorker
-        {
-            get { return _fileConverterWorker; }
-            set { this.RaiseAndSetIfChanged(ref _fileConverterWorker, value); }
-        }
         public LibraryImporterWorkflowViewModel Workflow
         {
             get { return _workflow; }
             set { this.RaiseAndSetIfChanged(ref _workflow, value); }
         }
 
-        public LibraryImporterLoaderViewModel(IIocEventAggregator eventAggregator, IAudioConverter audioConverter, LibraryImporterWorkflowViewModel workflow) : base("Library Importer (loader)")
+        public LibraryImporterServiceWorkflowViewModel(IIocEventAggregator eventAggregator, LibraryImporterWorkflowViewModel workflow) : base("Library Importer (loader)")
         {
             _eventAggregator = eventAggregator;
-            _audioConverter = audioConverter;
 
             this.Workflow = workflow;
         }
@@ -91,13 +81,6 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
                 else
                     throw new Exception("MusicBrainzAlbumArtWorker not available for execution");
             }
-            else if (!this.FileConverterWorker.IsWorkComplete && this.Workflow.Configuration.ConvertAudioFormat)
-            {
-                if (this.FileConverterWorker.CanExecute())
-                    this.FileConverterWorker.Execute();
-                else
-                    throw new Exception("FileConverterWorker not available for execution");
-            }
             else
             {
                 // Complete
@@ -122,18 +105,15 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
             this.AcoustIDWorker = new LibraryLoaderAcoustIDViewModel(_eventAggregator, libraryLoaderWorkerService);
             this.MusicBrainzBasicWorker = new LibraryLoaderMusicBrainzBasicViewModel(_eventAggregator, libraryLoaderWorkerService, audioStationDbClient);
             this.MusicBrainzAlbumArtWorker = new LibraryLoaderMusicBrainzAlbumArtViewModel(_eventAggregator, libraryLoaderWorkerService, audioStationDbClient);
-            this.FileConverterWorker = new LibraryLoaderFileConverterViewModel(_audioConverter, _eventAggregator, libraryLoaderWorkerService);
 
             this.AcoustIDWorker.StatusChangeEvent += OnWorkerStatusChangeEvent;
             this.MusicBrainzBasicWorker.StatusChangeEvent += OnWorkerStatusChangeEvent;
             this.MusicBrainzAlbumArtWorker.StatusChangeEvent += OnWorkerStatusChangeEvent;
-            this.FileConverterWorker.StatusChangeEvent += OnWorkerStatusChangeEvent;
 
             // Initialize Component Parts
             this.AcoustIDWorker.Initialize(configuration, audioStationController, progressHandler);
             this.MusicBrainzBasicWorker.Initialize(configuration, audioStationController, progressHandler);
             this.MusicBrainzAlbumArtWorker.Initialize(configuration, audioStationController, progressHandler);
-            this.FileConverterWorker.Initialize(configuration, audioStationController, progressHandler);
         }
 
         protected override void LoadImpl(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
@@ -142,7 +122,6 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
             this.AcoustIDWorker.Load(configuration, audioStationController, progressHandler);
             this.MusicBrainzBasicWorker.Load(configuration, audioStationController, progressHandler);
             this.MusicBrainzAlbumArtWorker.Load(configuration, audioStationController, progressHandler);
-            this.FileConverterWorker.Load(configuration, audioStationController, progressHandler);
         }
 
         private void OnWorkerStatusChangeEvent(LibraryLoaderWorkerViewModelBase sender)
@@ -152,8 +131,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
             {
                 if (this.AcoustIDWorker.Loading ||
                     this.MusicBrainzBasicWorker.Loading ||
-                    this.MusicBrainzAlbumArtWorker.Loading ||
-                    this.FileConverterWorker.Loading)
+                    this.MusicBrainzAlbumArtWorker.Loading)
                     return;
 
                 // Workers Complete (check for more work)

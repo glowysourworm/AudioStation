@@ -1,10 +1,10 @@
 ﻿using System.IO;
 
+using AudioStation.Core.Model;
 using AudioStation.Core.Service.Interface;
 using AudioStation.Core.Service.Vendor.Bandcamp.Interface;
 using AudioStation.Core.Utility;
 using AudioStation.Core.Utility.FileUtility;
-using AudioStation.Model;
 
 using Microsoft.Extensions.Logging;
 

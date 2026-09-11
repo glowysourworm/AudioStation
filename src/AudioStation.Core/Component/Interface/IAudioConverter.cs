@@ -1,5 +1,7 @@
 ﻿using AudioStation.Core.Model;
 
+using CSCore;
+
 namespace AudioStation.Core.Component.Interface
 {
     /// <summary>
@@ -27,6 +29,11 @@ namespace AudioStation.Core.Component.Interface
         /// Given standard system types, show what output encodings are supported
         /// </summary>
         IEnumerable<AudioEncoderInfo> GetSupportedFormats();
+
+        /// <summary>
+        /// Returns the audio format for a particular audio file decoded by the Media Foundation MSFT library
+        /// </summary>
+        AudioEncoding GetAudioEncoding(string filePath);
 
         /// <summary>
         /// Converts file to requested format

@@ -5,6 +5,8 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Load
 {
     public class LibraryLoaderImportLoad : ILibraryLoaderImportLoad
     {
+        public int TagSmallId { get; set; }
+
         public string SourceFullPath { get; set; }
         public string DestinationFolder { get; set; }
 
@@ -18,6 +20,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Load
         public bool MigrationOverwriteDestinationFiles { get; set; }
         public bool IsSourceDirectoryReadonly { get; set; }
 
-        public int TagSmallId { get; set; }
+        public AudioEncoderInfo DestinationFormat { get; set; }
+        public bool ConvertAudioFormat { get; set; }
     }
 }

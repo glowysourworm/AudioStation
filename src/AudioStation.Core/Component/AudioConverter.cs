@@ -81,6 +81,25 @@ namespace AudioStation.Core.Component
             });
         }
 
+        public AudioEncoding GetAudioEncoding(string filePath)
+        {
+            try
+            {
+                using (var fileStream = File.OpenRead(filePath))
+                {
+                    using (var source = new MediaFoundationDecoder(fileStream))
+                    {
+                        return source.WaveFormat.WaveFormatTag;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                ApplicationHelpers.Log("Error converting audio file:  " + ex.Message, LogLevel.Error, ex, null);
+                throw ex;
+            }
+        }
+
         public string GetSupportedFileDialogFilter()
         {
             return CodecFactory.SupportedFilesFilterEn;

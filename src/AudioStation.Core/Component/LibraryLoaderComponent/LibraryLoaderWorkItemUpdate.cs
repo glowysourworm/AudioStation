@@ -1,4 +1,4 @@
-﻿using AudioStation.Model;
+﻿using AudioStation.Core.Model;
 
 namespace AudioStation.Core.Component.LibraryLoaderComponent
 {

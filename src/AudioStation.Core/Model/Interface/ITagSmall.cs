@@ -2,6 +2,7 @@
 {
     public interface ITagSmall
     {
+        int Id { get; set; }
         string? AlbumArtist { get; set; }
         string? Album { get; set; }
         string? Title { get; set; }

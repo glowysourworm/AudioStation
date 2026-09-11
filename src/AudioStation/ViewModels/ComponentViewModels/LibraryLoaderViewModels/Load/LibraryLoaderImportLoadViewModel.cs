@@ -7,6 +7,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Lo
 {
     public class LibraryLoaderImportLoadViewModel : ViewModelBase, ILibraryLoaderImportLoad
     {
+        int _tagSmallId;
         string _sourceFullPath;
         string _destinationFolder;
         TrackCategory _trackCategory;
@@ -16,7 +17,8 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Lo
         bool _migrationDeleteSourceFiles;
         bool _migrationDeleteSourceFolders;
         bool _migrationOverwriteDestinationFiles;
-        int _tagSmallId;
+        AudioEncoderInfo _destinationFormat;
+        bool _convertAudioFormat;
 
         bool _isSourceDirectoryReadonly;
 
@@ -75,13 +77,23 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Lo
             get { return _isSourceDirectoryReadonly; }
             set { this.RaiseAndSetIfChanged(ref _isSourceDirectoryReadonly, value); }
         }
-
+        public AudioEncoderInfo DestinationFormat
+        {
+            get { return _destinationFormat; }
+            set { this.RaiseAndSetIfChanged(ref _destinationFormat, value); }
+        }
+        public bool ConvertAudioFormat
+        {
+            get { return _convertAudioFormat; }
+            set { this.RaiseAndSetIfChanged(ref _convertAudioFormat, value); }
+        }
 
         public LibraryLoaderImportLoadViewModel()
         {
             this.SourceFullPath = string.Empty;
             this.DestinationFolder = string.Empty;
             this.MigrationSourceDirectory = string.Empty;
+            this.DestinationFormat = new AudioEncoderInfo();
         }
 
         public override string ToString()

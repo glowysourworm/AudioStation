@@ -1,85 +1,31 @@
 ﻿using AudioStation.Core.Component.LibraryLoaderComponent.Output.Interface;
-using AudioStation.Core.Database.AudioStationDatabase;
+using AudioStation.Core.Database.AudioStationDatabase.Interface;
+using AudioStation.Core.Model.Interface;
 
 namespace AudioStation.Core.Component.LibraryLoaderComponent.Output
 {
     public class LibraryLoaderImportOutput : ILibraryLoaderImportOutput
     {
-        /// <summary>
-        /// Destination folder based on configuration settings (DirectoryBase + (music / audio book / ...) + {calculated})
-        /// </summary>
         public string DestinationFolderBase { get; set; }
-
-        /// <summary>
-        /// Mp3 file destination path (FULL PATH)
-        /// </summary>
         public string DestinationPathCalculated { get; set; }
-
-        /// <summary>
-        /// Results for AcoustID fingerprinting
-        /// </summary>
-        public IEnumerable<AcoustIDLookupResult> AcoustIDResults { get; set; }
-
-        /// <summary>
-        /// Matches for the AcoustID fingerprints
-        /// </summary>
-        public IEnumerable<TagSmall> MusicBrainzRecordingMatches { get; set; }
-
-        /// <summary>
-        /// Final record imported as Mp3FileReference
-        /// </summary>
-        public Track ImportedRecord { get; set; }
-
-        /// <summary>
-        /// AcoustID fingerprinting successful
-        /// </summary>
+        public IEnumerable<ILogMessage> LogMessages { get; set; }
+        public IEnumerable<IAcoustIDLookupResult> AcoustIDResults { get; set; }
+        public IEnumerable<ITagSmall> MusicBrainzRecordingMatches { get; set; }
+        public int TagSmallId { get; set; }
+        public int TagSmallFileReferenceMapId { get; set; }
+        public int TagSmallVendorMapId { get; set; }
+        public int FileReferenceId { get; set; }
+        public int GenreId { get; set; }
+        public int ArtistId { get; set; }
+        public int AlbumId { get; set; }
+        public int TrackId { get; set; }
+        public int TrackGenreMapId { get; set; }
+        public int TrackArtistMapId { get; set; }
         public bool AcoustIDSuccess { get; set; }
-
-        /// <summary>
-        /// Music Brainz record was matched successfully
-        /// </summary>
-        public bool MusicBrainzRecordingMatchSuccess { get; set; }
-
-        /// <summary>
-        /// Final record stored as tag successfully
-        /// </summary>
+        public bool MusicBrainzBasicSuccess { get; set; }
+        public bool MusicBrainzArtworkSuccess { get; set; }
         public bool TagEmbeddingSuccess { get; set; }
-
-        /// <summary>
-        /// Mp3 file successfully moved into library folder
-        /// </summary>
-        public bool Mp3FileMoveSuccess { get; set; }
-
-        /// <summary>
-        /// Mp3 file successfully imported into the database
-        /// </summary>
-        public bool Mp3FileImportSuccess { get; set; }
-
-        /// <summary>
-        /// Front cover art recovered during the query process
-        /// </summary>
-        //public MusicBrainzPicture? BestFrontCover { get; set; }
-
-        /// <summary>
-        /// Back cover art recovered during the query process
-        /// </summary>
-        //public MusicBrainzPicture? BestBackCover { get; set; }
-
-        /// <summary>
-        /// Completed MusicBrainz records (expensive queries)
-        /// </summary>
-        //public IEnumerable<MusicBrainzCombinedLibraryEntryRecord> MusicBrainzCombinedLibraryEntryRecords { get; set; }
-
-        /// <summary>
-        /// Final record selection for the entry
-        /// </summary>
-        //public MusicBrainzCombinedLibraryEntryRecord FinalQueryRecord { get; set; }
-
-        /// <summary>
-        /// Music Brainz combined record was queried successfully
-        /// </summary>
-        public bool MusicBrainzCombinedRecordQuerySuccess { get; set; }
-        IEnumerable<AcoustIDLookupResult> ILibraryLoaderImportOutput.AcoustIDResults { get; set; }
-        IEnumerable<TagSmall> ILibraryLoaderImportOutput.MusicBrainzRecordingMatches { get; set; }
+        public bool FileMoveSuccess { get; set; }
+        public bool FileConversionSuccess { get; set; }
     }
 }

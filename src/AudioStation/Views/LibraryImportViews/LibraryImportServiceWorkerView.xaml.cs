@@ -9,9 +9,9 @@ using SimpleWpf.IocFramework.Application.Attribute;
 namespace AudioStation.Views.LibraryImportViews
 {
     [IocExportDefault]
-    public partial class LibraryImportServiceWorkersView : UserControl
+    public partial class LibraryImportServiceWorkerView : UserControl
     {
-        public LibraryImportServiceWorkersView()
+        public LibraryImportServiceWorkerView()
         {
             InitializeComponent();
 
@@ -24,10 +24,10 @@ namespace AudioStation.Views.LibraryImportViews
             var newVM = e.NewValue as LibraryImporterViewModel;
 
             if (oldVM != null)
-                oldVM.Loader.PropertyChanged -= OnViewModelPropertyChanged;
+                oldVM.ServiceWorkflow.PropertyChanged -= OnViewModelPropertyChanged;
 
             if (newVM != null)
-                newVM.Loader.PropertyChanged += OnViewModelPropertyChanged;
+                newVM.ServiceWorkflow.PropertyChanged += OnViewModelPropertyChanged;
 
             UpdateViewContext();
         }
@@ -39,10 +39,9 @@ namespace AudioStation.Views.LibraryImportViews
             if (viewModel != null)
             {
                 this.LoaderLB.Items.Clear();
-                this.LoaderLB.Items.Add(viewModel.Loader.AcoustIDWorker);
-                this.LoaderLB.Items.Add(viewModel.Loader.MusicBrainzBasicWorker);
-                this.LoaderLB.Items.Add(viewModel.Loader.MusicBrainzAlbumArtWorker);
-                this.LoaderLB.Items.Add(viewModel.Loader.FileConverterWorker);
+                this.LoaderLB.Items.Add(viewModel.ServiceWorkflow.AcoustIDWorker);
+                this.LoaderLB.Items.Add(viewModel.ServiceWorkflow.MusicBrainzBasicWorker);
+                this.LoaderLB.Items.Add(viewModel.ServiceWorkflow.MusicBrainzAlbumArtWorker);
             }
         }
 

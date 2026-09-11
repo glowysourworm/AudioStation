@@ -5,6 +5,11 @@
     /// </summary>
     public interface ITagSmallValidation
     {
+        /// <summary>
+        /// Database reference Id for the TagSmall entity
+        /// </summary>
+        int Id { get; set; }
+
         bool IsAlbumArtistValid { get; set; }
         bool IsAlbumValid { get; set; }
         bool IsTitleValid { get; set; }

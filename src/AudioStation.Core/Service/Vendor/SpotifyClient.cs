@@ -1,7 +1,7 @@
-﻿using AudioStation.Core.Model.Vendor;
+﻿using AudioStation.Core.Model;
+using AudioStation.Core.Model.Vendor;
 using AudioStation.Core.Service.Interface;
 using AudioStation.Core.Utility;
-using AudioStation.Model;
 
 using Microsoft.Extensions.Logging;
 

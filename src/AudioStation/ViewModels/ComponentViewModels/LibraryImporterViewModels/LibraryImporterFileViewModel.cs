@@ -2,10 +2,14 @@
 
 using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Controller.Interface;
+using AudioStation.Core.Database.AudioStationDatabase.Interface;
 using AudioStation.Core.Model;
+using AudioStation.Core.Model.Interface;
 using AudioStation.Core.Model.Vendor.ATLExtension;
 using AudioStation.Core.Model.Vendor.ATLExtension.Interface;
 using AudioStation.Core.Utility;
+using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Load;
+using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Output;
 using AudioStation.ViewModels.TagViewModels;
 
 using Microsoft.Extensions.Logging;
@@ -48,11 +52,13 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels
 
         LibraryImportType _importType;
 
-        //LibraryLoaderImportOutputViewModel _importOutput;
-        //LibraryLoaderImportLoadViewModel _importLoad;
+        LibraryLoaderImportLoadViewModel _importLoad;
+        LibraryLoaderImportOutputViewModel _importOutput;
 
-        //AcoustIDLookupResultViewModel _selectedAcoustIDResult;
-        //TagSmallViewModel _selectedMusicBrainzRecordingMatch;
+        // These are both view model instances. Interfaces are just more convenient (from the backend)
+        //
+        IAcoustIDLookupResult _selectedAcoustIDResult;
+        ITagSmall _selectedMusicBrainzRecordingMatch;
 
         SimpleCommand _selectMusicBrainzCommand;
         SimpleCommand _selectAcoustIDCommand;
@@ -121,26 +127,26 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels
             get { return _importType; }
             set { this.RaiseAndSetIfChanged(ref _importType, value); }
         }
-        //public LibraryLoaderImportOutputViewModel ImportOutput
-        //{
-        //    get { return _importOutput; }
-        //    set { this.RaiseAndSetIfChanged(ref _importOutput, value); }
-        //}
-        //public LibraryLoaderImportLoadViewModel ImportLoad
-        //{
-        //    get { return _importLoad; }
-        //    set { this.RaiseAndSetIfChanged(ref _importLoad, value); }
-        //}
-        //public AcoustIDLookupResultViewModel SelectedAcoustIDResult
-        //{
-        //    get { return _selectedAcoustIDResult; }
-        //    set { this.RaiseAndSetIfChanged(ref _selectedAcoustIDResult, value); }
-        //}
-        //public TagSmallViewModel SelectedMusicBrainzRecordingMatch
-        //{
-        //    get { return _selectedMusicBrainzRecordingMatch; }
-        //    set { this.RaiseAndSetIfChanged(ref _selectedMusicBrainzRecordingMatch, value); }
-        //}
+        public LibraryLoaderImportLoadViewModel ImportLoad
+        {
+            get { return _importLoad; }
+            set { this.RaiseAndSetIfChanged(ref _importLoad, value); }
+        }
+        public LibraryLoaderImportOutputViewModel ImportOutput
+        {
+            get { return _importOutput; }
+            set { this.RaiseAndSetIfChanged(ref _importOutput, value); }
+        }
+        public IAcoustIDLookupResult SelectedAcoustIDResult
+        {
+            get { return _selectedAcoustIDResult; }
+            set { this.RaiseAndSetIfChanged(ref _selectedAcoustIDResult, value); }
+        }
+        public ITagSmall SelectedMusicBrainzRecordingMatch
+        {
+            get { return _selectedMusicBrainzRecordingMatch; }
+            set { this.RaiseAndSetIfChanged(ref _selectedMusicBrainzRecordingMatch, value); }
+        }
         public SimpleCommand SelectMusicBrainzCommand
         {
             get { return _selectMusicBrainzCommand; }

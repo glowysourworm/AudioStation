@@ -6,7 +6,6 @@ using AudioStation.Core.Model;
 using AudioStation.Core.Model.Vendor.ATLExtension.Interface;
 using AudioStation.Core.Service.Interface;
 using AudioStation.Core.Utility;
-using AudioStation.Model;
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;

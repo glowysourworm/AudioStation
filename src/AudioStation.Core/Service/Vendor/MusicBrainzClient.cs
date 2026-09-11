@@ -10,7 +10,6 @@ using AudioStation.Core.Service.Interface;
 using AudioStation.Core.Service.Payload;
 using AudioStation.Core.Service.Vendor.Interface;
 using AudioStation.Core.Utility;
-using AudioStation.Model;
 
 using MetaBrainz.MusicBrainz;
 using MetaBrainz.MusicBrainz.CoverArt;

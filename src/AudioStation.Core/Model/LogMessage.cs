@@ -1,11 +1,13 @@
 ﻿
 using System.ComponentModel.DataAnnotations;
 
+using AudioStation.Core.Model.Interface;
+
 using Microsoft.Extensions.Logging;
 
 using SimpleWpf.Extensions;
 
-namespace AudioStation.Model
+namespace AudioStation.Core.Model
 {
     public enum LogMessageType
     {
@@ -88,7 +90,7 @@ namespace AudioStation.Model
         [Display(Name = "Music Brainz Db", Description = "Database of Music Brainz data cache (Audio Station's copy)")]
         MusicBrainz
     }
-    public struct LogMessage
+    public struct LogMessage : ILogMessage
     {
         public int LogId { get; }
         public string Message { get; set; }

@@ -1,5 +1,5 @@
-﻿using AudioStation.Core.Service.Interface;
-using AudioStation.Model;
+﻿using AudioStation.Core.Model;
+using AudioStation.Core.Service.Interface;
 
 using Microsoft.Extensions.Logging;
 

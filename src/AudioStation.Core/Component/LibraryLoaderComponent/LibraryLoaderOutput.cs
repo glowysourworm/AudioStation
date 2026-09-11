@@ -1,7 +1,6 @@
-﻿using AudioStation.Core.Component.LibraryLoaderComponent.Load;
-using AudioStation.Core.Component.LibraryLoaderComponent.Output;
+﻿using AudioStation.Core.Component.LibraryLoaderComponent.Output;
 using AudioStation.Core.Database.AudioStationDatabase;
-using AudioStation.Model;
+using AudioStation.Core.Model;
 
 namespace AudioStation.Core.Component.LibraryLoaderComponent
 {
@@ -71,7 +70,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent
                     if (output is not LibraryLoaderImportOutput)
                         throw new ArgumentException("Improper library output type:  Import expects LibraryLoaderImportOutput");
 
-                    _actualType = typeof(LibraryLoaderImportLoad);
+                    _actualType = typeof(LibraryLoaderImportOutput);
                     break;
                 default:
                     throw new Exception("Unhandled library load type");

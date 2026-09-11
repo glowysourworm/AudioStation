@@ -1,6 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 
-using AudioStation.Model;
+using AudioStation.Core.Model;
 
 using SimpleWpf.UI.ViewModel;
 

@@ -14,16 +14,16 @@
 
 
         <!-- File / AcoustID / Music Brainz -->
-        <TextBlock Grid.Row="0" Text="Tag (Source)"   Margin="5 3" Style="{StaticResource HeaderMediumTextBlock}" FontStyle="Italic" VerticalAlignment="Center" />
-        <TextBlock Grid.Row="1" Text="AcoustID"       Margin="5 3" Style="{StaticResource HeaderMediumTextBlock}" FontStyle="Italic" VerticalAlignment="Center" />
-        <TextBlock Grid.Row="2" Text="Music Brainz"   Margin="5 3" Style="{StaticResource HeaderMediumTextBlock}" FontStyle="Italic" VerticalAlignment="Center" />
+        <TextBlock Grid.Row="0" Text="Tag (Source)"   Margin="5" Style="{StaticResource LabelTextBlock}" VerticalAlignment="Center" />
+        <TextBlock Grid.Row="1" Text="AcoustID"       Margin="5" Style="{StaticResource LabelTextBlock}" VerticalAlignment="Center" />
+        <TextBlock Grid.Row="2" Text="Music Brainz"   Margin="5" Style="{StaticResource LabelTextBlock}" VerticalAlignment="Center" />
 
         <!-- Tag -->
-        <TextBlock Text="{Binding Tag.ValidationMessage}" 
+        <TextBlock Text="{Binding DataContext.Workflow.Configuration.TagSourcePreference, RelativeSource={RelativeSource AncestorType=importView:LibraryImportTagCompletionView}}" 
                    Grid.Row="0"
                    Grid.Column="1"
                    Margin="3" 
-                   Style="{StaticResource LabelErrorTextBlock}" 
+                   Style="{StaticResource LabelTextBlock}" 
                    VerticalAlignment="Center" />
 
         <!-- AcoustID -->
@@ -41,7 +41,22 @@
             </Grid>
         </TextBlock>
 
-        <!-- Music Brainz -->
+        <!-- Music Brainz (Basic) -->
+        <TextBlock Grid.Row="2"
+                   Grid.Column="1"
+                   Margin="3" 
+                   Style="{StaticResource LabelErrorTextBlock}" 
+                   VerticalAlignment="Center"
+                   Visibility="{Binding ImportOutput.MusicBrainzRecordingMatchSuccess, Converter={StaticResource BoolVisibilityCollapseConverter}}">
+            <Grid ColumnDefinitions="Auto, Auto, Auto, Auto">
+                <TextBlock Grid.Column="0" Style="{StaticResource LabelTextBlock}" Text="Success (" />
+                <TextBlock Grid.Column="1" Style="{StaticResource LabelTextBlock}" Text="{Binding ImportOutput.MusicBrainzRecordingMatches.Count}" />
+                <TextBlock Grid.Column="2" Style="{StaticResource LabelTextBlock}" Text=" matches) " />
+                <TextBlock Grid.Column="3" Style="{StaticResource LabelTextBlock}" Text="{Binding SelectedMusicBrainzRecordingMatch.ShortString}" />
+            </Grid>
+        </TextBlock>
+
+        <!-- Music Brainz (Artwork) -->
         <TextBlock Grid.Row="2"
                    Grid.Column="1"
                    Margin="3" 

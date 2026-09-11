@@ -2,9 +2,9 @@
 
 using AudioStation.Controller.Interface;
 using AudioStation.Core.Event;
+using AudioStation.Core.Model;
 using AudioStation.Core.Model.Interface;
 using AudioStation.Event;
-using AudioStation.Model;
 using AudioStation.ViewModels.ComponentViewModels.LogViewModels;
 
 using SimpleWpf.IocFramework.EventAggregation;

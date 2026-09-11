@@ -18,6 +18,9 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Load.Interface
         string SourceFullPath { get; set; }
         string DestinationFolder { get; set; }
 
+        AudioEncoderInfo DestinationFormat { get; set; }
+        bool ConvertAudioFormat { get; set; }
+
         public TrackCategory TrackCategory { get; set; }
         public TrackGroupingType GroupingType { get; set; }
         public TrackNamingType NamingType { get; set; }

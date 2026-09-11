@@ -1,82 +1,33 @@
-﻿using AudioStation.Core.Database.AudioStationDatabase;
+﻿using AudioStation.Core.Database.AudioStationDatabase.Interface;
+using AudioStation.Core.Model.Interface;
 
 namespace AudioStation.Core.Component.LibraryLoaderComponent.Output.Interface
 {
     public interface ILibraryLoaderImportOutput
     {
-        /// <summary>
-        /// Destination folder based on configuration settings (DirectoryBase + (music / audio book / ...) + {calculated})
-        /// </summary>
-        string DestinationFolderBase { get; set; }
+        public string DestinationFolderBase { get; set; }
+        public string DestinationPathCalculated { get; set; }
+        public IEnumerable<ILogMessage> LogMessages { get; set; }
+        public IEnumerable<IAcoustIDLookupResult> AcoustIDResults { get; set; }
+        public IEnumerable<ITagSmall> MusicBrainzRecordingMatches { get; set; }
+        public int TagSmallId { get; set; }
+        public int TagSmallFileReferenceMapId { get; set; }
+        public int TagSmallVendorMapId { get; set; }
+        public int FileReferenceId { get; set; }
+        public int GenreId { get; set; }
+        public int ArtistId { get; set; }
+        public int AlbumId { get; set; }
+        public int TrackId { get; set; }
+        public int TrackGenreMapId { get; set; }
+        public int TrackArtistMapId { get; set; }
+        //public MusicBrainzPicture? BestFrontCover { get; set; }
+        //public MusicBrainzPicture? BestBackCover { get; set; }
+        public bool AcoustIDSuccess { get; set; }
+        public bool MusicBrainzBasicSuccess { get; set; }
+        public bool MusicBrainzArtworkSuccess { get; set; }
+        public bool TagEmbeddingSuccess { get; set; }
+        public bool FileMoveSuccess { get; set; }
+        public bool FileConversionSuccess { get; set; }
 
-        /// <summary>
-        /// Mp3 file destination path (FULL PATH)
-        /// </summary>
-        string DestinationPathCalculated { get; set; }
-
-        /// <summary>
-        /// Results for AcoustID fingerprinting
-        /// </summary>
-        IEnumerable<AcoustIDLookupResult> AcoustIDResults { get; set; }
-
-        /// <summary>
-        /// Matches for the AcoustID fingerprints
-        /// </summary>
-        IEnumerable<TagSmall> MusicBrainzRecordingMatches { get; set; }
-
-        /// <summary>
-        /// Final record imported as Mp3FileReference
-        /// </summary>
-        Track ImportedRecord { get; set; }
-
-        /// <summary>
-        /// AcoustID fingerprinting successful
-        /// </summary>
-        bool AcoustIDSuccess { get; set; }
-
-        /// <summary>
-        /// Music Brainz record was matched successfully
-        /// </summary>
-        bool MusicBrainzRecordingMatchSuccess { get; set; }
-
-        /// <summary>
-        /// Final record stored as tag successfully
-        /// </summary>
-        bool TagEmbeddingSuccess { get; set; }
-
-        /// <summary>
-        /// Mp3 file successfully moved into library folder
-        /// </summary>
-        bool Mp3FileMoveSuccess { get; set; }
-
-        /// <summary>
-        /// Mp3 file successfully imported into the database
-        /// </summary>
-        bool Mp3FileImportSuccess { get; set; }
-
-        /// <summary>
-        /// Front cover art recovered during the query process
-        /// </summary>
-        //MusicBrainzPicture? BestFrontCover { get; set; }
-
-        /// <summary>
-        /// Back cover art recovered during the query process
-        /// </summary>
-        //MusicBrainzPicture? BestBackCover { get; set; }
-
-        /// <summary>
-        /// Completed MusicBrainz records (expensive queries)
-        /// </summary>
-        //IEnumerable<MusicBrainzCombinedLibraryEntryRecord> MusicBrainzCombinedLibraryEntryRecords { get; set; }
-
-        /// <summary>
-        /// Final record selection for the entry
-        /// </summary>
-       // MusicBrainzCombinedLibraryEntryRecord FinalQueryRecord { get; set; }
-
-        /// <summary>
-        /// Music Brainz combined record was queried successfully
-        /// </summary>
-        bool MusicBrainzCombinedRecordQuerySuccess { get; set; }
     }
 }

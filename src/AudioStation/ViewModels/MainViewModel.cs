@@ -13,7 +13,6 @@ using AudioStation.Core.Service.Interface;
 using AudioStation.Core.Service.Vendor.Bandcamp.Interface;
 using AudioStation.Core.Service.Vendor.Interface;
 using AudioStation.Event;
-using AudioStation.Model;
 using AudioStation.Model.AudioProcessing;
 using AudioStation.ViewModels.ComponentViewModels;
 using AudioStation.ViewModels.Controls;

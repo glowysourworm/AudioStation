@@ -2,8 +2,8 @@
 using System.Windows.Threading;
 
 using AudioStation.Core.Controller.Interface;
+using AudioStation.Core.Model;
 using AudioStation.Core.Utility.RecursiveComparer;
-using AudioStation.Model;
 
 using Microsoft.Extensions.Logging;
 

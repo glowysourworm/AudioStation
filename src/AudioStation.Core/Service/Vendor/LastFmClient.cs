@@ -1,9 +1,9 @@
 ﻿using AudioStation.Core.Controller.Interface;
+using AudioStation.Core.Model;
 using AudioStation.Core.Model.Vendor;
 using AudioStation.Core.Service.Interface;
 using AudioStation.Core.Service.Vendor.Interface;
 using AudioStation.Core.Utility;
-using AudioStation.Model;
 
 using IF.Lastfm.Core.Api;
 using IF.Lastfm.Core.Api.Enums;

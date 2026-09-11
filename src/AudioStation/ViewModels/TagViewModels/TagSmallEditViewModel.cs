@@ -7,6 +7,8 @@ namespace AudioStation.ViewModels.TagViewModels
 {
     public class TagSmallEditViewModel : ViewModelBase, ITagSmallValidation
     {
+        int _id;
+
         bool _isAlbumArtistValid;
         bool _isAlbumValid;
         bool _isTitleValid;
@@ -47,6 +49,11 @@ namespace AudioStation.ViewModels.TagViewModels
         bool _isModified;
         string _validationMessage;
 
+        public int Id
+        {
+            get { return _id; }
+            set { this.RaiseAndSetIfChanged(ref _id, value); }
+        }
         public bool IsAlbumArtistValid
         {
             get { return _isAlbumArtistValid; }

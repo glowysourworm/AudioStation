@@ -3,9 +3,9 @@
 using AudioStation.Controller.Interface;
 using AudioStation.Core;
 using AudioStation.Core.Component;
+using AudioStation.Core.Model;
 using AudioStation.Core.Utility;
 using AudioStation.Event;
-using AudioStation.Model;
 
 using Microsoft.Extensions.Logging;
 

@@ -27,7 +27,7 @@ namespace AudioStation.Views.LibraryImportViews
 
             if (viewModel != null)
             {
-                viewModel.Staging.SelectedFileCount = selectedItems.Count(x => !x.CanHaveChildren);
+                viewModel.StagingWorkflow.SelectedFileCount = selectedItems.Count(x => !x.CanHaveChildren);
             }
         }
 
@@ -38,8 +38,8 @@ namespace AudioStation.Views.LibraryImportViews
             if (viewModel != null)
             {
                 // Selection Counts
-                viewModel.Staging.StagedSelectedCount = viewModel.Staging.StagedFiles.Count(x => x.IsSelected);
-                viewModel.Staging.LibraryConflictCount = viewModel.Staging.StagedFiles.Count(x => x.LibraryConflict);
+                viewModel.StagingWorkflow.StagedSelectedCount = viewModel.StagingWorkflow.StagedFiles.Count(x => x.IsSelected);
+                viewModel.StagingWorkflow.LibraryConflictCount = viewModel.StagingWorkflow.StagedFiles.Count(x => x.LibraryConflict);
             }
         }
     }

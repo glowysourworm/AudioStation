@@ -152,7 +152,7 @@ namespace AudioStation.Core.Component
                 {
                     case LibraryLoadType.Import:
                     {
-                        thread = new LibraryLoaderImportWorker(workItem, _audioStationDbClient, _fileController, _tagCacheController);
+                        thread = new LibraryLoaderImportWorker(workItem, _audioStationDbClient, _fileController, _tagCacheController, _audioConverter);
                     }
                     break;
                     case LibraryLoadType.AcoustID:

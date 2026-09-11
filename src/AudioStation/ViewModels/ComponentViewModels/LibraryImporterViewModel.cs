@@ -30,30 +30,24 @@ namespace AudioStation.ViewModels.ComponentViewModels
         //       functions.
         private ILibraryLoaderService _libraryLoaderService;
 
-        private readonly IAudioStationMapper _audioStationMapper;
         private readonly IDialogController _dialogController;
         private readonly ITagCacheController _tagCacheController;
-
-
 
         // Configuration:  This is for the partial configuration editing control area for library directories.
         //
         AudioStationConfigurationViewModel _configuration;
         ObservableCollection<AudioEncoderViewModel> _encoders;
 
-        // Workflow View Models
+        // Workflow
         LibraryImporterWorkflowViewModel _workflow;
-        LibraryImporterLoaderViewModel _loader;
-        LibraryImporterStagingViewModel _staging;
+
+        // Workflow Stages
+        LibraryImporterServiceWorkflowViewModel _serviceWorkflow;
+        LibraryImporterStagingWorkflowViewModel _stagingWorkflow;
+        LibraryImporterCompletionWorkflowViewModel _completionWorkflow;
 
         // Saved Workflow(s)
         ObservableCollection<LibraryImporterWorkflowViewModel> _savedWorkflows;
-
-        ObservableCollection<LibraryImporterFileViewModel> _acoustIDCompletedSuccessfully;
-        ObservableCollection<LibraryImporterFileViewModel> _musicBrainzCompletedSuccessfully;
-        ObservableCollection<LibraryImporterFileViewModel> _filesReadyToImport;
-        ObservableCollection<LibraryImporterFileViewModel> _filesCompletedSuccessfully;
-        ObservableCollection<LibraryImporterFileViewModel> _filesCompletedWithError;
 
         SimpleCommand _editTagCommand;
         SimpleCommand<string> _editTagGroupCommand;
@@ -81,52 +75,35 @@ namespace AudioStation.ViewModels.ComponentViewModels
                 RaiseAndSetIfChanged(ref _workflow, value);
 
                 // Also, have to set component parts
-                if (this.Loader != null)
-                    this.Loader.Workflow = value;
+                if (this.ServiceWorkflow != null)
+                    this.ServiceWorkflow.Workflow = value;
 
-                if (this.Staging != null)
-                    this.Staging.Workflow = value;
+                if (this.StagingWorkflow != null)
+                    this.StagingWorkflow.Workflow = value;
+
+                if (this.CompletionWorkflow != null)
+                    this.CompletionWorkflow.Workflow = value;
             }
         }
-        public LibraryImporterLoaderViewModel Loader
+        public LibraryImporterServiceWorkflowViewModel ServiceWorkflow
         {
-            get { return _loader; }
-            set { this.RaiseAndSetIfChanged(ref _loader, value); }
+            get { return _serviceWorkflow; }
+            set { this.RaiseAndSetIfChanged(ref _serviceWorkflow, value); }
         }
-        public LibraryImporterStagingViewModel Staging
+        public LibraryImporterStagingWorkflowViewModel StagingWorkflow
         {
-            get { return _staging; }
-            set { this.RaiseAndSetIfChanged(ref _staging, value); }
+            get { return _stagingWorkflow; }
+            set { this.RaiseAndSetIfChanged(ref _stagingWorkflow, value); }
+        }
+        public LibraryImporterCompletionWorkflowViewModel CompletionWorkflow
+        {
+            get { return _completionWorkflow; }
+            set { this.RaiseAndSetIfChanged(ref _completionWorkflow, value); }
         }
         public ObservableCollection<LibraryImporterWorkflowViewModel> SavedWorkflows
         {
             get { return _savedWorkflows; }
             set { this.RaiseAndSetIfChanged(ref _savedWorkflows, value); }
-        }
-        public ObservableCollection<LibraryImporterFileViewModel> AcoustIDCompletedSuccessfully
-        {
-            get { return _acoustIDCompletedSuccessfully; }
-            set { this.RaiseAndSetIfChanged(ref _acoustIDCompletedSuccessfully, value); }
-        }
-        public ObservableCollection<LibraryImporterFileViewModel> MusicBrainzCompletedSuccessfully
-        {
-            get { return _musicBrainzCompletedSuccessfully; }
-            set { this.RaiseAndSetIfChanged(ref _musicBrainzCompletedSuccessfully, value); }
-        }
-        public ObservableCollection<LibraryImporterFileViewModel> FilesReadyToImport
-        {
-            get { return _filesReadyToImport; }
-            set { this.RaiseAndSetIfChanged(ref _filesReadyToImport, value); }
-        }
-        public ObservableCollection<LibraryImporterFileViewModel> FilesCompletedSuccessfully
-        {
-            get { return _filesCompletedSuccessfully; }
-            set { this.RaiseAndSetIfChanged(ref _filesCompletedSuccessfully, value); }
-        }
-        public ObservableCollection<LibraryImporterFileViewModel> FilesCompletedWithError
-        {
-            get { return _filesCompletedWithError; }
-            set { this.RaiseAndSetIfChanged(ref _filesCompletedWithError, value); }
         }
 
         public SimpleCommand EditTagCommand
@@ -157,7 +134,6 @@ namespace AudioStation.ViewModels.ComponentViewModels
                                         IIocEventAggregator eventAggregator,
                                         ITagCacheController tagCacheController) : base("Library Importer")
         {
-            _audioStationMapper = audioStationMapper;
             _dialogController = dialogController;
             _tagCacheController = tagCacheController;
 
@@ -165,19 +141,15 @@ namespace AudioStation.ViewModels.ComponentViewModels
             {
                 Name = "New Workflow"
             };
-            this.Loader = new LibraryImporterLoaderViewModel(eventAggregator, audioConverter, this.Workflow);
-            this.Staging = new LibraryImporterStagingViewModel(eventAggregator, this.Workflow);
+            this.ServiceWorkflow = new LibraryImporterServiceWorkflowViewModel(eventAggregator, this.Workflow);
+            this.StagingWorkflow = new LibraryImporterStagingWorkflowViewModel(eventAggregator, this.Workflow);
+            this.CompletionWorkflow = new LibraryImporterCompletionWorkflowViewModel(eventAggregator, audioStationMapper);
 
             this.SavedWorkflows = new ObservableCollection<LibraryImporterWorkflowViewModel>();
 
-            this.Loader.PropertyChanged += OnImportStepUpdate;
-            this.Staging.PropertyChanged += OnImportStepUpdate;
-
-            _acoustIDCompletedSuccessfully = new ObservableCollection<LibraryImporterFileViewModel>();
-            _musicBrainzCompletedSuccessfully = new ObservableCollection<LibraryImporterFileViewModel>();
-            _filesReadyToImport = new ObservableCollection<LibraryImporterFileViewModel>();
-            _filesCompletedSuccessfully = new ObservableCollection<LibraryImporterFileViewModel>();
-            _filesCompletedWithError = new ObservableCollection<LibraryImporterFileViewModel>();
+            this.ServiceWorkflow.PropertyChanged += OnImportStepUpdate;
+            this.StagingWorkflow.PropertyChanged += OnImportStepUpdate;
+            this.CompletionWorkflow.PropertyChanged += OnImportStepUpdate;
 
             this.EditTagCommand = new SimpleCommand(EditTag, CanEditTag);
             this.EditTagGroupCommand = new SimpleCommand<string>(EditTagGroup, CanEditTagGroup);
@@ -194,7 +166,7 @@ namespace AudioStation.ViewModels.ComponentViewModels
 
         private void OnImportStepUpdate(object? sender, PropertyChangedEventArgs e)
         {
-            this.Loading = this.Loader.Loading || this.Staging.Loading;
+            this.Loading = this.ServiceWorkflow.Loading || this.StagingWorkflow.Loading || this.CompletionWorkflow.Loading;
         }
 
         protected override void InitializeImpl(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogProgressHandler progressHandler)
@@ -202,9 +174,14 @@ namespace AudioStation.ViewModels.ComponentViewModels
             // TODO: Try making a new couple of pattern methods for components (Save, and Execute)
             _libraryLoaderService = audioStationController.LibraryLoaderService;
 
+            // Direct property settings (BEFORE INITIALIZE)
+            this.CompletionWorkflow.Workflow = this.Workflow;
+            this.CompletionWorkflow.StagedFiles = this.StagingWorkflow.StagedFiles;
+
             // Sub-component(s)
-            this.Loader.Initialize(configuration, audioStationController, progressHandler);
-            this.Staging.Initialize(configuration, audioStationController, progressHandler);
+            this.ServiceWorkflow.Initialize(configuration, audioStationController, progressHandler);
+            this.StagingWorkflow.Initialize(configuration, audioStationController, progressHandler);
+            this.CompletionWorkflow.Initialize(configuration, audioStationController, progressHandler);
             this.Configuration = audioStationController.ComponentController.GetComponent<AudioStationConfigurationViewModel>();
             this.Encoders = audioStationController.ComponentController.GetComponent<MainViewModel>().Encoders;
 
@@ -241,8 +218,9 @@ namespace AudioStation.ViewModels.ComponentViewModels
                 return;
 
             // Sub-component(s)
-            this.Loader.Load(configuration, audioStationController, progressHandler);
-            this.Staging.Load(configuration, audioStationController, progressHandler);
+            this.ServiceWorkflow.Load(configuration, audioStationController, progressHandler);
+            this.StagingWorkflow.Load(configuration, audioStationController, progressHandler);
+            this.CompletionWorkflow.Load(configuration, audioStationController, progressHandler);
         }
         private bool CanUnstageFiles()
         {

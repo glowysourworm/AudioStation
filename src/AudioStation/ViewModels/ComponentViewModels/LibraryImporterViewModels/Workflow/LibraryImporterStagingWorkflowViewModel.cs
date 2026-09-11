@@ -19,7 +19,7 @@ using SimpleWpf.UI.ViewModel.TreeView.Interface;
 
 namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.Workflow
 {
-    public class LibraryImporterStagingViewModel : ComponentPartViewModelBase
+    public class LibraryImporterStagingWorkflowViewModel : ComponentPartViewModelBase
     {
         private readonly IIocEventAggregator _eventAggregator;
         private IAudioStationDbClient _audioStationDbClient;
@@ -100,7 +100,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
             set { this.RaiseAndSetIfChanged(ref _unstageCommand, value); }
         }
 
-        public LibraryImporterStagingViewModel(IIocEventAggregator eventAggregator, LibraryImporterWorkflowViewModel workflow)
+        public LibraryImporterStagingWorkflowViewModel(IIocEventAggregator eventAggregator, LibraryImporterWorkflowViewModel workflow)
             : base("Library Importer (staging)")
         {
             _eventAggregator = eventAggregator;

@@ -1,12 +1,14 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 
+using AudioStation.Core.Database.AudioStationDatabase.Interface;
+
 using Microsoft.EntityFrameworkCore;
 
 namespace AudioStation.Core.Database.AudioStationDatabase
 {
     [PrimaryKey("Id")]
     [Table("AcoustIDLookupResult", Schema = "public")]
-    public class AcoustIDLookupResult : AudioStationEntityBase
+    public class AcoustIDLookupResult : AudioStationEntityBase, IAcoustIDLookupResult
     {
         /// <summary>
         /// Reference file name from the lookup

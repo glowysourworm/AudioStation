@@ -1,21 +1,44 @@
-﻿using SimpleWpf.UI.ViewModel;
+﻿using AudioStation.Core.Database.AudioStationDatabase.Interface;
+
+using SimpleWpf.UI.ViewModel;
 
 namespace AudioStation.ViewModels.Vendor.AcoustIDViewModel
 {
-    public class AcoustIDLookupResultViewModel : ViewModelBase
+    public class AcoustIDLookupResultViewModel : ViewModelBase, IAcoustIDLookupResult
     {
-        Guid _id;
+        int _id;
+        string _fileName;
+        Guid _lookupId;
+        Guid _musicBrainzRecordingId;
         double _score;
         string _fingerprint;
-        Guid _musicBrainzRecordingId;
+        int? _importWorkflowId;
 
         /// <summary>
-        /// AcoustID's GUID record
+        /// Database reference ID
         /// </summary>
-        public Guid Id
+        public int Id
         {
             get { return _id; }
             set { this.RaiseAndSetIfChanged(ref _id, value); }
+        }
+        public string FileName
+        {
+            get { return _fileName; }
+            set { this.RaiseAndSetIfChanged(ref _fileName, value); }
+        }
+        /// <summary>
+        /// AcoustID's lookup record
+        /// </summary>
+        public Guid LookupId
+        {
+            get { return _lookupId; }
+            set { this.RaiseAndSetIfChanged(ref _lookupId, value); }
+        }
+        public Guid MusicBrainzRecordingId
+        {
+            get { return _musicBrainzRecordingId; }
+            set { this.RaiseAndSetIfChanged(ref _musicBrainzRecordingId, value); }
         }
         public double Score
         {
@@ -27,17 +50,21 @@ namespace AudioStation.ViewModels.Vendor.AcoustIDViewModel
             get { return _fingerprint; }
             set { this.RaiseAndSetIfChanged(ref _fingerprint, value); }
         }
-        public Guid MusicBrainzRecordingId
+        public int? ImportWorkflowId
         {
-            get { return _musicBrainzRecordingId; }
-            set { this.RaiseAndSetIfChanged(ref _musicBrainzRecordingId, value); }
+            get { return _importWorkflowId; }
+            set { this.RaiseAndSetIfChanged(ref _importWorkflowId, value); }
         }
+
 
         public AcoustIDLookupResultViewModel()
         {
-            this.Id = Guid.Empty;
+            this.FileName = string.Empty;
+            this.Fingerprint = string.Empty;
+            this.LookupId = Guid.Empty;
             this.Fingerprint = string.Empty;
             this.MusicBrainzRecordingId = Guid.Empty;
+            this.ImportWorkflowId = null;
         }
 
         public override string ToString()

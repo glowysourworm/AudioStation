@@ -9,7 +9,7 @@
              xmlns:simpleUI="clr-namespace:SimpleWpf.UI.Controls;assembly=SimpleWpf.UI"
              xmlns:simpleUITreeview="clr-namespace:SimpleWpf.UI.Controls.TreeViewUI;assembly=SimpleWpf.UI">
     
-    <Grid RowDefinitions="Auto, Auto, *, Auto" ColumnDefinitions="*, Auto, *" DataContext="{Binding Staging}">
+    <Grid RowDefinitions="Auto, Auto, *, Auto" ColumnDefinitions="*, Auto, *" DataContext="{Binding StagingWorkflow}">
 
         <!-- Input Files (In Place) -->
         <TextBox Margin="5" 

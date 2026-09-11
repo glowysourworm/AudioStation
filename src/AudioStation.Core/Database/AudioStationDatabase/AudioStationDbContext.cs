@@ -1,5 +1,5 @@
-﻿using AudioStation.Core.Utility;
-using AudioStation.Model;
+﻿using AudioStation.Core.Model;
+using AudioStation.Core.Utility;
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;

@@ -8,12 +8,12 @@ using AudioStation.Core.Component.BitmapConverterComponent;
 using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Controller.Interface;
 using AudioStation.Core.Controller.ImageCacheModel;
-using AudioStation.Model;
 
 using Microsoft.Extensions.Logging;
 
 using SimpleWpf.IocFramework.Application.Attribute;
 using AudioStation.Core.Utility;
+using AudioStation.Core.Model;
 
 namespace AudioStation.Core.Component
 {

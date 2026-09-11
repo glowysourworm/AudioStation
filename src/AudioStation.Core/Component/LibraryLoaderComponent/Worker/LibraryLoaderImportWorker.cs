@@ -1,5 +1,6 @@
 ﻿using System.IO;
 
+using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Component.LibraryLoaderComponent.Load;
 using AudioStation.Core.Component.LibraryLoaderComponent.Output;
 using AudioStation.Core.Controller.Interface;
@@ -14,6 +15,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
         private readonly IAudioStationDbClient _audioStationDbClient;
         private readonly IFileController _fileController;
         private readonly ITagCacheController _tagCacheController;
+        private readonly IAudioConverter _audioConverter;
 
         private const int WORK_STEPS = 6;
 
@@ -35,12 +37,14 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
         public LibraryLoaderImportWorker(LibraryLoaderWorkItem workItem,
                                          IAudioStationDbClient audioStationDbClient,
                                          IFileController fileController,
-                                         ITagCacheController tagCacheController)
+                                         ITagCacheController tagCacheController,
+                                         IAudioConverter audioConverter)
             : base(workItem)
         {
             _fileController = fileController;
             _audioStationDbClient = audioStationDbClient;
             _tagCacheController = tagCacheController;
+            _audioConverter = audioConverter;
 
             _destinationPath = string.Empty;
         }
@@ -60,10 +64,17 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
             //
             // 1) Calculate File and Folder Paths
             // 2) Validate Import Records:  Source Tag Entity (minimum valid); Source File Reference; All File / Folder Paths (check permissions)
-            // 3) Copy Source -> Destination
+            //
+            // 3) Copy Source -> Destination / Convert Source File (optional)
+            //      -> File Conversion (optional) requires that you convert the file, apply the proper extension
+            //         and delete the source file. The library directory must not be marked read-only.
+            //
             // 4) Embed Tag Data (protect read-only option and report if necessary)
             // 5) Import Entity
-            // 6) Delete Source File / Empty Folder (optional)
+            // 6) Migrate (optional) / Delete Source File (optional) / Empty Folder (optional)
+            //      -> Handling the source file is optional. Migration implies that you're moving
+            //         a file from source to destination. "In Place" implies that you're leaving the
+            //         file in the same directory. These settings have already been applied.
             // 
 
             var load = this.Load.Get<LibraryLoaderImportLoad>();
@@ -250,6 +261,32 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
                     _fileController.CopyFileTo(workLoad.SourceFullPath, _destinationPath, workLoad.MigrationOverwriteDestinationFiles);
 
                     Log("File copy successful");
+                }
+
+                // File Conversion
+                if (workLoad.ConvertAudioFormat)
+                {
+                    // Get Audio Format (performance will be slower than just checking file extension)
+                    var audioEncoding = _audioConverter.GetAudioEncoding(workLoad.SourceFullPath);
+
+                    // Convert
+                    if (audioEncoding != workLoad.DestinationFormat.Encoding)
+                    {
+                        // Calculate new destination path
+                        var nextDestinationPath = Path.GetFileNameWithoutExtension(_destinationPath) + workLoad.DestinationFormat.Extension;
+
+                        Log("Converting file to format:  " + workLoad.DestinationFormat.Name);
+
+                        // Try Conversion (let it fail if it must)
+                        _audioConverter.ConvertTo(_destinationPath, nextDestinationPath, workLoad.DestinationFormat);
+
+                        Log("File conversion successful:  " + nextDestinationPath);
+                        Log("Deleting original file:  " + _destinationPath);
+
+                        _fileController.DeleteFile(_destinationPath);
+
+                        _destinationPath = nextDestinationPath;
+                    }
                 }
 
                 return true;
