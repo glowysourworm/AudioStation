@@ -1,7 +1,6 @@
 ﻿using System.Collections.Concurrent;
 
 using AudioStation.Core.Component;
-using AudioStation.Core.Controller.Interface;
 using AudioStation.Core.Event;
 using AudioStation.Core.Model;
 using AudioStation.Core.Service.Interface;
@@ -12,10 +11,10 @@ using SimpleWpf.Extensions.Event;
 using SimpleWpf.IocFramework.Application.Attribute;
 using SimpleWpf.IocFramework.EventAggregation;
 
-namespace AudioStation.Core.Controller
+namespace AudioStation.Core.Service
 {
-    [IocExport(typeof(IOutputController))]
-    public class OutputController : IOutputController
+    [IocExport(typeof(IAudioStationLogService))]
+    public class AudioStationLogService : IAudioStationLogService
     {
         public const int MAX_LOG_SIZE = 1000;
 
@@ -32,7 +31,7 @@ namespace AudioStation.Core.Controller
         private IAudioStationDataService.Status _status;
 
         [IocImportingConstructor]
-        public OutputController(IIocEventAggregator eventAggregator)
+        public AudioStationLogService(IIocEventAggregator eventAggregator)
         {
             _eventAggregator = eventAggregator;
 

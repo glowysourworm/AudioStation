@@ -1,6 +1,5 @@
 ﻿using AudioStation.Controller.Interface;
 using AudioStation.Core;
-using AudioStation.Core.Controller.Interface;
 using AudioStation.Core.Database.AudioStationDatabase.Interface;
 using AudioStation.Core.Service.Interface;
 using AudioStation.Core.Service.Vendor.Bandcamp.Interface;
@@ -28,7 +27,7 @@ namespace AudioStation.Controller
 
         // IAudioStationDataService
         private readonly IAudioStationDbClient _audioStationDbClient;
-        private readonly IOutputController _outputController;
+        private readonly IAudioStationLogService _outputController;
         private readonly IAudioController _audioController;
         private readonly IAcoustIDClient _acoustIDClient;
         private readonly IBandcampClient _bandcampClient;
@@ -48,7 +47,7 @@ namespace AudioStation.Controller
 
                                              IAudioStationDbClient audioStationDbClient,
                                              IAudioController audioController,
-                                             IOutputController outputController,
+                                             IAudioStationLogService outputController,
                                              IAcoustIDClient acoustIDClient,
                                              IBandcampClient bandcampClient,
                                              IDiscogsClient discogsClient,
@@ -162,7 +161,7 @@ namespace AudioStation.Controller
 
         public T GetDataService<T>() where T : IAudioStationDataService
         {
-            if (typeof(T) == typeof(IOutputController))
+            if (typeof(T) == typeof(IAudioStationLogService))
                 return (T)_outputController;
 
             else if (typeof(T) == typeof(IAudioController))

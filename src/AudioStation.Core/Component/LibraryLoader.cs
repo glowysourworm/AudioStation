@@ -4,9 +4,9 @@ using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Component.LibraryLoaderComponent;
 using AudioStation.Core.Component.LibraryLoaderComponent.Output;
 using AudioStation.Core.Component.LibraryLoaderComponent.Worker;
-using AudioStation.Core.Controller.Interface;
 using AudioStation.Core.Database.AudioStationDatabase;
 using AudioStation.Core.Database.AudioStationDatabase.Interface;
+using AudioStation.Core.Service.Interface;
 using AudioStation.Core.Service.Vendor.Interface;
 
 using SimpleWpf.Extensions.Event;
@@ -19,12 +19,12 @@ namespace AudioStation.Core.Component
     public class LibraryLoader : ILibraryLoader
     {
         private readonly IAudioStationMapper _audioStationMapper;
-        private readonly IFileController _fileController;
+        private readonly IAudioStationFileService _fileController;
         private readonly IAudioStationDbClient _audioStationDbClient;
         private readonly IAcoustIDClient _acoustIDClient;
         private readonly IMusicBrainzClient _musicBrainzClient;
         private readonly IAudioConverter _audioConverter;
-        private readonly ITagCacheController _tagCacheController;
+        private readonly ITagCache _tagCacheController;
 
         // Cannot use multi threading on the database until we have proper 
         // table locking, or transactions!
@@ -47,9 +47,9 @@ namespace AudioStation.Core.Component
                              IAudioStationDbClient audioStationDbClient,
                              IAcoustIDClient acoustIDClient,
                              IMusicBrainzClient musicBrainzClient,
-                             IFileController fileController,
+                             IAudioStationFileService fileController,
                              IAudioConverter audioConverter,
-                             ITagCacheController tagCacheController)
+                             ITagCache tagCacheController)
         {
             _audioStationMapper = audioStationMapper;
             _audioStationDbClient = audioStationDbClient;

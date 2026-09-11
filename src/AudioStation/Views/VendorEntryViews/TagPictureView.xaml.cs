@@ -2,8 +2,8 @@
 
 using ATL;
 
-using AudioStation.Core.Controller.ImageCacheModel;
-using AudioStation.Core.Controller.Interface;
+using AudioStation.Core.Service.ImageCacheModel;
+using AudioStation.Core.Service.Interface;
 using AudioStation.Core.Utility;
 using AudioStation.ViewModels.Vendor.ATLViewModel;
 
@@ -15,11 +15,11 @@ namespace AudioStation.Views.VendorEntryViews
 {
     public partial class TagPictureView : UserControl
     {
-        readonly IImageCacheController _imageCacheController;
+        readonly IImageCache _imageCacheController;
 
         public TagPictureView()
         {
-            _imageCacheController = IocContainer.Get<IImageCacheController>();
+            _imageCacheController = IocContainer.Get<IImageCache>();
 
             InitializeComponent();
         }

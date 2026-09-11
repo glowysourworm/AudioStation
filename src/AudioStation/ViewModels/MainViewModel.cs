@@ -4,7 +4,6 @@ using AudioStation.Controller.Interface;
 using AudioStation.Core.Component;
 using AudioStation.Core.Component.CDPlayer.Interface;
 using AudioStation.Core.Component.Interface;
-using AudioStation.Core.Controller.Interface;
 using AudioStation.Core.Database.AudioStationDatabase.Interface;
 using AudioStation.Core.Event;
 using AudioStation.Core.Model;
@@ -372,7 +371,7 @@ public class MainViewModel : ComponentViewModelBase
 
         StatusIconViewModel viewModel = null;
 
-        if (sender is IOutputController)
+        if (sender is IAudioStationLogService)
             viewModel = this.StatusViewModel.OutputControllerStatus;
 
         else if (sender is IAudioStationDbClient)

@@ -1,25 +1,28 @@
 ﻿using System.IO;
 
-using AudioStation.Core.Controller.Interface;
 using AudioStation.Core.Model.Vendor.ATLExtension;
 using AudioStation.Core.Model.Vendor.ATLExtension.Interface;
+using AudioStation.Core.Service.Interface;
 using AudioStation.Core.Utility;
 
 using Microsoft.Extensions.Logging;
 
+using SimpleWpf.Extensions.Event;
 using SimpleWpf.IocFramework.Application.Attribute;
 using SimpleWpf.RecursiveSerializer.Shared;
 using SimpleWpf.SimpleCollections.Collection;
 
-namespace AudioStation.Core.Controller
+namespace AudioStation.Core.Service
 {
-    [IocExport(typeof(ITagCacheController))]
-    public class TagCacheController : ITagCacheController
+    [IocExport(typeof(ITagCache))]
+    public class TagCache : ITagCache
     {
         SimpleDictionary<string, AudioStationTag> _tagFiles;
 
+        public event SimpleEventHandler<IAudioStationDataService, IAudioStationDataService.Status> StatusChangeEvent;
+
         [IocImportingConstructor]
-        public TagCacheController()
+        public TagCache()
         {
             _tagFiles = new SimpleDictionary<string, AudioStationTag>();
         }

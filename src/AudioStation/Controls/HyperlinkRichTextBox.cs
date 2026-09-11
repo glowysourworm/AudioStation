@@ -5,7 +5,7 @@ using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Navigation;
 
-using AudioStation.Core.Controller.Interface;
+using AudioStation.Core.Service.Interface;
 using AudioStation.Core.Utility;
 
 using Microsoft.Extensions.Logging;
@@ -27,11 +27,11 @@ namespace AudioStation.Controls
 
         private const string URL_REGEX = "([\\w+]+\\:\\/\\/)?([\\w\\d-]+\\.)*[\\w-]+[\\.\\:]\\w+([\\/\\?\\=\\&\\#.]?[\\w-]+)*\\/?";
 
-        private readonly IOutputController _outputController;
+        private readonly IAudioStationLogService _outputController;
 
         public HyperlinkRichTextBox()
         {
-            _outputController = IocContainer.Get<IOutputController>();
+            _outputController = IocContainer.Get<IAudioStationLogService>();
         }
 
         private void Reload()

@@ -1,11 +1,11 @@
 ﻿using AudioStation.Core.Component.BitmapConverterComponent;
-using AudioStation.Core.Controller.ImageCacheModel;
+using AudioStation.Core.Service.ImageCacheModel;
 
 using PictureType = ATL.PictureInfo.PIC_TYPE;
 
-namespace AudioStation.Core.Controller.Interface
+namespace AudioStation.Core.Service.Interface
 {
-    public interface IImageCacheController
+    public interface IImageCache : IAudioStationCache
     {
         /// <summary>
         /// Creates or returns image source(s) for the specified artist. The images are prepared (if there are any

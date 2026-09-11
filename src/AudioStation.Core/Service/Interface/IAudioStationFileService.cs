@@ -1,10 +1,9 @@
 ﻿using AudioStation.Core.Component.BitmapConverterComponent;
 using AudioStation.Core.Model;
-using AudioStation.Core.Service.Interface;
 
-namespace AudioStation.Core.Controller.Interface
+namespace AudioStation.Core.Service.Interface
 {
-    public interface IFileController : IAudioStationDataService
+    public interface IAudioStationFileService : IAudioStationDataService
     {
         public enum StorageType
         {

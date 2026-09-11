@@ -3,9 +3,9 @@
 using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Component.LibraryLoaderComponent.Load;
 using AudioStation.Core.Component.LibraryLoaderComponent.Output;
-using AudioStation.Core.Controller.Interface;
 using AudioStation.Core.Database.AudioStationDatabase;
 using AudioStation.Core.Database.AudioStationDatabase.Interface;
+using AudioStation.Core.Service.Interface;
 using AudioStation.Core.Utility;
 
 namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
@@ -13,8 +13,8 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
     public class LibraryLoaderImportWorker : LibraryLoaderWorker
     {
         private readonly IAudioStationDbClient _audioStationDbClient;
-        private readonly IFileController _fileController;
-        private readonly ITagCacheController _tagCacheController;
+        private readonly IAudioStationFileService _fileController;
+        private readonly ITagCache _tagCacheController;
         private readonly IAudioConverter _audioConverter;
 
         private const int WORK_STEPS = 6;
@@ -36,8 +36,8 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
 
         public LibraryLoaderImportWorker(LibraryLoaderWorkItem workItem,
                                          IAudioStationDbClient audioStationDbClient,
-                                         IFileController fileController,
-                                         ITagCacheController tagCacheController,
+                                         IAudioStationFileService fileController,
+                                         ITagCache tagCacheController,
                                          IAudioConverter audioConverter)
             : base(workItem)
         {

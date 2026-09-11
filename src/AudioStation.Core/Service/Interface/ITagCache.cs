@@ -1,9 +1,9 @@
 ﻿using AudioStation.Core.Model.Vendor.ATLExtension;
 using AudioStation.Core.Model.Vendor.ATLExtension.Interface;
 
-namespace AudioStation.Core.Controller.Interface
+namespace AudioStation.Core.Service.Interface
 {
-    public interface ITagCacheController
+    public interface ITagCache : IAudioStationCache
     {
         /// <summary>
         /// Gets a tag file from the cache

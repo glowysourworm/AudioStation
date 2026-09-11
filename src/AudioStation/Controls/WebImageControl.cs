@@ -2,8 +2,8 @@
 using System.Windows.Controls;
 using System.Windows.Threading;
 
-using AudioStation.Core.Controller.ImageCacheModel;
-using AudioStation.Core.Controller.Interface;
+using AudioStation.Core.Service.ImageCacheModel;
+using AudioStation.Core.Service.Interface;
 
 using SimpleWpf.IocFramework.Application;
 using SimpleWpf.Utilities;
@@ -29,11 +29,11 @@ namespace AudioStation.Controls
         public ImageCacheType ImageSize { get; set; }
 
         private readonly PictureType _cacheType;
-        private readonly IImageCacheController _cacheController;
+        private readonly IImageCache _cacheController;
 
         public WebImageControl()
         {
-            _cacheController = IocContainer.Get<IImageCacheController>();
+            _cacheController = IocContainer.Get<IImageCache>();
 
             // This may help to detail web images for some services that deal with mp3 tags
             _cacheType = PictureType.Front;

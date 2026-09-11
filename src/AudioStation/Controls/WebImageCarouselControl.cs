@@ -4,8 +4,8 @@ using System.Windows.Media;
 using System.Windows.Threading;
 
 using AudioStation.Controls.Animation;
-using AudioStation.Core.Controller.ImageCacheModel;
-using AudioStation.Core.Controller.Interface;
+using AudioStation.Core.Service.ImageCacheModel;
+using AudioStation.Core.Service.Interface;
 
 using SimpleWpf.IocFramework.Application;
 using SimpleWpf.Utilities;
@@ -53,11 +53,11 @@ namespace AudioStation.Controls
         protected List<Image> CarouselImages { get; private set; }
         protected int CarouselIndex { get; private set; }
 
-        private readonly IImageCacheController _imageCacheController;
+        private readonly IImageCache _imageCacheController;
 
         public WebImageCarouselControl()
         {
-            _imageCacheController = IocContainer.Get<IImageCacheController>();
+            _imageCacheController = IocContainer.Get<IImageCache>();
 
             // State carries the current index
             this.Timer = new Timer(TimerTick, 0, 0, this.Interval <= 0 ? Timeout.Infinite : this.Interval);

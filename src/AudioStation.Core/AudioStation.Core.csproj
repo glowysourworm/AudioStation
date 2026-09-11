@@ -15,7 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="Controller\FileController.cs" />
+    <None Include="Service\AudioStationFileService.cs" />
   </ItemGroup>
 
   <ItemGroup>
@@ -42,6 +42,10 @@
     <PackageReference Include="SpotifyAPI.Web" Version="7.4.2" />
     <PackageReference Include="System.IO.Hashing" Version="10.0.11" />
     <PackageReference Include="z440.atl.core" Version="7.9.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Controller\Interface\" />
   </ItemGroup>
 
 </Project>

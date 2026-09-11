@@ -1,9 +1,8 @@
 ﻿using AudioStation.Core.Model;
-using AudioStation.Core.Service.Interface;
 
 using Microsoft.Extensions.Logging;
 
-namespace AudioStation.Core.Controller.Interface
+namespace AudioStation.Core.Service.Interface
 {
     /// <summary>
     /// Responsible for maintaining / controlling log message and queue messages. We're going to 
@@ -11,7 +10,7 @@ namespace AudioStation.Core.Controller.Interface
     /// have to find other ways to manage it; but view binding is expected to be the biggest amount
     /// of memory. (so, please use virtual scrolling)
     /// </summary>
-    public interface IOutputController : ILogger, IDisposable, IAudioStationDataService
+    public interface IAudioStationLogService : ILogger, IDisposable, IAudioStationDataService
     {
         void Log(LogMessage message);
         void Log(string message, LogMessageType type = LogMessageType.General, params object[] parameters);

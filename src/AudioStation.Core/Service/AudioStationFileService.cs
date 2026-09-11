@@ -4,10 +4,9 @@ using ATL;
 
 using AudioStation.Core.Component.BitmapConverterComponent;
 using AudioStation.Core.Component.Interface;
-using AudioStation.Core.Controller.ImageCacheModel;
-using AudioStation.Core.Controller.Interface;
 using AudioStation.Core.Model;
 using AudioStation.Core.Model.Interface;
+using AudioStation.Core.Service.ImageCacheModel;
 using AudioStation.Core.Service.Interface;
 using AudioStation.Core.Utility.FileUtility;
 
@@ -16,8 +15,8 @@ using SimpleWpf.IocFramework.Application.Attribute;
 
 namespace AudioStation.Core.Component
 {
-    [IocExport(typeof(IFileController))]
-    public class FileController : IFileController
+    [IocExport(typeof(IAudioStationFileService))]
+    public class AudioStationFileService : IAudioStationFileService
     {
         private AudioStationConfiguration _configuration;
         private readonly IBitmapConverter _bitmapConverter;
@@ -29,7 +28,7 @@ namespace AudioStation.Core.Component
         public event SimpleEventHandler<IAudioStationDataService, IAudioStationDataService.Status> StatusChangeEvent;
 
         [IocImportingConstructor]
-        public FileController(IBitmapConverter bitmapConverter)
+        public AudioStationFileService(IBitmapConverter bitmapConverter)
         {
             _bitmapConverter = bitmapConverter;
         }
@@ -73,7 +72,7 @@ namespace AudioStation.Core.Component
             string artist,
             string album,
             FileTypes fileType,
-            IFileController.StorageType storageType = IFileController.StorageType.DiskCache,
+            IAudioStationFileService.StorageType storageType = IAudioStationFileService.StorageType.DiskCache,
             bool overwrite = false,
             string specificFileName = "")
         {
@@ -96,7 +95,7 @@ namespace AudioStation.Core.Component
             string artist,
             string album,
             FileTypes fileType,
-            IFileController.StorageType storageType = IFileController.StorageType.DiskCache,
+            IAudioStationFileService.StorageType storageType = IAudioStationFileService.StorageType.DiskCache,
             bool overwrite = false,
             string specificFileName = "")
         {
@@ -110,7 +109,7 @@ namespace AudioStation.Core.Component
 
             try
             {
-                var libraryDirectory = (storageType == IFileController.StorageType.DiskCache) ?
+                var libraryDirectory = (storageType == IAudioStationFileService.StorageType.DiskCache) ?
                                             _configuration.ApplicationCacheFolder :
                                             _configuration.ApplicationStorageFolder;
 
@@ -146,7 +145,7 @@ namespace AudioStation.Core.Component
                 var fileName = CalculateTrackFileName(libraryDirectory.NamingType, stagedFilePath, track, artist, album, trackNumber, trackCount);
 
                 // Calculate Path:  Also, create intermediate directories
-                var finalPath = CalculateFilePath(libraryDirectory, genre, artist, album, fileName, FileTypes.AudioFile, trackType, IFileController.StorageType.DiskPermanent, true);
+                var finalPath = CalculateFilePath(libraryDirectory, genre, artist, album, fileName, FileTypes.AudioFile, trackType, IAudioStationFileService.StorageType.DiskPermanent, true);
 
                 if (File.Exists(finalPath))
                 {
@@ -273,7 +272,7 @@ namespace AudioStation.Core.Component
                     throw new Exception("Trying to create directories in a readonly library folder");
 
                 // Calculate Path:  DO NOT CREATE DIRECTORIES
-                var finalPath = CalculateFilePath(libraryDirectory, genre, artist, album, fileName, FileTypes.AudioFile, trackType, IFileController.StorageType.DiskPermanent, createIntermediateDirectories);
+                var finalPath = CalculateFilePath(libraryDirectory, genre, artist, album, fileName, FileTypes.AudioFile, trackType, IAudioStationFileService.StorageType.DiskPermanent, createIntermediateDirectories);
 
                 return finalPath;
             }
@@ -307,7 +306,7 @@ namespace AudioStation.Core.Component
                                          string fileName,
                                          FileTypes fileType,
                                          TrackCategory trackType,
-                                         IFileController.StorageType storageType,
+                                         IAudioStationFileService.StorageType storageType,
                                          bool createIntermediateDirectories = false)
         {
             if (createIntermediateDirectories && libraryDirectory.IsReadOnly)

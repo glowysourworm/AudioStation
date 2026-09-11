@@ -1,4 +1,4 @@
-﻿namespace AudioStation.Core.Controller.ImageCacheModel
+﻿namespace AudioStation.Core.Service.ImageCacheModel
 {
     public class ImageMimeTypes
     {

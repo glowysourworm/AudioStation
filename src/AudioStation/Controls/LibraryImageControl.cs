@@ -2,8 +2,8 @@
 using System.Windows.Controls;
 using System.Windows.Threading;
 
-using AudioStation.Core.Controller.ImageCacheModel;
-using AudioStation.Core.Controller.Interface;
+using AudioStation.Core.Service.ImageCacheModel;
+using AudioStation.Core.Service.Interface;
 using AudioStation.ViewModels.OtherViewModels;
 
 using SimpleWpf.IocFramework.Application;
@@ -13,7 +13,7 @@ namespace AudioStation.Controls
 {
     public class LibraryImageControl : Image
     {
-        private readonly IImageCacheController _cacheController;
+        private readonly IImageCache _cacheController;
 
         /// <summary>
         /// Sets the (static) image size based on an enumeration. (see ImageCacheType / ImageSize for sizes)
@@ -24,7 +24,7 @@ namespace AudioStation.Controls
         public LibraryImageControl()
         {
             // IocRegion doesn't have support for templates (easily)
-            _cacheController = IocContainer.Get<IImageCacheController>();
+            _cacheController = IocContainer.Get<IImageCache>();
 
             this.Unloaded += LibraryImageControl_Unloaded;
             this.Loaded += LibraryArtistImage_Loaded;

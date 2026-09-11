@@ -1,6 +1,6 @@
 ﻿using AudioStation.Controller.Interface;
 using AudioStation.Core;
-using AudioStation.Core.Controller.Interface;
+using AudioStation.Core.Service.Interface;
 using AudioStation.Core.Service.Vendor.Interface;
 using AudioStation.Core.Utility;
 using AudioStation.Event;
@@ -22,14 +22,14 @@ namespace AudioStation.Service
         private readonly ISpotifyClient _spotifyClient;
         private readonly IMusicBrainzClient _musicBrainzClient;
         private readonly IFanartClient _fanartClient;
-        private readonly IOutputController _outputController;
+        private readonly IAudioStationLogService _outputController;
 
         [IocImportingConstructor]
         public NowPlayingService(ILastFmClient lastFmClient,
                                          ISpotifyClient spotifyClient,
                                          IMusicBrainzClient musicBrainzClient,
                                          IFanartClient fanartClient,
-                                         IOutputController outputController)
+                                         IAudioStationLogService outputController)
         {
             _lastFmClient = lastFmClient;
             _spotifyClient = spotifyClient;

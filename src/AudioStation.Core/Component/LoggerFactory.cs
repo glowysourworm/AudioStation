@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using AudioStation.Core.Controller.Interface;
+using AudioStation.Core.Service.Interface;
 
 using Microsoft.Extensions.Logging;
 
@@ -19,10 +19,10 @@ namespace AudioStation.Core.Component
     [IocExport(typeof(ILoggerFactory))]
     public class LoggerFactory : ILoggerFactory, ILoggerProvider
     {
-        private readonly IOutputController _outputController;
+        private readonly IAudioStationLogService _outputController;
 
         [IocImportingConstructor]
-        public LoggerFactory(IOutputController outputController)
+        public LoggerFactory(IAudioStationLogService outputController)
         {
             _outputController = outputController;
         }

@@ -3,7 +3,7 @@ using System.IO;
 using System.Windows.Data;
 using System.Windows.Media.Imaging;
 
-using AudioStation.Core.Controller.Interface;
+using AudioStation.Core.Service.Interface;
 
 using SimpleWpf.IocFramework.Application;
 
@@ -11,11 +11,11 @@ namespace AudioStation.Views.Converter
 {
     public class ArtworkFileConverter : IValueConverter
     {
-        private readonly ITagCacheController _tagCacheController;
+        private readonly ITagCache _tagCacheController;
 
         public ArtworkFileConverter()
         {
-            _tagCacheController = IocContainer.Get<ITagCacheController>();
+            _tagCacheController = IocContainer.Get<ITagCache>();
         }
 
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)

@@ -4,9 +4,9 @@ using System.ComponentModel;
 using AudioStation.Controller.Interface;
 using AudioStation.Core.Component;
 using AudioStation.Core.Component.Interface;
-using AudioStation.Core.Controller.Interface;
 using AudioStation.Core.Model;
 using AudioStation.Core.Model.Interface;
+using AudioStation.Core.Service.Interface;
 using AudioStation.Event;
 using AudioStation.Event.DialogEvents;
 using AudioStation.Service.Interface;
@@ -31,7 +31,7 @@ namespace AudioStation.ViewModels.ComponentViewModels
         private ILibraryLoaderService _libraryLoaderService;
 
         private readonly IDialogController _dialogController;
-        private readonly ITagCacheController _tagCacheController;
+        private readonly ITagCache _tagCacheController;
 
         // Configuration:  This is for the partial configuration editing control area for library directories.
         //
@@ -132,7 +132,7 @@ namespace AudioStation.ViewModels.ComponentViewModels
                                         IAudioConverter audioConverter,
                                         IDialogController dialogController,
                                         IIocEventAggregator eventAggregator,
-                                        ITagCacheController tagCacheController) : base("Library Importer")
+                                        ITagCache tagCacheController) : base("Library Importer")
         {
             _dialogController = dialogController;
             _tagCacheController = tagCacheController;

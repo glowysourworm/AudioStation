@@ -4,7 +4,7 @@ using System.Windows.Data;
 using ATL;
 
 using AudioStation.Core.Component.Interface;
-using AudioStation.Core.Controller.ImageCacheModel;
+using AudioStation.Core.Service.ImageCacheModel;
 
 using SimpleWpf.IocFramework.Application;
 

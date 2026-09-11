@@ -157,7 +157,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
 
                         if (!subNode.IsDirectory && !stagedFiles.ContainsKey(subNode.FullPath))
                         {
-                            var file = new LibraryImporterFileViewModel(subNode.FullPath, subNode.BaseDirectory, this.Workflow.Configuration.ImportDirectory.ImportType);
+                            var file = new LibraryImporterFileViewModel(subNode.FullPath, subNode.BaseDirectory);
 
                             // Check For Library Conflict
                             //
@@ -174,7 +174,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
                 // Other Files
                 else if (!stagedFiles.ContainsKey(node.FullPath))
                 {
-                    var stagedFile = new LibraryImporterFileViewModel(node.FullPath, node.BaseDirectory, this.Workflow.Configuration.ImportDirectory.ImportType);
+                    var stagedFile = new LibraryImporterFileViewModel(node.FullPath, node.BaseDirectory);
 
                     // Check For Library Conflict
                     //

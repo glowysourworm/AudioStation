@@ -4,7 +4,6 @@ using System.Windows.Threading;
 using AudioStation.Controller.Interface;
 using AudioStation.Core;
 using AudioStation.Core.Component.CDPlayer.Interface;
-using AudioStation.Core.Controller.Interface;
 using AudioStation.Core.Service.Interface;
 using AudioStation.Core.Utility.FileUtility;
 using AudioStation.Service.Interface;
@@ -23,7 +22,7 @@ namespace AudioStation.Service
     {
         private readonly IDialogController _dialogController;
         private readonly ICDDrive _cdDrive;
-        private readonly IFileController _fileController;
+        private readonly IAudioStationFileService _fileController;
 
         public event SimpleEventHandler<IAudioStationDataService, IAudioStationDataService.Status> StatusChangeEvent;
 
@@ -32,7 +31,7 @@ namespace AudioStation.Service
         [IocImportingConstructor]
         public CDImportService(IDialogController dialogController,
                                ICDDrive cdDrive,
-                               IFileController fileController)
+                               IAudioStationFileService fileController)
         {
             _dialogController = dialogController;
             _cdDrive = cdDrive;

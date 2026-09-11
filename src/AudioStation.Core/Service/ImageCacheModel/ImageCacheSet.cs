@@ -1,6 +1,6 @@
 ﻿using SimpleWpf.SimpleCollections.Collection;
 
-namespace AudioStation.Core.Controller.ImageCacheModel
+namespace AudioStation.Core.Service.ImageCacheModel
 {
     public class ImageCacheSet<TType, TKey, TValue> where TValue : IDisposable
     {

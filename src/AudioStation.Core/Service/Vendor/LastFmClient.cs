@@ -1,5 +1,4 @@
-﻿using AudioStation.Core.Controller.Interface;
-using AudioStation.Core.Model;
+﻿using AudioStation.Core.Model;
 using AudioStation.Core.Model.Vendor;
 using AudioStation.Core.Service.Interface;
 using AudioStation.Core.Service.Vendor.Interface;
@@ -25,12 +24,12 @@ namespace AudioStation.Core.Service.Vendor
         //
         public event SimpleEventHandler<IAudioStationDataService, IAudioStationDataService.Status> StatusChangeEvent;
 
-        private readonly IOutputController _outputController;
+        private readonly IAudioStationLogService _outputController;
 
         private IAudioStationDataService.Status _status;
 
         [IocImportingConstructor]
-        public LastFmClient(IOutputController outputController)
+        public LastFmClient(IAudioStationLogService outputController)
         {
             _outputController = outputController;
             _client = null;

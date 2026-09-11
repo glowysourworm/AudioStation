@@ -1,8 +1,8 @@
 ﻿using System.Windows;
 using System.Windows.Threading;
 
-using AudioStation.Core.Controller.Interface;
 using AudioStation.Core.Model;
+using AudioStation.Core.Service.Interface;
 using AudioStation.Core.Utility.RecursiveComparer;
 
 using Microsoft.Extensions.Logging;
@@ -21,9 +21,9 @@ namespace AudioStation.Core.Utility
             Comparer = new SimpleRecursiveComparer();
         }
 
-        private static IOutputController GetOutputController()
+        private static IAudioStationLogService GetOutputController()
         {
-            return IocContainer.Get<IOutputController>();
+            return IocContainer.Get<IAudioStationLogService>();
         }
         private static ILoggerFactory GetLoggerFactory()
         {

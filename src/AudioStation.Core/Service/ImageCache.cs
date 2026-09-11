@@ -4,8 +4,6 @@ using System.Reflection;
 
 using AudioStation.Core.Component.BitmapConverterComponent;
 using AudioStation.Core.Component.Interface;
-using AudioStation.Core.Controller.Interface;
-using AudioStation.Core.Controller.ImageCacheModel;
 using AudioStation.Core.Database.AudioStationDatabase.Interface;
 using AudioStation.Core.Utility;
 
@@ -15,16 +13,18 @@ using SimpleWpf.IocFramework.Application.Attribute;
 using SimpleWpf.SimpleCollections.Collection;
 
 using PictureType = ATL.PictureInfo.PIC_TYPE;
+using AudioStation.Core.Service.Interface;
+using AudioStation.Core.Service.ImageCacheModel;
+using SimpleWpf.Extensions.Event;
 
-namespace AudioStation.Core.Controller
+namespace AudioStation.Core.Service
 {
-    [IocExport(typeof(IImageCacheController))]
-    public class ImageCacheController : IImageCacheController
+    [IocExport(typeof(IImageCache))]
+    public class ImageCache : IImageCache
     {
         readonly IAudioStationDbClient _audioStationDbClient;
         readonly IBitmapConverter _bitmapConverter;
-        readonly IOutputController _outputController;
-        readonly ITagCacheController _tagCacheController;
+        readonly ITagCache _tagCache;
 
         private const int FULL_CACHE_MAX_ENTRIES = 30;
         private const int MEDIUM_CACHE_MAX_ENTRIES = 50;
@@ -45,16 +45,16 @@ namespace AudioStation.Core.Controller
 
         private HttpClient _httpClient;
 
+        public event SimpleEventHandler<IAudioStationDataService, IAudioStationDataService.Status> StatusChangeEvent;
+
         [IocImportingConstructor]
-        public ImageCacheController(IAudioStationDbClient audioStationDbClient,
+        public ImageCache(IAudioStationDbClient audioStationDbClient,
                                     IBitmapConverter bitmapConverter,
-                                    IOutputController outputController,
-                                    ITagCacheController tagCacheController)
+                                    ITagCache tagCache)
         {
             _audioStationDbClient = audioStationDbClient;
             _bitmapConverter = bitmapConverter;
-            _outputController = outputController;
-            _tagCacheController = tagCacheController;
+            _tagCache = tagCache;
 
             this.ArtistCacheSet = new ImageCacheSet<ImageCacheType, ImageCacheKey, ImageCacheItem>();
             this.AlbumCacheSet = new ImageCacheSet<ImageCacheType, ImageCacheKey, ImageCacheItem>();
@@ -243,7 +243,7 @@ namespace AudioStation.Core.Controller
             var files = forArtist ? _audioStationDbClient.GetArtistFiles(entityId) : _audioStationDbClient.GetAlbumTracks(entityId);
 
             // Take all the artwork - consolidating the images
-            var images = files.Select(entity => _tagCacheController.Get(entity.FileReference.FileName))
+            var images = files.Select(entity => _tagCache.Get(entity.FileReference.FileName))
                               .Where(tagRef => tagRef != null)                              // TODO: Application Level Validation (Library Maintenance)
                               .SelectMany(tagRef => tagRef.EmbeddedPictures)
                               .DistinctBy(picture => picture.PicType);                         // See Enumeration

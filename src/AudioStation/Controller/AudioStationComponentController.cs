@@ -2,8 +2,8 @@
 using AudioStation.Core;
 using AudioStation.Core.Component.CDPlayer.Interface;
 using AudioStation.Core.Component.Interface;
-using AudioStation.Core.Controller.Interface;
 using AudioStation.Core.Database.AudioStationDatabase.Interface;
+using AudioStation.Core.Service.Interface;
 using AudioStation.Core.Service.Vendor.Bandcamp.Interface;
 using AudioStation.Event;
 using AudioStation.Event.DialogEvents;
@@ -60,7 +60,7 @@ namespace AudioStation.Controller
 
             IIocEventAggregator eventAggregator,
             IDialogController dialogController,
-            ITagCacheController tagCacheController,
+            ITagCache tagCacheController,
             IAudioController audioController,
 
             // Data Services

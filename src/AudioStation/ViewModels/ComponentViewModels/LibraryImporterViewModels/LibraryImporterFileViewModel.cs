@@ -1,12 +1,12 @@
 ﻿using System.ComponentModel;
 
 using AudioStation.Core.Component.Interface;
-using AudioStation.Core.Controller.Interface;
 using AudioStation.Core.Database.AudioStationDatabase.Interface;
 using AudioStation.Core.Model;
 using AudioStation.Core.Model.Interface;
 using AudioStation.Core.Model.Vendor.ATLExtension;
 using AudioStation.Core.Model.Vendor.ATLExtension.Interface;
+using AudioStation.Core.Service.Interface;
 using AudioStation.Core.Utility;
 using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Load;
 using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Output;
@@ -28,7 +28,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels
     public class LibraryImporterFileViewModel : FileTreeNodeViewModel
     {
         private readonly IAudioStationMapper _audioStationMapper;
-        private readonly ITagCacheController _tagCacheController;
+        private readonly ITagCache _tagCacheController;
 
         public event SimpleEventHandler<LibraryImporterFileViewModel> SelectMusicBrainzEvent;
         public event SimpleEventHandler<LibraryImporterFileViewModel> SelectAcoustIDEvent;
@@ -184,11 +184,10 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels
         /// Constructor for an import file view model. This may represent either a file or a directory.
         /// </summary>
         public LibraryImporterFileViewModel(string fileFullPath,
-                                            string fileBaseDirectory,                                       // This is the base path for the tree
-                                            LibraryImportType importType)
+                                            string fileBaseDirectory)
             : base(fileBaseDirectory, fileFullPath, 0)
         {
-            _tagCacheController = IocContainer.Get<ITagCacheController>();
+            _tagCacheController = IocContainer.Get<ITagCache>();
 
             _updating = false;
 
@@ -208,7 +207,9 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels
             //};
             this.Tag = new TagSmallEditViewModel();
             this.MusicBrainzTag = new TagSmallViewModel();
-            this.ImportType = importType;
+            this.ImportType = LibraryImportType.InPlaceDirectory;
+            this.ImportLoad = new LibraryLoaderImportLoadViewModel();
+            this.ImportOutput = new LibraryLoaderImportOutputViewModel();
 
             this.SelectAcoustIDCommand = new SimpleCommand(() =>
             {

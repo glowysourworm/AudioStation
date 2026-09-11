@@ -5,7 +5,7 @@ using System.Windows.Controls;
 
 using AudioStation.Controller.Interface;
 using AudioStation.Controls;
-using AudioStation.Core.Controller.Interface;
+using AudioStation.Core.Service.Interface;
 using AudioStation.Core.Service.Vendor.Interface;
 using AudioStation.ViewModels.ComponentViewModels.LibraryViewModels;
 using AudioStation.ViewModels.ComponentViewModels.LoadViewModels;
@@ -20,17 +20,17 @@ namespace AudioStation.Views.LibraryManager
     public partial class ManagerView : UserControl
     {
         private readonly IMusicBrainzClient _musicBrainzClient;
-        private readonly IOutputController _outputController;
+        private readonly IAudioStationLogService _outputController;
         private readonly IDialogController _dialogController;
-        private readonly ITagCacheController _tagCacheController;
+        private readonly ITagCache _tagCacheController;
 
         private ObservableCollection<TabItemPressable> _tabItems;
 
         [IocImportingConstructor]
         public ManagerView(IMusicBrainzClient musicBrainzClient,
-                           IOutputController outputController,
+                           IAudioStationLogService outputController,
                            IDialogController dialogController,
-                           ITagCacheController tagCacheController)
+                           ITagCache tagCacheController)
         {
             _musicBrainzClient = musicBrainzClient;
             _outputController = outputController;

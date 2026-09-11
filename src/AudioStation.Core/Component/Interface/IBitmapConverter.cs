@@ -1,7 +1,7 @@
 ﻿using System.Drawing;
 
 using AudioStation.Core.Component.BitmapConverterComponent;
-using AudioStation.Core.Controller.ImageCacheModel;
+using AudioStation.Core.Service.ImageCacheModel;
 
 namespace AudioStation.Core.Component.Interface
 {

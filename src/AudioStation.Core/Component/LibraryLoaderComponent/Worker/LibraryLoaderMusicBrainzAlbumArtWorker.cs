@@ -1,10 +1,10 @@
 ﻿using AudioStation.Core.Component.LibraryLoaderComponent.Load;
 using AudioStation.Core.Component.LibraryLoaderComponent.Output;
-using AudioStation.Core.Controller.Interface;
 using AudioStation.Core.Database.AudioStationDatabase;
 using AudioStation.Core.Database.AudioStationDatabase.Interface;
 using AudioStation.Core.Model;
 using AudioStation.Core.Service;
+using AudioStation.Core.Service.Interface;
 using AudioStation.Core.Service.Payload;
 using AudioStation.Core.Service.Vendor.Interface;
 using AudioStation.Core.Utility.FileUtility;
@@ -15,14 +15,14 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
     {
         private readonly IAudioStationDbClient _audioStationDbClient;
         private readonly IMusicBrainzClient _musicBrainzClient;
-        private readonly IFileController _fileController;
+        private readonly IAudioStationFileService _fileController;
 
         const int WORK_STEPS = 2;
 
         public LibraryLoaderMusicBrainzAlbumArtWorker(
             IAudioStationDbClient audioStationDbClient,
             IMusicBrainzClient musicBrainzClient,
-            IFileController fileController,
+            IAudioStationFileService fileController,
             LibraryLoaderWorkItem workItem) : base(workItem)
         {
             _audioStationDbClient = audioStationDbClient;
@@ -108,7 +108,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
                                                               vendorMap.Entity.TagSmall.AlbumArtist,
                                                               vendorMap.Entity.TagSmall.Album,
                                                               fileType,
-                                                              IFileController.StorageType.DiskCache, true);
+                                                              IAudioStationFileService.StorageType.DiskCache, true);
 
                     Log("Artwork saved to file:  " + filePath);
 

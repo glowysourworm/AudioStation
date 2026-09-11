@@ -5,7 +5,7 @@ using SimpleWpf.SimpleCollections.Extension;
 
 using PictureType = ATL.PictureInfo.PIC_TYPE;
 
-namespace AudioStation.Core.Controller.ImageCacheModel
+namespace AudioStation.Core.Service.ImageCacheModel
 {
     public class ImageCacheItem : IDisposable
     {

@@ -1,4 +1,4 @@
-﻿namespace AudioStation.Core.Controller
+﻿namespace AudioStation.Core.Service
 {
     /*
 
