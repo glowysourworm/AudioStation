@@ -243,17 +243,17 @@ namespace AudioStation.Core.Service
             var files = forArtist ? _audioStationDbClient.GetArtistFiles(entityId) : _audioStationDbClient.GetAlbumTracks(entityId);
 
             // Take all the artwork - consolidating the images
-            var images = files.Select(entity => _tagCache.Get(entity.FileReference.FileName))
-                              .Where(tagRef => tagRef != null)                              // TODO: Application Level Validation (Library Maintenance)
-                              .SelectMany(tagRef => tagRef.EmbeddedPictures)
-                              .DistinctBy(picture => picture.PicType);                         // See Enumeration
+            //var images = files.Select(entity => _tagCache.Get(entity.FileReference.FileName))
+            //                  .Where(tagRef => tagRef != null)                              // TODO: Application Level Validation (Library Maintenance)
+            //                  .SelectMany(tagRef => tagRef.EmbeddedPictures)
+            //                  .DistinctBy(picture => picture.FrameId);                      // (TODO) VERIFY UNIQUE PICTURE ID's
 
             // Convert all images
-            Dictionary<PictureType, BitmapImageData> imageSources;
+            Dictionary<PictureType, BitmapImageData> imageSources = new Dictionary<PictureType, BitmapImageData>();
 
-            // Contention for web image loading (Task)
-            imageSources = images.ToDictionary(picture => picture.PicType,
-                                               picture => (BitmapImageData)_bitmapConverter.BitmapDataToBitmapSource(picture.PictureData, new ImageSize(cacheAsType), picture.MimeType));
+            //// Contention for web image loading (Task)
+            //imageSources = images.ToDictionary(picture => picture.PicType,
+            //                                   picture => (BitmapImageData)_bitmapConverter.BitmapDataToBitmapSource(picture.PictureData, new ImageSize(cacheAsType), picture.MimeType));
 
             var cacheItem = new ImageCacheItem(imageSources);
 

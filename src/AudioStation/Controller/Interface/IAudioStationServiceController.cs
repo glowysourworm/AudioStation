@@ -33,5 +33,10 @@ namespace AudioStation.Controller.Interface
         /// Returns service component based on interface type
         /// </summary>
         T GetService<T>() where T : IAudioStationService;
+
+        /// <summary>
+        /// Returns a cache based on the interface type
+        /// </summary>
+        T GetCache<T>() where T : IAudioStationCache;
     }
 }

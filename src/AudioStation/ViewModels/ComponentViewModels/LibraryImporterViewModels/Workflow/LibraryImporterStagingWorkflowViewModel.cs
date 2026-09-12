@@ -4,6 +4,7 @@ using AudioStation.Controller.Interface;
 using AudioStation.Core.Database.AudioStationDatabase;
 using AudioStation.Core.Database.AudioStationDatabase.Interface;
 using AudioStation.Core.Model.Interface;
+using AudioStation.Core.Service.Interface;
 using AudioStation.Event;
 using AudioStation.Event.DialogEvents;
 using AudioStation.Service.Interface;
@@ -23,6 +24,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
     {
         private readonly IIocEventAggregator _eventAggregator;
         private IAudioStationDbClient _audioStationDbClient;
+        private ITagCache _tagCache;
         private LibraryImporterWorkflowViewModel _workflow;
 
         SimpleCommand _stageCommand;
@@ -159,6 +161,9 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
                         {
                             var file = new LibraryImporterFileViewModel(subNode.FullPath, subNode.BaseDirectory);
 
+                            file.TagClean = _tagCache.Get(subNode.FullPath);
+                            file.TagDirty = _tagCache.GetCopy(subNode.FullPath);
+
                             // Check For Library Conflict
                             //
                             file.LibraryConflict = libraryFiles.ContainsKey(file.FullPath);
@@ -175,6 +180,9 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
                 else if (!stagedFiles.ContainsKey(node.FullPath))
                 {
                     var stagedFile = new LibraryImporterFileViewModel(node.FullPath, node.BaseDirectory);
+
+                    stagedFile.TagClean = _tagCache.Get(node.FullPath);
+                    stagedFile.TagDirty = _tagCache.GetCopy(node.FullPath);
 
                     // Check For Library Conflict
                     //
@@ -208,6 +216,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
         protected override void InitializeImpl(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
         {
             _audioStationDbClient = audioStationController.ServiceController.GetDataService<IAudioStationDbClient>();
+            _tagCache = audioStationController.ServiceController.GetCache<ITagCache>();
         }
 
         protected override void LoadImpl(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)

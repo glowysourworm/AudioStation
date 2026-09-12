@@ -2,9 +2,7 @@
 using System.ComponentModel;
 
 using AudioStation.Controller.Interface;
-using AudioStation.Core.Component;
 using AudioStation.Core.Component.Interface;
-using AudioStation.Core.Model;
 using AudioStation.Core.Model.Interface;
 using AudioStation.Core.Service.Interface;
 using AudioStation.Event;
@@ -468,15 +466,15 @@ namespace AudioStation.ViewModels.ComponentViewModels
 
             var dialogViewModel = new DialogSmallAudioPlayerViewModel()
             {
-                Album = tagFile.Album,
-                Artist = tagFile.AlbumArtist,
-                CurrentTime = TimeSpan.Zero,
-                CurrentTimeRatio = 0,
-                Duration = tagFile.Duration,
-                FileName = selectedFile.FullPath,
-                PlayState = PlayStopPause.Stop,
-                SourceType = StreamSourceType.File,
-                Track = tagFile.Title
+                //Album = tagFile.Album,
+                //Artist = tagFile.AlbumArtist,
+                //CurrentTime = TimeSpan.Zero,
+                //CurrentTimeRatio = 0,
+                //Duration = tagFile.Duration,
+                //FileName = selectedFile.FullPath,
+                //PlayState = PlayStopPause.Stop,
+                //SourceType = StreamSourceType.File,
+                //Track = tagFile.Title
             };
 
             // Show Dialog (starts on load)

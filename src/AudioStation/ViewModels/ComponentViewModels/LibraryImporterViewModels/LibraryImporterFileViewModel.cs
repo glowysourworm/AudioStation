@@ -1,12 +1,9 @@
 ﻿using System.ComponentModel;
 
-using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Database.AudioStationDatabase.Interface;
 using AudioStation.Core.Model;
 using AudioStation.Core.Model.Interface;
-using AudioStation.Core.Model.Vendor.ATLExtension;
 using AudioStation.Core.Model.Vendor.ATLExtension.Interface;
-using AudioStation.Core.Service.Interface;
 using AudioStation.Core.Utility;
 using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Load;
 using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Output;
@@ -15,7 +12,6 @@ using AudioStation.ViewModels.TagViewModels;
 using Microsoft.Extensions.Logging;
 
 using SimpleWpf.Extensions.Event;
-using SimpleWpf.IocFramework.Application;
 using SimpleWpf.UI.Command;
 using SimpleWpf.UI.ViewModel.FileTreeView;
 
@@ -27,9 +23,6 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels
     /// </summary>
     public class LibraryImporterFileViewModel : FileTreeNodeViewModel
     {
-        private readonly IAudioStationMapper _audioStationMapper;
-        private readonly ITagCache _tagCacheController;
-
         public event SimpleEventHandler<LibraryImporterFileViewModel> SelectMusicBrainzEvent;
         public event SimpleEventHandler<LibraryImporterFileViewModel> SelectAcoustIDEvent;
         public event SimpleEventHandler<LibraryImporterFileViewModel> PlayAudioEvent;
@@ -47,8 +40,8 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels
         TagSmallEditViewModel _tag;
         TagSmallViewModel _musicBrainzTag;
 
-        AudioStationTag _tagClean;
-        AudioStationTag _tagDirty;
+        ITagFull _tagClean;
+        ITagFull _tagDirty;
 
         LibraryImportType _importType;
 
@@ -112,12 +105,12 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels
             get { return _musicBrainzTag; }
             set { this.RaiseAndSetIfChanged(ref _musicBrainzTag, value); }
         }
-        public AudioStationTag TagClean
+        public ITagFull TagClean
         {
             get { return _tagClean; }
             set { this.RaiseAndSetIfChanged(ref _tagClean, value); }
         }
-        public AudioStationTag TagDirty
+        public ITagFull TagDirty
         {
             get { return _tagDirty; }
             set { this.RaiseAndSetIfChanged(ref _tagDirty, value); }
@@ -187,8 +180,6 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels
                                             string fileBaseDirectory)
             : base(fileBaseDirectory, fileFullPath, 0)
         {
-            _tagCacheController = IocContainer.Get<ITagCache>();
-
             _updating = false;
 
             //this.ImportLoad = new LibraryLoaderImportLoadViewModel()
@@ -312,12 +303,12 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels
         {
             try
             {
-                // Save tag data to (source) file
-                _tagCacheController.SetData(this.FullPath, _tagDirty, true);
+                //// Save tag data to (source) file
+                //_tagCacheController.SetData(this.FullPath, _tagDirty, true);
 
-                // Update Clean Tag
-                _tagClean = _tagCacheController.GetCopy(this.FullPath);
-                _tagDirty = _tagCacheController.GetCopy(this.FullPath);
+                //// Update Clean Tag
+                //_tagClean = _tagCacheController.GetCopy(this.FullPath);
+                //_tagDirty = _tagCacheController.GetCopy(this.FullPath);
             }
             catch (Exception ex)
             {
@@ -381,7 +372,8 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels
         /// <returns></returns>
         public IAudioStationTag GetTagCopy()
         {
-            return _audioStationMapper.Map<AudioStationTag, AudioStationTag>(_tagDirty);
+            throw new NotImplementedException();
+            //return _audioStationMapper.Map<AudioStationTag, AudioStationTag>(_tagDirty);
         }
 
         /// <summary>
@@ -392,48 +384,48 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels
             // Sets calculated fields for the tag
             tagEdit.ToATL();
 
-            _audioStationMapper.MapOnto(tagEdit, _tagDirty);
+            //_audioStationMapper.MapOnto(tagEdit, _tagDirty);
 
             Update();
         }
 
         public void SaveTagFieldEdit(string fieldName, IAudioStationTag editTag)
         {
-            switch (fieldName)
-            {
-                case "AlbumArtists":
-                    _tagDirty.AlbumArtists = editTag.AlbumArtists;
-                    break;
-                case "Album":
-                    if (!string.IsNullOrWhiteSpace(editTag.Album))
-                    {
-                        _tagDirty.Album = editTag.Album;
-                    }
-                    break;
-                case "Genres":
-                    _tagDirty.Genres = editTag.Genres;
-                    break;
-                case "TrackCount":
-                    if (editTag.TrackTotal > 0)
-                    {
-                        _tagDirty.TrackTotal = editTag.TrackTotal;
-                    }
-                    break;
-                case "DiscCount":
-                    if (editTag.DiscTotal > 0)
-                    {
-                        _tagDirty.DiscTotal = editTag.DiscTotal;
-                    }
-                    break;
-                case "Artwork":
-                    _tagDirty.EmbeddedPictures = editTag.EmbeddedPictures;
-                    break;
-                default:
-                    throw new Exception("Unhandled group tag edit field name:  LibraryLoaderImportViewModel.cs");
-            }
+            //switch (fieldName)
+            //{
+            //    case "AlbumArtists":
+            //        _tagDirty.AlbumArtists = editTag.AlbumArtists;
+            //        break;
+            //    case "Album":
+            //        if (!string.IsNullOrWhiteSpace(editTag.Album))
+            //        {
+            //            _tagDirty.Album = editTag.Album;
+            //        }
+            //        break;
+            //    case "Genres":
+            //        _tagDirty.Genres = editTag.Genres;
+            //        break;
+            //    case "TrackCount":
+            //        if (editTag.TrackTotal > 0)
+            //        {
+            //            _tagDirty.TrackTotal = editTag.TrackTotal;
+            //        }
+            //        break;
+            //    case "DiscCount":
+            //        if (editTag.DiscTotal > 0)
+            //        {
+            //            _tagDirty.DiscTotal = editTag.DiscTotal;
+            //        }
+            //        break;
+            //    case "Artwork":
+            //        _tagDirty.EmbeddedPictures = editTag.EmbeddedPictures;
+            //        break;
+            //    default:
+            //        throw new Exception("Unhandled group tag edit field name:  LibraryLoaderImportViewModel.cs");
+            //}
 
-            // Set ATL Fields
-            _tagDirty.ToATL();
+            //// Set ATL Fields
+            //_tagDirty.ToATL();
 
             Update();
         }
@@ -451,16 +443,16 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels
             //_tagDirty.DiscNumber = (ushort)this.SelectedMusicBrainzRecordingMatch.MediaNumber;
             //_tagDirty.DiscTotal = (ushort)this.SelectedMusicBrainzRecordingMatch.MediaTotal;
 
-            // ATL FIELD UPDATES
-            _tagDirty.TrackNumber = _tagDirty.Track.ToString();
-            _tagDirty.AlbumArtists.Clear();
-            _tagDirty.Genres.Clear();
+            //// ATL FIELD UPDATES
+            //_tagDirty.TrackNumber = _tagDirty.Track.ToString();
+            //_tagDirty.AlbumArtists.Clear();
+            //_tagDirty.Genres.Clear();
 
-            if (!string.IsNullOrEmpty(_tagDirty.AlbumArtist))
-                _tagDirty.AlbumArtists.Add(_tagDirty.AlbumArtist);
+            //if (!string.IsNullOrEmpty(_tagDirty.AlbumArtist))
+            //    _tagDirty.AlbumArtists.Add(_tagDirty.AlbumArtist);
 
-            if (!string.IsNullOrEmpty(_tagDirty.Genre))
-                _tagDirty.Genres.Add(_tagDirty.Genre);
+            //if (!string.IsNullOrEmpty(_tagDirty.Genre))
+            //    _tagDirty.Genres.Add(_tagDirty.Genre);
 
             Update();
         }

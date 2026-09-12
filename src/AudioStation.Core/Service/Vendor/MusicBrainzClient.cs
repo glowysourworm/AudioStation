@@ -4,8 +4,7 @@ using ATL;
 
 using AudioStation.Core.Database.AudioStationDatabase;
 using AudioStation.Core.Model;
-using AudioStation.Core.Model.Vendor.ATLExtension;
-using AudioStation.Core.Model.Vendor.ATLExtension.Interface;
+using AudioStation.Core.Model.Interface;
 using AudioStation.Core.Service.Interface;
 using AudioStation.Core.Service.Payload;
 using AudioStation.Core.Service.Vendor.Interface;
@@ -248,7 +247,7 @@ namespace AudioStation.Core.Service.Vendor
                    Include.Labels |
                    Include.Media;
         }
-        private IAudioStationTag MapRecording(IRecording recording, IRelease release)
+        private ITagFull MapRecording(IRecording recording, IRelease release)
         {
             // This release will have track information
             var recordingRelease = recording.Releases?.FirstOrDefault(x => x.Date == release.Date);
@@ -260,28 +259,29 @@ namespace AudioStation.Core.Service.Vendor
             var artist = recording.ArtistCredit?.FirstOrDefault();
             var artistName = artist?.Name ?? artist?.Artist?.Name ?? string.Empty;
 
-            return new AudioStationTag()
-            {
-                Album = release?.Title ?? string.Empty,
+            return new TagFull();
+            //return new AudioStationTag()
+            //{
+            //    Album = release?.Title ?? string.Empty,
 
-                Artist = artistName,
-                Date = recording.FirstReleaseDate?.NearestDate ?? DateTime.MinValue,
-                AlbumArtist = artistName,
-                AlbumArtists = recording.ArtistCredit?.Select(x => x.Name ?? x.Artist?.Name ?? string.Empty)?.ToList() ?? new List<string>(),
-                DiscNumber = (ushort)(media?.Position ?? 0),
-                DiscTotal = (ushort)(recordingRelease?.Media?.Count ?? 0),
-                Duration = recording.Length ?? TimeSpan.Zero,
+            //    Artist = artistName,
+            //    Date = recording.FirstReleaseDate?.NearestDate ?? DateTime.MinValue,
+            //    AlbumArtist = artistName,
+            //    AlbumArtists = recording.ArtistCredit?.Select(x => x.Name ?? x.Artist?.Name ?? string.Empty)?.ToList() ?? new List<string>(),
+            //    DiscNumber = (ushort)(media?.Position ?? 0),
+            //    DiscTotal = (ushort)(recordingRelease?.Media?.Count ?? 0),
+            //    Duration = recording.Length ?? TimeSpan.Zero,
 
-                // IRecording.Release -> Genre (or) IRelease -> Genre (or) IArtist -> Genre
-                Genre = recordingRelease?.Genres?.FirstOrDefault()?.Name ?? release?.Genres?.FirstOrDefault()?.Name ?? artist?.Artist?.Genres?.FirstOrDefault()?.Name ?? string.Empty,
-                MediaFormat = media?.Format ?? string.Empty,
-                Publisher = release?.LabelInfo?.FirstOrDefault()?.Label?.Name ?? string.Empty,
-                TrackNumber = track?.Number ?? string.Empty,
-                TrackTotal = (ushort)(media?.TrackCount ?? 0),
-                Title = track?.Title ?? string.Empty,
-                Track = (uint)(track?.Position ?? 0),
-                Year = release?.Date?.Year ?? recordingRelease?.Date?.Year ?? track?.Recording?.FirstReleaseDate?.Year ?? 0
-            };
+            //    // IRecording.Release -> Genre (or) IRelease -> Genre (or) IArtist -> Genre
+            //    Genre = recordingRelease?.Genres?.FirstOrDefault()?.Name ?? release?.Genres?.FirstOrDefault()?.Name ?? artist?.Artist?.Genres?.FirstOrDefault()?.Name ?? string.Empty,
+            //    MediaFormat = media?.Format ?? string.Empty,
+            //    Publisher = release?.LabelInfo?.FirstOrDefault()?.Label?.Name ?? string.Empty,
+            //    TrackNumber = track?.Number ?? string.Empty,
+            //    TrackTotal = (ushort)(media?.TrackCount ?? 0),
+            //    Title = track?.Title ?? string.Empty,
+            //    Track = (uint)(track?.Position ?? 0),
+            //    Year = release?.Date?.Year ?? recordingRelease?.Date?.Year ?? track?.Recording?.FirstReleaseDate?.Year ?? 0
+            //};
 
             //var viewModel = new MusicBrainzCombined()
             //{
@@ -355,7 +355,7 @@ namespace AudioStation.Core.Service.Vendor
             }
         }
 
-        private async Task<IAudioStationTag?> LookupByArtistAlbumTitle(AudioStationTagServiceRequest serviceModel)
+        private async Task<ITagFull?> LookupByArtistAlbumTitle(AudioStationTagServiceRequest serviceModel)
         {
             var recording = await FindTrack(serviceModel.Artist, serviceModel.Album, serviceModel.Title, CreateIncludeRecording());
 
@@ -375,7 +375,7 @@ namespace AudioStation.Core.Service.Vendor
 
             return MapRecording(recording, release);
         }
-        private async Task<IAudioStationTag?> LookupByMusicBrainzId(AudioStationTagServiceRequest serviceModel)
+        private async Task<ITagFull?> LookupByMusicBrainzId(AudioStationTagServiceRequest serviceModel)
         {
             var recording = await RecordingQuery(serviceModel.MusicBrainzRecordingId);
 
@@ -397,7 +397,7 @@ namespace AudioStation.Core.Service.Vendor
         }
         private async Task<AudioStationTagServiceResponse> Lookup(AudioStationTagServiceRequest serviceModel)
         {
-            IAudioStationTag? result = null;
+            ITagFull? result = null;
 
             // -> Music Brainz
             switch (serviceModel.IdType)
@@ -416,7 +416,7 @@ namespace AudioStation.Core.Service.Vendor
         }
         private async Task<AudioStationTagServiceResponse> LookupSmall(AudioStationTagServiceRequest serviceModel)
         {
-            IAudioStationTag? result = null;
+            ITagFull? result = null;
             TagSmall tagSmall = null;
             string message = string.Empty;
 

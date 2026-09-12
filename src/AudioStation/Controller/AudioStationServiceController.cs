@@ -27,7 +27,8 @@ namespace AudioStation.Controller
 
         // IAudioStationDataService
         private readonly IAudioStationDbClient _audioStationDbClient;
-        private readonly IAudioStationLogService _outputController;
+        private readonly IAudioStationFileService _audioStationFileService;
+        private readonly IAudioStationLogService _audioStationLogService;
         private readonly IAudioController _audioController;
         private readonly IAcoustIDClient _acoustIDClient;
         private readonly IBandcampClient _bandcampClient;
@@ -38,6 +39,10 @@ namespace AudioStation.Controller
         private readonly IMusicBrainzClient _musicBrainzClient;
         private readonly ISpotifyClient _spotifyClient;
 
+        // IAudioStationCache
+        private readonly ITagCache _tagCache;
+        private readonly IImageCache _imageCache;
+
         [IocImportingConstructor]
         public AudioStationServiceController(ICDImportService cdImportService,
                                              ILibraryLoaderService libraryLoaderService,
@@ -47,7 +52,7 @@ namespace AudioStation.Controller
 
                                              IAudioStationDbClient audioStationDbClient,
                                              IAudioController audioController,
-                                             IAudioStationLogService outputController,
+                                             IAudioStationLogService audioStationLogService,
                                              IAcoustIDClient acoustIDClient,
                                              IBandcampClient bandcampClient,
                                              IDiscogsClient discogsClient,
@@ -55,7 +60,10 @@ namespace AudioStation.Controller
                                              IITunesClient itunesClient,
                                              ILastFmClient lastFmClient,
                                              IMusicBrainzClient musicBrainzClient,
-                                             ISpotifyClient spotifyClient)
+                                             ISpotifyClient spotifyClient,
+
+                                             ITagCache tagCache,
+                                             IImageCache imageCache)
         {
             _cdImportService = cdImportService;
             _libraryLoaderService = libraryLoaderService;
@@ -65,7 +73,7 @@ namespace AudioStation.Controller
 
             _audioStationDbClient = audioStationDbClient;
             _audioController = audioController;
-            _outputController = outputController;
+            _audioStationLogService = audioStationLogService;
             _acoustIDClient = acoustIDClient;
             _bandcampClient = bandcampClient;
             _discogsClient = discogsClient;
@@ -74,6 +82,9 @@ namespace AudioStation.Controller
             _lastFmClient = lastFmClient;
             _musicBrainzClient = musicBrainzClient;
             _spotifyClient = spotifyClient;
+
+            _tagCache = tagCache;
+            _imageCache = imageCache;
 
             _acoustIDClient.StatusChangeEvent += IAudioStationComponent_StatusChangeEvent;
             _audioStationDbClient.StatusChangeEvent += IAudioStationComponent_StatusChangeEvent;
@@ -84,7 +95,7 @@ namespace AudioStation.Controller
             _iTunesClient.StatusChangeEvent += IAudioStationComponent_StatusChangeEvent;
             _lastFmClient.StatusChangeEvent += IAudioStationComponent_StatusChangeEvent;
             _musicBrainzClient.StatusChangeEvent += IAudioStationComponent_StatusChangeEvent;
-            _outputController.StatusChangeEvent += IAudioStationComponent_StatusChangeEvent;
+            _audioStationLogService.StatusChangeEvent += IAudioStationComponent_StatusChangeEvent;
             _spotifyClient.StatusChangeEvent += IAudioStationComponent_StatusChangeEvent;
         }
 
@@ -116,7 +127,7 @@ namespace AudioStation.Controller
 
             // IAudioStationDataService (these display their status on the status bar)
             //
-            InitializeImpl(_outputController, configuration, task++, taskCount, progressHandler);
+            InitializeImpl(_audioStationLogService, configuration, task++, taskCount, progressHandler);
             InitializeImpl(_audioStationDbClient, configuration, task++, taskCount, progressHandler);
             InitializeImpl(_audioController, configuration, task++, taskCount, progressHandler);
             InitializeImpl(_bandcampClient, configuration, task++, taskCount, progressHandler);
@@ -162,7 +173,10 @@ namespace AudioStation.Controller
         public T GetDataService<T>() where T : IAudioStationDataService
         {
             if (typeof(T) == typeof(IAudioStationLogService))
-                return (T)_outputController;
+                return (T)_audioStationLogService;
+
+            else if (typeof(T) == typeof(IAudioStationFileService))
+                return (T)_audioStationFileService;
 
             else if (typeof(T) == typeof(IAudioController))
                 return (T)_audioController;
@@ -199,6 +213,18 @@ namespace AudioStation.Controller
 
             else
                 throw new Exception("Unhandled IAudioStationDataService type");
+        }
+
+        public T GetCache<T>() where T : IAudioStationCache
+        {
+            if (typeof(T) == typeof(IImageCache))
+                return (T)_imageCache;
+
+            else if (typeof(T) == typeof(ITagCache))
+                return (T)_tagCache;
+
+            else
+                throw new Exception("Unhandled IAudioStationCache type");
         }
 
         private void IAudioStationComponent_StatusChangeEvent(IAudioStationDataService sender, IAudioStationDataService.Status status)

@@ -1,7 +1,5 @@
 ﻿using System.Globalization;
-using System.IO;
 using System.Windows.Data;
-using System.Windows.Media.Imaging;
 
 using AudioStation.Core.Service.Interface;
 
@@ -30,18 +28,21 @@ namespace AudioStation.Views.Converter
 
             var fileRef = _tagCacheController.Get(fileName);
 
-            // Creates IImage "source" for the Avalonia Image control
-            if (fileRef.EmbeddedPictures.Any())
-            {
-                using (var stream = new MemoryStream(fileRef.EmbeddedPictures.First().PictureData))
-                {
-                    var decoder = BitmapDecoder.Create(stream, BitmapCreateOptions.PreservePixelFormat, BitmapCacheOption.Default);
-                    return decoder.Frames[0];
-                }
-            }
+            return null;
 
-            else
-                return null;
+            // Creates IImage "source" for the Avalonia Image control
+            //if (fileRef.EmbeddedPictures.Any())
+            //{
+            //    //using (var stream = new MemoryStream(fileRef.EmbeddedPictures.First().DecodeContent()))
+            //    //{
+            //    //    var decoder = BitmapDecoder.Create(stream, BitmapCreateOptions.PreservePixelFormat, BitmapCacheOption.Default);
+            //    //    return decoder.Frames[0];
+            //    //}
+            //    return null;
+            //}
+
+            //else
+            //    return null;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

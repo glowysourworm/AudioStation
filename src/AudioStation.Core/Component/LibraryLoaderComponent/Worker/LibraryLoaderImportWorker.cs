@@ -14,7 +14,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
     {
         private readonly IAudioStationDbClient _audioStationDbClient;
         private readonly IAudioStationFileService _fileController;
-        private readonly ITagCache _tagCacheController;
+        private readonly ITagCache _tagCache;
         private readonly IAudioConverter _audioConverter;
 
         private const int WORK_STEPS = 6;
@@ -43,7 +43,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
         {
             _fileController = fileController;
             _audioStationDbClient = audioStationDbClient;
-            _tagCacheController = tagCacheController;
+            _tagCache = tagCacheController;
             _audioConverter = audioConverter;
 
             _destinationPath = string.Empty;
@@ -181,7 +181,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
 
                 Log("Retrieving file tag data from source file");
 
-                var tagData = _tagCacheController.Get(workLoad.SourceFullPath);
+                var tagData = _tagCache.Get(workLoad.SourceFullPath);
 
                 if (tagData == null)
                 {
@@ -303,7 +303,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
             {
                 var workLoad = this.Load.Get<LibraryLoaderImportLoad>();
                 var tag = _audioStationDbClient.GetEntity<TagSmall>(workLoad.TagSmallId);
-                var tagData = _tagCacheController.Get(_destinationPath);
+                var tagData = _tagCache.Get(_destinationPath);
 
                 if (tagData == null)
                 {
@@ -316,18 +316,18 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
                     return false;
                 }
 
-                tagData.Album = tag.Album;
-                tagData.AlbumArtist = tag.AlbumArtist;
-                tagData.Artist = tag.AlbumArtist;
-                tagData.DiscNumber = (ushort)(tag.MediaNumber ?? 0);
-                tagData.DiscTotal = (ushort)(tag.MediaTotal ?? 0);
-                tagData.Duration = TimeSpan.FromMilliseconds(tag.DurationMilliseconds ?? 0);
-                tagData.Genre = tag.Genre ?? string.Empty;
-                tagData.MediaFormat = tag.MediaFormat ?? string.Empty;
-                tagData.Title = tag.Title ?? string.Empty;
-                tagData.Track = (uint)(tag.TrackNumber ?? 0);
-                tagData.TrackTotal = (ushort)(tag.TrackTotal ?? 0);
-                tagData.Year = (int)(tag.Year ?? 0);
+                //tagData.Album = tag.Album;
+                //tagData.AlbumArtist = tag.AlbumArtist;
+                //tagData.Artist = tag.AlbumArtist;
+                //tagData.DiscNumber = (ushort)(tag.MediaNumber ?? 0);
+                //tagData.DiscTotal = (ushort)(tag.MediaTotal ?? 0);
+                //tagData.Duration = TimeSpan.FromMilliseconds(tag.DurationMilliseconds ?? 0);
+                //tagData.Genre = tag.Genre ?? string.Empty;
+                //tagData.MediaFormat = tag.MediaFormat ?? string.Empty;
+                //tagData.Title = tag.Title ?? string.Empty;
+                //tagData.Track = (uint)(tag.TrackNumber ?? 0);
+                //tagData.TrackTotal = (ushort)(tag.TrackTotal ?? 0);
+                //tagData.Year = (int)(tag.Year ?? 0);
 
                 // Validation
                 var validation = TagValidator.ValidateTagImport(tagData);
@@ -343,7 +343,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
                 Log("Embedding tag data from records");
 
                 // -> Save
-                _tagCacheController.SetData(_destinationPath, tagData);
+                _tagCache.SetData(_destinationPath, tagData);
 
                 Log("Tag information saved:  " + _destinationPath);
 

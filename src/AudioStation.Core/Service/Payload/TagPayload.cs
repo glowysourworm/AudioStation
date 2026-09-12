@@ -1,12 +1,12 @@
-﻿using AudioStation.Core.Model.Vendor.ATLExtension.Interface;
+﻿using AudioStation.Core.Model.Interface;
 
 namespace AudioStation.Core.Service.Payload
 {
     public class TagPayload : PayloadBase
     {
-        public IAudioStationTag Data { get; }
+        public ITagFull Data { get; }
 
-        public TagPayload(IAudioStationTag data)
+        public TagPayload(ITagFull data)
         {
             this.Data = data;
         }

@@ -1,6 +1,5 @@
 ﻿using AudioStation.Core.Model;
 using AudioStation.Core.Model.Interface;
-using AudioStation.Core.Model.Vendor.ATLExtension.Interface;
 
 using MetaBrainz.MusicBrainz.Interfaces.Entities;
 
@@ -31,18 +30,35 @@ namespace AudioStation.Core.Utility
                                                                        .TrackCount > 0;
         }
 
-        public static ITagSmallValidation ValidateTagImport(IAudioStationTag simpleTag)
+        public static ITagSmallValidation ValidateTagImport(ITagFull simpleTag)
+        {
+            throw new NotImplementedException();
+
+            //return ValidateImport(simpleTag.AlbumArtist,
+            //                      simpleTag.Album,
+            //                      simpleTag.Title,
+            //                      simpleTag.Genre,
+            //                      (int)simpleTag.TrackNumber,
+            //                      simpleTag.TrackTotal,
+            //                      simpleTag.MediaNumber,
+            //                      simpleTag.MediaTotal,
+            //                      simpleTag.MediaFormat,
+            //                      (int)simpleTag.DurationMilliseconds,
+            //                      simpleTag.Year);
+        }
+
+        public static ITagSmallValidation ValidateTagImport(ITagSmall simpleTag)
         {
             return ValidateImport(simpleTag.AlbumArtist,
                                   simpleTag.Album,
                                   simpleTag.Title,
                                   simpleTag.Genre,
-                                  (int)simpleTag.Track,
+                                  (int)simpleTag.TrackNumber,
                                   simpleTag.TrackTotal,
-                                  simpleTag.DiscNumber,
-                                  simpleTag.DiscTotal,
+                                  simpleTag.MediaNumber,
+                                  simpleTag.MediaTotal,
                                   simpleTag.MediaFormat,
-                                  (int)simpleTag.Duration.TotalMilliseconds,
+                                  (int)simpleTag.DurationMilliseconds,
                                   simpleTag.Year);
         }
 
