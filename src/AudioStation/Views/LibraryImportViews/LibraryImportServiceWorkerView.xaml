@@ -6,7 +6,7 @@
              xmlns:propertyGrid="clr-namespace:AudioStation.Controls.PropertyGrid"
              xmlns:controls="clr-namespace:AudioStation.Controls">
 
-    <Grid ColumnDefinitions="Auto, *" RowDefinitions="Auto, Auto, *" DataContext="{Binding Loader}">
+    <Grid ColumnDefinitions="Auto, *, Auto" RowDefinitions="Auto, Auto, *">
 
         <!-- Loader Tasks (workflow) -->
         <ListBox x:Name="LoaderLB"
@@ -23,28 +23,29 @@
         <ListBox x:Name="LoaderWorkItemsLB"
                  ItemsSource="{Binding SelectedItem.WorkItems, ElementName=LoaderLB}"
                  Grid.Column="0"
-                 Grid.ColumnSpan="2"
+                 Grid.ColumnSpan="3"
                  Grid.Row="2"
                  Margin="0"                 
                  ItemTemplate="{StaticResource LibraryWorkItemDataTemplate}"
                  ItemContainerStyle="{StaticResource SimpleItemContainerStyle}"
                  SelectionMode="Extended"
                  AlternationCount="2"
+                 ScrollViewer.HorizontalScrollBarVisibility="Hidden"
+                 ScrollViewer.VerticalScrollBarVisibility="Auto"
                  HorizontalContentAlignment="Stretch">
         </ListBox>
 
         <!-- PROCESSING:  Execute, Pause, Canel -->
         <Border Grid.Row="1"
                 Grid.Column="0"
-                Grid.ColumnSpan="2"
+                Grid.ColumnSpan="3"
                 Background="{StaticResource HeaderBackground}">
 
             <Grid ColumnDefinitions="Auto, *, Auto, Auto, Auto"
                   Margin="5"
                   IsEnabled="{Binding Loading, Converter={StaticResource BoolInverseConverter}}">
 
-                <TextBlock Text="{Binding SelectedItem.DisplayName, ElementName=LoaderLB}" Margin="5" />
-                <TextBlock Text="{Binding SelectedItem.Status, ElementName=LoaderLB}" Margin="5" Grid.Column="1" />
+                <TextBlock Text="{Binding Workflow.Name, ElementName=LoaderLB}" Margin="5" Grid.Column="1" />
 
                 <!-- Execute -->
                 <Button x:Name="ExecuteButton"
@@ -87,13 +88,14 @@
 
         <!-- Workflow Details -->
         <Border Grid.Column="1" 
+                Grid.RowSpan="1"
                 DataContext="{Binding SelectedItem, ElementName=LoaderLB}"
                 BorderBrush="LightGray"
                 BorderThickness="1"
                 CornerRadius="5">
             <Grid RowDefinitions="Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto">
 
-                <TextBlock Grid.Row="0" Margin="5" Text="{Binding DisplayName}" Style="{StaticResource LabelTextBlock}" />
+                <TextBlock Grid.Row="0" Margin="5" Text="{Binding Name}" Style="{StaticResource LabelTextBlock}" />
                 <TextBlock Grid.Row="1" Margin="5" Text="{Binding Description}" Style="{StaticResource LabelDetailParagraphTextBlock}" />
 
                 <controls:ProgressBar Progress="{Binding WorkProgress}" 
@@ -102,6 +104,18 @@
                                   HorizontalAlignment="Left"
                                   Style="{StaticResource LibraryLoaderWorkflowItemProgressBarStyle}">
                 </controls:ProgressBar>
+
+            </Grid>
+        </Border>
+
+        <!-- Workflow Details -->
+        <Border Grid.Column="2" 
+                Grid.RowSpan="1"
+                DataContext="{Binding SelectedItem, ElementName=LoaderLB}"
+                BorderBrush="LightGray"
+                BorderThickness="1"
+                CornerRadius="5">
+            <Grid RowDefinitions="Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto">
 
                 <propertyGrid:PropertyLabelControl LabelColumnWidth="160" LabelText="Queued" Grid.Row="3" Margin="5 0" IsReadOnly="True" Value="{Binding WorkItemsWaiting}" Style="{StaticResource PropertyGridDetailUserControl}" />
                 <propertyGrid:PropertyLabelControl LabelColumnWidth="160" LabelText="In Progress" Grid.Row="4" Margin="5 0" IsReadOnly="True" Value="{Binding WorkItemsInProgress}" Style="{StaticResource PropertyGridDetailUserControl}" />

@@ -115,6 +115,7 @@ namespace AudioStation.Service
 
                     result.Add(new LibraryImporterWorkflowViewModel()
                     {
+                        Id = entity.Id,
                         Configuration = configurationViewModel,
                         CreatedDate = entity.Created,
                         ModifiedDate = entity.Modified,

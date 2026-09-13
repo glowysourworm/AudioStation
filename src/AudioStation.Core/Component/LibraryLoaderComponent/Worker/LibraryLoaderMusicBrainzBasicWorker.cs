@@ -80,7 +80,12 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
 
                     if (response.Success && validation.IsValid)
                     {
-                        this.Output.Get<LibraryLoaderEntitySetOutput<TagSmall>>().Add(_audioStationMapper.Map<ITagSmall, TagSmall>(result));
+                        var tagSmall = _audioStationMapper.Map<ITagSmall, TagSmall>(result);
+
+                        // Import Workflow
+                        tagSmall.ImportWorkflowId = this.WorkflowId;
+
+                        this.Output.Get<LibraryLoaderEntitySetOutput<TagSmall>>().Add(tagSmall);
 
                         Log("Music Brainz client lookup finished (valid):  " + entity.FileName);
                     }
@@ -150,6 +155,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
                         existingEntity.Title = result.Title;
                         existingEntity.TrackNumber = result.TrackNumber;
                         existingEntity.TrackTotal = result.TrackTotal;
+                        existingEntity.ImportWorkflowId = result.ImportWorkflowId;
 
                         _audioStationDbClient.UpdateEntity(existingEntity);
 

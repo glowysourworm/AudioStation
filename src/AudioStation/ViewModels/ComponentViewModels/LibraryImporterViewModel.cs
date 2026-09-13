@@ -74,10 +74,10 @@ namespace AudioStation.ViewModels.ComponentViewModels
 
                 // Also, have to set component parts
                 if (this.ServiceWorkflow != null)
-                    this.ServiceWorkflow.Workflow = value;
+                    this.ServiceWorkflow.SetWorkflow(value);
 
                 if (this.StagingWorkflow != null)
-                    this.StagingWorkflow.Workflow = value;
+                    this.StagingWorkflow.SetWorkflow(value);
 
                 if (this.CompletionWorkflow != null)
                     this.CompletionWorkflow.Workflow = value;
@@ -135,12 +135,8 @@ namespace AudioStation.ViewModels.ComponentViewModels
             _dialogController = dialogController;
             _tagCacheController = tagCacheController;
 
-            this.Workflow = new LibraryImporterWorkflowViewModel()
-            {
-                Name = "New Workflow"
-            };
-            this.ServiceWorkflow = new LibraryImporterServiceWorkflowViewModel(this.Workflow);
-            this.StagingWorkflow = new LibraryImporterStagingWorkflowViewModel(dialogController, this.Workflow);
+            this.ServiceWorkflow = new LibraryImporterServiceWorkflowViewModel();
+            this.StagingWorkflow = new LibraryImporterStagingWorkflowViewModel(dialogController);
             this.CompletionWorkflow = new LibraryImporterCompletionWorkflowViewModel();
 
             this.SavedWorkflows = new ObservableCollection<LibraryImporterWorkflowViewModel>();
@@ -188,6 +184,9 @@ namespace AudioStation.ViewModels.ComponentViewModels
 
             if (this.SavedWorkflows.Any())
                 this.Workflow = this.SavedWorkflows.First();
+
+            this.ServiceWorkflow.SetWorkflow(this.Workflow);
+            this.StagingWorkflow.SetWorkflow(this.Workflow);
 
             // Set View Model (Load)
             //this.SourceDirectory = load;

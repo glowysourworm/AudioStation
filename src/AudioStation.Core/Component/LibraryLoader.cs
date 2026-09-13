@@ -68,7 +68,7 @@ namespace AudioStation.Core.Component
 
         }
 
-        public int RunLoaderTaskAsync(LibraryLoadType loadType, object load)
+        public int RunLoaderTaskAsync(LibraryLoadType loadType, int workflowId, bool isWorkflowTask, object load)
         {
             // NOTE:  The incremental work item ID property is a unique identifier! This must be maintained
             //        properly here by incremeting. It is used to identify logs for the task; and to have a
@@ -80,37 +80,37 @@ namespace AudioStation.Core.Component
             {
                 case LibraryLoadType.Import:
                 {
-                    workItem = new LibraryLoaderWorkItem(_workItemIdCounter, LibraryLoadType.Import);
+                    workItem = new LibraryLoaderWorkItem(_workItemIdCounter, workflowId, isWorkflowTask, LibraryLoadType.Import);
                     workItem.Initialize(LibraryWorkItemState.Pending, new LibraryLoaderLoad(loadType, load), new LibraryLoaderOutput(loadType, new LibraryLoaderImportOutput(), LibraryLoaderImportWorker.GetNumberSteps()));
                 }
                 break;
                 case LibraryLoadType.AcoustID:
                 {
-                    workItem = new LibraryLoaderWorkItem(_workItemIdCounter, LibraryLoadType.AcoustID);
+                    workItem = new LibraryLoaderWorkItem(_workItemIdCounter, workflowId, isWorkflowTask, LibraryLoadType.AcoustID);
                     workItem.Initialize(LibraryWorkItemState.Pending, new LibraryLoaderLoad(loadType, load), new LibraryLoaderOutput(loadType, new LibraryLoaderEntitySetOutput<AcoustIDLookupResult>(), LibraryLoaderAcoustIDWorker.GetNumberSteps()));
                 }
                 break;
                 case LibraryLoadType.MusicBrainzBasic:
                 {
-                    workItem = new LibraryLoaderWorkItem(_workItemIdCounter, LibraryLoadType.MusicBrainzBasic);
+                    workItem = new LibraryLoaderWorkItem(_workItemIdCounter, workflowId, isWorkflowTask, LibraryLoadType.MusicBrainzBasic);
                     workItem.Initialize(LibraryWorkItemState.Pending, new LibraryLoaderLoad(loadType, load), new LibraryLoaderOutput(loadType, new LibraryLoaderEntitySetOutput<TagSmall>(), LibraryLoaderMusicBrainzBasicWorker.GetNumberSteps()));
                 }
                 break;
                 case LibraryLoadType.MusicBrainzAlbumArt:
                 {
-                    workItem = new LibraryLoaderWorkItem(_workItemIdCounter, LibraryLoadType.MusicBrainzAlbumArt);
+                    workItem = new LibraryLoaderWorkItem(_workItemIdCounter, workflowId, isWorkflowTask, LibraryLoadType.MusicBrainzAlbumArt);
                     workItem.Initialize(LibraryWorkItemState.Pending, new LibraryLoaderLoad(loadType, load), new LibraryLoaderOutput(loadType, new LibraryLoaderEntitySetOutput<FileReference>(), LibraryLoaderMusicBrainzAlbumArtWorker.GetNumberSteps()));
                 }
                 break;
                 case LibraryLoadType.FileChecker:
                 {
-                    workItem = new LibraryLoaderWorkItem(_workItemIdCounter, LibraryLoadType.FileChecker);
+                    workItem = new LibraryLoaderWorkItem(_workItemIdCounter, workflowId, isWorkflowTask, LibraryLoadType.FileChecker);
                     workItem.Initialize(LibraryWorkItemState.Pending, new LibraryLoaderLoad(loadType, load), new LibraryLoaderOutput(loadType, new LibraryLoaderNoOutput(), LibraryLoaderFileCheckerWorker.GetNumberSteps()));
                 }
                 break;
                 case LibraryLoadType.FileConverter:
                 {
-                    workItem = new LibraryLoaderWorkItem(_workItemIdCounter, LibraryLoadType.FileConverter);
+                    workItem = new LibraryLoaderWorkItem(_workItemIdCounter, workflowId, isWorkflowTask, LibraryLoadType.FileConverter);
                     workItem.Initialize(LibraryWorkItemState.Pending, new LibraryLoaderLoad(loadType, load), new LibraryLoaderOutput(loadType, new LibraryLoaderNoOutput(), LibraryLoaderFileConverterWorker.GetNumberSteps()));
                 }
                 break;

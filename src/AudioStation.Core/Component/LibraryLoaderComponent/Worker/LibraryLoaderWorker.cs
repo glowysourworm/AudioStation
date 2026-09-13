@@ -4,6 +4,7 @@
     {
         protected LibraryLoaderLoad Load { get; private set; }
         protected LibraryLoaderOutput Output { get; private set; }
+        protected int? WorkflowId { get; private set; }
 
         // Thread Contention (between work steps only)
         private int _workCurrentStep = 0;
@@ -13,6 +14,7 @@
         {
             this.Load = workItem.GetWorkItem();
             this.Output = workItem.GetOutputItem();
+            this.WorkflowId = workItem.GetIsWorkflowTask() ? workItem.GetWorkflowId() : null;
         }
 
         /// <summary>

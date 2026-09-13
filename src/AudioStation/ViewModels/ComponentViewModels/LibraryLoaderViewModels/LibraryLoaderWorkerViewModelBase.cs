@@ -36,6 +36,11 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels
         /// </summary>
         public event SimpleEventHandler<LibraryLoaderWorkerViewModelBase> StatusChangeEvent;
 
+        /// <summary>
+        /// Executes when work item is updated
+        /// </summary>
+        public event SimpleEventHandler<LibraryLoaderWorkerViewModelBase, LibraryWorkItemViewModel> WorkItemChangedEvent;
+
         public string Name
         {
             get { return _name; }
@@ -124,6 +129,8 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels
             this.Name = name;
             this.Description = description;
             this.WorkItems = new ObservableCollection<LibraryWorkItemViewModel>();
+            this.WorkflowId = workflowId;
+            this.IsWorkflowTask = isWorkflowTask;
         }
 
         public virtual void Load(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
@@ -164,7 +171,12 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels
                 base.OnPropertyChanged(name);
 
             else
+            {
                 OnPropertyChanged("Status");
+
+                if (this.StatusChangeEvent != null)
+                    this.StatusChangeEvent(this);
+            }
 
             OnUpdate();
         }
@@ -187,6 +199,9 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels
             if (workItem != null)
             {
                 Map(model, workItem);
+
+                if (this.WorkItemChangedEvent != null)
+                    this.WorkItemChangedEvent(this, workItem);
             }
 
             OnUpdate();
@@ -201,9 +216,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels
                 this.WorkItemsError = this.WorkItems.Count(x => !x.InProgress && x.IsCompleted && x.HasErrors);
                 this.WorkProgress = (this.WorkItemsSuccessful + this.WorkItemsError) / (double)this.WorkItems.Count;
                 this.IsWorkComplete = this.WorkItems.All(x => x.IsCompleted);
-
-                if (this.StatusChangeEvent != null)
-                    this.StatusChangeEvent(this);
+                this.Working = !this.IsWorkComplete;
             }
         }
         private void Map(LibraryWorkItemViewModel source, LibraryWorkItemViewModel dest)

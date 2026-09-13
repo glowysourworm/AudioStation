@@ -54,7 +54,7 @@ namespace AudioStation.Service
                     if (workLoad == null)
                         throw new ArgumentException("Invalid work load for Library Loader Import");
 
-                    return _libraryLoader.RunLoaderTaskAsync(LibraryLoadType.Import, _audioStationMapper.Map<LibraryLoaderImportLoadViewModel, LibraryLoaderImportLoad>(workLoad));
+                    return _libraryLoader.RunLoaderTaskAsync(LibraryLoadType.Import, workItem.WorkflowId, workItem.IsWorkflowItem, _audioStationMapper.Map<LibraryLoaderImportLoadViewModel, LibraryLoaderImportLoad>(workLoad));
                 }
                 case LibraryLoadType.AcoustID:
                 {
@@ -63,7 +63,7 @@ namespace AudioStation.Service
                     if (workLoad == null)
                         throw new ArgumentException("Invalid work load for Library Loader AcoustID Lookup");
 
-                    return _libraryLoader.RunLoaderTaskAsync(LibraryLoadType.AcoustID, new LibraryLoaderFileLoad(workLoad.FullPath));
+                    return _libraryLoader.RunLoaderTaskAsync(LibraryLoadType.AcoustID, workItem.WorkflowId, workItem.IsWorkflowItem, new LibraryLoaderFileLoad(workLoad.FullPath));
                 }
                 case LibraryLoadType.MusicBrainzBasic:
                 {
@@ -72,7 +72,7 @@ namespace AudioStation.Service
                     if (workLoad == null)
                         throw new ArgumentException("Invalid work load for Library Loader Music Brainz Import");
 
-                    return _libraryLoader.RunLoaderTaskAsync(LibraryLoadType.MusicBrainzBasic, new LibraryLoaderEntitySetLoad<AcoustIDLookupResult>(workLoad.EntitySet));
+                    return _libraryLoader.RunLoaderTaskAsync(LibraryLoadType.MusicBrainzBasic, workItem.WorkflowId, workItem.IsWorkflowItem, new LibraryLoaderEntitySetLoad<AcoustIDLookupResult>(workLoad.EntitySet));
                 }
                 case LibraryLoadType.MusicBrainzAlbumArt:
                 {
@@ -81,7 +81,7 @@ namespace AudioStation.Service
                     if (workLoad == null)
                         throw new ArgumentException("Invalid work load for Library Loader Music Brainz Album Art");
 
-                    return _libraryLoader.RunLoaderTaskAsync(LibraryLoadType.MusicBrainzAlbumArt, new LibraryLoaderEntityLoad<TagSmallVendorMap>(workLoad.Entity));
+                    return _libraryLoader.RunLoaderTaskAsync(LibraryLoadType.MusicBrainzAlbumArt, workItem.WorkflowId, workItem.IsWorkflowItem, new LibraryLoaderEntityLoad<TagSmallVendorMap>(workLoad.Entity));
                 }
                 case LibraryLoadType.FileChecker:
                 {
@@ -90,7 +90,7 @@ namespace AudioStation.Service
                     if (workLoad == null)
                         throw new ArgumentException("Invalid work load for Library Loader File Checker");
 
-                    return _libraryLoader.RunLoaderTaskAsync(LibraryLoadType.FileChecker, new LibraryLoaderEntityLoad<FileReference>(workLoad.Entity));
+                    return _libraryLoader.RunLoaderTaskAsync(LibraryLoadType.FileChecker, workItem.WorkflowId, workItem.IsWorkflowItem, new LibraryLoaderEntityLoad<FileReference>(workLoad.Entity));
                 }
                 case LibraryLoadType.FileConverter:
                 {
@@ -99,7 +99,7 @@ namespace AudioStation.Service
                     if (workLoad == null)
                         throw new ArgumentException("Invalid work load for Library Loader File Converter");
 
-                    return _libraryLoader.RunLoaderTaskAsync(LibraryLoadType.FileConverter, new LibraryLoaderFileConverterLoad()
+                    return _libraryLoader.RunLoaderTaskAsync(LibraryLoadType.FileConverter, workItem.WorkflowId, workItem.IsWorkflowItem, new LibraryLoaderFileConverterLoad()
                     {
                         EncoderInfo = workLoad.EncoderInfo,
                         FileIn = workLoad.FileIn,

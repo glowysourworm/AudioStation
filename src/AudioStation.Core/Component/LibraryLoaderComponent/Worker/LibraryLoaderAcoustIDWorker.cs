@@ -61,10 +61,20 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
 
                 foreach (var result in resultSet)
                 {
+                    // Import Workflow
+                    result.ImportWorkflowId = this.WorkflowId;
+
                     this.Output.Get<LibraryLoaderEntitySetOutput<AcoustIDLookupResult>>().Add(result);
                 }
 
-                message = "AcoustID fingerprint service call successful";
+                if (!resultSet.Any())
+                {
+                    message = "AcoustID fingerprint service did not find any match";
+                    return false;
+                }
+                else
+                    message = "AcoustID fingerprint service call successful";
+
 
                 return true;
             }
@@ -96,6 +106,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
                         existingEntity.LookupId = result.LookupId;
                         existingEntity.MusicBrainzRecordingId = result.MusicBrainzRecordingId;
                         existingEntity.Score = result.Score;
+                        existingEntity.ImportWorkflowId = result.ImportWorkflowId;
 
                         _audioStationDbClient.UpdateEntity(existingEntity);
 

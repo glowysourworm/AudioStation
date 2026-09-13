@@ -4,11 +4,17 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels
 {
     public class LibraryImporterWorkflowViewModel : ViewModelBase
     {
+        int _id;
         string _name;
         DateTime _createdDate;
         DateTime _modifiedDate;
         LibraryImporterConfigurationViewModel _configuration;
 
+        public int Id
+        {
+            get { return _id; }
+            set { this.RaiseAndSetIfChanged(ref _id, value); }
+        }
         public string Name
         {
             get { return _name; }

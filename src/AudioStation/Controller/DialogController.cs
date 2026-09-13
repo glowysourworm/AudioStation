@@ -27,11 +27,15 @@ namespace AudioStation.Controller
         private DialogWindow _dialogWindow;
         private ViewModelBase _dialogDataContext;
 
+        // KLUDGE
+        private int _loadingCounter;
+
         [IocImportingConstructor]
         public DialogController(IIocEventAggregator eventAggregator)
         {
             _eventAggregator = eventAggregator;
             _dialogWindow = null;
+            _loadingCounter = 0;
 
             eventAggregator.GetEvent<DialogEvent>().Subscribe(OnLoadingChanged);
         }
@@ -293,8 +297,17 @@ namespace AudioStation.Controller
             if (_dialogWindow.WindowState != WindowState.Normal)
                 throw new Exception("Mishandled dialog data context. Must dispose of the previous context before re-issuing the window");
 
-            // Force Render / Update of the UI
-            Dispatcher.CurrentDispatcher.Invoke(() => { }, DispatcherPriority.Render);
+            // Force Render / Update of the UI (COUNTER IS KLUDGEY)
+            if (_loadingCounter++ % 10 == 0)
+                Dispatcher.CurrentDispatcher.Invoke(() => { }, DispatcherPriority.Render);
+
+            // EVEN KLUDGEY-ER
+            if (_loadingCounter % 1000 == 0)
+            {
+                GC.Collect();
+                GC.WaitForPendingFinalizers();
+                GC.Collect();
+            }
         }
 
         public void Dispose()
@@ -303,6 +316,8 @@ namespace AudioStation.Controller
             {
                 _dialogWindow.Close();
                 _dialogWindow = null;
+
+                _loadingCounter = 0;
 
                 // Data Context Events
                 _dialogDataContext.PropertyChanged -= OnDialogDataContextPropertyChanged;

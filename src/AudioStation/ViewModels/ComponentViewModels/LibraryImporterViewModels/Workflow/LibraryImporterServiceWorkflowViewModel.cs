@@ -7,7 +7,7 @@ using AudioStation.Service.Interface;
 using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels;
 using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Worker;
 
-using SimpleWpf.UI.Command;
+using SimpleWpf.UI.Event;
 
 namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.Workflow
 {
@@ -23,7 +23,11 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
         // Workflow
         LibraryImporterWorkflowViewModel _workflow;
 
-        SimpleCommand _executeCommand;
+        /// <summary>
+        /// Event that occurs when a worker's work item is updated
+        /// </summary>
+        public event SimpleEventHandler<LibraryLoaderWorkerViewModelBase, LibraryWorkItemViewModel> WorkItemChangedEvent;
+        public event SimpleEventHandler<LibraryLoaderWorkerViewModelBase, bool> StatusChangeEvent;
 
         public LibraryLoaderAcoustIDViewModel AcoustIDWorker
         {
@@ -43,16 +47,21 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
         public LibraryImporterWorkflowViewModel Workflow
         {
             get { return _workflow; }
-            set { this.RaiseAndSetIfChanged(ref _workflow, value); }
+            private set { this.RaiseAndSetIfChanged(ref _workflow, value); }
         }
 
-        public LibraryImporterServiceWorkflowViewModel(LibraryImporterWorkflowViewModel workflow) : base("Library Importer (loader)")
+        public LibraryImporterServiceWorkflowViewModel() : base("Library Importer (loader)")
+        {
+
+        }
+
+        public void SetWorkflow(LibraryImporterWorkflowViewModel workflow)
         {
             this.Workflow = workflow;
 
-            this.AcoustIDWorker = new LibraryLoaderAcoustIDViewModel();
-            this.MusicBrainzBasicWorker = new LibraryLoaderMusicBrainzBasicViewModel();
-            this.MusicBrainzAlbumArtWorker = new LibraryLoaderMusicBrainzAlbumArtViewModel();
+            this.AcoustIDWorker = new LibraryLoaderAcoustIDViewModel(workflow.Id);
+            this.MusicBrainzBasicWorker = new LibraryLoaderMusicBrainzBasicViewModel(workflow.Id);
+            this.MusicBrainzAlbumArtWorker = new LibraryLoaderMusicBrainzAlbumArtViewModel(workflow.Id);
         }
 
         public override bool CanExecute()
@@ -70,33 +79,29 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
             this.MusicBrainzBasicWorker.StatusChangeEvent += OnWorkerStatusChangeEvent;
             this.MusicBrainzAlbumArtWorker.StatusChangeEvent += OnWorkerStatusChangeEvent;
 
+            this.AcoustIDWorker.WorkItemChangedEvent += OnWorkerItemChangedEvent;
+            this.MusicBrainzBasicWorker.WorkItemChangedEvent += OnWorkerItemChangedEvent;
+            this.MusicBrainzAlbumArtWorker.WorkItemChangedEvent += OnWorkerItemChangedEvent;
+
             // Initialize Component Parts
             this.AcoustIDWorker.Load(configuration, audioStationController, progressHandler);
             this.MusicBrainzBasicWorker.Load(configuration, audioStationController, progressHandler);
             this.MusicBrainzAlbumArtWorker.Load(configuration, audioStationController, progressHandler);
         }
+
         protected override void ExecuteWork(DialogEventHandlers.DialogProgressHandler progressHandler)
         {
-            if (!this.AcoustIDWorker.IsWorkComplete && this.Workflow.Configuration.ServiceIncludeAcoustID)
+            if (this.AcoustIDWorker.CanExecute() && this.Workflow.Configuration.ServiceIncludeAcoustID)
             {
-                if (this.AcoustIDWorker.CanExecute())
-                    this.AcoustIDWorker.Execute(progressHandler);
-                else
-                    throw new Exception("AcoustIDWorker not available for execution");
+                this.AcoustIDWorker.Execute(progressHandler);
             }
-            else if (!this.MusicBrainzBasicWorker.IsWorkComplete && this.Workflow.Configuration.ServiceIncludeMusicBrainzBasic)
+            else if (this.MusicBrainzBasicWorker.CanExecute() && this.Workflow.Configuration.ServiceIncludeMusicBrainzBasic)
             {
-                if (this.MusicBrainzBasicWorker.CanExecute())
-                    this.MusicBrainzBasicWorker.Execute(progressHandler);
-                else
-                    throw new Exception("MusicBrainzBasicWorker not available for execution");
+                this.MusicBrainzBasicWorker.Execute(progressHandler);
             }
-            else if (!this.MusicBrainzAlbumArtWorker.IsWorkComplete && this.Workflow.Configuration.ServiceIncludeMusicBrainzArtwork)
+            else if (this.MusicBrainzAlbumArtWorker.CanExecute() && this.Workflow.Configuration.ServiceIncludeMusicBrainzArtwork)
             {
-                if (this.MusicBrainzAlbumArtWorker.CanExecute())
-                    this.MusicBrainzAlbumArtWorker.Execute(progressHandler);
-                else
-                    throw new Exception("MusicBrainzAlbumArtWorker not available for execution");
+                this.MusicBrainzAlbumArtWorker.Execute(progressHandler);
             }
             else
             {
@@ -117,6 +122,14 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
             this.Working = this.AcoustIDWorker.Working ||
                            this.MusicBrainzBasicWorker.Working ||
                            this.MusicBrainzAlbumArtWorker.Working;
+
+            if (this.StatusChangeEvent != null)
+                this.StatusChangeEvent(sender, this.Working);
+        }
+        private void OnWorkerItemChangedEvent(LibraryLoaderWorkerViewModelBase worker, LibraryWorkItemViewModel workItem)
+        {
+            if (this.WorkItemChangedEvent != null)
+                this.WorkItemChangedEvent(worker, workItem);
         }
     }
 }

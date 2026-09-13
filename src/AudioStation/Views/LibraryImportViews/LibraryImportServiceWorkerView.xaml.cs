@@ -1,8 +1,8 @@
-﻿using System.ComponentModel;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
 
 using AudioStation.ViewModels.ComponentViewModels;
+using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels;
 
 using SimpleWpf.IocFramework.Application.Attribute;
 
@@ -24,10 +24,16 @@ namespace AudioStation.Views.LibraryImportViews
             var newVM = e.NewValue as LibraryImporterViewModel;
 
             if (oldVM != null)
-                oldVM.ServiceWorkflow.PropertyChanged -= OnViewModelPropertyChanged;
-
+            {
+                oldVM.ServiceWorkflow.WorkItemChangedEvent -= ServiceWorkflow_WorkItemChangedEvent;
+                oldVM.ServiceWorkflow.StatusChangeEvent -= ServiceWorkflow_StatusChangeEvent;
+            }
             if (newVM != null)
-                newVM.ServiceWorkflow.PropertyChanged += OnViewModelPropertyChanged;
+            {
+                newVM.ServiceWorkflow.WorkItemChangedEvent += ServiceWorkflow_WorkItemChangedEvent;
+                newVM.ServiceWorkflow.StatusChangeEvent += ServiceWorkflow_StatusChangeEvent;
+            }
+
 
             InitializeViewContext();
             UpdateViewContext();
@@ -58,9 +64,23 @@ namespace AudioStation.Views.LibraryImportViews
             }
         }
 
-        private void OnViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e)
+        private void ScrollIntoView(LibraryLoaderWorkerViewModelBase sender, LibraryWorkItemViewModel item)
+        {
+            // Select the workflow item from the sender
+            this.LoaderLB.SelectedItem = sender;
+
+            // Scroll the item into view
+            this.LoaderWorkItemsLB.ScrollIntoView(item);
+        }
+        private void ServiceWorkflow_StatusChangeEvent(LibraryLoaderWorkerViewModelBase sender, bool isWorking)
         {
             UpdateViewContext();
+        }
+
+        private void ServiceWorkflow_WorkItemChangedEvent(LibraryLoaderWorkerViewModelBase sender, LibraryWorkItemViewModel item)
+        {
+            UpdateViewContext();
+            ScrollIntoView(sender, item);
         }
 
         private void ExecuteButton_Click(object sender, RoutedEventArgs e)

@@ -302,7 +302,7 @@ namespace AudioStation.Views
                 throw new Exception("Unhandled view type");
         }
 
-        private void InitializeImportStep(Type viewType)
+        private void PostLoadImportStep(Type viewType)
         {
             // Workflow Selection
             if (viewType == typeof(LibraryImportWorkflowSelectionView))
@@ -327,6 +327,56 @@ namespace AudioStation.Views
                 // Load the Importer Component
                 if (!_viewModel.Loaded)
                     _componentViewModelLoader.LoadComponent<LibraryImporterViewModel>();
+            }
+
+            // Import Loader
+            else if (viewType == typeof(LibraryImportServiceWorkerView))
+            {
+            }
+
+            // Tag Completion
+            else if (viewType == typeof(LibraryImportTagCompletionView))
+            {
+
+            }
+
+            // Migration
+            else if (viewType == typeof(LibraryImportCompletionView))
+            {
+
+            }
+
+            // Final View
+            else if (viewType == typeof(LibraryImportFinalReportView))
+            {
+
+            }
+            else
+                throw new Exception("Unhandled view type");
+        }
+
+        private void PreLoadImportStep(Type viewType)
+        {
+            // Workflow Selection
+            if (viewType == typeof(LibraryImportWorkflowSelectionView))
+            {
+                // Nothing to do
+            }
+
+            // Configuration
+            else if (viewType == typeof(LibraryImportConfigurationView))
+            {
+            }
+
+            // Configuration Options
+            else if (viewType == typeof(LibraryImportConfigurationOptionsView))
+            {
+
+            }
+
+            // Staging
+            else if (viewType == typeof(LibraryImportStagingView))
+            {
             }
 
             // Import Loader
@@ -520,9 +570,13 @@ namespace AudioStation.Views
             }
             else if (ConfirmImportStep(fromView))
             {
+                // From
                 CompleteImportStep(fromView);
-                InitializeImportStep(toView);
+
+                // To
+                PreLoadImportStep(toView);
                 LoadImportView(toView, isPrevious, true);
+                PostLoadImportStep(toView);
             }
         }
     }

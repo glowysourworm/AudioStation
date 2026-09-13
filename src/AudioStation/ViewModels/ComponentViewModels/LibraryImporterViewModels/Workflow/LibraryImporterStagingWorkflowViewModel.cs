@@ -50,7 +50,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
         public LibraryImporterWorkflowViewModel Workflow
         {
             get { return _workflow; }
-            set { this.RaiseAndSetIfChanged(ref _workflow, value); }
+            private set { this.RaiseAndSetIfChanged(ref _workflow, value); }
         }
         public FileTreeViewModel ImportDirectory
         {
@@ -99,15 +99,19 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
             set { this.RaiseAndSetIfChanged(ref _unstageCommand, value); }
         }
 
-        public LibraryImporterStagingWorkflowViewModel(IDialogController dialogController, LibraryImporterWorkflowViewModel workflow)
+        public LibraryImporterStagingWorkflowViewModel(IDialogController dialogController)
             : base("Library Importer (staging)")
         {
-            this.Workflow = workflow;
             this.StagedFiles = new NotifyingObservableCollection<LibraryImporterFileViewModel>();
             this.StagedFiles.ItemPropertyChanged += StagedFiles_ItemPropertyChanged;
 
             this.StageCommand = new SimpleCommand(() => Stage(dialogController), CanStage);
             this.UnstageCommand = new SimpleCommand(Unstage, CanUnstage);
+        }
+
+        public void SetWorkflow(LibraryImporterWorkflowViewModel workflow)
+        {
+            this.Workflow = workflow;
         }
 
         public void Stage(IDialogController dialogController)

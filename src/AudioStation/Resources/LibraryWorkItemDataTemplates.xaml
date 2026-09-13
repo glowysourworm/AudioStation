@@ -109,7 +109,7 @@
                        Grid.Column="1" 
                        Margin="5" 
                        Text="Running" 
-                       Visibility="{Binding Working, Converter={StaticResource BoolVisibilityCollapseConverter}}"
+                       Visibility="{Binding IsWorkComplete, Converter={StaticResource BoolInverseVisibilityCollapseConverter}}"
                        Style="{StaticResource LabelDetailDarkTextBlock}" />
         </Grid>
     </DataTemplate>
