@@ -30,14 +30,21 @@ namespace AudioStation.ViewModels.Vendor
                 eventAggregator.GetEvent<DialogEvent>().Publish(DialogEventData.Dismiss());
             });
         }
-
-        protected override void InitializeImpl(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
+        public override bool CanExecute()
         {
-
+            return true;
         }
-        protected override void LoadImpl(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
+        protected override void InitializeWork(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
         {
-
+        }
+        protected override void LoadWork(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
+        {
+        }
+        protected override void ExecuteWork(DialogEventHandlers.DialogProgressHandler progressHandler)
+        {
+        }
+        protected override void ResetWork(DialogEventHandlers.DialogProgressHandler progressHandler)
+        {
         }
     }
 }

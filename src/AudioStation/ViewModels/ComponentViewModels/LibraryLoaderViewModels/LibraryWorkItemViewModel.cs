@@ -10,6 +10,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels
     public class LibraryWorkItemViewModel : ViewModelBase
     {
         int _id;
+        int _workflowId;
         LibraryLoaderLoadViewModel _load;
         LibraryLoaderOutputViewModel _output;
         LibraryLoadType _loadType;
@@ -19,11 +20,18 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels
         bool _inProgress;
         bool _isCompleted;
         bool _hasErrors;
+        bool _isWorkflowItem;
+
 
         public int Id
         {
             get { return _id; }
             set { this.RaiseAndSetIfChanged(ref _id, value); }
+        }
+        public int WorkflowId
+        {
+            get { return _workflowId; }
+            set { this.RaiseAndSetIfChanged(ref _workflowId, value); }
         }
         public LibraryLoadType LoadType
         {
@@ -59,6 +67,11 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels
         {
             get { return _inProgress; }
             set { this.RaiseAndSetIfChanged(ref _inProgress, value); }
+        }
+        public bool IsWorkflowItem
+        {
+            get { return _isWorkflowItem; }
+            set { this.RaiseAndSetIfChanged(ref _isWorkflowItem, value); }
         }
         public bool IsCompleted
         {

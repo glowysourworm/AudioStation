@@ -3,6 +3,7 @@ using System.IO;
 
 using AcoustID.Audio;
 
+using CSCore.Codecs;
 using CSCore.MediaFoundation;
 
 namespace AudioStation.Core.Service.Vendor.AcoustIDComponent
@@ -70,17 +71,15 @@ namespace AudioStation.Core.Service.Vendor.AcoustIDComponent
         {
             using (var fileStream = File.OpenRead(_file))
             {
-                using (var reader = new MediaFoundationDecoder(fileStream))
-                {
-                    var format = reader.WaveFormat;
+                var codec = CodecFactory.Instance.GetCodec(_file);
+                var format = codec.WaveFormat;
 
-                    this.sampleRate = format.SampleRate;
-                    this.channels = format.Channels;
-                    this.bitsPerSample = format.BitsPerSample;
-                    this.totalSeconds = reader.WaveFormat.BytesToMilliseconds(reader.Length) / 1000.0D;
+                this.sampleRate = format.SampleRate;
+                this.channels = format.Channels;
+                this.bitsPerSample = format.BitsPerSample;
+                this.totalSeconds = codec.WaveFormat.BytesToMilliseconds(codec.Length) / 1000.0D;
 
-                    return format.BitsPerSample != 16;
-                }
+                return format.BitsPerSample != 16;
             }
         }
     }

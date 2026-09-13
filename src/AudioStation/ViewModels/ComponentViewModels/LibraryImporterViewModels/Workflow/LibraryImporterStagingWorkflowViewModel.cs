@@ -6,13 +6,11 @@ using AudioStation.Core.Database.AudioStationDatabase.Interface;
 using AudioStation.Core.Model.Interface;
 using AudioStation.Core.Service.Interface;
 using AudioStation.Event;
-using AudioStation.Event.DialogEvents;
 using AudioStation.Service.Interface;
 
 using SimpleWpf.Extensions.Collection;
 using SimpleWpf.Extensions.ObservableCollection;
 using SimpleWpf.IocFramework.Application;
-using SimpleWpf.IocFramework.EventAggregation;
 using SimpleWpf.UI.Command;
 using SimpleWpf.UI.ViewModel.FileTreeView;
 using SimpleWpf.UI.ViewModel.TreeView;
@@ -22,7 +20,6 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
 {
     public class LibraryImporterStagingWorkflowViewModel : ComponentPartViewModelBase
     {
-        private readonly IIocEventAggregator _eventAggregator;
         private IAudioStationDbClient _audioStationDbClient;
         private ITagCache _tagCache;
         private LibraryImporterWorkflowViewModel _workflow;
@@ -102,20 +99,75 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
             set { this.RaiseAndSetIfChanged(ref _unstageCommand, value); }
         }
 
-        public LibraryImporterStagingWorkflowViewModel(IIocEventAggregator eventAggregator, LibraryImporterWorkflowViewModel workflow)
+        public LibraryImporterStagingWorkflowViewModel(IDialogController dialogController, LibraryImporterWorkflowViewModel workflow)
             : base("Library Importer (staging)")
         {
-            _eventAggregator = eventAggregator;
-
             this.Workflow = workflow;
             this.StagedFiles = new NotifyingObservableCollection<LibraryImporterFileViewModel>();
             this.StagedFiles.ItemPropertyChanged += StagedFiles_ItemPropertyChanged;
 
-            this.StageCommand = new SimpleCommand(Stage, CanStage);
+            this.StageCommand = new SimpleCommand(() => Stage(dialogController), CanStage);
             this.UnstageCommand = new SimpleCommand(Unstage, CanUnstage);
         }
 
-        public void Stage()
+        public void Stage(IDialogController dialogController)
+        {
+            dialogController.ShowLoading("Staging Files", ExecuteWork);
+        }
+        public void Unstage()
+        {
+            this.StagedFiles.Remove(x => x.IsSelected);
+        }
+        public bool CanStage()
+        {
+            // This needs to be completed... (Return bools from Initialize  and Load)
+            if (this.ImportDirectory == null)
+                return false;
+
+            return this.ImportDirectory.RecursiveCount(x => x.IsSelected) > 0;
+        }
+        public bool CanUnstage()
+        {
+            return this.StagedFiles.Any(x => x.IsSelected);
+        }
+
+        public override bool CanExecute()
+        {
+            return CanStage();
+        }
+
+        protected override void LoadWork(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
+        {
+            _audioStationDbClient = audioStationController.ServiceController.GetDataService<IAudioStationDbClient>();
+            _tagCache = audioStationController.ServiceController.GetCache<ITagCache>();
+
+            // TODO: Put this somewhere and verify convertible files on startup
+            var searchPattern = "*.mp3";
+
+            // Import Directory:  1) Not Initialized; or 2) A different directory
+            //
+            if (this.ImportDirectory == null ||
+                this.ImportDirectory.GetNodeValue().BaseDirectory != this.Workflow.Configuration.ImportDirectory.Directory)
+            {
+                var libraryLoaderService = IocContainer.Get<ILibraryLoaderService>();
+                var directory = (this.Workflow.Configuration.ImportDirectory.ImportType == Core.Model.LibraryImportType.Migration) ? this.Workflow.Configuration.MigrationSourceDirectory :
+                                                                                                                            this.Workflow.Configuration.ImportDirectory.Directory;
+                // Clear Staged
+                this.StagedFiles.Clear();
+
+                // Unhook
+                this.ImportDirectory?.ItemPropertyChangedTreeEvent -= OnImportTreePropertyChanged;
+
+                this.ImportDirectory = libraryLoaderService.InitializeImporterTree(directory, searchPattern, this.Workflow.Configuration, progressHandler);
+
+                this.TotalFileCount = this.ImportDirectory.RecursiveCount(x => !x.CanHaveChildren);
+                this.TotalDirectoryCount = this.ImportDirectory.RecursiveCount(x => x.CanHaveChildren);
+
+                // Hook
+                this.ImportDirectory.ItemPropertyChangedTreeEvent += OnImportTreePropertyChanged;
+            }
+        }
+        protected override void ExecuteWork(DialogEventHandlers.DialogProgressHandler progressHandler)
         {
             // Library Files
             var libraryFiles = _audioStationDbClient.GetEntities<FileReference>().ToDictionary(x => x.FileName);
@@ -130,11 +182,6 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
                     stagedFiles.Add(file.FullPath, file);
             }
 
-            var eventData = DialogEventData.ShowLoadingWithProgress("Staging Files");
-            var dialogViewModel = eventData.DataContext as DialogLoadingViewModel;
-
-            _eventAggregator.GetEvent<DialogEvent>().Publish(eventData);
-
             // Selected Nodes
             var selectedNodes = this.ImportDirectory.GetSelection(true).ToList();
             var counter = 0;
@@ -142,8 +189,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
             // -> Select any selected files or any files in a sub-directory recursively
             foreach (var nodeBase in selectedNodes)
             {
-                dialogViewModel.ShowProgressBar = true;
-                dialogViewModel.Progress = Math.Clamp((counter++ / (double)selectedNodes.Count), 0, 1);
+                progressHandler(selectedNodes.Count, counter++, 0, "Loading:  " + nodeBase.NodeValue.DisplayName);
 
                 var node = nodeBase.GetNodeValue();
                 var subCounter = 0;
@@ -153,7 +199,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
                 {
                     nodeBase.RecurseForEach(subNodeBase =>
                     {
-                        dialogViewModel.Progress = Math.Clamp((subCounter++ / (double)nodeBase.Children.Count), 0, 1);
+                        progressHandler(nodeBase.Children.Count, subCounter++, 0, "Loading:  " + subNodeBase.NodeValue.DisplayName);
 
                         var subNode = subNodeBase.NodeValue as FileTreeNodeViewModel;
 
@@ -193,61 +239,11 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
                     this.StagedFiles.Add(stagedFile);
                 }
             }
-
-            _eventAggregator.GetEvent<DialogEvent>().Publish(DialogEventData.Dismiss());
         }
-        public void Unstage()
+        protected override void ResetWork(DialogEventHandlers.DialogProgressHandler progressHandler)
         {
-            this.StagedFiles.Remove(x => x.IsSelected);
+
         }
-        public bool CanStage()
-        {
-            // This needs to be completed... (Return bools from Initialize  and Load)
-            if (this.ImportDirectory == null)
-                return false;
-
-            return this.ImportDirectory.RecursiveCount(x => x.IsSelected) > 0;
-        }
-        public bool CanUnstage()
-        {
-            return this.StagedFiles.Any(x => x.IsSelected);
-        }
-
-        protected override void InitializeImpl(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
-        {
-            _audioStationDbClient = audioStationController.ServiceController.GetDataService<IAudioStationDbClient>();
-            _tagCache = audioStationController.ServiceController.GetCache<ITagCache>();
-        }
-
-        protected override void LoadImpl(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
-        {
-            // TODO: Put this somewhere and verify convertible files on startup
-            var searchPattern = "*.mp3";
-
-            // Import Directory:  1) Not Initialized; or 2) A different directory
-            //
-            if (this.ImportDirectory == null ||
-                this.ImportDirectory.GetNodeValue().BaseDirectory != this.Workflow.Configuration.ImportDirectory.Directory)
-            {
-                var libraryLoaderService = IocContainer.Get<ILibraryLoaderService>();
-                var directory = (this.Workflow.Configuration.ImportDirectory.ImportType == Core.Model.LibraryImportType.Migration) ? this.Workflow.Configuration.MigrationSourceDirectory :
-                                                                                                                            this.Workflow.Configuration.ImportDirectory.Directory;
-                // Clear Staged
-                this.StagedFiles.Clear();
-
-                // Unhook
-                this.ImportDirectory?.ItemPropertyChangedTreeEvent -= OnImportTreePropertyChanged;
-
-                this.ImportDirectory = libraryLoaderService.InitializeImporterTree(directory, searchPattern, this.Workflow.Configuration, progressHandler);
-
-                this.TotalFileCount = this.ImportDirectory.RecursiveCount(x => !x.CanHaveChildren);
-                this.TotalDirectoryCount = this.ImportDirectory.RecursiveCount(x => x.CanHaveChildren);
-
-                // Hook
-                this.ImportDirectory.ItemPropertyChangedTreeEvent += OnImportTreePropertyChanged;
-            }
-        }
-
         private void OnImportTreePropertyChanged(TreeViewModelBase treeSender, ITreeViewNode item, PropertyChangedEventArgs eventArgs)
         {
             this.StageCommand.RaiseCanExecuteChanged();

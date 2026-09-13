@@ -324,17 +324,14 @@ namespace AudioStation.Views
             // Staging
             else if (viewType == typeof(LibraryImportStagingView))
             {
-                // This gets moved to workflow loader (probably just use the view model to call the sub-components)
-
-                _componentViewModelLoader.LoadComponent<LibraryImporterViewModel>();
+                // Load the Importer Component
+                if (!_viewModel.Loaded)
+                    _componentViewModelLoader.LoadComponent<LibraryImporterViewModel>();
             }
 
             // Import Loader
             else if (viewType == typeof(LibraryImportServiceWorkerView))
             {
-                // This gets moved to workflow loader (probably just use the view model to call the sub-components)
-
-                _componentViewModelLoader.LoadComponent<LibraryImporterViewModel>();
             }
 
             // Tag Completion

@@ -9,9 +9,9 @@ namespace AudioStation.Controller.Interface
         string ShowSelectFile();
         string ShowSelectFolder();
         string ShowSaveFile();
+
         bool ShowConfirmation(string caption, params string[] messageLines);
         void ShowAlert(string caption, params string[] messageLines);
-        void ShowConfigurationAlert();
 
         void ShowLogWindow(LogViewModel viewModel);
         void ShowTagWindow(TagViewModel viewModel);
@@ -21,5 +21,10 @@ namespace AudioStation.Controller.Interface
         /// use this when a dialog window is needed to be waited on; and the results returned immediately.
         /// </summary>
         bool ShowDialogWindowSync(DialogEventData eventData);
+
+        /// <summary>
+        /// Shows dialog window and performs loading action. Updates progress view data.
+        /// </summary>
+        void ShowLoading(string title, Action<DialogEventHandlers.DialogProgressHandler> loadingAction);
     }
 }

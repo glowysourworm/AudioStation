@@ -24,6 +24,8 @@ using SimpleWpf.IocFramework.Application;
 using SimpleWpf.IocFramework.EventAggregation;
 using SimpleWpf.UI.Command;
 
+using static AudioStation.Event.DialogEventHandlers;
+
 namespace AudioStation.ViewModels;
 
 public class MainViewModel : ComponentViewModelBase
@@ -320,7 +322,7 @@ public class MainViewModel : ComponentViewModelBase
         });
     }
 
-    protected override void InitializeImpl(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
+    protected override void InitializeWork(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
     {
         audioStationController.ServiceController.ComponentInitializedEvent += IAudioStationComponent_StatusChangeEvent;
         audioStationController.ServiceController.ComponentStatusChangedEvent += IAudioStationComponent_StatusChangeEvent;
@@ -353,11 +355,19 @@ public class MainViewModel : ComponentViewModelBase
         this.LibraryLoaderCDImport = audioStationController.ComponentController.GetComponent<CDImporterViewModel>();
         this.Bandcamp = audioStationController.ComponentController.GetComponent<BandcampViewModel>();
         this.Volume = 1.0f;
-        this.Loading = false;
     }
-    protected override void LoadImpl(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
+    public override bool CanExecute()
     {
-
+        return true;
+    }
+    protected override void LoadWork(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogProgressHandler progressHandler)
+    {
+    }
+    protected override void ExecuteWork(DialogProgressHandler progressHandler)
+    {
+    }
+    protected override void ResetWork(DialogProgressHandler progressHandler)
+    {
     }
     private void OnLog(LogMessage message)
     {
@@ -416,7 +426,7 @@ public class MainViewModel : ComponentViewModelBase
 
     private void OnMainLoadingChanged(DialogEventData eventData)
     {
-        this.Loading = eventData.Show;
+        //this.Loading = eventData.Show;
     }
 
     private void OnCurrentBandLevelsUpdated(EqualizerResultSet equalizerValues)

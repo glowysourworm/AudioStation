@@ -256,11 +256,24 @@ namespace AudioStation.ViewModels
             });
         }
 
-        protected override void InitializeImpl(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
+        public override bool CanExecute()
         {
-            // THIS COULD BE USED TO MAP THE CONFIGURATION
+            return true;
         }
-        protected override void LoadImpl(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
+
+        protected override void InitializeWork(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
+        {
+            // Nothing to do
+        }
+        protected override void LoadWork(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
+        {
+            // Nothing to do
+        }
+        protected override void ExecuteWork(DialogEventHandlers.DialogProgressHandler progressHandler)
+        {
+            // Nothing to do
+        }
+        protected override void ResetWork(DialogEventHandlers.DialogProgressHandler progressHandler)
         {
             // Nothing to do
         }

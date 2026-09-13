@@ -97,11 +97,20 @@
 
     <DataTemplate x:Key="LibraryImporterWorkflowItemTemplate" DataType="{x:Type viewModel:LibraryLoaderWorkerViewModelBase}">
 
-        <Grid RowDefinitions="Auto, Auto">
+        <Grid RowDefinitions="Auto, Auto" ColumnDefinitions="*, Auto" Width="260"
+              ToolTip="{Binding Description}">
 
-            <TextBlock Grid.Row="0" Margin="5" Text="{Binding Name}" Style="{StaticResource LabelTextBlock}"  />
+            <TextBlock Grid.Row="0" 
+                       Margin="5" 
+                       Text="{Binding Name}" 
+                       Style="{StaticResource LabelTextBlock}"  />
             
-
+            <TextBlock Grid.Row="0" 
+                       Grid.Column="1" 
+                       Margin="5" 
+                       Text="Running" 
+                       Visibility="{Binding Working, Converter={StaticResource BoolVisibilityCollapseConverter}}"
+                       Style="{StaticResource LabelDetailDarkTextBlock}" />
         </Grid>
     </DataTemplate>
 

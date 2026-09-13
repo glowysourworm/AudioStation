@@ -4,7 +4,6 @@ using AudioStation.Controller.Interface;
 using AudioStation.Core.Event;
 using AudioStation.Core.Model;
 using AudioStation.Core.Model.Interface;
-using AudioStation.Event;
 using AudioStation.ViewModels.ComponentViewModels.LogViewModels;
 
 using SimpleWpf.IocFramework.EventAggregation;
@@ -23,14 +22,23 @@ namespace AudioStation.ViewModels.ComponentViewModels
             eventAggregator.GetEvent<LogEvent>().Subscribe(OnLog);
         }
 
-        protected override void InitializeImpl(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogProgressHandler progressHandler)
+        public override bool CanExecute()
         {
-            //_viewModel = load;
+            return true;
         }
-        protected override void LoadImpl(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
+        protected override void InitializeWork(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogProgressHandler progressHandler)
         {
+        }
+        protected override void LoadWork(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogProgressHandler progressHandler)
+        {
+        }
+        protected override void ExecuteWork(DialogProgressHandler progressHandler)
+        {
+        }
+        protected override void ResetWork(DialogProgressHandler progressHandler)
+        {
+        }
 
-        }
         private void OnLog(LogMessage message)
         {
             // During Initialization

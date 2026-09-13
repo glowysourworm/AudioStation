@@ -231,11 +231,8 @@ namespace AudioStation.Core.Service
                 {
                     TagFull result = new TagFull();
 
-                    //var isApeTag = APEv2Tag.DoesTagExist(fileStream);
                     var isId3v1 = ID3v1Tag.DoesTagExist(fileStream);
                     var isId3v2 = ID3v2Tag.DoesTagExist(fileStream);
-                    //var isLyrics3Tag = Lyrics3Tag.DoesTagExist(fileStream);
-
 
                     if (isId3v1)
                     {
@@ -252,6 +249,7 @@ namespace AudioStation.Core.Service
                             result.Year = year;
                     }
 
+                    // MUST RESET POSITION (before letting IdSharp read its next tag)
                     fileStream.Position = 0;
 
                     if (isId3v2)

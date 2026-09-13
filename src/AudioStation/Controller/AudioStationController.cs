@@ -13,12 +13,13 @@ namespace AudioStation.Controller
     [IocExport(typeof(IAudioStationController))]
     public class AudioStationController : IAudioStationController
     {
-        IIocEventAggregator _eventAggregator;
-        IAudioStationMapper _audioStationMapper;
-        IAudioStationConfigurationController _audioStationConfigurationManager;
-        IAudioStationServiceController _audioStationServiceController;
-        IAudioStationComponentController _audioStationComponentController;
-        ILibraryLoaderService _libraryLoaderService;
+        private readonly IDialogController _dialogController;
+        private readonly IIocEventAggregator _eventAggregator;
+        private readonly IAudioStationMapper _audioStationMapper;
+        private readonly IAudioStationConfigurationController _audioStationConfigurationManager;
+        private readonly IAudioStationServiceController _audioStationServiceController;
+        private readonly IAudioStationComponentController _audioStationComponentController;
+        private readonly ILibraryLoaderService _libraryLoaderService;
 
         // Primary Configuration View Model
         AudioStationConfigurationViewModel _audioStationConfigurationViewModel;
@@ -28,10 +29,13 @@ namespace AudioStation.Controller
         public IAudioStationServiceController ServiceController { get { return _audioStationServiceController; } }
         public IAudioStationComponentController ComponentController { get { return _audioStationComponentController; } }
         public ILibraryLoaderService LibraryLoaderService { get { return _libraryLoaderService; } }
+        public IDialogController DialogController { get { return _dialogController; } }
+        public IIocEventAggregator EventAggregator { get { return _eventAggregator; } }
         #endregion
 
         [IocImportingConstructor]
         public AudioStationController(IIocEventAggregator eventAggregator,
+                                      IDialogController dialogController,
                                       IAudioStationMapper audioStationMapper,
                                       IAudioStationConfigurationController audioStationConfigurationManager,
                                       IAudioStationServiceController audioStationServiceController,
@@ -39,6 +43,7 @@ namespace AudioStation.Controller
                                       ILibraryLoaderService libraryLoaderService)
         {
             _audioStationMapper = audioStationMapper;
+            _dialogController = dialogController;
             _eventAggregator = eventAggregator;
             _audioStationConfigurationManager = audioStationConfigurationManager;
             _audioStationServiceController = audioStationServiceController;

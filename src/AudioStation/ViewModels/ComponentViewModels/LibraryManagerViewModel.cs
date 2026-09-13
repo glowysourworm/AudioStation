@@ -96,7 +96,12 @@ namespace AudioStation.ViewModels.ComponentViewModels
             });
         }
 
-        protected override void InitializeImpl(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogProgressHandler progressHandler)
+        public override bool CanExecute()
+        {
+            return true;
+        }
+
+        protected override void InitializeWork(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogProgressHandler progressHandler)
         {
             //this.Library = load;
 
@@ -123,7 +128,17 @@ namespace AudioStation.ViewModels.ComponentViewModels
             //    this.NonConvertedFiles.Clear();
             //}
         }
-        protected override void LoadImpl(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
+        protected override void LoadWork(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
+        {
+
+        }
+
+        protected override void ExecuteWork(DialogProgressHandler progressHandler)
+        {
+
+        }
+
+        protected override void ResetWork(DialogProgressHandler progressHandler)
         {
 
         }

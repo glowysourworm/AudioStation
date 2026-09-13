@@ -4,35 +4,37 @@ using AudioStation.Core.Database.AudioStationDatabase;
 using AudioStation.Core.Database.AudioStationDatabase.Interface;
 using AudioStation.Core.Model.Interface;
 using AudioStation.Event;
-using AudioStation.Service.Interface;
 using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Load;
 using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Output;
-
-using SimpleWpf.IocFramework.EventAggregation;
 
 namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Worker
 {
     public class LibraryLoaderMusicBrainzAlbumArtViewModel : LibraryLoaderWorkerViewModelBase
     {
-        private readonly IAudioStationDbClient _audioStationDbClient;
-
-        public LibraryLoaderMusicBrainzAlbumArtViewModel(
-                IIocEventAggregator eventAggregator,
-                ILibraryLoaderWorkerService libraryLoaderService,
-                IAudioStationDbClient audioStationDbClient)
-            : base("Music Brainz (album art)", "Downloads album art for any recordings which have a Music Brainz ID in the library", eventAggregator, libraryLoaderService)
+        public LibraryLoaderMusicBrainzAlbumArtViewModel()
+            : base("Music Brainz (album art)", "Downloads album art for any recordings which have a Music Brainz ID in the library", -1, false)
         {
-            _audioStationDbClient = audioStationDbClient;
+        }
+        public LibraryLoaderMusicBrainzAlbumArtViewModel(int workflowId)
+            : base("Music Brainz (album art)", "Downloads album art for any recordings which have a Music Brainz ID in the library", workflowId, true)
+        {
         }
 
-        protected override void InitializeImpl(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
+        public override void Load(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
         {
+            base.Load(configuration, audioStationController, progressHandler);
+
             try
             {
-                var results = _audioStationDbClient.GetEntities<TagSmallVendorMap>();
+                var results = audioStationController.ServiceController
+                                                    .GetDataService<IAudioStationDbClient>()
+                                                    .GetEntities<TagSmallVendorMap>();
+                var counter = 0;
 
                 foreach (var result in results.Where(x => x.MusicBrainzRecordingId != null))
                 {
+                    progressHandler(results.Count(), counter++, 0, "Loading: Music Brainz Id=" + result.MusicBrainzRecordingId);
+
                     this.WorkItems.Add(new LibraryWorkItemViewModel()
                     {
                         HasErrors = false,
@@ -61,10 +63,8 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Wo
             {
                 throw new Exception("Error initializing Library Loader component:  " + ex.Message);
             }
-        }
-        protected override void LoadImpl(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
-        {
 
+            this.Loaded = true;
         }
     }
 }

@@ -4,13 +4,10 @@ using AudioStation.Core.Component.LibraryLoaderComponent;
 using AudioStation.Core.Model;
 using AudioStation.Core.Model.Interface;
 using AudioStation.Event;
-using AudioStation.Service.Interface;
 using AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels;
 using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Load;
 using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Output;
 using AudioStation.ViewModels.MainViewModels;
-
-using SimpleWpf.IocFramework.EventAggregation;
 
 namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Worker
 {
@@ -26,27 +23,28 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Wo
         private readonly LibraryImporterConfigurationViewModel _libraryImporterConfiguration;
 
         public LibraryLoaderImportViewModel(
-            IIocEventAggregator eventAggregator,
-            IAudioStationMapper audioStationMapper,
-            ILibraryLoaderWorkerService libraryLoaderService,
             LibraryImporterConfigurationViewModel libraryImporterConfiguration,
             IEnumerable<LibraryImporterFileViewModel> stagedFiles)
-            : base("Library Import Worker", "Library import worker task is for importing library records during an import workflow", eventAggregator, libraryLoaderService)
+            : base("Library Import Worker", "Library import worker task is for importing library records during an import workflow", -1, false)
         {
-            _audioStationMapper = audioStationMapper;
-
             _stagedFiles = stagedFiles;
             _libraryImporterConfiguration = libraryImporterConfiguration;
         }
 
-        protected override void InitializeImpl(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
+        public LibraryLoaderImportViewModel(int workflowId,
+            LibraryImporterConfigurationViewModel libraryImporterConfiguration,
+            IEnumerable<LibraryImporterFileViewModel> stagedFiles)
+            : base("Library Import Worker", "Library import worker task is for importing library records during an import workflow", workflowId, true)
         {
-
+            _stagedFiles = stagedFiles;
+            _libraryImporterConfiguration = libraryImporterConfiguration;
         }
 
-        protected override void LoadImpl(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
+        public override void Load(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
         {
-            this.WorkItems.Clear();
+            base.Load(configuration, audioStationController, progressHandler);
+
+            var counter = 0;
 
             // Load / Output:  These are part of the workflow process. All of the import data is setup here
             //                 so that the view binding can happen without a big mess in the code. Also, the
@@ -54,6 +52,8 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Wo
             //
             foreach (var stagedFile in _stagedFiles)
             {
+                progressHandler(_stagedFiles.Count(), counter++, 0, "Staging: " + stagedFile.FullPath);
+
                 var importLoad = new LibraryLoaderImportLoadViewModel()
                 {
                     ConvertAudioFormat = _libraryImporterConfiguration.ConvertAudioFormat,
@@ -98,6 +98,8 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Wo
                 //
 
             }
+
+            this.Loaded = true;
         }
     }
 }

@@ -16,71 +16,37 @@ namespace AudioStation.ViewModels.ComponentViewModels
     public abstract class ComponentPartViewModelBase : ViewModelBase
     {
         bool _working;
-        bool _loading;
-        bool _initialized;
+        bool _loaded;
         string _displayName;
 
         public bool Working
         {
             get { return _working; }
-            set { this.RaiseAndSetIfChanged(ref _working, value); }
+            protected set { this.RaiseAndSetIfChanged(ref _working, value); }
         }
-        public bool Loading
+        public bool Loaded
         {
-            get { return _loading; }
-            set { this.RaiseAndSetIfChanged(ref _loading, value); }
-        }
-        public bool Initialized
-        {
-            get { return _initialized; }
-            set { this.RaiseAndSetIfChanged(ref _initialized, value); }
+            get { return _loaded; }
+            protected set { this.RaiseAndSetIfChanged(ref _loaded, value); }
         }
         public string DisplayName
         {
             get { return _displayName; }
-            set { this.RaiseAndSetIfChanged(ref _displayName, value); }
+            protected set { this.RaiseAndSetIfChanged(ref _displayName, value); }
         }
 
         public ComponentPartViewModelBase(string displayName)
         {
             this.Working = false;
-            this.Initialized = false;
+            this.Loaded = false;
             this.DisplayName = displayName;
         }
 
-        /// <summary>
-        /// Function to complete initialization. This will be called on the Dispatcher thread
-        /// </summary>
-        protected abstract void InitializeImpl(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogProgressHandler progressHandler);
+        public abstract bool CanExecute();
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="configuration"></param>
-        /// <param name="viewModelLoader"></param>
-        /// <param name="progressHandler"></param>
-        protected abstract void LoadImpl(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogProgressHandler progressHandler);
-
-        public void Initialize(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogProgressHandler progressHandler)
-        {
-            // Synchronous Invoke:  This should be used where there is no (async / await). Also, it is needed for completing the work during
-            //                      the application's initialization waiter. So, there is already a waiter for this load; but the work must
-            //                      be completed on the main thread because of view model binding.
-            //
-            if (BasicHelpers.IsDispatcher() == ApplicationIsDispatcherResult.False)
-                BasicHelpers.InvokeDispatcher(Initialize, DispatcherPriority.Background, configuration, audioStationController, progressHandler);
-
-            else
-            {
-                this.Loading = true;
-
-                InitializeImpl(configuration, audioStationController, progressHandler);
-
-                // To be used by subclasses
-                this.Initialized = true;
-                this.Loading = false;
-            }
-        }
+        protected abstract void LoadWork(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogProgressHandler progressHandler);
+        protected abstract void ExecuteWork(DialogProgressHandler progressHandler);
+        protected abstract void ResetWork(DialogProgressHandler progressHandler);
 
         /// <summary>
         /// Function to load component view model. This would be called when a a view is loaded; or when needed in the application.
@@ -88,8 +54,8 @@ namespace AudioStation.ViewModels.ComponentViewModels
         /// <exception cref="Exception">Component must have first been initialized</exception>
         public void Load(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogProgressHandler progressHandler)
         {
-            if (!this.Initialized)
-                throw new Exception("Must first initialize WorkflowComponentViewModelBase before calling Load");
+            if (this.Loaded)
+                throw new Exception("Component already loaded. Must call Reset(..) before reloading the component");
 
             // Synchronous Invoke:  This should be used where there is no (async / await). Also, it is needed for completing the work during
             //                      the application's initialization waiter. So, there is already a waiter for this load; but the work must
@@ -102,9 +68,56 @@ namespace AudioStation.ViewModels.ComponentViewModels
             {
                 this.Working = true;
 
-                LoadImpl(configuration, audioStationController, progressHandler);
+                LoadWork(configuration, audioStationController, progressHandler);
 
                 this.Working = false;
+                this.Loaded = true;
+            }
+        }
+
+        public void Execute(DialogProgressHandler progressHandler)
+        {
+            if (!this.Loaded)
+                throw new Exception("Component not yet loaded. Must first load the component part before calling Execute()");
+
+            // Synchronous Invoke:  This should be used where there is no (async / await). Also, it is needed for completing the work during
+            //                      the application's initialization waiter. So, there is already a waiter for this load; but the work must
+            //                      be completed on the main thread because of view model binding.
+            //
+            if (BasicHelpers.IsDispatcher() == ApplicationIsDispatcherResult.False)
+                BasicHelpers.InvokeDispatcher(Execute, DispatcherPriority.Background, progressHandler);
+
+            else
+            {
+                this.Working = true;
+
+                ExecuteWork(progressHandler);
+
+                this.Working = false;
+                this.Loaded = false;
+            }
+        }
+
+        public void Reset(DialogProgressHandler progressHandler)
+        {
+            if (!this.Loaded)
+                throw new Exception("Component not yet loaded. Must first load the component part before calling Reset()");
+
+            // Synchronous Invoke:  This should be used where there is no (async / await). Also, it is needed for completing the work during
+            //                      the application's initialization waiter. So, there is already a waiter for this load; but the work must
+            //                      be completed on the main thread because of view model binding.
+            //
+            if (BasicHelpers.IsDispatcher() == ApplicationIsDispatcherResult.False)
+                BasicHelpers.InvokeDispatcher(Reset, DispatcherPriority.Background, progressHandler);
+
+            else
+            {
+                this.Working = true;
+
+                ResetWork(progressHandler);
+
+                this.Working = false;
+                this.Loaded = false;
             }
         }
     }

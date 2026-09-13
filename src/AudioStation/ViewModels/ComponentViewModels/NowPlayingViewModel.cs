@@ -12,6 +12,8 @@ using SimpleWpf.Extensions.Collection;
 using SimpleWpf.Extensions.ObservableCollection;
 using SimpleWpf.IocFramework.EventAggregation;
 
+using static AudioStation.Event.DialogEventHandlers;
+
 namespace AudioStation.ViewModels.ComponentViewModels
 {
     public class NowPlayingViewModel : ComponentViewModelBase
@@ -187,14 +189,21 @@ namespace AudioStation.ViewModels.ComponentViewModels
                 OnLoadNextTrack();
             }
         }
-
-        protected override void InitializeImpl(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
+        public override bool CanExecute()
         {
-
+            return true;
         }
-        protected override void LoadImpl(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
+        protected override void InitializeWork(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogProgressHandler progressHandler)
         {
-
+        }
+        protected override void LoadWork(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogProgressHandler progressHandler)
+        {
+        }
+        protected override void ExecuteWork(DialogProgressHandler progressHandler)
+        {
+        }
+        protected override void ResetWork(DialogProgressHandler progressHandler)
+        {
         }
     }
 }

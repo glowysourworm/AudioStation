@@ -2,6 +2,8 @@
 using AudioStation.Interface;
 using AudioStation.Service.Interface;
 
+using SimpleWpf.IocFramework.EventAggregation;
+
 using static AudioStation.Event.DialogEventHandlers;
 
 namespace AudioStation.Controller.Interface
@@ -16,6 +18,8 @@ namespace AudioStation.Controller.Interface
         IAudioStationServiceController ServiceController { get; }
         IAudioStationComponentController ComponentController { get; }
         ILibraryLoaderService LibraryLoaderService { get; }
+        IDialogController DialogController { get; }
+        IIocEventAggregator EventAggregator { get; }
 
         /// <summary>
         /// (Primary Initializer!) Startup must handle configuration first. Then call Initialize(...)

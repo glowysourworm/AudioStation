@@ -3,6 +3,7 @@ using System.Windows.Threading;
 
 using AudioStation.Controller.Interface;
 using AudioStation.Event;
+using AudioStation.Event.DialogEvents;
 using AudioStation.ViewModels.ComponentViewModels;
 using AudioStation.ViewModels.Vendor.ATLViewModel;
 using AudioStation.Views.DialogViews;
@@ -32,7 +33,7 @@ namespace AudioStation.Controller
             _eventAggregator = eventAggregator;
             _dialogWindow = null;
 
-            eventAggregator.GetEvent<DialogEvent>().Subscribe(payload => OnLoadingChanged(payload));
+            eventAggregator.GetEvent<DialogEvent>().Subscribe(OnLoadingChanged);
         }
 
         public void Initialize()
@@ -126,6 +127,34 @@ namespace AudioStation.Controller
             }
             else
                 throw new Exception("Synchronous use of dialog interrupted another dialog event. Must first dismiss the other dialog window.");
+        }
+
+        public void ShowLoading(string title, Action<DialogEventHandlers.DialogProgressHandler> progressCallback)
+        {
+            var eventData = DialogEventData.ShowLoading(title);
+            var viewModel = eventData.DataContext as DialogLoadingViewModel;
+
+            if (viewModel == null)
+                throw new Exception("Invalid loading view model (see splash screen API)");
+
+            viewModel.ShowProgressBar = true;
+
+            var handler = new DialogEventHandlers.DialogProgressHandler((taskCount, tasksComplete, tasksError, errorMessage) =>
+            {
+                viewModel.Progress = tasksComplete / (double)taskCount;
+                viewModel.Message = errorMessage;
+            });
+
+            var ready = LoadDialogWindow(eventData);
+
+            if (ready)
+            {
+                _dialogWindow.Show();
+
+                progressCallback(handler);
+
+                Dispose();
+            }
         }
 
         private void OnLoadingChanged(DialogEventData data)
@@ -244,6 +273,10 @@ namespace AudioStation.Controller
             _dialogWindow.Height = data.DialogHeight;
             _dialogWindow.Width = data.DialogWidth;
 
+            // Data Context Events
+            if (_dialogDataContext != null)
+                _dialogDataContext.PropertyChanged -= OnDialogDataContextPropertyChanged;
+
             // Data Context (need invalidators during loading)
             _dialogDataContext = data.DataContext;
             _dialogDataContext.PropertyChanged += OnDialogDataContextPropertyChanged;
@@ -273,6 +306,7 @@ namespace AudioStation.Controller
 
                 // Data Context Events
                 _dialogDataContext.PropertyChanged -= OnDialogDataContextPropertyChanged;
+                _dialogDataContext = null;
             }
         }
     }

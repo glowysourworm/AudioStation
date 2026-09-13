@@ -1,7 +1,8 @@
 ﻿using AudioStation.Controller.Interface;
 using AudioStation.Core.Model.Interface;
-using AudioStation.Event;
 using AudioStation.ViewModels.OtherViewModels;
+
+using static AudioStation.Event.DialogEventHandlers;
 
 namespace AudioStation.ViewModels.ComponentViewModels
 {
@@ -100,15 +101,21 @@ namespace AudioStation.ViewModels.ComponentViewModels
             this.MusicBrainzClient = new StatusIconViewModel();
             this.SpotifyClient = new StatusIconViewModel();
         }
-
-        protected override void InitializeImpl(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
+        public override bool CanExecute()
         {
-
+            return true;
         }
-
-        protected override void LoadImpl(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
+        protected override void InitializeWork(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogProgressHandler progressHandler)
         {
-
+        }
+        protected override void LoadWork(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogProgressHandler progressHandler)
+        {
+        }
+        protected override void ExecuteWork(DialogProgressHandler progressHandler)
+        {
+        }
+        protected override void ResetWork(DialogProgressHandler progressHandler)
+        {
         }
     }
 }

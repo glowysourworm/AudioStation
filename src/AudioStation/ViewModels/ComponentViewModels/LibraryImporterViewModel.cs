@@ -139,9 +139,9 @@ namespace AudioStation.ViewModels.ComponentViewModels
             {
                 Name = "New Workflow"
             };
-            this.ServiceWorkflow = new LibraryImporterServiceWorkflowViewModel(eventAggregator, this.Workflow);
-            this.StagingWorkflow = new LibraryImporterStagingWorkflowViewModel(eventAggregator, this.Workflow);
-            this.CompletionWorkflow = new LibraryImporterCompletionWorkflowViewModel(eventAggregator, audioStationMapper);
+            this.ServiceWorkflow = new LibraryImporterServiceWorkflowViewModel(this.Workflow);
+            this.StagingWorkflow = new LibraryImporterStagingWorkflowViewModel(dialogController, this.Workflow);
+            this.CompletionWorkflow = new LibraryImporterCompletionWorkflowViewModel();
 
             this.SavedWorkflows = new ObservableCollection<LibraryImporterWorkflowViewModel>();
 
@@ -164,10 +164,13 @@ namespace AudioStation.ViewModels.ComponentViewModels
 
         private void OnImportStepUpdate(object? sender, PropertyChangedEventArgs e)
         {
-            this.Loading = this.ServiceWorkflow.Loading || this.StagingWorkflow.Loading || this.CompletionWorkflow.Loading;
+            //this.Loading = this.ServiceWorkflow.Working || this.StagingWorkflow.Working || this.CompletionWorkflow.Working;
         }
-
-        protected override void InitializeImpl(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogProgressHandler progressHandler)
+        public override bool CanExecute()
+        {
+            return false;
+        }
+        protected override void InitializeWork(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogProgressHandler progressHandler)
         {
             // TODO: Try making a new couple of pattern methods for components (Save, and Execute)
             _libraryLoaderService = audioStationController.LibraryLoaderService;
@@ -177,9 +180,6 @@ namespace AudioStation.ViewModels.ComponentViewModels
             this.CompletionWorkflow.StagedFiles = this.StagingWorkflow.StagedFiles;
 
             // Sub-component(s)
-            this.ServiceWorkflow.Initialize(configuration, audioStationController, progressHandler);
-            this.StagingWorkflow.Initialize(configuration, audioStationController, progressHandler);
-            this.CompletionWorkflow.Initialize(configuration, audioStationController, progressHandler);
             this.Configuration = audioStationController.ComponentController.GetComponent<AudioStationConfigurationViewModel>();
             this.Encoders = audioStationController.ComponentController.GetComponent<MainViewModel>().Encoders;
 
@@ -210,7 +210,7 @@ namespace AudioStation.ViewModels.ComponentViewModels
             //// Set View Model
             //this.SourceDirectory.ItemPropertyChanged += SourceDirectory_ItemPropertyChanged;
         }
-        protected override void LoadImpl(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
+        protected override void LoadWork(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
         {
             if (this.Workflow.Configuration.ImportDirectory == null)
                 return;
@@ -220,19 +220,14 @@ namespace AudioStation.ViewModels.ComponentViewModels
             this.StagingWorkflow.Load(configuration, audioStationController, progressHandler);
             this.CompletionWorkflow.Load(configuration, audioStationController, progressHandler);
         }
-        private bool CanUnstageFiles()
+        protected override void ExecuteWork(DialogProgressHandler progressHandler)
         {
-            // TODO: Performance
-            //return this.StagedFiles.Any();
-            return false;
+
         }
-        private bool CanStageFiles()
+
+        protected override void ResetWork(DialogProgressHandler progressHandler)
         {
-            return false;
-            // TODO: Performance
-            //return this.SourceDirectory
-            //           .RecursiveWhere(x => x.IsSelected)
-            //           .Any();
+
         }
         private bool CanEditTag()
         {

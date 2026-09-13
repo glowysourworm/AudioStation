@@ -34,26 +34,38 @@ namespace AudioStation.ViewModels.ComponentViewModels
             this.LoaderTasks = new ObservableCollection<LibraryLoaderWorkerViewModelBase>();
         }
 
-        protected override void InitializeImpl(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
+        public override bool CanExecute()
+        {
+            return this.LoaderTasks != null && this.LoaderTasks.All(x => x.CanExecute());
+        }
+
+        protected override void InitializeWork(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
         {
             var libraryLoaderService = audioStationController.ServiceController.GetService<ILibraryLoaderService>();
             var libraryLoaderWorkerService = audioStationController.ServiceController.GetService<ILibraryLoaderWorkerService>();
             var audioStationDbClient = audioStationController.ServiceController.GetDataService<IAudioStationDbClient>();
 
-            this.LoaderTasks.Add(new LibraryLoaderAcoustIDViewModel(_eventAggregator, libraryLoaderWorkerService));
-            this.LoaderTasks.Add(new LibraryLoaderFileCheckerViewModel(_eventAggregator, libraryLoaderWorkerService, audioStationDbClient));
-            this.LoaderTasks.Add(new LibraryLoaderFileConverterViewModel(_audioConverter, _eventAggregator, libraryLoaderWorkerService));
-            this.LoaderTasks.Add(new LibraryLoaderMusicBrainzBasicViewModel(_eventAggregator, libraryLoaderWorkerService, audioStationDbClient));
-            this.LoaderTasks.Add(new LibraryLoaderMusicBrainzAlbumArtViewModel(_eventAggregator, libraryLoaderWorkerService, audioStationDbClient));
-
-            foreach (var task in this.LoaderTasks)
-                task.Initialize(configuration, audioStationController, progressHandler);
+            this.LoaderTasks.Add(new LibraryLoaderAcoustIDViewModel());
+            this.LoaderTasks.Add(new LibraryLoaderFileCheckerViewModel());
+            this.LoaderTasks.Add(new LibraryLoaderFileConverterViewModel());
+            this.LoaderTasks.Add(new LibraryLoaderMusicBrainzBasicViewModel());
+            this.LoaderTasks.Add(new LibraryLoaderMusicBrainzAlbumArtViewModel());
         }
 
-        protected override void LoadImpl(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
+        protected override void LoadWork(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
         {
             foreach (var task in this.LoaderTasks)
                 task.Load(configuration, audioStationController, progressHandler);
+        }
+
+        protected override void ExecuteWork(DialogEventHandlers.DialogProgressHandler progressHandler)
+        {
+
+        }
+
+        protected override void ResetWork(DialogEventHandlers.DialogProgressHandler progressHandler)
+        {
+
         }
     }
 }

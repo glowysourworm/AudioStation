@@ -7,11 +7,10 @@ using AudioStation.Core.Model;
 using AudioStation.Core.Model.Interface;
 using AudioStation.Core.Utility.FileUtility;
 using AudioStation.Event;
-using AudioStation.Service.Interface;
 using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Load;
 using AudioStation.ViewModels.ComponentViewModels.LoadViewModels;
 
-using SimpleWpf.IocFramework.EventAggregation;
+using SimpleWpf.IocFramework.Application;
 using SimpleWpf.Native.IO;
 using SimpleWpf.SimpleCollections.Collection;
 
@@ -19,29 +18,32 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Wo
 {
     public class LibraryLoaderFileConverterViewModel : LibraryLoaderWorkerViewModelBase
     {
-        private readonly IAudioConverter _audioConverter;
-
         // Use for extra performance
         SimpleDictionary<string, string> _workItemDict;
 
-        public LibraryLoaderFileConverterViewModel(
-                IAudioConverter audioConverter,
-                IIocEventAggregator eventAggregator,
-                ILibraryLoaderWorkerService libraryLoaderService)
-            : base("File Converter", "Verifies integrity of files related to Audio Station's library", eventAggregator, libraryLoaderService)
+        public LibraryLoaderFileConverterViewModel()
+            : base("File Converter", "Verifies integrity of files related to Audio Station's library", -1, false)
         {
-            _audioConverter = audioConverter;
-
             _workItemDict = new SimpleDictionary<string, string>();
         }
 
-        protected override void InitializeImpl(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
+        public LibraryLoaderFileConverterViewModel(int workflowId)
+            : base("File Converter", "Verifies integrity of files related to Audio Station's library", workflowId, true)
         {
+            _workItemDict = new SimpleDictionary<string, string>();
+        }
+
+        public override void Load(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
+        {
+            base.Load(configuration, audioStationController, progressHandler);
+
             try
             {
+                var audioConverter = IocContainer.Get<IAudioConverter>();
+
                 _workItemDict.Clear();
 
-                foreach (var format in _audioConverter.GetSupportedFormats())
+                foreach (var format in audioConverter.GetSupportedFormats())
                 {
                     foreach (var libraryDirectory in configuration.LibraryDirectories.Union(new LibraryDirectory[]
                     {
@@ -60,9 +62,12 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Wo
                         using (var nativeIO = new FastDirectoryIO(libraryDirectory.Directory, format.Filter, SearchOption.AllDirectories))
                         {
                             var audioFiles = nativeIO.GetFiles().Where(x => !x.IsDirectory).ToList();
+                            var counter = 0;
 
                             foreach (var file in audioFiles)
                             {
+                                progressHandler(audioFiles.Count, counter++, 0, "Loading: " + file.FullPath);
+
                                 // CORRUPT FILES! (This will go to file maintainence)
                                 if (file.Size <= 0)
                                     continue;
@@ -100,16 +105,12 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Wo
                     }
                 }
 
+                this.Loaded = true;
             }
             catch (Exception ex)
             {
                 throw new Exception("Error initializing Library Loader component:  " + ex.Message);
             }
-        }
-
-        protected override void LoadImpl(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
-        {
-
         }
     }
 }

@@ -4,36 +4,41 @@ using AudioStation.Core.Database.AudioStationDatabase;
 using AudioStation.Core.Database.AudioStationDatabase.Interface;
 using AudioStation.Core.Model.Interface;
 using AudioStation.Event;
-using AudioStation.Service.Interface;
 using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Load;
 using AudioStation.ViewModels.ComponentViewModels.LoadViewModels;
-
-using SimpleWpf.IocFramework.EventAggregation;
 
 namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Worker
 {
     public class LibraryLoaderFileCheckerViewModel : LibraryLoaderWorkerViewModelBase
     {
-        private readonly IAudioStationDbClient _audioStationDbClient;
-
-        public LibraryLoaderFileCheckerViewModel(
-                IIocEventAggregator eventAggregator,
-                ILibraryLoaderWorkerService libraryLoaderService,
-                IAudioStationDbClient audioStationDbClient)
-            : base("File Checker", "Verifies integrity of files related to Audio Station's library", eventAggregator, libraryLoaderService)
+        public LibraryLoaderFileCheckerViewModel()
+            : base("File Checker", "Verifies integrity of files related to Audio Station's library", -1, false)
         {
-            _audioStationDbClient = audioStationDbClient;
+
         }
-
-        protected override void InitializeImpl(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
+        public LibraryLoaderFileCheckerViewModel(int workflowId)
+            : base("File Checker", "Verifies integrity of files related to Audio Station's library", workflowId, true)
         {
+
+        }
+        public override void Load(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
+        {
+            base.Load(configuration, audioStationController, progressHandler);
+
             try
             {
-                var results = _audioStationDbClient.GetEntities<FileReference>();
+                var results = audioStationController.ServiceController
+                                                    .GetDataService<IAudioStationDbClient>()
+                                                    .GetEntities<FileReference>();
+                var counter = 0;
+
+
 
                 // TODO: Create an entity set load with progress updater (for several hundred at once)
                 foreach (var result in results)
                 {
+                    progressHandler(results.Count(), counter++, 0, "Loading:  " + result.FileName);
+
                     this.WorkItems.Add(new LibraryWorkItemViewModel()
                     {
                         HasErrors = false,
@@ -55,16 +60,13 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Wo
                         Progress = 0
                     });
                 }
+
+                this.Loaded = true;
             }
             catch (Exception ex)
             {
                 throw new Exception("Error initializing Library Loader component:  " + ex.Message);
             }
-        }
-
-        protected override void LoadImpl(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
-        {
-
         }
     }
 }

@@ -6,7 +6,6 @@ using AudioStation.Core.Database.AudioStationDatabase.Interface;
 using AudioStation.Core.Service.Interface;
 using AudioStation.Core.Service.Vendor.Bandcamp.Interface;
 using AudioStation.Event;
-using AudioStation.Event.DialogEvents;
 using AudioStation.Service.Interface;
 using AudioStation.ViewModels;
 using AudioStation.ViewModels.ComponentViewModels;
@@ -14,7 +13,6 @@ using AudioStation.ViewModels.Vendor;
 
 using SimpleWpf.IocFramework.Application.Attribute;
 using SimpleWpf.IocFramework.EventAggregation;
-using SimpleWpf.Utilities;
 
 using static AudioStation.Event.DialogEventHandlers;
 
@@ -184,34 +182,11 @@ namespace AudioStation.Controller
             var component = GetComponent<T>();
 
             // Dialog (Loading)
-            var eventData = DialogEventData.ShowLoadingWithProgress("Loading " + component.DisplayName);
-            var dialogViewModel = eventData.DataContext as DialogLoadingViewModel;
-
-            if (dialogViewModel == null)
-                throw new InvalidCastException("Dialog loading view model cast in not correct");
-
-            // Dialog Update Func
-            var dialogUpdater = new DialogEventHandlers.DialogProgressHandler((taskCount, tasksComplete, tasksError, message) =>
+            _dialogController.ShowLoading("Loading " + component.DisplayName, progressHandler =>
             {
-                if (BasicHelpers.IsDispatcher() == ApplicationIsDispatcherResult.False)
-                    throw new Exception("Initialization of the library must be on the main dispatcher thread");
-
-                dialogViewModel.Progress = tasksComplete / (double)taskCount;
-                dialogViewModel.Message = message;
-
-                // Dispatcher Render: This seems to be enough to force rendering.
-                //
-                //Dispatcher.CurrentDispatcher.Invoke(() => { }, DispatcherPriority.Render);
+                // Load Component
+                component.Load(_configuration, _audioStationController, progressHandler);
             });
-
-            // Dialog Show
-            _eventAggregator.GetEvent<DialogEvent>().Publish(eventData);
-
-            // Load Component
-            component.Load(_configuration, _audioStationController, dialogUpdater);
-
-            // Dialog Hide
-            _eventAggregator.GetEvent<DialogEvent>().Publish(DialogEventData.Dismiss());
         }
 
         public Task LoadComponentAsync<T>() where T : ComponentViewModelBase
