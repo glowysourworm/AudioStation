@@ -25,7 +25,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
             return WORK_STEPS;
         }
 
-        protected override bool Work(int step, ref string message)
+        protected override LibraryWorkerStepResult Work(int step)
         {
             // Steps: 
             //
@@ -35,13 +35,13 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
             switch (step)
             {
                 case 1:
-                    return WorkFileConvert(ref message);
+                    return WorkFileConvert(step);
                 default:
                     throw new Exception("Unhandled work step");
             }
         }
 
-        private bool WorkFileConvert(ref string message)
+        private LibraryWorkerStepResult WorkFileConvert(int stepNumber)
         {
             try
             {
@@ -50,14 +50,11 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
 
                 _audioConverter.ConvertTo(load.FileIn, load.FileOut, load.EncoderInfo);
 
-                message = "File conversion successful";
-
-                return true;
+                return LibraryWorkerStepResult.Success(stepNumber, "File conversion successful:  " + load.FileOut);
             }
             catch (Exception ex)
             {
-                message = "File Reference check error: " + ex.Message;
-                return false;
+                return LibraryWorkerStepResult.Success(stepNumber, "File Reference check error: " + ex.Message);
             }
         }
     }

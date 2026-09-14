@@ -44,11 +44,28 @@
 
             IncrementWorkStep();
 
-            var message = string.Empty;
-            var success = Work(_workCurrentStep, ref message);
-            this.Output.AddResultStep(success, message);
+            var result = Work(_workCurrentStep);
+            this.Output.AddResultStep(result);
 
-            return success;
+            switch (result.Result)
+            {
+                case LibraryWorkerResultType.Success:
+                    return result.Completed;
+
+                case LibraryWorkerResultType.Failure:
+                    return false;
+
+                case LibraryWorkerResultType.DataError:
+                    return result.Completed;
+
+                case LibraryWorkerResultType.ServiceNoResult:
+                    return result.Completed;
+
+                case LibraryWorkerResultType.ServiceFailure:
+                    return result.Completed;
+                default:
+                    throw new Exception("Unhandled worker result type");
+            }
         }
 
         protected void Log(string message)
@@ -60,7 +77,7 @@
             this.Output.Log(string.Format(message, formatParameters));
         }
 
-        protected abstract bool Work(int stepNumber, ref string message);
+        protected abstract LibraryWorkerStepResult Work(int stepNumber);
 
         private void IncrementWorkStep()
         {

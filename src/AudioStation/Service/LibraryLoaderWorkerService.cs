@@ -129,6 +129,8 @@ namespace AudioStation.Service
             var viewModel = new LibraryWorkItemViewModel()
             {
                 Id = sender.Id,
+                LastErrorType = sender.ResultStepsCompleted.LastOrDefault()?.Result ?? LibraryWorkerResultType.Success,
+                LastMessage = sender.ResultStepsCompleted.LastOrDefault()?.Message ?? string.Empty,
                 LoadType = sender.Type,
                 LogMessages = new ObservableCollection<LogMessageViewModel>(sender.Log.Select(x => new LogMessageViewModel()
                 {
@@ -143,9 +145,9 @@ namespace AudioStation.Service
                     Complete = x.Completed,
                     Message = x.Message,
                     StepNumber = x.StepNumber,
-                    Success = x.Result
+                    Result = x.Result
                 })),
-                HasErrors = !sender.ResultStepsCompleted.Any() ? false : sender.ResultStepsCompleted.Any(x => !x.Result),
+                HasErrors = !sender.ResultStepsCompleted.Any() ? false : sender.ResultStepsCompleted.Any(x => !x.Completed),
                 InProgress = true,
                 Progress = !sender.ResultStepsCompleted.Any() ? 0 : (sender.ResultStepsCompleted.Count() / (double)sender.ResultStepCount)
             };
@@ -158,6 +160,8 @@ namespace AudioStation.Service
             var viewModel = new LibraryWorkItemViewModel()
             {
                 Id = sender.GetId(),
+                LastErrorType = sender.GetOutputItem().GetResults().LastOrDefault()?.Result ?? LibraryWorkerResultType.Success,
+                LastMessage = sender.GetOutputItem().GetResults().LastOrDefault()?.Message ?? string.Empty,
                 LoadType = sender.GetLoadType(),
                 LogMessages = new ObservableCollection<LogMessageViewModel>(sender.GetOutputItem().GetLog().Select(x => new LogMessageViewModel()
                 {
@@ -172,9 +176,9 @@ namespace AudioStation.Service
                     Complete = x.Completed,
                     Message = x.Message,
                     StepNumber = x.StepNumber,
-                    Success = x.Result
+                    Result = x.Result
                 })),
-                HasErrors = !sender.GetOutputItem().GetResults().Any() ? false : sender.GetOutputItem().GetResults().Any(x => !x.Result),
+                HasErrors = !sender.GetOutputItem().GetResults().Any() ? false : sender.GetOutputItem().GetResults().Any(x => !x.Completed),
                 InProgress = false,
                 Progress = 1
             };

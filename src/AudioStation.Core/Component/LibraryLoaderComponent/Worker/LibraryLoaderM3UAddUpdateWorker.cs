@@ -15,7 +15,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
             return 1;
         }
 
-        protected override bool Work(int step, ref string message)
+        protected override LibraryWorkerStepResult Work(int step)
         {
             var streams = LoadRadioEntry(this.Load.Get<LibraryLoaderFileLoad>().File);
 
@@ -32,9 +32,9 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
                 //ApplicationHelpers.LogSeparate(workItem.GetId(), "M3U stream file load success: Streams={0}, File={1}", LogMessageType.LibraryLoaderWorkItem, LogLevel.Information, streams.Count, file);
             }
 
-            this.Output.AddResultStep(streams != null && streams.Count > 0, "Radio Import Complete");
+            //this.Output.AddResultStep(streams != null && streams.Count > 0, "Radio Import Complete");
 
-            return true;
+            return LibraryWorkerStepResult.Failure(step, "");
         }
 
         public override int GetNumberOfWorkSteps()

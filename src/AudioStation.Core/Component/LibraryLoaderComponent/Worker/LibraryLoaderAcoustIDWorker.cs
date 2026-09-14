@@ -30,7 +30,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
             return WORK_STEPS;
         }
 
-        protected override bool Work(int step, ref string message)
+        protected override LibraryWorkerStepResult Work(int step)
         {
             // Steps:
             //
@@ -42,55 +42,68 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
             {
                 case 1:
                 {
-                    return WorkAcoustIDStep(ref message);
+                    return WorkAcoustIDStep(step);
                 }
                 case 2:
                 {
-                    return WorkDbStep(ref message);
+                    return WorkDbStep(step);
                 }
                 default:
                     throw new Exception("Unhandled work step");
             }
         }
 
-        private bool WorkAcoustIDStep(ref string message)
+        private LibraryWorkerStepResult WorkAcoustIDStep(int stepNumber)
         {
             try
             {
-                var resultSet = _acoustIDClient.IdentifyFingerprint(this.Load.Get<LibraryLoaderFileLoad>().File, ACOUSTID_MIN_SCORE);
+                var output = this.Output.Get<LibraryLoaderEntitySetOutput<AcoustIDLookupResult>>();
+                var load = this.Load.Get<LibraryLoaderFileLoad>();
+
+                var resultSet = _acoustIDClient.IdentifyFingerprint(load.File, ACOUSTID_MIN_SCORE);
 
                 foreach (var result in resultSet)
                 {
                     // Import Workflow
                     result.ImportWorkflowId = this.WorkflowId;
 
-                    this.Output.Get<LibraryLoaderEntitySetOutput<AcoustIDLookupResult>>().Add(result);
+                    output.Add(result);
                 }
 
                 if (!resultSet.Any())
                 {
-                    message = "AcoustID fingerprint service did not find any match";
-                    return false;
+                    // Make a failed result
+                    var result = new AcoustIDLookupResult()
+                    {
+                        FileName = load.File,
+                        Message = "AcoustID fingerprint service did not find any match",
+                        ImportWorkflowId = this.WorkflowId,
+                        Timestamp = DateTime.Now.ToUniversalTime()
+                    };
+
+                    _audioStationDbClient.AddEntity(result);
+
+                    return new LibraryWorkerStepResult()
+                    {
+                        Completed = true,
+                        Message = "AcoustID fingerprint service did not find any match",
+                        StepNumber = stepNumber,
+                        Result = LibraryWorkerResultType.ServiceNoResult
+                    };
                 }
-                else
-                    message = "AcoustID fingerprint service call successful";
 
-
-                return true;
+                return LibraryWorkerStepResult.Success(stepNumber, "AcoustID fingerprint service call successful");
             }
             catch (Exception ex)
             {
-                message = "AcoustID fingerprint service error: " + ex.Message;
-                return false;
+                return LibraryWorkerStepResult.Failure(stepNumber, "AcoustID fingerprint service error: " + ex.Message);
             }
         }
 
-        private bool WorkDbStep(ref string message)
+        private LibraryWorkerStepResult WorkDbStep(int stepNumber)
         {
             try
             {
-                message = string.Empty;
-
                 var updated = 0;
                 var added = 0;
 
@@ -102,7 +115,6 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
                     if (existingEntity != null)
                     {
                         existingEntity.FileName = this.Load.Get<LibraryLoaderFileLoad>().File;
-                        existingEntity.Fingerprint = result.Fingerprint;
                         existingEntity.LookupId = result.LookupId;
                         existingEntity.MusicBrainzRecordingId = result.MusicBrainzRecordingId;
                         existingEntity.Score = result.Score;
@@ -122,14 +134,11 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
                     }
                 }
 
-                message = string.Format("AcoustID results imported to database:  {0} added, {1} updated", added, updated);
-
-                return true;
+                return LibraryWorkerStepResult.Success(stepNumber, string.Format("AcoustID results imported to database:  {0} added, {1} updated", added, updated));
             }
             catch (Exception ex)
             {
-                message = "AcoustID database import error " + ex.Message;
-                return false;
+                return LibraryWorkerStepResult.Failure(stepNumber, "AcoustID database import error " + ex.Message);
             }
         }
     }

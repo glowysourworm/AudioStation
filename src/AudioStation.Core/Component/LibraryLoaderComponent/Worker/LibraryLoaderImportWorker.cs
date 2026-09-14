@@ -58,7 +58,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
             return WORK_STEPS;
         }
 
-        protected override bool Work(int workStep, ref string message)
+        protected override LibraryWorkerStepResult Work(int workStep)
         {
             // Steps: Several small steps to ensure that file operations are tracked
             //
@@ -87,40 +87,40 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
                 //
                 case 1:
                 {
-                    message = "Calculating file / folder paths";
-                    return CalculateFilePaths();
+                    Log("Calculating file / folder paths");
+                    return CalculateFilePaths(workStep);
                 }
                 case 2:
                 {
-                    message = "Validating import records";
-                    return ValidateImportRecords();
+                    Log("Validating import records");
+                    return ValidateImportRecords(workStep);
                 }
                 case 3:
                 {
-                    message = "Copying source file to destination";
-                    return CopySourceToDestination();
+                    Log("Copying source file to destination");
+                    return CopySourceToDestination(workStep);
                 }
                 case 4:
                 {
-                    message = "Embedding tag data to destination file";
-                    return EmbedTagData();
+                    Log("Embedding tag data to destination file");
+                    return EmbedTagData(workStep);
                 }
                 case 5:
                 {
-                    message = "Importing library database records";
-                    return ImportDatabaseRecords();
+                    Log("Importing library database records");
+                    return ImportDatabaseRecords(workStep);
                 }
                 case 6:
                 {
-                    message = "Completing migration...";
-                    return FinishUpMigration();
+                    Log("Completing migration...");
+                    return FinishUpMigration(workStep);
                 }
                 default:
                     throw new Exception("Unhandled LibraryLoaderImportWorker.cs step");
             }
         }
 
-        private bool CalculateFilePaths()
+        private LibraryWorkerStepResult CalculateFilePaths(int stepNumber)
         {
             try
             {
@@ -132,8 +132,13 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
 
                 if (entity == null)
                 {
-                    Log("Database record for tag not found:  Id=" + workLoad.TagSmallId);
-                    return false;
+                    return new LibraryWorkerStepResult()
+                    {
+                        Completed = false,
+                        Message = "Database record for tag not found:  Id=" + workLoad.TagSmallId,
+                        Result = LibraryWorkerResultType.DataError,
+                        StepNumber = stepNumber,
+                    };
                 }
 
                 Log("Validating tag data");
@@ -164,16 +169,15 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
 
                     Log("Calculation complete:  " + _destinationPath);
                 }
+
+                return LibraryWorkerStepResult.Success(stepNumber, "Import file validation successful");
             }
             catch (Exception ex)
             {
-                Log("Error calculating file paths:  " + ex.Message);
-                return false;
+                return LibraryWorkerStepResult.Failure(stepNumber, "Error calculating file paths:  " + ex.Message);
             }
-
-            return true;
         }
-        private bool ValidateImportRecords()
+        private LibraryWorkerStepResult ValidateImportRecords(int stepNumber)
         {
             try
             {
@@ -185,8 +189,13 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
 
                 if (tagData == null)
                 {
-                    Log("Error reading tag data from source file");
-                    return false;
+                    return new LibraryWorkerStepResult()
+                    {
+                        Completed = false,
+                        Message = "Error reading tag data from source file",
+                        Result = LibraryWorkerResultType.DataError,
+                        StepNumber = stepNumber,
+                    };
                 }
 
                 Log("Retrieving database records for tag:  Id=" + workLoad.TagSmallId);
@@ -222,7 +231,13 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
                         Log("ERROR:  Cannot write to destination path:  {0}", _destinationPath);
                         Log("ERROR:  Please check import parameters and re-try");
 
-                        return false;
+                        return new LibraryWorkerStepResult()
+                        {
+                            Completed = false,
+                            Message = "Cannot write to destination path:  " + _destinationPath,
+                            Result = LibraryWorkerResultType.DataError,
+                            StepNumber = stepNumber,
+                        };
                     }
                     else
                         Log("File migration valid based on library settings");
@@ -234,15 +249,14 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
                     Log("File migration (copy / move / delete) not required");
                 }
 
-                return true;
+                return LibraryWorkerStepResult.Success(stepNumber, "Import record validation successful");
             }
             catch (Exception ex)
             {
-                Log("Error validating import records:  " + ex.Message);
-                return false;
+                return LibraryWorkerStepResult.Failure(stepNumber, "Error validating import records:  " + ex.Message);
             }
         }
-        private bool CopySourceToDestination()
+        private LibraryWorkerStepResult CopySourceToDestination(int stepNumber)
         {
             try
             {
@@ -289,15 +303,14 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
                     }
                 }
 
-                return true;
+                return LibraryWorkerStepResult.Success(stepNumber, "Import file migration successful");
             }
             catch (Exception ex)
             {
-                Log("Error trying to copy (source) -> (destination):  " + ex.Message, ex);
-                return false;
+                return LibraryWorkerStepResult.Failure(stepNumber, "Error trying to copy (source) -> (destination):  " + ex.Message);
             }
         }
-        private bool EmbedTagData()
+        private LibraryWorkerStepResult EmbedTagData(int stepNumber)
         {
             try
             {
@@ -307,13 +320,23 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
 
                 if (tagData == null)
                 {
-                    Log("Error retrieving tag information from source file");
-                    return false;
+                    return new LibraryWorkerStepResult()
+                    {
+                        Completed = false,
+                        Message = "Error retrieving tag information from source file",
+                        Result = LibraryWorkerResultType.DataError,
+                        StepNumber = stepNumber,
+                    };
                 }
                 if (tag == null)
                 {
-                    Log("Error retrieving working tag information from database");
-                    return false;
+                    return new LibraryWorkerStepResult()
+                    {
+                        Completed = false,
+                        Message = "Error retrieving working tag information from database",
+                        Result = LibraryWorkerResultType.DataError,
+                        StepNumber = stepNumber,
+                    };
                 }
 
                 //tagData.Album = tag.Album;
@@ -337,7 +360,14 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
                     Log("Tag information is invalid (from destination file):  " + _destinationPath);
                     Log("VALIDATION MESSAGE:  " + validation.ValidationMessage);
                     Log("ERROR:  Please contact Audio Station support (or check file permissions for your directory)");
-                    return false;
+
+                    return new LibraryWorkerStepResult()
+                    {
+                        Completed = false,
+                        Message = "Tag Information Invalid: " + validation.ValidationMessage,
+                        Result = LibraryWorkerResultType.DataError,
+                        StepNumber = stepNumber,
+                    };
                 }
 
                 Log("Embedding tag data from records");
@@ -347,15 +377,14 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
 
                 Log("Tag information saved:  " + _destinationPath);
 
-                return true;
+                return LibraryWorkerStepResult.Success(stepNumber, "Import tag data embedding successful");
             }
             catch (Exception ex)
             {
-                Log("Error embedding tag data:  " + ex.Message, ex);
-                return false;
+                return LibraryWorkerStepResult.Failure(stepNumber, "Error embedding tag data:  " + ex.Message);
             }
         }
-        private bool ImportDatabaseRecords()
+        private LibraryWorkerStepResult ImportDatabaseRecords(int stepNumber)
         {
             try
             {
@@ -364,8 +393,13 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
 
                 if (tag == null)
                 {
-                    Log("Tag database records missing for the import! Please retry after completing your import.");
-                    return false;
+                    return new LibraryWorkerStepResult()
+                    {
+                        Completed = false,
+                        Message = "Tag database records missing for the import!Please retry after completing your import.",
+                        Result = LibraryWorkerResultType.DataError,
+                        StepNumber = stepNumber
+                    };
                 }
 
                 var validation = TagValidator.ValidateTagSmallImport(tag);
@@ -374,7 +408,14 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
                 {
                     Log("Tag information is invalid (from the database record):  " + tag.Id);
                     Log("VALIDATION MESSAGE:  " + validation.ValidationMessage);
-                    return false;
+
+                    return new LibraryWorkerStepResult()
+                    {
+                        Completed = false,
+                        Message = "Tag information invalid: " + validation.ValidationMessage,
+                        Result = LibraryWorkerResultType.DataError,
+                        StepNumber = stepNumber
+                    };
                 }
 
                 var tagMap = _audioStationDbClient.FirstEntity<TagSmallFileReferenceMap>(x => x.TagSmallId == workLoad.TagSmallId);
@@ -570,15 +611,14 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
                 _albumId = album.Id;
                 _trackId = track.Id;
 
-                return true;
+                return LibraryWorkerStepResult.Success(stepNumber, "Import of database records for new track successful");
             }
             catch (Exception ex)
             {
-                Log("Error embedding tag data:  " + ex.Message, ex);
-                return false;
+                return LibraryWorkerStepResult.Failure(stepNumber, "Error embedding tag data:  " + ex.Message);
             }
         }
-        private bool FinishUpMigration()
+        private LibraryWorkerStepResult FinishUpMigration(int stepNumber)
         {
             try
             {
@@ -623,14 +663,11 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
                 Log("Audio Station (TrackGenreMap):                 Id=({0})", _trackGenreMapId);
                 Log("Audio Station (TrackArtistMap):                Id=({0})", _trackArtistMapId);
 
-                Log("Import Process Complete!");
-
-                return true;
+                return LibraryWorkerStepResult.Success(stepNumber, "Import Process Complete!");
             }
             catch (Exception ex)
             {
-                Log("Error finishing up import migration:  " + ex.Message, ex);
-                return false;
+                return LibraryWorkerStepResult.Failure(stepNumber, "Error finishing up import migration:  " + ex.Message);
             }
         }
 

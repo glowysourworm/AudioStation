@@ -261,11 +261,16 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels
                 throw new ArgumentException("Trying to map mis-matching work items");
 
             dest.HasErrors = source.HasErrors;
+
+            dest.Id = source.Id;
             dest.InProgress = source.InProgress;
             dest.IsCompleted = source.IsCompleted;
+            dest.IsWorkflowItem = source.IsWorkflowItem;
+            dest.LastMessage = source.LastMessage;
+            dest.LoadType = source.LoadType;
             dest.LogMessages = source.LogMessages;
-            //dest.Output = source.Output;
             dest.Progress = source.Progress;
+            dest.WorkflowId = source.WorkflowId;
             dest.WorkSteps = source.WorkSteps;
         }
     }

@@ -8,15 +8,12 @@ namespace AudioStation.ViewModels.Vendor.AcoustIDViewModel
     {
         int _id;
         string _fileName;
-        Guid _lookupId;
-        Guid _musicBrainzRecordingId;
-        double _score;
-        string _fingerprint;
+        string _message;
+        Guid? _lookupId;
+        Guid? _musicBrainzRecordingId;
+        double? _score;
         int? _importWorkflowId;
 
-        /// <summary>
-        /// Database reference ID
-        /// </summary>
         public int Id
         {
             get { return _id; }
@@ -27,28 +24,25 @@ namespace AudioStation.ViewModels.Vendor.AcoustIDViewModel
             get { return _fileName; }
             set { this.RaiseAndSetIfChanged(ref _fileName, value); }
         }
-        /// <summary>
-        /// AcoustID's lookup record
-        /// </summary>
-        public Guid LookupId
+        public string Message
+        {
+            get { return _message; }
+            set { this.RaiseAndSetIfChanged(ref _message, value); }
+        }
+        public Guid? LookupId
         {
             get { return _lookupId; }
             set { this.RaiseAndSetIfChanged(ref _lookupId, value); }
         }
-        public Guid MusicBrainzRecordingId
+        public Guid? MusicBrainzRecordingId
         {
             get { return _musicBrainzRecordingId; }
             set { this.RaiseAndSetIfChanged(ref _musicBrainzRecordingId, value); }
         }
-        public double Score
+        public double? Score
         {
             get { return _score; }
             set { this.RaiseAndSetIfChanged(ref _score, value); }
-        }
-        public string Fingerprint
-        {
-            get { return _fingerprint; }
-            set { this.RaiseAndSetIfChanged(ref _fingerprint, value); }
         }
         public int? ImportWorkflowId
         {
@@ -60,9 +54,8 @@ namespace AudioStation.ViewModels.Vendor.AcoustIDViewModel
         public AcoustIDLookupResultViewModel()
         {
             this.FileName = string.Empty;
-            this.Fingerprint = string.Empty;
+            this.Message = string.Empty;
             this.LookupId = Guid.Empty;
-            this.Fingerprint = string.Empty;
             this.MusicBrainzRecordingId = Guid.Empty;
             this.ImportWorkflowId = null;
         }

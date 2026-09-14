@@ -5,7 +5,7 @@
 -- Dumped from database version 17.4
 -- Dumped by pg_dump version 17.4
 
--- Started on 2026-09-09 21:56:57
+-- Started on 2026-09-14 13:20:13
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -30,12 +30,13 @@ SET default_table_access_method = heap;
 
 CREATE TABLE public."AcoustIDLookupResult" (
     "Id" integer NOT NULL,
-    "LookupId" uuid NOT NULL,
-    "MusicBrainzRecordingId" uuid NOT NULL,
-    "Score" double precision NOT NULL,
-    "Fingerprint" character varying NOT NULL,
+    "LookupId" uuid,
+    "MusicBrainzRecordingId" uuid,
+    "Score" double precision,
     "FileName" character varying NOT NULL,
-    "ImportWorkflowId" integer
+    "ImportWorkflowId" integer,
+    "Message" character varying NOT NULL,
+    "Timestamp" timestamp with time zone
 );
 
 
@@ -939,7 +940,7 @@ ALTER TABLE ONLY public."TrackGenreMap"
     ADD CONSTRAINT "Track_ForeignKey" FOREIGN KEY ("TrackId") REFERENCES public."Track"("Id");
 
 
--- Completed on 2026-09-09 21:56:57
+-- Completed on 2026-09-14 13:20:13
 
 --
 -- PostgreSQL database dump complete

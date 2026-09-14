@@ -39,7 +39,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
             return WORK_STEPS;
         }
 
-        protected override bool Work(int stepNumber, ref string message)
+        protected override LibraryWorkerStepResult Work(int stepNumber)
         {
             // Procedure: The GUID should be the Music Brainz IRecording.Id from the Vendor <-> TagSmall map
             //
@@ -50,15 +50,15 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
             switch (stepNumber)
             {
                 case 1:
-                    return WorkArtwork(FileTypes.FrontCover, ref message);
+                    return WorkArtwork(FileTypes.FrontCover, stepNumber);
                 case 2:
-                    return WorkArtwork(FileTypes.BackCover, ref message);
+                    return WorkArtwork(FileTypes.BackCover, stepNumber);
                 default:
                     throw new Exception("Unhandled work step");
             }
         }
 
-        private bool WorkArtwork(FileTypes fileType, ref string message)
+        private LibraryWorkerStepResult WorkArtwork(FileTypes fileType, int stepNumber)
         {
             try
             {
@@ -67,8 +67,13 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
 
                 if (vendorMap.Entity.MusicBrainzRecordingId == null)
                 {
-                    message = "Invalid or missing Music Brainz Recording Id";
-                    return false;
+                    return new LibraryWorkerStepResult()
+                    {
+                        Completed = false,
+                        Message = "Invalid or missing Music Brainz Recording Id",
+                        StepNumber = stepNumber,
+                        Result = LibraryWorkerResultType.DataError
+                    };
                 }
 
                 Log("Music Brainz album art lookup started:  " + vendorMap.Entity.MusicBrainzRecordingId);
@@ -94,7 +99,15 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
                 Log(response.Message);
 
                 if (!response.Success)
-                    return false;
+                {
+                    return new LibraryWorkerStepResult()
+                    {
+                        Completed = false,
+                        Message = response.Message,
+                        StepNumber = stepNumber,
+                        Result = LibraryWorkerResultType.ServiceFailure
+                    };
+                }
 
                 var pictureInfo = (response.Payload as ArtworkPayload).GetPayload();
 
@@ -166,18 +179,20 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
 
                 else
                 {
-                    Log("Music Brainz client lookup error:  " + vendorMap.Entity.MusicBrainzRecordingId);
-                    return false;
+                    return new LibraryWorkerStepResult()
+                    {
+                        Completed = false,
+                        Message = "Music Brainz client lookup error:  " + vendorMap.Entity.MusicBrainzRecordingId,
+                        StepNumber = stepNumber,
+                        Result = LibraryWorkerResultType.DataError
+                    };
                 }
 
-                message = "Music Brainz Album Art lookup successful";
-
-                return true;
+                return LibraryWorkerStepResult.Success(stepNumber, "Music Brainz Album Art lookup successful");
             }
             catch (Exception ex)
             {
-                message = "Music Brainz service error: " + ex.Message;
-                return false;
+                return LibraryWorkerStepResult.Failure(stepNumber, "Error getting album art: " + ex.Message);
             }
         }
     }

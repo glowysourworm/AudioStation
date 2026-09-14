@@ -44,7 +44,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
             return WORK_STEPS;
         }
 
-        protected override bool Work(int step, ref string message)
+        protected override LibraryWorkerStepResult Work(int step)
         {
             // Steps: (AcoustID was used to get MusicBrainz IRecording)
             //
@@ -56,15 +56,15 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
             switch (step)
             {
                 case 1:
-                    return WorkMusicBrainzStep(ref message);
+                    return WorkMusicBrainzStep(step);
                 case 2:
-                    return WorkDbStep(ref message);
+                    return WorkDbStep(step);
                 default:
                     throw new Exception("Unhandled work step");
             }
         }
 
-        private bool WorkMusicBrainzStep(ref string message)
+        private LibraryWorkerStepResult WorkMusicBrainzStep(int stepNumber)
         {
             try
             {
@@ -72,54 +72,67 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
 
                 foreach (var entity in load.EntitySet)
                 {
-                    Log("Music Brainz client lookup started:  " + entity.FileName);
-
-                    var response = _musicBrainzClient.ProcessRequest(new AudioStationTagServiceRequest(AudioStationTagRequestType.TagSmall, entity.MusicBrainzRecordingId));
-                    var result = (response.Payload as TagSmallPayload).Data;
-                    var validation = TagValidator.ValidateTagSmallImport(result);
-
-                    if (response.Success && validation.IsValid)
+                    // Valid Entities Only (from AcoustID lookup)
+                    if (entity.MusicBrainzRecordingId != null)
                     {
-                        var tagSmall = _audioStationMapper.Map<ITagSmall, TagSmall>(result);
 
-                        // Import Workflow
-                        tagSmall.ImportWorkflowId = this.WorkflowId;
+                        Log("Music Brainz client lookup started:  " + entity.FileName);
 
-                        this.Output.Get<LibraryLoaderEntitySetOutput<TagSmall>>().Add(tagSmall);
+                        var response = _musicBrainzClient.ProcessRequest(new AudioStationTagServiceRequest(AudioStationTagRequestType.TagSmall, (Guid)entity.MusicBrainzRecordingId));
+                        var result = (response.Payload as TagSmallPayload).Data;
+                        var validation = TagValidator.ValidateTagSmallImport(result);
 
-                        Log("Music Brainz client lookup finished (valid):  " + entity.FileName);
-                    }
+                        if (response.Success && validation.IsValid)
+                        {
+                            var tagSmall = _audioStationMapper.Map<ITagSmall, TagSmall>(result);
 
-                    else if (!validation.IsValid)
-                    {
-                        Log("Music Brainz client lookup skipped (invalid):  " + entity.FileName);
-                        Log("Validation Message:  " + validation.ValidationMessage);
-                        return false;
-                    }
+                            // Import Workflow
+                            tagSmall.ImportWorkflowId = this.WorkflowId;
 
-                    else
-                    {
-                        Log("Music Brainz client lookup error:  " + entity.FileName);
-                        return false;
+                            this.Output.Get<LibraryLoaderEntitySetOutput<TagSmall>>().Add(tagSmall);
+
+                            Log("Music Brainz client lookup finished (valid):  " + entity.FileName);
+                        }
+
+                        else if (!validation.IsValid)
+                        {
+                            Log("Music Brainz client lookup skipped (invalid):  " + entity.FileName);
+                            Log("Validation Message:  " + validation.ValidationMessage);
+
+                            return new LibraryWorkerStepResult()
+                            {
+                                Completed = false,
+                                Message = "Music Brainz lookup invalid: " + validation.ValidationMessage,
+                                StepNumber = stepNumber,
+                                Result = LibraryWorkerResultType.DataError
+                            };
+                        }
+
+                        else
+                        {
+                            return new LibraryWorkerStepResult()
+                            {
+                                Completed = false,
+                                Message = "Music Brainz client lookup error:  " + entity.FileName,
+                                StepNumber = stepNumber,
+                                Result = LibraryWorkerResultType.ServiceFailure
+                            };
+                        }
                     }
                 }
 
-                message = "Music Brainz service successful";
-                return true;
+                return LibraryWorkerStepResult.Success(stepNumber, "Music Brainz service successful");
             }
             catch (Exception ex)
             {
-                message = "Music Brainz service error: " + ex.Message;
-                return false;
+                return LibraryWorkerStepResult.Failure(stepNumber, "Error retrieving Music Brainz (basic) information: " + ex.Message);
             }
         }
 
-        private bool WorkDbStep(ref string message)
+        private LibraryWorkerStepResult WorkDbStep(int stepNumber)
         {
             try
             {
-                message = string.Empty;
-
                 var updated = 0;
                 var added = 0;
                 var index = 0;
@@ -129,8 +142,13 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
 
                 if (vendor == null)
                 {
-                    message = "Failed to find 'Music Brainz' vendor in database. Please ensure that this vendor has been added to your configuration";
-                    return false;
+                    return new LibraryWorkerStepResult()
+                    {
+                        Completed = false,
+                        Message = "Failed to find 'Music Brainz' vendor in database. Please ensure that this vendor has been added to your configuration",
+                        StepNumber = stepNumber,
+                        Result = LibraryWorkerResultType.Failure
+                    };
                 }
 
                 foreach (var result in this.Output.Get<LibraryLoaderEntitySetOutput<TagSmall>>().Entities)
@@ -188,14 +206,11 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
                     Log("Import Music Brainz result to database successful:  " + result.Title);
                 }
 
-                message = string.Format("Music Brainz results imported to database:  {0} added, {1} updated", added, updated);
-
-                return true;
+                return LibraryWorkerStepResult.Success(stepNumber, string.Format("Music Brainz results imported to database:  {0} added, {1} updated", added, updated));
             }
             catch (Exception ex)
             {
-                message = "Music Brainz database import error " + ex.Message;
-                return false;
+                return LibraryWorkerStepResult.Failure(stepNumber, "Error importing Music Brainz (basic) data: " + ex.Message);
             }
         }
     }

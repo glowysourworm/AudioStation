@@ -1,4 +1,6 @@
-﻿using SimpleWpf.UI.ViewModel;
+﻿using AudioStation.Core.Component.LibraryLoaderComponent;
+
+using SimpleWpf.UI.ViewModel;
 
 namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels
 {
@@ -6,7 +8,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels
     {
         int _stepNumber;
         string _message;
-        bool _success;
+        LibraryWorkerResultType _result;
         bool _complete;
 
         public int StepNumber
@@ -19,10 +21,10 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels
             get { return _message; }
             set { this.RaiseAndSetIfChanged(ref _message, value); }
         }
-        public bool Success
+        public LibraryWorkerResultType Result
         {
-            get { return _success; }
-            set { this.RaiseAndSetIfChanged(ref _success, value); }
+            get { return _result; }
+            set { this.RaiseAndSetIfChanged(ref _result, value); }
         }
         public bool Complete
         {

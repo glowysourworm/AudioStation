@@ -16,12 +16,13 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels
         LibraryLoadType _loadType;
         ObservableCollection<LibraryLoaderWorkStepViewModel> _workSteps;
         ObservableCollection<LogMessageViewModel> _logMessages;
+        string _lastMessage;
         double _progress;
+        bool _isWorkflowItem;
         bool _inProgress;
         bool _isCompleted;
         bool _hasErrors;
-        bool _isWorkflowItem;
-
+        LibraryWorkerResultType _lastErrorType;
 
         public int Id
         {
@@ -85,11 +86,13 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels
         }
         public string LastMessage
         {
-            get { return _logMessages.LastOrDefault()?.Message; }
+            get { return _lastMessage; }
+            set { this.RaiseAndSetIfChanged(ref _lastMessage, value); }
         }
-        public DateTime LastMessageTimestamp
+        public LibraryWorkerResultType LastErrorType
         {
-            get { return _logMessages.LastOrDefault()?.Timestamp ?? DateTime.MinValue; }
+            get { return _lastErrorType; }
+            set { this.RaiseAndSetIfChanged(ref _lastErrorType, value); }
         }
         public string DisplayName
         {
@@ -132,6 +135,8 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels
             this.WorkSteps = new ObservableCollection<LibraryLoaderWorkStepViewModel>();
             this.LogMessages = new ObservableCollection<LogMessageViewModel>();
             this.Progress = 0;
+            this.Load = new LibraryLoaderLoadViewModel();
+            this.Output = new LibraryLoaderOutputViewModel();
         }
 
         public override string ToString()

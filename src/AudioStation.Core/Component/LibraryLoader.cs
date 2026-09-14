@@ -35,7 +35,6 @@ namespace AudioStation.Core.Component
 
         private Queue<LibraryLoaderWorkItem> _workQueue;
         private List<LibraryLoaderWorkItem> _workItemsWorking;
-        private List<LibraryLoaderWorkItem> _workItemHistory;
         private List<LibraryWorkerThreadBase> _workerThreads;
 
         // We're going to keep a history of the work items. An ID counter will supply id's to the
@@ -63,7 +62,6 @@ namespace AudioStation.Core.Component
 
             _workQueue = new Queue<LibraryLoaderWorkItem>();
             _workItemsWorking = new List<LibraryLoaderWorkItem>();
-            _workItemHistory = new List<LibraryLoaderWorkItem>();
             _workerThreads = new List<LibraryWorkerThreadBase>();
 
             _workItemIdCounter = 0;
@@ -282,7 +280,6 @@ namespace AudioStation.Core.Component
 
             // Add work item to the history
             _workItemsWorking.Remove(workItem);
-            _workItemHistory.Add(workItem);
 
             // Worker has reported complete. Go ahead and wait for a join.
             worker.Stop();

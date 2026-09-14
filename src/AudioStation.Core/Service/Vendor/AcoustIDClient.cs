@@ -94,10 +94,11 @@ namespace AudioStation.Core.Service.Vendor
                                        results.Add(new AcoustIDLookupResult()
                                        {
                                            FileName = fileName,
-                                           Fingerprint = fingerPrint,
+                                           Message = "AcoustID service lookup successful: " + recording.Title,
                                            LookupId = new Guid(x.Id),
                                            MusicBrainzRecordingId = new Guid(recording.Id),
-                                           Score = x.Score
+                                           Score = x.Score,
+                                           Timestamp = DateTime.Now.ToUniversalTime()
                                        });
                                    }
 

@@ -109,7 +109,9 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Wo
 
                                 this.WorkItems.Add(new LibraryWorkItemViewModel()
                                 {
-                                    HasErrors = false,
+                                    // This will indicate the failed result
+                                    HasErrors = output.ResultSet.Any(x => x.MusicBrainzRecordingId == null),
+                                    LastMessage = output.ResultSet.OrderBy(x => x.Timestamp).FirstOrDefault()?.Message ?? string.Empty,
                                     IsCompleted = alreadyRun,
                                     IsWorkflowItem = this.IsWorkflowTask,
                                     LoadType = LibraryLoadType.AcoustID,

@@ -29,7 +29,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
             return WORK_STEPS;
         }
 
-        protected override bool Work(int step, ref string message)
+        protected override LibraryWorkerStepResult Work(int step)
         {
             // Steps: 
             //
@@ -39,13 +39,13 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
             switch (step)
             {
                 case 1:
-                    return WorkFileCheck(ref message);
+                    return WorkFileCheck(step);
                 default:
                     throw new Exception("Unhandled work step");
             }
         }
 
-        private bool WorkFileCheck(ref string message)
+        private LibraryWorkerStepResult WorkFileCheck(int stepNumber)
         {
             try
             {
@@ -57,8 +57,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
 
                 if (entity == null)
                 {
-                    message = "File Reference check database error:  (see Database log)";
-                    return false;
+                    return LibraryWorkerStepResult.Failure(stepNumber, "File Reference check database error:  (see Database log)");
                 }
 
                 var exists = File.Exists(entity.FileName);
@@ -82,15 +81,20 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
 
                 var invalid = !exists || corruptCRC || entity.IsFileCorrupt;
 
-                message = "File Reference check successful:  ";
+                var message = "File Reference check successful:  ";
                 message += invalid ? "(file load error, corrupt, or missing)" : "(file integrity OK)";
 
-                return true;
+                return new LibraryWorkerStepResult()
+                {
+                    Completed = true,
+                    Message = message,
+                    StepNumber = stepNumber,
+                    Result = invalid ? LibraryWorkerResultType.DataError : LibraryWorkerResultType.Success
+                };
             }
             catch (Exception ex)
             {
-                message = "File Reference check error: " + ex.Message;
-                return false;
+                return LibraryWorkerStepResult.Failure(stepNumber, "File Reference check error: " + ex.Message);
             }
         }
     }

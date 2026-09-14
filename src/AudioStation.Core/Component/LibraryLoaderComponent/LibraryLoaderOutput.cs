@@ -8,7 +8,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent
     {
         object _output;
         List<LogMessage> _log;
-        List<LibraryLoaderResultStep> _resultSteps;
+        List<LibraryWorkerStepResult> _resultSteps;
         int _numberOfSteps;
         Type _actualType;
 
@@ -17,7 +17,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent
         {
             _output = output;
             _log = new List<LogMessage>();
-            _resultSteps = new List<LibraryLoaderResultStep>();
+            _resultSteps = new List<LibraryWorkerStepResult>();
             _numberOfSteps = numberOfSteps;
 
             Initialize(loadType, output);
@@ -90,14 +90,14 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent
             return (T)_output;
         }
 
-        public void AddResultStep(bool result, string message)
+        public void AddResultStep(LibraryWorkerStepResult result)
         {
             if (_resultSteps.Count >= _numberOfSteps)
                 throw new ArgumentException("Result step count exceeds the number of worker steps");
 
             // Log
-            _log.Add(new LogMessage(message));
-            _resultSteps.Add(new LibraryLoaderResultStep(false, result, _resultSteps.Count + 1, message));
+            _log.Add(new LogMessage(result.Message));
+            _resultSteps.Add(result);
         }
 
         public int GetNumberOfSteps()
@@ -115,7 +115,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent
             return _log;
         }
 
-        public IEnumerable<LibraryLoaderResultStep> GetResults()
+        public IEnumerable<LibraryWorkerStepResult> GetResults()
         {
             return _resultSteps;
         }
