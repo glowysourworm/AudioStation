@@ -1,6 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 
 using AudioStation.Controller.Interface;
+using AudioStation.Core.Component;
 using AudioStation.Core.Model.Interface;
 using AudioStation.Event;
 using AudioStation.Event.LibraryLoaderEvent;
@@ -17,7 +18,10 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels
 
         string _name;
         string _description;
+        string _lastWorkItemMessage;
         int _workflowId;
+        bool _isWorkflowTask;
+        bool _isAllWorkComplete;
         bool _loaded;
         bool _working;
 
@@ -28,8 +32,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels
         int _workItemsSuccessful;
         int _workItemsError;
         double _workProgress;
-        bool _isWorkComplete;
-        bool _isWorkflowTask;
+
 
         /// <summary>
         /// Executes when the library loader worker has changed status
@@ -51,6 +54,11 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels
             get { return _description; }
             set { this.RaiseAndSetIfChanged(ref _description, value); }
         }
+        public string LastWorkItemMessage
+        {
+            get { return _lastWorkItemMessage; }
+            set { this.RaiseAndSetIfChanged(ref _lastWorkItemMessage, value); }
+        }
         public int WorkflowId
         {
             get { return _workflowId; }
@@ -70,6 +78,11 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels
         {
             get { return _isWorkflowTask; }
             set { this.RaiseAndSetIfChanged(ref _isWorkflowTask, value); }
+        }
+        public bool IsAllWorkComplete
+        {
+            get { return _isAllWorkComplete; }
+            set { this.RaiseAndSetIfChanged(ref _isAllWorkComplete, value); }
         }
         public ObservableCollection<LibraryWorkItemViewModel> WorkItems
         {
@@ -101,11 +114,6 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels
             get { return _workProgress; }
             set { this.RaiseAndSetIfChanged(ref _workProgress, value); }
         }
-        public bool IsWorkComplete
-        {
-            get { return _isWorkComplete; }
-            set { this.RaiseAndSetIfChanged(ref _isWorkComplete, value); }
-        }
         public string Status
         {
             get
@@ -114,13 +122,13 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels
                     return "Not Loaded";
 
                 else if (this.Working)
-                    return "Working";
+                    return "Running";
 
-                else if (this.IsWorkComplete)
+                else if (this.WorkProgress >= 1)
                     return "Completed";
 
                 else
-                    return "Idle";
+                    return "Stopped";
             }
         }
 
@@ -130,6 +138,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels
             this.Description = description;
             this.WorkItems = new ObservableCollection<LibraryWorkItemViewModel>();
             this.WorkflowId = workflowId;
+            this.Working = false;
             this.IsWorkflowTask = isWorkflowTask;
         }
 
@@ -140,8 +149,10 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels
             audioStationController.EventAggregator.GetEvent<LibraryLoaderWorkItemUpdateEvent>().Subscribe(OnWorkItemUpdate);
 
             _libraryLoaderWorkerService = audioStationController.ServiceController.GetService<ILibraryLoaderWorkerService>();
+
+            OnUpdate();
         }
-        public virtual void Execute(DialogEventHandlers.DialogProgressHandler progressHandler)
+        public void Execute()
         {
             if (!CanExecute())
                 throw new Exception("Loader task currently running. Please call 'CanExecute' first to verify it is finished.");
@@ -154,15 +165,29 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels
 
             OnUpdate();
         }
-        public virtual void Reset(DialogEventHandlers.DialogProgressHandler progressHandler)
+        public void Reset()
         {
             this.WorkItems.Clear();
 
             OnUpdate();
         }
+
+        /// <summary>
+        /// Attempts a state change of the loader service. This will not affect the front end workflow items except
+        /// for whatever occurs in the proceeding state.
+        /// </summary>
+        public void ChangeState(PlayStopPause loaderState)
+        {
+            _libraryLoaderWorkerService.ChangeLoaderState(loaderState);
+        }
+
         public bool CanExecute()
         {
-            return this.Loaded && !this.Working && !this.IsWorkComplete;           // Reset must be done from loader component
+            // Reset must be done from loader component
+            return this.Loaded &&
+                  !this.Working &&
+                   this.WorkItems.Count > 0 &&
+                   this.WorkItems.Any(x => !x.IsCompleted && !x.InProgress);
         }
 
         protected override void OnPropertyChanged(string name)
@@ -172,13 +197,11 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels
 
             else
             {
-                OnPropertyChanged("Status");
+                base.OnPropertyChanged(name);
 
                 if (this.StatusChangeEvent != null)
                     this.StatusChangeEvent(this);
             }
-
-            OnUpdate();
         }
 
         private void OnWorkItemUpdate(LibraryWorkItemViewModel model)
@@ -188,6 +211,11 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels
             if (workItem != null)
             {
                 Map(model, workItem);
+
+                this.LastWorkItemMessage = model.LastMessage;
+
+                if (this.WorkItemChangedEvent != null)
+                    this.WorkItemChangedEvent(this, workItem);
             }
 
             OnUpdate();
@@ -200,13 +228,19 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels
             {
                 Map(model, workItem);
 
+                this.LastWorkItemMessage = model.LastMessage;
+
                 if (this.WorkItemChangedEvent != null)
                     this.WorkItemChangedEvent(this, workItem);
             }
 
             OnUpdate();
         }
-        private void OnUpdate()
+
+        /// <summary>
+        /// Updates work item counter properties
+        /// </summary>
+        protected void OnUpdate()
         {
             if (this.Loaded)
             {
@@ -215,8 +249,10 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels
                 this.WorkItemsSuccessful = this.WorkItems.Count(x => !x.InProgress && x.IsCompleted && !x.HasErrors);
                 this.WorkItemsError = this.WorkItems.Count(x => !x.InProgress && x.IsCompleted && x.HasErrors);
                 this.WorkProgress = (this.WorkItemsSuccessful + this.WorkItemsError) / (double)this.WorkItems.Count;
-                this.IsWorkComplete = this.WorkItems.All(x => x.IsCompleted);
-                this.Working = !this.IsWorkComplete;
+                this.Working = this.WorkItems.Any(x => !x.IsCompleted && x.InProgress);
+                this.IsAllWorkComplete = this.WorkItems.All(x => x.IsCompleted);
+
+                OnPropertyChanged("Status");
             }
         }
         private void Map(LibraryWorkItemViewModel source, LibraryWorkItemViewModel dest)

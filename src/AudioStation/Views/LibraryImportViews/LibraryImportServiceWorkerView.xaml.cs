@@ -1,6 +1,8 @@
-﻿using System.Windows;
+﻿using System.ComponentModel;
+using System.Windows;
 using System.Windows.Controls;
 
+using AudioStation.Core.Component;
 using AudioStation.ViewModels.ComponentViewModels;
 using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels;
 
@@ -27,11 +29,13 @@ namespace AudioStation.Views.LibraryImportViews
             {
                 oldVM.ServiceWorkflow.WorkItemChangedEvent -= ServiceWorkflow_WorkItemChangedEvent;
                 oldVM.ServiceWorkflow.StatusChangeEvent -= ServiceWorkflow_StatusChangeEvent;
+                oldVM.ServiceWorkflow.PropertyChanged -= ServiceWorkflow_PropertyChanged;
             }
             if (newVM != null)
             {
                 newVM.ServiceWorkflow.WorkItemChangedEvent += ServiceWorkflow_WorkItemChangedEvent;
                 newVM.ServiceWorkflow.StatusChangeEvent += ServiceWorkflow_StatusChangeEvent;
+                newVM.ServiceWorkflow.PropertyChanged += ServiceWorkflow_PropertyChanged;
             }
 
 
@@ -71,6 +75,7 @@ namespace AudioStation.Views.LibraryImportViews
 
             // Scroll the item into view
             this.LoaderWorkItemsLB.ScrollIntoView(item);
+            this.LoaderWorkItemsLB.SelectedItem = item;
         }
         private void ServiceWorkflow_StatusChangeEvent(LibraryLoaderWorkerViewModelBase sender, bool isWorking)
         {
@@ -81,6 +86,18 @@ namespace AudioStation.Views.LibraryImportViews
         {
             UpdateViewContext();
             ScrollIntoView(sender, item);
+        }
+        private void ServiceWorkflow_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            var viewModel = this.DataContext as LibraryImporterViewModel;
+
+            // Had trouble binding these
+            if (viewModel != null)
+            {
+                this.ExecuteButton.IsChecked = viewModel.ServiceWorkflow.LibraryLoaderState == PlayStopPause.Play;
+                this.CancelButton.IsChecked = viewModel.ServiceWorkflow.LibraryLoaderState == PlayStopPause.Stop;
+                this.PauseButton.IsChecked = viewModel.ServiceWorkflow.LibraryLoaderState == PlayStopPause.Pause;
+            }
         }
 
         private void ExecuteButton_Click(object sender, RoutedEventArgs e)
@@ -94,7 +111,8 @@ namespace AudioStation.Views.LibraryImportViews
                     // No need for loading window (these are async tasks)
                     viewModel.ServiceWorkflow.Execute((x, y, z, w) => { });
                 }
-
+                else
+                    viewModel.ServiceWorkflow.ChangeLoaderState(PlayStopPause.Play);
             }
         }
 
@@ -104,7 +122,7 @@ namespace AudioStation.Views.LibraryImportViews
 
             if (viewModel != null)
             {
-
+                viewModel.ServiceWorkflow.ChangeLoaderState(PlayStopPause.Pause);
             }
         }
 
@@ -114,7 +132,7 @@ namespace AudioStation.Views.LibraryImportViews
 
             if (viewModel != null)
             {
-
+                viewModel.ServiceWorkflow.ChangeLoaderState(PlayStopPause.Stop);
             }
         }
     }

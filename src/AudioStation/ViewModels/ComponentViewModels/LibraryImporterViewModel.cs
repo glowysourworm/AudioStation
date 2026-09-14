@@ -187,27 +187,6 @@ namespace AudioStation.ViewModels.ComponentViewModels
 
             this.ServiceWorkflow.SetWorkflow(this.Workflow);
             this.StagingWorkflow.SetWorkflow(this.Workflow);
-
-            // Set View Model (Load)
-            //this.SourceDirectory = load;
-
-            //// Initialization:     This task is run during initialization.
-            //// 
-            //// Task / Dispatcher:  We have to invoke the dispatcher from here so that the view model
-            ////                     bindings to the UI don't throw exceptions.
-            ////
-            //// Hook Events (Recursively)
-            //foreach (var sourceFile in this.SourceDirectory.RecursiveWhere(x => !x.IsDirectory)
-            //                                               .Cast<LibraryImporterFileViewModel>())
-            //{
-            //    sourceFile.SelectAcoustIDEvent += ShowAcoustIDResults;
-            //    sourceFile.SelectMusicBrainzEvent += ShowMusicBrainzResults;
-            //    sourceFile.PlayAudioEvent += ShowSmallAudioPlayer;
-            //    //sourceFile.PropertyChanged += SourceFile_PropertyChanged;
-            //}
-
-            //// Set View Model
-            //this.SourceDirectory.ItemPropertyChanged += SourceDirectory_ItemPropertyChanged;
         }
         protected override void LoadWork(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
         {

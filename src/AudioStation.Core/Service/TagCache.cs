@@ -328,6 +328,15 @@ namespace AudioStation.Core.Service
                             });
                         }
 
+                        foreach (var identifier in tag.UniqueFileIdentifierList)
+                        {
+                            result.UniqueFileIdentifiers.Add(new UniqueFileIdentifier()
+                            {
+                                Identifier = identifier.Identifier,
+                                OwnerIdentifier = identifier.OwnerIdentifier
+                            });
+                        }
+
                         var year = 0;
                         if (int.TryParse(tag.Year, out year))
                             result.Year = year;

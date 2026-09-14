@@ -200,29 +200,13 @@ namespace AudioStation.Views
             // Workflow Selection
             if (viewType == typeof(LibraryImportWorkflowSelectionView))
             {
-                if (_dialogController.ShowConfirmation("Continue to Configuration?",
-                    string.Format("You have chosen workflow:  {0}", _viewModel.Workflow.Name),
-                    "",
-                    "Are you ready to proceed?"))
-                {
-                    return true;
-                }
-                else
-                    return false;
+                return true;
             }
 
             // Configuration
             if (viewType == typeof(LibraryImportConfigurationView))
             {
-                if (_dialogController.ShowConfirmation("Continue to Configuration Options?",
-                    string.Format("You have chosen import type:  {0}", _viewModel.Workflow.Configuration.ImportDirectory.ImportType),
-                    "",
-                    "Are you ready to proceed?"))
-                {
-                    return true;
-                }
-                else
-                    return false;
+                return true;
             }
 
             // Configuration Options

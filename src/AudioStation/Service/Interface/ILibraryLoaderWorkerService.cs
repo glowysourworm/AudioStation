@@ -1,4 +1,5 @@
-﻿using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels;
+﻿using AudioStation.Core.Component;
+using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels;
 
 namespace AudioStation.Service.Interface
 {
@@ -11,5 +12,10 @@ namespace AudioStation.Service.Interface
         /// during updates.
         /// </summary>
         int RunLoaderTaskAsync(LibraryWorkItemViewModel workItem);
+
+        /// <summary>
+        /// Attempts to set the state of the loader. Events are forwarded to respond.
+        /// </summary>
+        void ChangeLoaderState(PlayStopPause state);
     }
 }

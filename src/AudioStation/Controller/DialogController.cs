@@ -297,6 +297,8 @@ namespace AudioStation.Controller
             if (_dialogWindow.WindowState != WindowState.Normal)
                 throw new Exception("Mishandled dialog data context. Must dispose of the previous context before re-issuing the window");
 
+            _dialogWindow.InvalidateVisual();
+
             // Force Render / Update of the UI (COUNTER IS KLUDGEY)
             if (_loadingCounter++ % 10 == 0)
                 Dispatcher.CurrentDispatcher.Invoke(() => { }, DispatcherPriority.Render);

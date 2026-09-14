@@ -11,7 +11,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
         public event SimpleEventHandler<LibraryWorkerThreadBase, LibraryLoaderWorkItem> ReportComplete;
 
         Thread _thread;
-        LibraryLoaderWorkItem _workItem;    // Unsafe!
+        LibraryLoaderWorkItem _workItem;    // Unsafe! (follow it to see where it is used safely)
 
         public LibraryWorkerThreadBase(LibraryLoaderWorkItem workItem)
         {

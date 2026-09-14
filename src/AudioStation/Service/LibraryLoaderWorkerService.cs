@@ -2,6 +2,7 @@
 
 using AudioStation.Controller.Interface;
 using AudioStation.Core;
+using AudioStation.Core.Component;
 using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Component.LibraryLoaderComponent;
 using AudioStation.Core.Component.LibraryLoaderComponent.Load;
@@ -36,11 +37,17 @@ namespace AudioStation.Service
 
             libraryLoader.WorkItemComplete += LibraryLoader_WorkItemComplete;
             libraryLoader.WorkItemUpdate += LibraryLoader_WorkItemUpdate;
+            libraryLoader.StateChangeEvent += LibraryLoader_StateChangeEvent;
         }
 
         public void Initialize(AudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
         {
 
+        }
+
+        public void ChangeLoaderState(PlayStopPause state)
+        {
+            _libraryLoader.ChangeState(state);
         }
 
         public int RunLoaderTaskAsync(LibraryWorkItemViewModel workItem)
@@ -110,6 +117,11 @@ namespace AudioStation.Service
                 default:
                     throw new Exception("Unhandled Libary Loader load type");
             }
+        }
+
+        private void LibraryLoader_StateChangeEvent(PlayStopPause loaderState)
+        {
+            _eventAggregator.GetEvent<LibraryLoaderStateChangeEvent>().Publish(loaderState);
         }
 
         private void LibraryLoader_WorkItemUpdate(LibraryLoaderWorkItemUpdate sender)

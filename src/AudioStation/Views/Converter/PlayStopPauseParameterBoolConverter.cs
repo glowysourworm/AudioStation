@@ -15,17 +15,7 @@ namespace AudioStation.Views.Converter
             var playState = (PlayStopPause)value;
             var buttonState = (PlayStopPause)parameter;
 
-            switch (buttonState)
-            {
-                case PlayStopPause.Play:
-                    return playState == PlayStopPause.Play;
-                case PlayStopPause.Pause:
-                    return playState == PlayStopPause.Pause;
-                case PlayStopPause.Stop:
-                    return playState == PlayStopPause.Stop;
-                default:
-                    return Binding.DoNothing;
-            }
+            return playState == buttonState;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

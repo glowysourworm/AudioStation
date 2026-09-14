@@ -61,12 +61,12 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
 
         protected override void ExecuteWork(DialogEventHandlers.DialogProgressHandler progressHandler)
         {
-            this.ImportWorker.Execute(progressHandler);
+            this.ImportWorker.Execute();
         }
 
         protected override void ResetWork(DialogEventHandlers.DialogProgressHandler progressHandler)
         {
-            this.ImportWorker.Reset(progressHandler);
+            this.ImportWorker.Reset();
         }
 
         private void OnWorkerStatusChangeEvent(LibraryLoaderWorkerViewModelBase sender)

@@ -65,6 +65,27 @@
                         <propertyGrid:PropertyEnumControl EnumType="{x:Type coreModel:TrackCategory}" Value="{Binding Workflow.Configuration.ImportDirectory.TrackCategory}" LabelColumnWidth="250" IsReadOnly="True" Margin="1" LabelText="Destination File Category" />
                         <propertyGrid:PropertyEnumControl EnumType="{x:Type coreModel:TrackNamingType}" Value="{Binding Workflow.Configuration.ImportDirectory.NamingType}" LabelColumnWidth="250" IsReadOnly="True" Margin="1" LabelText="Destination File Naming" />
                         <propertyGrid:PropertyEnumControl EnumType="{x:Type coreModel:TrackGroupingType}" Value="{Binding Workflow.Configuration.ImportDirectory.GroupingType}" LabelColumnWidth="250" IsReadOnly="True" Margin="1" LabelText="Destination File Grouping" />
+
+                        <propertyGrid:PropertyEnumControl EnumType="{x:Type coreModel:LibraryImportSource}" 
+                                                          Value="{Binding Workflow.Configuration.TagSourcePreference}" 
+                                                          LabelColumnWidth="250" IsReadOnly="False" Margin="1" 
+                                                          LabelText="Tag Source (preference)"
+                                                          Description="The data for your import can be drawn from the tag data already there. This would be a good option if you have already had tag data filled out by another music service."
+                                                          />
+
+                        <propertyGrid:PropertyEnumControl EnumType="{x:Type coreModel:LibraryImportSource}" 
+                                                          Value="{Binding Workflow.Configuration.AcoustIDSourcePreference}" 
+                                                          LabelColumnWidth="250" IsReadOnly="False" Margin="1" 
+                                                          LabelText="AcoustID Source (preference)"
+                                                          Description="The data for AcoustID is often stored in the tag header. This is common for most tagging programs that interact with Music Brainz via AcoustID. This option will either use this data, or go ahead with a new lookup. NOTE: This option will also be applied if there is already sufficient Music Brainz data in the tag to bypass AcoustID in the event that it is set to 'File'. Setting it to 'DataService' will force a new lookup."
+                                                          />                        
+                        
+                        <propertyGrid:PropertyEnumControl EnumType="{x:Type coreModel:LibraryImportSource}" 
+                                                          Value="{Binding Workflow.Configuration.MusicBrainzSourcePreference}" 
+                                                          LabelColumnWidth="250" IsReadOnly="False" Margin="1" 
+                                                          LabelText="Music Brainz Source (preference)"
+                                                          Description="The data for Music Brainz is often stored in the tag header. This is common for most tagging programs that interact with Music Brainz. This option will either use this data, or go ahead with a new lookup."
+                                                          />
                     </StackPanel>
 
                     <StackPanel
@@ -77,6 +98,27 @@
                         <propertyGrid:PropertyEnumControl EnumType="{x:Type coreModel:TrackCategory}" Value="{Binding Workflow.Configuration.ImportDirectory.TrackCategory}" LabelColumnWidth="250" IsReadOnly="True" Margin="1" LabelText="Destination File Category" />
                         <propertyGrid:PropertyEnumControl EnumType="{x:Type coreModel:TrackNamingType}" Value="{Binding Workflow.Configuration.ImportDirectory.NamingType}" LabelColumnWidth="250" IsReadOnly="True" Margin="1" LabelText="Destination File Naming" />
                         <propertyGrid:PropertyEnumControl EnumType="{x:Type coreModel:TrackGroupingType}" Value="{Binding Workflow.Configuration.ImportDirectory.GroupingType}" LabelColumnWidth="250" IsReadOnly="True" Margin="1" LabelText="Destination File Grouping" />
+
+                        <propertyGrid:PropertyEnumControl EnumType="{x:Type coreModel:LibraryImportSource}" 
+                                                          Value="{Binding Workflow.Configuration.TagSourcePreference}" 
+                                                          LabelColumnWidth="250" IsReadOnly="False" Margin="1" 
+                                                          LabelText="Tag Source (preference)"
+                                                          Description="The data for your import can be drawn from the tag data already there. This would be a good option if you have already had tag data filled out by another music service."
+                                                          />
+
+                        <propertyGrid:PropertyEnumControl EnumType="{x:Type coreModel:LibraryImportSource}" 
+                                                          Value="{Binding Workflow.Configuration.AcoustIDSourcePreference}" 
+                                                          LabelColumnWidth="250" IsReadOnly="False" Margin="1" 
+                                                          LabelText="AcoustID Source (preference)"
+                                                          Description="The data for AcoustID is often stored in the tag header. This is common for most tagging programs that interact with Music Brainz via AcoustID. This option will either use this data, or go ahead with a new lookup. NOTE: This option will also be applied if there is already sufficient Music Brainz data in the tag to bypass AcoustID in the event that it is set to 'File'. Setting it to 'DataService' will force a new lookup."
+                                                          />
+
+                        <propertyGrid:PropertyEnumControl EnumType="{x:Type coreModel:LibraryImportSource}" 
+                                                          Value="{Binding Workflow.Configuration.MusicBrainzSourcePreference}" 
+                                                          LabelColumnWidth="250" IsReadOnly="False" Margin="1" 
+                                                          LabelText="Music Brainz Source (preference)"
+                                                          Description="The data for Music Brainz is often stored in the tag header. This is common for most tagging programs that interact with Music Brainz. This option will either use this data, or go ahead with a new lookup."
+                                                          />
 
                         <propertyGrid:PropertyBooleanControl LabelColumnWidth="250" 
                                                      IsRequired="False"

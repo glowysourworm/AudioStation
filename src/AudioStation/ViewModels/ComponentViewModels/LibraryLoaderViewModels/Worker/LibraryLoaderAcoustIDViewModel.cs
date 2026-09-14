@@ -5,9 +5,11 @@ using AudioStation.Core.Database.AudioStationDatabase;
 using AudioStation.Core.Database.AudioStationDatabase.Interface;
 using AudioStation.Core.Model;
 using AudioStation.Core.Model.Interface;
+using AudioStation.Core.Service.Interface;
 using AudioStation.Core.Utility;
 using AudioStation.Event;
 using AudioStation.Utility;
+using AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels;
 using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Load;
 using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Output;
 
@@ -21,13 +23,16 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Wo
 {
     public class LibraryLoaderAcoustIDViewModel : LibraryLoaderWorkerViewModelBase
     {
+        private readonly LibraryImporterWorkflowViewModel? _workflow;
+
         public LibraryLoaderAcoustIDViewModel()
             : base("AcoustID", "Identifies recordings using AcoustID acoustic fingerprint service", -1, false)
         {
         }
-        public LibraryLoaderAcoustIDViewModel(int workflowId)
-            : base("AcoustID", "Identifies recordings using AcoustID acoustic fingerprint service", workflowId, true)
+        public LibraryLoaderAcoustIDViewModel(LibraryImporterWorkflowViewModel workflow)
+            : base("AcoustID", "Identifies recordings using AcoustID acoustic fingerprint service", workflow.Id, true)
         {
+            _workflow = workflow;
         }
 
         public override void Load(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
@@ -35,6 +40,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Wo
             base.Load(configuration, audioStationController, progressHandler);
 
             var audioConverter = IocContainer.Get<IAudioConverter>();
+            var tagCache = audioStationController.ServiceController.GetCache<ITagCache>();
 
             try
             {
@@ -43,6 +49,8 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Wo
                 // 1) Loop through all library directories (+ staging and download)
                 // 2) Build directory tree (using DirectoryTreeLoader)
                 // 3) Build work items
+
+                progressHandler(1, 0, 0, "Loading AcoustID Data...");
 
                 // Check against existing AcoustID Results
                 var existingResults = audioStationController.ServiceController
@@ -59,6 +67,8 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Wo
                         configuration.DownloadFolder
                     }))
                     {
+                        progressHandler(1, 0, 0, "Loading Directory: " + libraryDirectory.Directory);
+
                         // Load Directory
                         var directoryTree = DirectoryTreeLoader.Load(libraryDirectory.Directory, format.Filter, -1);
 
@@ -69,18 +79,34 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Wo
                         directoryTree.RecurseForEach(entry =>
                         {
                             var tree = entry as FileTreeViewModel;
-                            var alreadyRun = existingResults.ContainsKey(tree.GetNodeValue().FullPath);
-                            var output = new LibraryLoaderEntitySetOutputViewModel<AcoustIDLookupResult>();
-
-                            // Existing Results (Output)
-                            if (alreadyRun)
-                                output.ResultSet.AddRange(existingResults[tree.GetNodeValue().FullPath]);
 
                             // Report Progress
                             progressHandler(totalCount, counter++, 0, "Loading: " + entry.NodeValue.DisplayName);
 
                             if (!tree.GetNodeValue().IsDirectory)
                             {
+                                var alreadyRun = existingResults.ContainsKey(tree.GetNodeValue().FullPath);
+                                var output = new LibraryLoaderEntitySetOutputViewModel<AcoustIDLookupResult>();
+                                var tagData = tagCache.Get(tree.GetNodeValue().FullPath);
+
+                                // AcoustID Stored in Tag
+                                var acoustID = tagData.GetAcoustIDIdentifier();
+                                var musicBrainzTrackId = tagData.GetMusicBrainzTrackId();
+                                var musicBrainzReleaseTrackId = tagData.GetMusicBrainzReleaseTrackId();
+
+                                // Existing Results (Output)
+                                if (alreadyRun)
+                                    output.ResultSet.AddRange(existingResults[tree.GetNodeValue().FullPath]);
+
+                                // Use Existing AcoustID
+                                else if (_workflow?.Configuration?.AcoustIDSourcePreference == LibraryImportSource.File)
+                                {
+                                    if (acoustID != null ||
+                                        musicBrainzReleaseTrackId != null ||
+                                        musicBrainzTrackId != null)
+                                        return;
+                                }
+
                                 this.WorkItems.Add(new LibraryWorkItemViewModel()
                                 {
                                     HasErrors = false,
@@ -106,6 +132,9 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Wo
                 }
 
                 this.Loaded = true;
+
+                // Update Work Item Counters
+                OnUpdate();
             }
             catch (Exception ex)
             {

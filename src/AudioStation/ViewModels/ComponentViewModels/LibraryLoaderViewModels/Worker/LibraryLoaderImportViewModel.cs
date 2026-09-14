@@ -100,6 +100,9 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Wo
             }
 
             this.Loaded = true;
+
+            // Update Work Item Counters
+            OnUpdate();
         }
     }
 }

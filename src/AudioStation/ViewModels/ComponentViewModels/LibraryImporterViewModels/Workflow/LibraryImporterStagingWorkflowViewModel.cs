@@ -212,7 +212,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
                             var file = new LibraryImporterFileViewModel(subNode.FullPath, subNode.BaseDirectory);
 
                             file.TagClean = _tagCache.Get(subNode.FullPath);
-                            file.TagDirty = _tagCache.GetCopy(subNode.FullPath);
+                            //file.TagDirty = _tagCache.GetCopy(subNode.FullPath);
 
                             // Check For Library Conflict
                             //
@@ -232,7 +232,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
                     var stagedFile = new LibraryImporterFileViewModel(node.FullPath, node.BaseDirectory);
 
                     stagedFile.TagClean = _tagCache.Get(node.FullPath);
-                    stagedFile.TagDirty = _tagCache.GetCopy(node.FullPath);
+                    //stagedFile.TagDirty = _tagCache.GetCopy(node.FullPath);
 
                     // Check For Library Conflict
                     //

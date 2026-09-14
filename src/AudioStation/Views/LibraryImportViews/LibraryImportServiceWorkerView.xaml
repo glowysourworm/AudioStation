@@ -4,6 +4,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:fa5="http://schemas.fontawesome.com/icons/"
              xmlns:propertyGrid="clr-namespace:AudioStation.Controls.PropertyGrid"
+             xmlns:coreComponent="clr-namespace:AudioStation.Core.Component;assembly=AudioStation.Core"
              xmlns:controls="clr-namespace:AudioStation.Controls">
 
     <Grid ColumnDefinitions="Auto, *, Auto" RowDefinitions="Auto, Auto, *">
@@ -30,8 +31,12 @@
                  ItemContainerStyle="{StaticResource SimpleItemContainerStyle}"
                  SelectionMode="Extended"
                  AlternationCount="2"
+                 VirtualizingPanel.IsVirtualizing="True"
+                 VirtualizingPanel.CacheLength="3"
+                 VirtualizingPanel.CacheLengthUnit="Item"
                  ScrollViewer.HorizontalScrollBarVisibility="Hidden"
                  ScrollViewer.VerticalScrollBarVisibility="Auto"
+                 ScrollViewer.CanContentScroll="False"
                  HorizontalContentAlignment="Stretch">
         </ListBox>
 
@@ -42,46 +47,35 @@
                 Background="{StaticResource HeaderBackground}">
 
             <Grid ColumnDefinitions="Auto, *, Auto, Auto, Auto"
-                  Margin="5"
+                  Margin="2"
                   IsEnabled="{Binding Loading, Converter={StaticResource BoolInverseConverter}}">
 
-                <TextBlock Text="{Binding Workflow.Name, ElementName=LoaderLB}" Margin="5" Grid.Column="1" />
+                <TextBlock Text="Import Workflow:" Margin="5" />
+                <TextBlock Text="{Binding Workflow.Name}" Margin="5" Grid.Column="1" />
 
                 <!-- Execute -->
-                <Button x:Name="ExecuteButton"
+                <ToggleButton x:Name="ExecuteButton"
                         Grid.Column="4"
-                        Margin="5 0 0 0"
                         Click="ExecuteButton_Click"
-                        Style="{StaticResource UserControlButton}">
-                    <StackPanel Orientation="Horizontal">
-                        <fa5:SvgAwesome Icon="Solid_Play" Style="{StaticResource FontAwesomeIconDefault}" Margin="5" />
-                        <TextBlock Text="Execute" Style="{StaticResource LabelTextBlock}" Margin="5" />
-                    </StackPanel>
-                </Button>
+                        Style="{StaticResource LargeInputControlToggleButton}">
+                        <fa5:SvgAwesome Icon="Solid_Play" Style="{StaticResource FontAwesomeIconDefault}" Margin="3" Height="12" Width="12" />
+                </ToggleButton>
 
                 <!-- Pause -->
-                <Button x:Name="PauseButton" 
+                <ToggleButton x:Name="PauseButton" 
                         Grid.Column="3"
-                    Margin="5 0 0 0" 
-                    Click="PauseButton_Click"
-                    Style="{StaticResource UserControlButton}">
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="Pause" Style="{StaticResource LabelTextBlock}" Margin="5" />
-                        <fa5:SvgAwesome Icon="Solid_Pause" Style="{StaticResource FontAwesomeIconDefault}" Margin="5" />
-                    </StackPanel>
-                </Button>
+                        Click="PauseButton_Click"
+                        Style="{StaticResource LargeInputControlToggleButton}">
+                    <fa5:SvgAwesome Icon="Solid_Pause" Style="{StaticResource FontAwesomeIconDefault}" Margin="3" Height="12" Width="12" />
+                </ToggleButton>
 
                 <!-- Cancel -->
-                <Button x:Name="CancelButton" 
+                <ToggleButton x:Name="CancelButton" 
                         Grid.Column="2"
-                    Margin="5 0 0 0" 
-                    Click="CancelButton_Click"
-                    Style="{StaticResource UserControlButton}">
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="Cancel" Style="{StaticResource LabelTextBlock}" Margin="5" />
-                        <fa5:SvgAwesome Icon="Solid_Stop" Style="{StaticResource FontAwesomeIconDefault}" Margin="5" />
-                    </StackPanel>
-                </Button>
+                        Click="CancelButton_Click"
+                        Style="{StaticResource LargeInputControlToggleButton}">
+                        <fa5:SvgAwesome Icon="Solid_Stop" Style="{StaticResource FontAwesomeIconDefault}" Margin="3" Height="12" Width="12" />
+                </ToggleButton>
 
             </Grid>
         </Border>
@@ -93,7 +87,7 @@
                 BorderBrush="LightGray"
                 BorderThickness="1"
                 CornerRadius="5">
-            <Grid RowDefinitions="Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto">
+            <Grid RowDefinitions="Auto, Auto, Auto, Auto">
 
                 <TextBlock Grid.Row="0" Margin="5" Text="{Binding Name}" Style="{StaticResource LabelTextBlock}" />
                 <TextBlock Grid.Row="1" Margin="5" Text="{Binding Description}" Style="{StaticResource LabelDetailParagraphTextBlock}" />
@@ -104,6 +98,27 @@
                                   HorizontalAlignment="Left"
                                   Style="{StaticResource LibraryLoaderWorkflowItemProgressBarStyle}">
                 </controls:ProgressBar>
+
+                <!-- Latest Log Message-->
+                <Grid Grid.Row="3" ColumnDefinitions="Auto, *">
+                    <TextBlock Text="Message:" Margin="5" Style="{StaticResource LabelDetailDarkTextBlock}" />
+                    
+                    <TextBlock Margin="5" Grid.Column="1"                               
+                               Text="{Binding SelectedItem.LastMessage, ElementName=LoaderWorkItemsLB}" 
+                               Visibility="{Binding SelectedItem, ElementName=LoaderWorkItemsLB, Converter={StaticResource NonNullVisibilityConverter}}"
+                               Foreground="{StaticResource LogForeground}" 
+                               TextWrapping="NoWrap"
+                               TextTrimming="CharacterEllipsis"
+                               Style="{StaticResource LabelDetailDarkTextBlock}" />
+
+                    <TextBlock Margin="5" Grid.Column="1"                               
+                               Text="{Binding LastWorkItemMessage}" 
+                               Visibility="{Binding SelectedItem, ElementName=LoaderWorkItemsLB, Converter={StaticResource NullVisibilityConverter}}"
+                               Foreground="{StaticResource LogForeground}" 
+                               TextWrapping="NoWrap"
+                               TextTrimming="CharacterEllipsis"
+                               Style="{StaticResource LabelDetailDarkTextBlock}" />
+                </Grid>
 
             </Grid>
         </Border>
@@ -122,7 +137,7 @@
                 <propertyGrid:PropertyLabelControl LabelColumnWidth="160" LabelText="Successful" Grid.Row="5" Margin="5 0" IsReadOnly="True" Value="{Binding WorkItemsSuccessful}" Style="{StaticResource PropertyGridDetailUserControl}" />
                 <propertyGrid:PropertyLabelControl LabelColumnWidth="160" LabelText="Error" Grid.Row="6" Margin="5 0" IsReadOnly="True" Value="{Binding WorkItemsError}" Style="{StaticResource PropertyGridDetailUserControl}" />
 
-                <propertyGrid:PropertyLabelControl LabelColumnWidth="160" LabelText="Status" Grid.Row="7" Margin="5 0 5 5" IsReadOnly="True" Value="Running" Style="{StaticResource PropertyGridDetailUserControl}" />
+                <propertyGrid:PropertyLabelControl LabelColumnWidth="160" LabelText="Status" Grid.Row="7" Margin="5 0 5 5" IsReadOnly="True" Value="{Binding Status}" Style="{StaticResource PropertyGridDetailUserControl}" />
 
             </Grid>
         </Border>

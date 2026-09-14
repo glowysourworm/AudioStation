@@ -19,6 +19,7 @@ namespace AudioStation.Core.Model.Interface
 
         string? Comment { get; set; }
         string? Copyright { get; set; }
+        int? DurationMilliseconds { get; set; }
 
         string? Genre { get; set; }                         // ID3V2 [TCON]
         int? TrackNumber { get; set; }                      // ID3V2 [TRK] String Format="{Track Number}/{Track Position}" (literally)
@@ -27,7 +28,6 @@ namespace AudioStation.Core.Model.Interface
         int? MediaTotal { get; set; }                       // ID3V2 [TPOS] String Format="{Disc Number}/{Disc Position}" (literally)
         string? MediaFormat { get; set; }                   // ID3V2 [TMED] ("CD", "Vinyl"..)
         string? Publisher { get; set; }                     // ID3V2 [TPUB] (Recording Label)
-        int? DurationMilliseconds { get; set; }
 
         string? SortAlbumArtist { get; set; }               // ID3V2 [TSO2]
         string? SortArtist { get; set; }                    // ID3V2 [TSOP]
@@ -45,5 +45,69 @@ namespace AudioStation.Core.Model.Interface
         ///                           There may also be structured data:  "producer:Joe Smith;engineer:Nat Good"
         /// </summary>
         IList<InvolvedPerson> InvolvedPeople { get; set; }
+
+        /// <summary>
+        /// [UFID] Field from ID3v2:  This will be different depending on who used it last. UFID/{text value} seems to be the most prevalent.
+        /// </summary>
+        IList<UniqueFileIdentifier> UniqueFileIdentifiers { get; set; }
+
+        /// <summary>
+        /// AcoustID [TXXX]:  Gets field set by Picard: "ACOUSTID ID"
+        /// </summary>
+        public Guid? GetAcoustIDIdentifier();
+
+        /// <summary>
+        /// AcoustID [TXXX]:  Gets field set by Picard: "ACOUSTID FINGERPRINT"
+        /// </summary>
+        public string? GetAcoustIDFingerprint();
+
+        /// <summary>
+        /// Music Brainz [TXXX]:  Gets field set by Picard: "MUSICBRAINZ ALBUM ARTIST ID"
+        /// </summary>
+        Guid? GetMusicBrainzAlbumArtistId();
+
+        /// <summary>
+        /// Music Brainz [TXXX]:  Gets field set by Picard: "MUSICBRAINZ ALBUM ID"
+        /// </summary>
+        Guid? GetMusicBrainzAlbumId();
+
+        /// <summary>
+        /// Music Brainz [TXXX]:  Gets field set by Picard: "MUSICBRAINZ ALBUM RELEASE COUNTRY"
+        /// </summary>
+        string? GetMusicBrainzAlbumReleaseCountry();
+
+        /// <summary>
+        /// Music Brainz [TXXX]:  Gets field set by Picard: "MUSICBRAINZ ALBUM STATUS"
+        /// </summary>
+        string? GetMusicBrainzAlbumStatus();
+
+        /// <summary>
+        /// Music Brainz [TXXX]:  Gets field set by Picard: "MUSICBRAINZ ALBUM TYPE"
+        /// </summary>
+        string? GetMusicBrainzAlbumType();
+
+        /// <summary>
+        /// Music Brainz [TXXX]:  Gets field set by Picard: "MUSICBRAINZ ARTIST ID"
+        /// </summary>
+        Guid? GetMusicBrainzArtistId();
+        /// <summary>
+        /// Music Brainz [TXXX]:  Gets field set by Picard: "MUSICBRAINZ RELEASE GROUP ID"
+        /// </summary>
+        Guid? GetMusicBrainzReleaseGroupId();
+
+        /// <summary>
+        /// Music Brainz [TXXX]:  Gets field set by Picard: "MUSICBRAINZ RELEASE TRACK ID"
+        /// </summary>
+        Guid? GetMusicBrainzReleaseTrackId();
+
+        /// <summary>
+        /// Music Brainz [UFID]:  Gets field set by Picard: "UFID/http://musicbrainz.org"
+        /// </summary>
+        Guid? GetMusicBrainzTrackId();
+
+        /// <summary>
+        /// Music Brainz [TXXX]:  Gets field set by Picard: "MUSICBRAINZ WORK ID"
+        /// </summary>
+        Guid? GetMusicBrainzWorkId();
     }
 }
