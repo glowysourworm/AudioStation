@@ -4,6 +4,7 @@ using AudioStation.Core.Database.AudioStationDatabase;
 using AudioStation.Core.Database.AudioStationDatabase.Interface;
 using AudioStation.Core.Model.Interface;
 using AudioStation.Event;
+using AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels;
 using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Load;
 using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Output;
 
@@ -12,11 +13,12 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Wo
     public class LibraryLoaderMusicBrainzAlbumArtViewModel : LibraryLoaderWorkerViewModelBase
     {
         public LibraryLoaderMusicBrainzAlbumArtViewModel()
-            : base("Music Brainz (album art)", "Downloads album art for any recordings which have a Music Brainz ID in the library", -1, false)
+            : base("Music Brainz (album art)", "Downloads album art for any recordings which have a Music Brainz ID in the library")
         {
         }
-        public LibraryLoaderMusicBrainzAlbumArtViewModel(int workflowId)
-            : base("Music Brainz (album art)", "Downloads album art for any recordings which have a Music Brainz ID in the library", workflowId, true)
+
+        public LibraryLoaderMusicBrainzAlbumArtViewModel(LibraryImporterConfigurationViewModel configuration)
+            : base("Music Brainz (album art)", "Downloads album art for any recordings which have a Music Brainz ID in the library")
         {
         }
 

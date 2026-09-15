@@ -130,18 +130,11 @@ namespace AudioStation.Views
 
         private void RefreshFromDataContext(LibraryImporterViewModel viewModel)
         {
-            // Workflow Selection
-            if (_regionManager.GetRegion("LibraryImporterControlRegion").Content is LibraryImportWorkflowSelectionView)
-            {
-                this.NextStepReady = AreWorkflowSelectionRequirementsMet(viewModel);
-                this.PreviousStepReady = false;
-            }
-
             // Configuration
-            else if (_regionManager.GetRegion("LibraryImporterControlRegion").Content is LibraryImportConfigurationView)
+            if (_regionManager.GetRegion("LibraryImporterControlRegion").Content is LibraryImportConfigurationView)
             {
                 this.NextStepReady = AreConfigurationRequirementsMet(viewModel);
-                this.PreviousStepReady = true;
+                this.PreviousStepReady = false;
             }
 
             // Configuration Options
@@ -197,12 +190,6 @@ namespace AudioStation.Views
 
         private bool ConfirmImportStep(Type viewType)
         {
-            // Workflow Selection
-            if (viewType == typeof(LibraryImportWorkflowSelectionView))
-            {
-                return true;
-            }
-
             // Configuration
             if (viewType == typeof(LibraryImportConfigurationView))
             {
@@ -214,7 +201,7 @@ namespace AudioStation.Views
             {
                 // Run Acoust ID -> Music Brainz (cache results)
                 if (_dialogController.ShowConfirmation("Continue to Configuration Options?",
-                    string.Format("You have chosen import type:  {0}", _viewModel.Workflow.Configuration.ImportDirectory.ImportType),
+                    string.Format("You have chosen import type:  {0}", _viewModel.WorkflowConfiguration.ImportType),
                     "",
                     "Are you ready to proceed?"))
                 {
@@ -288,14 +275,8 @@ namespace AudioStation.Views
 
         private void PostLoadImportStep(Type viewType)
         {
-            // Workflow Selection
-            if (viewType == typeof(LibraryImportWorkflowSelectionView))
-            {
-                // Nothing to do
-            }
-
             // Configuration
-            else if (viewType == typeof(LibraryImportConfigurationView))
+            if (viewType == typeof(LibraryImportConfigurationView))
             {
             }
 
@@ -341,14 +322,8 @@ namespace AudioStation.Views
 
         private void PreLoadImportStep(Type viewType)
         {
-            // Workflow Selection
-            if (viewType == typeof(LibraryImportWorkflowSelectionView))
-            {
-                // Nothing to do
-            }
-
             // Configuration
-            else if (viewType == typeof(LibraryImportConfigurationView))
+            if (viewType == typeof(LibraryImportConfigurationView))
             {
             }
 
@@ -391,24 +366,18 @@ namespace AudioStation.Views
 
         private void CompleteImportStep(Type viewType)
         {
-            // Workflow Selection
-            if (viewType == typeof(LibraryImportWorkflowSelectionView))
-            {
-                // Nothing to do
-            }
-
             // Configuration
-            else if (viewType == typeof(LibraryImportConfigurationView))
+            if (viewType == typeof(LibraryImportConfigurationView))
             {
                 // Save Current Workflow
-                _viewModel.SaveCurrentWorkflow();
+                //_viewModel.SaveCurrentWorkflow();
             }
 
             // Configuration Options
             else if (viewType == typeof(LibraryImportConfigurationOptionsView))
             {
                 // Save Current Workflow
-                _viewModel.SaveCurrentWorkflow();
+                //_viewModel.SaveCurrentWorkflow();
             }
 
             // Staging
@@ -445,16 +414,10 @@ namespace AudioStation.Views
 
         private async void PreviousButton_Click(object sender, RoutedEventArgs e)
         {
-            // Workflow Selection
-            if (_regionManager.GetRegion("LibraryImporterControlRegion").Content is LibraryImportWorkflowSelectionView)
+            // Configuration
+            if (_regionManager.GetRegion("LibraryImporterControlRegion").Content is LibraryImportConfigurationView)
             {
                 // Nothing to do
-            }
-
-            // Configuration
-            else if (_regionManager.GetRegion("LibraryImporterControlRegion").Content is LibraryImportConfigurationView)
-            {
-                MoveToImportStep<LibraryImportConfigurationView, LibraryImportWorkflowSelectionView>(true);
             }
 
             // Configuration Options
@@ -498,14 +461,8 @@ namespace AudioStation.Views
 
         private async void NextButton_Click(object sender, RoutedEventArgs e)
         {
-            // Workflow Selection
-            if (_regionManager.GetRegion("LibraryImporterControlRegion").Content is LibraryImportWorkflowSelectionView)
-            {
-                MoveToImportStep<LibraryImportWorkflowSelectionView, LibraryImportConfigurationView>(false);
-            }
-
             // Configuration
-            else if (_regionManager.GetRegion("LibraryImporterControlRegion").Content is LibraryImportConfigurationView)
+            if (_regionManager.GetRegion("LibraryImporterControlRegion").Content is LibraryImportConfigurationView)
             {
                 MoveToImportStep<LibraryImportConfigurationView, LibraryImportConfigurationOptionsView>(false);
             }

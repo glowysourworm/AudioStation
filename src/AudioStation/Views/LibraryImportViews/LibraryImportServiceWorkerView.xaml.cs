@@ -1,20 +1,31 @@
 ﻿using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 
+using AudioStation.Controller.Interface;
 using AudioStation.Core.Component;
+using AudioStation.Event;
 using AudioStation.ViewModels.ComponentViewModels;
 using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels;
 
 using SimpleWpf.IocFramework.Application.Attribute;
+using SimpleWpf.IocFramework.EventAggregation;
 
 namespace AudioStation.Views.LibraryImportViews
 {
     [IocExportDefault]
     public partial class LibraryImportServiceWorkerView : UserControl
     {
-        public LibraryImportServiceWorkerView()
+        private readonly IIocEventAggregator _eventAggregator;
+        private readonly IDialogController _dialogController;
+
+        [IocImportingConstructor]
+        public LibraryImportServiceWorkerView(IIocEventAggregator eventAggregator, IDialogController dialogController)
         {
+            _eventAggregator = eventAggregator;
+            _dialogController = dialogController;
+
             InitializeComponent();
 
             this.DataContextChanged += LibraryImportLoaderView_DataContextChanged;
@@ -133,6 +144,20 @@ namespace AudioStation.Views.LibraryImportViews
             if (viewModel != null)
             {
                 viewModel.ServiceWorkflow.ChangeLoaderState(PlayStopPause.Stop);
+            }
+        }
+
+        private void LoaderWorkItemsLB_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            var item = this.LoaderWorkItemsLB.SelectedItem as LibraryWorkItemViewModel;
+
+            if (item != null)
+            {
+                this.IsEnabled = false;
+
+                _dialogController.ShowDialogWindowSync(new DialogEventData(item));
+
+                this.IsEnabled = true;
             }
         }
     }

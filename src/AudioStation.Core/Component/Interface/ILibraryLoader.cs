@@ -24,7 +24,7 @@ namespace AudioStation.Core.Component.Interface
         /// <summary>
         /// Initializes and runs a library loader task with the specified parameters. Returns ID of new work item.
         /// </summary>
-        int RunLoaderTaskAsync(LibraryLoadType loadType, int workflowId, bool isWorkflowTask, object load);
+        int RunLoaderTaskAsync(LibraryLoadType loadType, object load);
 
         /// <summary>
         /// Sets state of loader:  This will not alter any work items. It will only stop the loader from processing

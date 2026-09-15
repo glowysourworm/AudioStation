@@ -31,6 +31,16 @@ namespace AudioStation.Core.Component.Interface
         IEnumerable<AudioEncoderInfo> GetSupportedFormats();
 
         /// <summary>
+        /// Returns a unique list of extensions for all supported formats
+        /// </summary>
+        IEnumerable<string> GetSupportedFormatExtensions();
+
+        /// <summary>
+        /// Returns default format for audio file extension
+        /// </summary>
+        AudioEncoderInfo GetDefaultFormat(string formatExtension);
+
+        /// <summary>
         /// Returns the audio format for a particular audio file decoded by the Media Foundation MSFT library
         /// </summary>
         AudioEncoding GetAudioEncoding(string filePath);

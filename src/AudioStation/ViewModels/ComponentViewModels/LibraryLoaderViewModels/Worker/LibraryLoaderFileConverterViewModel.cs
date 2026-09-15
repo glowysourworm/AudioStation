@@ -20,16 +20,12 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Wo
     {
         // Use for extra performance
         SimpleDictionary<string, string> _workItemDict;
+        AudioEncoderInfo _destinationFormat;
 
-        public LibraryLoaderFileConverterViewModel()
-            : base("File Converter", "Verifies integrity of files related to Audio Station's library", -1, false)
+        public LibraryLoaderFileConverterViewModel(AudioEncoderInfo destinationFormat)
+            : base("File Converter", "Verifies integrity of files related to Audio Station's library")
         {
-            _workItemDict = new SimpleDictionary<string, string>();
-        }
-
-        public LibraryLoaderFileConverterViewModel(int workflowId)
-            : base("File Converter", "Verifies integrity of files related to Audio Station's library", workflowId, true)
-        {
+            _destinationFormat = destinationFormat;
             _workItemDict = new SimpleDictionary<string, string>();
         }
 
@@ -56,7 +52,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Wo
                             continue;
 
                         // Only need to look for non-converted files
-                        if (format.Encoding == libraryDirectory.FormatPreference.Encoding)
+                        if (format.Encoding == _destinationFormat.Encoding)
                             continue;
 
                         using (var nativeIO = new FastDirectoryIO(libraryDirectory.Directory, format.Filter, SearchOption.AllDirectories))
@@ -87,8 +83,8 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Wo
                                         Data = new LibraryLoaderFileConverterLoadViewModel()
                                         {
                                             FileIn = file.FullPath,
-                                            FileOut = FileHelpers.ReplaceExtension(file.FullPath, libraryDirectory.FormatPreference.Extension),
-                                            EncoderInfo = libraryDirectory.FormatPreference
+                                            FileOut = FileHelpers.ReplaceExtension(file.FullPath, _destinationFormat.Extension),
+                                            EncoderInfo = _destinationFormat
                                         }
                                     },
                                     LoadType = LibraryLoadType.FileConverter,

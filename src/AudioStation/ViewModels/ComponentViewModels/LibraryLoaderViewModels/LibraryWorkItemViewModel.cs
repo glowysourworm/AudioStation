@@ -10,29 +10,32 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels
     public class LibraryWorkItemViewModel : ViewModelBase
     {
         int _id;
-        int _workflowId;
         LibraryLoaderLoadViewModel _load;
         LibraryLoaderOutputViewModel _output;
         LibraryLoadType _loadType;
         ObservableCollection<LibraryLoaderWorkStepViewModel> _workSteps;
         ObservableCollection<LogMessageViewModel> _logMessages;
-        string _lastMessage;
+
+        // These will be about the previous run if that is implied by the database data
         double _progress;
-        bool _isWorkflowItem;
         bool _inProgress;
         bool _isCompleted;
         bool _hasErrors;
-        LibraryWorkerResultType _lastErrorType;
 
         public int Id
         {
             get { return _id; }
             set { this.RaiseAndSetIfChanged(ref _id, value); }
         }
-        public int WorkflowId
+        public LibraryLoaderLoadViewModel Load
         {
-            get { return _workflowId; }
-            set { this.RaiseAndSetIfChanged(ref _workflowId, value); }
+            get { return _load; }
+            set { this.RaiseAndSetIfChanged(ref _load, value); }
+        }
+        public LibraryLoaderOutputViewModel Output
+        {
+            get { return _output; }
+            set { this.RaiseAndSetIfChanged(ref _output, value); }
         }
         public LibraryLoadType LoadType
         {
@@ -49,16 +52,6 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels
             get { return _logMessages; }
             set { this.RaiseAndSetIfChanged(ref _logMessages, value); }
         }
-        public LibraryLoaderLoadViewModel Load
-        {
-            get { return _load; }
-            set { this.RaiseAndSetIfChanged(ref _load, value); }
-        }
-        public LibraryLoaderOutputViewModel Output
-        {
-            get { return _output; }
-            set { this.RaiseAndSetIfChanged(ref _output, value); }
-        }
         public double Progress
         {
             get { return _progress; }
@@ -68,11 +61,6 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels
         {
             get { return _inProgress; }
             set { this.RaiseAndSetIfChanged(ref _inProgress, value); }
-        }
-        public bool IsWorkflowItem
-        {
-            get { return _isWorkflowItem; }
-            set { this.RaiseAndSetIfChanged(ref _isWorkflowItem, value); }
         }
         public bool IsCompleted
         {
@@ -84,16 +72,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels
             get { return _hasErrors; }
             set { this.RaiseAndSetIfChanged(ref _hasErrors, value); }
         }
-        public string LastMessage
-        {
-            get { return _lastMessage; }
-            set { this.RaiseAndSetIfChanged(ref _lastMessage, value); }
-        }
-        public LibraryWorkerResultType LastErrorType
-        {
-            get { return _lastErrorType; }
-            set { this.RaiseAndSetIfChanged(ref _lastErrorType, value); }
-        }
+
         public string DisplayName
         {
             get { return _load.DisplayText; }
@@ -119,14 +98,10 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels
             base.OnPropertyChanged(name);
 
             if (name != "Status" &&
-                name != "DisplayName" &&
-                name != "LastMessage" &&
-                name != "LastMessageTimestamp")
+                name != "DisplayName")
             {
                 OnPropertyChanged("Status");
                 OnPropertyChanged("DisplayName");
-                OnPropertyChanged("LastMessage");
-                OnPropertyChanged("LastMessageTimestamp");
             }
         }
 
@@ -141,7 +116,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels
 
         public override string ToString()
         {
-            return this.Id.ToString();
+            return this.DisplayName ?? string.Empty;
         }
     }
 }

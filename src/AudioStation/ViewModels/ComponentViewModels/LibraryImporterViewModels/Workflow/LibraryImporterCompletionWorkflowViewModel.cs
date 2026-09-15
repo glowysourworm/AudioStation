@@ -15,8 +15,8 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
         //
         LibraryLoaderImportViewModel _importWorker;
 
-        // Workflow
-        LibraryImporterWorkflowViewModel _workflow;
+        // Workflow Configuration
+        LibraryImporterConfigurationViewModel _workflowConfiguration;
 
         // Staged Files
         IEnumerable<LibraryImporterFileViewModel> _stagedFiles;
@@ -26,20 +26,16 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
             get { return _importWorker; }
             set { this.RaiseAndSetIfChanged(ref _importWorker, value); }
         }
-        public LibraryImporterWorkflowViewModel Workflow
-        {
-            get { return _workflow; }
-            set { this.RaiseAndSetIfChanged(ref _workflow, value); }
-        }
         public IEnumerable<LibraryImporterFileViewModel> StagedFiles
         {
             get { return _stagedFiles; }
             set { this.RaiseAndSetIfChanged(ref _stagedFiles, value); }
         }
 
-        public LibraryImporterCompletionWorkflowViewModel()
+        public LibraryImporterCompletionWorkflowViewModel(LibraryImporterConfigurationViewModel workflowConfiguration)
             : base("Library Importer (completion)")
         {
+            _workflowConfiguration = workflowConfiguration;
         }
 
         public override bool CanExecute()
@@ -51,7 +47,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
         {
             var libraryLoaderWorkerService = audioStationController.ServiceController.GetService<ILibraryLoaderWorkerService>();
 
-            this.ImportWorker = new LibraryLoaderImportViewModel(this.Workflow.Configuration, this.StagedFiles);
+            this.ImportWorker = new LibraryLoaderImportViewModel(_workflowConfiguration, this.StagedFiles);
 
             this.ImportWorker.StatusChangeEvent += OnWorkerStatusChangeEvent;
 

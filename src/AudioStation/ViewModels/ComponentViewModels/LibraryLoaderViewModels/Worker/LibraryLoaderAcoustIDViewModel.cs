@@ -23,16 +23,22 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Wo
 {
     public class LibraryLoaderAcoustIDViewModel : LibraryLoaderWorkerViewModelBase
     {
-        private readonly LibraryImporterWorkflowViewModel? _workflow;
+        private readonly LibraryImporterConfigurationViewModel? _workflowConfiguration;
+
+        // Keep track of files that have been added (directory iteration was missing some)
+        Dictionary<string, LibraryWorkItemViewModel> _workItemDict;
 
         public LibraryLoaderAcoustIDViewModel()
-            : base("AcoustID", "Identifies recordings using AcoustID acoustic fingerprint service", -1, false)
+            : base("AcoustID", "Identifies recordings using AcoustID acoustic fingerprint service")
         {
+            _workItemDict = new Dictionary<string, LibraryWorkItemViewModel>();
+            _workflowConfiguration = null;
         }
-        public LibraryLoaderAcoustIDViewModel(LibraryImporterWorkflowViewModel workflow)
-            : base("AcoustID", "Identifies recordings using AcoustID acoustic fingerprint service", workflow.Id, true)
+        public LibraryLoaderAcoustIDViewModel(LibraryImporterConfigurationViewModel configuration)
+            : base("AcoustID", "Identifies recordings using AcoustID acoustic fingerprint service")
         {
-            _workflow = workflow;
+            _workflowConfiguration = configuration;
+            _workItemDict = new Dictionary<string, LibraryWorkItemViewModel>();
         }
 
         public override void Load(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
@@ -59,77 +65,28 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Wo
                                                             .GroupBy(x => x.FileName)
                                                             .ToDictionary(x => x.Key, x => x.ToList());
 
-                foreach (var format in audioConverter.GetSupportedFormats())
+                foreach (var extension in audioConverter.GetSupportedFormatExtensions())
                 {
-                    foreach (var libraryDirectory in configuration.LibraryDirectories.Union(new LibraryDirectory[]
+                    var format = audioConverter.GetDefaultFormat(extension);
+
+                    // Staging (default)
+                    if (_workflowConfiguration == null)
                     {
-                        configuration.StagingFolder,
-                        configuration.DownloadFolder
-                    }))
+                        LoadDirectory(configuration.StagingFolder.Directory, format.Filter, tagCache, existingResults, progressHandler);
+                    }
+                    else
                     {
-                        progressHandler(1, 0, 0, "Loading Directory: " + libraryDirectory.Directory);
-
-                        // Load Directory
-                        var directoryTree = DirectoryTreeLoader.Load(libraryDirectory.Directory, format.Filter, -1);
-
-                        // File Count
-                        var totalCount = directoryTree.RecursiveCount(x => true);
-                        var counter = 0;
-
-                        directoryTree.RecurseForEach(entry =>
+                        // Migration
+                        if (_workflowConfiguration.ImportType == LibraryImportType.Migration)
                         {
-                            var tree = entry as FileTreeViewModel;
+                            LoadDirectory(_workflowConfiguration.MigrationSourceDirectory, format.Filter, tagCache, existingResults, progressHandler);
+                        }
 
-                            // Report Progress
-                            progressHandler(totalCount, counter++, 0, "Loading: " + entry.NodeValue.DisplayName);
-
-                            if (!tree.GetNodeValue().IsDirectory)
-                            {
-                                var alreadyRun = existingResults.ContainsKey(tree.GetNodeValue().FullPath);
-                                var output = new LibraryLoaderEntitySetOutputViewModel<AcoustIDLookupResult>();
-                                var tagData = tagCache.Get(tree.GetNodeValue().FullPath);
-
-                                // AcoustID Stored in Tag
-                                var acoustID = tagData.GetAcoustIDIdentifier();
-                                var musicBrainzTrackId = tagData.GetMusicBrainzTrackId();
-                                var musicBrainzReleaseTrackId = tagData.GetMusicBrainzReleaseTrackId();
-
-                                // Existing Results (Output)
-                                if (alreadyRun)
-                                    output.ResultSet.AddRange(existingResults[tree.GetNodeValue().FullPath]);
-
-                                // Use Existing AcoustID
-                                else if (_workflow?.Configuration?.AcoustIDSourcePreference == LibraryImportSource.File)
-                                {
-                                    if (acoustID != null ||
-                                        musicBrainzReleaseTrackId != null ||
-                                        musicBrainzTrackId != null)
-                                        return;
-                                }
-
-                                this.WorkItems.Add(new LibraryWorkItemViewModel()
-                                {
-                                    // This will indicate the failed result
-                                    HasErrors = output.ResultSet.Any(x => x.MusicBrainzRecordingId == null),
-                                    LastMessage = output.ResultSet.OrderBy(x => x.Timestamp).FirstOrDefault()?.Message ?? string.Empty,
-                                    IsCompleted = alreadyRun,
-                                    IsWorkflowItem = this.IsWorkflowTask,
-                                    LoadType = LibraryLoadType.AcoustID,
-                                    Load = new LibraryLoaderLoadViewModel()
-                                    {
-                                        DisplayText = tree.GetNodeValue().FullPath,
-                                        Data = new LibraryLoaderFileLoadViewModel(tree.GetNodeValue().FullPath, tree.GetNodeValue().ShortPath)
-                                    },
-                                    Output = new LibraryLoaderOutputViewModel()
-                                    {
-                                        Output = output
-                                    },
-                                    InProgress = false,
-                                    Progress = alreadyRun ? 1 : 0,
-                                    WorkflowId = this.WorkflowId
-                                });
-                            }
-                        });
+                        // In Place
+                        else
+                        {
+                            LoadDirectory(_workflowConfiguration.ImportDirectory.Directory, format.Filter, tagCache, existingResults, progressHandler);
+                        }
                     }
                 }
 
@@ -143,6 +100,83 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Wo
                 ApplicationHelpers.Log("Error loading import files:  {0}", LogLevel.Error, ex, ex.Message);
                 throw ex;
             }
+        }
+
+        private void LoadDirectory(string directory, string filter,
+                                   ITagCache tagCache,
+                                   Dictionary<string, List<AcoustIDLookupResult>> existingResults,
+                                   DialogEventHandlers.DialogProgressHandler progressHandler)
+        {
+            progressHandler(1, 0, 0, "Loading Directory: " + directory);
+
+            // Load Directory
+            var directoryTree = DirectoryTreeLoader.Load(directory, filter, -1);
+
+            // File Count
+            var totalCount = directoryTree.RecursiveCount(x => true);
+            var counter = 0;
+
+            directoryTree.RecurseForEach(entry =>
+            {
+                var tree = entry as FileTreeViewModel;
+
+                // Already Added
+                if (_workItemDict.ContainsKey(tree.GetNodeValue().FullPath))
+                    return;
+
+                // Report Progress
+                progressHandler(totalCount, counter++, 0, "Loading: " + entry.NodeValue.DisplayName);
+
+                if (!tree.GetNodeValue().IsDirectory)
+                {
+                    var alreadyRun = existingResults.ContainsKey(tree.GetNodeValue().FullPath);
+                    var output = new LibraryLoaderEntitySetOutputViewModel<AcoustIDLookupResult>();
+                    var tagData = tagCache.Get(tree.GetNodeValue().FullPath);
+
+                    // AcoustID Stored in Tag
+                    var acoustID = tagData.GetAcoustIDIdentifier();
+                    var musicBrainzTrackId = tagData.GetMusicBrainzTrackId();
+                    var musicBrainzReleaseTrackId = tagData.GetMusicBrainzReleaseTrackId();
+
+                    // Existing Results (Output)
+                    if (alreadyRun)
+                        output.ResultSet.AddRange(existingResults[tree.GetNodeValue().FullPath]);
+
+                    // Use Existing AcoustID
+                    else if (_workflowConfiguration?.AcoustIDSourcePreference == LibraryImportSource.File)
+                    {
+                        if (acoustID != null ||
+                            musicBrainzReleaseTrackId != null ||
+                            musicBrainzTrackId != null)
+                            return;
+                    }
+
+                    var workItem = new LibraryWorkItemViewModel()
+                    {
+                        // This will indicate the failed result
+                        HasErrors = alreadyRun && output.ResultSet.Count == 0,
+                        IsCompleted = alreadyRun,
+                        LoadType = LibraryLoadType.AcoustID,
+                        Load = new LibraryLoaderLoadViewModel()
+                        {
+                            DisplayText = tree.GetNodeValue().FullPath,
+                            Data = new LibraryLoaderFileLoadViewModel(tree.GetNodeValue().FullPath, tree.GetNodeValue().ShortPath)
+                        },
+                        Output = new LibraryLoaderOutputViewModel()
+                        {
+                            Output = output
+                        },
+                        InProgress = false,
+                        Progress = alreadyRun ? 1 : 0
+                    };
+
+                    // Add
+                    this.WorkItems.Add(workItem);
+
+                    // Add (by file full path)
+                    _workItemDict.Add(tree.GetNodeValue().FullPath, workItem);
+                }
+            });
         }
     }
 }

@@ -68,7 +68,7 @@ namespace AudioStation.Core.Component
             _loaderState = PlayStopPause.Stop;
         }
 
-        public int RunLoaderTaskAsync(LibraryLoadType loadType, int workflowId, bool isWorkflowTask, object load)
+        public int RunLoaderTaskAsync(LibraryLoadType loadType, object load)
         {
             if (BasicHelpers.IsDispatcher() == ApplicationIsDispatcherResult.False)
                 throw new Exception("ILibraryLoader must be accessed by the main thread");
@@ -83,37 +83,37 @@ namespace AudioStation.Core.Component
             {
                 case LibraryLoadType.Import:
                 {
-                    workItem = new LibraryLoaderWorkItem(_workItemIdCounter, workflowId, isWorkflowTask, LibraryLoadType.Import);
+                    workItem = new LibraryLoaderWorkItem(_workItemIdCounter, LibraryLoadType.Import);
                     workItem.Initialize(LibraryWorkItemState.Pending, new LibraryLoaderLoad(loadType, load), new LibraryLoaderOutput(loadType, new LibraryLoaderImportOutput(), LibraryLoaderImportWorker.GetNumberSteps()));
                 }
                 break;
                 case LibraryLoadType.AcoustID:
                 {
-                    workItem = new LibraryLoaderWorkItem(_workItemIdCounter, workflowId, isWorkflowTask, LibraryLoadType.AcoustID);
+                    workItem = new LibraryLoaderWorkItem(_workItemIdCounter, LibraryLoadType.AcoustID);
                     workItem.Initialize(LibraryWorkItemState.Pending, new LibraryLoaderLoad(loadType, load), new LibraryLoaderOutput(loadType, new LibraryLoaderEntitySetOutput<AcoustIDLookupResult>(), LibraryLoaderAcoustIDWorker.GetNumberSteps()));
                 }
                 break;
                 case LibraryLoadType.MusicBrainzBasic:
                 {
-                    workItem = new LibraryLoaderWorkItem(_workItemIdCounter, workflowId, isWorkflowTask, LibraryLoadType.MusicBrainzBasic);
+                    workItem = new LibraryLoaderWorkItem(_workItemIdCounter, LibraryLoadType.MusicBrainzBasic);
                     workItem.Initialize(LibraryWorkItemState.Pending, new LibraryLoaderLoad(loadType, load), new LibraryLoaderOutput(loadType, new LibraryLoaderEntitySetOutput<TagSmall>(), LibraryLoaderMusicBrainzBasicWorker.GetNumberSteps()));
                 }
                 break;
                 case LibraryLoadType.MusicBrainzAlbumArt:
                 {
-                    workItem = new LibraryLoaderWorkItem(_workItemIdCounter, workflowId, isWorkflowTask, LibraryLoadType.MusicBrainzAlbumArt);
+                    workItem = new LibraryLoaderWorkItem(_workItemIdCounter, LibraryLoadType.MusicBrainzAlbumArt);
                     workItem.Initialize(LibraryWorkItemState.Pending, new LibraryLoaderLoad(loadType, load), new LibraryLoaderOutput(loadType, new LibraryLoaderEntitySetOutput<FileReference>(), LibraryLoaderMusicBrainzAlbumArtWorker.GetNumberSteps()));
                 }
                 break;
                 case LibraryLoadType.FileChecker:
                 {
-                    workItem = new LibraryLoaderWorkItem(_workItemIdCounter, workflowId, isWorkflowTask, LibraryLoadType.FileChecker);
+                    workItem = new LibraryLoaderWorkItem(_workItemIdCounter, LibraryLoadType.FileChecker);
                     workItem.Initialize(LibraryWorkItemState.Pending, new LibraryLoaderLoad(loadType, load), new LibraryLoaderOutput(loadType, new LibraryLoaderNoOutput(), LibraryLoaderFileCheckerWorker.GetNumberSteps()));
                 }
                 break;
                 case LibraryLoadType.FileConverter:
                 {
-                    workItem = new LibraryLoaderWorkItem(_workItemIdCounter, workflowId, isWorkflowTask, LibraryLoadType.FileConverter);
+                    workItem = new LibraryLoaderWorkItem(_workItemIdCounter, LibraryLoadType.FileConverter);
                     workItem.Initialize(LibraryWorkItemState.Pending, new LibraryLoaderLoad(loadType, load), new LibraryLoaderOutput(loadType, new LibraryLoaderNoOutput(), LibraryLoaderFileConverterWorker.GetNumberSteps()));
                 }
                 break;

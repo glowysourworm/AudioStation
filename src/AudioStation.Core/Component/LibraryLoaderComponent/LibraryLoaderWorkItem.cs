@@ -57,8 +57,6 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent
     public class LibraryLoaderWorkItem
     {
         int _id;
-        int _workflowId;
-        bool _isWorkflowTask;
         DateTime _startTime;
         DateTime _lastUpdateTime;
         LibraryLoaderLoad _workItem;                                           // Supposed to be a LibraryLoaderLoadBase
@@ -72,8 +70,6 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent
         public LibraryLoaderWorkItem()
         {
             _id = -1;
-            _workflowId = -1;
-            _isWorkflowTask = false;
             _startTime = DateTime.MinValue;
             _lastUpdateTime = DateTime.MinValue;
             _loadType = LibraryLoadType.Import;
@@ -82,18 +78,6 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent
         public LibraryLoaderWorkItem(int id, LibraryLoadType loadType)
         {
             _id = id;
-            _workflowId = -1;
-            _isWorkflowTask = false;
-            _startTime = DateTime.MinValue;
-            _lastUpdateTime = DateTime.MinValue;
-            _loadType = loadType;
-            _loadState = LibraryWorkItemState.Pending;
-        }
-        public LibraryLoaderWorkItem(int id, int workflowId, bool isWorkflowTask, LibraryLoadType loadType)
-        {
-            _id = id;
-            _workflowId = workflowId;
-            _isWorkflowTask = isWorkflowTask;
             _startTime = DateTime.MinValue;
             _lastUpdateTime = DateTime.MinValue;
             _loadType = loadType;
@@ -102,8 +86,6 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent
         public LibraryLoaderWorkItem(LibraryLoaderWorkItem copy)
         {
             _id = copy.GetId();
-            _workflowId = copy.GetWorkflowId();
-            _isWorkflowTask = copy.GetIsWorkflowTask();
             _startTime = copy.GetStartTime();
             _lastUpdateTime = copy.GetLastUpdateTime();
             _loadType = copy.GetLoadType();
@@ -117,20 +99,6 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent
             lock (_lock)
             {
                 return _id;
-            }
-        }
-        public int GetWorkflowId()
-        {
-            lock (_lock)
-            {
-                return _workflowId;
-            }
-        }
-        public bool GetIsWorkflowTask()
-        {
-            lock (_lock)
-            {
-                return _isWorkflowTask;
             }
         }
         public DateTime GetStartTime()

@@ -22,7 +22,8 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
     {
         private IAudioStationDbClient _audioStationDbClient;
         private ITagCache _tagCache;
-        private LibraryImporterWorkflowViewModel _workflow;
+
+        private LibraryImporterConfigurationViewModel _workflowConfiguration;
 
         SimpleCommand _stageCommand;
         SimpleCommand _unstageCommand;
@@ -47,11 +48,6 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
         int _totalDirectoryCount;
         int _selectedFileCount;
 
-        public LibraryImporterWorkflowViewModel Workflow
-        {
-            get { return _workflow; }
-            private set { this.RaiseAndSetIfChanged(ref _workflow, value); }
-        }
         public FileTreeViewModel ImportDirectory
         {
             get { return _importDirectory; }
@@ -99,19 +95,16 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
             set { this.RaiseAndSetIfChanged(ref _unstageCommand, value); }
         }
 
-        public LibraryImporterStagingWorkflowViewModel(IDialogController dialogController)
+        public LibraryImporterStagingWorkflowViewModel(IDialogController dialogController, LibraryImporterConfigurationViewModel workflowConfiguration)
             : base("Library Importer (staging)")
         {
+            _workflowConfiguration = workflowConfiguration;
+
             this.StagedFiles = new NotifyingObservableCollection<LibraryImporterFileViewModel>();
             this.StagedFiles.ItemPropertyChanged += StagedFiles_ItemPropertyChanged;
 
             this.StageCommand = new SimpleCommand(() => Stage(dialogController), CanStage);
             this.UnstageCommand = new SimpleCommand(Unstage, CanUnstage);
-        }
-
-        public void SetWorkflow(LibraryImporterWorkflowViewModel workflow)
-        {
-            this.Workflow = workflow;
         }
 
         public void Stage(IDialogController dialogController)
@@ -151,18 +144,18 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
             // Import Directory:  1) Not Initialized; or 2) A different directory
             //
             if (this.ImportDirectory == null ||
-                this.ImportDirectory.GetNodeValue().BaseDirectory != this.Workflow.Configuration.ImportDirectory.Directory)
+                this.ImportDirectory.GetNodeValue().BaseDirectory != _workflowConfiguration.ImportDirectory.Directory)
             {
                 var libraryLoaderService = IocContainer.Get<ILibraryLoaderService>();
-                var directory = (this.Workflow.Configuration.ImportDirectory.ImportType == Core.Model.LibraryImportType.Migration) ? this.Workflow.Configuration.MigrationSourceDirectory :
-                                                                                                                            this.Workflow.Configuration.ImportDirectory.Directory;
+                var directory = (_workflowConfiguration.ImportType == Core.Model.LibraryImportType.Migration) ? _workflowConfiguration.MigrationSourceDirectory :
+                                                                                                                _workflowConfiguration.ImportDirectory.Directory;
                 // Clear Staged
                 this.StagedFiles.Clear();
 
                 // Unhook
                 this.ImportDirectory?.ItemPropertyChangedTreeEvent -= OnImportTreePropertyChanged;
 
-                this.ImportDirectory = libraryLoaderService.InitializeImporterTree(directory, searchPattern, this.Workflow.Configuration, progressHandler);
+                this.ImportDirectory = libraryLoaderService.InitializeImporterTree(directory, searchPattern, _workflowConfiguration, progressHandler);
 
                 this.TotalFileCount = this.ImportDirectory.RecursiveCount(x => !x.CanHaveChildren);
                 this.TotalDirectoryCount = this.ImportDirectory.RecursiveCount(x => x.CanHaveChildren);

@@ -18,9 +18,6 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels
 
         string _name;
         string _description;
-        string _lastWorkItemMessage;
-        int _workflowId;
-        bool _isWorkflowTask;
         bool _isAllWorkComplete;
         bool _loaded;
         bool _working;
@@ -54,16 +51,6 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels
             get { return _description; }
             set { this.RaiseAndSetIfChanged(ref _description, value); }
         }
-        public string LastWorkItemMessage
-        {
-            get { return _lastWorkItemMessage; }
-            set { this.RaiseAndSetIfChanged(ref _lastWorkItemMessage, value); }
-        }
-        public int WorkflowId
-        {
-            get { return _workflowId; }
-            set { this.RaiseAndSetIfChanged(ref _workflowId, value); }
-        }
         public bool Loaded
         {
             get { return _loaded; }
@@ -73,11 +60,6 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels
         {
             get { return _working; }
             set { this.RaiseAndSetIfChanged(ref _working, value); }
-        }
-        public bool IsWorkflowTask
-        {
-            get { return _isWorkflowTask; }
-            set { this.RaiseAndSetIfChanged(ref _isWorkflowTask, value); }
         }
         public bool IsAllWorkComplete
         {
@@ -132,14 +114,12 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels
             }
         }
 
-        public LibraryLoaderWorkerViewModelBase(string name, string description, int workflowId, bool isWorkflowTask)
+        public LibraryLoaderWorkerViewModelBase(string name, string description)
         {
             this.Name = name;
             this.Description = description;
             this.WorkItems = new ObservableCollection<LibraryWorkItemViewModel>();
-            this.WorkflowId = workflowId;
             this.Working = false;
-            this.IsWorkflowTask = isWorkflowTask;
         }
 
         public virtual void Load(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
@@ -212,8 +192,6 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels
             {
                 Map(model, workItem);
 
-                this.LastWorkItemMessage = model.LastMessage;
-
                 if (this.WorkItemChangedEvent != null)
                     this.WorkItemChangedEvent(this, workItem);
             }
@@ -227,8 +205,6 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels
             if (workItem != null)
             {
                 Map(model, workItem);
-
-                this.LastWorkItemMessage = model.LastMessage;
 
                 if (this.WorkItemChangedEvent != null)
                     this.WorkItemChangedEvent(this, workItem);
@@ -265,12 +241,9 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels
             dest.Id = source.Id;
             dest.InProgress = source.InProgress;
             dest.IsCompleted = source.IsCompleted;
-            dest.IsWorkflowItem = source.IsWorkflowItem;
-            dest.LastMessage = source.LastMessage;
             dest.LoadType = source.LoadType;
             dest.LogMessages = source.LogMessages;
             dest.Progress = source.Progress;
-            dest.WorkflowId = source.WorkflowId;
             dest.WorkSteps = source.WorkSteps;
         }
     }

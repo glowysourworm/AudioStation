@@ -25,16 +25,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Wo
         public LibraryLoaderImportViewModel(
             LibraryImporterConfigurationViewModel libraryImporterConfiguration,
             IEnumerable<LibraryImporterFileViewModel> stagedFiles)
-            : base("Library Import Worker", "Library import worker task is for importing library records during an import workflow", -1, false)
-        {
-            _stagedFiles = stagedFiles;
-            _libraryImporterConfiguration = libraryImporterConfiguration;
-        }
-
-        public LibraryLoaderImportViewModel(int workflowId,
-            LibraryImporterConfigurationViewModel libraryImporterConfiguration,
-            IEnumerable<LibraryImporterFileViewModel> stagedFiles)
-            : base("Library Import Worker", "Library import worker task is for importing library records during an import workflow", workflowId, true)
+            : base("Library Import Worker", "Library import worker task is for importing library records during an import workflow")
         {
             _stagedFiles = stagedFiles;
             _libraryImporterConfiguration = libraryImporterConfiguration;
@@ -58,7 +49,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Wo
                 {
                     ConvertAudioFormat = _libraryImporterConfiguration.ConvertAudioFormat,
                     DestinationFolder = _libraryImporterConfiguration.ImportDirectory.Directory,
-                    DestinationFormat = _audioStationMapper.Map<AudioEncoderViewModel, AudioEncoderInfo>(_libraryImporterConfiguration.ImportDirectory.FormatPreference),
+                    DestinationFormat = _audioStationMapper.Map<AudioEncoderViewModel, AudioEncoderInfo>(_libraryImporterConfiguration.ImportFormat),
                     GroupingType = _libraryImporterConfiguration.ImportDirectory.GroupingType,
                     IsSourceDirectoryReadonly = _libraryImporterConfiguration.ImportDirectory.IsReadOnly,
                     MigrationDeleteSourceFiles = _libraryImporterConfiguration.MigrationDeleteSourceFiles,

@@ -20,12 +20,11 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
     {
         private ILibraryLoaderWorkerService _libraryLoaderWorkerService;
 
+        private readonly LibraryImporterConfigurationViewModel _workflowConfiguration;
+
         LibraryLoaderAcoustIDViewModel _acoustIDWorker;
         LibraryLoaderMusicBrainzBasicViewModel _musicBrainzBasicWorker;
         LibraryLoaderMusicBrainzAlbumArtViewModel _musicBrainzAlbumArtWorker;
-
-        // Workflow
-        LibraryImporterWorkflowViewModel _workflow;
 
         // ILibraryLoader State
         PlayStopPause _libraryLoaderState;
@@ -51,28 +50,19 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
             get { return _musicBrainzAlbumArtWorker; }
             set { this.RaiseAndSetIfChanged(ref _musicBrainzAlbumArtWorker, value); }
         }
-        public LibraryImporterWorkflowViewModel Workflow
-        {
-            get { return _workflow; }
-            private set { this.RaiseAndSetIfChanged(ref _workflow, value); }
-        }
         public PlayStopPause LibraryLoaderState
         {
             get { return _libraryLoaderState; }
             set { this.RaiseAndSetIfChanged(ref _libraryLoaderState, value); }
         }
 
-        public LibraryImporterServiceWorkflowViewModel() : base("Library Importer (loader)")
+        public LibraryImporterServiceWorkflowViewModel(LibraryImporterConfigurationViewModel configuration) : base("Library Importer (loader)")
         {
-        }
+            _workflowConfiguration = configuration;
 
-        public void SetWorkflow(LibraryImporterWorkflowViewModel workflow)
-        {
-            this.Workflow = workflow;
-
-            this.AcoustIDWorker = new LibraryLoaderAcoustIDViewModel(workflow);
-            this.MusicBrainzBasicWorker = new LibraryLoaderMusicBrainzBasicViewModel(workflow.Id);
-            this.MusicBrainzAlbumArtWorker = new LibraryLoaderMusicBrainzAlbumArtViewModel(workflow.Id);
+            this.AcoustIDWorker = new LibraryLoaderAcoustIDViewModel(configuration);
+            this.MusicBrainzBasicWorker = new LibraryLoaderMusicBrainzBasicViewModel(configuration);
+            this.MusicBrainzAlbumArtWorker = new LibraryLoaderMusicBrainzAlbumArtViewModel(configuration);
         }
 
         public void ChangeLoaderState(PlayStopPause loaderState)
@@ -115,22 +105,22 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
 
         protected override void ExecuteWork(DialogEventHandlers.DialogProgressHandler progressHandler)
         {
-            if (this.AcoustIDWorker.CanExecute() && this.Workflow.Configuration.ServiceIncludeAcoustID)
+            if (this.AcoustIDWorker.CanExecute() && _workflowConfiguration.ServiceIncludeAcoustID)
             {
                 this.AcoustIDWorker.Execute();
             }
-            else if (this.MusicBrainzBasicWorker.CanExecute() && this.Workflow.Configuration.ServiceIncludeMusicBrainzBasic)
+            else if (this.MusicBrainzBasicWorker.CanExecute() && _workflowConfiguration.ServiceIncludeMusicBrainzBasic)
             {
                 this.MusicBrainzBasicWorker.Execute();
             }
-            else if (this.MusicBrainzAlbumArtWorker.CanExecute() && this.Workflow.Configuration.ServiceIncludeMusicBrainzArtwork)
+            else if (this.MusicBrainzAlbumArtWorker.CanExecute() && _workflowConfiguration.ServiceIncludeMusicBrainzArtwork)
             {
                 this.MusicBrainzAlbumArtWorker.Execute();
             }
             else
             {
                 // Complete
-                ApplicationHelpers.Log("Import workflow execution complete! (Workflow={0})", this.Workflow.Name);
+                ApplicationHelpers.Log("Import workflow execution complete!");
 
                 // Unlock UI
                 this.Working = false;

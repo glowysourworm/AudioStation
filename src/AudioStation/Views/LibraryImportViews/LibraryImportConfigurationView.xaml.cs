@@ -24,7 +24,15 @@ namespace AudioStation.Views.LibraryImportViews
                 if (eventData.Type == ConfigurationEventType.Modified ||
                     eventData.Type == ConfigurationEventType.Opened)
                 {
-                    UpdateConfiguration(audioStationController);
+                    // Initial Configuration
+                    if (eventData.ViewModel != null)
+                    {
+                        this.LibraryDirectoriesView.ItemsSource = eventData.ViewModel.LibraryDirectories;
+                        this.LibraryDirectoriesView.Encoders = audioStationController.ComponentController.GetComponent<MainViewModel>().Encoders;
+
+                        this.LibraryDirectoriesView.ItemsSource = eventData.ViewModel.LibraryDirectories;
+                        this.LibraryDirectoriesCB.ItemsSource = eventData.ViewModel.LibraryDirectories;
+                    }
                 }
             });
 
@@ -33,6 +41,9 @@ namespace AudioStation.Views.LibraryImportViews
 
         private void UpdateConfiguration(IAudioStationController audioStationController)
         {
+            if (!audioStationController.Initialized)
+                return;
+
             var configuration = audioStationController.ComponentController.GetComponent<AudioStationConfigurationViewModel>();
 
             // Initial Configuration

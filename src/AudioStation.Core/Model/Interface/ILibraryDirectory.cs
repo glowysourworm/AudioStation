@@ -10,7 +10,5 @@
         public TrackCategory TrackCategory { get; set; }
         public TrackGroupingType GroupingType { get; set; }
         public TrackNamingType NamingType { get; set; }
-        public LibraryImportType ImportType { get; set; }
-        public IAudioEncoderInfo FormatPreference { get; set; }
     }
 }

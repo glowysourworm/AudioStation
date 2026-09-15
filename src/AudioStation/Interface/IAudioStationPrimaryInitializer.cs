@@ -9,6 +9,8 @@ namespace AudioStation.Interface
     /// </summary>
     public interface IAudioStationPrimaryInitializer
     {
+        bool Initialized { get; }
+
         void Initialize(AudioStationConfiguration configuration, DialogEventHandlers.DialogProgressHandler progressHandler);
     }
 }

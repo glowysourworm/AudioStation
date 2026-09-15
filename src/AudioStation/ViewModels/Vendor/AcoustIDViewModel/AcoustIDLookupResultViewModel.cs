@@ -8,11 +8,9 @@ namespace AudioStation.ViewModels.Vendor.AcoustIDViewModel
     {
         int _id;
         string _fileName;
-        string _message;
-        Guid? _lookupId;
-        Guid? _musicBrainzRecordingId;
-        double? _score;
-        int? _importWorkflowId;
+        Guid _lookupId;
+        Guid _musicBrainzRecordingId;
+        double _score;
 
         public int Id
         {
@@ -24,40 +22,27 @@ namespace AudioStation.ViewModels.Vendor.AcoustIDViewModel
             get { return _fileName; }
             set { this.RaiseAndSetIfChanged(ref _fileName, value); }
         }
-        public string Message
-        {
-            get { return _message; }
-            set { this.RaiseAndSetIfChanged(ref _message, value); }
-        }
-        public Guid? LookupId
+        public Guid LookupId
         {
             get { return _lookupId; }
             set { this.RaiseAndSetIfChanged(ref _lookupId, value); }
         }
-        public Guid? MusicBrainzRecordingId
+        public Guid MusicBrainzRecordingId
         {
             get { return _musicBrainzRecordingId; }
             set { this.RaiseAndSetIfChanged(ref _musicBrainzRecordingId, value); }
         }
-        public double? Score
+        public double Score
         {
             get { return _score; }
             set { this.RaiseAndSetIfChanged(ref _score, value); }
         }
-        public int? ImportWorkflowId
-        {
-            get { return _importWorkflowId; }
-            set { this.RaiseAndSetIfChanged(ref _importWorkflowId, value); }
-        }
-
 
         public AcoustIDLookupResultViewModel()
         {
             this.FileName = string.Empty;
-            this.Message = string.Empty;
             this.LookupId = Guid.Empty;
             this.MusicBrainzRecordingId = Guid.Empty;
-            this.ImportWorkflowId = null;
         }
 
         public override string ToString()

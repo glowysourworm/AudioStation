@@ -1,7 +1,10 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:viewModel="clr-namespace:AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels"
-                    xmlns:controls="clr-namespace:AudioStation.Controls">
+                    xmlns:controls="clr-namespace:AudioStation.Controls"
+                    xmlns:coreComponent="clr-namespace:AudioStation.Core.Component;assembly=AudioStation.Core"
+                    xmlns:coreModel="clr-namespace:AudioStation.Core.Model;assembly=AudioStation.Core"
+                    xmlns:libraryComponent="clr-namespace:AudioStation.Core.Component.LibraryLoaderComponent;assembly=AudioStation.Core">
 
     <ResourceDictionary.MergedDictionaries>
         <ResourceDictionary Source="/Resources/ThemeColorsAndBrushes.xaml" />
@@ -29,6 +32,18 @@
 
         <Style.Triggers>
             <DataTrigger Binding="{Binding HasErrors}" Value="True">
+                <Setter Property="ProgressBrush" Value="Red" />
+            </DataTrigger>
+            <DataTrigger Binding="{Binding PreviousErrorType}" Value="{x:Static libraryComponent:LibraryWorkerResultType.Failure}">
+                <Setter Property="ProgressBrush" Value="Yellow" />
+            </DataTrigger>
+            <DataTrigger Binding="{Binding PreviousErrorType}" Value="{x:Static libraryComponent:LibraryWorkerResultType.DataError}">
+                <Setter Property="ProgressBrush" Value="Red" />
+            </DataTrigger>
+            <DataTrigger Binding="{Binding PreviousErrorType}" Value="{x:Static libraryComponent:LibraryWorkerResultType.ServiceNoResult}">
+                <Setter Property="ProgressBrush" Value="Yellow" />
+            </DataTrigger>
+            <DataTrigger Binding="{Binding PreviousErrorType}" Value="{x:Static libraryComponent:LibraryWorkerResultType.ServiceFailure}">
                 <Setter Property="ProgressBrush" Value="Red" />
             </DataTrigger>
         </Style.Triggers>
@@ -75,7 +90,7 @@
     </Style>
 
     <DataTemplate x:Key="LibraryWorkItemDataTemplate" DataType="{x:Type viewModel:LibraryWorkItemViewModel}">
-        <Border Padding="3"
+        <Border Padding="3" x:Name="Bd"
                 ToolTip="{Binding LastMessage}">
             
             <Grid ColumnDefinitions="90, 120, *">
@@ -85,13 +100,24 @@
                 <controls:ProgressBar Progress="{Binding Progress}" 
                                       Grid.Column="1" Margin="5 0"
                                       Style="{StaticResource LibraryLoaderWorkItemProgressBarStyle}" 
+                                      Visibility="{Binding HasErrors, Converter={StaticResource BoolInverseVisibilityCollapseConverter}}"
                                       VerticalAlignment="Center" HorizontalAlignment="Right">
                 </controls:ProgressBar>
-                
+
+                <TextBlock Grid.Column="1" Margin="5 0 0 0" Text="Error (see log)" 
+                           Visibility="{Binding HasErrors, Converter={StaticResource BoolVisibilityCollapseConverter}}" />
+
                 <TextBlock Grid.Column="2" Margin="5 0 0 0" Text="{Binding DisplayName}" Style="{StaticResource LabelTextBlock}" />
 
             </Grid>
         </Border>
+
+        <DataTemplate.Triggers>
+            <DataTrigger Binding="{Binding HasErrors}" Value="True">
+                <Setter Property="Background" TargetName="Bd" Value="{StaticResource WorkItemBackgroundError}" />
+            </DataTrigger>
+        </DataTemplate.Triggers>
+        
     </DataTemplate>
 
     <DataTemplate x:Key="LibraryImporterWorkflowItemTemplate" DataType="{x:Type viewModel:LibraryLoaderWorkerViewModelBase}">
@@ -111,6 +137,34 @@
                        Visibility="{Binding Working, Converter={StaticResource BoolVisibilityCollapseConverter}}"
                        Style="{StaticResource LabelDetailDarkTextBlock}" />
         </Grid>
+    </DataTemplate>
+
+    <DataTemplate x:Key="LibraryWorkStepItemTemplate" DataType="{x:Type viewModel:LibraryLoaderWorkStepViewModel}">
+
+        <Grid x:Name="Bg" RowDefinitions="Auto, Auto" ColumnDefinitions="30, 120, *" Background="Transparent">
+
+            <TextBlock Grid.Column="0" 
+                       Margin="0"
+                       Text="{Binding StepNumber}" 
+                       Style="{StaticResource LabelTextBlock}"  />
+
+            <TextBlock Grid.Column="1" 
+                       Margin="0"
+                       Text="{Binding Result}" 
+                       Style="{StaticResource LabelTextBlock}"  />
+
+            <TextBlock Grid.Column="2" 
+                       Text="{Binding Message}"                        
+                       Margin="0"
+                       Style="{StaticResource LabelDetailDarkTextBlock}" />
+        </Grid>
+
+        <DataTemplate.Triggers>
+            <DataTrigger Binding="{Binding Complete}" Value="False">
+                <Setter Property="Background" TargetName="Bg" Value="{StaticResource WorkItemBackgroundError}" />
+            </DataTrigger>
+        </DataTemplate.Triggers>
+        
     </DataTemplate>
 
 </ResourceDictionary>

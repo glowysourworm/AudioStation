@@ -5,7 +5,6 @@
         Background="Transparent"
         AllowsTransparency="True"
         ResizeMode="NoResize"
-        SizeToContent="WidthAndHeight"
         WindowStartupLocation="CenterOwner"
         WindowState="Normal"
         WindowStyle="None">

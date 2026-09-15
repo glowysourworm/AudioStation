@@ -15,7 +15,6 @@ using AudioStation.Core.Model.Vendor.ATLExtension.Interface;
 using AudioStation.Event;
 using AudioStation.Event.DialogEvents;
 using AudioStation.ViewModels;
-using AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels;
 using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Load;
 using AudioStation.ViewModels.MainViewModels;
 using AudioStation.ViewModels.TagViewModels;
@@ -208,7 +207,6 @@ namespace AudioStation
             // Add mappers for each complex type sub-mapping
 
             // Audio Station Core (database)
-            mapper.ConfigureMap<ImportWorkflow, LibraryImporterWorkflowViewModel>();
 
             // Audio Station Core (model)
             mapper.ConfigureMap<AudioStationTag, AudioStationTag>()

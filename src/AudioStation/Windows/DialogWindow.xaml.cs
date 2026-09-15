@@ -4,12 +4,23 @@ using AudioStation.Controls.PropertyGrid;
 
 using EMA.ExtendedWPFVisualTreeHelper;
 
+using SimpleWpf.IocFramework.EventAggregation;
+
 namespace AudioStation.Windows
 {
     public partial class DialogWindow : Window
     {
+        private readonly IIocEventAggregator _eventAggregator;
+
         public DialogWindow()
         {
+            InitializeComponent();
+        }
+
+        public DialogWindow(IIocEventAggregator eventAggregator)
+        {
+            _eventAggregator = eventAggregator;
+
             InitializeComponent();
         }
 
@@ -39,22 +50,26 @@ namespace AudioStation.Windows
             //
             //if (valid)
             //{
-                // We may need a try/catch here to see what's going on; but most of these are very simple
-                //
-                foreach (var control in propertyGridControls)
-                {
-                    // There could also be a boolean result, if there are problems with the binding. Validation
-                    // should cover issues with the data, however.
-                    control.CommitChanges();
-                }
+            // We may need a try/catch here to see what's going on; but most of these are very simple
+            //
+            foreach (var control in propertyGridControls)
+            {
+                // There could also be a boolean result, if there are problems with the binding. Validation
+                // should cover issues with the data, however.
+                control.CommitChanges();
+            }
 
-                // Success!
-                //this.DialogResult = true;
+            // Success!
+            //this.DialogResult = true;
             //}
 
             // DialogResult:  There could be settings for accepting only partial data.. Mostly, there'd be a cancel
             //                if the data is invalid.
             this.DialogResult = true;
+
+            // NOTE**** THIS PATTERN NEEDS TO BE REFACTORED. FOR NOW, JUST USE THE IDialogController show sync method.
+
+            //_eventAggregator.GetEvent<DialogEvent>().Publish(DialogEventData.Dismiss());
         }
     }
 }

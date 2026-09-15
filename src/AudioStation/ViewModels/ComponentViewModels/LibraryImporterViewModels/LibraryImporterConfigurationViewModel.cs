@@ -15,6 +15,9 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels
         // Library Directorys (only)
         LibraryDirectoryViewModel _importDirectory;
 
+        LibraryImportType _importType;
+        AudioEncoderViewModel _importFormat;
+
         // Tag Source Options
         LibraryImportSource _tagSourcePreference;
         LibraryImportSource _acoustIDSourcePreference;
@@ -50,6 +53,16 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels
         {
             get { return _importDirectory; }
             set { this.RaiseAndSetIfChanged(ref _importDirectory, value); }
+        }
+        public LibraryImportType ImportType
+        {
+            get { return _importType; }
+            set { this.RaiseAndSetIfChanged(ref _importType, value); }
+        }
+        public AudioEncoderViewModel ImportFormat
+        {
+            get { return _importFormat; }
+            set { this.RaiseAndSetIfChanged(ref _importFormat, value); }
         }
         public LibraryImportSource TagSourcePreference
         {

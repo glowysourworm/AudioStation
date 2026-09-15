@@ -12,12 +12,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Wo
     public class LibraryLoaderFileCheckerViewModel : LibraryLoaderWorkerViewModelBase
     {
         public LibraryLoaderFileCheckerViewModel()
-            : base("File Checker", "Verifies integrity of files related to Audio Station's library", -1, false)
-        {
-
-        }
-        public LibraryLoaderFileCheckerViewModel(int workflowId)
-            : base("File Checker", "Verifies integrity of files related to Audio Station's library", workflowId, true)
+            : base("File Checker", "Verifies integrity of files related to Audio Station's library")
         {
 
         }

@@ -33,6 +33,8 @@ namespace AudioStation.Controller
         public IIocEventAggregator EventAggregator { get { return _eventAggregator; } }
         #endregion
 
+        public bool Initialized { get; private set; }
+
         [IocImportingConstructor]
         public AudioStationController(IIocEventAggregator eventAggregator,
                                       IDialogController dialogController,
@@ -104,6 +106,8 @@ namespace AudioStation.Controller
             //
             _audioStationServiceController.Initialize(configuration, this, progressHandler);
             _audioStationComponentController.Initialize(configuration, this, progressHandler);
+
+            this.Initialized = true;
         }
 
         private void OnConfigurationEvent(AudioStationConfiguration configuration, ConfigurationEventType eventType, bool configurationValid)

@@ -1,5 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 
 using AudioStation.Core.Database.AudioStationDatabase.Interface;
 
@@ -17,18 +16,10 @@ namespace AudioStation.Core.Database.AudioStationDatabase
         public string FileName { get; set; }
         public string Message { get; set; }
 
-        [DataType(DataType.DateTime)]
-        public DateTime Timestamp { get; set; }
-
         // Vendor result (from service)
-        public Guid? LookupId { get; set; }
-        public Guid? MusicBrainzRecordingId { get; set; }
-        public double? Score { get; set; }
-
-        [ForeignKey("ImportWorkflow")]
-        public int? ImportWorkflowId { get; set; }
-
-        public ImportWorkflow ImportWorkflow { get; set; }
+        public Guid LookupId { get; set; }
+        public Guid MusicBrainzRecordingId { get; set; }
+        public double Score { get; set; }
 
         public AcoustIDLookupResult()
         {

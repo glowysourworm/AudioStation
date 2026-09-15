@@ -12,7 +12,6 @@ using AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels;
 using AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.Workflow;
 using AudioStation.ViewModels.MainViewModels;
 
-using SimpleWpf.Extensions.ObservableCollection;
 using SimpleWpf.IocFramework.EventAggregation;
 using SimpleWpf.UI.Command;
 using SimpleWpf.UI.ViewModel.FileTreeView;
@@ -36,16 +35,13 @@ namespace AudioStation.ViewModels.ComponentViewModels
         AudioStationConfigurationViewModel _configuration;
         ObservableCollection<AudioEncoderViewModel> _encoders;
 
-        // Workflow
-        LibraryImporterWorkflowViewModel _workflow;
+        // Workflow Configuration
+        LibraryImporterConfigurationViewModel _workflowConfiguration;
 
         // Workflow Stages
         LibraryImporterServiceWorkflowViewModel _serviceWorkflow;
         LibraryImporterStagingWorkflowViewModel _stagingWorkflow;
         LibraryImporterCompletionWorkflowViewModel _completionWorkflow;
-
-        // Saved Workflow(s)
-        ObservableCollection<LibraryImporterWorkflowViewModel> _savedWorkflows;
 
         SimpleCommand _editTagCommand;
         SimpleCommand<string> _editTagGroupCommand;
@@ -65,23 +61,10 @@ namespace AudioStation.ViewModels.ComponentViewModels
             get { return _encoders; }
             set { this.RaiseAndSetIfChanged(ref _encoders, value); }
         }
-        public LibraryImporterWorkflowViewModel Workflow
+        public LibraryImporterConfigurationViewModel WorkflowConfiguration
         {
-            get { return _workflow; }
-            set
-            {
-                RaiseAndSetIfChanged(ref _workflow, value);
-
-                // Also, have to set component parts
-                if (this.ServiceWorkflow != null)
-                    this.ServiceWorkflow.SetWorkflow(value);
-
-                if (this.StagingWorkflow != null)
-                    this.StagingWorkflow.SetWorkflow(value);
-
-                if (this.CompletionWorkflow != null)
-                    this.CompletionWorkflow.Workflow = value;
-            }
+            get { return _workflowConfiguration; }
+            set { this.RaiseAndSetIfChanged(ref _workflowConfiguration, value); }
         }
         public LibraryImporterServiceWorkflowViewModel ServiceWorkflow
         {
@@ -97,11 +80,6 @@ namespace AudioStation.ViewModels.ComponentViewModels
         {
             get { return _completionWorkflow; }
             set { this.RaiseAndSetIfChanged(ref _completionWorkflow, value); }
-        }
-        public ObservableCollection<LibraryImporterWorkflowViewModel> SavedWorkflows
-        {
-            get { return _savedWorkflows; }
-            set { this.RaiseAndSetIfChanged(ref _savedWorkflows, value); }
         }
 
         public SimpleCommand EditTagCommand
@@ -135,11 +113,10 @@ namespace AudioStation.ViewModels.ComponentViewModels
             _dialogController = dialogController;
             _tagCacheController = tagCacheController;
 
-            this.ServiceWorkflow = new LibraryImporterServiceWorkflowViewModel();
-            this.StagingWorkflow = new LibraryImporterStagingWorkflowViewModel(dialogController);
-            this.CompletionWorkflow = new LibraryImporterCompletionWorkflowViewModel();
-
-            this.SavedWorkflows = new ObservableCollection<LibraryImporterWorkflowViewModel>();
+            this.WorkflowConfiguration = new LibraryImporterConfigurationViewModel();
+            this.ServiceWorkflow = new LibraryImporterServiceWorkflowViewModel(this.WorkflowConfiguration);
+            this.StagingWorkflow = new LibraryImporterStagingWorkflowViewModel(dialogController, this.WorkflowConfiguration);
+            this.CompletionWorkflow = new LibraryImporterCompletionWorkflowViewModel(this.WorkflowConfiguration);
 
             this.ServiceWorkflow.PropertyChanged += OnImportStepUpdate;
             this.StagingWorkflow.PropertyChanged += OnImportStepUpdate;
@@ -147,15 +124,6 @@ namespace AudioStation.ViewModels.ComponentViewModels
 
             this.EditTagCommand = new SimpleCommand(EditTag, CanEditTag);
             this.EditTagGroupCommand = new SimpleCommand<string>(EditTagGroup, CanEditTagGroup);
-        }
-
-        /// <summary>
-        /// Saves current workflow changes
-        /// </summary>
-        public void SaveCurrentWorkflow()
-        {
-            // EXCEPTION (TODO)
-            _libraryLoaderService.AddOrUpdateImportWorkflow(this.Workflow);
         }
 
         private void OnImportStepUpdate(object? sender, PropertyChangedEventArgs e)
@@ -172,25 +140,16 @@ namespace AudioStation.ViewModels.ComponentViewModels
             _libraryLoaderService = audioStationController.LibraryLoaderService;
 
             // Direct property settings (BEFORE INITIALIZE)
-            this.CompletionWorkflow.Workflow = this.Workflow;
             this.CompletionWorkflow.StagedFiles = this.StagingWorkflow.StagedFiles;
 
             // Sub-component(s)
             this.Configuration = audioStationController.ComponentController.GetComponent<AudioStationConfigurationViewModel>();
             this.Encoders = audioStationController.ComponentController.GetComponent<MainViewModel>().Encoders;
-
-            // EXCEPTION (TODO)
-            this.SavedWorkflows.AddRange(audioStationController.LibraryLoaderService.GetWorkflows());
-
-            if (this.SavedWorkflows.Any())
-                this.Workflow = this.SavedWorkflows.First();
-
-            this.ServiceWorkflow.SetWorkflow(this.Workflow);
-            this.StagingWorkflow.SetWorkflow(this.Workflow);
         }
         protected override void LoadWork(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
         {
-            if (this.Workflow.Configuration.ImportDirectory == null)
+            // TODO: VALIDATION
+            if (this.WorkflowConfiguration.ImportDirectory == null)
                 return;
 
             // Sub-component(s)

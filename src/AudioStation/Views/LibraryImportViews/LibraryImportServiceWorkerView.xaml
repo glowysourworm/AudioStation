@@ -23,6 +23,7 @@
         <!-- Input Files -->
         <ListBox x:Name="LoaderWorkItemsLB"
                  ItemsSource="{Binding SelectedItem.WorkItems, ElementName=LoaderLB}"
+                 MouseDoubleClick="LoaderWorkItemsLB_MouseDoubleClick"
                  Grid.Column="0"
                  Grid.ColumnSpan="3"
                  Grid.Row="2"

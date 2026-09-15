@@ -1,6 +1,7 @@
 ﻿using System.Windows;
 
 using AudioStation.Event.DialogEvents;
+using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels;
 
 using SimpleWpf.IocFramework.EventAggregation;
 using SimpleWpf.UI.ViewModel;
@@ -33,7 +34,8 @@ namespace AudioStation.Event
         MessageList,
         SelectionList,
         SmallAudioPlayer,
-        EditorView
+        EditorView,
+        LibraryWorkItem
     }
     public enum DialogEditorView
     {
@@ -117,6 +119,10 @@ namespace AudioStation.Event
 
         public DialogEventData(DialogLoadingViewModel viewModel)
             : this(true, false, string.Empty, DialogDefaultWidth, DialogDefaultHeight, MessageBoxButton.OK, NavigationView.None, DialogView.Loading, DialogEditorView.None, viewModel)
+        { }
+
+        public DialogEventData(LibraryWorkItemViewModel viewModel)
+            : this(true, true, "Library Work Item", DialogDefaultWidth, DialogDefaultHeight, MessageBoxButton.OK, NavigationView.None, DialogView.LibraryWorkItem, DialogEditorView.None, viewModel)
         { }
 
         public DialogEventData(string dialogTitle, DialogSmallAudioPlayerViewModel viewModel)

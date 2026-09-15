@@ -94,11 +94,10 @@ namespace AudioStation.Core.Service.Vendor
                                        results.Add(new AcoustIDLookupResult()
                                        {
                                            FileName = fileName,
-                                           Message = "AcoustID service lookup successful: " + recording.Title,
+                                           Message = "AcoustID service lookup successful: " + recording.Id,
                                            LookupId = new Guid(x.Id),
                                            MusicBrainzRecordingId = new Guid(recording.Id),
-                                           Score = x.Score,
-                                           Timestamp = DateTime.Now.ToUniversalTime()
+                                           Score = x.Score
                                        });
                                    }
 
@@ -109,6 +108,7 @@ namespace AudioStation.Core.Service.Vendor
             {
                 ApplicationHelpers.Log("Error using AcoustID service:  {0}", LogMessageServiceType.AcoustID, LogLevel.Error, ex, ex.Message);
 
+                // Create empty result with the error message
                 return Enumerable.Empty<AcoustIDLookupResult>();
             }
         }

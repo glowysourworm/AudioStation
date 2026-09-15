@@ -109,6 +109,10 @@
     <SolidColorBrush x:Key="PlayerControlButtonBackground" Color="#FFAAAAAA" />
     <SolidColorBrush x:Key="PlayerControlButtonBackgroundHover" Color="#FF888888" />
 
+    <SolidColorBrush x:Key="WorkItemBackgroundSuccess">Transparent</SolidColorBrush>
+    <SolidColorBrush x:Key="WorkItemBackgroundWarning">#1FFFFF00</SolidColorBrush>
+    <SolidColorBrush x:Key="WorkItemBackgroundError">#1FFF0000</SolidColorBrush>
+
     <LinearGradientBrush x:Key="PlayerControlTimelineBrush" StartPoint="0.5, 0" EndPoint="0.5, 1">
         <GradientStop Color="#FFAAAAAA" Offset="0" />
         <GradientStop Color="#FFAAAAAA" Offset="0.1" />

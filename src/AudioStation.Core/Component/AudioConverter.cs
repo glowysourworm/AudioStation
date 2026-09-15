@@ -115,6 +115,21 @@ namespace AudioStation.Core.Component
             return CodecFactory.Instance.GetSupportedFileExtensions().Select(x => "*." + x).Join("|", x => x);
         }
 
+        public AudioEncoderInfo GetDefaultFormat(string formatExtension)
+        {
+            var format = GetSupportedFormats().FirstOrDefault(x => x.Extension == formatExtension);
+
+            if (format == null)
+                throw new Exception("Unsupported format:  " + formatExtension);
+
+            return format;
+        }
+
+        public IEnumerable<string> GetSupportedFormatExtensions()
+        {
+            return GetSupportedFormats().Select(x => x.Extension).Distinct();
+        }
+
         public IEnumerable<AudioEncoderInfo> GetSupportedFormats()
         {
             return new List<AudioEncoderInfo>

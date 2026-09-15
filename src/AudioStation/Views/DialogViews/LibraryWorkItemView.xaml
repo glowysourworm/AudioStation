@@ -1,0 +1,61 @@
+﻿<UserControl x:Class="AudioStation.Views.DialogViews.LibraryWorkItemView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:propertyGrid="clr-namespace:AudioStation.Controls.PropertyGrid"
+             Width="700" Height="200">
+
+    <TabControl>
+        <TabItem Header="Properties">
+            
+            <Grid RowDefinitions="Auto, Auto, Auto, Auto, Auto, Auto">
+
+                <propertyGrid:PropertyLabelControl LabelColumnWidth="250"                                            
+                                           LabelText="Workflow Id"
+                                           Style="{StaticResource PropertyGridUserControl}"
+                                           Value="{Binding WorkflowId}" />
+
+                <propertyGrid:PropertyLabelControl LabelColumnWidth="250" Grid.Row="1"
+                                           LabelText="Name"
+                                           Style="{StaticResource PropertyGridUserControl}"
+                                           Value="{Binding Load.DisplayText}" />
+
+                <propertyGrid:PropertyLabelControl LabelColumnWidth="250" Grid.Row="2"                                
+                                           LabelText="Status"
+                                           Style="{StaticResource PropertyGridUserControl}"
+                                           Value="{Binding Status}" />
+
+                <propertyGrid:PropertyLabelControl LabelColumnWidth="250" Grid.Row="3"                                
+                                           LabelText="Last Message"
+                                           Style="{StaticResource PropertyGridUserControl}"
+                                           Value="{Binding PreviousMessage}" />
+
+                <propertyGrid:PropertyLabelControl LabelColumnWidth="250" Grid.Row="4"                                
+                                           LabelText="Last Result"
+                                           Style="{StaticResource PropertyGridUserControl}"
+                                           Value="{Binding PreviousErrorType}" />
+
+                <propertyGrid:PropertyLabelControl LabelColumnWidth="250" Grid.Row="5"                  
+                                           LabelText="Last Timestamp"
+                                           Style="{StaticResource PropertyGridUserControl}"
+                                           Value="{Binding PreviousRunTimestamp}" />
+            </Grid>
+        </TabItem>
+
+        <TabItem Header="Work Steps" IsEnabled="{Binding WorkSteps, Converter={StaticResource CollectionNonEmptyBoolConverter}}">
+            <ListBox ItemsSource="{Binding WorkSteps}"
+                     Style="{StaticResource PlainListBoxStyle}"
+                     ItemTemplate="{StaticResource LibraryWorkStepItemTemplate}">
+            </ListBox>
+        </TabItem>
+
+        <TabItem Header="Log" IsEnabled="{Binding LogMessages, Converter={StaticResource CollectionNonEmptyBoolConverter}}">
+            <ListBox ItemsSource="{Binding LogMessages}"
+                     ItemTemplate="{StaticResource LogDataTemplate}"
+                     Style="{StaticResource PlainListBoxStyle}">
+            </ListBox>
+        </TabItem>
+        
+    </TabControl>
+
+    
+</UserControl>

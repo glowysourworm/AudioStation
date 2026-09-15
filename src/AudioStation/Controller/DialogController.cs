@@ -189,7 +189,7 @@ namespace AudioStation.Controller
             {
                 if (_dialogWindow == null)
                 {
-                    _dialogWindow = new DialogWindow();
+                    _dialogWindow = new DialogWindow(_eventAggregator);
                 }
 
                 else
@@ -207,6 +207,12 @@ namespace AudioStation.Controller
             {
                 case DialogView.Loading:
                     _dialogWindow.DataContext = new LoadingView()
+                    {
+                        DataContext = data.DataContext
+                    };
+                    break;
+                case DialogView.LibraryWorkItem:
+                    _dialogWindow.DataContext = new LibraryWorkItemView()
                     {
                         DataContext = data.DataContext
                     };

@@ -47,7 +47,7 @@ namespace AudioStation.ViewModels.ComponentViewModels
 
             this.LoaderTasks.Add(new LibraryLoaderAcoustIDViewModel());
             this.LoaderTasks.Add(new LibraryLoaderFileCheckerViewModel());
-            this.LoaderTasks.Add(new LibraryLoaderFileConverterViewModel());
+            //this.LoaderTasks.Add(new LibraryLoaderFileConverterViewModel());
             this.LoaderTasks.Add(new LibraryLoaderMusicBrainzBasicViewModel());
             this.LoaderTasks.Add(new LibraryLoaderMusicBrainzAlbumArtViewModel());
         }
