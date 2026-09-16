@@ -33,9 +33,9 @@ namespace AudioStation.Core.Component
         public event SimpleEventHandler<LibraryLoaderWorkItem> WorkItemComplete;
         public event SimpleEventHandler<PlayStopPause> StateChangeEvent;
 
-        private Queue<LibraryLoaderWorkItem> _workQueue;
-        private List<LibraryLoaderWorkItem> _workItemsWorking;
-        private List<LibraryWorkerThreadBase> _workerThreads;
+        private Dictionary<int, LibraryLoaderWorkItem> _workQueue;
+        private Dictionary<int, LibraryLoaderWorkItem> _workItemsWorking;
+        private Dictionary<int, LibraryWorkerThreadBase> _workerThreads;
 
         // We're going to keep a history of the work items. An ID counter will supply id's to the
         // work items. In future cases, this may come from the database.
@@ -60,15 +60,15 @@ namespace AudioStation.Core.Component
             _audioConverter = audioConverter;
             _tagCacheController = tagCacheController;
 
-            _workQueue = new Queue<LibraryLoaderWorkItem>();
-            _workItemsWorking = new List<LibraryLoaderWorkItem>();
-            _workerThreads = new List<LibraryWorkerThreadBase>();
+            _workQueue = new Dictionary<int, LibraryLoaderWorkItem>();
+            _workItemsWorking = new Dictionary<int, LibraryLoaderWorkItem>();
+            _workerThreads = new Dictionary<int, LibraryWorkerThreadBase>();
 
             _workItemIdCounter = 0;
             _loaderState = PlayStopPause.Stop;
         }
 
-        public int RunLoaderTaskAsync(LibraryLoadType loadType, object load)
+        public int QueueLoaderTask(LibraryLoadType loadType, object load)
         {
             if (BasicHelpers.IsDispatcher() == ApplicationIsDispatcherResult.False)
                 throw new Exception("ILibraryLoader must be accessed by the main thread");
@@ -122,15 +122,18 @@ namespace AudioStation.Core.Component
                     throw new Exception("Unhandled library loader task type:  LibraryLoader.cs");
             }
 
+            // Increment Work Counter
+            _workItemIdCounter++;
+
             // Queue Work Item
-            _workQueue.Enqueue(workItem);
+            _workQueue.Add(workItem.GetId(), workItem);
 
             // -> State Change!
             OnStateChange(PlayStopPause.Play);
 
             CheckMoreWork();
 
-            return _workItemIdCounter++;
+            return workItem.GetId();
         }
 
         public bool IsWorkCompleted()
@@ -139,6 +142,57 @@ namespace AudioStation.Core.Component
                 throw new Exception("ILibraryLoader must be accessed by the main thread");
 
             return !_workerThreads.Any() && _workQueue.Count == 0;
+        }
+
+        public bool IsTaskQueued(int workItemId)
+        {
+            if (BasicHelpers.IsDispatcher() == ApplicationIsDispatcherResult.False)
+                throw new Exception("ILibraryLoader must be accessed by the main thread");
+
+            return _workQueue.ContainsKey(workItemId);
+        }
+
+        public bool IsTaskRunning(int workItemId)
+        {
+            if (BasicHelpers.IsDispatcher() == ApplicationIsDispatcherResult.False)
+                throw new Exception("ILibraryLoader must be accessed by the main thread");
+
+            if (!_workerThreads.ContainsKey(workItemId))
+                return false;
+
+            return _workerThreads[workItemId].GetExecutionState() == ThreadState.Running;
+        }
+
+        public void DequeueTask(int workItemId)
+        {
+            if (BasicHelpers.IsDispatcher() == ApplicationIsDispatcherResult.False)
+                throw new Exception("ILibraryLoader must be accessed by the main thread");
+
+            if (_workerThreads.ContainsKey(workItemId))
+                throw new ArgumentException("Cannot dequeue task that is running. Must first cancel the task");
+
+            if (!_workQueue.ContainsKey(workItemId))
+                throw new ArgumentException("Work item is not queued. Please check before dequeuing.");
+
+            _workQueue.Remove(workItemId);
+        }
+
+        public void CancelTask(int workItemId)
+        {
+            if (BasicHelpers.IsDispatcher() == ApplicationIsDispatcherResult.False)
+                throw new Exception("ILibraryLoader must be accessed by the main thread");
+
+            if (!_workerThreads.ContainsKey(workItemId))
+                throw new ArgumentException("Work item not found");
+
+            // -> Join / Abort
+            _workerThreads[workItemId].Stop();
+
+            // -> GC
+            _workerThreads.Remove(workItemId);
+
+            if (_workItemsWorking.ContainsKey(workItemId))
+                _workItemsWorking.Remove(workItemId);
         }
 
         public void ChangeState(PlayStopPause state)
@@ -163,29 +217,12 @@ namespace AudioStation.Core.Component
                 }
                 break;
                 case PlayStopPause.Pause:
-                {
-                    if (_loaderState == PlayStopPause.Pause)
-                        return;
-
-                    OnStateChange(PlayStopPause.Pause);
-                }
-                break;
                 case PlayStopPause.Stop:
                 {
-                    if (_loaderState == PlayStopPause.Stop)
+                    if (_loaderState == state)
                         return;
 
-                    // -> Stop All Workers, Clear Queue (user must resubmit workers)
-                    foreach (var workerThread in _workerThreads)
-                    {
-                        if (workerThread.GetExecutionState() == ThreadState.Running)
-                            workerThread.Stop();
-                    }
-
-                    _workerThreads.Clear();
-                    _workItemsWorking.Clear();
-
-                    OnStateChange(PlayStopPause.Stop);
+                    OnStateChange(state);
                 }
                 break;
                 default:
@@ -204,7 +241,10 @@ namespace AudioStation.Core.Component
             if (_workQueue.Count > 0 && _workerThreads.Count == 0 && _loaderState == PlayStopPause.Play)
             {
                 // -> Dequeue
-                var workItem = _workQueue.Dequeue();
+                var workItemId = _workQueue.Keys.Min();
+                var workItem = _workQueue[workItemId];
+
+                _workQueue.Remove(workItemId);
 
                 // Next Thread
                 LibraryWorkerThreadBase thread = null;
@@ -254,14 +294,14 @@ namespace AudioStation.Core.Component
                     thread.ReportWorkStepComplete += Worker_ReportWorkStepComplete;
                     thread.ReportComplete += Worker_ReportComplete;
 
-                    _workerThreads.Add(thread);
+                    _workerThreads.Add(workItem.GetId(), thread);
                 }
 
                 // -> Working
-                _workItemsWorking.Add(workItem);
+                _workItemsWorking.Add(workItem.GetId(), workItem);
 
                 // Start worker thread
-                _workerThreads[_workerThreads.Count - 1].Start();
+                _workerThreads[workItem.GetId()].Start();
             }
 
             else if (_workQueue.Count == 0)
@@ -276,10 +316,10 @@ namespace AudioStation.Core.Component
                 throw new Exception("Worker collections must be accessed by the main thread");
 
             // Remove worker from the list
-            _workerThreads.Remove(worker);
+            _workerThreads.Remove(workItem.GetId());
 
             // Add work item to the history
-            _workItemsWorking.Remove(workItem);
+            _workItemsWorking.Remove(workItem.GetId());
 
             // Worker has reported complete. Go ahead and wait for a join.
             worker.Stop();
@@ -345,7 +385,7 @@ namespace AudioStation.Core.Component
         {
             if (_workerThreads != null)
             {
-                foreach (var worker in _workerThreads)
+                foreach (var worker in _workerThreads.Values)
                 {
                     worker.Dispose();
                 }

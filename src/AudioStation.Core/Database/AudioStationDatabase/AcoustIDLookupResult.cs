@@ -14,7 +14,6 @@ namespace AudioStation.Core.Database.AudioStationDatabase
         /// Reference file name from the lookup
         /// </summary>
         public string FileName { get; set; }
-        public string Message { get; set; }
 
         // Vendor result (from service)
         public Guid LookupId { get; set; }

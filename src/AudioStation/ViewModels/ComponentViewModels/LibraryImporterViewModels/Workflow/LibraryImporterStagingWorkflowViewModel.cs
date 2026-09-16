@@ -179,52 +179,28 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
                     stagedFiles.Add(file.FullPath, file);
             }
 
-            // Selected Nodes
-            var selectedNodes = this.ImportDirectory.GetSelection(true).ToList();
+            var selectedFileCount = this.ImportDirectory.GetSelectedFileCount();
             var counter = 0;
 
             // -> Select any selected files or any files in a sub-directory recursively
-            foreach (var nodeBase in selectedNodes)
+            this.ImportDirectory.RecurseForEach(treeBase =>
             {
-                progressHandler(selectedNodes.Count, counter++, 0, "Loading:  " + nodeBase.NodeValue.DisplayName);
+                // Selection Only
+                if (!treeBase.NodeValue.IsSelected)
+                    return;
 
-                var node = nodeBase.GetNodeValue();
-                var subCounter = 0;
+                var subTree = treeBase as FileTreeViewModel;
+                var subNode = subTree.GetNodeValue();
 
-                // Directory:  Recurse down this sub-tree and add files only
-                if (node.IsDirectory)
+                // Careful to avoid other files that have been staged
+                if (!subNode.IsDirectory && !stagedFiles.ContainsKey(subNode.FullPath))
                 {
-                    nodeBase.RecurseForEach(subNodeBase =>
-                    {
-                        progressHandler(nodeBase.Children.Count, subCounter++, 0, "Loading:  " + subNodeBase.NodeValue.DisplayName);
+                    // Progress
+                    progressHandler(1, 1, selectedFileCount, counter++, "Loading:  " + treeBase.NodeValue.DisplayName);
 
-                        var subNode = subNodeBase.NodeValue as FileTreeNodeViewModel;
+                    var stagedFile = new LibraryImporterFileViewModel(subNode.FullPath, subNode.BaseDirectory);
 
-                        if (!subNode.IsDirectory && !stagedFiles.ContainsKey(subNode.FullPath))
-                        {
-                            var file = new LibraryImporterFileViewModel(subNode.FullPath, subNode.BaseDirectory);
-
-                            file.TagClean = _tagCache.Get(subNode.FullPath);
-                            //file.TagDirty = _tagCache.GetCopy(subNode.FullPath);
-
-                            // Check For Library Conflict
-                            //
-                            file.LibraryConflict = libraryFiles.ContainsKey(file.FullPath);
-                            file.FileConflict = false;                                          // Calculate migration path
-
-                            stagedFiles.Add(file.FullPath, file);
-                            this.StagedFiles.Add(file);
-                        }
-
-                    });
-                }
-
-                // Other Files
-                else if (!stagedFiles.ContainsKey(node.FullPath))
-                {
-                    var stagedFile = new LibraryImporterFileViewModel(node.FullPath, node.BaseDirectory);
-
-                    stagedFile.TagClean = _tagCache.Get(node.FullPath);
+                    stagedFile.TagClean = _tagCache.Get(subNode.FullPath);
                     //stagedFile.TagDirty = _tagCache.GetCopy(node.FullPath);
 
                     // Check For Library Conflict
@@ -232,10 +208,10 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
                     stagedFile.LibraryConflict = libraryFiles.ContainsKey(stagedFile.FullPath);
                     stagedFile.FileConflict = false;                                                  // Calculate migration path
 
-                    stagedFiles.Add(node.FullPath, stagedFile);
+                    stagedFiles.Add(subNode.FullPath, stagedFile);
                     this.StagedFiles.Add(stagedFile);
                 }
-            }
+            });
         }
         protected override void ResetWork(DialogEventHandlers.DialogProgressHandler progressHandler)
         {

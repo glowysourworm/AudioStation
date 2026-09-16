@@ -16,10 +16,8 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Wo
         {
 
         }
-        public override void Load(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
+        protected override void LoadWorkItems(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
         {
-            base.Load(configuration, audioStationController, progressHandler);
-
             try
             {
                 var results = audioStationController.ServiceController
@@ -32,7 +30,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Wo
                 // TODO: Create an entity set load with progress updater (for several hundred at once)
                 foreach (var result in results)
                 {
-                    progressHandler(results.Count(), counter++, 0, "Loading:  " + result.FileName);
+                    progressHandler(results.Count(), counter++, 0, 0, "Loading:  " + result.FileName);
 
                     this.WorkItems.Add(new LibraryWorkItemViewModel()
                     {
@@ -55,11 +53,6 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Wo
                         Progress = 0
                     });
                 }
-
-                this.Loaded = true;
-
-                // Update Work Item Counters
-                OnUpdate();
             }
             catch (Exception ex)
             {

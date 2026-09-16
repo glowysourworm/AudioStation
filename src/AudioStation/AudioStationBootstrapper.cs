@@ -103,6 +103,7 @@ namespace AudioStation
             {
                 Message = "Initializing Components",
                 Progress = 0,
+                SubProgress = 0,
                 ShowProgressBar = true,
                 ShowProgressMessage = true
             };
@@ -117,7 +118,7 @@ namespace AudioStation
             var primaryController = IocContainer.Get<IAudioStationController>();
 
             // Dialog Update Func (make the code here smaller)
-            var dialogUpdater = new DialogEventHandlers.DialogProgressHandler((taskCount, tasksComplete, tasksError, message) =>
+            var dialogUpdater = new DialogEventHandlers.DialogProgressHandler((taskCount, tasksComplete, subTaskCount, subTasksComplete, message) =>
             {
                 // Dispatcher Awareness:  The binding for the view must be on the dispatcher to show anything to the user..! So,
                 //                        These callbacks have been careful to make sure there are no forwards from Task threads.
@@ -150,6 +151,7 @@ namespace AudioStation
                     throw new Exception("Initialization of the library must be on the main dispatcher thread");
 
                 dialogViewModel.Progress = tasksComplete / (double)taskCount;
+                dialogViewModel.SubProgress = subTasksComplete / (double)subTaskCount;
                 dialogViewModel.Message = message;
                 dialogViewModel.ShowProgressMessage = (message != string.Empty);
 

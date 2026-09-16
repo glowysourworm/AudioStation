@@ -9,6 +9,7 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
         <TextBlock FontSize="16" Margin="10" Grid.Row="0"
@@ -26,7 +27,16 @@
                               Visibility="{Binding ShowProgressBar, Converter={StaticResource BoolVisibilityCollapseConverter}}"
                               Width="250" Height="24" Margin="5" Grid.Row="1" />
 
-        <TextBlock FontSize="14" Margin="5" Grid.Row="2"
+        <controls:ProgressBar Progress="{Binding SubProgress}" 
+                              ProgressBrush="DodgerBlue" 
+                              Foreground="#FF555555"
+                              Background="LightGray"
+                              HorizontalAlignment="Center" 
+                              VerticalAlignment="Center"                              
+                              Visibility="{Binding ShowProgressBar, Converter={StaticResource BoolVisibilityCollapseConverter}}"
+                              Width="250" Height="16" Margin="5 1 5 5" Grid.Row="2" />
+
+        <TextBlock FontSize="14" Margin="5" Grid.Row="3"
                    Text="{Binding Message}" Style="{StaticResource LabelTextBlock}"
                    TextAlignment="Left"
                    TextWrapping="NoWrap"

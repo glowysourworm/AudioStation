@@ -11,7 +11,7 @@ namespace AudioStation.Core.Model
         /// <summary>
         /// Source folder is taken into the library as a new library folder; and the files are handled in place.
         /// </summary>
-        [Display(Name = "In Place (no file migration)", ShortName = "InPlaceDirectory", Description = "This option will cause Audio Station to keep this folder as a library folder; and no file migration will be performed")]
+        [Display(Name = "In Place (no file migration)", ShortName = "In Place Directory", Description = "This option will cause Audio Station to keep this folder as a library folder; and no file migration will be performed")]
         InPlaceDirectory = 0,
 
         /// <summary>

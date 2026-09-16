@@ -147,7 +147,7 @@ namespace AudioStation.Utility
                     foreach (var file in fileData)
                     {
                         if (progressHandler != null)
-                            progressHandler(fileCount, fileIndex++, 0, "Loading Import Files");
+                            progressHandler(1, 1, fileCount, fileIndex++, "Loading Import Files");
 
                         // Directory (stack)
                         if (file.IsDirectory)

@@ -24,7 +24,7 @@ namespace AudioStation.Core.Component.Interface
         /// <summary>
         /// Initializes and runs a library loader task with the specified parameters. Returns ID of new work item.
         /// </summary>
-        int RunLoaderTaskAsync(LibraryLoadType loadType, object load);
+        int QueueLoaderTask(LibraryLoadType loadType, object load);
 
         /// <summary>
         /// Sets state of loader:  This will not alter any work items. It will only stop the loader from processing
@@ -37,5 +37,26 @@ namespace AudioStation.Core.Component.Interface
         /// if there are no threads currently running.
         /// </summary>
         bool IsWorkCompleted();
+
+        /// <summary>
+        /// Returns true if the work item is queued
+        /// </summary>
+        bool IsTaskQueued(int workItemId);
+
+        /// <summary>
+        /// Returns true if the work item is running. Running work items may be cancelled.
+        /// </summary>
+        bool IsTaskRunning(int workItemId);
+
+        /// <summary>
+        /// Removes task from work queue. Task must not yet be running. All interaction with
+        /// the queue is from the main thread.
+        /// </summary>
+        void DequeueTask(int workItemId);
+
+        /// <summary>
+        /// Cancels task (if thread is running it will stop the thread); and removes from the queue.
+        /// </summary>
+        void CancelTask(int workItemId);
     }
 }

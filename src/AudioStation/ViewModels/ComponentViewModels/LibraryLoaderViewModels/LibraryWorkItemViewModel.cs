@@ -22,6 +22,9 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels
         bool _isCompleted;
         bool _hasErrors;
 
+        // UI Properties
+        bool _isSelected;
+
         public int Id
         {
             get { return _id; }
@@ -72,7 +75,11 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels
             get { return _hasErrors; }
             set { this.RaiseAndSetIfChanged(ref _hasErrors, value); }
         }
-
+        public bool IsSelected
+        {
+            get { return _isSelected; }
+            set { this.RaiseAndSetIfChanged(ref _isSelected, value); }
+        }
         public string DisplayName
         {
             get { return _load.DisplayText; }

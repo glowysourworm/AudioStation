@@ -29,10 +29,8 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Wo
             _workItemDict = new SimpleDictionary<string, string>();
         }
 
-        public override void Load(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
+        protected override void LoadWorkItems(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
         {
-            base.Load(configuration, audioStationController, progressHandler);
-
             try
             {
                 var audioConverter = IocContainer.Get<IAudioConverter>();
@@ -62,7 +60,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Wo
 
                             foreach (var file in audioFiles)
                             {
-                                progressHandler(audioFiles.Count, counter++, 0, "Loading: " + file.FullPath);
+                                progressHandler(audioFiles.Count, counter++, 0, 0, "Loading: " + file.FullPath);
 
                                 // CORRUPT FILES! (This will go to file maintainence)
                                 if (file.Size <= 0)
@@ -100,11 +98,6 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Wo
                         }
                     }
                 }
-
-                this.Loaded = true;
-
-                // Update Work Item Counters
-                OnUpdate();
             }
             catch (Exception ex)
             {

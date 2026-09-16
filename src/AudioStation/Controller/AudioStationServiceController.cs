@@ -142,7 +142,7 @@ namespace AudioStation.Controller
 
         private void InitializeImpl(IAudioStationDataService service, AudioStationConfiguration configuration, int taskNumber, int taskCount, DialogEventHandlers.DialogProgressHandler progressHandler)
         {
-            progressHandler(taskCount, taskNumber, 0, string.Format("Initializing {0}", service.GetDisplayName()));
+            progressHandler(taskCount, taskNumber, 0, 0, string.Format("Initializing {0}", service.GetDisplayName()));
             var status = service.Initialize(configuration);
 
             if (this.ComponentInitializedEvent != null)

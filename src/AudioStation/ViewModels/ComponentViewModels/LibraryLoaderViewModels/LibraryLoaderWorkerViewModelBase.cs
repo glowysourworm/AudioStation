@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using System.ComponentModel;
 
 using AudioStation.Controller.Interface;
 using AudioStation.Core.Component;
@@ -30,6 +31,9 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels
         int _workItemsError;
         double _workProgress;
 
+        // Blocker for preventing events during loading
+        bool _updating;
+
 
         /// <summary>
         /// Executes when the library loader worker has changed status
@@ -40,6 +44,11 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels
         /// Executes when work item is updated
         /// </summary>
         public event SimpleEventHandler<LibraryLoaderWorkerViewModelBase, LibraryWorkItemViewModel> WorkItemChangedEvent;
+
+        /// <summary>
+        /// Event that fires when any of the UI properties of the work item are changed (e.g. IsSelected)
+        /// </summary>
+        public event SimpleEventHandler<LibraryLoaderWorkerViewModelBase, LibraryWorkItemViewModel> WorkItemUIChangedEvent;
 
         public string Name
         {
@@ -122,16 +131,47 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels
             this.Working = false;
         }
 
-        public virtual void Load(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
+        protected abstract void LoadWorkItems(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler);
+
+        public void Load(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
         {
+            if (this.Loaded)
+                throw new Exception("Library loader worker is already loaded");
+
             // Events
             audioStationController.EventAggregator.GetEvent<LibraryLoaderWorkItemCompleteEvent>().Subscribe(OnWorkItemComplete);
             audioStationController.EventAggregator.GetEvent<LibraryLoaderWorkItemUpdateEvent>().Subscribe(OnWorkItemUpdate);
 
             _libraryLoaderWorkerService = audioStationController.ServiceController.GetService<ILibraryLoaderWorkerService>();
 
+            // BeginUpdate()
+            _updating = true;
+
+            // -> Inherited Class
+            LoadWorkItems(configuration, audioStationController, progressHandler);
+
+            // EndUpdate()
+            _updating = false;
+
+            // Work Item Events
+            foreach (var workItem in this.WorkItems)
+                workItem.PropertyChanged += OnWorkItemUIPropertyChanged;
+
+            this.Loaded = true;
+
             OnUpdate();
         }
+
+        protected void BeginUpdate()
+        {
+            _updating = true;
+        }
+
+        protected void EndUpdate()
+        {
+            _updating = false;
+        }
+
         public void Execute()
         {
             if (!CanExecute())
@@ -139,8 +179,50 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels
 
             foreach (var workItem in this.WorkItems.Where(x => !x.IsCompleted))
             {
+                if (_libraryLoaderWorkerService.IsTaskQueued(workItem.Id))
+                {
+                    int fo = 4;
+                }
+
                 // WORK ITEM:  Id is set from the backend!
                 workItem.Id = _libraryLoaderWorkerService.RunLoaderTaskAsync(workItem);
+            }
+
+            OnUpdate();
+        }
+        public void RerunSelected()
+        {
+            if (!CanExecute())
+                throw new Exception("Loader task currently running. Please call 'CanExecute' first to verify it is finished.");
+
+            // Selected
+            foreach (var workItem in this.WorkItems.Where(x => x.IsSelected))
+            {
+                if (_libraryLoaderWorkerService.IsTaskQueued(workItem.Id) ||
+                    _libraryLoaderWorkerService.IsTaskRunning(workItem.Id))
+                    continue;
+
+                // Reset Work Item(s) (these data get set by backend updates)
+                workItem.Id = _libraryLoaderWorkerService.RunLoaderTaskAsync(workItem);
+            }
+
+            OnUpdate();
+        }
+        public void SkipSelected()
+        {
+            // Selected
+            foreach (var workItem in this.WorkItems.Where(x => x.IsSelected))
+            {
+                if (_libraryLoaderWorkerService.IsTaskQueued(workItem.Id))
+                {
+                    // Reset Work Item(s) (these data get set by backend updates)
+                    _libraryLoaderWorkerService.DequeueTask(workItem.Id);
+                }
+
+                else if (_libraryLoaderWorkerService.IsTaskRunning(workItem.Id))
+                {
+                    _libraryLoaderWorkerService.CancelTask(workItem.Id);
+                }
             }
 
             OnUpdate();
@@ -172,6 +254,10 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels
 
         protected override void OnPropertyChanged(string name)
         {
+            // Updating:  Prevent event raising during updates
+            if (_updating)
+                return;
+
             if (name != "Status")
                 base.OnPropertyChanged(name);
 
@@ -236,6 +322,13 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels
             if (source.Id != dest.Id)
                 throw new ArgumentException("Trying to map mis-matching work items");
 
+            // Mapped Properties:  These view model instances differ. The backend instance
+            //                     will load properties from the service loader middle-tier.
+            //
+            //                     Any properties on the front end should be avoided here - 
+            //                     including UI properties.
+            //
+
             dest.HasErrors = source.HasErrors;
 
             dest.Id = source.Id;
@@ -245,6 +338,19 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels
             dest.LogMessages = source.LogMessages;
             dest.Progress = source.Progress;
             dest.WorkSteps = source.WorkSteps;
+        }
+
+        private void OnWorkItemUIPropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            // Updating:  Prevent event raising during updates
+            if (_updating)
+                return;
+
+            if (e.PropertyName != "IsSelected")
+                return;
+
+            if (this.WorkItemUIChangedEvent != null)
+                this.WorkItemUIChangedEvent(this, sender as LibraryWorkItemViewModel);
         }
     }
 }

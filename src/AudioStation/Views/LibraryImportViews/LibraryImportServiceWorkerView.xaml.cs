@@ -50,32 +50,21 @@ namespace AudioStation.Views.LibraryImportViews
             }
 
 
-            InitializeViewContext();
             UpdateViewContext();
         }
-
-        private void InitializeViewContext()
-        {
-            var viewModel = this.DataContext as LibraryImporterViewModel;
-
-            if (viewModel != null)
-            {
-                this.LoaderLB.Items.Clear();
-                this.LoaderLB.Items.Add(viewModel.ServiceWorkflow.AcoustIDWorker);
-                this.LoaderLB.Items.Add(viewModel.ServiceWorkflow.MusicBrainzBasicWorker);
-                this.LoaderLB.Items.Add(viewModel.ServiceWorkflow.MusicBrainzAlbumArtWorker);
-            }
-        }
-
         private void UpdateViewContext()
         {
             var viewModel = this.DataContext as LibraryImporterViewModel;
 
             if (viewModel != null)
             {
-                this.ExecuteButton.IsEnabled = viewModel.ServiceWorkflow.CanExecute();
-                this.PauseButton.IsEnabled = !viewModel.ServiceWorkflow.CanExecute();
-                this.CancelButton.IsEnabled = !viewModel.ServiceWorkflow.CanExecute();
+                this.ExecuteButton.IsEnabled = viewModel.ServiceWorkflow.CanChangeLoaderState(PlayStopPause.Play);
+                this.PauseButton.IsEnabled = viewModel.ServiceWorkflow.CanChangeLoaderState(PlayStopPause.Pause);
+                this.CancelButton.IsEnabled = viewModel.ServiceWorkflow.CanChangeLoaderState(PlayStopPause.Stop);
+
+                this.ExecuteButton.IsChecked = viewModel.ServiceWorkflow.LibraryLoaderState == PlayStopPause.Play;
+                this.CancelButton.IsChecked = viewModel.ServiceWorkflow.LibraryLoaderState == PlayStopPause.Stop;
+                this.PauseButton.IsChecked = viewModel.ServiceWorkflow.LibraryLoaderState == PlayStopPause.Pause;
             }
         }
 
@@ -100,15 +89,7 @@ namespace AudioStation.Views.LibraryImportViews
         }
         private void ServiceWorkflow_PropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
-            var viewModel = this.DataContext as LibraryImporterViewModel;
-
-            // Had trouble binding these
-            if (viewModel != null)
-            {
-                this.ExecuteButton.IsChecked = viewModel.ServiceWorkflow.LibraryLoaderState == PlayStopPause.Play;
-                this.CancelButton.IsChecked = viewModel.ServiceWorkflow.LibraryLoaderState == PlayStopPause.Stop;
-                this.PauseButton.IsChecked = viewModel.ServiceWorkflow.LibraryLoaderState == PlayStopPause.Pause;
-            }
+            UpdateViewContext();
         }
 
         private void ExecuteButton_Click(object sender, RoutedEventArgs e)
@@ -117,13 +98,7 @@ namespace AudioStation.Views.LibraryImportViews
 
             if (viewModel != null)
             {
-                if (viewModel.ServiceWorkflow.CanExecute())
-                {
-                    // No need for loading window (these are async tasks)
-                    viewModel.ServiceWorkflow.Execute((x, y, z, w) => { });
-                }
-                else
-                    viewModel.ServiceWorkflow.ChangeLoaderState(PlayStopPause.Play);
+                viewModel.ServiceWorkflow.ChangeLoaderState(PlayStopPause.Play);
             }
         }
 

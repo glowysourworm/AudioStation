@@ -41,10 +41,8 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Wo
             _workItemDict = new Dictionary<string, LibraryWorkItemViewModel>();
         }
 
-        public override void Load(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
+        protected override void LoadWorkItems(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
         {
-            base.Load(configuration, audioStationController, progressHandler);
-
             var audioConverter = IocContainer.Get<IAudioConverter>();
             var tagCache = audioStationController.ServiceController.GetCache<ITagCache>();
 
@@ -56,7 +54,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Wo
                 // 2) Build directory tree (using DirectoryTreeLoader)
                 // 3) Build work items
 
-                progressHandler(1, 0, 0, "Loading AcoustID Data...");
+                progressHandler(0, 0, 0, 0, "Loading AcoustID Data...");
 
                 // Check against existing AcoustID Results
                 var existingResults = audioStationController.ServiceController
@@ -89,11 +87,6 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Wo
                         }
                     }
                 }
-
-                this.Loaded = true;
-
-                // Update Work Item Counters
-                OnUpdate();
             }
             catch (Exception ex)
             {
@@ -107,13 +100,13 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Wo
                                    Dictionary<string, List<AcoustIDLookupResult>> existingResults,
                                    DialogEventHandlers.DialogProgressHandler progressHandler)
         {
-            progressHandler(1, 0, 0, "Loading Directory: " + directory);
+            progressHandler(1, 1, 0, 0, "Loading Directory: " + directory);
 
             // Load Directory
             var directoryTree = DirectoryTreeLoader.Load(directory, filter, -1);
 
             // File Count
-            var totalCount = directoryTree.RecursiveCount(x => true);
+            var totalCount = directoryTree.RecursiveCount(x => !x.CanHaveChildren);
             var counter = 0;
 
             directoryTree.RecurseForEach(entry =>
@@ -124,11 +117,11 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Wo
                 if (_workItemDict.ContainsKey(tree.GetNodeValue().FullPath))
                     return;
 
-                // Report Progress
-                progressHandler(totalCount, counter++, 0, "Loading: " + entry.NodeValue.DisplayName);
-
                 if (!tree.GetNodeValue().IsDirectory)
                 {
+                    // Report Progress
+                    progressHandler(1, 1, totalCount, counter++, "Loading: " + entry.NodeValue.DisplayName);
+
                     var alreadyRun = existingResults.ContainsKey(tree.GetNodeValue().FullPath);
                     var output = new LibraryLoaderEntitySetOutputViewModel<AcoustIDLookupResult>();
                     var tagData = tagCache.Get(tree.GetNodeValue().FullPath);

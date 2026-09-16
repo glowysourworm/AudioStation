@@ -206,7 +206,7 @@ namespace AudioStation.Service
                 resultCollection.Add(artistViewModel);
 
                 // Progress Update
-                progressHandler(artistCount, ++artistIndex, 0, "Loading Artists...");
+                progressHandler(1, 3, artistCount, ++artistIndex, "Loading Artists...");
             }
 
             return resultCollection;
@@ -228,7 +228,7 @@ namespace AudioStation.Service
                 });
 
                 // Progress Update
-                progressHandler(genreCount, ++genreIndex, 0, "Loading Genres...");
+                progressHandler(3, 3, genreCount, ++genreIndex, "Loading Genres...");
             }
 
             return result;
@@ -268,7 +268,7 @@ namespace AudioStation.Service
                 result.Add(album);
 
                 // Progress Update
-                progressHandler(albumCount, ++albumIndex, 0, "Loading Albums...");
+                progressHandler(2, 3, albumCount, ++albumIndex, "Loading Albums...");
             }
 
             return result;

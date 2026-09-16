@@ -94,7 +94,6 @@ namespace AudioStation.Core.Service.Vendor
                                        results.Add(new AcoustIDLookupResult()
                                        {
                                            FileName = fileName,
-                                           Message = "AcoustID service lookup successful: " + recording.Id,
                                            LookupId = new Guid(x.Id),
                                            MusicBrainzRecordingId = new Guid(recording.Id),
                                            Score = x.Score

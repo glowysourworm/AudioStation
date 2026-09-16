@@ -140,13 +140,13 @@ namespace AudioStation.Controller
             var task = 1;
 
             // Log (first)
-            progressHandler(taskCount, task++, 0, "Initializing " + _logViewModel.DisplayName);
+            progressHandler(taskCount, task++, 0, 0, "Initializing " + _logViewModel.DisplayName);
             _logViewModel.Initialize(configuration, audioStationController, progressHandler);
 
             // Configuration (may need lazy loading) (currently, there's nothing to do)
             if (_audioStationConfigurationViewModel != null)
             {
-                progressHandler(taskCount, task++, 0, "Initializing " + _audioStationConfigurationViewModel.DisplayName);
+                progressHandler(taskCount, task++, 0, 0, "Initializing " + _audioStationConfigurationViewModel.DisplayName);
                 _cdImporterViewModel.Initialize(configuration, audioStationController, progressHandler);
             }
 
@@ -156,7 +156,7 @@ namespace AudioStation.Controller
                     component == _audioStationConfigurationViewModel)
                     continue;
 
-                progressHandler(taskCount, task++, 0, "Initializing " + component.DisplayName);
+                progressHandler(taskCount, task++, 0, 0, "Initializing " + component.DisplayName);
                 component.Initialize(configuration, audioStationController, progressHandler);
             }
         }

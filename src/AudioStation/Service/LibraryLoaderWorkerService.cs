@@ -61,7 +61,7 @@ namespace AudioStation.Service
                     if (workLoad == null)
                         throw new ArgumentException("Invalid work load for Library Loader Import");
 
-                    return _libraryLoader.RunLoaderTaskAsync(LibraryLoadType.Import, _audioStationMapper.Map<LibraryLoaderImportLoadViewModel, LibraryLoaderImportLoad>(workLoad));
+                    return _libraryLoader.QueueLoaderTask(LibraryLoadType.Import, _audioStationMapper.Map<LibraryLoaderImportLoadViewModel, LibraryLoaderImportLoad>(workLoad));
                 }
                 case LibraryLoadType.AcoustID:
                 {
@@ -70,7 +70,7 @@ namespace AudioStation.Service
                     if (workLoad == null)
                         throw new ArgumentException("Invalid work load for Library Loader AcoustID Lookup");
 
-                    return _libraryLoader.RunLoaderTaskAsync(LibraryLoadType.AcoustID, new LibraryLoaderFileLoad(workLoad.FullPath));
+                    return _libraryLoader.QueueLoaderTask(LibraryLoadType.AcoustID, new LibraryLoaderFileLoad(workLoad.FullPath));
                 }
                 case LibraryLoadType.MusicBrainzBasic:
                 {
@@ -79,7 +79,7 @@ namespace AudioStation.Service
                     if (workLoad == null)
                         throw new ArgumentException("Invalid work load for Library Loader Music Brainz Import");
 
-                    return _libraryLoader.RunLoaderTaskAsync(LibraryLoadType.MusicBrainzBasic, new LibraryLoaderEntitySetLoad<AcoustIDLookupResult>(workLoad.EntitySet));
+                    return _libraryLoader.QueueLoaderTask(LibraryLoadType.MusicBrainzBasic, new LibraryLoaderEntitySetLoad<AcoustIDLookupResult>(workLoad.EntitySet));
                 }
                 case LibraryLoadType.MusicBrainzAlbumArt:
                 {
@@ -88,7 +88,7 @@ namespace AudioStation.Service
                     if (workLoad == null)
                         throw new ArgumentException("Invalid work load for Library Loader Music Brainz Album Art");
 
-                    return _libraryLoader.RunLoaderTaskAsync(LibraryLoadType.MusicBrainzAlbumArt, new LibraryLoaderEntityLoad<TagSmallVendorMap>(workLoad.Entity));
+                    return _libraryLoader.QueueLoaderTask(LibraryLoadType.MusicBrainzAlbumArt, new LibraryLoaderEntityLoad<TagSmallVendorMap>(workLoad.Entity));
                 }
                 case LibraryLoadType.FileChecker:
                 {
@@ -97,7 +97,7 @@ namespace AudioStation.Service
                     if (workLoad == null)
                         throw new ArgumentException("Invalid work load for Library Loader File Checker");
 
-                    return _libraryLoader.RunLoaderTaskAsync(LibraryLoadType.FileChecker, new LibraryLoaderEntityLoad<FileReference>(workLoad.Entity));
+                    return _libraryLoader.QueueLoaderTask(LibraryLoadType.FileChecker, new LibraryLoaderEntityLoad<FileReference>(workLoad.Entity));
                 }
                 case LibraryLoadType.FileConverter:
                 {
@@ -106,7 +106,7 @@ namespace AudioStation.Service
                     if (workLoad == null)
                         throw new ArgumentException("Invalid work load for Library Loader File Converter");
 
-                    return _libraryLoader.RunLoaderTaskAsync(LibraryLoadType.FileConverter, new LibraryLoaderFileConverterLoad()
+                    return _libraryLoader.QueueLoaderTask(LibraryLoadType.FileConverter, new LibraryLoaderFileConverterLoad()
                     {
                         EncoderInfo = workLoad.EncoderInfo,
                         FileIn = workLoad.FileIn,
@@ -118,7 +118,23 @@ namespace AudioStation.Service
                     throw new Exception("Unhandled Libary Loader load type");
             }
         }
+        public bool IsTaskQueued(int workItemId)
+        {
+            return _libraryLoader.IsTaskQueued(workItemId);
+        }
 
+        public bool IsTaskRunning(int workItemId)
+        {
+            return _libraryLoader.IsTaskRunning(workItemId);
+        }
+        public void DequeueTask(int workItemId)
+        {
+            _libraryLoader.DequeueTask(workItemId);
+        }
+        public void CancelTask(int workItemId)
+        {
+            _libraryLoader.CancelTask(workItemId);
+        }
         private void LibraryLoader_StateChangeEvent(PlayStopPause loaderState)
         {
             _eventAggregator.GetEvent<LibraryLoaderStateChangeEvent>().Publish(loaderState);

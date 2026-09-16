@@ -31,10 +31,8 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Wo
             _libraryImporterConfiguration = libraryImporterConfiguration;
         }
 
-        public override void Load(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
+        protected override void LoadWorkItems(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
         {
-            base.Load(configuration, audioStationController, progressHandler);
-
             var counter = 0;
 
             // Load / Output:  These are part of the workflow process. All of the import data is setup here
@@ -43,7 +41,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Wo
             //
             foreach (var stagedFile in _stagedFiles)
             {
-                progressHandler(_stagedFiles.Count(), counter++, 0, "Staging: " + stagedFile.FullPath);
+                progressHandler(_stagedFiles.Count(), counter++, 0, 0, "Staging: " + stagedFile.FullPath);
 
                 var importLoad = new LibraryLoaderImportLoadViewModel()
                 {
@@ -89,11 +87,6 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Wo
                 //
 
             }
-
-            this.Loaded = true;
-
-            // Update Work Item Counters
-            OnUpdate();
         }
     }
 }

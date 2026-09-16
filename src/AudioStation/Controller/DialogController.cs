@@ -143,10 +143,13 @@ namespace AudioStation.Controller
 
             viewModel.ShowProgressBar = true;
 
-            var handler = new DialogEventHandlers.DialogProgressHandler((taskCount, tasksComplete, tasksError, errorMessage) =>
+            var handler = new DialogEventHandlers.DialogProgressHandler((taskCount, tasksComplete, subTaskCount, subTasksComplete, message) =>
             {
-                viewModel.Progress = tasksComplete / (double)taskCount;
-                viewModel.Message = errorMessage;
+                viewModel.Progress = taskCount > 0 ? tasksComplete / (double)taskCount : 0;
+                viewModel.SubProgress = subTaskCount > 0 ? subTasksComplete / (double)subTaskCount : 0;
+                viewModel.Message = message;
+
+                Dispatcher.CurrentDispatcher.Invoke(() => { }, DispatcherPriority.Render);
             });
 
             var ready = LoadDialogWindow(eventData);
@@ -300,8 +303,9 @@ namespace AudioStation.Controller
 
         private void OnDialogDataContextPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
-            if (_dialogWindow.WindowState != WindowState.Normal)
-                throw new Exception("Mishandled dialog data context. Must dispose of the previous context before re-issuing the window");
+            // There could be a change to the view model after the window is disposed
+            if (_dialogWindow == null)
+                return;
 
             _dialogWindow.InvalidateVisual();
 

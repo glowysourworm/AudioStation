@@ -34,6 +34,8 @@
     <simpleConverter:CollectionEmptyVisibilityConverter x:Key="CollectionEmptyVisibilityConverter" />
     <simpleConverter:CollectionNonEmptyBoolConverter x:Key="CollectionNonEmptyBoolConverter" />
     <simpleConverter:CollectionNonEmptyVisibilityConverter x:Key="CollectionNonEmptyVisibilityConverter" />
+    <simpleConverter:CollectionLastElementConverter x:Key="CollectionLastElementConverter" />
+    <simpleConverter:CollectionFirstElementConverter x:Key="CollectionFirstElementConverter" />
     <simpleConverter:EnumFilterParameterConverter x:Key="EnumFilterParameterConverter" />
     <simpleConverter:EnumObservableCollectionConverter x:Key="EnumObservableCollectionConverter" />
     <simpleConverter:NonNullVisibilityConverter x:Key="NonNullVisibilityConverter" />

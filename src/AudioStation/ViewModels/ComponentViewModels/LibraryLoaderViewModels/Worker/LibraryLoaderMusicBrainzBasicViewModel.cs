@@ -24,10 +24,8 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Wo
         {
         }
 
-        public override void Load(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
+        protected override void LoadWorkItems(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
         {
-            base.Load(configuration, audioStationController, progressHandler);
-
             try
             {
                 var results = audioStationController.ServiceController
@@ -37,7 +35,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Wo
 
                 foreach (var result in results.GroupBy(x => x.MusicBrainzRecordingId))
                 {
-                    progressHandler(results.Count(), counter++, 0, "Loading: Music Brainz Id=" + result.Key);
+                    progressHandler(results.Count(), counter++, 0, 0, "Loading: Music Brainz Id=" + result.Key);
 
                     this.WorkItems.Add(new LibraryWorkItemViewModel()
                     {
@@ -65,11 +63,6 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Wo
             {
                 throw new Exception("Error initializing Library Loader component:  " + ex.Message);
             }
-
-            this.Loaded = true;
-
-            // Update Work Item Counters
-            OnUpdate();
         }
     }
 }

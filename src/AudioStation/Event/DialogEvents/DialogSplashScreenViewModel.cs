@@ -5,6 +5,7 @@ namespace AudioStation.Event.DialogEvents
     public class DialogSplashScreenViewModel : ViewModelBase
     {
         double _progress;
+        double _subProgress;
         string _message;
         bool _showProgressBar;
         bool _showProgressMessage;
@@ -13,6 +14,11 @@ namespace AudioStation.Event.DialogEvents
         {
             get { return _progress; }
             set { this.RaiseAndSetIfChanged(ref _progress, value); }
+        }
+        public double SubProgress
+        {
+            get { return _subProgress; }
+            set { this.RaiseAndSetIfChanged(ref _subProgress, value); }
         }
         public string Message
         {
