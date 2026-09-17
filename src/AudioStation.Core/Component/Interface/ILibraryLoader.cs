@@ -22,6 +22,11 @@ namespace AudioStation.Core.Component.Interface
         public event SimpleEventHandler<LibraryLoaderWorkItem> WorkItemQueued;
 
         /// <summary>
+        /// Sends canceled event for a work item
+        /// </summary>
+        public event SimpleEventHandler<LibraryLoaderWorkItem> WorkItemCanceled;
+
+        /// <summary>
         /// Sends an event when the library loader changes state
         /// </summary>
         public event SimpleEventHandler<PlayStopPause> StateChangeEvent;

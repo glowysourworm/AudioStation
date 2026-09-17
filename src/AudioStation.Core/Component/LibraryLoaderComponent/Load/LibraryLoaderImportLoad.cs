@@ -5,6 +5,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Load
 {
     public class LibraryLoaderImportLoad : ILibraryLoaderImportLoad
     {
+        public int OwnerId { get; private set; }
         public LibraryLoadType Type { get; private set; }
 
         public int TagSmallId { get; set; }
@@ -25,8 +26,9 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Load
         public AudioEncoderInfo DestinationFormat { get; set; }
         public bool ConvertAudioFormat { get; set; }
 
-        public LibraryLoaderImportLoad(LibraryLoadType loadType)
+        public LibraryLoaderImportLoad(int ownerId, LibraryLoadType loadType)
         {
+            this.OwnerId = ownerId;
             this.Type = loadType;
         }
     }

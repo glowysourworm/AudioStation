@@ -17,7 +17,7 @@
                 <propertyGrid:PropertyLabelControl LabelColumnWidth="160" Grid.Row="2"                                
                                            LabelText="Status"
                                            Style="{StaticResource PropertyGridUserControl}"
-                                           Value="{Binding Status}" />
+                                           Value="{Binding State}" />
 
                 <propertyGrid:PropertyLabelControl LabelColumnWidth="160" Grid.Row="3"                                
                                            LabelText="Last Message"

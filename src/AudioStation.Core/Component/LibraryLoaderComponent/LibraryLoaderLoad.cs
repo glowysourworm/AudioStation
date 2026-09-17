@@ -94,6 +94,11 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent
             return _load;
         }
 
+        public int GetOwnerId()
+        {
+            return _load.OwnerId;
+        }
+
         public LibraryLoadType GetLoadType()
         {
             return _loadType;

@@ -171,9 +171,7 @@ namespace AudioStation.Service
                 }
             }
 
-            viewModel.IsCompleted = sender.IsCompleted;
-            viewModel.HasErrors = !sender.ResultStepsCompleted.Any() ? false : sender.ResultStepsCompleted.Any(x => !x.Completed);
-            viewModel.InProgress = true;
+            viewModel.State = sender.State;
             viewModel.Progress = !sender.ResultStepsCompleted.Any() ? 0 : (sender.ResultStepsCompleted.Count() / (double)sender.ResultStepCount);
         }
 
@@ -209,12 +207,7 @@ namespace AudioStation.Service
                 }
             }
 
-            viewModel.IsCompleted = true;
-            viewModel.InProgress = true;
-
-            viewModel.HasErrors = !sender.GetOutputItem().GetResults().Any() ? false
-                                    : sender.GetOutputItem().GetResults().Any(x => !x.Completed);
-
+            viewModel.State = sender.GetLoadState();
             viewModel.Progress = !sender.GetOutputItem().GetResults().Any(x => x.Completed) ? 0
                                     : (sender.GetOutputItem().GetResults().Count(x => x.Completed) / (double)sender.GetOutputItem().GetResults().Count());
         }

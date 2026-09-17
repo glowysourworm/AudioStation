@@ -73,7 +73,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Wo
                                 continue;
 
                             result.Add(new LibraryLoaderLoad(LibraryLoadType.FileConverter,
-                                       new LibraryLoaderFileConverterLoad(LibraryLoadType.FileConverter)
+                                       new LibraryLoaderFileConverterLoad(this.Id, LibraryLoadType.FileConverter)
                                        {
                                            EncoderInfo = _destinationFormat,
                                            FileIn = file.FullPath,

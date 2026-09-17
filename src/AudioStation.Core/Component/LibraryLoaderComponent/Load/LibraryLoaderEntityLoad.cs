@@ -5,11 +5,13 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Load
 {
     public class LibraryLoaderEntityLoad<TEntity> : ILibraryLoaderLoad where TEntity : AudioStationEntityBase
     {
+        public int OwnerId { get; private set; }
         public LibraryLoadType Type { get; private set; }
         public TEntity Entity { get; private set; }
 
-        public LibraryLoaderEntityLoad(LibraryLoadType loadType, TEntity entity)
+        public LibraryLoaderEntityLoad(int ownerId, LibraryLoadType loadType, TEntity entity)
         {
+            this.OwnerId = ownerId;
             this.Entity = entity;
             this.Type = loadType;
         }

@@ -37,7 +37,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Wo
                     progressHandler(entities.Count(), counter++, 0, 0, "Loading: Music Brainz Id=" + entity.Key);
 
                     result.Add(new LibraryLoaderLoad(LibraryLoadType.MusicBrainzBasic,
-                               new LibraryLoaderEntitySetLoad<AcoustIDLookupResult>(LibraryLoadType.MusicBrainzBasic, entity)));
+                               new LibraryLoaderEntitySetLoad<AcoustIDLookupResult>(this.Id, LibraryLoadType.MusicBrainzBasic, entity)));
                 }
 
                 return result;

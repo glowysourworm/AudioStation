@@ -32,6 +32,7 @@ namespace AudioStation.Core.Component
         public event SimpleEventHandler<LibraryLoaderWorkItemUpdate> WorkItemUpdate;
         public event SimpleEventHandler<LibraryLoaderWorkItem> WorkItemComplete;
         public event SimpleEventHandler<LibraryLoaderWorkItem> WorkItemQueued;
+        public event SimpleEventHandler<LibraryLoaderWorkItem> WorkItemCanceled;
         public event SimpleEventHandler<PlayStopPause> StateChangeEvent;
 
         private Dictionary<int, LibraryLoaderWorkItem> _workQueue;
@@ -84,37 +85,37 @@ namespace AudioStation.Core.Component
             {
                 case LibraryLoadType.Import:
                 {
-                    workItem = new LibraryLoaderWorkItem(_workItemIdCounter, LibraryLoadType.Import);
+                    workItem = new LibraryLoaderWorkItem(_workItemIdCounter, workLoad.GetOwnerId(), LibraryLoadType.Import);
                     workItem.Initialize(LibraryWorkItemState.Pending, workLoad, new LibraryLoaderOutput(workLoad.GetLoadType(), new LibraryLoaderImportOutput(), LibraryLoaderImportWorker.GetNumberSteps()));
                 }
                 break;
                 case LibraryLoadType.AcoustID:
                 {
-                    workItem = new LibraryLoaderWorkItem(_workItemIdCounter, LibraryLoadType.AcoustID);
+                    workItem = new LibraryLoaderWorkItem(_workItemIdCounter, workLoad.GetOwnerId(), LibraryLoadType.AcoustID);
                     workItem.Initialize(LibraryWorkItemState.Pending, workLoad, new LibraryLoaderOutput(workLoad.GetLoadType(), new LibraryLoaderEntitySetOutput<AcoustIDLookupResult>(), LibraryLoaderAcoustIDWorker.GetNumberSteps()));
                 }
                 break;
                 case LibraryLoadType.MusicBrainzBasic:
                 {
-                    workItem = new LibraryLoaderWorkItem(_workItemIdCounter, LibraryLoadType.MusicBrainzBasic);
+                    workItem = new LibraryLoaderWorkItem(_workItemIdCounter, workLoad.GetOwnerId(), LibraryLoadType.MusicBrainzBasic);
                     workItem.Initialize(LibraryWorkItemState.Pending, workLoad, new LibraryLoaderOutput(workLoad.GetLoadType(), new LibraryLoaderEntitySetOutput<TagSmall>(), LibraryLoaderMusicBrainzBasicWorker.GetNumberSteps()));
                 }
                 break;
                 case LibraryLoadType.MusicBrainzAlbumArt:
                 {
-                    workItem = new LibraryLoaderWorkItem(_workItemIdCounter, LibraryLoadType.MusicBrainzAlbumArt);
+                    workItem = new LibraryLoaderWorkItem(_workItemIdCounter, workLoad.GetOwnerId(), LibraryLoadType.MusicBrainzAlbumArt);
                     workItem.Initialize(LibraryWorkItemState.Pending, workLoad, new LibraryLoaderOutput(workLoad.GetLoadType(), new LibraryLoaderEntitySetOutput<FileReference>(), LibraryLoaderMusicBrainzAlbumArtWorker.GetNumberSteps()));
                 }
                 break;
                 case LibraryLoadType.FileChecker:
                 {
-                    workItem = new LibraryLoaderWorkItem(_workItemIdCounter, LibraryLoadType.FileChecker);
+                    workItem = new LibraryLoaderWorkItem(_workItemIdCounter, workLoad.GetOwnerId(), LibraryLoadType.FileChecker);
                     workItem.Initialize(LibraryWorkItemState.Pending, workLoad, new LibraryLoaderOutput(workLoad.GetLoadType(), new LibraryLoaderNoOutput(), LibraryLoaderFileCheckerWorker.GetNumberSteps()));
                 }
                 break;
                 case LibraryLoadType.FileConverter:
                 {
-                    workItem = new LibraryLoaderWorkItem(_workItemIdCounter, LibraryLoadType.FileConverter);
+                    workItem = new LibraryLoaderWorkItem(_workItemIdCounter, workLoad.GetOwnerId(), LibraryLoadType.FileConverter);
                     workItem.Initialize(LibraryWorkItemState.Pending, workLoad, new LibraryLoaderOutput(workLoad.GetLoadType(), new LibraryLoaderNoOutput(), LibraryLoaderFileConverterWorker.GetNumberSteps()));
                 }
                 break;
@@ -179,7 +180,17 @@ namespace AudioStation.Core.Component
             if (!_workQueue.ContainsKey(workItemId))
                 throw new ArgumentException("Work item is not queued. Please check before dequeuing.");
 
+            // Work Item
+            var workItem = _workQueue[workItemId];
+
+            // Dequeue
             _workQueue.Remove(workItemId);
+
+            // -> Cancel
+            workItem.Update(LibraryWorkItemState.Canceled);
+
+            if (this.WorkItemCanceled != null)
+                this.WorkItemCanceled(workItem);
         }
 
         public void CancelTask(int workItemId)
@@ -197,7 +208,20 @@ namespace AudioStation.Core.Component
             _workerThreads.Remove(workItemId);
 
             if (_workItemsWorking.ContainsKey(workItemId))
+            {
+                // Work Item
+                var workItem = _workItemsWorking[workItemId];
+
+                // Remove from working
                 _workItemsWorking.Remove(workItemId);
+
+                // -> Cancel
+                workItem.Update(LibraryWorkItemState.Canceled);
+
+                if (this.WorkItemCanceled != null)
+                    this.WorkItemCanceled(workItem);
+            }
+
         }
 
         public void ChangeState(PlayStopPause state)

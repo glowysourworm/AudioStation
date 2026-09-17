@@ -191,14 +191,15 @@
                 BorderBrush="LightGray"
                 BorderThickness="1"
                 CornerRadius="5">
-            <Grid RowDefinitions="Auto, Auto, Auto, Auto, Auto">
+            <Grid RowDefinitions="Auto, Auto, Auto, Auto, Auto, Auto">
 
-                <propertyGrid:PropertyLabelControl LabelColumnWidth="160" LabelText="Queued" Margin="5 0" IsReadOnly="True" Value="{Binding QueuedCount}" Style="{StaticResource PropertyGridDetailUserControl}" />
-                <propertyGrid:PropertyLabelControl LabelColumnWidth="160" LabelText="In Progress" Grid.Row="1" Margin="5 0" IsReadOnly="True" Value="{Binding InProgressCount}" Style="{StaticResource PropertyGridDetailUserControl}" />
-                <propertyGrid:PropertyLabelControl LabelColumnWidth="160" LabelText="Successful" Grid.Row="2" Margin="5 0" IsReadOnly="True" Value="{Binding SuccessCount}" Style="{StaticResource PropertyGridDetailUserControl}" />
-                <propertyGrid:PropertyLabelControl LabelColumnWidth="160" LabelText="Error" Grid.Row="3" Margin="5 0" IsReadOnly="True" Value="{Binding ErrorCount}" Style="{StaticResource PropertyGridDetailUserControl}" />
+                <propertyGrid:PropertyLabelControl LabelColumnWidth="160" LabelText="Pending" Margin="5 0" IsReadOnly="True" Value="{Binding WorkPendingCount}" Style="{StaticResource PropertyGridDetailUserControl}" />
+                <propertyGrid:PropertyLabelControl LabelColumnWidth="160" LabelText="Processing" Grid.Row="1" Margin="5 0" IsReadOnly="True" Value="{Binding WorkInProgressCount}" Style="{StaticResource PropertyGridDetailUserControl}" />
+                <propertyGrid:PropertyLabelControl LabelColumnWidth="160" LabelText="Successful" Grid.Row="2" Margin="5 0" IsReadOnly="True" Value="{Binding WorkSuccessCount}" Style="{StaticResource PropertyGridDetailUserControl}" />
+                <propertyGrid:PropertyLabelControl LabelColumnWidth="160" LabelText="Error" Grid.Row="3" Margin="5 0" IsReadOnly="True" Value="{Binding WorkErrorCount}" Style="{StaticResource PropertyGridDetailUserControl}" />
+                <propertyGrid:PropertyLabelControl LabelColumnWidth="160" LabelText="Canceled" Grid.Row="4" Margin="5 0" IsReadOnly="True" Value="{Binding WorkCanceledCount}" Style="{StaticResource PropertyGridDetailUserControl}" />
 
-                <propertyGrid:PropertyLabelControl LabelColumnWidth="160" LabelText="Status" Grid.Row="4" Margin="5 0 5 5" IsReadOnly="True" Value="{Binding Status}" Style="{StaticResource PropertyGridDetailUserControl}" />
+                <propertyGrid:PropertyLabelControl LabelColumnWidth="160" LabelText="Status" Grid.Row="5" Margin="5 0 5 5" IsReadOnly="True" Value="{Binding Status}" Style="{StaticResource PropertyGridDetailUserControl}" />
 
             </Grid>
         </Border>

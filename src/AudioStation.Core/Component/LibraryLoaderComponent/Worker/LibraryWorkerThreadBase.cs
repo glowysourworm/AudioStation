@@ -61,6 +61,9 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
 
         private void WorkDispatch()
         {
+            // Update State
+            _workItem.Start();
+
             // Processing of worker load is done in steps. Each thread instance is required
             // to give / maintain its step information for proper processing of the thread.
             // 
@@ -71,13 +74,25 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
             while (GetCurrentWorkStep() != GetNumberOfWorkSteps())
             {
                 if (this.ReportWorkStepStarted != null)
-                    this.ReportWorkStepStarted(this, new LibraryLoaderWorkItemUpdate(_workItem.GetId(), _workItem.GetLoadType(), _workItem.GetOutputItem().GetResults(), _workItem.GetOutputItem().GetNumberOfSteps(), _workItem.GetOutputItem().GetLog(), false));
+                    this.ReportWorkStepStarted(this, new LibraryLoaderWorkItemUpdate(_workItem.GetId(), _workItem.GetOwnerId(), _workItem.GetLoadType(), _workItem.GetOutputItem().GetResults(), _workItem.GetOutputItem().GetNumberOfSteps(), _workItem.GetOutputItem().GetLog(), _workItem.GetLoadState()));
 
                 var success = WorkNext();
                 var finished = (GetCurrentWorkStep() == GetNumberOfWorkSteps());
 
+                // Update State
+                if (success)
+                {
+                    if (finished)
+                        _workItem.Update(LibraryWorkItemState.Successful);
+                }
+                else
+                {
+                    _workItem.Update(LibraryWorkItemState.Error);
+                }
+
+
                 if (this.ReportWorkStepComplete != null)
-                    this.ReportWorkStepComplete(this, new LibraryLoaderWorkItemUpdate(_workItem.GetId(), _workItem.GetLoadType(), _workItem.GetOutputItem().GetResults(), _workItem.GetOutputItem().GetNumberOfSteps(), _workItem.GetOutputItem().GetLog(), finished));
+                    this.ReportWorkStepComplete(this, new LibraryLoaderWorkItemUpdate(_workItem.GetId(), _workItem.GetOwnerId(), _workItem.GetLoadType(), _workItem.GetOutputItem().GetResults(), _workItem.GetOutputItem().GetNumberOfSteps(), _workItem.GetOutputItem().GetLog(), _workItem.GetLoadState()));
 
                 if (!success)
                     break;

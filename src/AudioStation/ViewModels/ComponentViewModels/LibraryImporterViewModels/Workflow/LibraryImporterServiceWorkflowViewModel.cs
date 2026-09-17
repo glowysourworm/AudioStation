@@ -5,7 +5,6 @@ using AudioStation.Core.Component;
 using AudioStation.Core.Database.AudioStationDatabase.Interface;
 using AudioStation.Core.Model.Interface;
 using AudioStation.Event;
-using AudioStation.Event.LibraryLoaderEvent;
 using AudioStation.Service.Interface;
 using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels;
 using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Worker;
@@ -108,7 +107,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
             if (!CanChangeLoaderState(loaderState))
                 throw new Exception("Cannot change loader state - please check before trying to change");
 
-            //_libraryLoaderWorkerService.ChangeLoaderState(loaderState);
+            this.SelectedWorker.ChangeState(loaderState);
         }
         public bool CanChangeLoaderState(PlayStopPause loaderState)
         {
@@ -116,18 +115,18 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
             {
                 case PlayStopPause.Play:
                     if (this.SelectedWorker != null &&
-                        CanExecute())
-                    {
+                       !this.SelectedWorker.Complete &&
+                        this.LibraryLoaderState != PlayStopPause.Play)
                         return true;
-                    }
+
                     break;
                 case PlayStopPause.Pause:
                 case PlayStopPause.Stop:
                     if (this.SelectedWorker != null &&
-                        this.SelectedWorker.Working)
-                    {
+                        this.SelectedWorker.Working &&
+                        this.LibraryLoaderState == PlayStopPause.Play)
                         return true;
-                    }
+
                     break;
                 default:
                     throw new Exception("Unhandled library loader state");
@@ -140,8 +139,8 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
         {
             return !this.Working &&
                     this.Loaded &&
-                   (this.LibraryLoaderState == PlayStopPause.Stop ||
-                    this.LibraryLoaderState == PlayStopPause.Pause);
+                    this.SelectedWorker != null &&
+                    this.SelectedWorker.CanExecute();
         }
         private bool CanLoadWorker()
         {
@@ -178,17 +177,13 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
         }
         private bool CanRerunSelectedWorkItems()
         {
-            return this.CanExecute() &&
-                   this.SelectedWorker != null &&
-                   this.SelectedWorker.Loaded &&
-                  !this.SelectedWorker.Working &&
-                   this.SelectedWorker.WorkItems.Any(x => x.IsSelected && x.IsCompleted);
+            return this.SelectedWorker != null &&
+                   this.SelectedWorker.CanRerunSelected();
         }
         private bool CanSkipSelectedWorkItems()
         {
             return this.SelectedWorker != null &&
-                   this.SelectedWorker.Loaded &&
-                   this.SelectedWorker.WorkItems.Any(x => x.IsSelected && !x.IsCompleted);
+                   this.SelectedWorker.CanSkipSelected();
         }
 
         private void MoveToNextStep()
@@ -247,10 +242,6 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
             _configuration = configuration;
             _audioStationController = audioStationController;
             _dialogController = audioStationController.DialogController;
-            //_libraryLoaderWorkerService = audioStationController.ServiceController.GetService<ILibraryLoaderWorkerService>();
-
-            // -> On Loader State Change
-            audioStationController.EventAggregator.GetEvent<LibraryLoaderStateChangeEvent>().Subscribe(OnLibraryLoaderStateChange);
 
             var libraryLoaderService = audioStationController.ServiceController.GetService<ILibraryLoaderService>();
             var audioStationDbClient = audioStationController.ServiceController.GetDataService<IAudioStationDbClient>();
@@ -297,6 +288,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
         private void OnWorkerStatusChangeEvent(LibraryLoaderWorkerViewModelBase sender)
         {
             this.Working = this.ServiceWorkers.Any(x => x.Working);
+            this.LibraryLoaderState = sender.LibraryLoaderState;
 
             UpdateCommands();
 
@@ -309,10 +301,6 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
 
             if (this.WorkItemChangedEvent != null)
                 this.WorkItemChangedEvent(worker, workItem);
-        }
-        private void OnLibraryLoaderStateChange(PlayStopPause libraryLoaderState)
-        {
-            this.LibraryLoaderState = libraryLoaderState;
         }
         private void UpdateCommands()
         {

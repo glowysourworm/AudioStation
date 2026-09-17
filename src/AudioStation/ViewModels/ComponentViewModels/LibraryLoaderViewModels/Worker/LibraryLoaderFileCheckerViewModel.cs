@@ -31,7 +31,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Wo
                 {
                     progressHandler(1, 1, entities.Count(), counter++, "Loading:  " + entity.FileName);
 
-                    var workLoad = new LibraryLoaderEntityLoad<FileReference>(LibraryLoadType.FileChecker, entity);
+                    var workLoad = new LibraryLoaderEntityLoad<FileReference>(this.Id, LibraryLoadType.FileChecker, entity);
 
                     result.Add(new LibraryLoaderLoad(LibraryLoadType.FileChecker, workLoad));
                 }

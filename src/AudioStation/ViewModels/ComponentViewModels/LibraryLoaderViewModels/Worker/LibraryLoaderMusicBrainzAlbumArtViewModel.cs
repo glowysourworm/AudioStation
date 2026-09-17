@@ -37,7 +37,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Wo
                     progressHandler(tagMaps.Count(), counter++, 0, 0, "Loading: Music Brainz Id=" + map.MusicBrainzRecordingId);
 
                     result.Add(new LibraryLoaderLoad(LibraryLoadType.MusicBrainzAlbumArt,
-                               new LibraryLoaderEntityLoad<TagSmallVendorMap>(LibraryLoadType.MusicBrainzAlbumArt, map)));
+                               new LibraryLoaderEntityLoad<TagSmallVendorMap>(this.Id, LibraryLoadType.MusicBrainzAlbumArt, map)));
                 }
 
                 return result;

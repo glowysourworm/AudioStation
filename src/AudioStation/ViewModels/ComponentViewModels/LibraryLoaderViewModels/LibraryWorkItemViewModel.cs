@@ -18,9 +18,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels
 
         // These will be about the previous run if that is implied by the database data
         double _progress;
-        bool _inProgress;
-        bool _isCompleted;
-        bool _hasErrors;
+        LibraryWorkItemState _state;
 
         // UI Properties
         bool _isSelected;
@@ -60,20 +58,10 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels
             get { return _progress; }
             set { this.RaiseAndSetIfChanged(ref _progress, value); }
         }
-        public bool InProgress
+        public LibraryWorkItemState State
         {
-            get { return _inProgress; }
-            set { this.RaiseAndSetIfChanged(ref _inProgress, value); }
-        }
-        public bool IsCompleted
-        {
-            get { return _isCompleted; }
-            set { this.RaiseAndSetIfChanged(ref _isCompleted, value); }
-        }
-        public bool HasErrors
-        {
-            get { return _hasErrors; }
-            set { this.RaiseAndSetIfChanged(ref _hasErrors, value); }
+            get { return _state; }
+            set { this.RaiseAndSetIfChanged(ref _state, value); }
         }
         public bool IsSelected
         {
@@ -85,29 +73,12 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels
             get { return _load.DisplayText; }
         }
 
-        public string Status
-        {
-            get
-            {
-                if (this.InProgress)
-                    return "In Progress";
-
-                else if (this.IsCompleted)
-                    return "Completed";
-
-                else
-                    return "Queued";
-            }
-        }
-
         protected override void OnPropertyChanged(string name)
         {
             base.OnPropertyChanged(name);
 
-            if (name != "Status" &&
-                name != "DisplayName")
+            if (name != "DisplayName")
             {
-                OnPropertyChanged("Status");
                 OnPropertyChanged("DisplayName");
             }
         }
@@ -119,6 +90,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels
             this.Progress = 0;
             this.Load = new LibraryLoaderLoadViewModel();
             this.Output = new LibraryLoaderOutputViewModel();
+            this.State = LibraryWorkItemState.Pending;
         }
 
         public override string ToString()

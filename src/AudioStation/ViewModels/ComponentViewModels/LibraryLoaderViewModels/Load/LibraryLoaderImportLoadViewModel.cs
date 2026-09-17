@@ -8,6 +8,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Lo
 {
     public class LibraryLoaderImportLoadViewModel : ViewModelBase, ILibraryLoaderImportLoad
     {
+        int _ownerId;
         LibraryLoadType _type;
         int _tagSmallId;
         string _sourceFullPath;
@@ -24,6 +25,11 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Lo
 
         bool _isSourceDirectoryReadonly;
 
+        public int OwnerId
+        {
+            get { return _ownerId; }
+            set { this.RaiseAndSetIfChanged(ref _ownerId, value); }
+        }
         public LibraryLoadType Type
         {
             get { return _type; }

@@ -45,7 +45,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Wo
             {
                 progressHandler(1, 1, _stagedFiles.Count(), counter++, "Staging: " + stagedFile.FullPath);
 
-                result.Add(new LibraryLoaderLoad(LibraryLoadType.Import, new LibraryLoaderImportLoad(LibraryLoadType.Import)
+                result.Add(new LibraryLoaderLoad(LibraryLoadType.Import, new LibraryLoaderImportLoad(this.Id, LibraryLoadType.Import)
                 {
                     ConvertAudioFormat = _libraryImporterConfiguration.ConvertAudioFormat,
                     DestinationFolder = _libraryImporterConfiguration.ImportDirectory.Directory,

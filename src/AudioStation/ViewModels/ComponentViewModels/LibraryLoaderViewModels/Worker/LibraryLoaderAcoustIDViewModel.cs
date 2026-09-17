@@ -125,7 +125,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Wo
         protected override LibraryLoaderLoad ResetWorkLoad(LibraryWorkItemViewModel workItem)
         {
             return new LibraryLoaderLoad(workItem.LoadType,
-                   new LibraryLoaderFileLoad(workItem.LoadType, (workItem.Load.Data as LibraryLoaderFileLoadViewModel).FullPath));
+                   new LibraryLoaderFileLoad(this.Id, workItem.LoadType, (workItem.Load.Data as LibraryLoaderFileLoadViewModel).FullPath));
         }
 
         private IEnumerable<LibraryLoaderLoad> LoadDirectory(string directory,
@@ -180,7 +180,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Wo
                             return;
                     }
 
-                    var workLoad = new LibraryLoaderFileLoad(LibraryLoadType.AcoustID, tree.GetNodeValue().FullPath);
+                    var workLoad = new LibraryLoaderFileLoad(this.Id, LibraryLoadType.AcoustID, tree.GetNodeValue().FullPath);
 
                     // Add (by file full path)
                     _workLoadDict.Add(tree.GetNodeValue().FullPath, workLoad);

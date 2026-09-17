@@ -171,6 +171,11 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
         }
         protected override void ExecuteWork(DialogEventHandlers.DialogProgressHandler progressHandler)
         {
+            // Block Events
+            this.StagedFiles.BeginUpdate();
+
+            progressHandler(1, 1, 1, 0, "Loading Library Files");
+
             // Library Files
             var libraryFiles = _audioStationDbClient.GetEntities<FileReference>().ToDictionary(x => x.FileName);
 
@@ -206,6 +211,8 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
                     this.StagedFiles.Add(stagedFile.FullPath, stagedFile);
                 }
             });
+
+            this.StagedFiles.EndUpdate(true);
         }
         protected override void ResetWork(DialogEventHandlers.DialogProgressHandler progressHandler)
         {
