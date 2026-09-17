@@ -1,6 +1,9 @@
 ﻿using AudioStation.Controller.Interface;
 using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Component.LibraryLoaderComponent;
+using AudioStation.Core.Component.LibraryLoaderComponent.Load;
+using AudioStation.Core.Component.LibraryLoaderComponent.Load.Interface;
+using AudioStation.Core.Component.LibraryLoaderComponent.Output;
 using AudioStation.Core.Database.AudioStationDatabase;
 using AudioStation.Core.Database.AudioStationDatabase.Interface;
 using AudioStation.Core.Model;
@@ -15,7 +18,6 @@ using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Output
 
 using Microsoft.Extensions.Logging;
 
-using SimpleWpf.Extensions.ObservableCollection;
 using SimpleWpf.IocFramework.Application;
 using SimpleWpf.UI.ViewModel.FileTreeView;
 
@@ -26,22 +28,22 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Wo
         private readonly LibraryImporterConfigurationViewModel? _workflowConfiguration;
 
         // Keep track of files that have been added (directory iteration was missing some)
-        Dictionary<string, LibraryWorkItemViewModel> _workItemDict;
+        Dictionary<string, ILibraryLoaderLoad> _workLoadDict;
 
         public LibraryLoaderAcoustIDViewModel()
             : base("AcoustID", "Identifies recordings using AcoustID acoustic fingerprint service")
         {
-            _workItemDict = new Dictionary<string, LibraryWorkItemViewModel>();
+            _workLoadDict = new Dictionary<string, ILibraryLoaderLoad>();
             _workflowConfiguration = null;
         }
         public LibraryLoaderAcoustIDViewModel(LibraryImporterConfigurationViewModel configuration)
             : base("AcoustID", "Identifies recordings using AcoustID acoustic fingerprint service")
         {
             _workflowConfiguration = configuration;
-            _workItemDict = new Dictionary<string, LibraryWorkItemViewModel>();
+            _workLoadDict = new Dictionary<string, ILibraryLoaderLoad>();
         }
 
-        protected override void LoadWorkItems(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
+        protected override IEnumerable<LibraryLoaderLoad> CreateWorkLoads(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
         {
             var audioConverter = IocContainer.Get<IAudioConverter>();
             var tagCache = audioStationController.ServiceController.GetCache<ITagCache>();
@@ -63,6 +65,8 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Wo
                                                             .GroupBy(x => x.FileName)
                                                             .ToDictionary(x => x.Key, x => x.ToList());
 
+                var result = new List<LibraryLoaderLoad>();
+
                 foreach (var extension in audioConverter.GetSupportedFormatExtensions())
                 {
                     var format = audioConverter.GetDefaultFormat(extension);
@@ -70,23 +74,25 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Wo
                     // Staging (default)
                     if (_workflowConfiguration == null)
                     {
-                        LoadDirectory(configuration.StagingFolder.Directory, format.Filter, tagCache, existingResults, progressHandler);
+                        result.AddRange(LoadDirectory(configuration.StagingFolder.Directory, format.Filter, tagCache, existingResults, progressHandler));
                     }
                     else
                     {
                         // Migration
                         if (_workflowConfiguration.ImportType == LibraryImportType.Migration)
                         {
-                            LoadDirectory(_workflowConfiguration.MigrationSourceDirectory, format.Filter, tagCache, existingResults, progressHandler);
+                            result.AddRange(LoadDirectory(_workflowConfiguration.MigrationSourceDirectory, format.Filter, tagCache, existingResults, progressHandler));
                         }
 
                         // In Place
                         else
                         {
-                            LoadDirectory(_workflowConfiguration.ImportDirectory.Directory, format.Filter, tagCache, existingResults, progressHandler);
+                            result.AddRange(LoadDirectory(_workflowConfiguration.ImportDirectory.Directory, format.Filter, tagCache, existingResults, progressHandler));
                         }
                     }
                 }
+
+                return result;
             }
             catch (Exception ex)
             {
@@ -95,15 +101,45 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Wo
             }
         }
 
-        private void LoadDirectory(string directory, string filter,
-                                   ITagCache tagCache,
-                                   Dictionary<string, List<AcoustIDLookupResult>> existingResults,
-                                   DialogEventHandlers.DialogProgressHandler progressHandler)
+        protected override LibraryLoaderLoadViewModel MapWorkLoad(LibraryLoaderLoad workLoad)
         {
+            var fileLoad = workLoad.Get<LibraryLoaderFileLoad>();
+
+            return new LibraryLoaderLoadViewModel()
+            {
+                Data = new LibraryLoaderFileLoadViewModel(fileLoad.File, fileLoad.File),
+                DisplayText = fileLoad.File
+            };
+        }
+
+        protected override LibraryLoaderOutputViewModel MapWorkOutput(LibraryLoaderOutput workOutput)
+        {
+            var entityOutput = workOutput.Get<LibraryLoaderEntitySetOutput<AcoustIDLookupResult>>();
+
+            return new LibraryLoaderOutputViewModel()
+            {
+                Output = new LibraryLoaderEntitySetOutputViewModel<AcoustIDLookupResult>()
+            };
+        }
+
+        protected override LibraryLoaderLoad ResetWorkLoad(LibraryWorkItemViewModel workItem)
+        {
+            return new LibraryLoaderLoad(workItem.LoadType,
+                   new LibraryLoaderFileLoad(workItem.LoadType, (workItem.Load.Data as LibraryLoaderFileLoadViewModel).FullPath));
+        }
+
+        private IEnumerable<LibraryLoaderLoad> LoadDirectory(string directory,
+                                                             string filter,
+                                                             ITagCache tagCache,
+                                                             Dictionary<string, List<AcoustIDLookupResult>> existingResults,
+                                                             DialogEventHandlers.DialogProgressHandler progressHandler)
+        {
+            var result = new List<LibraryLoaderLoad>();
+
             progressHandler(1, 1, 0, 0, "Loading Directory: " + directory);
 
             // Load Directory
-            var directoryTree = DirectoryTreeLoader.Load(directory, filter, -1);
+            var directoryTree = DirectoryTreeLoader.Load(directory, -1, progressHandler, filter);
 
             // File Count
             var totalCount = directoryTree.RecursiveCount(x => !x.CanHaveChildren);
@@ -114,7 +150,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Wo
                 var tree = entry as FileTreeViewModel;
 
                 // Already Added
-                if (_workItemDict.ContainsKey(tree.GetNodeValue().FullPath))
+                if (_workLoadDict.ContainsKey(tree.GetNodeValue().FullPath))
                     return;
 
                 if (!tree.GetNodeValue().IsDirectory)
@@ -123,53 +159,37 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Wo
                     progressHandler(1, 1, totalCount, counter++, "Loading: " + entry.NodeValue.DisplayName);
 
                     var alreadyRun = existingResults.ContainsKey(tree.GetNodeValue().FullPath);
-                    var output = new LibraryLoaderEntitySetOutputViewModel<AcoustIDLookupResult>();
-                    var tagData = tagCache.Get(tree.GetNodeValue().FullPath);
-
-                    // AcoustID Stored in Tag
-                    var acoustID = tagData.GetAcoustIDIdentifier();
-                    var musicBrainzTrackId = tagData.GetMusicBrainzTrackId();
-                    var musicBrainzReleaseTrackId = tagData.GetMusicBrainzReleaseTrackId();
 
                     // Existing Results (Output)
                     if (alreadyRun)
-                        output.ResultSet.AddRange(existingResults[tree.GetNodeValue().FullPath]);
+                        return;
 
                     // Use Existing AcoustID
                     else if (_workflowConfiguration?.AcoustIDSourcePreference == LibraryImportSource.File)
                     {
+                        var tagData = tagCache.Get(tree.GetNodeValue().FullPath);
+
+                        // AcoustID Stored in Tag
+                        var acoustID = tagData.GetAcoustIDIdentifier();
+                        var musicBrainzTrackId = tagData.GetMusicBrainzTrackId();
+                        var musicBrainzReleaseTrackId = tagData.GetMusicBrainzReleaseTrackId();
+
                         if (acoustID != null ||
                             musicBrainzReleaseTrackId != null ||
                             musicBrainzTrackId != null)
                             return;
                     }
 
-                    var workItem = new LibraryWorkItemViewModel()
-                    {
-                        // This will indicate the failed result
-                        HasErrors = alreadyRun && output.ResultSet.Count == 0,
-                        IsCompleted = alreadyRun,
-                        LoadType = LibraryLoadType.AcoustID,
-                        Load = new LibraryLoaderLoadViewModel()
-                        {
-                            DisplayText = tree.GetNodeValue().FullPath,
-                            Data = new LibraryLoaderFileLoadViewModel(tree.GetNodeValue().FullPath, tree.GetNodeValue().ShortPath)
-                        },
-                        Output = new LibraryLoaderOutputViewModel()
-                        {
-                            Output = output
-                        },
-                        InProgress = false,
-                        Progress = alreadyRun ? 1 : 0
-                    };
-
-                    // Add
-                    this.WorkItems.Add(workItem);
+                    var workLoad = new LibraryLoaderFileLoad(LibraryLoadType.AcoustID, tree.GetNodeValue().FullPath);
 
                     // Add (by file full path)
-                    _workItemDict.Add(tree.GetNodeValue().FullPath, workItem);
+                    _workLoadDict.Add(tree.GetNodeValue().FullPath, workLoad);
+
+                    result.Add(new LibraryLoaderLoad(LibraryLoadType.AcoustID, workLoad));
                 }
             });
+
+            return result;
         }
     }
 }

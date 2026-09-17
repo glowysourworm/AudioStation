@@ -1,4 +1,5 @@
 ﻿using AudioStation.Core;
+using AudioStation.Core.Component.Interface;
 using AudioStation.Interface;
 using AudioStation.Service.Interface;
 
@@ -18,6 +19,7 @@ namespace AudioStation.Controller.Interface
         IAudioStationServiceController ServiceController { get; }
         IAudioStationComponentController ComponentController { get; }
         ILibraryLoaderService LibraryLoaderService { get; }
+        ILibraryLoader LibraryLoader { get; }
         IDialogController DialogController { get; }
         IIocEventAggregator EventAggregator { get; }
 

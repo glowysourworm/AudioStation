@@ -2,27 +2,27 @@
 
 namespace AudioStation.Core.Component.LibraryLoaderComponent
 {
-    public enum LibraryWorkerResultType : int
+    public enum LibraryWorkerResultLevel : int
     {
         [Display(Name = "Success", Description = "Library worker step was successful")]
         Success = 0,
 
-        [Display(Name = "Failure", Description = "Library worker step had error(s)")]
-        Failure = 1,
+        [Display(Name = "No Result (service)", Description = "Library worker service call yielded no result(s)")]
+        ServiceNoResult = 1,
 
         [Display(Name = "Data Error", Description = "Library worker step had data error(s) that won't affect application processing")]
         DataError = 2,
 
-        [Display(Name = "No Result (service)", Description = "Library worker service call yielded no result(s)")]
-        ServiceNoResult = 3,
-
         [Display(Name = "Failure (service)", Description = "Library worker service call failed")]
-        ServiceFailure = 4
+        ServiceFailure = 3,
+
+        [Display(Name = "Failure", Description = "Library worker step had error(s)")]
+        Failure = 4,
     }
 
     public class LibraryWorkerStepResult
     {
-        public LibraryWorkerResultType Result { get; set; }
+        public LibraryWorkerResultLevel Result { get; set; }
         public string Message { get; set; }
 
         /// <summary>
@@ -44,7 +44,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent
                 Completed = true,
                 Message = message,
                 StepNumber = stepNumber,
-                Result = LibraryWorkerResultType.Success
+                Result = LibraryWorkerResultLevel.Success
             };
         }
 
@@ -55,7 +55,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent
                 Completed = false,
                 Message = message,
                 StepNumber = stepNumber,
-                Result = LibraryWorkerResultType.Failure
+                Result = LibraryWorkerResultLevel.Failure
             };
         }
     }

@@ -18,11 +18,14 @@ namespace AudioStation.Utility
         /// <param name="stopDepth">Recursion can be halted to simulate lazy loading. The stop depth of -1 will indicate no stop depth. Anything less will cause an argument exception.</param>
         /// <param name="path">Root directory</param>
         /// <param name="fileSearchPattern">File search pattern to filter file lookup</param>
-        public static FileTreeViewModel Load(string path, string fileSearchPattern, int stopDepth, DialogProgressHandler? progressHandler = null)
+        public static FileTreeViewModel Load(string path,
+                                             int stopDepth,
+                                             DialogProgressHandler? progressHandler = null,
+                                             params string[] searchPatterns)
         {
-            return Load(path, fileSearchPattern, stopDepth, directory =>
+            return Load(path, stopDepth, (directory) =>
             {
-                return new FileTreeViewModel(fileSearchPattern, directory);
+                return new FileTreeViewModel(directory);
 
             }, (directory, fileCount) =>
             {
@@ -32,7 +35,7 @@ namespace AudioStation.Utility
             {
                 return new FileTreeNodeViewModel(path, file, 0);
 
-            }, progressHandler);
+            }, progressHandler, searchPatterns);
         }
 
         /// <summary>
@@ -49,12 +52,12 @@ namespace AudioStation.Utility
         /// <param name="fileConstructor">Constructor to create file node value</param>
         public static TTree Load<TTree, TDirectory, TFile>(
                string path,
-               string fileSearchPattern,
                int stopDepth,
                Func<TDirectory, TTree> treeConstructor,
                Func<string, int, TDirectory> directoryConstructor,
                Func<string, TFile> fileConstructor,
-               DialogProgressHandler? progressHandler = null) where TDirectory : FileTreeNodeViewModel
+               DialogProgressHandler? progressHandler = null,
+               params string[] fileSearchPatterns) where TDirectory : FileTreeNodeViewModel
                                                               where TFile : FileTreeNodeViewModel
                                                               where TTree : FileTreeViewModel
         {
@@ -62,7 +65,7 @@ namespace AudioStation.Utility
                 throw new ArgumentException("Must have a stop depth of -1 or greater. Please set stop depth properly.");
 
             // Current Directory
-            var fileData = BasicHelpers.FastGetFileData(path, fileSearchPattern, true, SearchOption.TopDirectoryOnly);
+            var fileData = BasicHelpers.FastGetFileData(path, true, SearchOption.TopDirectoryOnly, fileSearchPatterns);
             var directoryFileCount = fileData.Count(x => !x.IsDirectory);
 
             // Directory (Root -> NodeValue)
@@ -72,7 +75,7 @@ namespace AudioStation.Utility
             var root = treeConstructor(rootValue);
 
             // Load to depth
-            LoadToDepth(root, fileSearchPattern, stopDepth, treeConstructor, directoryConstructor, fileConstructor, progressHandler);
+            LoadToDepth(root, stopDepth, treeConstructor, directoryConstructor, fileConstructor, progressHandler, fileSearchPatterns);
 
             return root;
         }
@@ -90,14 +93,14 @@ namespace AudioStation.Utility
         /// <param name="fileConstructor">Constructor to create file node value</param>
         public static void LoadToDepth<TTree, TDirectory, TFile>(
                TTree directoryTree,
-               string fileSearchPattern,
                int stopDepth,
                Func<TDirectory, TTree> treeConstructor,
                Func<string, int, TDirectory> directoryConstructor,
                Func<string, TFile> fileConstructor,
-               DialogProgressHandler? progressHandler = null) where TDirectory : FileTreeNodeViewModel
-                                                              where TFile : FileTreeNodeViewModel
-                                                              where TTree : FileTreeViewModel
+               DialogProgressHandler? progressHandler = null,
+               params string[] searchPatterns) where TDirectory : FileTreeNodeViewModel
+                                               where TFile : FileTreeNodeViewModel
+                                               where TTree : FileTreeViewModel
         {
             // Stop Depth
             if (stopDepth < -1)
@@ -140,7 +143,7 @@ namespace AudioStation.Utility
 
 
                     // Current Directory (FILES ONLY)
-                    var fileData = BasicHelpers.FastGetFileData(currentDirectory.GetNodeValue().FullPath, fileSearchPattern, true, SearchOption.TopDirectoryOnly);
+                    var fileData = BasicHelpers.FastGetFileData(currentDirectory.GetNodeValue().FullPath, true, SearchOption.TopDirectoryOnly, searchPatterns);
                     var fileCount = fileData.Count();
                     var fileIndex = 0;
 
@@ -153,7 +156,7 @@ namespace AudioStation.Utility
                         if (file.IsDirectory)
                         {
                             // Need file count for directory
-                            var directoryData = BasicHelpers.FastGetFileData(file.FullPath, fileSearchPattern, true, SearchOption.TopDirectoryOnly);
+                            var directoryData = BasicHelpers.FastGetFileData(file.FullPath, true, SearchOption.TopDirectoryOnly, searchPatterns);
 
                             // Next Directory
                             var nodeValue = directoryConstructor(file.FullPath, directoryData.Count(x => !x.IsDirectory));

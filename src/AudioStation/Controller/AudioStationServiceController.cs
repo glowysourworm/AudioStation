@@ -21,7 +21,6 @@ namespace AudioStation.Controller
         // IAudioStationService
         private readonly ICDImportService _cdImportService;
         private readonly ILibraryLoaderService _libraryLoaderService;
-        private readonly ILibraryLoaderWorkerService _libraryLoaderWorkerService;
         private readonly ILibraryMapperService _libraryMapperService;
         private readonly INowPlayingService _nowPlayingService;
 
@@ -46,7 +45,6 @@ namespace AudioStation.Controller
         [IocImportingConstructor]
         public AudioStationServiceController(ICDImportService cdImportService,
                                              ILibraryLoaderService libraryLoaderService,
-                                             ILibraryLoaderWorkerService libraryLoaderWorkerService,
                                              ILibraryMapperService libraryMapperService,
                                              INowPlayingService nowPlayingService,
 
@@ -67,7 +65,6 @@ namespace AudioStation.Controller
         {
             _cdImportService = cdImportService;
             _libraryLoaderService = libraryLoaderService;
-            _libraryLoaderWorkerService = libraryLoaderWorkerService;
             _libraryMapperService = libraryMapperService;
             _nowPlayingService = nowPlayingService;
 
@@ -121,7 +118,6 @@ namespace AudioStation.Controller
             //
             _cdImportService.Initialize(configuration);
             _libraryLoaderService.Initialize(configuration, audioStationController, progressHandler);
-            _libraryLoaderWorkerService.Initialize(configuration, audioStationController, progressHandler);
             _libraryMapperService.Initialize(configuration, audioStationController, progressHandler);
             _nowPlayingService.Initialize(configuration, audioStationController, progressHandler);
 
@@ -156,9 +152,6 @@ namespace AudioStation.Controller
 
             else if (typeof(T) == typeof(ILibraryLoaderService))
                 return (T)_libraryLoaderService;
-
-            else if (typeof(T) == typeof(ILibraryLoaderWorkerService))
-                return (T)_libraryLoaderWorkerService;
 
             else if (typeof(T) == typeof(ILibraryMapperService))
                 return (T)_libraryMapperService;

@@ -3,12 +3,11 @@
 using AudioStation.Controller.Interface;
 using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Component.LibraryLoaderComponent;
+using AudioStation.Core.Component.LibraryLoaderComponent.Load;
 using AudioStation.Core.Model;
 using AudioStation.Core.Model.Interface;
 using AudioStation.Core.Utility.FileUtility;
 using AudioStation.Event;
-using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Load;
-using AudioStation.ViewModels.ComponentViewModels.LoadViewModels;
 
 using SimpleWpf.IocFramework.Application;
 using SimpleWpf.Native.IO;
@@ -29,7 +28,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Wo
             _workItemDict = new SimpleDictionary<string, string>();
         }
 
-        protected override void LoadWorkItems(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
+        protected override IEnumerable<LibraryLoaderLoad> CreateWorkLoads(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
         {
             try
             {
@@ -37,72 +36,76 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Wo
 
                 _workItemDict.Clear();
 
-                foreach (var format in audioConverter.GetSupportedFormats())
+                var result = new List<LibraryLoaderLoad>();
+
+                // Search for files that aren't the destination format (non-converted files)
+                var searchPatterns = audioConverter.GetSupportedFormats()
+                                                   .Where(x => x.Encoding != _destinationFormat.Encoding)
+                                                   .Select(x => "*" + x.Extension)
+                                                   .Distinct()
+                                                   .ToArray();
+
+                foreach (var libraryDirectory in configuration.LibraryDirectories.Union(new LibraryDirectory[]
                 {
-                    foreach (var libraryDirectory in configuration.LibraryDirectories.Union(new LibraryDirectory[]
-                    {
                         configuration.StagingFolder,
                         configuration.DownloadFolder
-                    }))
+                }))
+                {
+                    // Read-only directories
+                    if (libraryDirectory.IsReadOnly)
+                        continue;
+
+                    using (var nativeIO = new FastDirectoryIO(libraryDirectory.Directory, SearchOption.AllDirectories, searchPatterns))
                     {
-                        // Read-only directories
-                        if (libraryDirectory.IsReadOnly)
-                            continue;
+                        var audioFiles = nativeIO.GetFiles().Where(x => !x.IsDirectory).ToList();
+                        var counter = 0;
 
-                        // Only need to look for non-converted files
-                        if (format.Encoding == _destinationFormat.Encoding)
-                            continue;
-
-                        using (var nativeIO = new FastDirectoryIO(libraryDirectory.Directory, format.Filter, SearchOption.AllDirectories))
+                        foreach (var file in audioFiles)
                         {
-                            var audioFiles = nativeIO.GetFiles().Where(x => !x.IsDirectory).ToList();
-                            var counter = 0;
+                            progressHandler(audioFiles.Count, counter++, 0, 0, "Loading: " + file.FullPath);
 
-                            foreach (var file in audioFiles)
-                            {
-                                progressHandler(audioFiles.Count, counter++, 0, 0, "Loading: " + file.FullPath);
+                            // CORRUPT FILES! (This will go to file maintainence)
+                            if (file.Size <= 0)
+                                continue;
 
-                                // CORRUPT FILES! (This will go to file maintainence)
-                                if (file.Size <= 0)
-                                    continue;
+                            // Already Added
+                            if (_workItemDict.ContainsKey(file.FullPath))
+                                continue;
 
-                                // Already Added
-                                if (_workItemDict.ContainsKey(file.FullPath))
-                                    continue;
+                            result.Add(new LibraryLoaderLoad(LibraryLoadType.FileConverter,
+                                       new LibraryLoaderFileConverterLoad(LibraryLoadType.FileConverter)
+                                       {
+                                           EncoderInfo = _destinationFormat,
+                                           FileIn = file.FullPath,
+                                           FileOut = FileHelpers.ReplaceExtension(file.FullPath, _destinationFormat.Extension),
+                                       }));
 
-                                this.WorkItems.Add(new LibraryWorkItemViewModel()
-                                {
-                                    HasErrors = false,
-                                    InProgress = false,
-                                    IsCompleted = false,
-                                    Load = new LibraryLoaderLoadViewModel()
-                                    {
-                                        DisplayText = file.FullPath,
-                                        Data = new LibraryLoaderFileConverterLoadViewModel()
-                                        {
-                                            FileIn = file.FullPath,
-                                            FileOut = FileHelpers.ReplaceExtension(file.FullPath, _destinationFormat.Extension),
-                                            EncoderInfo = _destinationFormat
-                                        }
-                                    },
-                                    LoadType = LibraryLoadType.FileConverter,
-                                    Output = new LibraryLoaderOutputViewModel()
-                                    {
-                                        Output = new NoViewModel()
-                                    },
-                                    Progress = 0
-                                });
-
-                                _workItemDict.Add(file.FullPath, file.FullPath);
-                            }
+                            _workItemDict.Add(file.FullPath, file.FullPath);
                         }
                     }
                 }
+
+                return result;
             }
             catch (Exception ex)
             {
                 throw new Exception("Error initializing Library Loader component:  " + ex.Message);
             }
+        }
+
+        protected override LibraryLoaderLoadViewModel MapWorkLoad(LibraryLoaderLoad workLoad)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override LibraryLoaderOutputViewModel MapWorkOutput(LibraryLoaderOutput workOutput)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override LibraryLoaderLoad ResetWorkLoad(LibraryWorkItemViewModel workItem)
+        {
+            throw new NotImplementedException();
         }
     }
 }

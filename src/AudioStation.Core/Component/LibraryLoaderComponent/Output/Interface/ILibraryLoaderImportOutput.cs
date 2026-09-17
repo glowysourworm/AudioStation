@@ -3,7 +3,7 @@ using AudioStation.Core.Model.Interface;
 
 namespace AudioStation.Core.Component.LibraryLoaderComponent.Output.Interface
 {
-    public interface ILibraryLoaderImportOutput
+    public interface ILibraryLoaderImportOutput : ILibraryLoaderOutput
     {
         public string DestinationFolderBase { get; set; }
         public string DestinationPathCalculated { get; set; }

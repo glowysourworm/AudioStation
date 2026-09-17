@@ -66,9 +66,6 @@ namespace AudioStation.Controller
             IBandcampClient bandcampClient,
             ICDImportService cdImportService,
 
-            // Services
-            ILibraryLoaderWorkerService libraryLoaderWorkerService,
-
             // Core Components
             IAudioStationMapper audioStationMapper,
             ICDDrive cdDrive,
@@ -92,7 +89,7 @@ namespace AudioStation.Controller
             _logViewModel = new LogViewModel(eventAggregator);
             _mainViewModel = new MainViewModel(audioController, audioStationMapper, dialogController, eventAggregator, cdDrive, audioConverter);
             _nowPlayingViewModel = new NowPlayingViewModel(eventAggregator);
-            _radioViewModel = new RadioViewModel(libraryLoaderWorkerService, dialogController);
+            _radioViewModel = new RadioViewModel(dialogController);
             _statusViewModel = new StatusViewModel();
 
             _components = new List<ComponentViewModelBase>()

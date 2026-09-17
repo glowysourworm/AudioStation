@@ -1,8 +1,9 @@
-﻿using AudioStation.Core.Database.AudioStationDatabase;
+﻿using AudioStation.Core.Component.LibraryLoaderComponent.Output.Interface;
+using AudioStation.Core.Database.AudioStationDatabase;
 
 namespace AudioStation.Core.Component.LibraryLoaderComponent.Output
 {
-    public class LibraryLoaderEntitySetOutput<T> where T : AudioStationEntityBase
+    public class LibraryLoaderEntitySetOutput<T> : ILibraryLoaderOutput where T : AudioStationEntityBase
     {
         List<T> _entities;
 

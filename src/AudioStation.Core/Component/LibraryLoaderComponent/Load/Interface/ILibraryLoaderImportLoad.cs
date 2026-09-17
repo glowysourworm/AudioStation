@@ -7,7 +7,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Load.Interface
     /// directory to a destination directory. Options: (Migration) Delete Unused Folder(s); 
     /// (Migration) Delete Source File; (Migration) Overwrite Destination File.
     /// </summary>
-    public interface ILibraryLoaderImportLoad
+    public interface ILibraryLoaderImportLoad : ILibraryLoaderLoad
     {
         /// <summary>
         /// The reference ID for tag information should be used during import. This will facilitate

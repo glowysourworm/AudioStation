@@ -5,7 +5,6 @@ using AudioStation.Core.Database.AudioStationDatabase;
 using AudioStation.Core.Model.Interface;
 using AudioStation.Core.Service.Vendor;
 using AudioStation.Core.Utility;
-using AudioStation.Service.Interface;
 using AudioStation.ViewModels.ComponentViewModels.LibraryViewModels.Comparer;
 using AudioStation.ViewModels.ComponentViewModels.RadioViewModels;
 
@@ -50,8 +49,7 @@ namespace AudioStation.ViewModels.ComponentViewModels
         }
 
 
-        public RadioViewModel(ILibraryLoaderWorkerService libraryLoaderService,
-                              IDialogController dialogController) : base("Radio")
+        public RadioViewModel(IDialogController dialogController) : base("Radio")
         {
             this.RadioEntries = new SortedObservableCollection<RadioEntryViewModel>(new PropertyComparer<string, RadioEntryViewModel>(x => x.Name));
             this.RadioBrowserSearchResults = new SortedObservableCollection<RadioStationViewModel>(new PropertyComparer<string, RadioStationViewModel>(x => x.Name));

@@ -116,7 +116,7 @@ namespace AudioStation.ViewModels.ComponentViewModels
             this.WorkflowConfiguration = new LibraryImporterConfigurationViewModel();
             this.ServiceWorkflow = new LibraryImporterServiceWorkflowViewModel(this.WorkflowConfiguration);
             this.StagingWorkflow = new LibraryImporterStagingWorkflowViewModel(dialogController, this.WorkflowConfiguration);
-            this.CompletionWorkflow = new LibraryImporterCompletionWorkflowViewModel(this.WorkflowConfiguration);
+            this.CompletionWorkflow = new LibraryImporterCompletionWorkflowViewModel(this.StagingWorkflow.StagedFiles, this.WorkflowConfiguration);
 
             this.ServiceWorkflow.PropertyChanged += OnImportStepUpdate;
             this.StagingWorkflow.PropertyChanged += OnImportStepUpdate;
@@ -138,9 +138,6 @@ namespace AudioStation.ViewModels.ComponentViewModels
         {
             // TODO: Try making a new couple of pattern methods for components (Save, and Execute)
             _libraryLoaderService = audioStationController.LibraryLoaderService;
-
-            // Direct property settings (BEFORE INITIALIZE)
-            this.CompletionWorkflow.StagedFiles = this.StagingWorkflow.StagedFiles;
 
             // Sub-component(s)
             this.Configuration = audioStationController.ComponentController.GetComponent<AudioStationConfigurationViewModel>();

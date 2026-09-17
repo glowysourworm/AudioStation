@@ -1,4 +1,5 @@
 ﻿using AudioStation.Core.Component.LibraryLoaderComponent.Load;
+using AudioStation.Core.Component.LibraryLoaderComponent.Load.Interface;
 using AudioStation.Core.Database.AudioStationDatabase;
 
 namespace AudioStation.Core.Component.LibraryLoaderComponent
@@ -8,19 +9,19 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent
     /// </summary>
     public class LibraryLoaderLoad
     {
-        object _load;
+        ILibraryLoaderLoad _load;
         LibraryLoadType _loadType;
         Type _actualType;
 
         /// <summary>
         /// Loads the loader with the load specification.
         /// </summary>
-        public LibraryLoaderLoad(LibraryLoadType loadType, object load)
+        public LibraryLoaderLoad(LibraryLoadType loadType, ILibraryLoaderLoad load)
         {
             Initialize(loadType, load);
         }
 
-        private void Initialize(LibraryLoadType loadType, object load)
+        private void Initialize(LibraryLoadType loadType, ILibraryLoaderLoad load)
         {
             if (load == null)
                 throw new NullReferenceException("Library loader load not set");
@@ -86,6 +87,16 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent
                 throw new ArgumentException("Load type is not not correct, expecting:  " + _actualType);
 
             return (T)_load;
+        }
+
+        public ILibraryLoaderLoad Get()
+        {
+            return _load;
+        }
+
+        public LibraryLoadType GetLoadType()
+        {
+            return _loadType;
         }
     }
 }

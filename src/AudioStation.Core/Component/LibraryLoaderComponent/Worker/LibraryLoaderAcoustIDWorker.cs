@@ -74,7 +74,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
                         Completed = true,
                         Message = "AcoustID fingerprint service did not find any match",
                         StepNumber = stepNumber,
-                        Result = LibraryWorkerResultType.ServiceNoResult
+                        Result = LibraryWorkerResultLevel.ServiceNoResult
                     };
                 }
 

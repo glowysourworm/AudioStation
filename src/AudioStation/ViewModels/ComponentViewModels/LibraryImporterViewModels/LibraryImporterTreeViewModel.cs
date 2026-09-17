@@ -10,13 +10,13 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels
     /// </summary>
     public class LibraryImporterTreeViewModel : FileTreeViewModel
     {
-        public LibraryImporterTreeViewModel(FileTreeNodeViewModel nodeValue, string searchPattern, LibraryImporterTreeViewModel parent = null)
-            : base(searchPattern, nodeValue, parent)
+        public LibraryImporterTreeViewModel(FileTreeNodeViewModel nodeValue, LibraryImporterTreeViewModel parent = null)
+            : base(nodeValue, parent)
         {
         }
         protected override TreeViewModelBase Construct(ITreeViewNode nodeValue)
         {
-            return new LibraryImporterTreeViewModel(nodeValue as FileTreeNodeViewModel, this.SearchPattern, this);
+            return new LibraryImporterTreeViewModel(nodeValue as FileTreeNodeViewModel, this);
         }
 
         public bool HasSelectedParent()

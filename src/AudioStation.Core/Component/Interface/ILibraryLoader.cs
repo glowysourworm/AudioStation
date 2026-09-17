@@ -17,6 +17,11 @@ namespace AudioStation.Core.Component.Interface
         public event SimpleEventHandler<LibraryLoaderWorkItem> WorkItemComplete;
 
         /// <summary>
+        /// Sends queued event for a work item
+        /// </summary>
+        public event SimpleEventHandler<LibraryLoaderWorkItem> WorkItemQueued;
+
+        /// <summary>
         /// Sends an event when the library loader changes state
         /// </summary>
         public event SimpleEventHandler<PlayStopPause> StateChangeEvent;
@@ -24,7 +29,7 @@ namespace AudioStation.Core.Component.Interface
         /// <summary>
         /// Initializes and runs a library loader task with the specified parameters. Returns ID of new work item.
         /// </summary>
-        int QueueLoaderTask(LibraryLoadType loadType, object load);
+        int QueueLoaderTask(LibraryLoaderLoad workLoad);
 
         /// <summary>
         /// Sets state of loader:  This will not alter any work items. It will only stop the loader from processing

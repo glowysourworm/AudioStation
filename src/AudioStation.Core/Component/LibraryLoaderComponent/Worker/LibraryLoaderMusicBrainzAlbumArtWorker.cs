@@ -72,7 +72,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
                         Completed = false,
                         Message = "Invalid or missing Music Brainz Recording Id",
                         StepNumber = stepNumber,
-                        Result = LibraryWorkerResultType.DataError
+                        Result = LibraryWorkerResultLevel.DataError
                     };
                 }
 
@@ -105,7 +105,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
                         Completed = false,
                         Message = response.Message,
                         StepNumber = stepNumber,
-                        Result = LibraryWorkerResultType.ServiceFailure
+                        Result = LibraryWorkerResultLevel.ServiceFailure
                     };
                 }
 
@@ -184,7 +184,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
                         Completed = false,
                         Message = "Music Brainz client lookup error:  " + vendorMap.Entity.MusicBrainzRecordingId,
                         StepNumber = stepNumber,
-                        Result = LibraryWorkerResultType.DataError
+                        Result = LibraryWorkerResultLevel.DataError
                     };
                 }
 

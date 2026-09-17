@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel;
 
 using AudioStation.Controller.Interface;
+using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Database.AudioStationDatabase;
 using AudioStation.Core.Database.AudioStationDatabase.Interface;
 using AudioStation.Core.Model.Interface;
@@ -37,7 +38,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
         //                finished - with the bare minimum tag data - and moved into the library's 
         //                directory structure.
         //
-        NotifyingObservableCollection<LibraryImporterFileViewModel> _stagedFiles;
+        KeyedObservableCollection<string, LibraryImporterFileViewModel> _stagedFiles;
 
         int _libraryConflictCount;
         int _stagedSelectedCount;
@@ -53,7 +54,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
             get { return _importDirectory; }
             set { this.RaiseAndSetIfChanged(ref _importDirectory, value); }
         }
-        public NotifyingObservableCollection<LibraryImporterFileViewModel> StagedFiles
+        public KeyedObservableCollection<string, LibraryImporterFileViewModel> StagedFiles
         {
             get { return _stagedFiles; }
             set { this.RaiseAndSetIfChanged(ref _stagedFiles, value); }
@@ -100,7 +101,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
         {
             _workflowConfiguration = workflowConfiguration;
 
-            this.StagedFiles = new NotifyingObservableCollection<LibraryImporterFileViewModel>();
+            this.StagedFiles = new KeyedObservableCollection<string, LibraryImporterFileViewModel>();
             this.StagedFiles.ItemPropertyChanged += StagedFiles_ItemPropertyChanged;
 
             this.StageCommand = new SimpleCommand(() => Stage(dialogController), CanStage);
@@ -138,8 +139,12 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
             _audioStationDbClient = audioStationController.ServiceController.GetDataService<IAudioStationDbClient>();
             _tagCache = audioStationController.ServiceController.GetCache<ITagCache>();
 
-            // TODO: Put this somewhere and verify convertible files on startup
-            var searchPattern = "*.mp3";
+            var audioConverter = IocContainer.Get<IAudioConverter>();
+
+            // Multiple File Search
+            var searchPattern = audioConverter.GetSupportedFormatExtensions()
+                                              .Select(x => "*" + x)
+                                              .ToArray();
 
             // Import Directory:  1) Not Initialized; or 2) A different directory
             //
@@ -155,7 +160,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
                 // Unhook
                 this.ImportDirectory?.ItemPropertyChangedTreeEvent -= OnImportTreePropertyChanged;
 
-                this.ImportDirectory = libraryLoaderService.InitializeImporterTree(directory, searchPattern, _workflowConfiguration, progressHandler);
+                this.ImportDirectory = libraryLoaderService.InitializeImporterTree(directory, _workflowConfiguration, progressHandler, searchPattern);
 
                 this.TotalFileCount = this.ImportDirectory.RecursiveCount(x => !x.CanHaveChildren);
                 this.TotalDirectoryCount = this.ImportDirectory.RecursiveCount(x => x.CanHaveChildren);
@@ -168,16 +173,6 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
         {
             // Library Files
             var libraryFiles = _audioStationDbClient.GetEntities<FileReference>().ToDictionary(x => x.FileName);
-
-            // (performance) Staged File Dictionary 
-            var stagedFiles = new Dictionary<string, LibraryImporterFileViewModel>();
-
-            // Initialize with any staged files
-            foreach (var file in this.StagedFiles)
-            {
-                if (!file.IsDirectory && !stagedFiles.ContainsKey(file.FullPath))
-                    stagedFiles.Add(file.FullPath, file);
-            }
 
             var selectedFileCount = this.ImportDirectory.GetSelectedFileCount();
             var counter = 0;
@@ -193,7 +188,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
                 var subNode = subTree.GetNodeValue();
 
                 // Careful to avoid other files that have been staged
-                if (!subNode.IsDirectory && !stagedFiles.ContainsKey(subNode.FullPath))
+                if (!subNode.IsDirectory && !this.StagedFiles.ContainsKey(subNode.FullPath))
                 {
                     // Progress
                     progressHandler(1, 1, selectedFileCount, counter++, "Loading:  " + treeBase.NodeValue.DisplayName);
@@ -208,8 +203,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
                     stagedFile.LibraryConflict = libraryFiles.ContainsKey(stagedFile.FullPath);
                     stagedFile.FileConflict = false;                                                  // Calculate migration path
 
-                    stagedFiles.Add(subNode.FullPath, stagedFile);
-                    this.StagedFiles.Add(stagedFile);
+                    this.StagedFiles.Add(stagedFile.FullPath, stagedFile);
                 }
             });
         }

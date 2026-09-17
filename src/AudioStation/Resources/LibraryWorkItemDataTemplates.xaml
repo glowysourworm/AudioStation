@@ -34,16 +34,16 @@
             <DataTrigger Binding="{Binding HasErrors}" Value="True">
                 <Setter Property="ProgressBrush" Value="Red" />
             </DataTrigger>
-            <DataTrigger Binding="{Binding PreviousErrorType}" Value="{x:Static libraryComponent:LibraryWorkerResultType.Failure}">
+            <DataTrigger Binding="{Binding PreviousErrorType}" Value="{x:Static libraryComponent:LibraryWorkerResultLevel.Failure}">
                 <Setter Property="ProgressBrush" Value="Yellow" />
             </DataTrigger>
-            <DataTrigger Binding="{Binding PreviousErrorType}" Value="{x:Static libraryComponent:LibraryWorkerResultType.DataError}">
+            <DataTrigger Binding="{Binding PreviousErrorType}" Value="{x:Static libraryComponent:LibraryWorkerResultLevel.DataError}">
                 <Setter Property="ProgressBrush" Value="Red" />
             </DataTrigger>
-            <DataTrigger Binding="{Binding PreviousErrorType}" Value="{x:Static libraryComponent:LibraryWorkerResultType.ServiceNoResult}">
+            <DataTrigger Binding="{Binding PreviousErrorType}" Value="{x:Static libraryComponent:LibraryWorkerResultLevel.ServiceNoResult}">
                 <Setter Property="ProgressBrush" Value="Yellow" />
             </DataTrigger>
-            <DataTrigger Binding="{Binding PreviousErrorType}" Value="{x:Static libraryComponent:LibraryWorkerResultType.ServiceFailure}">
+            <DataTrigger Binding="{Binding PreviousErrorType}" Value="{x:Static libraryComponent:LibraryWorkerResultLevel.ServiceFailure}">
                 <Setter Property="ProgressBrush" Value="Red" />
             </DataTrigger>
         </Style.Triggers>

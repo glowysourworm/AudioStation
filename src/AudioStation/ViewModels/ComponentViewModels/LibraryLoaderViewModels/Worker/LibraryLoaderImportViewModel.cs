@@ -1,13 +1,14 @@
 ﻿using AudioStation.Controller.Interface;
 using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Component.LibraryLoaderComponent;
+using AudioStation.Core.Component.LibraryLoaderComponent.Load;
 using AudioStation.Core.Model;
 using AudioStation.Core.Model.Interface;
 using AudioStation.Event;
 using AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels;
-using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Load;
-using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Output;
 using AudioStation.ViewModels.MainViewModels;
+
+using SimpleWpf.Extensions.ObservableCollection;
 
 namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Worker
 {
@@ -19,31 +20,32 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Wo
     {
         private readonly IAudioStationMapper _audioStationMapper;
 
-        private readonly IEnumerable<LibraryImporterFileViewModel> _stagedFiles;
+        private readonly KeyedObservableCollection<string, LibraryImporterFileViewModel> _stagedFiles;
         private readonly LibraryImporterConfigurationViewModel _libraryImporterConfiguration;
 
         public LibraryLoaderImportViewModel(
             LibraryImporterConfigurationViewModel libraryImporterConfiguration,
-            IEnumerable<LibraryImporterFileViewModel> stagedFiles)
+            KeyedObservableCollection<string, LibraryImporterFileViewModel> stagedFiles)
             : base("Library Import Worker", "Library import worker task is for importing library records during an import workflow")
         {
             _stagedFiles = stagedFiles;
             _libraryImporterConfiguration = libraryImporterConfiguration;
         }
 
-        protected override void LoadWorkItems(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
+        protected override IEnumerable<LibraryLoaderLoad> CreateWorkLoads(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
         {
+            var result = new List<LibraryLoaderLoad>();
             var counter = 0;
 
             // Load / Output:  These are part of the workflow process. All of the import data is setup here
             //                 so that the view binding can happen without a big mess in the code. Also, the
             //                 back and forth with the backend for imports is kept clean by using these objects.
             //
-            foreach (var stagedFile in _stagedFiles)
+            foreach (LibraryImporterFileViewModel stagedFile in _stagedFiles)
             {
-                progressHandler(_stagedFiles.Count(), counter++, 0, 0, "Staging: " + stagedFile.FullPath);
+                progressHandler(1, 1, _stagedFiles.Count(), counter++, "Staging: " + stagedFile.FullPath);
 
-                var importLoad = new LibraryLoaderImportLoadViewModel()
+                result.Add(new LibraryLoaderLoad(LibraryLoadType.Import, new LibraryLoaderImportLoad(LibraryLoadType.Import)
                 {
                     ConvertAudioFormat = _libraryImporterConfiguration.ConvertAudioFormat,
                     DestinationFolder = _libraryImporterConfiguration.ImportDirectory.Directory,
@@ -58,35 +60,34 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Wo
                     SourceFullPath = stagedFile.FullPath,
                     TagSmallId = stagedFile.MusicBrainzTag.Id,
                     TrackCategory = _libraryImporterConfiguration.ImportDirectory.TrackCategory
-                };
-
-                // This will be set by the data services involved with the backend during import
-                var importOutput = new LibraryLoaderImportOutputViewModel();
-
-                this.WorkItems.Add(new LibraryWorkItemViewModel()
-                {
-                    Load = new LibraryLoaderLoadViewModel()
-                    {
-                        DisplayText = stagedFile.DisplayName,
-                        Data = importLoad
-                    },
-                    LoadType = LibraryLoadType.Import,
-                    Output = new LibraryLoaderOutputViewModel()
-                    {
-                        Output = importOutput
-                    }
-                });
-
-                stagedFile.ImportLoad = importLoad;
-                stagedFile.ImportOutput = importOutput;
+                }));
 
                 // PERFORMANCE ISSUE:  The tag data must be read; and minimal during file reading. The objects
                 //                     involved must be small. So, we're going to try making "TagSmall" objects
                 //                     in the cache to help out. And, we need to be sure that the tag library 
-                //                     is optimized. So, CSCore may be a replacement for ATL.
+                //                     is optimized. (IdSharp seems to be fairly good)
                 //
 
+                // STAGED FILES:  The Load / Output view models are used for this file object. So, they
+                //                will be set along with the results
             }
+
+            return result;
+        }
+
+        protected override LibraryLoaderLoadViewModel MapWorkLoad(LibraryLoaderLoad workLoad)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override LibraryLoaderOutputViewModel MapWorkOutput(LibraryLoaderOutput workOutput)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override LibraryLoaderLoad ResetWorkLoad(LibraryWorkItemViewModel workItem)
+        {
+            throw new NotImplementedException();
         }
     }
 }

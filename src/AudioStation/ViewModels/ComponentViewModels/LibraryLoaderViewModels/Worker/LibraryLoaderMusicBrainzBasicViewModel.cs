@@ -1,14 +1,11 @@
-﻿using System.Collections.ObjectModel;
-
-using AudioStation.Controller.Interface;
+﻿using AudioStation.Controller.Interface;
 using AudioStation.Core.Component.LibraryLoaderComponent;
+using AudioStation.Core.Component.LibraryLoaderComponent.Load;
 using AudioStation.Core.Database.AudioStationDatabase;
 using AudioStation.Core.Database.AudioStationDatabase.Interface;
 using AudioStation.Core.Model.Interface;
 using AudioStation.Event;
 using AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels;
-using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Load;
-using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Output;
 
 namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Worker
 {
@@ -24,45 +21,44 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Wo
         {
         }
 
-        protected override void LoadWorkItems(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
+        protected override IEnumerable<LibraryLoaderLoad> CreateWorkLoads(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
         {
             try
             {
-                var results = audioStationController.ServiceController
+                var entities = audioStationController.ServiceController
                                                     .GetDataService<IAudioStationDbClient>()
                                                     .GetEntities<AcoustIDLookupResult>();
+
+                var result = new List<LibraryLoaderLoad>();
                 var counter = 0;
 
-                foreach (var result in results.GroupBy(x => x.MusicBrainzRecordingId))
+                foreach (var entity in entities.GroupBy(x => x.MusicBrainzRecordingId))
                 {
-                    progressHandler(results.Count(), counter++, 0, 0, "Loading: Music Brainz Id=" + result.Key);
+                    progressHandler(entities.Count(), counter++, 0, 0, "Loading: Music Brainz Id=" + entity.Key);
 
-                    this.WorkItems.Add(new LibraryWorkItemViewModel()
-                    {
-                        HasErrors = false,
-                        InProgress = false,
-                        IsCompleted = false,
-                        Load = new LibraryLoaderLoadViewModel()
-                        {
-                            DisplayText = result.First().FileName,
-                            Data = new LibraryLoaderEntitySetLoadViewModel<AcoustIDLookupResult>()
-                            {
-                                EntitySet = new ObservableCollection<AcoustIDLookupResult>(result)
-                            }
-                        },
-                        LoadType = LibraryLoadType.MusicBrainzBasic,
-                        Output = new LibraryLoaderOutputViewModel()
-                        {
-                            Output = new LibraryLoaderEntitySetOutputViewModel<TagSmall>()
-                        },
-                        Progress = 0
-                    });
+                    result.Add(new LibraryLoaderLoad(LibraryLoadType.MusicBrainzBasic,
+                               new LibraryLoaderEntitySetLoad<AcoustIDLookupResult>(LibraryLoadType.MusicBrainzBasic, entity)));
                 }
+
+                return result;
             }
             catch (Exception ex)
             {
                 throw new Exception("Error initializing Library Loader component:  " + ex.Message);
             }
+        }
+
+        protected override LibraryLoaderLoadViewModel MapWorkLoad(LibraryLoaderLoad workLoad)
+        {
+            throw new NotImplementedException();
+        }
+        protected override LibraryLoaderOutputViewModel MapWorkOutput(LibraryLoaderOutput workOutput)
+        {
+            throw new NotImplementedException();
+        }
+        protected override LibraryLoaderLoad ResetWorkLoad(LibraryWorkItemViewModel workItem)
+        {
+            throw new NotImplementedException();
         }
     }
 }

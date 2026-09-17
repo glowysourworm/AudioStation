@@ -1,9 +1,10 @@
 ﻿using AudioStation.Controller.Interface;
 using AudioStation.Core.Model.Interface;
 using AudioStation.Event;
-using AudioStation.Service.Interface;
 using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels;
 using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Worker;
+
+using SimpleWpf.Extensions.ObservableCollection;
 
 namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.Workflow
 {
@@ -19,7 +20,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
         LibraryImporterConfigurationViewModel _workflowConfiguration;
 
         // Staged Files
-        IEnumerable<LibraryImporterFileViewModel> _stagedFiles;
+        KeyedObservableCollection<string, LibraryImporterFileViewModel> _stagedFiles;
 
         public LibraryLoaderImportViewModel ImportWorker
         {
@@ -29,13 +30,15 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
         public IEnumerable<LibraryImporterFileViewModel> StagedFiles
         {
             get { return _stagedFiles; }
-            set { this.RaiseAndSetIfChanged(ref _stagedFiles, value); }
         }
 
-        public LibraryImporterCompletionWorkflowViewModel(LibraryImporterConfigurationViewModel workflowConfiguration)
+        public LibraryImporterCompletionWorkflowViewModel(
+                KeyedObservableCollection<string, LibraryImporterFileViewModel> stagedFiles,
+                LibraryImporterConfigurationViewModel workflowConfiguration)
             : base("Library Importer (completion)")
         {
             _workflowConfiguration = workflowConfiguration;
+            _stagedFiles = stagedFiles;
         }
 
         public override bool CanExecute()
@@ -45,9 +48,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
 
         protected override void LoadWork(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
         {
-            var libraryLoaderWorkerService = audioStationController.ServiceController.GetService<ILibraryLoaderWorkerService>();
-
-            this.ImportWorker = new LibraryLoaderImportViewModel(_workflowConfiguration, this.StagedFiles);
+            this.ImportWorker = new LibraryLoaderImportViewModel(_workflowConfiguration, _stagedFiles);
 
             this.ImportWorker.StatusChangeEvent += OnWorkerStatusChangeEvent;
 

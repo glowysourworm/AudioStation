@@ -20,6 +20,7 @@ namespace AudioStation.Controller
         private readonly IAudioStationServiceController _audioStationServiceController;
         private readonly IAudioStationComponentController _audioStationComponentController;
         private readonly ILibraryLoaderService _libraryLoaderService;
+        private readonly ILibraryLoader _libraryLoader;
 
         // Primary Configuration View Model
         AudioStationConfigurationViewModel _audioStationConfigurationViewModel;
@@ -29,6 +30,7 @@ namespace AudioStation.Controller
         public IAudioStationServiceController ServiceController { get { return _audioStationServiceController; } }
         public IAudioStationComponentController ComponentController { get { return _audioStationComponentController; } }
         public ILibraryLoaderService LibraryLoaderService { get { return _libraryLoaderService; } }
+        public ILibraryLoader LibraryLoader { get { return _libraryLoader; } }
         public IDialogController DialogController { get { return _dialogController; } }
         public IIocEventAggregator EventAggregator { get { return _eventAggregator; } }
         #endregion
@@ -42,7 +44,8 @@ namespace AudioStation.Controller
                                       IAudioStationConfigurationController audioStationConfigurationManager,
                                       IAudioStationServiceController audioStationServiceController,
                                       IAudioStationComponentController componentViewModelLoader,
-                                      ILibraryLoaderService libraryLoaderService)
+                                      ILibraryLoaderService libraryLoaderService,
+                                      ILibraryLoader libraryLoader)
         {
             _audioStationMapper = audioStationMapper;
             _dialogController = dialogController;
@@ -51,6 +54,7 @@ namespace AudioStation.Controller
             _audioStationServiceController = audioStationServiceController;
             _audioStationComponentController = componentViewModelLoader;
             _libraryLoaderService = libraryLoaderService;
+            _libraryLoader = libraryLoader;
 
             _audioStationConfigurationViewModel = new AudioStationConfigurationViewModel();
 

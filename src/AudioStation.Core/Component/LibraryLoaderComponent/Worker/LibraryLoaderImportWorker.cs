@@ -136,7 +136,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
                     {
                         Completed = false,
                         Message = "Database record for tag not found:  Id=" + workLoad.TagSmallId,
-                        Result = LibraryWorkerResultType.DataError,
+                        Result = LibraryWorkerResultLevel.DataError,
                         StepNumber = stepNumber,
                     };
                 }
@@ -193,7 +193,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
                     {
                         Completed = false,
                         Message = "Error reading tag data from source file",
-                        Result = LibraryWorkerResultType.DataError,
+                        Result = LibraryWorkerResultLevel.DataError,
                         StepNumber = stepNumber,
                     };
                 }
@@ -235,7 +235,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
                         {
                             Completed = false,
                             Message = "Cannot write to destination path:  " + _destinationPath,
-                            Result = LibraryWorkerResultType.DataError,
+                            Result = LibraryWorkerResultLevel.DataError,
                             StepNumber = stepNumber,
                         };
                     }
@@ -324,7 +324,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
                     {
                         Completed = false,
                         Message = "Error retrieving tag information from source file",
-                        Result = LibraryWorkerResultType.DataError,
+                        Result = LibraryWorkerResultLevel.DataError,
                         StepNumber = stepNumber,
                     };
                 }
@@ -334,7 +334,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
                     {
                         Completed = false,
                         Message = "Error retrieving working tag information from database",
-                        Result = LibraryWorkerResultType.DataError,
+                        Result = LibraryWorkerResultLevel.DataError,
                         StepNumber = stepNumber,
                     };
                 }
@@ -365,7 +365,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
                     {
                         Completed = false,
                         Message = "Tag Information Invalid: " + validation.ValidationMessage,
-                        Result = LibraryWorkerResultType.DataError,
+                        Result = LibraryWorkerResultLevel.DataError,
                         StepNumber = stepNumber,
                     };
                 }
@@ -397,7 +397,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
                     {
                         Completed = false,
                         Message = "Tag database records missing for the import!Please retry after completing your import.",
-                        Result = LibraryWorkerResultType.DataError,
+                        Result = LibraryWorkerResultLevel.DataError,
                         StepNumber = stepNumber
                     };
                 }
@@ -413,7 +413,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
                     {
                         Completed = false,
                         Message = "Tag information invalid: " + validation.ValidationMessage,
-                        Result = LibraryWorkerResultType.DataError,
+                        Result = LibraryWorkerResultLevel.DataError,
                         StepNumber = stepNumber
                     };
                 }

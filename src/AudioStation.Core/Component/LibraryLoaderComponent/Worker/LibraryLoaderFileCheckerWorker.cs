@@ -89,7 +89,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
                     Completed = true,
                     Message = message,
                     StepNumber = stepNumber,
-                    Result = invalid ? LibraryWorkerResultType.DataError : LibraryWorkerResultType.Success
+                    Result = invalid ? LibraryWorkerResultLevel.DataError : LibraryWorkerResultLevel.Success
                 };
             }
             catch (Exception ex)

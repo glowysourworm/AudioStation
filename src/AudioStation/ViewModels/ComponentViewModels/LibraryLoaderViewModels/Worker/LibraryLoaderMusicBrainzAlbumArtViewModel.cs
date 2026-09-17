@@ -1,12 +1,11 @@
 ﻿using AudioStation.Controller.Interface;
 using AudioStation.Core.Component.LibraryLoaderComponent;
+using AudioStation.Core.Component.LibraryLoaderComponent.Load;
 using AudioStation.Core.Database.AudioStationDatabase;
 using AudioStation.Core.Database.AudioStationDatabase.Interface;
 using AudioStation.Core.Model.Interface;
 using AudioStation.Event;
 using AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels;
-using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Load;
-using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Output;
 
 namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Worker
 {
@@ -22,47 +21,44 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Wo
         {
         }
 
-        protected override void LoadWorkItems(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
+        protected override IEnumerable<LibraryLoaderLoad> CreateWorkLoads(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
         {
             try
             {
-                var results = audioStationController.ServiceController
+                var tagMaps = audioStationController.ServiceController
                                                     .GetDataService<IAudioStationDbClient>()
                                                     .GetEntities<TagSmallVendorMap>();
+
+                var result = new List<LibraryLoaderLoad>();
                 var counter = 0;
 
-                foreach (var result in results.Where(x => x.MusicBrainzRecordingId != null))
+                foreach (var map in tagMaps.Where(x => x.MusicBrainzRecordingId != null))
                 {
-                    progressHandler(results.Count(), counter++, 0, 0, "Loading: Music Brainz Id=" + result.MusicBrainzRecordingId);
+                    progressHandler(tagMaps.Count(), counter++, 0, 0, "Loading: Music Brainz Id=" + map.MusicBrainzRecordingId);
 
-                    this.WorkItems.Add(new LibraryWorkItemViewModel()
-                    {
-                        HasErrors = false,
-                        InProgress = false,
-                        IsCompleted = false,
-                        LoadType = LibraryLoadType.MusicBrainzAlbumArt,
-                        Load = new LibraryLoaderLoadViewModel()
-                        {
-                            // Vendor Lookup
-                            Data = new LibraryLoaderEntityLoadViewModel<TagSmallVendorMap>()
-                            {
-                                Entity = result
-                            },
-                            DisplayText = "Music Brainz Result:  " + result.TagSmall.Title
-                        },
-                        Output = new LibraryLoaderOutputViewModel()
-                        {
-                            // File Reference(s)
-                            Output = new LibraryLoaderEntitySetOutputViewModel<FileReference>()
-                        },
-                        Progress = 0
-                    });
+                    result.Add(new LibraryLoaderLoad(LibraryLoadType.MusicBrainzAlbumArt,
+                               new LibraryLoaderEntityLoad<TagSmallVendorMap>(LibraryLoadType.MusicBrainzAlbumArt, map)));
                 }
+
+                return result;
             }
             catch (Exception ex)
             {
                 throw new Exception("Error initializing Library Loader component:  " + ex.Message);
             }
+        }
+
+        protected override LibraryLoaderLoadViewModel MapWorkLoad(LibraryLoaderLoad workLoad)
+        {
+            throw new NotImplementedException();
+        }
+        protected override LibraryLoaderOutputViewModel MapWorkOutput(LibraryLoaderOutput workOutput)
+        {
+            throw new NotImplementedException();
+        }
+        protected override LibraryLoaderLoad ResetWorkLoad(LibraryWorkItemViewModel workItem)
+        {
+            throw new NotImplementedException();
         }
     }
 }

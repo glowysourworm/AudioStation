@@ -23,7 +23,6 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
         private IAudioStationController _audioStationController;
         private IAudioStationConfiguration _configuration;
         private IDialogController _dialogController;
-        private ILibraryLoaderWorkerService _libraryLoaderWorkerService;
 
         private readonly LibraryImporterConfigurationViewModel _workflowConfiguration;
 
@@ -109,7 +108,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
             if (!CanChangeLoaderState(loaderState))
                 throw new Exception("Cannot change loader state - please check before trying to change");
 
-            _libraryLoaderWorkerService.ChangeLoaderState(loaderState);
+            //_libraryLoaderWorkerService.ChangeLoaderState(loaderState);
         }
         public bool CanChangeLoaderState(PlayStopPause loaderState)
         {
@@ -248,7 +247,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
             _configuration = configuration;
             _audioStationController = audioStationController;
             _dialogController = audioStationController.DialogController;
-            _libraryLoaderWorkerService = audioStationController.ServiceController.GetService<ILibraryLoaderWorkerService>();
+            //_libraryLoaderWorkerService = audioStationController.ServiceController.GetService<ILibraryLoaderWorkerService>();
 
             // -> On Loader State Change
             audioStationController.EventAggregator.GetEvent<LibraryLoaderStateChangeEvent>().Subscribe(OnLibraryLoaderStateChange);

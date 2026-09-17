@@ -1,4 +1,5 @@
-﻿using AudioStation.Core.Component.LibraryLoaderComponent.Load.Interface;
+﻿using AudioStation.Core.Component.LibraryLoaderComponent;
+using AudioStation.Core.Component.LibraryLoaderComponent.Load.Interface;
 using AudioStation.Core.Model;
 
 using SimpleWpf.UI.ViewModel;
@@ -7,6 +8,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Lo
 {
     public class LibraryLoaderImportLoadViewModel : ViewModelBase, ILibraryLoaderImportLoad
     {
+        LibraryLoadType _type;
         int _tagSmallId;
         string _sourceFullPath;
         string _destinationFolder;
@@ -22,6 +24,11 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Lo
 
         bool _isSourceDirectoryReadonly;
 
+        public LibraryLoadType Type
+        {
+            get { return _type; }
+            private set { _type = value; }
+        }
         public string SourceFullPath
         {
             get { return _sourceFullPath; }
@@ -90,6 +97,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Lo
 
         public LibraryLoaderImportLoadViewModel()
         {
+            this.Type = LibraryLoadType.Import;
             this.SourceFullPath = string.Empty;
             this.DestinationFolder = string.Empty;
             this.MigrationSourceDirectory = string.Empty;

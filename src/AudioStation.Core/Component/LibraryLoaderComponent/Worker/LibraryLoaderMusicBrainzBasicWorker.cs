@@ -101,7 +101,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
                                 Completed = false,
                                 Message = "Music Brainz lookup invalid: " + validation.ValidationMessage,
                                 StepNumber = stepNumber,
-                                Result = LibraryWorkerResultType.DataError
+                                Result = LibraryWorkerResultLevel.DataError
                             };
                         }
 
@@ -112,7 +112,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
                                 Completed = false,
                                 Message = "Music Brainz client lookup error:  " + entity.FileName,
                                 StepNumber = stepNumber,
-                                Result = LibraryWorkerResultType.ServiceFailure
+                                Result = LibraryWorkerResultLevel.ServiceFailure
                             };
                         }
                     }
@@ -144,7 +144,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
                         Completed = false,
                         Message = "Failed to find 'Music Brainz' vendor in database. Please ensure that this vendor has been added to your configuration",
                         StepNumber = stepNumber,
-                        Result = LibraryWorkerResultType.Failure
+                        Result = LibraryWorkerResultLevel.Failure
                     };
                 }
 

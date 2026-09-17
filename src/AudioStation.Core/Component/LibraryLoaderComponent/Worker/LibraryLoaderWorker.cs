@@ -47,19 +47,19 @@
 
             switch (result.Result)
             {
-                case LibraryWorkerResultType.Success:
+                case LibraryWorkerResultLevel.Success:
                     return result.Completed;
 
-                case LibraryWorkerResultType.Failure:
+                case LibraryWorkerResultLevel.Failure:
                     return false;
 
-                case LibraryWorkerResultType.DataError:
+                case LibraryWorkerResultLevel.DataError:
                     return result.Completed;
 
-                case LibraryWorkerResultType.ServiceNoResult:
+                case LibraryWorkerResultLevel.ServiceNoResult:
                     return result.Completed;
 
-                case LibraryWorkerResultType.ServiceFailure:
+                case LibraryWorkerResultLevel.ServiceFailure:
                     return result.Completed;
                 default:
                     throw new Exception("Unhandled worker result type");

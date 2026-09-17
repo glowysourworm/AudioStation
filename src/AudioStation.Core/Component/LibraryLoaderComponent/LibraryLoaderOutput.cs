@@ -1,4 +1,5 @@
 ﻿using AudioStation.Core.Component.LibraryLoaderComponent.Output;
+using AudioStation.Core.Component.LibraryLoaderComponent.Output.Interface;
 using AudioStation.Core.Database.AudioStationDatabase;
 using AudioStation.Core.Model;
 
@@ -6,14 +7,14 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent
 {
     public class LibraryLoaderOutput
     {
-        object _output;
+        ILibraryLoaderOutput _output;
         List<LogMessage> _log;
         List<LibraryWorkerStepResult> _resultSteps;
         int _numberOfSteps;
         Type _actualType;
 
 
-        public LibraryLoaderOutput(LibraryLoadType loadType, object output, int numberOfSteps)
+        public LibraryLoaderOutput(LibraryLoadType loadType, ILibraryLoaderOutput output, int numberOfSteps)
         {
             _output = output;
             _log = new List<LogMessage>();
@@ -23,7 +24,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent
             Initialize(loadType, output);
         }
 
-        private void Initialize(LibraryLoadType loadType, object output)
+        private void Initialize(LibraryLoadType loadType, ILibraryLoaderOutput output)
         {
             if (output == null)
                 throw new NullReferenceException("Library loader output not set");

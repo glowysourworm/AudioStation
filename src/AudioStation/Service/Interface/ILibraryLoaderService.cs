@@ -26,16 +26,16 @@ namespace AudioStation.Service.Interface
         /// Initializes the library importer directory to recursion depth 0.
         /// </summary>
         FileTreeViewModel InitializeImporterTree(string directory,
-                                                    string searchPattern,
-                                                    LibraryImporterConfigurationViewModel importerOptions,
-                                                    DialogProgressHandler progressHandler);
+                                                 LibraryImporterConfigurationViewModel importerOptions,
+                                                 DialogProgressHandler progressHandler,
+                                                 params string[] searchPatterns);
 
         /// <summary>
         /// Loads further directories of the importer tree
         /// </summary>
         void LoadImporterTreeNextDepth(FileTreeViewModel treeRoot,
                                         int currentDepth,
-                                        string searchPattern,
-                                        DialogProgressHandler progressHandler);
+                                        DialogProgressHandler progressHandler,
+                                        params string[] searchPatterns);
     }
 }

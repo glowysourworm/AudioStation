@@ -42,7 +42,6 @@ namespace AudioStation.ViewModels.ComponentViewModels
         protected override void InitializeWork(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
         {
             var libraryLoaderService = audioStationController.ServiceController.GetService<ILibraryLoaderService>();
-            var libraryLoaderWorkerService = audioStationController.ServiceController.GetService<ILibraryLoaderWorkerService>();
             var audioStationDbClient = audioStationController.ServiceController.GetDataService<IAudioStationDbClient>();
 
             this.LoaderTasks.Add(new LibraryLoaderAcoustIDViewModel());

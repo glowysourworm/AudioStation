@@ -93,10 +93,10 @@ namespace AudioStation.Service
         }
 
         public FileTreeViewModel InitializeImporterTree(
-                    string directory,
-                    string searchPattern,
-                    LibraryImporterConfigurationViewModel importerOptions,
-                    DialogProgressHandler progressHandler)
+                                                 string directory,
+                                                 LibraryImporterConfigurationViewModel importerOptions,
+                                                 DialogProgressHandler progressHandler,
+                                                 params string[] searchPatterns)
         {
             if (BasicHelpers.IsDispatcher() == ApplicationIsDispatcherResult.False)
                 throw new Exception("Trying to load library on a non-dispatcher thread is not allowed");
@@ -104,9 +104,9 @@ namespace AudioStation.Service
             try
             {
                 // Load first depth of the tree (TODO: Fix showing only the root, instead of starting with the child nodes)
-                return DirectoryTreeLoader.Load(directory, searchPattern, -1, directoryNode =>
+                return DirectoryTreeLoader.Load(directory, -1, directoryNode =>
                 {
-                    return new FileTreeViewModel(searchPattern, directoryNode);
+                    return new FileTreeViewModel(directoryNode);
 
                 }, (directoryPath, directoryFileCount) =>
                 {
@@ -116,7 +116,7 @@ namespace AudioStation.Service
                 {
                     return new FileTreeNodeViewModel(directory, filePath, 0);
 
-                }, progressHandler);
+                }, progressHandler, searchPatterns);
             }
             catch (Exception ex)
             {
@@ -128,17 +128,17 @@ namespace AudioStation.Service
         public void LoadImporterTreeNextDepth(
                         FileTreeViewModel treeRoot,
                         int currentDepth,
-                        string searchPattern,
-                        DialogProgressHandler progressHandler)
+                        DialogProgressHandler progressHandler,
+                        params string[] searchPatterns)
         {
             if (BasicHelpers.IsDispatcher() == ApplicationIsDispatcherResult.False)
                 throw new Exception("Trying to load library on a non-dispatcher thread is not allowed");
 
             try
             {
-                DirectoryTreeLoader.LoadToDepth(treeRoot, searchPattern, currentDepth + 1, directoryNode =>
+                DirectoryTreeLoader.LoadToDepth(treeRoot, currentDepth + 1, directoryNode =>
                 {
-                    return new FileTreeViewModel(searchPattern, directoryNode);
+                    return new FileTreeViewModel(directoryNode);
 
                 }, (directoryPath, directoryFileCount) =>
                 {
@@ -148,7 +148,7 @@ namespace AudioStation.Service
                 {
                     return new FileTreeNodeViewModel(treeRoot.GetNodeValue().FullPath, filePath, 0);
 
-                }, progressHandler);
+                }, progressHandler, searchPatterns);
             }
             catch (Exception ex)
             {

@@ -8,7 +8,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels
     {
         int _stepNumber;
         string _message;
-        LibraryWorkerResultType _result;
+        LibraryWorkerResultLevel _result;
         bool _complete;
 
         public int StepNumber
@@ -21,7 +21,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels
             get { return _message; }
             set { this.RaiseAndSetIfChanged(ref _message, value); }
         }
-        public LibraryWorkerResultType Result
+        public LibraryWorkerResultLevel Result
         {
             get { return _result; }
             set { this.RaiseAndSetIfChanged(ref _result, value); }
