@@ -10,17 +10,17 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
 {
     public class LibraryImporterCompletionWorkflowViewModel : ComponentPartViewModelBase
     {
+        // Workflow Configuration
+        private readonly LibraryImporterConfigurationViewModel _workflowConfiguration;
+
+        // Staged Files
+        private readonly KeyedObservableCollection<string, LibraryImporterFileViewModel> _stagedFiles;
+
         // Import Worker:  This will require a load of type ILibraryLoaderImportLoad. It operates on
         //                 the current workflow entities; and performs the rest of the import and file
         //                 handling tasks that are needed to complete the import workflow.
         //
         LibraryLoaderImportViewModel _importWorker;
-
-        // Workflow Configuration
-        LibraryImporterConfigurationViewModel _workflowConfiguration;
-
-        // Staged Files
-        KeyedObservableCollection<string, LibraryImporterFileViewModel> _stagedFiles;
 
         public LibraryLoaderImportViewModel ImportWorker
         {

@@ -34,6 +34,9 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels
         // Convert Audio Format (to folder preference)
         bool _convertAudioFormat;
 
+        // Embed Tag Data (this will come from the TagSmall intermediate database record, which may have come from the tag itself)
+        bool _embedImportTagData;
+
         // Library Record Conflict Options (some of these are "double-checks" with migration)
         bool _libraryOverwriteExistingFiles;
         bool _libraryOverwriteExistingTracks;
@@ -113,6 +116,11 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels
         {
             get { return _convertAudioFormat; }
             set { this.RaiseAndSetIfChanged(ref _convertAudioFormat, value); }
+        }
+        public bool EmbedImportTagData
+        {
+            get { return _embedImportTagData; }
+            set { this.RaiseAndSetIfChanged(ref _embedImportTagData, value); }
         }
         public bool LibraryOverwriteExistingFiles
         {

@@ -9,6 +9,7 @@ using AudioStation.Service.Interface;
 using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels;
 using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Worker;
 
+using SimpleWpf.Extensions.ObservableCollection;
 using SimpleWpf.UI.Command;
 using SimpleWpf.UI.Event;
 
@@ -24,6 +25,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
         private IDialogController _dialogController;
 
         private readonly LibraryImporterConfigurationViewModel _workflowConfiguration;
+        private readonly KeyedObservableCollection<string, LibraryImporterFileViewModel> _stagedFiles;
 
         private ObservableCollection<LibraryLoaderWorkerViewModelBase> _serviceWorkers;
 
@@ -79,9 +81,11 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
             set { this.RaiseAndSetIfChanged(ref _skipSelectedWorkItemsCommand, value); }
         }
 
-        public LibraryImporterServiceWorkflowViewModel(LibraryImporterConfigurationViewModel configuration) : base("Library Importer (loader)")
+        public LibraryImporterServiceWorkflowViewModel(LibraryImporterConfigurationViewModel configuration,
+                                                       KeyedObservableCollection<string, LibraryImporterFileViewModel> stagedFiles) : base("Library Importer (loader)")
         {
             _workflowConfiguration = configuration;
+            _stagedFiles = stagedFiles;
 
             // Might need to get this directly from the service for initialization
             this.LibraryLoaderState = PlayStopPause.Stop;
@@ -144,7 +148,9 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
         }
         private bool CanLoadWorker()
         {
-            return !this.Working && this.Loaded && this.LibraryLoaderState == PlayStopPause.Stop;
+            return !this.Working &&
+                    this.Loaded &&
+                    this.LibraryLoaderState == PlayStopPause.Stop;
         }
         private bool CanMoveToPreviousStep()
         {
@@ -173,7 +179,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
                 return false;
 
             else
-                return CanLoadWorker() && !this.SelectedWorker.Loaded;
+                return CanLoadWorker() && this.SelectedWorker != null && !this.SelectedWorker.Loaded;
         }
         private bool CanRerunSelectedWorkItems()
         {
@@ -202,9 +208,6 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
 
                 // -> Load
                 LoadPart(_configuration, _audioStationController, progressHandler);
-
-                // -> Execute
-                ExecuteWork(progressHandler);
             });
         }
         private void MoveToPreviousStep()
@@ -248,7 +251,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
 
             // Create Service Workers
             if (_workflowConfiguration.ServiceIncludeAcoustID)
-                this.ServiceWorkers.Add(new LibraryLoaderAcoustIDViewModel(_workflowConfiguration));
+                this.ServiceWorkers.Add(new LibraryLoaderAcoustIDViewModel(_workflowConfiguration, _stagedFiles));
 
             if (_workflowConfiguration.ServiceIncludeMusicBrainzBasic)
                 this.ServiceWorkers.Add(new LibraryLoaderMusicBrainzBasicViewModel(_workflowConfiguration));
@@ -266,13 +269,6 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
 
         protected override void ExecuteWork(DialogEventHandlers.DialogProgressHandler progressHandler)
         {
-            if (this.SelectedWorker == null)
-                throw new ArgumentException("Must first select worker before executing");
-
-            if (!this.SelectedWorker.CanExecute() &&
-                !this.CanExecute())
-                throw new Exception("Cannot execute further work");
-
             this.SelectedWorker.Execute();
         }
 

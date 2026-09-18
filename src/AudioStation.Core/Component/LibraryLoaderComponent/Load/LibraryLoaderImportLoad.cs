@@ -6,12 +6,20 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Load
     public class LibraryLoaderImportLoad : ILibraryLoaderImportLoad
     {
         public int OwnerId { get; private set; }
-        public LibraryLoadType Type { get; private set; }
+        public LibraryLoadType LoadType { get; private set; }
+
+        public LibraryImportType ImportType { get; set; }
+        public LibraryImportSource TagSourcePreference { get; set; }
+        public LibraryImportSource AcoustIDSourcePreference { get; set; }
+        public LibraryImportSource MusicBrainzSourcePreference { get; set; }
 
         public int TagSmallId { get; set; }
 
         public string SourceFullPath { get; set; }
         public string DestinationFolder { get; set; }
+
+        public bool IsSourceDirectoryReadonly { get; set; }
+        public bool EmbedImportTagData { get; set; }
 
         public TrackCategory TrackCategory { get; set; }
         public TrackGroupingType GroupingType { get; set; }
@@ -21,15 +29,27 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Load
         public bool MigrationDeleteSourceFiles { get; set; }
         public bool MigrationDeleteSourceFolders { get; set; }
         public bool MigrationOverwriteDestinationFiles { get; set; }
-        public bool IsSourceDirectoryReadonly { get; set; }
 
-        public AudioEncoderInfo DestinationFormat { get; set; }
+        public bool ServiceIncludeAcoustID { get; set; }
+        public bool ServiceIncludeMusicBrainzBasic { get; set; }
+        public bool ServiceIncludeMusicBrainzArtwork { get; set; }
+        public bool ServiceOverwriteAcoustID { get; set; }
+        public bool ServiceOverwriteMusicBrainzBasic { get; set; }
+        public bool ServiceOverwriteMusicBrainzArtwork { get; set; }
+
+        public bool LibraryOverwriteExistingFiles { get; set; }
+        public bool LibraryOverwriteExistingTracks { get; set; }
+        public bool LibraryOverwriteExistingAlbums { get; set; }
+        public bool LibraryOverwriteExistingArtists { get; set; }
+        public bool LibraryOverwriteExistingGenres { get; set; }
+
+        public AudioEncoderInfo ImportFormat { get; set; }
         public bool ConvertAudioFormat { get; set; }
 
         public LibraryLoaderImportLoad(int ownerId, LibraryLoadType loadType)
         {
             this.OwnerId = ownerId;
-            this.Type = loadType;
+            this.LoadType = loadType;
         }
     }
 }

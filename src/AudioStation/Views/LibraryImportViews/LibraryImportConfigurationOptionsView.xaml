@@ -65,6 +65,11 @@
 
                             <propertyGrid:PropertyStringControl LabelColumnWidth="250" Value="{Binding WorkflowConfiguration.ImportDirectory.Directory}" IsReadOnly="True" Margin="1" LabelText="Import Directory" />
 
+                            <propertyGrid:PropertyBooleanControl LabelColumnWidth="250" 
+                                                                 IsRequired="False"
+                                                                 Description="(Tag) Embed tag data to the import file. The tag data will be a small segment of the total data supported by Audio Station. This will help to get things started; and you can fill out the detail using Music Brainz at any time."
+                                                                 Value="{Binding WorkflowConfiguration.EmbedImportTagData, Mode=TwoWay}" IsReadOnly="False" Margin="1" LabelText="Embed Tag Data" />                            
+                            
                             <propertyGrid:PropertyEnumControl EnumType="{x:Type coreModel:LibraryImportSource}" 
                                                           Value="{Binding WorkflowConfiguration.TagSourcePreference}" 
                                                           LabelColumnWidth="250" IsReadOnly="False" Margin="1" 
@@ -99,6 +104,11 @@
                             <propertyGrid:PropertyEnumControl EnumType="{x:Type coreModel:TrackNamingType}" Value="{Binding WorkflowConfiguration.ImportDirectory.NamingType}" LabelColumnWidth="250" IsReadOnly="True" Margin="1" LabelText="Destination File Naming" />
                             <propertyGrid:PropertyEnumControl EnumType="{x:Type coreModel:TrackGroupingType}" Value="{Binding WorkflowConfiguration.ImportDirectory.GroupingType}" LabelColumnWidth="250" IsReadOnly="True" Margin="1" LabelText="Destination File Grouping" />
 
+                            <propertyGrid:PropertyBooleanControl LabelColumnWidth="250" 
+                                                                 IsRequired="False"
+                                                                 Description="(Tag) Embed tag data to the import file. The tag data will be a small segment of the total data supported by Audio Station. This will help to get things started; and you can fill out the detail using Music Brainz at any time."
+                                                                 Value="{Binding WorkflowConfiguration.EmbedImportTagData, Mode=TwoWay}" IsReadOnly="False" Margin="1" LabelText="Embed Tag Data" />
+                            
                             <propertyGrid:PropertyEnumControl EnumType="{x:Type coreModel:LibraryImportSource}" 
                                                           Value="{Binding WorkflowConfiguration.TagSourcePreference}" 
                                                           LabelColumnWidth="250" IsReadOnly="False" Margin="1" 
@@ -124,6 +134,7 @@
                                                      IsRequired="False"
                                                      Description="(Migration) Delete source files after copying to the destination directory"
                                                      Value="{Binding WorkflowConfiguration.MigrationDeleteSourceFiles, Mode=TwoWay}" IsReadOnly="False" Margin="1" LabelText="Delete Source File(s)" />
+                            
                             <propertyGrid:PropertyBooleanControl LabelColumnWidth="250" 
                                                      IsRequired="False"
                                                      Description="(Migration) Delete source folders after copying files to the destination directory (this excludes any configured library or application directories unless they are sub-directories that are no longer needed)"

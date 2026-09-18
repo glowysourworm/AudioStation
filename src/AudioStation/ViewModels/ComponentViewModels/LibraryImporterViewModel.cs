@@ -114,8 +114,8 @@ namespace AudioStation.ViewModels.ComponentViewModels
             _tagCacheController = tagCacheController;
 
             this.WorkflowConfiguration = new LibraryImporterConfigurationViewModel();
-            this.ServiceWorkflow = new LibraryImporterServiceWorkflowViewModel(this.WorkflowConfiguration);
             this.StagingWorkflow = new LibraryImporterStagingWorkflowViewModel(dialogController, this.WorkflowConfiguration);
+            this.ServiceWorkflow = new LibraryImporterServiceWorkflowViewModel(this.WorkflowConfiguration, this.StagingWorkflow.StagedFiles);
             this.CompletionWorkflow = new LibraryImporterCompletionWorkflowViewModel(this.StagingWorkflow.StagedFiles, this.WorkflowConfiguration);
 
             this.ServiceWorkflow.PropertyChanged += OnImportStepUpdate;

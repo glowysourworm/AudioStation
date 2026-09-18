@@ -10,6 +10,6 @@
         /// <summary>
         /// Type of load to be instantiated and processed by the ILibraryLoader
         /// </summary>
-        LibraryLoadType Type { get; }
+        LibraryLoadType LoadType { get; }
     }
 }

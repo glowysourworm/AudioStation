@@ -7,6 +7,8 @@ using AudioStation.Core;
 using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Component.LibraryLoaderComponent.Load;
 using AudioStation.Core.Component.LibraryLoaderComponent.Load.Interface;
+using AudioStation.Core.Component.LibraryLoaderComponent.Output;
+using AudioStation.Core.Component.LibraryLoaderComponent.Output.Interface;
 using AudioStation.Core.Database.AudioStationDatabase;
 using AudioStation.Core.Model;
 using AudioStation.Core.Model.Interface;
@@ -16,6 +18,7 @@ using AudioStation.Event;
 using AudioStation.Event.DialogEvents;
 using AudioStation.ViewModels;
 using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Load;
+using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Output;
 using AudioStation.ViewModels.MainViewModels;
 using AudioStation.ViewModels.TagViewModels;
 using AudioStation.ViewModels.Vendor.ATLViewModel;
@@ -232,6 +235,12 @@ namespace AudioStation
 
             mapper.ConfigureMap<LibraryLoaderImportLoad, LibraryLoaderImportLoadViewModel>()
                   .DeclareSourceInterface<ILibraryLoaderImportLoad>();
+
+            mapper.ConfigureMap<LibraryLoaderImportOutput, LibraryLoaderImportOutputViewModel>()
+                  .DeclareSourceInterface<ILibraryLoaderImportOutput>();
+
+            mapper.ConfigureMap<LibraryLoaderImportOutputViewModel, LibraryLoaderImportOutput>()
+                  .DeclareSourceInterface<ILibraryLoaderImportOutput>();
 
             // Configuration
             mapper.ConfigureMap<AudioEncoderInfo, AudioEncoderViewModel>()

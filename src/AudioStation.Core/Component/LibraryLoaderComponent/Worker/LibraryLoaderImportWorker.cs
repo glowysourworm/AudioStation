@@ -22,18 +22,6 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
         private string _destinationPath;
         private bool _migrationRequired;
 
-        // Saved entity references
-        int _tagSmallId;
-        int _tagSmallFileReferenceMapId;
-        int _tagSmallVendorMapId;
-        int _fileReferenceId;
-        int _genreId;
-        int _artistId;
-        int _albumId;
-        int _trackId;
-        int _trackGenreMapId;
-        int _trackArtistMapId;
-
         public LibraryLoaderImportWorker(LibraryLoaderWorkItem workItem,
                                          IAudioStationDbClient audioStationDbClient,
                                          IAudioStationFileService fileController,
@@ -65,7 +53,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
             // 1) Calculate File and Folder Paths
             // 2) Validate Import Records:  Source Tag Entity (minimum valid); Source File Reference; All File / Folder Paths (check permissions)
             //
-            // 3) Copy Source -> Destination / Convert Source File (optional)
+            // 3) Source -> Destination / Convert Source File (optional)
             //      -> File Conversion (optional) requires that you convert the file, apply the proper extension
             //         and delete the source file. The library directory must not be marked read-only.
             //
@@ -87,33 +75,27 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
                 //
                 case 1:
                 {
-                    Log("Calculating file / folder paths");
                     return CalculateFilePaths(workStep);
                 }
                 case 2:
                 {
-                    Log("Validating import records");
                     return ValidateImportRecords(workStep);
                 }
                 case 3:
                 {
-                    Log("Copying source file to destination");
-                    return CopySourceToDestination(workStep);
+                    return SourceToDestination(workStep);
                 }
                 case 4:
                 {
-                    Log("Embedding tag data to destination file");
-                    return EmbedTagData(workStep);
+                    return OptionEmbedTagData(workStep);
                 }
                 case 5:
                 {
-                    Log("Importing library database records");
                     return ImportDatabaseRecords(workStep);
                 }
                 case 6:
                 {
-                    Log("Completing migration...");
-                    return FinishUpMigration(workStep);
+                    return CompleteImport(workStep);
                 }
                 default:
                     throw new Exception("Unhandled LibraryLoaderImportWorker.cs step");
@@ -124,6 +106,8 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
         {
             try
             {
+                Log("Calculating file / folder paths");
+
                 var workLoad = this.Load.Get<LibraryLoaderImportLoad>();
 
                 Log("Retrieving database record for tag data:  Id=" + workLoad.TagSmallId);
@@ -181,6 +165,8 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
         {
             try
             {
+                Log("Validating import records");
+
                 var workLoad = this.Load.Get<LibraryLoaderImportLoad>();
 
                 Log("Retrieving file tag data from source file");
@@ -256,7 +242,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
                 return LibraryWorkerStepResult.Failure(stepNumber, "Error validating import records:  " + ex.Message);
             }
         }
-        private LibraryWorkerStepResult CopySourceToDestination(int stepNumber)
+        private LibraryWorkerStepResult SourceToDestination(int stepNumber)
         {
             try
             {
@@ -280,19 +266,21 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
                 // File Conversion
                 if (workLoad.ConvertAudioFormat)
                 {
+                    Log("OPTION: File Conversion (checking source / destination format(s))");
+
                     // Get Audio Format (performance will be slower than just checking file extension)
                     var audioEncoding = _audioConverter.GetAudioEncoding(workLoad.SourceFullPath);
 
                     // Convert
-                    if (audioEncoding != workLoad.DestinationFormat.Encoding)
+                    if (audioEncoding != workLoad.ImportFormat.Encoding)
                     {
                         // Calculate new destination path
-                        var nextDestinationPath = Path.GetFileNameWithoutExtension(_destinationPath) + workLoad.DestinationFormat.Extension;
+                        var nextDestinationPath = Path.GetFileNameWithoutExtension(_destinationPath) + workLoad.ImportFormat.Extension;
 
-                        Log("Converting file to format:  " + workLoad.DestinationFormat.Name);
+                        Log("Converting file to format:  " + workLoad.ImportFormat.Name);
 
                         // Try Conversion (let it fail if it must)
-                        _audioConverter.ConvertTo(_destinationPath, nextDestinationPath, workLoad.DestinationFormat);
+                        _audioConverter.ConvertTo(_destinationPath, nextDestinationPath, workLoad.ImportFormat);
 
                         Log("File conversion successful:  " + nextDestinationPath);
                         Log("Deleting original file:  " + _destinationPath);
@@ -301,20 +289,31 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
 
                         _destinationPath = nextDestinationPath;
                     }
+                    else
+                    {
+                        Log("File conversion not required:  Format=" + workLoad.ImportFormat.Name);
+                    }
+
                 }
 
-                return LibraryWorkerStepResult.Success(stepNumber, "Import file migration successful");
+                return LibraryWorkerStepResult.Success(stepNumber, "File confirmation successful");
             }
             catch (Exception ex)
             {
-                return LibraryWorkerStepResult.Failure(stepNumber, "Error trying to copy (source) -> (destination):  " + ex.Message);
+                return LibraryWorkerStepResult.Failure(stepNumber, "Error confirming (source) -> (destination) file:  " + ex.Message);
             }
         }
-        private LibraryWorkerStepResult EmbedTagData(int stepNumber)
+        private LibraryWorkerStepResult OptionEmbedTagData(int stepNumber)
         {
             try
             {
                 var workLoad = this.Load.Get<LibraryLoaderImportLoad>();
+
+                if (!workLoad.EmbedImportTagData)
+                {
+                    return LibraryWorkerStepResult.Success(stepNumber, "Import file tag embedding option not selected");
+                }
+
                 var tag = _audioStationDbClient.GetEntity<TagSmall>(workLoad.TagSmallId);
                 var tagData = _tagCache.Get(_destinationPath);
 
@@ -388,7 +387,10 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
         {
             try
             {
+                Log("Importing library database records");
+
                 var workLoad = this.Load.Get<LibraryLoaderImportLoad>();
+                var workOutput = this.Output.Get<LibraryLoaderImportOutput>();
                 var tag = _audioStationDbClient.GetEntity<TagSmall>(workLoad.TagSmallId);
 
                 if (tag == null)
@@ -421,10 +423,74 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
                 var tagMap = _audioStationDbClient.FirstEntity<TagSmallFileReferenceMap>(x => x.TagSmallId == workLoad.TagSmallId);
                 var vendorMap = _audioStationDbClient.FirstEntity<TagSmallVendorMap>(x => x.TagSmallId == tag.Id);
                 var fileRef = tagMap != null ? tagMap.FileReference : null;
+                var fileRefExisting = _audioStationDbClient.FirstEntity<FileReference>(x => x.FileName == _destinationPath);
                 var genre = _audioStationDbClient.FirstEntity<Genre>(x => x.Name == tag.Genre);
                 var artist = _audioStationDbClient.FirstEntity<Artist>(x => x.Name == tag.AlbumArtist);
                 var album = _audioStationDbClient.FirstEntity<Album>(x => x.Name == tag.Album);
                 var track = _audioStationDbClient.FirstEntity<Track>(x => x.Title == tag.Title);
+
+                // Library Conflicts
+                //
+
+                // FileReference
+                if ((fileRef != null || fileRefExisting != null) && !workLoad.LibraryOverwriteExistingFiles)
+                {
+                    return new LibraryWorkerStepResult()
+                    {
+                        Completed = false,
+                        Message = string.Format("Library (File) Conflict Found: Id={0}, File={1} ", fileRef?.FileName ?? fileRefExisting?.FileName),
+                        Result = LibraryWorkerResultLevel.DataError,
+                        StepNumber = stepNumber
+                    };
+                }
+
+                // Genre
+                if (genre != null && !workLoad.LibraryOverwriteExistingGenres)
+                {
+                    return new LibraryWorkerStepResult()
+                    {
+                        Completed = false,
+                        Message = string.Format("Library (Genre) Conflict Found: Id={0}, Name={1} ", genre.Id, genre.Name),
+                        Result = LibraryWorkerResultLevel.DataError,
+                        StepNumber = stepNumber
+                    };
+                }
+
+                // Artist
+                if (artist != null && !workLoad.LibraryOverwriteExistingArtists)
+                {
+                    return new LibraryWorkerStepResult()
+                    {
+                        Completed = false,
+                        Message = string.Format("Library (Artist) Conflict Found: Id={0}, Name={1} ", artist.Id, artist.Name),
+                        Result = LibraryWorkerResultLevel.DataError,
+                        StepNumber = stepNumber
+                    };
+                }
+
+                // Album
+                if (album != null && !workLoad.LibraryOverwriteExistingAlbums)
+                {
+                    return new LibraryWorkerStepResult()
+                    {
+                        Completed = false,
+                        Message = string.Format("Library (Album) Conflict Found: Id={0}, Name={1} ", album.Id, album.Name),
+                        Result = LibraryWorkerResultLevel.DataError,
+                        StepNumber = stepNumber
+                    };
+                }
+
+                // Track
+                if (track != null && !workLoad.LibraryOverwriteExistingTracks)
+                {
+                    return new LibraryWorkerStepResult()
+                    {
+                        Completed = false,
+                        Message = string.Format("Library (Track) Conflict Found: Id={0}, Name={1} ", track.Id, track.Title),
+                        Result = LibraryWorkerResultLevel.DataError,
+                        StepNumber = stepNumber
+                    };
+                }
 
                 // New File
                 if (tagMap == null)
@@ -452,7 +518,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
 
                     AddEntity(fileRef, "File Reference Map");
                 }
-                else
+                else // Foreign Key (FileReference)
                 {
                     fileRef.CRC32 = 0;
                     fileRef.Created = DateTime.Now.ToUniversalTime();
@@ -597,19 +663,19 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
                         UpdateEntity(trackGenreMap, "Track Genre Map");
                     }
 
-                    _trackGenreMapId = trackGenreMap.Id;
-                    _trackArtistMapId = trackArtistMap.Id;
+                    workOutput.TrackGenreMapId = trackGenreMap.Id;
+                    workOutput.TrackArtistMapId = trackArtistMap.Id;
                 }
 
                 // Reference Database Id's
-                _tagSmallId = tag.Id;
-                _tagSmallFileReferenceMapId = tagMap.Id;
-                _tagSmallVendorMapId = vendorMap.Id;
-                _fileReferenceId = fileRef.Id;
-                _genreId = genre.Id;
-                _artistId = artist.Id;
-                _albumId = album.Id;
-                _trackId = track.Id;
+                workOutput.TagSmallId = tag.Id;
+                workOutput.TagSmallFileReferenceMapId = tagMap.Id;
+                workOutput.TagSmallVendorMapId = vendorMap.Id;
+                workOutput.FileReferenceId = fileRef.Id;
+                workOutput.GenreId = genre.Id;
+                workOutput.ArtistId = artist.Id;
+                workOutput.AlbumId = album.Id;
+                workOutput.TrackId = track.Id;
 
                 return LibraryWorkerStepResult.Success(stepNumber, "Import of database records for new track successful");
             }
@@ -618,11 +684,14 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
                 return LibraryWorkerStepResult.Failure(stepNumber, "Error embedding tag data:  " + ex.Message);
             }
         }
-        private LibraryWorkerStepResult FinishUpMigration(int stepNumber)
+        private LibraryWorkerStepResult CompleteImport(int stepNumber)
         {
             try
             {
                 var workLoad = this.Load.Get<LibraryLoaderImportLoad>();
+                var workOutput = this.Output.Get<LibraryLoaderImportOutput>();
+
+                Log("Completing import...");
 
                 if (_migrationRequired)
                 {
@@ -652,16 +721,16 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
                 // Entity Report
                 Log("Database entities added / updated for import");
 
-                Log("Audio Station (TagSmall):                      Id=({0})", _tagSmallId);
-                Log("Audio Station (TagSmallFileReferenceMap):      Id=({0})", _tagSmallFileReferenceMapId);
-                Log("Audio Station (TagSmallVendorMap):             Id=({0})", _tagSmallVendorMapId);
-                Log("Audio Station (FileReference):                 Id=({0})", _fileReferenceId);
-                Log("Audio Station (Genre):                         Id=({0})", _genreId);
-                Log("Audio Station (Artist):                        Id=({0})", _artistId);
-                Log("Audio Station (Album):                         Id=({0})", _albumId);
-                Log("Audio Station (Track):                         Id=({0})", _trackId);
-                Log("Audio Station (TrackGenreMap):                 Id=({0})", _trackGenreMapId);
-                Log("Audio Station (TrackArtistMap):                Id=({0})", _trackArtistMapId);
+                Log("Audio Station (TagSmall):                      Id=({0})", workOutput.TagSmallId);
+                Log("Audio Station (TagSmallFileReferenceMap):      Id=({0})", workOutput.TagSmallFileReferenceMapId);
+                Log("Audio Station (TagSmallVendorMap):             Id=({0})", workOutput.TagSmallVendorMapId);
+                Log("Audio Station (FileReference):                 Id=({0})", workOutput.FileReferenceId);
+                Log("Audio Station (Genre):                         Id=({0})", workOutput.GenreId);
+                Log("Audio Station (Artist):                        Id=({0})", workOutput.ArtistId);
+                Log("Audio Station (Album):                         Id=({0})", workOutput.AlbumId);
+                Log("Audio Station (Track):                         Id=({0})", workOutput.TrackId);
+                Log("Audio Station (TrackGenreMap):                 Id=({0})", workOutput.TrackGenreMapId);
+                Log("Audio Station (TrackArtistMap):                Id=({0})", workOutput.TrackArtistMapId);
 
                 return LibraryWorkerStepResult.Success(stepNumber, "Import Process Complete!");
             }
