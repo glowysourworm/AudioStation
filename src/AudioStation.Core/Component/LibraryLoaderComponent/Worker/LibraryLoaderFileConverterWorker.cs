@@ -1,9 +1,10 @@
 ﻿using AudioStation.Core.Component.Interface;
-using AudioStation.Core.Component.LibraryLoaderComponent.Load;
+using AudioStation.Core.Component.LibraryLoaderComponent.Payload.Input;
+using AudioStation.Core.Component.LibraryLoaderComponent.Payload.Output;
 
 namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
 {
-    public class LibraryLoaderFileConverterWorker : LibraryLoaderWorker
+    public class LibraryLoaderFileConverterWorker : LibraryLoaderWorker<LibraryLoaderFileConverterPayload, LibraryLoaderNoOutput>
     {
         private readonly IAudioConverter _audioConverter;
 
@@ -45,12 +46,9 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
         {
             try
             {
-                // Load
-                var load = this.Load.Get<LibraryLoaderFileConverterLoad>();
+                _audioConverter.ConvertTo(this.Load.Payload.FileIn, this.Load.Payload.FileOut, this.Load.Payload.EncoderInfo);
 
-                _audioConverter.ConvertTo(load.FileIn, load.FileOut, load.EncoderInfo);
-
-                return LibraryWorkerStepResult.Success(stepNumber, "File conversion successful:  " + load.FileOut);
+                return LibraryWorkerStepResult.Success(stepNumber, "File conversion successful:  " + this.Load.Payload.FileOut);
             }
             catch (Exception ex)
             {

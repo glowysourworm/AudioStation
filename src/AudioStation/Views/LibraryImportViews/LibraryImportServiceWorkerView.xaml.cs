@@ -8,6 +8,7 @@ using AudioStation.Core.Component;
 using AudioStation.Event;
 using AudioStation.ViewModels.ComponentViewModels;
 using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels;
+using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Interface;
 
 using SimpleWpf.IocFramework.Application.Attribute;
 using SimpleWpf.IocFramework.EventAggregation;
@@ -68,7 +69,7 @@ namespace AudioStation.Views.LibraryImportViews
             }
         }
 
-        private void ScrollIntoView(LibraryLoaderWorkerViewModelBase sender, LibraryWorkItemViewModel item)
+        private void ScrollIntoView(ILibraryLoaderWorkerViewModel sender, LibraryWorkItemViewModel item)
         {
             // Select the workflow item from the sender
             this.LoaderLB.SelectedItem = sender;
@@ -77,12 +78,12 @@ namespace AudioStation.Views.LibraryImportViews
             this.LoaderWorkItemsLB.ScrollIntoView(item);
             this.LoaderWorkItemsLB.SelectedItem = item;
         }
-        private void ServiceWorkflow_StatusChangeEvent(LibraryLoaderWorkerViewModelBase sender, bool isWorking)
+        private void ServiceWorkflow_StatusChangeEvent(ILibraryLoaderWorkerViewModel sender, bool isWorking)
         {
             UpdateViewContext();
         }
 
-        private void ServiceWorkflow_WorkItemChangedEvent(LibraryLoaderWorkerViewModelBase sender, LibraryWorkItemViewModel item)
+        private void ServiceWorkflow_WorkItemChangedEvent(ILibraryLoaderWorkerViewModel sender, LibraryWorkItemViewModel item)
         {
             UpdateViewContext();
             ScrollIntoView(sender, item);

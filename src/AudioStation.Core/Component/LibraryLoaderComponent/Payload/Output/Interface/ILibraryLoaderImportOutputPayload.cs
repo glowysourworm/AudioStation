@@ -1,10 +1,9 @@
-﻿using AudioStation.Core.Component.LibraryLoaderComponent.Output.Interface;
-using AudioStation.Core.Database.AudioStationDatabase.Interface;
+﻿using AudioStation.Core.Database.AudioStationDatabase.Interface;
 using AudioStation.Core.Model.Interface;
 
-namespace AudioStation.Core.Component.LibraryLoaderComponent.Output
+namespace AudioStation.Core.Component.LibraryLoaderComponent.Payload.Output.Interface
 {
-    public class LibraryLoaderImportOutput : ILibraryLoaderImportOutput
+    public interface ILibraryLoaderImportOutputPayload
     {
         public string DestinationFolderBase { get; set; }
         public string DestinationPathCalculated { get; set; }
@@ -21,11 +20,14 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Output
         public int TrackId { get; set; }
         public int TrackGenreMapId { get; set; }
         public int TrackArtistMapId { get; set; }
+        //public MusicBrainzPicture? BestFrontCover { get; set; }
+        //public MusicBrainzPicture? BestBackCover { get; set; }
         public bool AcoustIDSuccess { get; set; }
         public bool MusicBrainzBasicSuccess { get; set; }
         public bool MusicBrainzArtworkSuccess { get; set; }
         public bool TagEmbeddingSuccess { get; set; }
         public bool FileMoveSuccess { get; set; }
         public bool FileConversionSuccess { get; set; }
+
     }
 }

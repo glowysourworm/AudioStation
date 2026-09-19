@@ -74,7 +74,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
             while (GetCurrentWorkStep() != GetNumberOfWorkSteps())
             {
                 if (this.ReportWorkStepStarted != null)
-                    this.ReportWorkStepStarted(this, new LibraryLoaderWorkItemUpdate(_workItem.GetId(), _workItem.GetOwnerId(), _workItem.GetLoadType(), _workItem.GetOutputItem().GetResults(), _workItem.GetOutputItem().GetNumberOfSteps(), _workItem.GetOutputItem().GetLog(), _workItem.GetLoadState()));
+                    this.ReportWorkStepStarted(this, new LibraryLoaderWorkItemUpdate(_workItem.GetId(), _workItem.GetOwnerId(), _workItem.GetLoadType(), _workItem.GetOutputItem().ResultSteps, _workItem.GetOutputItem().GetNumberOfSteps(), _workItem.GetOutputItem().CurrentLog, _workItem.GetLoadState()));
 
                 var success = WorkNext();
                 var finished = (GetCurrentWorkStep() == GetNumberOfWorkSteps());
@@ -92,7 +92,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
 
 
                 if (this.ReportWorkStepComplete != null)
-                    this.ReportWorkStepComplete(this, new LibraryLoaderWorkItemUpdate(_workItem.GetId(), _workItem.GetOwnerId(), _workItem.GetLoadType(), _workItem.GetOutputItem().GetResults(), _workItem.GetOutputItem().GetNumberOfSteps(), _workItem.GetOutputItem().GetLog(), _workItem.GetLoadState()));
+                    this.ReportWorkStepComplete(this, new LibraryLoaderWorkItemUpdate(_workItem.GetId(), _workItem.GetOwnerId(), _workItem.GetLoadType(), _workItem.GetOutputItem().ResultSteps, _workItem.GetOutputItem().GetNumberOfSteps(), _workItem.GetOutputItem().CurrentLog, _workItem.GetLoadState()));
 
                 if (!success)
                     break;

@@ -178,7 +178,7 @@ namespace AudioStation.Service
         public static void ApplyLibraryLoaderWorkItem(LibraryLoaderWorkItem sender, ref LibraryWorkItemViewModel viewModel)
         {
             // Log Messages
-            foreach (var message in sender.GetOutputItem().GetLog())
+            foreach (var message in sender.GetOutputItem().CurrentLog)
             {
                 if (!viewModel.LogMessages.Any(x => x.Timestamp.Equals(message.Timestamp)))
                 {
@@ -193,7 +193,7 @@ namespace AudioStation.Service
             }
 
             // Work Steps
-            foreach (var workStep in sender.GetOutputItem().GetResults())
+            foreach (var workStep in sender.GetOutputItem().ResultSteps)
             {
                 if (!viewModel.WorkSteps.Any(x => x.StepNumber == workStep.StepNumber))
                 {
@@ -208,8 +208,8 @@ namespace AudioStation.Service
             }
 
             viewModel.State = sender.GetLoadState();
-            viewModel.Progress = !sender.GetOutputItem().GetResults().Any(x => x.Completed) ? 0
-                                    : (sender.GetOutputItem().GetResults().Count(x => x.Completed) / (double)sender.GetOutputItem().GetResults().Count());
+            viewModel.Progress = !sender.GetOutputItem().ResultSteps.Any(x => x.Completed) ? 0
+                                    : (sender.GetOutputItem().ResultSteps.Count(x => x.Completed) / (double)sender.GetOutputItem().ResultSteps.Count());
         }
     }
 }

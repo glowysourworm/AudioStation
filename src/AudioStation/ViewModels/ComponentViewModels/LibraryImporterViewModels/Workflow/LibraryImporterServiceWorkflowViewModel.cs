@@ -7,11 +7,12 @@ using AudioStation.Core.Model.Interface;
 using AudioStation.Event;
 using AudioStation.Service.Interface;
 using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels;
+using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Interface;
 using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Worker;
 
+using SimpleWpf.Extensions.Event;
 using SimpleWpf.Extensions.ObservableCollection;
 using SimpleWpf.UI.Command;
-using SimpleWpf.UI.Event;
 
 namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.Workflow
 {
@@ -27,9 +28,9 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
         private readonly LibraryImporterConfigurationViewModel _workflowConfiguration;
         private readonly KeyedObservableCollection<string, LibraryImporterFileViewModel> _stagedFiles;
 
-        private ObservableCollection<LibraryLoaderWorkerViewModelBase> _serviceWorkers;
+        private ObservableCollection<ILibraryLoaderWorkerViewModel> _serviceWorkers;
 
-        LibraryLoaderWorkerViewModelBase _selectedWorker;
+        ILibraryLoaderWorkerViewModel _selectedWorker;
 
         // ILibraryLoader State
         PlayStopPause _libraryLoaderState;
@@ -42,15 +43,15 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
         /// <summary>
         /// Event that occurs when a worker's work item is updated
         /// </summary>
-        public event SimpleEventHandler<LibraryLoaderWorkerViewModelBase, LibraryWorkItemViewModel> WorkItemChangedEvent;
-        public event SimpleEventHandler<LibraryLoaderWorkerViewModelBase, bool> StatusChangeEvent;
+        public event SimpleEventHandler<ILibraryLoaderWorkerViewModel, LibraryWorkItemViewModel> WorkItemChangedEvent;
+        public event SimpleEventHandler<ILibraryLoaderWorkerViewModel, bool> StatusChangeEvent;
 
-        public ObservableCollection<LibraryLoaderWorkerViewModelBase> ServiceWorkers
+        public ObservableCollection<ILibraryLoaderWorkerViewModel> ServiceWorkers
         {
             get { return _serviceWorkers; }
             set { this.RaiseAndSetIfChanged(ref _serviceWorkers, value); }
         }
-        public LibraryLoaderWorkerViewModelBase SelectedWorker
+        public ILibraryLoaderWorkerViewModel SelectedWorker
         {
             get { return _selectedWorker; }
             set { this.RaiseAndSetIfChanged(ref _selectedWorker, value); }
@@ -96,7 +97,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
             this.SkipSelectedWorkItemsCommand = new SimpleCommand(SkipSelectedWorkItems, CanSkipSelectedWorkItems);
 
             this.SelectedWorker = null;
-            this.ServiceWorkers = new ObservableCollection<LibraryLoaderWorkerViewModelBase>();
+            this.ServiceWorkers = new ObservableCollection<ILibraryLoaderWorkerViewModel>();
         }
 
         protected override void OnPropertyChanged(string name)
@@ -236,7 +237,14 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
                 throw new ArgumentException("Must first select worker before loading");
 
             // Initialize Component Parts
-            this.SelectedWorker.Load(configuration, audioStationController, progressHandler);
+            if (this.SelectedWorker is LibraryLoaderAcoustIDViewModel)
+                (this.SelectedWorker as LibraryLoaderAcoustIDViewModel).Load(_stagedFiles, configuration, audioStationController, progressHandler);
+
+            if (this.SelectedWorker is LibraryLoaderMusicBrainzBasicViewModel)
+                (this.SelectedWorker as LibraryLoaderMusicBrainzBasicViewModel).Load(_stagedFiles, configuration, audioStationController, progressHandler);
+
+            if (this.SelectedWorker is LibraryLoaderAcoustIDViewModel)
+                (this.SelectedWorker as LibraryLoaderAcoustIDViewModel).Load(_stagedFiles, configuration, audioStationController, progressHandler);
         }
 
         protected override void LoadWork(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
@@ -251,7 +259,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
 
             // Create Service Workers
             if (_workflowConfiguration.ServiceIncludeAcoustID)
-                this.ServiceWorkers.Add(new LibraryLoaderAcoustIDViewModel(_workflowConfiguration, _stagedFiles));
+                this.ServiceWorkers.Add(new LibraryLoaderAcoustIDViewModel(_workflowConfiguration));
 
             if (_workflowConfiguration.ServiceIncludeMusicBrainzBasic)
                 this.ServiceWorkers.Add(new LibraryLoaderMusicBrainzBasicViewModel(_workflowConfiguration));
@@ -281,7 +289,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
             foreach (var worker in this.ServiceWorkers)
                 worker.Reset();
         }
-        private void OnWorkerStatusChangeEvent(LibraryLoaderWorkerViewModelBase sender)
+        private void OnWorkerStatusChangeEvent(ILibraryLoaderWorkerViewModel sender)
         {
             this.Working = this.ServiceWorkers.Any(x => x.Working);
             this.LibraryLoaderState = sender.LibraryLoaderState;
@@ -291,7 +299,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
             if (this.StatusChangeEvent != null)
                 this.StatusChangeEvent(sender, this.Working);
         }
-        private void OnWorkerItemChangedEvent(LibraryLoaderWorkerViewModelBase worker, LibraryWorkItemViewModel workItem)
+        private void OnWorkerItemChangedEvent(ILibraryLoaderWorkerViewModel worker, LibraryWorkItemViewModel workItem)
         {
             UpdateCommands();
 

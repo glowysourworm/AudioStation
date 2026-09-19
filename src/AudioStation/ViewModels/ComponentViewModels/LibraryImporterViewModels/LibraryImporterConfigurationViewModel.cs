@@ -180,6 +180,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels
         public LibraryImporterConfigurationViewModel()
         {
             this.ImportDirectory = new LibraryDirectoryViewModel();
+            this.ImportFormat = new AudioEncoderViewModel();
 
             this.SelectSourceFolderCommand = new SimpleCommand(() =>
             {

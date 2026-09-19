@@ -1,8 +1,8 @@
 ﻿using System.IO;
 
 using AudioStation.Core.Component.Interface;
-using AudioStation.Core.Component.LibraryLoaderComponent.Load;
-using AudioStation.Core.Component.LibraryLoaderComponent.Output;
+using AudioStation.Core.Component.LibraryLoaderComponent.Payload.Input;
+using AudioStation.Core.Component.LibraryLoaderComponent.Payload.Output;
 using AudioStation.Core.Database.AudioStationDatabase;
 using AudioStation.Core.Database.AudioStationDatabase.Interface;
 using AudioStation.Core.Service.Interface;
@@ -10,7 +10,7 @@ using AudioStation.Core.Utility;
 
 namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
 {
-    public class LibraryLoaderImportWorker : LibraryLoaderWorker
+    public class LibraryLoaderImportWorker : LibraryLoaderWorker<LibraryLoaderImportPayload, LibraryLoaderImportOutputPayload>
     {
         private readonly IAudioStationDbClient _audioStationDbClient;
         private readonly IAudioStationFileService _fileController;
@@ -65,9 +65,6 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
             //         file in the same directory. These settings have already been applied.
             // 
 
-            var load = this.Load.Get<LibraryLoaderImportLoad>();
-            var output = this.Output.Get<LibraryLoaderImportOutput>();
-
             switch (workStep)
             {
                 // Import:  Assume no tag data is filled out. Go with the best acoustID result you can
@@ -108,7 +105,8 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
             {
                 Log("Calculating file / folder paths");
 
-                var workLoad = this.Load.Get<LibraryLoaderImportLoad>();
+                var workLoad = this.Load.Payload;
+                var workOutput = this.Output.Payload;
 
                 Log("Retrieving database record for tag data:  Id=" + workLoad.TagSmallId);
 
@@ -167,7 +165,8 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
             {
                 Log("Validating import records");
 
-                var workLoad = this.Load.Get<LibraryLoaderImportLoad>();
+                var workLoad = this.Load.Payload;
+                var workOutput = this.Output.Payload;
 
                 Log("Retrieving file tag data from source file");
 
@@ -246,7 +245,8 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
         {
             try
             {
-                var workLoad = this.Load.Get<LibraryLoaderImportLoad>();
+                var workLoad = this.Load.Payload;
+                var workOutput = this.Output.Payload;
 
                 if (!_migrationRequired)
                     Log("File migration not required (in place import)");
@@ -307,7 +307,8 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
         {
             try
             {
-                var workLoad = this.Load.Get<LibraryLoaderImportLoad>();
+                var workLoad = this.Load.Payload;
+                var workOutput = this.Output.Payload;
 
                 if (!workLoad.EmbedImportTagData)
                 {
@@ -389,8 +390,8 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
             {
                 Log("Importing library database records");
 
-                var workLoad = this.Load.Get<LibraryLoaderImportLoad>();
-                var workOutput = this.Output.Get<LibraryLoaderImportOutput>();
+                var workLoad = this.Load.Payload;
+                var workOutput = this.Output.Payload;
                 var tag = _audioStationDbClient.GetEntity<TagSmall>(workLoad.TagSmallId);
 
                 if (tag == null)
@@ -688,8 +689,8 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
         {
             try
             {
-                var workLoad = this.Load.Get<LibraryLoaderImportLoad>();
-                var workOutput = this.Output.Get<LibraryLoaderImportOutput>();
+                var workLoad = this.Load.Payload;
+                var workOutput = this.Output.Payload;
 
                 Log("Completing import...");
 

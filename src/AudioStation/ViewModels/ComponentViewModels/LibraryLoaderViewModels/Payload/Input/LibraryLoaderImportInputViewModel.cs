@@ -1,17 +1,14 @@
-﻿using AudioStation.Core.Component.LibraryLoaderComponent;
-using AudioStation.Core.Component.LibraryLoaderComponent.Load.Interface;
+﻿using AudioStation.Core.Component.LibraryLoaderComponent.Payload.Input.Interface;
 using AudioStation.Core.Model;
 
 using SimpleWpf.UI.ViewModel;
 
-namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Load
+namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Payload.Input
 {
-    public class LibraryLoaderImportLoadViewModel : ViewModelBase, ILibraryLoaderImportLoad
+    public class LibraryLoaderImportInputViewModel : ViewModelBase, ILibraryLoaderImportPayload
     {
-        int _ownerId;
         int _tagSmallId;
 
-        LibraryLoadType _loadType;
         LibraryImportType _importType;
         AudioEncoderInfo _importFormat;
 
@@ -54,11 +51,6 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Lo
         bool _migrationDeleteSourceFolders;
         bool _migrationOverwriteDestinationFiles;
 
-        public int OwnerId
-        {
-            get { return _ownerId; }
-            set { this.RaiseAndSetIfChanged(ref _ownerId, value); }
-        }
         public int TagSmallId
         {
             get { return _tagSmallId; }
@@ -98,11 +90,6 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Lo
         {
             get { return _embedImportTagData; }
             set { this.RaiseAndSetIfChanged(ref _embedImportTagData, value); }
-        }
-        public LibraryLoadType LoadType
-        {
-            get { return _loadType; }
-            set { this.RaiseAndSetIfChanged(ref _loadType, value); }
         }
         public LibraryImportType ImportType
         {
@@ -210,9 +197,8 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Lo
             set { this.RaiseAndSetIfChanged(ref _migrationOverwriteDestinationFiles, value); }
         }
 
-        public LibraryLoaderImportLoadViewModel()
+        public LibraryLoaderImportInputViewModel()
         {
-            this.LoadType = LibraryLoadType.Import;
             this.SourceFullPath = string.Empty;
             this.DestinationFolder = string.Empty;
             this.MigrationSourceDirectory = string.Empty;

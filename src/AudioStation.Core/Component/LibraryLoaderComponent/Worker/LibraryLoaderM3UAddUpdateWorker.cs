@@ -1,9 +1,10 @@
-﻿using AudioStation.Core.Component.LibraryLoaderComponent.Load;
+﻿using AudioStation.Core.Component.LibraryLoaderComponent.Payload.Input;
+using AudioStation.Core.Component.LibraryLoaderComponent.Payload.Output;
 using AudioStation.Core.Model.M3U;
 
 namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
 {
-    public class LibraryLoaderM3UAddUpdateWorker : LibraryLoaderWorker
+    public class LibraryLoaderM3UAddUpdateWorker : LibraryLoaderWorker<LibraryLoaderFilePayload, LibraryLoaderNoOutput>
     {
         public LibraryLoaderM3UAddUpdateWorker(LibraryLoaderWorkItem workItem)
             : base(workItem)
@@ -17,22 +18,22 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
 
         protected override LibraryWorkerStepResult Work(int step)
         {
-            var streams = LoadRadioEntry(this.Load.Get<LibraryLoaderFileLoad>().File);
+            ////var streams = LoadRadioEntry(this.Load.Get<LibraryLoaderFileLoad>().File);
 
-            // Set Work Item
-            if (streams == null || streams.Count == 0)
-            {
-                //ApplicationHelpers.LogSeparate(workItem.GetId(), "M3U stream file load failed:  {0}", LogMessageType.LibraryLoaderWorkItem, LogLevel.Error, file);
-            }
-            else
-            {
-                // Add to database
-                //_modelController.AddRadioEntries(streams);
+            //// Set Work Item
+            //if (streams == null || streams.Count == 0)
+            //{
+            //    //ApplicationHelpers.LogSeparate(workItem.GetId(), "M3U stream file load failed:  {0}", LogMessageType.LibraryLoaderWorkItem, LogLevel.Error, file);
+            //}
+            //else
+            //{
+            //    // Add to database
+            //    //_modelController.AddRadioEntries(streams);
 
-                //ApplicationHelpers.LogSeparate(workItem.GetId(), "M3U stream file load success: Streams={0}, File={1}", LogMessageType.LibraryLoaderWorkItem, LogLevel.Information, streams.Count, file);
-            }
+            //    //ApplicationHelpers.LogSeparate(workItem.GetId(), "M3U stream file load success: Streams={0}, File={1}", LogMessageType.LibraryLoaderWorkItem, LogLevel.Information, streams.Count, file);
+            //}
 
-            //this.Output.AddResultStep(streams != null && streams.Count > 0, "Radio Import Complete");
+            ////this.Output.AddResultStep(streams != null && streams.Count > 0, "Radio Import Complete");
 
             return LibraryWorkerStepResult.Failure(step, "");
         }

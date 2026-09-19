@@ -1,8 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
 using AudioStation.Core.Component.Interface;
-using AudioStation.Core.Component.LibraryLoaderComponent.Load;
-using AudioStation.Core.Component.LibraryLoaderComponent.Output;
 using AudioStation.Core.Database.AudioStationDatabase;
 using AudioStation.Core.Database.AudioStationDatabase.Interface;
 using AudioStation.Core.Model;
@@ -16,7 +14,7 @@ using IF.Lastfm.Core.Api.Helpers;
 
 namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
 {
-    public class LibraryLoaderMusicBrainzBasicWorker : LibraryLoaderWorker
+    public class LibraryLoaderMusicBrainzBasicWorker : LibraryLoaderWorker<IEnumerable<IAcoustIDLookupResult>, IList<TagSmall>>
     {
         private readonly IAudioStationMapper _audioStationMapper;
         private readonly IMusicBrainzClient _musicBrainzClient;
@@ -68,9 +66,9 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
         {
             try
             {
-                var load = this.Load.Get<LibraryLoaderEntitySetLoad<AcoustIDLookupResult>>();
+                var load = this.Load.Payload;
 
-                foreach (var entity in load.EntitySet)
+                foreach (var entity in load)
                 {
                     // Valid Entities Only (from AcoustID lookup)
                     if (entity.MusicBrainzRecordingId != null)
@@ -86,7 +84,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
                         {
                             var tagSmall = _audioStationMapper.Map<ITagSmall, TagSmall>(result);
 
-                            this.Output.Get<LibraryLoaderEntitySetOutput<TagSmall>>().Add(tagSmall);
+                            this.Output.Payload.Add(tagSmall);
 
                             Log("Music Brainz client lookup finished (valid):  " + entity.FileName);
                         }
@@ -148,11 +146,11 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
                     };
                 }
 
-                foreach (var result in this.Output.Get<LibraryLoaderEntitySetOutput<TagSmall>>().Entities)
+                foreach (var result in this.Output.Payload)
                 {
                     Log("Importing Music Brainz result to database:  " + result.Title);
 
-                    var inputLoad = this.Load.Get<LibraryLoaderEntitySetLoad<AcoustIDLookupResult>>().EntitySet.ElementAt(index++);
+                    var inputLoad = this.Load.Payload.ElementAt(index++);
                     var existingMap = _audioStationDbClient.FirstEntity<TagSmallVendorMap>(x => x.MusicBrainzRecordingId == inputLoad.MusicBrainzRecordingId);
                     var existingEntity = existingMap?.TagSmall;
 

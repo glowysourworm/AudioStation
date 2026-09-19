@@ -1,6 +1,7 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:viewModel="clr-namespace:AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels"
+                    xmlns:viewModelInterface="clr-namespace:AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Interface"
                     xmlns:controls="clr-namespace:AudioStation.Controls"
                     xmlns:coreComponent="clr-namespace:AudioStation.Core.Component;assembly=AudioStation.Core"
                     xmlns:coreModel="clr-namespace:AudioStation.Core.Model;assembly=AudioStation.Core"
@@ -126,7 +127,7 @@
         
     </DataTemplate>
 
-    <DataTemplate x:Key="LibraryImporterWorkflowItemTemplate" DataType="{x:Type viewModel:LibraryLoaderWorkerViewModelBase}">
+    <DataTemplate x:Key="LibraryImporterWorkflowItemTemplate" DataType="{x:Type viewModelInterface:ILibraryLoaderWorkerViewModel}">
 
         <Grid RowDefinitions="Auto, Auto" ColumnDefinitions="*, Auto" Width="260"
               ToolTip="{Binding Description}">

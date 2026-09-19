@@ -1,13 +1,10 @@
-﻿using AudioStation.Core.Component.LibraryLoaderComponent.Load.Interface;
+﻿using AudioStation.Core.Component.LibraryLoaderComponent.Payload.Input.Interface;
 using AudioStation.Core.Model;
 
-namespace AudioStation.Core.Component.LibraryLoaderComponent.Load
+namespace AudioStation.Core.Component.LibraryLoaderComponent.Payload.Input
 {
-    public class LibraryLoaderImportLoad : ILibraryLoaderImportLoad
+    public class LibraryLoaderImportPayload : ILibraryLoaderImportPayload
     {
-        public int OwnerId { get; private set; }
-        public LibraryLoadType LoadType { get; private set; }
-
         public LibraryImportType ImportType { get; set; }
         public LibraryImportSource TagSourcePreference { get; set; }
         public LibraryImportSource AcoustIDSourcePreference { get; set; }
@@ -46,10 +43,8 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Load
         public AudioEncoderInfo ImportFormat { get; set; }
         public bool ConvertAudioFormat { get; set; }
 
-        public LibraryLoaderImportLoad(int ownerId, LibraryLoadType loadType)
+        public LibraryLoaderImportPayload()
         {
-            this.OwnerId = ownerId;
-            this.LoadType = loadType;
         }
     }
 }

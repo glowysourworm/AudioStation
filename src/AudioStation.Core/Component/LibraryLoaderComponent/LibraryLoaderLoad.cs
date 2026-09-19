@@ -1,107 +1,28 @@
-﻿using AudioStation.Core.Component.LibraryLoaderComponent.Load;
-using AudioStation.Core.Component.LibraryLoaderComponent.Load.Interface;
-using AudioStation.Core.Database.AudioStationDatabase;
+﻿using AudioStation.Core.Component.LibraryLoaderComponent.Interface;
 
 namespace AudioStation.Core.Component.LibraryLoaderComponent
 {
     /// <summary>
     /// This loader object is meant to contain the load and provide type checks
     /// </summary>
-    public class LibraryLoaderLoad
+    public class LibraryLoaderLoad<T> : ILibraryLoaderLoad
     {
-        ILibraryLoaderLoad _load;
-        LibraryLoadType _loadType;
-        Type _actualType;
+        T _payload;
+
+        public int OwnerId { get; private set; }
+        public LibraryLoadType LoadType { get; private set; }
+        public T Payload { get { return _payload; } }
+        object ILibraryLoaderLoad.Payload { get { return _payload; } }
 
         /// <summary>
         /// Loads the loader with the load specification.
         /// </summary>
-        public LibraryLoaderLoad(LibraryLoadType loadType, ILibraryLoaderLoad load)
+        public LibraryLoaderLoad(int ownerId, LibraryLoadType loadType, T payload)
         {
-            Initialize(loadType, load);
-        }
+            _payload = payload;
 
-        private void Initialize(LibraryLoadType loadType, ILibraryLoaderLoad load)
-        {
-            if (load == null)
-                throw new NullReferenceException("Library loader load not set");
-
-            switch (loadType)
-            {
-                case LibraryLoadType.ImportRadio:
-                    if (load is not LibraryLoaderFileLoad)
-                        throw new ArgumentException("Improper library load type:  ImportRadio expects LibraryLoaderFileLoad");
-
-                    _actualType = typeof(LibraryLoaderFileLoad);
-                    break;
-                case LibraryLoadType.AcoustID:
-                    if (load is not LibraryLoaderFileLoad)
-                        throw new ArgumentException("Improper library load type:  AcoustID expects LibraryLoaderFileLoad");
-
-                    _actualType = typeof(LibraryLoaderFileLoad);
-                    break;
-                case LibraryLoadType.FileChecker:
-                    if (load is not LibraryLoaderEntityLoad<FileReference>)
-                        throw new ArgumentException("Improper library load type:  FileChecker expects LibraryLoaderEntityLoad<FileReference>");
-
-                    _actualType = typeof(LibraryLoaderEntityLoad<FileReference>);
-                    break;
-                case LibraryLoadType.FileConverter:
-                    if (load is not LibraryLoaderFileConverterLoad)
-                        throw new ArgumentException("Improper library load type:  FileConverter expects LibraryLoaderFileConverterLoad");
-
-                    _actualType = typeof(LibraryLoaderFileConverterLoad);
-                    break;
-                case LibraryLoadType.MusicBrainzBasic:
-                    if (load is not LibraryLoaderEntitySetLoad<AcoustIDLookupResult>)
-                        throw new ArgumentException("Improper library load type:  MusicBrainzBasic expects LibraryLoaderEntitySetLoad<AcoustIDLookupResult>");
-
-                    _actualType = typeof(LibraryLoaderEntitySetLoad<AcoustIDLookupResult>);
-                    break;
-                case LibraryLoadType.MusicBrainzAlbumArt:
-                    if (load is not LibraryLoaderEntityLoad<TagSmallVendorMap>)
-                        throw new ArgumentException("Improper library load type:  MusicBrainzAlbumArt expects LibraryLoaderEntityLoad<TagSmallVendorMap>");
-
-                    _actualType = typeof(LibraryLoaderEntityLoad<TagSmallVendorMap>);
-                    break;
-                case LibraryLoadType.Import:
-                    if (load is not LibraryLoaderFileLoad)
-                        throw new ArgumentException("Improper library load type:  Import expects LibraryLoaderImportLoad");
-
-                    _actualType = typeof(LibraryLoaderImportLoad);
-                    break;
-                default:
-                    throw new Exception("Unhandled library load type");
-            }
-
-            _load = load;
-            _loadType = loadType;
-        }
-
-        /// <summary>
-        /// Gets load, casted as the appropriate object
-        /// </summary>
-        public T Get<T>()
-        {
-            if (typeof(T) != _actualType)
-                throw new ArgumentException("Load type is not not correct, expecting:  " + _actualType);
-
-            return (T)_load;
-        }
-
-        public ILibraryLoaderLoad Get()
-        {
-            return _load;
-        }
-
-        public int GetOwnerId()
-        {
-            return _load.OwnerId;
-        }
-
-        public LibraryLoadType GetLoadType()
-        {
-            return _loadType;
+            this.OwnerId = ownerId;
+            this.LoadType = loadType;
         }
     }
 }

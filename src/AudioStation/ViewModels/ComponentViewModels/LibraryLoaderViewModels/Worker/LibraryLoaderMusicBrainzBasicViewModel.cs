@@ -1,7 +1,6 @@
 ﻿using AudioStation.Controller.Interface;
 using AudioStation.Core.Component.LibraryLoaderComponent;
-using AudioStation.Core.Component.LibraryLoaderComponent.Load;
-using AudioStation.Core.Database.AudioStationDatabase;
+using AudioStation.Core.Component.LibraryLoaderComponent.Interface;
 using AudioStation.Core.Database.AudioStationDatabase.Interface;
 using AudioStation.Core.Model.Interface;
 using AudioStation.Event;
@@ -9,7 +8,7 @@ using AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels;
 
 namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Worker
 {
-    public class LibraryLoaderMusicBrainzBasicViewModel : LibraryLoaderWorkerViewModelBase
+    public class LibraryLoaderMusicBrainzBasicViewModel : LibraryLoaderWorkerViewModelBase<LibraryImporterFileViewModel>
     {
         public LibraryLoaderMusicBrainzBasicViewModel()
             : base("Music Brainz (basic)", "Downloads basic tag details for recordings in the library with a Music Brainz ID")
@@ -21,23 +20,24 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Wo
         {
         }
 
-        protected override IEnumerable<LibraryLoaderLoad> CreateWorkLoads(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
+        protected override ILibraryLoaderLoad CreateWorkLoad(LibraryImporterFileViewModel loadItem, IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
+        {
+
+            return new LibraryLoaderLoad<IEnumerable<IAcoustIDLookupResult>>(this.Id, LibraryLoadType.MusicBrainzBasic, new IAcoustIDLookupResult[] { loadItem.SelectedAcoustIDResult });
+        }
+
+        protected override IEnumerable<ILibraryLoaderLoad> CreateWorkLoads(IEnumerable<LibraryImporterFileViewModel> loadItems, IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
         {
             try
             {
-                var entities = audioStationController.ServiceController
-                                                    .GetDataService<IAudioStationDbClient>()
-                                                    .GetEntities<AcoustIDLookupResult>();
-
-                var result = new List<LibraryLoaderLoad>();
+                var result = new List<ILibraryLoaderLoad>();
                 var counter = 0;
 
-                foreach (var entity in entities.GroupBy(x => x.MusicBrainzRecordingId))
+                foreach (var entity in loadItems)
                 {
-                    progressHandler(entities.Count(), counter++, 0, 0, "Loading: Music Brainz Id=" + entity.Key);
+                    progressHandler(loadItems.Count(), counter++, 0, 0, "Loading: Music Brainz Id=" + entity.SelectedAcoustIDResult.MusicBrainzRecordingId);
 
-                    result.Add(new LibraryLoaderLoad(LibraryLoadType.MusicBrainzBasic,
-                               new LibraryLoaderEntitySetLoad<AcoustIDLookupResult>(this.Id, LibraryLoadType.MusicBrainzBasic, entity)));
+                    result.Add(new LibraryLoaderLoad<IEnumerable<IAcoustIDLookupResult>>(this.Id, LibraryLoadType.MusicBrainzBasic, new IAcoustIDLookupResult[] { entity.SelectedAcoustIDResult }));
                 }
 
                 return result;
@@ -48,15 +48,15 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Wo
             }
         }
 
-        protected override LibraryLoaderLoadViewModel MapWorkLoad(LibraryLoaderLoad workLoad)
+        protected override LibraryLoaderLoadViewModel MapWorkLoad(ILibraryLoaderLoad workLoad)
         {
             throw new NotImplementedException();
         }
-        protected override LibraryLoaderOutputViewModel MapWorkOutput(LibraryLoaderOutput workOutput)
+        protected override LibraryLoaderOutputViewModel MapWorkOutput(ILibraryLoaderOutput workOutput)
         {
             throw new NotImplementedException();
         }
-        protected override LibraryLoaderLoad ResetWorkLoad(LibraryWorkItemViewModel workItem)
+        protected override ILibraryLoaderLoad ResetWorkLoad(LibraryWorkItemViewModel workItem)
         {
             throw new NotImplementedException();
         }

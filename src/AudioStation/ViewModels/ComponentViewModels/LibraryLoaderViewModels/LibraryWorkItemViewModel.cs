@@ -68,10 +68,6 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels
             get { return _isSelected; }
             set { this.RaiseAndSetIfChanged(ref _isSelected, value); }
         }
-        public string DisplayName
-        {
-            get { return _load.DisplayText; }
-        }
 
         protected override void OnPropertyChanged(string name)
         {
@@ -91,11 +87,6 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels
             this.Load = new LibraryLoaderLoadViewModel();
             this.Output = new LibraryLoaderOutputViewModel();
             this.State = LibraryWorkItemState.Pending;
-        }
-
-        public override string ToString()
-        {
-            return this.DisplayName ?? string.Empty;
         }
     }
 }

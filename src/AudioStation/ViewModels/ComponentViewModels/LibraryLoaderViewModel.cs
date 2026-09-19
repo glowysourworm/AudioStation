@@ -6,7 +6,7 @@ using AudioStation.Core.Database.AudioStationDatabase.Interface;
 using AudioStation.Core.Model.Interface;
 using AudioStation.Event;
 using AudioStation.Service.Interface;
-using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels;
+using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Interface;
 using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Worker;
 
 using SimpleWpf.IocFramework.EventAggregation;
@@ -18,9 +18,9 @@ namespace AudioStation.ViewModels.ComponentViewModels
         private readonly IAudioConverter _audioConverter;
         private readonly IIocEventAggregator _eventAggregator;
 
-        ObservableCollection<LibraryLoaderWorkerViewModelBase> _loaderTasks;
+        ObservableCollection<ILibraryLoaderWorkerViewModel> _loaderTasks;
 
-        public ObservableCollection<LibraryLoaderWorkerViewModelBase> LoaderTasks
+        public ObservableCollection<ILibraryLoaderWorkerViewModel> LoaderTasks
         {
             get { return _loaderTasks; }
             set { this.RaiseAndSetIfChanged(ref _loaderTasks, value); }
@@ -31,7 +31,7 @@ namespace AudioStation.ViewModels.ComponentViewModels
             _audioConverter = audioConverter;
             _eventAggregator = eventAggregator;
 
-            this.LoaderTasks = new ObservableCollection<LibraryLoaderWorkerViewModelBase>();
+            this.LoaderTasks = new ObservableCollection<ILibraryLoaderWorkerViewModel>();
         }
 
         public override bool CanExecute()
@@ -53,8 +53,8 @@ namespace AudioStation.ViewModels.ComponentViewModels
 
         protected override void LoadWork(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
         {
-            foreach (var task in this.LoaderTasks)
-                task.Load(configuration, audioStationController, progressHandler);
+            //foreach (var task in this.LoaderTasks)
+            //    task.Load(configuration, audioStationController, progressHandler);
         }
 
         protected override void ExecuteWork(DialogEventHandlers.DialogProgressHandler progressHandler)

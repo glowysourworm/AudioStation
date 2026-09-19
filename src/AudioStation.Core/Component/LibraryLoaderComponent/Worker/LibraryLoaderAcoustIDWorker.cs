@@ -1,12 +1,11 @@
-﻿using AudioStation.Core.Component.LibraryLoaderComponent.Load;
-using AudioStation.Core.Component.LibraryLoaderComponent.Output;
+﻿using AudioStation.Core.Component.LibraryLoaderComponent.Payload.Input;
 using AudioStation.Core.Database.AudioStationDatabase;
 using AudioStation.Core.Database.AudioStationDatabase.Interface;
 using AudioStation.Core.Service.Vendor.Interface;
 
 namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
 {
-    public class LibraryLoaderAcoustIDWorker : LibraryLoaderWorker
+    public class LibraryLoaderAcoustIDWorker : LibraryLoaderWorker<LibraryLoaderFilePayload, IList<AcoustIDLookupResult>>
     {
         private readonly IAcoustIDClient _acoustIDClient;
         private readonly IAudioStationDbClient _audioStationDbClient;
@@ -14,7 +13,8 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
         private readonly int ACOUSTID_MIN_SCORE = 70;
         private static readonly int WORK_STEPS = 2;
 
-        public LibraryLoaderAcoustIDWorker(IAcoustIDClient acoustIDClient, IAudioStationDbClient audioStationDbClient, LibraryLoaderWorkItem workItem) : base(workItem)
+        public LibraryLoaderAcoustIDWorker(IAcoustIDClient acoustIDClient, IAudioStationDbClient audioStationDbClient, LibraryLoaderWorkItem workItem)
+            : base(workItem)
         {
             _acoustIDClient = acoustIDClient;
             _audioStationDbClient = audioStationDbClient;
@@ -57,14 +57,11 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
         {
             try
             {
-                var output = this.Output.Get<LibraryLoaderEntitySetOutput<AcoustIDLookupResult>>();
-                var load = this.Load.Get<LibraryLoaderFileLoad>();
-
-                var resultSet = _acoustIDClient.IdentifyFingerprint(load.File, ACOUSTID_MIN_SCORE);
+                var resultSet = _acoustIDClient.IdentifyFingerprint(this.Load.Payload.File, ACOUSTID_MIN_SCORE);
 
                 foreach (var result in resultSet)
                 {
-                    output.Add(result);
+                    this.Output.Payload.Add(result);
                 }
 
                 if (!resultSet.Any())
@@ -93,14 +90,14 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
                 var updated = 0;
                 var added = 0;
 
-                foreach (var result in this.Output.Get<LibraryLoaderEntitySetOutput<AcoustIDLookupResult>>().Entities)
+                foreach (var result in this.Output.Payload)
                 {
                     var existingEntity = _audioStationDbClient.FirstEntity<AcoustIDLookupResult>(x => x.MusicBrainzRecordingId == result.MusicBrainzRecordingId);
 
                     // Update
                     if (existingEntity != null)
                     {
-                        existingEntity.FileName = this.Load.Get<LibraryLoaderFileLoad>().File;
+                        existingEntity.FileName = this.Load.Payload.File;
                         existingEntity.LookupId = result.LookupId;
                         existingEntity.MusicBrainzRecordingId = result.MusicBrainzRecordingId;
                         existingEntity.Score = result.Score;

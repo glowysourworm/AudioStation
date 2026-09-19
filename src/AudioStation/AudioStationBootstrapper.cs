@@ -5,10 +5,10 @@ using System.Windows.Threading;
 using AudioStation.Controller.Interface;
 using AudioStation.Core;
 using AudioStation.Core.Component.Interface;
-using AudioStation.Core.Component.LibraryLoaderComponent.Load;
-using AudioStation.Core.Component.LibraryLoaderComponent.Load.Interface;
-using AudioStation.Core.Component.LibraryLoaderComponent.Output;
-using AudioStation.Core.Component.LibraryLoaderComponent.Output.Interface;
+using AudioStation.Core.Component.LibraryLoaderComponent.Payload.Input;
+using AudioStation.Core.Component.LibraryLoaderComponent.Payload.Input.Interface;
+using AudioStation.Core.Component.LibraryLoaderComponent.Payload.Output;
+using AudioStation.Core.Component.LibraryLoaderComponent.Payload.Output.Interface;
 using AudioStation.Core.Database.AudioStationDatabase;
 using AudioStation.Core.Model;
 using AudioStation.Core.Model.Interface;
@@ -17,8 +17,8 @@ using AudioStation.Core.Model.Vendor.ATLExtension.Interface;
 using AudioStation.Event;
 using AudioStation.Event.DialogEvents;
 using AudioStation.ViewModels;
-using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Load;
-using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Output;
+using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Payload.Input;
+using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Payload.Output;
 using AudioStation.ViewModels.MainViewModels;
 using AudioStation.ViewModels.TagViewModels;
 using AudioStation.ViewModels.Vendor.ATLViewModel;
@@ -230,17 +230,17 @@ namespace AudioStation
                   .DeclareSourceInterface<IAudioStationTag>();
 
             // Audio Station Services
-            mapper.ConfigureMap<LibraryLoaderImportLoadViewModel, LibraryLoaderImportLoad>()
-                  .DeclareSourceInterface<ILibraryLoaderImportLoad>();
+            mapper.ConfigureMap<LibraryLoaderImportInputViewModel, LibraryLoaderImportPayload>()
+                  .DeclareSourceInterface<ILibraryLoaderImportPayload>();
 
-            mapper.ConfigureMap<LibraryLoaderImportLoad, LibraryLoaderImportLoadViewModel>()
-                  .DeclareSourceInterface<ILibraryLoaderImportLoad>();
+            mapper.ConfigureMap<LibraryLoaderImportPayload, LibraryLoaderImportInputViewModel>()
+                  .DeclareSourceInterface<ILibraryLoaderImportPayload>();
 
-            mapper.ConfigureMap<LibraryLoaderImportOutput, LibraryLoaderImportOutputViewModel>()
-                  .DeclareSourceInterface<ILibraryLoaderImportOutput>();
+            mapper.ConfigureMap<LibraryLoaderImportOutputPayload, LibraryLoaderImportOutputViewModel>()
+                  .DeclareSourceInterface<ILibraryLoaderImportOutputPayload>();
 
-            mapper.ConfigureMap<LibraryLoaderImportOutputViewModel, LibraryLoaderImportOutput>()
-                  .DeclareSourceInterface<ILibraryLoaderImportOutput>();
+            mapper.ConfigureMap<LibraryLoaderImportOutputViewModel, LibraryLoaderImportOutputPayload>()
+                  .DeclareSourceInterface<ILibraryLoaderImportOutputPayload>();
 
             // Configuration
             mapper.ConfigureMap<AudioEncoderInfo, AudioEncoderViewModel>()

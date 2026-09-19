@@ -1,4 +1,5 @@
 ﻿using AudioStation.Core.Component.LibraryLoaderComponent;
+using AudioStation.Core.Component.LibraryLoaderComponent.Interface;
 
 using SimpleWpf.Extensions.Event;
 
@@ -34,7 +35,7 @@ namespace AudioStation.Core.Component.Interface
         /// <summary>
         /// Initializes and runs a library loader task with the specified parameters. Returns ID of new work item.
         /// </summary>
-        int QueueLoaderTask(LibraryLoaderLoad workLoad);
+        int QueueLoaderTask(ILibraryLoaderLoad workLoad);
 
         /// <summary>
         /// Sets state of loader:  This will not alter any work items. It will only stop the loader from processing

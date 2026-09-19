@@ -1,6 +1,4 @@
-﻿using AudioStation.Core.Component.LibraryLoaderComponent.Load;
-using AudioStation.Core.Component.LibraryLoaderComponent.Output;
-using AudioStation.Core.Database.AudioStationDatabase;
+﻿using AudioStation.Core.Database.AudioStationDatabase;
 using AudioStation.Core.Database.AudioStationDatabase.Interface;
 using AudioStation.Core.Model;
 using AudioStation.Core.Service;
@@ -11,7 +9,7 @@ using AudioStation.Core.Utility.FileUtility;
 
 namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
 {
-    public class LibraryLoaderMusicBrainzAlbumArtWorker : LibraryLoaderWorker
+    public class LibraryLoaderMusicBrainzAlbumArtWorker : LibraryLoaderWorker<TagSmallVendorMap, FileReference>
     {
         private readonly IAudioStationDbClient _audioStationDbClient;
         private readonly IMusicBrainzClient _musicBrainzClient;
@@ -62,10 +60,10 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
         {
             try
             {
-                var vendorMap = this.Load.Get<LibraryLoaderEntityLoad<TagSmallVendorMap>>();
-                Guid musicBrainzRecordingId = vendorMap.Entity.MusicBrainzRecordingId ?? Guid.Empty;
+                var vendorMap = this.Load.Payload;
+                Guid musicBrainzRecordingId = vendorMap.MusicBrainzRecordingId ?? Guid.Empty;
 
-                if (vendorMap.Entity.MusicBrainzRecordingId == null)
+                if (vendorMap.MusicBrainzRecordingId == null)
                 {
                     return new LibraryWorkerStepResult()
                     {
@@ -76,7 +74,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
                     };
                 }
 
-                Log("Music Brainz album art lookup started:  " + vendorMap.Entity.MusicBrainzRecordingId);
+                Log("Music Brainz album art lookup started:  " + vendorMap.MusicBrainzRecordingId);
 
                 AudioStationTagServiceResponse response = null;
 
@@ -113,13 +111,13 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
 
                 if (pictureInfo != null)
                 {
-                    Log("Music Brainz client lookup finished:  " + vendorMap.Entity.MusicBrainzRecordingId);
+                    Log("Music Brainz client lookup finished:  " + vendorMap.MusicBrainzRecordingId);
 
                     // -> Store to file
                     var filePath = _fileController.StoreImage(pictureInfo,
-                                                              vendorMap.Entity.TagSmall.Genre,
-                                                              vendorMap.Entity.TagSmall.AlbumArtist,
-                                                              vendorMap.Entity.TagSmall.Album,
+                                                              vendorMap.TagSmall.Genre,
+                                                              vendorMap.TagSmall.AlbumArtist,
+                                                              vendorMap.TagSmall.Album,
                                                               fileType,
                                                               IAudioStationFileService.StorageType.DiskCache, true);
 
@@ -166,7 +164,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
 
                         var tagSmallFileReferenceMap = new TagSmallFileReferenceMap()
                         {
-                            TagSmallId = vendorMap.Entity.TagSmallId,
+                            TagSmallId = vendorMap.TagSmallId,
                             FileReferenceId = fileReference.Id
                         };
 
@@ -174,7 +172,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
                     }
 
                     // -> Report FileReference to the front end
-                    this.Output.Get<LibraryLoaderEntitySetOutput<FileReference>>().Add(fileReference);
+                    this.Output.SetPayload(fileReference);
                 }
 
                 else
@@ -182,7 +180,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
                     return new LibraryWorkerStepResult()
                     {
                         Completed = false,
-                        Message = "Music Brainz client lookup error:  " + vendorMap.Entity.MusicBrainzRecordingId,
+                        Message = "Music Brainz client lookup error:  " + vendorMap.MusicBrainzRecordingId,
                         StepNumber = stepNumber,
                         Result = LibraryWorkerResultLevel.DataError
                     };

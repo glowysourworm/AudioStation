@@ -7,12 +7,12 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels
     /// </summary>
     public class LibraryLoaderOutputViewModel : ViewModelBase
     {
-        ViewModelBase _output;
+        object _payload;
 
-        public ViewModelBase Output
+        public object Payload
         {
-            get { return _output; }
-            set { this.RaiseAndSetIfChanged(ref _output, value); }
+            get { return _payload; }
+            set { this.RaiseAndSetIfChanged(ref _payload, value); }
         }
     }
 }

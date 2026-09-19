@@ -1,9 +1,9 @@
 ﻿namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
 {
-    public abstract class LibraryLoaderWorker : LibraryWorkerThreadBase
+    public abstract class LibraryLoaderWorker<TIn, TOut> : LibraryWorkerThreadBase
     {
-        protected LibraryLoaderLoad Load { get; private set; }
-        protected LibraryLoaderOutput Output { get; private set; }
+        protected LibraryLoaderLoad<TIn> Load { get; private set; }
+        protected LibraryLoaderOutput<TOut> Output { get; private set; }
 
         // Thread Contention (between work steps only)
         private int _workCurrentStep = 0;
@@ -11,8 +11,12 @@
 
         public LibraryLoaderWorker(LibraryLoaderWorkItem workItem) : base(workItem)
         {
-            this.Load = workItem.GetWorkItem();
-            this.Output = workItem.GetOutputItem();
+            this.Load = workItem.GetWorkItem() as LibraryLoaderLoad<TIn>;
+            this.Output = workItem.GetOutputItem() as LibraryLoaderOutput<TOut>;
+
+            if (this.Load == null ||
+                this.Output == null)
+                throw new ArgumentException("Invalid Load / Output types");
         }
 
         /// <summary>

@@ -1,6 +1,6 @@
 ﻿using SimpleWpf.UI.ViewModel;
 
-namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Load
+namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Payload.Input
 {
     public class LibraryLoaderFileLoadViewModel : ViewModelBase
     {

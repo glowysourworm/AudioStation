@@ -2,7 +2,8 @@
 
 using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Component.LibraryLoaderComponent;
-using AudioStation.Core.Component.LibraryLoaderComponent.Output;
+using AudioStation.Core.Component.LibraryLoaderComponent.Interface;
+using AudioStation.Core.Component.LibraryLoaderComponent.Payload.Output;
 using AudioStation.Core.Component.LibraryLoaderComponent.Worker;
 using AudioStation.Core.Database.AudioStationDatabase;
 using AudioStation.Core.Database.AudioStationDatabase.Interface;
@@ -70,7 +71,7 @@ namespace AudioStation.Core.Component
             _loaderState = PlayStopPause.Stop;
         }
 
-        public int QueueLoaderTask(LibraryLoaderLoad workLoad)
+        public int QueueLoaderTask(ILibraryLoaderLoad workLoad)
         {
             if (BasicHelpers.IsDispatcher() == ApplicationIsDispatcherResult.False)
                 throw new Exception("ILibraryLoader must be accessed by the main thread");
@@ -81,42 +82,56 @@ namespace AudioStation.Core.Component
             //
             LibraryLoaderWorkItem workItem = null;
 
-            switch (workLoad.GetLoadType())
+            // This will create the work item with the proper output payload
+            //
+            switch (workLoad.LoadType)
             {
                 case LibraryLoadType.Import:
                 {
-                    workItem = new LibraryLoaderWorkItem(_workItemIdCounter, workLoad.GetOwnerId(), LibraryLoadType.Import);
-                    workItem.Initialize(LibraryWorkItemState.Pending, workLoad, new LibraryLoaderOutput(workLoad.GetLoadType(), new LibraryLoaderImportOutput(), LibraryLoaderImportWorker.GetNumberSteps()));
+                    workItem = new LibraryLoaderWorkItem(_workItemIdCounter, workLoad.OwnerId, LibraryLoadType.Import);
+                    workItem.Initialize(LibraryWorkItemState.Pending, workLoad,
+                                        new LibraryLoaderOutput<LibraryLoaderImportOutputPayload>(workLoad.LoadType,
+                                        new LibraryLoaderImportOutputPayload(), LibraryLoaderImportWorker.GetNumberSteps()));
                 }
                 break;
                 case LibraryLoadType.AcoustID:
                 {
-                    workItem = new LibraryLoaderWorkItem(_workItemIdCounter, workLoad.GetOwnerId(), LibraryLoadType.AcoustID);
-                    workItem.Initialize(LibraryWorkItemState.Pending, workLoad, new LibraryLoaderOutput(workLoad.GetLoadType(), new LibraryLoaderEntitySetOutput<AcoustIDLookupResult>(), LibraryLoaderAcoustIDWorker.GetNumberSteps()));
+                    workItem = new LibraryLoaderWorkItem(_workItemIdCounter, workLoad.OwnerId, LibraryLoadType.AcoustID);
+                    workItem.Initialize(LibraryWorkItemState.Pending, workLoad,
+                                        new LibraryLoaderOutput<IList<AcoustIDLookupResult>>(workLoad.LoadType,
+                                        new List<AcoustIDLookupResult>(), LibraryLoaderAcoustIDWorker.GetNumberSteps()));
                 }
                 break;
                 case LibraryLoadType.MusicBrainzBasic:
                 {
-                    workItem = new LibraryLoaderWorkItem(_workItemIdCounter, workLoad.GetOwnerId(), LibraryLoadType.MusicBrainzBasic);
-                    workItem.Initialize(LibraryWorkItemState.Pending, workLoad, new LibraryLoaderOutput(workLoad.GetLoadType(), new LibraryLoaderEntitySetOutput<TagSmall>(), LibraryLoaderMusicBrainzBasicWorker.GetNumberSteps()));
+                    workItem = new LibraryLoaderWorkItem(_workItemIdCounter, workLoad.OwnerId, LibraryLoadType.MusicBrainzBasic);
+                    workItem.Initialize(LibraryWorkItemState.Pending, workLoad,
+                                        new LibraryLoaderOutput<IList<TagSmall>>(workLoad.LoadType,
+                                        new List<TagSmall>(), LibraryLoaderMusicBrainzBasicWorker.GetNumberSteps()));
                 }
                 break;
                 case LibraryLoadType.MusicBrainzAlbumArt:
                 {
-                    workItem = new LibraryLoaderWorkItem(_workItemIdCounter, workLoad.GetOwnerId(), LibraryLoadType.MusicBrainzAlbumArt);
-                    workItem.Initialize(LibraryWorkItemState.Pending, workLoad, new LibraryLoaderOutput(workLoad.GetLoadType(), new LibraryLoaderEntitySetOutput<FileReference>(), LibraryLoaderMusicBrainzAlbumArtWorker.GetNumberSteps()));
+                    workItem = new LibraryLoaderWorkItem(_workItemIdCounter, workLoad.OwnerId, LibraryLoadType.MusicBrainzAlbumArt);
+                    workItem.Initialize(LibraryWorkItemState.Pending, workLoad,
+                                        new LibraryLoaderOutput<FileReference>(workLoad.LoadType,
+                                        new FileReference(), LibraryLoaderMusicBrainzAlbumArtWorker.GetNumberSteps()));
                 }
                 break;
                 case LibraryLoadType.FileChecker:
                 {
-                    workItem = new LibraryLoaderWorkItem(_workItemIdCounter, workLoad.GetOwnerId(), LibraryLoadType.FileChecker);
-                    workItem.Initialize(LibraryWorkItemState.Pending, workLoad, new LibraryLoaderOutput(workLoad.GetLoadType(), new LibraryLoaderNoOutput(), LibraryLoaderFileCheckerWorker.GetNumberSteps()));
+                    workItem = new LibraryLoaderWorkItem(_workItemIdCounter, workLoad.OwnerId, LibraryLoadType.FileChecker);
+                    workItem.Initialize(LibraryWorkItemState.Pending, workLoad,
+                                        new LibraryLoaderOutput<LibraryLoaderNoOutput>(workLoad.LoadType,
+                                        new LibraryLoaderNoOutput(), LibraryLoaderFileCheckerWorker.GetNumberSteps()));
                 }
                 break;
                 case LibraryLoadType.FileConverter:
                 {
-                    workItem = new LibraryLoaderWorkItem(_workItemIdCounter, workLoad.GetOwnerId(), LibraryLoadType.FileConverter);
-                    workItem.Initialize(LibraryWorkItemState.Pending, workLoad, new LibraryLoaderOutput(workLoad.GetLoadType(), new LibraryLoaderNoOutput(), LibraryLoaderFileConverterWorker.GetNumberSteps()));
+                    workItem = new LibraryLoaderWorkItem(_workItemIdCounter, workLoad.OwnerId, LibraryLoadType.FileConverter);
+                    workItem.Initialize(LibraryWorkItemState.Pending, workLoad,
+                                        new LibraryLoaderOutput<LibraryLoaderNoOutput>(workLoad.LoadType,
+                                        new LibraryLoaderNoOutput(), LibraryLoaderFileConverterWorker.GetNumberSteps()));
                 }
                 break;
                 case LibraryLoadType.ImportRadio:

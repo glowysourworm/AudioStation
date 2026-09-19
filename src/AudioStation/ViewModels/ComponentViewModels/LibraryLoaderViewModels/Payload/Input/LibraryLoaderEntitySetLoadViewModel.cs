@@ -4,7 +4,7 @@ using AudioStation.Core.Database.AudioStationDatabase;
 
 using SimpleWpf.UI.ViewModel;
 
-namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Load
+namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Payload.Input
 {
     public class LibraryLoaderEntitySetLoadViewModel<TEntity> : ViewModelBase where TEntity : AudioStationEntityBase
     {

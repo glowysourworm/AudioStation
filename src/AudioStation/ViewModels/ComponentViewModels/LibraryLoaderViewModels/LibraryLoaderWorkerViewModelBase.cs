@@ -4,9 +4,11 @@ using AudioStation.Controller.Interface;
 using AudioStation.Core.Component;
 using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Component.LibraryLoaderComponent;
+using AudioStation.Core.Component.LibraryLoaderComponent.Interface;
 using AudioStation.Core.Model.Interface;
 using AudioStation.Event;
 using AudioStation.Service;
+using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Interface;
 
 using SimpleWpf.Extensions.Collection;
 using SimpleWpf.Extensions.Event;
@@ -15,7 +17,14 @@ using SimpleWpf.UI.ViewModel;
 
 namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels
 {
-    public abstract class LibraryLoaderWorkerViewModelBase : ViewModelBase
+    /// <summary>
+    /// Library Loader Worker:  This class represents a basic way to interact with the ILibraryLoader for a given input 
+    ///                         "T" (our front-end load to the worker). This class could be any sort of data mode. The
+    ///                         inherited class's responsibiltiy is to take this load and create LibraryLoaderLoad instances
+    ///                         that utilize interface classes to the ILibraryLoader.
+    /// </summary>
+    /// <typeparam name="T">Any type of "load" to be operated on by the derived class</typeparam>
+    public abstract class LibraryLoaderWorkerViewModelBase<T> : ViewModelBase, ILibraryLoaderWorkerViewModel
     {
         /// <summary>
         /// This is a simple / fast way to provide a unique identifier for each instance of the
@@ -24,7 +33,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels
         private static int WORKER_COUNTER = 0;
 
         private ILibraryLoader _libraryLoader;
-        private List<LibraryLoaderLoad> _workLoads;
+        private List<ILibraryLoaderLoad> _workLoads;
 
         int _id;
         string _name;
@@ -52,17 +61,17 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels
         /// <summary>
         /// Executes when the library loader worker has changed status
         /// </summary>
-        public event SimpleEventHandler<LibraryLoaderWorkerViewModelBase> StatusChangeEvent;
+        public event SimpleEventHandler<ILibraryLoaderWorkerViewModel> StatusChangeEvent;
 
         /// <summary>
         /// Executes when work item is updated
         /// </summary>
-        public event SimpleEventHandler<LibraryLoaderWorkerViewModelBase, LibraryWorkItemViewModel> WorkItemChangedEvent;
+        public event SimpleEventHandler<ILibraryLoaderWorkerViewModel, LibraryWorkItemViewModel> WorkItemChangedEvent;
 
         /// <summary>
         /// Event that fires when any of the UI properties of the work item are changed (e.g. IsSelected)
         /// </summary>
-        public event SimpleEventHandler<LibraryLoaderWorkerViewModelBase, LibraryWorkItemViewModel> WorkItemUIChangedEvent;
+        public event SimpleEventHandler<ILibraryLoaderWorkerViewModel, LibraryWorkItemViewModel> WorkItemUIChangedEvent;
 
         public int Id
         {
@@ -171,17 +180,21 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels
             this.Working = false;
 
             _workItems = new KeyedObservableCollection<int, LibraryWorkItemViewModel>();
-            _workLoads = new List<LibraryLoaderLoad>();
+            _workLoads = new List<ILibraryLoaderLoad>();
 
             _workItems.ItemPropertyChanged += OnWorkItemUIPropertyChanged;
         }
 
-        protected abstract IEnumerable<LibraryLoaderLoad> CreateWorkLoads(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler);
-        protected abstract LibraryLoaderLoadViewModel MapWorkLoad(LibraryLoaderLoad workLoad);
-        protected abstract LibraryLoaderOutputViewModel MapWorkOutput(LibraryLoaderOutput workOutput);
-        protected abstract LibraryLoaderLoad ResetWorkLoad(LibraryWorkItemViewModel workItem);
+        protected abstract ILibraryLoaderLoad CreateWorkLoad(T loadItem, IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler);
+        protected abstract IEnumerable<ILibraryLoaderLoad> CreateWorkLoads(IEnumerable<T> loadItems, IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler);
+        protected abstract LibraryLoaderLoadViewModel MapWorkLoad(ILibraryLoaderLoad workLoad);
+        protected abstract LibraryLoaderOutputViewModel MapWorkOutput(ILibraryLoaderOutput workOutput);
+        protected abstract ILibraryLoaderLoad ResetWorkLoad(LibraryWorkItemViewModel workItem);
 
-        public void Load(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
+        public void Load(T loadItem,
+                         IAudioStationConfiguration configuration,
+                         IAudioStationController audioStationController,
+                         DialogEventHandlers.DialogProgressHandler progressHandler)
         {
             if (this.Loaded)
                 throw new Exception("Library loader worker is already loaded");
@@ -193,6 +206,12 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels
             // NOTE*** These are shared events! Each instance must verify that they are holding
             //         the work item that belongs to them; and that the ID is verified!
             //
+            _libraryLoader.WorkItemComplete -= OnWorkItemComplete;
+            _libraryLoader.WorkItemUpdate -= OnWorkItemUpdate;
+            _libraryLoader.WorkItemQueued -= OnWorkItemQueued;
+            _libraryLoader.WorkItemCanceled -= OnWorkItemCanceled;
+            _libraryLoader.StateChangeEvent -= OnStateChangeEvent;
+
             _libraryLoader.WorkItemComplete += OnWorkItemComplete;
             _libraryLoader.WorkItemUpdate += OnWorkItemUpdate;
             _libraryLoader.WorkItemQueued += OnWorkItemQueued;
@@ -203,7 +222,51 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels
             _updating = true;
 
             // -> Inherited Class
-            var libraryLoads = CreateWorkLoads(configuration, audioStationController, progressHandler);
+            var workLoad = CreateWorkLoad(loadItem, configuration, audioStationController, progressHandler);
+
+            // EndUpdate()
+            _updating = false;
+
+            // Work loads are dispatched on Execute()
+            _workLoads.Add(workLoad);
+
+            this.Loaded = true;
+
+            OnUpdate();
+        }
+
+        public void Load(IEnumerable<T> loadItems,
+                         IAudioStationConfiguration configuration,
+                         IAudioStationController audioStationController,
+                         DialogEventHandlers.DialogProgressHandler progressHandler)
+        {
+            if (this.Loaded)
+                throw new Exception("Library loader worker is already loaded");
+
+            _libraryLoader = audioStationController.LibraryLoader;
+
+            // ILibraryLoader Events!
+            //
+            // NOTE*** These are shared events! Each instance must verify that they are holding
+            //         the work item that belongs to them; and that the ID is verified!
+            //
+            _libraryLoader.WorkItemComplete -= OnWorkItemComplete;
+            _libraryLoader.WorkItemUpdate -= OnWorkItemUpdate;
+            _libraryLoader.WorkItemQueued -= OnWorkItemQueued;
+            _libraryLoader.WorkItemCanceled -= OnWorkItemCanceled;
+            _libraryLoader.StateChangeEvent -= OnStateChangeEvent;
+
+            _libraryLoader.WorkItemComplete += OnWorkItemComplete;
+            _libraryLoader.WorkItemUpdate += OnWorkItemUpdate;
+            _libraryLoader.WorkItemQueued += OnWorkItemQueued;
+            _libraryLoader.WorkItemCanceled += OnWorkItemCanceled;
+            _libraryLoader.StateChangeEvent += OnStateChangeEvent;
+
+            // BeginUpdate()
+            _updating = true;
+
+            // -> Inherited Class
+            var libraryLoads = CreateWorkLoads(loadItems, configuration, audioStationController, progressHandler);
 
             // EndUpdate()
             _updating = false;
@@ -305,9 +368,34 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels
         }
         public void Reset()
         {
+            if (!CanReset())
+                throw new Exception("Cannot reset library worker at this time. Please check first by using CanReset()");
+
+            // Work Items: The events change the UI state. So, these have to be queried before they
+            //             are modified.
+            //
+            var allItems = this.WorkItems.Actualize();
+
+            foreach (var workItem in allItems)
+            {
+                if (_libraryLoader.IsTaskQueued(workItem.Id))
+                {
+                    // Reset Work Item(s) (these data get set by backend updates)
+                    _libraryLoader.DequeueTask(workItem.Id);
+                }
+
+                else if (_libraryLoader.IsTaskRunning(workItem.Id))
+                {
+                    _libraryLoader.CancelTask(workItem.Id);
+                }
+            }
+
             _workItems.Clear();
+            _workLoads.Clear();     // Clear out any other work loads
 
             OnUpdate();
+
+            this.Loaded = false;
         }
 
         /// <summary>
@@ -324,6 +412,10 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels
             return this.Loaded &&
                   !this.Working &&
                    _workLoads.Any();
+        }
+        public bool CanReset()
+        {
+            return this.Loaded && !this.Working && this.LibraryLoaderState == PlayStopPause.Stop;
         }
         public bool CanRerunSelected()
         {

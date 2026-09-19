@@ -1,13 +1,13 @@
 ﻿using AudioStation.Core.Model;
 
-namespace AudioStation.Core.Component.LibraryLoaderComponent.Load.Interface
+namespace AudioStation.Core.Component.LibraryLoaderComponent.Payload.Input.Interface
 {
     /// <summary>
     /// The import load should carry all the information required to (copy|move) a file from a source
     /// directory to a destination directory. Options: (Migration) Delete Unused Folder(s); 
     /// (Migration) Delete Source File; (Migration) Overwrite Destination File.
     /// </summary>
-    public interface ILibraryLoaderImportLoad : ILibraryLoaderLoad
+    public interface ILibraryLoaderImportPayload
     {
         /// <summary>
         /// The reference ID for tag information should be used during import. This will facilitate

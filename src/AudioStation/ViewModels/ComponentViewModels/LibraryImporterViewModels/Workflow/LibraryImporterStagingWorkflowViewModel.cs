@@ -24,6 +24,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
         private IAudioStationDbClient _audioStationDbClient;
         private ITagCache _tagCache;
 
+        // Workflow Configuration
         private LibraryImporterConfigurationViewModel _workflowConfiguration;
 
         SimpleCommand _stageCommand;
@@ -198,9 +199,9 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
                     // Progress
                     progressHandler(1, 1, selectedFileCount, counter++, "Loading:  " + treeBase.NodeValue.DisplayName);
 
-                    var stagedFile = new LibraryImporterFileViewModel(subNode.FullPath, subNode.BaseDirectory);
+                    var stagedFile = new LibraryImporterFileViewModel(subNode.FullPath, subNode.BaseDirectory, _workflowConfiguration);
 
-                    stagedFile.TagClean = _tagCache.Get(subNode.FullPath);
+                    //stagedFile.TagClean = _tagCache.Get(subNode.FullPath);
                     //stagedFile.TagDirty = _tagCache.GetCopy(node.FullPath);
 
                     // Check For Library Conflict

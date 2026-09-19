@@ -1,7 +1,7 @@
 ﻿using AudioStation.Controller.Interface;
 using AudioStation.Core.Model.Interface;
 using AudioStation.Event;
-using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels;
+using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Interface;
 using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Worker;
 
 using SimpleWpf.Extensions.ObservableCollection;
@@ -13,7 +13,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
         // Workflow Configuration
         private readonly LibraryImporterConfigurationViewModel _workflowConfiguration;
 
-        // Staged Files
+        // Staged Files (carries the import load / output)
         private readonly KeyedObservableCollection<string, LibraryImporterFileViewModel> _stagedFiles;
 
         // Import Worker:  This will require a load of type ILibraryLoaderImportLoad. It operates on
@@ -48,12 +48,12 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
 
         protected override void LoadWork(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
         {
-            this.ImportWorker = new LibraryLoaderImportViewModel(_workflowConfiguration, _stagedFiles);
+            this.ImportWorker = new LibraryLoaderImportViewModel(_workflowConfiguration);
 
             this.ImportWorker.StatusChangeEvent += OnWorkerStatusChangeEvent;
 
             // Initialize Component Parts
-            this.ImportWorker.Load(configuration, audioStationController, progressHandler);
+            //this.ImportWorker.Load(this.StagedFiles, configuration, audioStationController, progressHandler);
         }
 
         protected override void ExecuteWork(DialogEventHandlers.DialogProgressHandler progressHandler)
@@ -66,7 +66,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
             this.ImportWorker.Reset();
         }
 
-        private void OnWorkerStatusChangeEvent(LibraryLoaderWorkerViewModelBase sender)
+        private void OnWorkerStatusChangeEvent(ILibraryLoaderWorkerViewModel sender)
         {
 
         }

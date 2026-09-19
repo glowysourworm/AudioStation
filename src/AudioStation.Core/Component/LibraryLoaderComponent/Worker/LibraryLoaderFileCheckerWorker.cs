@@ -1,13 +1,13 @@
 ﻿using System.IO;
 
-using AudioStation.Core.Component.LibraryLoaderComponent.Load;
+using AudioStation.Core.Component.LibraryLoaderComponent.Payload.Output;
 using AudioStation.Core.Database.AudioStationDatabase;
 using AudioStation.Core.Database.AudioStationDatabase.Interface;
 using AudioStation.Core.Utility.FileUtility;
 
 namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
 {
-    public class LibraryLoaderFileCheckerWorker : LibraryLoaderWorker
+    public class LibraryLoaderFileCheckerWorker : LibraryLoaderWorker<FileReference, LibraryLoaderNoOutput>
     {
         private readonly IAudioStationDbClient _audioStationDbClient;
 
@@ -49,11 +49,8 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
         {
             try
             {
-                // Load
-                var load = this.Load.Get<LibraryLoaderEntityLoad<FileReference>>();
-
                 // Entity
-                var entity = _audioStationDbClient.GetEntity<FileReference>(load.Entity.Id);
+                var entity = _audioStationDbClient.GetEntity<FileReference>(this.Load.Payload.Id);
 
                 if (entity == null)
                 {

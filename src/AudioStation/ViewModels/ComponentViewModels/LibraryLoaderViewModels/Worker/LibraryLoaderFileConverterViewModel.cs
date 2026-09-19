@@ -1,21 +1,20 @@
-﻿using System.IO;
-
-using AudioStation.Controller.Interface;
+﻿using AudioStation.Controller.Interface;
 using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Component.LibraryLoaderComponent;
-using AudioStation.Core.Component.LibraryLoaderComponent.Load;
+using AudioStation.Core.Component.LibraryLoaderComponent.Interface;
+using AudioStation.Core.Component.LibraryLoaderComponent.Payload.Input;
 using AudioStation.Core.Model;
 using AudioStation.Core.Model.Interface;
 using AudioStation.Core.Utility.FileUtility;
 using AudioStation.Event;
 
 using SimpleWpf.IocFramework.Application;
-using SimpleWpf.Native.IO;
 using SimpleWpf.SimpleCollections.Collection;
+using SimpleWpf.UI.ViewModel.FileTreeView;
 
 namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Worker
 {
-    public class LibraryLoaderFileConverterViewModel : LibraryLoaderWorkerViewModelBase
+    public class LibraryLoaderFileConverterViewModel : LibraryLoaderWorkerViewModelBase<FileTreeNodeViewModel>
     {
         // Use for extra performance
         SimpleDictionary<string, string> _workItemDict;
@@ -28,7 +27,18 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Wo
             _workItemDict = new SimpleDictionary<string, string>();
         }
 
-        protected override IEnumerable<LibraryLoaderLoad> CreateWorkLoads(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
+        protected override ILibraryLoaderLoad CreateWorkLoad(FileTreeNodeViewModel loadItem, IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
+        {
+            return new LibraryLoaderLoad<LibraryLoaderFileConverterPayload>(this.Id, LibraryLoadType.FileConverter,
+                                           new LibraryLoaderFileConverterPayload()
+                                           {
+                                               EncoderInfo = _destinationFormat,
+                                               FileIn = loadItem.FullPath,
+                                               FileOut = FileHelpers.ReplaceExtension(loadItem.FullPath, _destinationFormat.Extension),
+                                           });
+        }
+
+        protected override IEnumerable<ILibraryLoaderLoad> CreateWorkLoads(IEnumerable<FileTreeNodeViewModel> loadItems, IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
         {
             try
             {
@@ -36,53 +46,37 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Wo
 
                 _workItemDict.Clear();
 
-                var result = new List<LibraryLoaderLoad>();
+                var result = new List<ILibraryLoaderLoad>();
+                var counter = 0;
 
-                // Search for files that aren't the destination format (non-converted files)
-                var searchPatterns = audioConverter.GetSupportedFormats()
-                                                   .Where(x => x.Encoding != _destinationFormat.Encoding)
-                                                   .Select(x => "*" + x.Extension)
-                                                   .Distinct()
-                                                   .ToArray();
+                //// Search for files that aren't the destination format (non-converted files)
+                //var searchPatterns = audioConverter.GetSupportedFormats()
+                //                                   .Where(x => x.Encoding != _destinationFormat.Encoding)
+                //                                   .Select(x => "*" + x.Extension)
+                //                                   .Distinct()
+                //                                   .ToArray();
 
-                foreach (var libraryDirectory in configuration.LibraryDirectories.Union(new LibraryDirectory[]
+                foreach (var fileNode in loadItems)
                 {
-                        configuration.StagingFolder,
-                        configuration.DownloadFolder
-                }))
-                {
-                    // Read-only directories
-                    if (libraryDirectory.IsReadOnly)
-                        continue;
+                    progressHandler(loadItems.Count(), counter++, 0, 0, "Loading: " + fileNode.FullPath);
 
-                    using (var nativeIO = new FastDirectoryIO(libraryDirectory.Directory, SearchOption.AllDirectories, searchPatterns))
-                    {
-                        var audioFiles = nativeIO.GetFiles().Where(x => !x.IsDirectory).ToList();
-                        var counter = 0;
+                    // CORRUPT FILES! (This will go to file maintainence)
+                    //if (fileNode.Size <= 0)
+                    //    continue;
 
-                        foreach (var file in audioFiles)
-                        {
-                            progressHandler(audioFiles.Count, counter++, 0, 0, "Loading: " + file.FullPath);
+                    //// Already Added
+                    //if (_workItemDict.ContainsKey(fileNode.FullPath))
+                    //    continue;
 
-                            // CORRUPT FILES! (This will go to file maintainence)
-                            if (file.Size <= 0)
-                                continue;
+                    result.Add(new LibraryLoaderLoad<LibraryLoaderFileConverterPayload>(this.Id, LibraryLoadType.FileConverter,
+                               new LibraryLoaderFileConverterPayload()
+                               {
+                                   EncoderInfo = _destinationFormat,
+                                   FileIn = fileNode.FullPath,
+                                   FileOut = FileHelpers.ReplaceExtension(fileNode.FullPath, _destinationFormat.Extension),
+                               }));
 
-                            // Already Added
-                            if (_workItemDict.ContainsKey(file.FullPath))
-                                continue;
-
-                            result.Add(new LibraryLoaderLoad(LibraryLoadType.FileConverter,
-                                       new LibraryLoaderFileConverterLoad(this.Id, LibraryLoadType.FileConverter)
-                                       {
-                                           EncoderInfo = _destinationFormat,
-                                           FileIn = file.FullPath,
-                                           FileOut = FileHelpers.ReplaceExtension(file.FullPath, _destinationFormat.Extension),
-                                       }));
-
-                            _workItemDict.Add(file.FullPath, file.FullPath);
-                        }
-                    }
+                    _workItemDict.Add(fileNode.FullPath, fileNode.FullPath);
                 }
 
                 return result;
@@ -93,17 +87,17 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Wo
             }
         }
 
-        protected override LibraryLoaderLoadViewModel MapWorkLoad(LibraryLoaderLoad workLoad)
+        protected override LibraryLoaderLoadViewModel MapWorkLoad(ILibraryLoaderLoad workLoad)
         {
             throw new NotImplementedException();
         }
 
-        protected override LibraryLoaderOutputViewModel MapWorkOutput(LibraryLoaderOutput workOutput)
+        protected override LibraryLoaderOutputViewModel MapWorkOutput(ILibraryLoaderOutput workOutput)
         {
             throw new NotImplementedException();
         }
 
-        protected override LibraryLoaderLoad ResetWorkLoad(LibraryWorkItemViewModel workItem)
+        protected override ILibraryLoaderLoad ResetWorkLoad(LibraryWorkItemViewModel workItem)
         {
             throw new NotImplementedException();
         }

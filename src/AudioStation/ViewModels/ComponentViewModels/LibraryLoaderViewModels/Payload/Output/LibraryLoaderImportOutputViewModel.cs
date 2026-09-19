@@ -1,14 +1,14 @@
 ﻿using System.Collections.ObjectModel;
 
-using AudioStation.Core.Component.LibraryLoaderComponent.Output.Interface;
+using AudioStation.Core.Component.LibraryLoaderComponent.Payload.Output.Interface;
 using AudioStation.Core.Database.AudioStationDatabase.Interface;
 using AudioStation.Core.Model.Interface;
 
 using SimpleWpf.UI.ViewModel;
 
-namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Output
+namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Payload.Output
 {
-    public class LibraryLoaderImportOutputViewModel : ViewModelBase, ILibraryLoaderImportOutput
+    public class LibraryLoaderImportOutputViewModel : ViewModelBase, ILibraryLoaderImportOutputPayload
     {
         string _destinationFolderBase;
         string _destinationPathCalculated;
@@ -144,7 +144,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Ou
             set { this.RaiseAndSetIfChanged(ref _fileConversionSuccess, value); }
         }
 
-        IEnumerable<ILogMessage> ILibraryLoaderImportOutput.LogMessages
+        IEnumerable<ILogMessage> ILibraryLoaderImportOutputPayload.LogMessages
         {
             get { return _logMessages; }
             set
@@ -152,7 +152,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Ou
                 throw new NotSupportedException("Must not allow cast-setting of LogMessages collection");
             }
         }
-        IEnumerable<IAcoustIDLookupResult> ILibraryLoaderImportOutput.AcoustIDResults
+        IEnumerable<IAcoustIDLookupResult> ILibraryLoaderImportOutputPayload.AcoustIDResults
         {
             get { return _acoustIDResults; }
             set
@@ -160,7 +160,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Ou
                 throw new NotSupportedException("Must not allow cast-setting of AcoustIDResults collection");
             }
         }
-        IEnumerable<ITagSmall> ILibraryLoaderImportOutput.MusicBrainzRecordingMatches
+        IEnumerable<ITagSmall> ILibraryLoaderImportOutputPayload.MusicBrainzRecordingMatches
         {
             get { return _musicBrainzRecordingMatches; }
             set
