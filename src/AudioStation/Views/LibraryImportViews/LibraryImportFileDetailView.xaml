@@ -34,7 +34,7 @@
                                            Value="{Binding FileMigrationFullPath, TargetNullValue='(Tag must be completed before import)'}" ToolTip="{Binding FileMigrationFullPath}"
                                            DataContext="{Binding DataContext.Workflow.Configuration, RelativeSource={RelativeSource AncestorType=view:LibraryImportView}}"
                                            Visibility="{Binding ImportFileMigration, Converter={StaticResource BoolVisibilityCollapseConverter}}"
-                                           Foreground="{Binding MinimumImportValid, Converter={StaticResource ValidationForegroundParameterConverter}, ConverterParameter={StaticResource LabelForeground}}" />
+                                           Foreground="{Binding MinimumImportValid, Converter={StaticResource ValidationBoolForegroundParameterConverter}, ConverterParameter={StaticResource LabelForeground}}" />
 
         <!-- This will remind users that the option is turned on -->
         <propertyGrid:PropertyLabelControl LabelColumnWidth="140" LabelText="Migration Enabled"

@@ -14,7 +14,7 @@
 
         <TextBox Grid.Column="1" 
                  Style="{StaticResource PropertyGridTextBox}"
-                 BorderBrush="{Binding IsValid, Converter={StaticResource ValidationBrushConverter},ConverterParameter={StaticResource PropertyGridControlDefaultBorder},  RelativeSource={RelativeSource AncestorType=UserControl}}"
+                 BorderBrush="{Binding IsValid, Converter={StaticResource ValidationBoolForegroundParameterConverter},ConverterParameter={StaticResource PropertyGridControlDefaultBorder},  RelativeSource={RelativeSource AncestorType=UserControl}}"
                  Text="{Binding Value, RelativeSource={RelativeSource AncestorType=UserControl}, UpdateSourceTrigger=PropertyChanged}"
                  Margin="3"
                  TextWrapping="NoWrap"

@@ -10,21 +10,23 @@
 
     <!-- Local Converters -->
     <converter:AlternationIndexBackgroundConverter x:Key="AlternationIndexBackgroundConverter" />
-    <converter:StringArrayConverter x:Key="StringArrayConverter" />
-    <converter:MusicBrainzValidColorConverter x:Key="MusicBrainzValidColorConverter" />
     <converter:ArtworkFileConverter x:Key="ArtworkFileConverter" />
-    <converter:MusicBrainzConverter x:Key="MusicBrainzConverter" />
+    <converter:ConfirmationBoolForegroundParameterConverter x:Key="ConfirmationBoolForegroundParameterConverter" />
+    <converter:ConfirmationNullForegroundParameterConverter x:Key="ConfirmationNullForegroundParameterConverter" />
+    <converter:LibraryLoaderImportTagForegroundConverter x:Key="LibraryLoaderImportTagForegroundConverter" />
     <converter:MetaEntryConverter x:Key="MetaEntryConverter" />
-    <converter:TagIPictureConverter x:Key="TagIPictureConverter" />
+    <converter:MusicBrainzConverter x:Key="MusicBrainzConverter" />
+    <converter:MusicBrainzValidColorConverter x:Key="MusicBrainzValidColorConverter" />
+    <converter:NowPlayingBoolConverter x:Key="NowPlayingBoolConverter" />
+    <converter:NowPlayingPlaylistBoolConverter x:Key="NowPlayingPlaylistBoolConverter" />    
     <converter:PlayStopPauseParameterBoolConverter x:Key="PlayStopPauseParameterBoolConverter" />
     <converter:RatioParameterConverter x:Key="RatioParameterConverter" />
-    <converter:NowPlayingBoolConverter x:Key="NowPlayingBoolConverter" />
-    <converter:NowPlayingPlaylistBoolConverter x:Key="NowPlayingPlaylistBoolConverter" />
+    <converter:StringArrayConverter x:Key="StringArrayConverter" />
     <converter:StringLengthConverter x:Key="StringLengthConverter" />
-    <converter:ValidationBrushConverter x:Key="ValidationBrushConverter" />
-    <converter:ValidationForegroundParameterConverter x:Key="ValidationForegroundParameterConverter" />
-    <converter:ImportStepForegroundParameterConverter x:Key="ImportStepForegroundParameterConverter" />
-    <converter:LibraryLoaderImportTagForegroundConverter x:Key="LibraryLoaderImportTagForegroundConverter" />
+    <converter:TagIPictureConverter x:Key="TagIPictureConverter" />
+    <converter:ValidationBoolForegroundParameterConverter x:Key="ValidationBoolForegroundParameterConverter" />
+    <converter:ValidationNullForegroundParameterConverter x:Key="ValidationNullForegroundParameterConverter" />
+    
 
     <!-- SimpleWpf.UI Converters -->
     <simpleConverter:BoolInverseConverter x:Key="BoolInverseConverter" />

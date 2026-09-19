@@ -14,7 +14,7 @@
 				   Style="{StaticResource PropertyGridLargeLabel}" />
 
         <ItemsControl x:Name="EnumLB" Grid.Column="1"
-                      BorderBrush="{Binding IsValid, Converter={StaticResource ValidationBrushConverter}, ConverterParameter={StaticResource PropertyGridControlDefaultBorder}, RelativeSource={RelativeSource AncestorType=UserControl}}">
+                      BorderBrush="{Binding IsValid, Converter={StaticResource ValidationBoolForegroundParameterConverter}, ConverterParameter={StaticResource PropertyGridControlDefaultBorder}, RelativeSource={RelativeSource AncestorType=UserControl}}">
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
                     <Grid ToolTip="{Binding Description}">

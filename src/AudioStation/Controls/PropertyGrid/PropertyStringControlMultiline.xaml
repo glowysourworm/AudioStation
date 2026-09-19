@@ -18,7 +18,7 @@
 
         <TextBox Grid.Column="1" AcceptsReturn="True" MinHeight="160" 
                  Style="{StaticResource PropertyGridTextBox}"
-                 BorderBrush="{Binding IsValid, Converter={StaticResource ValidationBrushConverter}, ConverterParameter={StaticResource PropertyGridControlDefaultBorder}, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                 BorderBrush="{Binding IsValid, Converter={StaticResource ValidationBoolForegroundParameterConverter}, ConverterParameter={StaticResource PropertyGridControlDefaultBorder}, RelativeSource={RelativeSource AncestorType=UserControl}}"
                  VerticalContentAlignment="Top"
                  MaxLines="{Binding MaxLines, RelativeSource={RelativeSource AncestorType=UserControl}}" 
                  MaxLength="{Binding MaxLength, RelativeSource={RelativeSource AncestorType=UserControl}}"

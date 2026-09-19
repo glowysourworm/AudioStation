@@ -73,11 +73,7 @@
                                         Style="{StaticResource FontAwesomeIconManagerViewPager}"
                                         ToolTip="Tag data is required to complete the import">
                         <fa5:ImageAwesome.Foreground>
-                            <MultiBinding Converter="{StaticResource LibraryLoaderImportTagForegroundConverter}">
-                                <Binding Path="IsTagDirty" />
-                                <Binding Path="MinimumImportValid" />
-                                <Binding Path="InError" />
-                            </MultiBinding>
+                            <Binding Path="Tag.IsValid" Converter="{StaticResource ValidationBoolForegroundParameterConverter}" />
                         </fa5:ImageAwesome.Foreground>
                     </fa5:ImageAwesome>
 
@@ -85,15 +81,15 @@
                                       Margin="3"
                                       Style="{StaticResource FontAwesomeIconManagerViewPager}"
                                       ToolTip="AcoustID data may be downloaded prior to import; or after."
-                                      Foreground="{Binding ImportOutput.AcoustIDSuccess, 
-                                                           Converter={StaticResource ImportStepForegroundParameterConverter},
+                                      Foreground="{Binding SelectedAcoustIDResult, 
+                                                           Converter={StaticResource ConfirmationNullForegroundParameterConverter},
                                                            ConverterParameter={x:Static Brushes.DodgerBlue}}" />
                     <fa5:ImageAwesome Icon="Solid_Music" 
                                       Margin="3"
                                       ToolTip="Music Brainz data may be downloaded prior to import; or after."              
                                       Style="{StaticResource FontAwesomeIconManagerViewPager}"
-                                      Foreground="{Binding ImportOutput.MusicBrainzRecordingMatchSuccess, 
-                                                           Converter={StaticResource ImportStepForegroundParameterConverter},
+                                      Foreground="{Binding SelectedMusicBrainzRecordingMatch, 
+                                                           Converter={StaticResource ConfirmationNullForegroundParameterConverter},
                                                            ConverterParameter={x:Static Brushes.DodgerBlue}}" />
                 </StackPanel>
 

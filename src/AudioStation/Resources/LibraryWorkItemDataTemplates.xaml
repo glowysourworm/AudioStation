@@ -112,7 +112,7 @@
                            Converter={StaticResource ParameterVisibilityCollapsedConverter},
                            ConverterParameter={x:Static libraryComponent:LibraryWorkItemState.Error}}" />
 
-                <TextBlock Grid.Column="2" Margin="5 0 0 0" Text="{Binding DisplayName}" Style="{StaticResource LabelTextBlock}" />
+                <TextBlock Grid.Column="2" Margin="5 0 0 0" Text="{Binding Load.Payload}" Style="{StaticResource LabelTextBlock}" />
 
             </Grid>
         </Border>

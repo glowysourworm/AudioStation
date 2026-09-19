@@ -13,7 +13,7 @@
 				   Style="{StaticResource PropertyGridLabel}" />
 
         <xceed:TimeSpanUpDown Grid.Column="1" 
-                              BorderBrush="{Binding IsValid, Converter={StaticResource ValidationBrushConverter},ConverterParameter={StaticResource PropertyGridControlDefaultBorder},  RelativeSource={RelativeSource AncestorType=UserControl}}"
+                              BorderBrush="{Binding IsValid, Converter={StaticResource ValidationBoolForegroundParameterConverter},ConverterParameter={StaticResource PropertyGridControlDefaultBorder},  RelativeSource={RelativeSource AncestorType=UserControl}}"
 				              Value="{Binding Value, RelativeSource={RelativeSource AncestorType=UserControl}}" 
 				              IsReadOnly="{Binding IsReadOnly, RelativeSource={RelativeSource AncestorType=UserControl}}" />
     </Grid>

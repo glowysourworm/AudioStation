@@ -13,7 +13,7 @@
 				   Style="{StaticResource PropertyGridLabel}" />
 
         <xceed:DoubleUpDown Grid.Column="1" 
-                            BorderBrush="{Binding IsValid, Converter={StaticResource ValidationBrushConverter},ConverterParameter={StaticResource PropertyGridControlDefaultBorder},  RelativeSource={RelativeSource AncestorType=UserControl}}"
+                            BorderBrush="{Binding IsValid, Converter={StaticResource ValidationBoolForegroundParameterConverter},ConverterParameter={StaticResource PropertyGridControlDefaultBorder},  RelativeSource={RelativeSource AncestorType=UserControl}}"
                             Minimum="{Binding ValueMin, RelativeSource={RelativeSource AncestorType=UserControl}}"
                             Maximum="{Binding ValueMax, RelativeSource={RelativeSource AncestorType=UserControl}}"
                             Increment="{Binding ValueIncrement, RelativeSource={RelativeSource AncestorType=UserControl}}"

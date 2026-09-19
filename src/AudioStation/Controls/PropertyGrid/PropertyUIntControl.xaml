@@ -15,7 +15,7 @@
         <xceed:IntegerUpDown Grid.Column="1"
                              Minimum="{Binding ValueMin, RelativeSource={RelativeSource AncestorType=UserControl}}"
                              Maximum="{Binding ValueMax, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                             BorderBrush="{Binding IsValid, Converter={StaticResource ValidationBrushConverter},ConverterParameter={StaticResource PropertyGridControlDefaultBorder},  RelativeSource={RelativeSource AncestorType=UserControl}}"
+                             BorderBrush="{Binding IsValid, Converter={StaticResource ValidationBoolForegroundParameterConverter},ConverterParameter={StaticResource PropertyGridControlDefaultBorder},  RelativeSource={RelativeSource AncestorType=UserControl}}"
                              Style="{StaticResource PropertyGridIntegerUpDownControl}"
 				             IsReadOnly="{Binding IsReadOnly, RelativeSource={RelativeSource AncestorType=UserControl}}">
             <xceed:IntegerUpDown.Value>

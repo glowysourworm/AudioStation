@@ -209,6 +209,9 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
 
                 // -> Load
                 LoadPart(_configuration, _audioStationController, progressHandler);
+
+                // -> Execute
+                ExecuteWork(progressHandler);
             });
         }
         private void MoveToPreviousStep()
@@ -243,8 +246,8 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
             if (this.SelectedWorker is LibraryLoaderMusicBrainzBasicViewModel)
                 (this.SelectedWorker as LibraryLoaderMusicBrainzBasicViewModel).Load(_stagedFiles, configuration, audioStationController, progressHandler);
 
-            if (this.SelectedWorker is LibraryLoaderAcoustIDViewModel)
-                (this.SelectedWorker as LibraryLoaderAcoustIDViewModel).Load(_stagedFiles, configuration, audioStationController, progressHandler);
+            if (this.SelectedWorker is LibraryLoaderMusicBrainzAlbumArtViewModel)
+                (this.SelectedWorker as LibraryLoaderMusicBrainzAlbumArtViewModel).Load(_stagedFiles, configuration, audioStationController, progressHandler);
         }
 
         protected override void LoadWork(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
