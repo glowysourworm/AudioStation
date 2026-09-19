@@ -303,5 +303,33 @@ namespace AudioStation.ViewModels.TagViewModels
             this.IsValid = false;
             this.ValidationMessage = "Validation Not Checked!";
         }
+
+        public TagSmallEditViewModel(ITagSmall tagSmall)
+        {
+            this.AlbumArtist = tagSmall.AlbumArtist ?? string.Empty;
+            this.Album = tagSmall.Album ?? string.Empty;
+            this.Genre = tagSmall.Genre ?? string.Empty;
+            this.MediaFormat = tagSmall.MediaFormat ?? string.Empty;
+            this.MediaNumber = tagSmall.MediaNumber ?? 0;
+            this.MediaTotal = tagSmall.MediaTotal ?? 0;
+            this.Title = tagSmall.Title ?? string.Empty;
+            this.Track = tagSmall.TrackNumber ?? 0;
+            this.TrackTotal = tagSmall.TrackTotal ?? 0;
+            this.Year = tagSmall.Year ?? 0;
+        }
+
+        public TagSmallEditViewModel(ITagFull tagFull)
+        {
+            this.AlbumArtist = tagFull.AlbumArtist ?? string.Empty;
+            this.Album = tagFull.Album ?? string.Empty;
+            this.Genre = tagFull.Genre ?? string.Empty;
+            this.MediaFormat = tagFull.MediaFormat ?? string.Empty;
+            this.MediaNumber = tagFull.MediaNumber ?? 0;
+            this.MediaTotal = tagFull.MediaTotal ?? 0;
+            this.Title = tagFull.Title ?? string.Empty;
+            this.Track = tagFull.TrackNumber ?? 0;
+            this.TrackTotal = tagFull.TrackTotal ?? 0;
+            this.Year = tagFull.Year ?? 0;
+        }
     }
 }

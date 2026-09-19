@@ -90,20 +90,9 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Wo
                     // Use Existing AcoustID
                     else if (_workflowConfiguration?.AcoustIDSourcePreference == LibraryImportSource.File)
                     {
-                        var tagData = tagCache.Get(stagedFile.FullPath);
-
-                        // AcoustID Stored in Tag
-                        var acoustID = tagData.GetAcoustIDIdentifier();
-                        var musicBrainzTrackId = tagData.GetMusicBrainzTrackId();
-                        var musicBrainzReleaseTrackId = tagData.GetMusicBrainzReleaseTrackId();
-
-                        stagedFile.AcoustIDTag = acoustID;
-                        stagedFile.MusicBrainzTrackIDTag = musicBrainzTrackId;
-                        stagedFile.MusicBrainzReleaseTrackIDTag = musicBrainzReleaseTrackId;
-
-                        if (acoustID != null ||
-                            musicBrainzReleaseTrackId != null ||
-                            musicBrainzTrackId != null)
+                        if (stagedFile.AcoustIDTag != null ||
+                            stagedFile.MusicBrainzTrackIDTag != null ||
+                            stagedFile.MusicBrainzReleaseTrackIDTag != null)
                             continue;
                     }
 

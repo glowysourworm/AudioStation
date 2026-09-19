@@ -220,10 +220,10 @@ namespace AudioStation
             mapper.ConfigureMap<AudioStationTag, TagViewModel>()
                   .DeclareSourceInterface<IAudioStationTag>();
 
-            mapper.ConfigureMap<TagSmall, TagSmall>()
+            mapper.ConfigureMap<TagSmall, TagSmallViewModel>()
                   .DeclareSourceInterface<ITagSmall>();
 
-            mapper.ConfigureMap<TagSmallViewModel, TagSmallViewModel>()
+            mapper.ConfigureMap<TagSmallViewModel, TagSmall>()
                   .DeclareSourceInterface<ITagSmall>();
 
             mapper.ConfigureMap<TagViewModel, AudioStationTag>()

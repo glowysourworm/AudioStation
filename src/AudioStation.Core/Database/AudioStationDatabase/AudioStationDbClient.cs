@@ -572,6 +572,9 @@ namespace AudioStation.Core.Database.AudioStationDatabase
             else if (typeof(TEntity) == typeof(TagSmallVendorMap))
                 return context.TagSmallVendorMaps as DbSet<TEntity>;
 
+            else if (typeof(TEntity) == typeof(TagSmallFileReferenceMap))
+                return context.TagSmallFileReferenceMaps as DbSet<TEntity>;
+
             else if (typeof(TEntity) == typeof(Track))
                 return context.Tracks as DbSet<TEntity>;
 

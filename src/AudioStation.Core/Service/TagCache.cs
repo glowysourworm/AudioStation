@@ -103,7 +103,7 @@ namespace AudioStation.Core.Service
         {
             var fullTag = GetCopy(fileName);
 
-            return TagMapper.Shrink(fullTag);
+            return TagMapper.Map(fullTag);
         }
         public void Set(string fileName, bool fullTag = false)
         {
@@ -119,7 +119,7 @@ namespace AudioStation.Core.Service
             var tagFile = FromFileFull(fileName);
 
             // ITagFull -> ITagSmall
-            var tagFileSmall = TagMapper.Shrink(tagFile);
+            var tagFileSmall = TagMapper.Map(tagFile);
 
             _fullTags.Add(fileName, tagFile);
             _smallTags.Add(fileName, tagFileSmall);

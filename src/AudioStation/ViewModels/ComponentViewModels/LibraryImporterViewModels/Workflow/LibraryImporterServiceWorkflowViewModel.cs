@@ -180,7 +180,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
                 return false;
 
             else
-                return CanLoadWorker() && this.SelectedWorker != null && !this.SelectedWorker.Loaded;
+                return CanLoadWorker() && this.SelectedWorker != null && this.SelectedWorker.Complete;
         }
         private bool CanRerunSelectedWorkItems()
         {
@@ -204,8 +204,11 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
                 if (index == -1)
                     this.SelectedWorker = this.ServiceWorkers.First();
 
+                else if (index == this.ServiceWorkers.Count - 1)
+                    throw new Exception("Invalid worker index");
+
                 else
-                    this.SelectedWorker = this.ServiceWorkers[index];
+                    this.SelectedWorker = this.ServiceWorkers[index + 1];
 
                 // -> Load
                 LoadPart(_configuration, _audioStationController, progressHandler);

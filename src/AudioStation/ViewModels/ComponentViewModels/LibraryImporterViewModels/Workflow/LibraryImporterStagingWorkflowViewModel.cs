@@ -8,6 +8,7 @@ using AudioStation.Core.Model.Interface;
 using AudioStation.Core.Service.Interface;
 using AudioStation.Event;
 using AudioStation.Service.Interface;
+using AudioStation.ViewModels.TagViewModels;
 
 using SimpleWpf.Extensions.Collection;
 using SimpleWpf.Extensions.ObservableCollection;
@@ -21,6 +22,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
 {
     public class LibraryImporterStagingWorkflowViewModel : ComponentPartViewModelBase
     {
+        private IAudioStationMapper _audioStationMapper;
         private IAudioStationDbClient _audioStationDbClient;
         private ITagCache _tagCache;
 
@@ -138,6 +140,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
         protected override void LoadWork(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
         {
             _audioStationDbClient = audioStationController.ServiceController.GetDataService<IAudioStationDbClient>();
+            _audioStationMapper = IocContainer.Get<IAudioStationMapper>();
             _tagCache = audioStationController.ServiceController.GetCache<ITagCache>();
 
             var audioConverter = IocContainer.Get<IAudioConverter>();
@@ -180,6 +183,20 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
             // Library Files
             var libraryFiles = _audioStationDbClient.GetEntities<FileReference>().ToDictionary(x => x.FileName);
 
+            // Tag Records (linked to FileReference)
+            var tagFileMaps = _audioStationDbClient.GetEntities<TagSmallFileReferenceMap>().ToDictionary(x => x.FileReference.FileName);
+
+            // AcoustID Results
+            var acoustIDResults = _audioStationDbClient.GetEntities<AcoustIDLookupResult>()
+                                                       .GroupBy(x => x.FileName)
+                                                       .ToDictionary(x => x.Key, x => x.ToList());
+
+            // Music Brainz (basic) (TagSmallVendorMap)
+            var musicBrainzResults = _audioStationDbClient.GetEntities<TagSmallVendorMap>()
+                                                          .Where(x => x.MusicBrainzRecordingId != null)
+                                                          .GroupBy(x => x.MusicBrainzRecordingId)
+                                                          .ToDictionary(x => x.Key, x => x.ToList());
+
             var selectedFileCount = this.ImportDirectory.GetSelectedFileCount();
             var counter = 0;
 
@@ -201,8 +218,29 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
 
                     var stagedFile = new LibraryImporterFileViewModel(subNode.FullPath, subNode.BaseDirectory, _workflowConfiguration);
 
-                    //stagedFile.TagClean = _tagCache.Get(subNode.FullPath);
-                    //stagedFile.TagDirty = _tagCache.GetCopy(node.FullPath);
+                    // Tag
+                    var tagData = _tagCache.Get(stagedFile.FullPath);
+
+                    // (AcoustID / Music Brainz) Stored in Tag
+                    stagedFile.AcoustIDTag = tagData.GetAcoustIDIdentifier();
+                    stagedFile.MusicBrainzTrackIDTag = tagData.GetMusicBrainzTrackId();
+                    stagedFile.MusicBrainzReleaseTrackIDTag = tagData.GetMusicBrainzReleaseTrackId();
+
+                    // Tag (Record)
+                    if (tagFileMaps.ContainsKey(stagedFile.FullPath))
+                        stagedFile.TagRecord = _audioStationMapper.Map<TagSmall, TagSmallViewModel>(tagFileMaps[stagedFile.FullPath].TagSmall);
+
+                    // Tag (Edit)
+                    stagedFile.Tag = new TagSmallEditViewModel(tagData);
+
+                    // AcoustID Result
+                    if (acoustIDResults.ContainsKey(stagedFile.FullPath))
+                        stagedFile.SelectedAcoustIDResult = acoustIDResults[stagedFile.FullPath].First();
+
+                    // Music Brainz (basic)
+                    if (stagedFile.SelectedAcoustIDResult != null &&
+                        musicBrainzResults.ContainsKey(stagedFile.SelectedAcoustIDResult.MusicBrainzRecordingId))
+                        stagedFile.SelectedMusicBrainzRecordingMatch = musicBrainzResults[stagedFile.SelectedAcoustIDResult.MusicBrainzRecordingId].First().TagSmall;
 
                     // Check For Library Conflict
                     //

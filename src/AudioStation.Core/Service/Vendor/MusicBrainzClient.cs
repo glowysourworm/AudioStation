@@ -435,7 +435,7 @@ namespace AudioStation.Core.Service.Vendor
 
             // -> Map
             if (result != null)
-                tagSmall = TagMapper.MapTo(result, VendorNames.MusicBrainz, serviceModel.MusicBrainzRecordingId);
+                tagSmall = TagMapper.Map(result);
             else
                 tagSmall = null;
 

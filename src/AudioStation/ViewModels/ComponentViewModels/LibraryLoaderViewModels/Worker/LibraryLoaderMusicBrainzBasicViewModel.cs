@@ -35,6 +35,10 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Wo
 
                 foreach (var entity in loadItems)
                 {
+                    // No AcoustID Result!
+                    if (entity.SelectedAcoustIDResult == null)
+                        continue;
+
                     progressHandler(loadItems.Count(), counter++, 0, 0, "Loading: Music Brainz Id=" + entity.SelectedAcoustIDResult.MusicBrainzRecordingId);
 
                     result.Add(new LibraryLoaderLoad<IEnumerable<IAcoustIDLookupResult>>(this.Id, LibraryLoadType.MusicBrainzBasic, new IAcoustIDLookupResult[] { entity.SelectedAcoustIDResult }));
