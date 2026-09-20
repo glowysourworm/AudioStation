@@ -10,6 +10,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent
         T _payload;
 
         public int OwnerId { get; private set; }
+        public string DisplayName { get; set; }
         public LibraryLoadType LoadType { get; private set; }
         public T Payload { get { return _payload; } }
         object ILibraryLoaderLoad.Payload { get { return _payload; } }
@@ -17,11 +18,12 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent
         /// <summary>
         /// Loads the loader with the load specification.
         /// </summary>
-        public LibraryLoaderLoad(int ownerId, LibraryLoadType loadType, T payload)
+        public LibraryLoaderLoad(int ownerId, LibraryLoadType loadType, string displayName, T payload)
         {
             _payload = payload;
 
             this.OwnerId = ownerId;
+            this.DisplayName = displayName;
             this.LoadType = loadType;
         }
     }

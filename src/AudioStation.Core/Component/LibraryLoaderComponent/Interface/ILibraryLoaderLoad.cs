@@ -8,6 +8,11 @@
         int OwnerId { get; }
 
         /// <summary>
+        /// User friendly display name for the ILibraryLoaderLoad
+        /// </summary>
+        string DisplayName { get; }
+
+        /// <summary>
         /// Type of load to be instantiated and processed by the ILibraryLoader
         /// </summary>
         LibraryLoadType LoadType { get; }

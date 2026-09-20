@@ -259,7 +259,24 @@ namespace AudioStation.Core.Service.Vendor
             var artist = recording.ArtistCredit?.FirstOrDefault();
             var artistName = artist?.Name ?? artist?.Artist?.Name ?? string.Empty;
 
-            return new TagFull();
+            return new TagFull()
+            {
+                Album = recordingRelease?.Title,
+                AlbumArtist = artistName,
+                Artist = artistName,
+                Comment = null,
+                Copyright = null,
+                DurationMilliseconds = (int)(recording?.Length?.TotalMilliseconds ?? 0),
+                Genre = recordingRelease?.Genres?.FirstOrDefault()?.Name,
+                MediaFormat = media?.Format,
+                MediaNumber = media?.Position,
+                MediaTotal = release.Media.Count,
+                Publisher = release.LabelInfo.FirstOrDefault()?.Label?.Name,
+                Title = recording?.Title,
+                TrackNumber = track?.Position,
+                TrackTotal = media?.TrackCount,
+                Year = release.Date?.Year
+            };
             //return new AudioStationTag()
             //{
             //    Album = release?.Title ?? string.Empty,

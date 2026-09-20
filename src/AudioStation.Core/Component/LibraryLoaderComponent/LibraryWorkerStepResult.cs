@@ -10,14 +10,17 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent
         [Display(Name = "No Result (service)", Description = "Library worker service call yielded no result(s)")]
         ServiceNoResult = 1,
 
+        [Display(Name = "Data Warning", Description = "Library worker step had data warning(s) that won't affect application processing. Typically these are related to data validation.")]
+        DataWarning = 2,
+
         [Display(Name = "Data Error", Description = "Library worker step had data error(s) that won't affect application processing")]
-        DataError = 2,
+        DataError = 3,
 
         [Display(Name = "Failure (service)", Description = "Library worker service call failed")]
-        ServiceFailure = 3,
+        ServiceFailure = 4,
 
         [Display(Name = "Failure", Description = "Library worker step had error(s)")]
-        Failure = 4,
+        Failure = 5
     }
 
     public class LibraryWorkerStepResult

@@ -36,7 +36,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Wo
 
         protected override ILibraryLoaderLoad CreateWorkLoad(LibraryImporterFileViewModel loadItem, IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
         {
-            return new LibraryLoaderLoad<LibraryLoaderImportPayload>(this.Id, LibraryLoadType.Import, new LibraryLoaderImportPayload()
+            return new LibraryLoaderLoad<LibraryLoaderImportPayload>(this.Id, LibraryLoadType.Import, loadItem.FullPath, new LibraryLoaderImportPayload()
             {
                 TagSmallId = loadItem.TagRecord.Id,
 
@@ -132,7 +132,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Wo
             // These share a common interface
             var inputPayload = _audioStationMapper.Map<LibraryLoaderImportInputViewModel, LibraryLoaderImportPayload>(inputPayloadViewModel);
 
-            return new LibraryLoaderLoad<LibraryLoaderImportPayload>(this.Id, workItem.LoadType, inputPayload);
+            return new LibraryLoaderLoad<LibraryLoaderImportPayload>(this.Id, workItem.LoadType, workItem.Load.DisplayName, inputPayload);
         }
     }
 }

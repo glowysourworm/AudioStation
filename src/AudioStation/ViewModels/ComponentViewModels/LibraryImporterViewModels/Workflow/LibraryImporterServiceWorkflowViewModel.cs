@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using System.ComponentModel;
 
 using AudioStation.Controller.Interface;
 using AudioStation.Core.Component;
@@ -210,11 +211,15 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
                 else
                     this.SelectedWorker = this.ServiceWorkers[index + 1];
 
-                // -> Load
-                LoadPart(_configuration, _audioStationController, progressHandler);
+                if (this.SelectedWorker != null)
+                {
+                    // -> Load
+                    LoadPart(_configuration, _audioStationController, progressHandler);
 
-                // -> Execute
-                ExecuteWork(progressHandler);
+                    // -> Execute (if there are any work loads)
+                    if (this.SelectedWorker.CanExecute())
+                        ExecuteWork(progressHandler);
+                }
             });
         }
         private void MoveToPreviousStep()
@@ -278,6 +283,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
                 worker.StatusChangeEvent += OnWorkerStatusChangeEvent;
                 worker.WorkItemChangedEvent += OnWorkerItemChangedEvent;
                 worker.WorkItemUIChangedEvent += OnWorkerItemChangedEvent;
+                worker.PropertyChanged += OnWorkerPropertyChanged;
             }
         }
 
@@ -312,8 +318,16 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
             if (this.WorkItemChangedEvent != null)
                 this.WorkItemChangedEvent(worker, workItem);
         }
+        private void OnWorkerPropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            UpdateCommands();
+        }
         private void UpdateCommands()
         {
+            // LibraryLoaderState (each worker is a listener!)
+            if (this.SelectedWorker != null)
+                this.LibraryLoaderState = this.SelectedWorker.LibraryLoaderState;
+
             // Constructor sets properties
             if (this.MoveToNextStepCommand != null &&
                 this.MoveToPreviousStepCommand != null &&

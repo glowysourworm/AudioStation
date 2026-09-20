@@ -1,10 +1,12 @@
-﻿using AudioStation.Core.Component;
+﻿using System.ComponentModel;
+
+using AudioStation.Core.Component;
 
 using SimpleWpf.Extensions.Event;
 
 namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Interface
 {
-    public interface ILibraryLoaderWorkerViewModel
+    public interface ILibraryLoaderWorkerViewModel : INotifyPropertyChanged
     {
         /// <summary>
         /// Executes when the library loader worker has changed status

@@ -90,13 +90,11 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Wo
                     // Use Existing AcoustID
                     else if (_workflowConfiguration?.AcoustIDSourcePreference == LibraryImportSource.File)
                     {
-                        if (stagedFile.AcoustIDTag != null ||
-                            stagedFile.MusicBrainzTrackIDTag != null ||
-                            stagedFile.MusicBrainzReleaseTrackIDTag != null)
+                        if (stagedFile.AcoustIDTag != null)
                             continue;
                     }
 
-                    result.Add(new LibraryLoaderLoad<LibraryLoaderFilePayload>(this.Id, LibraryLoadType.AcoustID,
+                    result.Add(new LibraryLoaderLoad<LibraryLoaderFilePayload>(this.Id, LibraryLoadType.AcoustID, stagedFile.FullPath,
                                new LibraryLoaderFilePayload(stagedFile.FullPath)));
                 }
 
@@ -140,7 +138,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Wo
 
         protected override ILibraryLoaderLoad ResetWorkLoad(LibraryWorkItemViewModel workItem)
         {
-            return new LibraryLoaderLoad<LibraryLoaderFilePayload>(this.Id, workItem.LoadType,
+            return new LibraryLoaderLoad<LibraryLoaderFilePayload>(this.Id, workItem.LoadType, workItem.Load.DisplayName,
                    new LibraryLoaderFilePayload((workItem.Load.Payload as LibraryLoaderFileLoadViewModel).FullPath));
         }
 

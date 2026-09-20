@@ -57,6 +57,9 @@
                 case LibraryWorkerResultLevel.Failure:
                     return false;
 
+                case LibraryWorkerResultLevel.DataWarning:
+                    return result.Completed;
+
                 case LibraryWorkerResultLevel.DataError:
                     return result.Completed;
 

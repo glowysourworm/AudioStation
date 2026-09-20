@@ -29,7 +29,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Wo
 
         protected override ILibraryLoaderLoad CreateWorkLoad(FileTreeNodeViewModel loadItem, IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
         {
-            return new LibraryLoaderLoad<LibraryLoaderFileConverterPayload>(this.Id, LibraryLoadType.FileConverter,
+            return new LibraryLoaderLoad<LibraryLoaderFileConverterPayload>(this.Id, LibraryLoadType.FileConverter, loadItem.FullPath,
                                            new LibraryLoaderFileConverterPayload()
                                            {
                                                EncoderInfo = _destinationFormat,
@@ -68,7 +68,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Wo
                     //if (_workItemDict.ContainsKey(fileNode.FullPath))
                     //    continue;
 
-                    result.Add(new LibraryLoaderLoad<LibraryLoaderFileConverterPayload>(this.Id, LibraryLoadType.FileConverter,
+                    result.Add(new LibraryLoaderLoad<LibraryLoaderFileConverterPayload>(this.Id, LibraryLoadType.FileConverter, fileNode.FullPath,
                                new LibraryLoaderFileConverterPayload()
                                {
                                    EncoderInfo = _destinationFormat,

@@ -121,7 +121,12 @@ namespace AudioStation.Core.Component
                 var sourcePropertyType = sourceProperty.PropertyType;
                 var destPropertyType = destinationProperty.PropertyType;
 
+                var sourceUnderlyingPropertyType = Nullable.GetUnderlyingType(sourcePropertyType);
+                var destUnderlyingPropertyType = Nullable.GetUnderlyingType(destPropertyType);
+
                 bool misMatch = sourcePropertyType != destPropertyType;
+                bool isNullable = sourceUnderlyingPropertyType != null;
+                bool isNullableValueType = isNullable ? IsPrimitive(sourceUnderlyingPropertyType) : false;
 
                 bool isReferenceType = !IsPrimitive(sourcePropertyType);
                 bool isSourceCollection = IsCollection(sourcePropertyType);
@@ -139,7 +144,7 @@ namespace AudioStation.Core.Component
                 }
 
                 // Mismatch (any reference type)
-                if (misMatch && isReferenceType)
+                if (misMatch && isReferenceType && !isNullableValueType)
                 {
                     var propertyMapper = GetMapperConfiguration(sourcePropertyType, destPropertyType, false);
 
@@ -169,7 +174,7 @@ namespace AudioStation.Core.Component
 
                 // Complex Type
                 //
-                else if (isReferenceType)
+                else if (isReferenceType && !isNullableValueType)
                 {
                     // Source Null
                     if (ReferenceEquals(sourcePropertyValue, null))
@@ -189,7 +194,21 @@ namespace AudioStation.Core.Component
 
                 // Primitive
                 else
-                    destinationProperty.SetValue(destination, sourcePropertyValue);
+                {
+                    // Nullable (get source value from special Nullable method)
+                    if (isNullableValueType)
+                    {
+                        if (sourcePropertyValue == null)
+                            destinationProperty.SetValue(destination, null);
+
+                        // NOTE: May need to get the underlying value from the nullable here
+                        else
+                            destinationProperty.SetValue(destination, sourcePropertyValue);
+                    }
+                    else
+                        destinationProperty.SetValue(destination, sourcePropertyValue);
+                }
+
             }
         }
 

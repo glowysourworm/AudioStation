@@ -80,26 +80,31 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
                         var result = (response.Payload as TagSmallPayload).Data;
                         var validation = TagValidator.ValidateTagSmallImport(result);
 
-                        if (response.Success && validation.IsValid)
+                        if (response.Success)
                         {
+                            if (validation.IsValid)
+                            {
+                                Log("Music Brainz client lookup finished (valid):  " + entity.FileName);
+                            }
+                            else
+                            {
+                                Log("Music Brainz client lookup finished (invalid):  " + entity.FileName);
+                                Log("VALIDATION:  " + validation.ValidationMessage);
+                            }
+
+                            // Keep (valid / invalid) Tag
                             var tagSmall = _audioStationMapper.Map<ITagSmall, TagSmall>(result);
 
+                            // This may be used in the workflow; but will not be
+                            // backed up in the database
                             this.Output.Payload.Add(tagSmall);
-
-                            Log("Music Brainz client lookup finished (valid):  " + entity.FileName);
-                        }
-
-                        else if (!validation.IsValid)
-                        {
-                            Log("Music Brainz client lookup skipped (invalid):  " + entity.FileName);
-                            Log("Validation Message:  " + validation.ValidationMessage);
 
                             return new LibraryWorkerStepResult()
                             {
-                                Completed = false,
+                                Completed = validation.IsValid,
                                 Message = "Music Brainz lookup invalid: " + validation.ValidationMessage,
                                 StepNumber = stepNumber,
-                                Result = LibraryWorkerResultLevel.DataError
+                                Result = validation.IsValid ? LibraryWorkerResultLevel.Success : LibraryWorkerResultLevel.DataWarning
                             };
                         }
 

@@ -12,7 +12,7 @@
                 <propertyGrid:PropertyLabelControl LabelColumnWidth="160" Grid.Row="1"
                                            LabelText="Name"
                                            Style="{StaticResource PropertyGridUserControl}"
-                                           Value="{Binding Load.DisplayText}" />
+                                           Value="{Binding Load}" />
 
                 <propertyGrid:PropertyLabelControl LabelColumnWidth="160" Grid.Row="2"                                
                                            LabelText="Status"
@@ -22,14 +22,14 @@
                 <propertyGrid:PropertyLabelControl LabelColumnWidth="160" Grid.Row="3"                                
                                            LabelText="Last Message"
                                            Style="{StaticResource PropertyGridUserControl}"
-                                           Value="{Binding LogMessages, 
+                                           Value="{Binding LogMessages, Mode=OneWay, 
                                            Converter={StaticResource CollectionLastElementConverter},
                                            ConverterParameter='Message'}" />
 
                 <propertyGrid:PropertyLabelControl LabelColumnWidth="160" Grid.Row="4"                                
                                            LabelText="Last Result"
                                            Style="{StaticResource PropertyGridUserControl}"
-                                           Value="{Binding WorkSteps, 
+                                           Value="{Binding WorkSteps, Mode=OneWay,
                                            Converter={StaticResource CollectionLastElementConverter},
                                            ConverterParameter='Result'}" />
             </Grid>

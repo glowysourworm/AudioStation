@@ -23,7 +23,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Wo
         protected override ILibraryLoaderLoad CreateWorkLoad(LibraryImporterFileViewModel loadItem, IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
         {
 
-            return new LibraryLoaderLoad<IEnumerable<IAcoustIDLookupResult>>(this.Id, LibraryLoadType.MusicBrainzBasic, new IAcoustIDLookupResult[] { loadItem.SelectedAcoustIDResult });
+            return new LibraryLoaderLoad<IEnumerable<IAcoustIDLookupResult>>(this.Id, LibraryLoadType.MusicBrainzBasic, loadItem.DisplayName, new IAcoustIDLookupResult[] { loadItem.SelectedAcoustIDResult });
         }
 
         protected override IEnumerable<ILibraryLoaderLoad> CreateWorkLoads(IEnumerable<LibraryImporterFileViewModel> loadItems, IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
@@ -41,7 +41,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Wo
 
                     progressHandler(loadItems.Count(), counter++, 0, 0, "Loading: Music Brainz Id=" + entity.SelectedAcoustIDResult.MusicBrainzRecordingId);
 
-                    result.Add(new LibraryLoaderLoad<IEnumerable<IAcoustIDLookupResult>>(this.Id, LibraryLoadType.MusicBrainzBasic, new IAcoustIDLookupResult[] { entity.SelectedAcoustIDResult }));
+                    result.Add(new LibraryLoaderLoad<IEnumerable<IAcoustIDLookupResult>>(this.Id, LibraryLoadType.MusicBrainzBasic, entity.DisplayName, new IAcoustIDLookupResult[] { entity.SelectedAcoustIDResult }));
                 }
 
                 return result;
@@ -54,15 +54,27 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Wo
 
         protected override LibraryLoaderLoadViewModel MapWorkLoad(ILibraryLoaderLoad workLoad)
         {
-            throw new NotImplementedException();
+            return new LibraryLoaderLoadViewModel()
+            {
+                Payload = workLoad.Payload,
+                LoadType = workLoad.LoadType,
+                OwnerId = workLoad.OwnerId
+            };
         }
         protected override LibraryLoaderOutputViewModel MapWorkOutput(ILibraryLoaderOutput workOutput)
         {
-            throw new NotImplementedException();
+            return new LibraryLoaderOutputViewModel()
+            {
+                Payload = workOutput.Payload
+            };
         }
         protected override ILibraryLoaderLoad ResetWorkLoad(LibraryWorkItemViewModel workItem)
         {
-            throw new NotImplementedException();
+            return new LibraryLoaderLoad<IEnumerable<IAcoustIDLookupResult>>(
+                workItem.Load.OwnerId,
+                workItem.Load.LoadType,
+                workItem.Load.DisplayName,
+                workItem.Load.Payload as IEnumerable<IAcoustIDLookupResult>);
         }
     }
 }

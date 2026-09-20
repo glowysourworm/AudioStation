@@ -27,7 +27,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Wo
             var vendorMap = audioStationDbClient.FirstEntity<TagSmallVendorMap>(x => x.TagSmallId == loadItem.SelectedMusicBrainzRecordingMatch.Id);
 
             if (vendorMap != null)
-                return new LibraryLoaderLoad<TagSmallVendorMap>(this.Id, LibraryLoadType.MusicBrainzAlbumArt, vendorMap);
+                return new LibraryLoaderLoad<TagSmallVendorMap>(this.Id, LibraryLoadType.MusicBrainzAlbumArt, loadItem.DisplayName, vendorMap);
 
             else
                 throw new Exception("Invalid Music Brainz Album Art Input:  Missing valid TagSmallVendorMap");
@@ -47,7 +47,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Wo
                     var vendorMap = audioStationDbClient.FirstEntity<TagSmallVendorMap>(x => x.TagSmallId == map.SelectedMusicBrainzRecordingMatch.Id);
 
                     if (vendorMap != null)
-                        result.Add(new LibraryLoaderLoad<TagSmallVendorMap>(this.Id, LibraryLoadType.MusicBrainzAlbumArt, vendorMap));
+                        result.Add(new LibraryLoaderLoad<TagSmallVendorMap>(this.Id, LibraryLoadType.MusicBrainzAlbumArt, map.DisplayName, vendorMap));
 
                     else
                         throw new Exception("Invalid Music Brainz Album Art Input:  Missing valid TagSmallVendorMap");
