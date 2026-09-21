@@ -12,6 +12,7 @@
     <converter:AlternationIndexBackgroundConverter x:Key="AlternationIndexBackgroundConverter" />
     <converter:ArtworkFileConverter x:Key="ArtworkFileConverter" />
     <converter:ConfirmationBoolForegroundParameterConverter x:Key="ConfirmationBoolForegroundParameterConverter" />
+    <converter:ConfirmationCollectionNonEmptyForegroundParameterConverter x:Key="ConfirmationCollectionNonEmptyForegroundParameterConverter" />
     <converter:ConfirmationNullForegroundParameterConverter x:Key="ConfirmationNullForegroundParameterConverter" />
     <converter:LibraryLoaderImportTagForegroundConverter x:Key="LibraryLoaderImportTagForegroundConverter" />
     <converter:MetaEntryConverter x:Key="MetaEntryConverter" />
@@ -44,6 +45,7 @@
     <simpleConverter:NonNullBoolConverter x:Key="NonNullBoolConverter" />
     <simpleConverter:NullBoolConverter x:Key="NullBoolConverter" />
     <simpleConverter:ParameterEqualityBoolConverter x:Key="ParameterEqualityBoolConverter" />
+    <simpleConverter:ParameterEqualityInverseBoolConverter x:Key="ParameterEqualityInverseBoolConverter" />
     <simpleConverter:ParameterProviderBoolConverter x:Key="ParameterProviderBoolConverter" />
     <simpleConverter:ParameterProviderBoolInverseConverter x:Key="ParameterProviderBoolInverseConverter" />
     <simpleConverter:ParameterVisibilityCollapsedConverter x:Key="ParameterVisibilityCollapsedConverter" />

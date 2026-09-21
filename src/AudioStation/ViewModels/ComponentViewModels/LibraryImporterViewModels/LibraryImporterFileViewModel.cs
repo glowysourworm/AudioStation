@@ -1,11 +1,13 @@
 ﻿using System.ComponentModel;
 
+using AudioStation.Controller.Interface;
 using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Database.AudioStationDatabase.Interface;
 using AudioStation.Core.Model;
 using AudioStation.Core.Model.Interface;
 using AudioStation.Core.Model.Vendor.ATLExtension.Interface;
 using AudioStation.Core.Utility;
+using AudioStation.Event;
 using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Payload.Input;
 using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Payload.Output;
 using AudioStation.ViewModels.MainViewModels;
@@ -65,6 +67,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels
         Guid? _musicBrainzTrackIDTag;
         Guid? _musicBrainzReleaseTrackIDTag;
 
+        SimpleCommand _selectTagSourceCommand;
         SimpleCommand _selectMusicBrainzCommand;
         SimpleCommand _selectAcoustIDCommand;
         SimpleCommand _playAudioCommand;
@@ -143,6 +146,12 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels
             set { this.RaiseAndSetIfChanged(ref _musicBrainzReleaseTrackIDTag, value); }
         }
 
+
+        public SimpleCommand SelectTagSourceCommand
+        {
+            get { return _selectTagSourceCommand; }
+            set { this.RaiseAndSetIfChanged(ref _selectTagSourceCommand, value); }
+        }
         public SimpleCommand SelectMusicBrainzCommand
         {
             get { return _selectMusicBrainzCommand; }
@@ -185,6 +194,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels
             : base(fileBaseDirectory, fileFullPath, 0)
         {
             var audioStationMapper = IocContainer.Get<IAudioStationMapper>();
+            var dialogController = IocContainer.Get<IDialogController>();
 
             _updating = false;
 
@@ -227,6 +237,10 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels
             this.TagRecord = new TagSmallViewModel();
             this.ImportOutput = new LibraryLoaderImportOutputViewModel();
 
+            this.SelectTagSourceCommand = new SimpleCommand(() =>
+            {
+                dialogController.ShowDialogWindowSync(DialogEventData.ShowDialogEditor("Tag Source(s)", DialogEditorView.TagSourceView, this));
+            });
             this.SelectAcoustIDCommand = new SimpleCommand(() =>
             {
                 if (this.SelectAcoustIDEvent != null)

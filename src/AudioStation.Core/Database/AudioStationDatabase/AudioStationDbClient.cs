@@ -463,6 +463,22 @@ namespace AudioStation.Core.Database.AudioStationDatabase
             }
         }
 
+        public IEnumerable<TView> GetViewEntities<TView>() where TView : AudioStationViewEntityBase
+        {
+            try
+            {
+                using (var context = CreateContext())
+                {
+                    return GetViewEntitySet<TView>(context).ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                ApplicationHelpers.Log("Error retrieving data page:  " + ex.Message, LogMessageDbType.AudioStation, LogLevel.Error, ex);
+                throw ex;
+            }
+        }
+
         public TEntity? GetEntity<TEntity>(int id) where TEntity : AudioStationEntityBase
         {
             try
@@ -532,6 +548,15 @@ namespace AudioStation.Core.Database.AudioStationDatabase
                 ApplicationHelpers.Log("Error saving entity data:  " + ex.Message, LogMessageDbType.AudioStation, LogLevel.Error, ex);
                 throw ex;
             }
+        }
+
+        private DbSet<TView> GetViewEntitySet<TView>(AudioStationDbContext context) where TView : AudioStationViewEntityBase
+        {
+            if (typeof(TView) == typeof(MusicBrainzAcoustIDResult))
+                return context.MusicBrainzAcoustIDResults as DbSet<TView>;
+
+            else
+                throw new Exception("Unhandled entity type:  AudioStationDbClient.GetViewEntitySet");
         }
 
         // The Set<> method has postgres / EF / npgsql issues. Probably related to configuration; but I'm running out of

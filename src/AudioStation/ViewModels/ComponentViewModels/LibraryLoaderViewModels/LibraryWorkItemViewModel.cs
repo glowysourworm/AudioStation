@@ -10,6 +10,8 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels
     public class LibraryWorkItemViewModel : ViewModelBase
     {
         int _id;
+        string _lastMessage;
+        LibraryWorkerResultLevel _errorLevel;
         LibraryLoaderLoadViewModel _load;
         LibraryLoaderOutputViewModel _output;
         LibraryLoadType _loadType;
@@ -52,6 +54,16 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels
         {
             get { return _logMessages; }
             set { this.RaiseAndSetIfChanged(ref _logMessages, value); }
+        }
+        public string LastMessage
+        {
+            get { return _lastMessage; }
+            set { this.RaiseAndSetIfChanged(ref _lastMessage, value); }
+        }
+        public LibraryWorkerResultLevel ErrorLevel
+        {
+            get { return _errorLevel; }
+            set { this.RaiseAndSetIfChanged(ref _errorLevel, value); }
         }
         public double Progress
         {

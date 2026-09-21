@@ -76,7 +76,13 @@ namespace AudioStation.Views.LibraryImportViews
 
             // Scroll the item into view
             this.LoaderWorkItemsLB.ScrollIntoView(item);
-            this.LoaderWorkItemsLB.SelectedItem = item;
+
+            // An exception occurs when the dialog window is open. There may be a way around the exception; but
+            // it doesn't yet make sense.. something to do with other data binding to the work items
+            if (!_dialogController.IsShowing())
+            {
+                this.LoaderWorkItemsLB.SelectedItem = item;
+            }
         }
         private void ServiceWorkflow_StatusChangeEvent(ILibraryLoaderWorkerViewModel sender, bool isWorking)
         {

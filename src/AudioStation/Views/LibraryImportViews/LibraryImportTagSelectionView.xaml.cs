@@ -14,11 +14,11 @@ using System.Windows.Shapes;
 namespace AudioStation.Views.LibraryImportViews
 {
     /// <summary>
-    /// Interaction logic for LibraryImportTagControlPanel.xaml
+    /// Interaction logic for LibraryImportTagSelectionView.xaml
     /// </summary>
-    public partial class LibraryImportTagControlPanel : UserControl
+    public partial class LibraryImportTagSelectionView : UserControl
     {
-        public LibraryImportTagControlPanel()
+        public LibraryImportTagSelectionView()
         {
             InitializeComponent();
         }

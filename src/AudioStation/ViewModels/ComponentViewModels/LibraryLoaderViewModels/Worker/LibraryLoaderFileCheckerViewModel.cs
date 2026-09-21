@@ -60,5 +60,9 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Wo
         {
             throw new NotImplementedException();
         }
+        protected override void CompleteWorkItem(LibraryWorkItemViewModel workItem)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -6,6 +6,8 @@ namespace AudioStation.Controller.Interface
 {
     public interface IDialogController : IDisposable
     {
+        bool IsShowing();
+
         string ShowSelectFile();
         string ShowSelectFolder();
         string ShowSaveFile();

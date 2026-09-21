@@ -24,6 +24,7 @@ namespace AudioStation.Core.Database.AudioStationDatabase
         public DbSet<FileReference> FileReferences { get; set; }
         public DbSet<Genre> Genres { get; set; }
         public DbSet<M3UStream> M3UStreams { get; set; }
+        public DbSet<MusicBrainzAcoustIDResult> MusicBrainzAcoustIDResults { get; set; }
         public DbSet<RadioBrowserStation> RadioBrowserStations { get; set; }
         public DbSet<TagSmall> TagSmalls { get; set; }
         public DbSet<TagSmallFileReferenceMap> TagSmallFileReferenceMaps { get; set; }
@@ -68,6 +69,8 @@ namespace AudioStation.Core.Database.AudioStationDatabase
             modelBuilder.Entity<AlbumFileReferenceMap>().Navigation(x => x.Album).AutoInclude(true);
             modelBuilder.Entity<AlbumFileReferenceMap>().Navigation(x => x.FileReference).AutoInclude(true);
             modelBuilder.Entity<AlbumFileReferenceMap>().Navigation(x => x.FileType).AutoInclude(true);
+
+            modelBuilder.Entity<MusicBrainzAcoustIDResult>().ToView("MusicBrainzAcoustIDResult").HasNoKey();
 
             modelBuilder.Entity<TrackArtistMap>().Navigation(x => x.Artist).AutoInclude(true);
             modelBuilder.Entity<TrackArtistMap>().Navigation(x => x.Track).AutoInclude(true);

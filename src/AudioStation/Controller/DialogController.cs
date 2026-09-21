@@ -45,6 +45,11 @@ namespace AudioStation.Controller
 
         }
 
+        public bool IsShowing()
+        {
+            return _dialogWindow != null;
+        }
+
         public string ShowSaveFile()
         {
             var dialog = new SaveFileDialog();
@@ -256,6 +261,12 @@ namespace AudioStation.Controller
                             break;
                         case DialogEditorView.TagFieldView:
                             _dialogWindow.DataContext = new TagFieldView()
+                            {
+                                DataContext = data.DataContext
+                            };
+                            break;
+                        case DialogEditorView.TagSourceView:
+                            _dialogWindow.DataContext = new ImportTagSourceView()
                             {
                                 DataContext = data.DataContext
                             };

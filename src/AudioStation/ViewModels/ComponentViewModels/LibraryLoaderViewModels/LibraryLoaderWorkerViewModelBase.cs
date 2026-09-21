@@ -190,6 +190,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels
         protected abstract LibraryLoaderLoadViewModel MapWorkLoad(ILibraryLoaderLoad workLoad);
         protected abstract LibraryLoaderOutputViewModel MapWorkOutput(ILibraryLoaderOutput workOutput);
         protected abstract ILibraryLoaderLoad ResetWorkLoad(LibraryWorkItemViewModel workItem);
+        protected abstract void CompleteWorkItem(LibraryWorkItemViewModel workItem);
 
         public void Load(T loadItem,
                          IAudioStationConfiguration configuration,
@@ -549,6 +550,9 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels
             }
 
             LibraryLoaderHelpers.ApplyLibraryLoaderWorkItem(complete, ref workItem);
+
+            // Allow inherited class to complete work
+            CompleteWorkItem(workItem);
 
             if (this.WorkItemChangedEvent != null)
                 this.WorkItemChangedEvent(this, workItem);

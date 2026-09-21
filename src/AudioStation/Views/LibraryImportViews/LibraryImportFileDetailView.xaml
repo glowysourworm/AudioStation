@@ -9,38 +9,49 @@
              xmlns:importView="clr-namespace:AudioStation.Views.LibraryImportViews"
              xmlns:coreModel="clr-namespace:AudioStation.Core.Model;assembly=AudioStation.Core"
              xmlns:simpleUI="clr-namespace:SimpleWpf.UI.Controls;assembly=SimpleWpf.UI">
-    
-    <controls:NoSelectListBox
-            Grid.Row="1"
-            Background="White"
-            BorderBrush="Gray" 
-            BorderThickness="0"
-            HorizontalContentAlignment="Stretch"
-            ItemContainerStyle="{StaticResource NoHoverSelectItemContainerStyleWithAlteration}"
-            AlternationCount="2"
-            ScrollViewer.VerticalScrollBarVisibility="Auto"
-            ScrollViewer.HorizontalScrollBarVisibility="Hidden">
 
-        <propertyGrid:PropertyLabelControl LabelColumnWidth="140" LabelText="Creation"
+    <controls:NoSelectListBox
+              Background="White"
+              BorderBrush="Gray" 
+              BorderThickness="0"
+              HorizontalContentAlignment="Stretch"
+              ItemContainerStyle="{StaticResource NoHoverSelectItemContainerStyleWithAlteration}"
+              AlternationCount="2"
+              ScrollViewer.VerticalScrollBarVisibility="Auto"
+              ScrollViewer.HorizontalScrollBarVisibility="Hidden">
+
+        <propertyGrid:PropertyLabelControl LabelColumnWidth="160" LabelText="File"
+                                           Value="{Binding FullPath}" ToolTip="{Binding FullPath}" />
+
+        <propertyGrid:PropertyLabelControl LabelColumnWidth="160" LabelText="File Creation"
                                                Value="{Binding CreationUtc}" ToolTip="{Binding FullPath}" />
 
-        <propertyGrid:PropertyLabelControl LabelColumnWidth="140" LabelText="Last Write"
+        <propertyGrid:PropertyLabelControl LabelColumnWidth="160" LabelText="File Last Write"
                                                Value="{Binding LastWriteUtc}" ToolTip="{Binding FullPath}" />
 
-        <propertyGrid:PropertyLabelControl LabelColumnWidth="140" LabelText="File Path"
-                                               Value="{Binding FullPath}" ToolTip="{Binding FullPath}" />
+        <propertyGrid:PropertyLabelControl LabelColumnWidth="160" LabelText="Import Type"
+                                           Value="{Binding ImportLoad.ImportType}" />
 
-        <propertyGrid:PropertyLabelControl LabelColumnWidth="140" LabelText="Migration Path"
-                                           Value="{Binding FileMigrationFullPath, TargetNullValue='(Tag must be completed before import)'}" ToolTip="{Binding FileMigrationFullPath}"
-                                           DataContext="{Binding DataContext.Workflow.Configuration, RelativeSource={RelativeSource AncestorType=view:LibraryImportView}}"
-                                           Visibility="{Binding ImportFileMigration, Converter={StaticResource BoolVisibilityCollapseConverter}}"
+        <propertyGrid:PropertyLabelControl LabelColumnWidth="160" LabelText="Migration Path"
+                                           Value="{Binding FileImportFullPath, TargetNullValue='(Tag must be completed before import)'}" ToolTip="{Binding FileMigrationFullPath}"
+                                           IsEnabled="{Binding ImportLoad.ImportType, Converter={StaticResource ParameterEqualityInverseBoolConverter}, ConverterParameter={x:Static coreModel:LibraryImportType.Migration}}"
                                            Foreground="{Binding MinimumImportValid, Converter={StaticResource ValidationBoolForegroundParameterConverter}, ConverterParameter={StaticResource LabelForeground}}" />
 
-        <!-- This will remind users that the option is turned on -->
-        <propertyGrid:PropertyLabelControl LabelColumnWidth="140" LabelText="Migration Enabled"
-                                           DataContext="{Binding DataContext.Workflow.Configuration, RelativeSource={RelativeSource AncestorType=view:LibraryImportView}}"
-                                           Visibility="{Binding ImportFileMigration, Converter={StaticResource BoolVisibilityCollapseConverter}}"
-                                           Value="{Binding ImportFileMigration}" />        
+        <!-- File / AcoustID / Music Brainz -->
+        <propertyGrid:PropertyLabelControl LabelColumnWidth="160" LabelText="AcoustID"
+                                           Value="{Binding ImportOutput.AcoustIDResults.Count, StringFormat='Results ({0})'}" />
+
+        <propertyGrid:PropertyLabelControl LabelColumnWidth="160" LabelText="Music Brainz (basic)"
+                                           Value="{Binding ImportOutput.MusicBrainzRecordingMatches.Count, StringFormat='Results ({0})'}" />
+
+        <propertyGrid:PropertyLabelControl LabelColumnWidth="160" LabelText="Music Brainz (artwork)"
+                                           Value="{Binding ImportOutput.AcoustIDResults.Count, StringFormat='Results ({0})'}" />
+
+        <propertyGrid:PropertyLabelControl LabelColumnWidth="160" LabelText="File Conflict"
+                                           Value="{Binding FileConflict}" />
+
+        <propertyGrid:PropertyLabelControl LabelColumnWidth="160" LabelText="Library Conflict"
+                                           Value="{Binding LibraryConflict}" />
 
     </controls:NoSelectListBox>
 </UserControl>

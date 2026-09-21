@@ -65,6 +65,11 @@ namespace AudioStation.Core.Database.AudioStationDatabase.Interface
         IEnumerable<TEntity> GetEntities<TEntity>() where TEntity : AudioStationEntityBase;
 
         /// <summary>
+        /// Gets an entire entity view from the database
+        /// </summary>
+        IEnumerable<TView> GetViewEntities<TView>() where TView : AudioStationViewEntityBase;
+
+        /// <summary>
         /// Gets entity by ID from the database
         /// </summary>
         TEntity? GetEntity<TEntity>(int id) where TEntity : AudioStationEntityBase;

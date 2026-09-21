@@ -68,6 +68,8 @@
 
                 case LibraryWorkerResultLevel.ServiceFailure:
                     return result.Completed;
+
+                case LibraryWorkerResultLevel.None:
                 default:
                     throw new Exception("Unhandled worker result type");
             }

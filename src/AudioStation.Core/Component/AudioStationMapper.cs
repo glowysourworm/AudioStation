@@ -353,6 +353,7 @@ namespace AudioStation.Core.Component
                    (type == typeof(long)) ||
                    (type == typeof(DateTime)) ||
                    (type == typeof(DateTimeOffset)) ||
+                   (type == typeof(Guid)) ||
                    (type == typeof(double)) ||
                    (type == typeof(ushort)) ||
                    (type == typeof(short)) ||

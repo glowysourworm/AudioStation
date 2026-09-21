@@ -5,7 +5,9 @@
                     xmlns:propertyGrid="clr-namespace:AudioStation.Controls.PropertyGrid"
                     xmlns:controls="clr-namespace:AudioStation.Controls"
                     xmlns:coreModel="clr-namespace:AudioStation.Core.Model;assembly=AudioStation.Core"
-                    xmlns:simpleUI="clr-namespace:SimpleWpf.UI.Controls;assembly=SimpleWpf.UI">
+                    xmlns:simpleUI="clr-namespace:SimpleWpf.UI.Controls;assembly=SimpleWpf.UI"
+                    xmlns:tagViewModel="clr-namespace:AudioStation.ViewModels.TagViewModels"
+                    xmlns:acoustIDViewModel="clr-namespace:AudioStation.ViewModels.Vendor.AcoustIDViewModel">
 
     <ResourceDictionary.MergedDictionaries>
         <ResourceDictionary Source="/Resources/MainComponentResources.xaml" />
@@ -69,27 +71,25 @@
                 <StackPanel Orientation="Horizontal" Grid.Column="0">
 
                     <fa5:ImageAwesome Icon="Solid_Tag" 
-                                        Margin="3"
-                                        Style="{StaticResource FontAwesomeIconManagerViewPager}"
-                                        ToolTip="Tag data is required to complete the import">
-                        <fa5:ImageAwesome.Foreground>
-                            <Binding Path="Tag.IsValid" Converter="{StaticResource ValidationBoolForegroundParameterConverter}" />
-                        </fa5:ImageAwesome.Foreground>
+                                      Margin="3"
+                                      Foreground="{Binding Tag.IsValid, Converter={StaticResource ValidationBoolForegroundParameterConverter}}"
+                                      Style="{StaticResource FontAwesomeIconManagerViewPager}"
+                                      ToolTip="Tag data is required to complete the import">
                     </fa5:ImageAwesome>
 
                     <fa5:ImageAwesome Icon="Solid_VolumeUp" 
                                       Margin="3"
                                       Style="{StaticResource FontAwesomeIconManagerViewPager}"
                                       ToolTip="AcoustID data may be downloaded prior to import; or after."
-                                      Foreground="{Binding SelectedAcoustIDResult, 
-                                                           Converter={StaticResource ConfirmationNullForegroundParameterConverter},
+                                      Foreground="{Binding ImportOutput.AcoustIDResults, 
+                                                           Converter={StaticResource ConfirmationCollectionNonEmptyForegroundParameterConverter},
                                                            ConverterParameter={x:Static Brushes.DodgerBlue}}" />
                     <fa5:ImageAwesome Icon="Solid_Music" 
                                       Margin="3"
                                       ToolTip="Music Brainz data may be downloaded prior to import; or after."              
                                       Style="{StaticResource FontAwesomeIconManagerViewPager}"
-                                      Foreground="{Binding SelectedMusicBrainzRecordingMatch, 
-                                                           Converter={StaticResource ConfirmationNullForegroundParameterConverter},
+                                      Foreground="{Binding ImportOutput.MusicBrainzRecordingMatches, 
+                                                           Converter={StaticResource ConfirmationCollectionNonEmptyForegroundParameterConverter},
                                                            ConverterParameter={x:Static Brushes.DodgerBlue}}" />
                 </StackPanel>
 
@@ -102,8 +102,26 @@
                            TextTrimming="CharacterEllipsis"
                            FontSize="14"
                            Grid.Column="1" />
+
             </Grid>
         </Border>
+    </DataTemplate>
+
+    <DataTemplate x:Key="TagSmallTemplate" DataType="{x:Type tagViewModel:TagSmallViewModel}">
+        <Grid ColumnDefinitions="Auto, Auto, Auto, *, Auto" HorizontalAlignment="Stretch">
+            <TextBlock Text="{Binding AlbumArtist}" />
+            <TextBlock Text="{Binding Album}" Grid.Column="1" Margin="5 0 0 0" />
+            <TextBlock Text="{Binding Title}" Grid.Column="2" Margin="5 0 0 0" />
+            <TextBlock Text="{Binding TrackNumber, StringFormat='Track {0}'}" Grid.Column="3" Margin="5 0 0 0" HorizontalAlignment="Right" />
+            <TextBlock Text="{Binding TrackTotal, StringFormat='(of) {0}'}" Grid.Column="4" Margin="5 0 0 0" />
+        </Grid>
+    </DataTemplate>
+
+    <DataTemplate x:Key="AcoustIDResultTemplate" DataType="{x:Type acoustIDViewModel:AcoustIDLookupResultViewModel}">
+        <Grid ColumnDefinitions="Auto, *" HorizontalAlignment="Stretch">
+            <TextBlock Text="{Binding LookupId, StringFormat='AcoustID={0}'}" />
+            <TextBlock Text="{Binding Score, StringFormat='P2'}" Grid.Column="3" Margin="5 0 0 0" HorizontalAlignment="Right" />
+        </Grid>
     </DataTemplate>
 
 </ResourceDictionary>

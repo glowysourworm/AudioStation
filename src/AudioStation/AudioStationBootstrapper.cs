@@ -10,6 +10,7 @@ using AudioStation.Core.Component.LibraryLoaderComponent.Payload.Input.Interface
 using AudioStation.Core.Component.LibraryLoaderComponent.Payload.Output;
 using AudioStation.Core.Component.LibraryLoaderComponent.Payload.Output.Interface;
 using AudioStation.Core.Database.AudioStationDatabase;
+using AudioStation.Core.Database.AudioStationDatabase.Interface;
 using AudioStation.Core.Model;
 using AudioStation.Core.Model.Interface;
 using AudioStation.Core.Model.Vendor.ATLExtension;
@@ -21,6 +22,7 @@ using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Payloa
 using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Payload.Output;
 using AudioStation.ViewModels.MainViewModels;
 using AudioStation.ViewModels.TagViewModels;
+using AudioStation.ViewModels.Vendor.AcoustIDViewModel;
 using AudioStation.ViewModels.Vendor.ATLViewModel;
 
 using SimpleWpf.IocFramework.Application;
@@ -212,6 +214,17 @@ namespace AudioStation
             // Add mappers for each complex type sub-mapping
 
             // Audio Station Core (database)
+            mapper.ConfigureMap<AcoustIDLookupResult, AcoustIDLookupResultViewModel>()
+                  .DeclareSourceInterface<IAcoustIDLookupResult>();
+
+            mapper.ConfigureMap<AcoustIDLookupResultViewModel, AcoustIDLookupResult>()
+                  .DeclareSourceInterface<IAcoustIDLookupResult>();
+
+            mapper.ConfigureMap<TagSmall, TagSmallViewModel>()
+                  .DeclareSourceInterface<ITagSmall>();
+
+            mapper.ConfigureMap<TagSmallViewModel, TagSmall>()
+                  .DeclareSourceInterface<ITagSmall>();
 
             // Audio Station Core (model)
             mapper.ConfigureMap<AudioStationTag, AudioStationTag>()
@@ -219,12 +232,6 @@ namespace AudioStation
 
             mapper.ConfigureMap<AudioStationTag, TagViewModel>()
                   .DeclareSourceInterface<IAudioStationTag>();
-
-            mapper.ConfigureMap<TagSmall, TagSmallViewModel>()
-                  .DeclareSourceInterface<ITagSmall>();
-
-            mapper.ConfigureMap<TagSmallViewModel, TagSmall>()
-                  .DeclareSourceInterface<ITagSmall>();
 
             mapper.ConfigureMap<TagViewModel, AudioStationTag>()
                   .DeclareSourceInterface<IAudioStationTag>();

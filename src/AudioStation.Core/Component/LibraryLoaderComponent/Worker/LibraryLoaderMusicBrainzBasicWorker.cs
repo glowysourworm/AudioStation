@@ -67,6 +67,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
             try
             {
                 var load = this.Load.Payload;
+                var hasInvalidTags = false;
 
                 foreach (var entity in load)
                 {
@@ -90,6 +91,8 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
                             {
                                 Log("Music Brainz client lookup finished (invalid):  " + entity.FileName);
                                 Log("VALIDATION:  " + validation.ValidationMessage);
+
+                                hasInvalidTags = true;
                             }
 
                             // Keep (valid / invalid) Tag
@@ -98,14 +101,6 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
                             // This may be used in the workflow; but will not be
                             // backed up in the database
                             this.Output.Payload.Add(tagSmall);
-
-                            return new LibraryWorkerStepResult()
-                            {
-                                Completed = validation.IsValid,
-                                Message = "Music Brainz lookup invalid: " + validation.ValidationMessage,
-                                StepNumber = stepNumber,
-                                Result = validation.IsValid ? LibraryWorkerResultLevel.Success : LibraryWorkerResultLevel.DataWarning
-                            };
                         }
 
                         else
@@ -121,7 +116,13 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
                     }
                 }
 
-                return LibraryWorkerStepResult.Success(stepNumber, "Music Brainz service successful");
+                return new LibraryWorkerStepResult()
+                {
+                    Completed = !hasInvalidTags,
+                    Message = "Music Brainz (basic) finished with some invalid tag data",
+                    StepNumber = stepNumber,
+                    Result = !hasInvalidTags ? LibraryWorkerResultLevel.Success : LibraryWorkerResultLevel.DataWarning
+                };
             }
             catch (Exception ex)
             {

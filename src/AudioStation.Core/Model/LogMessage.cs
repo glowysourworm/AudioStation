@@ -90,7 +90,7 @@ namespace AudioStation.Core.Model
         [Display(Name = "Music Brainz Db", Description = "Database of Music Brainz data cache (Audio Station's copy)")]
         MusicBrainz
     }
-    public struct LogMessage : ILogMessage
+    public class LogMessage : ILogMessage
     {
         public int LogId { get; }
         public string Message { get; set; }

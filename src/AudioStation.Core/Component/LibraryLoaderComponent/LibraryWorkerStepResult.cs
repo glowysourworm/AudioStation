@@ -4,6 +4,9 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent
 {
     public enum LibraryWorkerResultLevel : int
     {
+        [Display(Name = "(None)", Description = "No library worker steps have been executed")]
+        None = -1,
+
         [Display(Name = "Success", Description = "Library worker step was successful")]
         Success = 0,
 

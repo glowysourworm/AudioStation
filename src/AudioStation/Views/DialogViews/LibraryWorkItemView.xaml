@@ -12,7 +12,7 @@
                 <propertyGrid:PropertyLabelControl LabelColumnWidth="160" Grid.Row="1"
                                            LabelText="Name"
                                            Style="{StaticResource PropertyGridUserControl}"
-                                           Value="{Binding Load}" />
+                                           Value="{Binding Load.DisplayName}" />
 
                 <propertyGrid:PropertyLabelControl LabelColumnWidth="160" Grid.Row="2"                                
                                            LabelText="Status"
@@ -22,22 +22,20 @@
                 <propertyGrid:PropertyLabelControl LabelColumnWidth="160" Grid.Row="3"                                
                                            LabelText="Last Message"
                                            Style="{StaticResource PropertyGridUserControl}"
-                                           Value="{Binding LogMessages, Mode=OneWay, 
-                                           Converter={StaticResource CollectionLastElementConverter},
-                                           ConverterParameter='Message'}" />
+                                           Value="{Binding LastMessage}" />
 
                 <propertyGrid:PropertyLabelControl LabelColumnWidth="160" Grid.Row="4"                                
-                                           LabelText="Last Result"
+                                           LabelText="Error Status"
                                            Style="{StaticResource PropertyGridUserControl}"
-                                           Value="{Binding WorkSteps, Mode=OneWay,
-                                           Converter={StaticResource CollectionLastElementConverter},
-                                           ConverterParameter='Result'}" />
+                                           Value="{Binding ErrorLevel}" />
             </Grid>
         </TabItem>
 
         <TabItem Header="Work Steps" IsEnabled="{Binding WorkSteps, Converter={StaticResource CollectionNonEmptyBoolConverter}}">
             <ListBox ItemsSource="{Binding WorkSteps}"
                      Style="{StaticResource PlainListBoxStyle}"
+                     HorizontalContentAlignment="Stretch"
+                     ItemContainerStyle="{StaticResource HoverSelectItemContainerStyle}"
                      ItemTemplate="{StaticResource LibraryWorkStepItemTemplate}">
             </ListBox>
         </TabItem>

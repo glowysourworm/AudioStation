@@ -9,6 +9,7 @@ using AudioStation.Core.Service.Interface;
 using AudioStation.Event;
 using AudioStation.Service.Interface;
 using AudioStation.ViewModels.TagViewModels;
+using AudioStation.ViewModels.Vendor.AcoustIDViewModel;
 
 using SimpleWpf.Extensions.Collection;
 using SimpleWpf.Extensions.ObservableCollection;
@@ -191,11 +192,15 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
                                                        .GroupBy(x => x.FileName)
                                                        .ToDictionary(x => x.Key, x => x.ToList());
 
+            // MusitBrainz-AcoustID View
+            var musicBrainzAcoustIDResults = _audioStationDbClient.GetViewEntities<MusicBrainzAcoustIDResult>()
+                                                                  .GroupBy(x => x.FileName)
+                                                                  .ToDictionary(x => x.Key, x => x.ToList());
+
             // Music Brainz (basic) (TagSmallVendorMap)
             var musicBrainzResults = _audioStationDbClient.GetEntities<TagSmallVendorMap>()
                                                           .Where(x => x.MusicBrainzRecordingId != null)
-                                                          .GroupBy(x => x.MusicBrainzRecordingId)
-                                                          .ToDictionary(x => x.Key, x => x.ToList());
+                                                          .ToDictionary(x => x.TagSmallId, x => x);
 
             var selectedFileCount = this.ImportDirectory.GetSelectedFileCount();
             var counter = 0;
@@ -235,12 +240,32 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
 
                     // AcoustID Result
                     if (acoustIDResults.ContainsKey(stagedFile.FullPath))
-                        stagedFile.SelectedAcoustIDResult = acoustIDResults[stagedFile.FullPath].First();
+                    {
+                        stagedFile.ImportOutput.AcoustIDResults.AddRange(acoustIDResults[stagedFile.FullPath].Select(x =>
+                        {
+                            return _audioStationMapper.Map<AcoustIDLookupResult, AcoustIDLookupResultViewModel>(x);
+                        }));
+                    }
 
                     // Music Brainz (basic)
-                    if (stagedFile.SelectedAcoustIDResult != null &&
-                        musicBrainzResults.ContainsKey(stagedFile.SelectedAcoustIDResult.MusicBrainzRecordingId))
-                        stagedFile.SelectedMusicBrainzRecordingMatch = musicBrainzResults[stagedFile.SelectedAcoustIDResult.MusicBrainzRecordingId].First().TagSmall;
+                    if (musicBrainzAcoustIDResults.ContainsKey(stagedFile.FullPath))
+                    {
+                        // Get all tag-recording maps for this file
+                        var results = musicBrainzAcoustIDResults[stagedFile.FullPath];
+
+                        foreach (var result in results)
+                        {
+                            var tagSmall = _audioStationDbClient.GetEntity<TagSmall>(result.TagSmallId);
+
+                            if (tagSmall != null)
+                            {
+                                stagedFile.ImportOutput
+                                          .MusicBrainzRecordingMatches
+                                          .Add(_audioStationMapper.Map<TagSmall, TagSmallViewModel>(tagSmall));
+                            }
+                        }
+                    }
+
 
                     // Check For Library Conflict
                     //
@@ -270,8 +295,8 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
                 this.UnstageCommand.RaiseCanExecuteChanged();
 
                 // Selection Counts (PERFORMANCE LAG)
-                //this.StagedSelectedCount = this.StagedFiles.Count(x => x.IsSelected);
-                //this.LibraryConflictCount = this.StagedFiles.Count(x => x.LibraryConflict);
+                this.StagedSelectedCount = this.StagedFiles.Count(x => x.IsSelected);
+                this.LibraryConflictCount = this.StagedFiles.Count(x => x.LibraryConflict);
             }
         }
     }

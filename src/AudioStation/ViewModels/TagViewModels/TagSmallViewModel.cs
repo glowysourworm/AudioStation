@@ -6,21 +6,21 @@ using SimpleWpf.UI.ViewModel;
 
 namespace AudioStation.ViewModels.TagViewModels
 {
-    public class TagSmallViewModel : ViewModelBase, ITagSmallValidation
+    public class TagSmallViewModel : ViewModelBase, ITagSmallValidation, ITagSmall
     {
         int _id;
 
-        string _albumArtist;
-        string _album;
-        string _title;
-        string _genre;
-        int _track;
-        int _trackTotal;
-        int _mediaNumber;
-        int _mediaTotal;
-        int _year;
-        string _mediaFormat;
-        int _durationMilliseconds;
+        string? _albumArtist;
+        string? _album;
+        string? _title;
+        string? _genre;
+        int? _trackNumber;
+        int? _trackTotal;
+        int? _mediaNumber;
+        int? _mediaTotal;
+        int? _year;
+        string? _mediaFormat;
+        int? _durationMilliseconds;
 
         bool _isAlbumArtistValid;
         bool _isAlbumValid;
@@ -43,61 +43,62 @@ namespace AudioStation.ViewModels.TagViewModels
             get { return _id; }
             set { this.RaiseAndSetIfChanged(ref _id, value); }
         }
-        public string AlbumArtist
+        public string? AlbumArtist
         {
             get { return _albumArtist; }
             set { this.RaiseAndSetIfChanged(ref _albumArtist, value); }
         }
-        public string Album
+        public string? Album
         {
             get { return _album; }
             set { this.RaiseAndSetIfChanged(ref _album, value); }
         }
-        public string Title
+        public string? Title
         {
             get { return _title; }
             set { this.RaiseAndSetIfChanged(ref _title, value); }
         }
-        public string Genre
+        public string? Genre
         {
             get { return _genre; }
             set { this.RaiseAndSetIfChanged(ref _genre, value); }
         }
-        public int Track
+        public int? TrackNumber
         {
-            get { return _track; }
-            set { this.RaiseAndSetIfChanged(ref _track, value); }
+            get { return _trackNumber; }
+            set { this.RaiseAndSetIfChanged(ref _trackNumber, value); }
         }
-        public int TrackTotal
+        public int? TrackTotal
         {
             get { return _trackTotal; }
             set { this.RaiseAndSetIfChanged(ref _trackTotal, value); }
         }
-        public int MediaNumber
+        public int? MediaNumber
         {
             get { return _mediaNumber; }
             set { this.RaiseAndSetIfChanged(ref _mediaNumber, value); }
         }
-        public int MediaTotal
+        public int? MediaTotal
         {
             get { return _mediaTotal; }
             set { this.RaiseAndSetIfChanged(ref _mediaTotal, value); }
         }
-        public string MediaFormat
-        {
-            get { return _mediaFormat; }
-            set { this.RaiseAndSetIfChanged(ref _mediaFormat, value); }
-        }
-        public int DurationMilliseconds
-        {
-            get { return _durationMilliseconds; }
-            set { this.RaiseAndSetIfChanged(ref _durationMilliseconds, value); }
-        }
-        public int Year
+        public int? Year
         {
             get { return _year; }
             set { this.RaiseAndSetIfChanged(ref _year, value); }
         }
+        public string? MediaFormat
+        {
+            get { return _mediaFormat; }
+            set { this.RaiseAndSetIfChanged(ref _mediaFormat, value); }
+        }
+        public int? DurationMilliseconds
+        {
+            get { return _durationMilliseconds; }
+            set { this.RaiseAndSetIfChanged(ref _durationMilliseconds, value); }
+        }
+
         public bool IsAlbumArtistValid
         {
             get { return _isAlbumArtistValid; }
@@ -170,6 +171,8 @@ namespace AudioStation.ViewModels.TagViewModels
         }
 
 
+
+
         /// <summary>
         /// Method meant to set data from music brainz vendor service
         /// </summary>
@@ -183,7 +186,7 @@ namespace AudioStation.ViewModels.TagViewModels
             this.Album = release?.Title ?? string.Empty;
             this.Title = record.Title ?? string.Empty;
             this.Genre = record.Genres?.FirstOrDefault()?.Name ?? string.Empty;
-            this.Track = (track?.Position ?? 0);
+            this.TrackNumber = (track?.Position ?? 0);
             this.TrackTotal = (media?.TrackCount ?? 0);
             this.MediaNumber = ((release?.Media?.IndexOf(media) + 1) ?? 0);
             this.MediaTotal = (release?.Media?.Count ?? 0);
@@ -202,10 +205,10 @@ namespace AudioStation.ViewModels.TagViewModels
             this.IsAlbumArtistValid = !string.IsNullOrWhiteSpace(this.AlbumArtist);
             this.IsTitleValid = !string.IsNullOrWhiteSpace(this.Title);
             this.IsGenreValid = !string.IsNullOrWhiteSpace(this.Genre);
-            this.IsTrackValid = this.Track > 0;
-            this.IsTrackTotalValid = this.TrackTotal >= this.Track && this.TrackTotal > 0;
-            this.IsMediaNumberValid = this.MediaNumber > 0;
-            this.IsMediaTotalValid = this.MediaTotal > 0 && this.MediaTotal >= this.MediaNumber;
+            this.IsTrackValid = this.TrackNumber != null && this.TrackNumber > 0;
+            this.IsTrackTotalValid = this.TrackTotal != null && this.TrackNumber != null && (this.TrackTotal >= this.TrackNumber && this.TrackTotal > 0);
+            this.IsMediaNumberValid = this.MediaNumber != null && this.MediaNumber > 0;
+            this.IsMediaTotalValid = this.MediaTotal != null && this.MediaNumber != null && (this.MediaTotal > 0 && this.MediaTotal >= this.MediaNumber);
 
             this.IsValid = this.IsAlbumValid &&
                 this.IsAlbumArtistValid &&

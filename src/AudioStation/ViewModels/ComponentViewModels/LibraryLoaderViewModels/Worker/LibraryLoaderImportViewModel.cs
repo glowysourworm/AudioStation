@@ -112,6 +112,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Wo
             return new LibraryLoaderLoadViewModel()
             {
                 Payload = _audioStationMapper.Map<LibraryLoaderImportPayload, LibraryLoaderImportInputViewModel>(importLoad),
+                DisplayName = workLoad.DisplayName
             };
         }
 
@@ -133,6 +134,10 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Wo
             var inputPayload = _audioStationMapper.Map<LibraryLoaderImportInputViewModel, LibraryLoaderImportPayload>(inputPayloadViewModel);
 
             return new LibraryLoaderLoad<LibraryLoaderImportPayload>(this.Id, workItem.LoadType, workItem.Load.DisplayName, inputPayload);
+        }
+        protected override void CompleteWorkItem(LibraryWorkItemViewModel workItem)
+        {
+            throw new NotImplementedException();
         }
     }
 }
