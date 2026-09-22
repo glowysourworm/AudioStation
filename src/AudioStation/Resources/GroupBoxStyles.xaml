@@ -20,6 +20,14 @@
         <Setter Property="Foreground" Value="{StaticResource InstructionsWarningForeground}" />
     </Style>
 
+    <Style TargetType="Border" x:Key="HeaderBorderStyle">
+        <Setter Property="CornerRadius" Value="0" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="Background" Value="{StaticResource FooterBackground}" />
+        <Setter Property="BorderBrush" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+    </Style>    
+    
     <Style TargetType="Border" x:Key="FooterBorderStyle">
         <Setter Property="CornerRadius" Value="5" />
         <Setter Property="Padding" Value="5" />

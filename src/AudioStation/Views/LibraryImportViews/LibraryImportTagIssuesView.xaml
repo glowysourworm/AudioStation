@@ -7,7 +7,10 @@
     <GroupBox Header="{Binding TagHeader, ElementName=BaseControl}">
         <ScrollViewer HorizontalScrollBarVisibility="Hidden"
                       VerticalScrollBarVisibility="Auto">
-            <tagView:SmallTagView />
+            <tagView:SmallTagView IsReadOnly="{Binding IsReadOnly, ElementName=BaseControl}"
+                                  UseRequiredFields="{Binding UseRequiredFields, ElementName=BaseControl}"
+                                  CanCopy="{Binding CanCopy, ElementName=BaseControl}"
+                                  CopyTarget="{Binding CopyTarget, ElementName=BaseControl}" />
         </ScrollViewer>
     </GroupBox>
 </UserControl>

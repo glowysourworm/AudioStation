@@ -45,7 +45,12 @@ namespace AudioStation.Core
 
         public string MusicBrainzUser { get; set; }
         public string MusicBrainzPassword { get; set; }
+        public double MusicBrainzWaitMilliseconds { get; set; }
+
         public string AcoustIDAPIKey { get; set; }
+        public double AcoustIDWaitMilliseconds { get; set; }
+        public double AcoustIDMinScore { get; set; }
+        public int AcoustIDMaxResults { get; set; }
 
         public AudioStationConfiguration()
         {

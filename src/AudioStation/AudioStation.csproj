@@ -69,6 +69,15 @@
     <Compile Update="Controls\PropertyGrid\PropertyDoubleSliderControl.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Update="Controls\PropertyGrid\PropertyIntCopyControl.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="Controls\PropertyGrid\PropertyPasswordControl.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="Controls\PropertyGrid\PropertyStringCopyControl.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Update="Controls\PropertyGrid\PropertyValueSelectorControl.xaml.cs">
       <SubType>Code</SubType>
     </Compile>

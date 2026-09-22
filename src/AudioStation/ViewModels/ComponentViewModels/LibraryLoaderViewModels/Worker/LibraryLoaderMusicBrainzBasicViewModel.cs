@@ -6,11 +6,13 @@ using AudioStation.Core.Database.AudioStationDatabase;
 using AudioStation.Core.Database.AudioStationDatabase.Interface;
 using AudioStation.Core.Model.Interface;
 using AudioStation.Core.Service.Interface;
+using AudioStation.Core.Utility.RecursiveComparer;
 using AudioStation.Event;
 using AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels;
 using AudioStation.ViewModels.TagViewModels;
 
 using SimpleWpf.Extensions.Collection;
+using SimpleWpf.Extensions.ObservableCollection;
 using SimpleWpf.IocFramework.Application;
 
 namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Worker
@@ -18,6 +20,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Wo
     public class LibraryLoaderMusicBrainzBasicViewModel : LibraryLoaderWorkerViewModelBase<LibraryImporterFileViewModel>
     {
         private readonly IAudioStationMapper _audioStationMapper;
+        private IAudioStationDbClient _audioStationDbClient;
 
         Dictionary<string, LibraryImporterFileViewModel> _loadItemDict;
 
@@ -45,6 +48,8 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Wo
         {
             var audioConverter = IocContainer.Get<IAudioConverter>();
             var tagCache = audioStationController.ServiceController.GetCache<ITagCache>();
+
+            _audioStationDbClient = audioStationController.ServiceController.GetDataService<IAudioStationDbClient>();
 
             try
             {
@@ -126,13 +131,20 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Wo
 
             var loadItem = _loadItemDict[acoustIDResults.First().FileName];
             var tagViewModels = tagResults.Select(tag => _audioStationMapper.Map<TagSmall, TagSmallViewModel>(tag)).Actualize();
+            var comparer = new SimpleRecursiveComparer();
 
             // Pass results to the Import Output
             foreach (var result in tagViewModels)
             {
-                if (loadItem.ImportOutput.MusicBrainzRecordingMatches.Any(x => x.Id == result.Id))
+                if (!loadItem.ImportOutput.MusicBrainzRecordingMatches.Any(x => comparer.Compare(x, result)))
                     loadItem.ImportOutput.MusicBrainzRecordingMatches.Add(result);
             }
+
+            // TODO: Re-situate workflow code
+            var combinedResults = _audioStationDbClient.GetViewEntities<MusicBrainzAcoustIDResult>().ToList();
+
+            loadItem.ImportOutput.MusicBrainzAcoustIDResults.Clear();
+            loadItem.ImportOutput.MusicBrainzAcoustIDResults.AddRange(combinedResults.Where(x => x.FileName == loadItem.FullPath));
 
         }
     }

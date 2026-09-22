@@ -1,23 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+
+using AudioStation.Core.Model;
 
 namespace AudioStation.Views.LibraryImportViews
 {
-    /// <summary>
-    /// Interaction logic for LibraryImportTagSelectionView.xaml
-    /// </summary>
     public partial class LibraryImportTagSelectionView : UserControl
     {
+        public static readonly DependencyProperty TagSourceProperty =
+            DependencyProperty.Register("TagSource", typeof(LibraryImportSource), typeof(LibraryImportTagSelectionView));
+
+        public LibraryImportSource TagSource
+        {
+            get { return (LibraryImportSource)GetValue(TagSourceProperty); }
+            set { SetValue(TagSourceProperty, value); }
+        }
+
         public LibraryImportTagSelectionView()
         {
             InitializeComponent();

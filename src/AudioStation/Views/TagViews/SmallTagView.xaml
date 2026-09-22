@@ -1,4 +1,5 @@
 ﻿<UserControl x:Class="AudioStation.Views.TagViews.SmallTagView"
+             x:Name="BaseControl"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:xceed="http://schemas.xceed.com/wpf/xaml/toolkit"
@@ -8,27 +9,130 @@
              xmlns:coreModel="clr-namespace:AudioStation.Core.Model;assembly=AudioStation.Core"
              xmlns:simpleUI="clr-namespace:SimpleWpf.UI.Controls;assembly=SimpleWpf.UI"
              xmlns:simpleUIValidation="clr-namespace:SimpleWpf.UI.ValidationRules;assembly=SimpleWpf.UI">
-    
-    <Grid RowDefinitions="Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto"
-          ColumnDefinitions="120, *">
 
-        <controls:ValidationTextBlock Text="Album Artist" IsValid="{Binding IsAlbumArtistValid}" IsValidForeground="{StaticResource TagLabelForeground}" IsInvalidForeground="{StaticResource TagLabelForegroundError}" Grid.Row="0" />
-        <controls:ValidationTextBlock Text="Album"        IsValid="{Binding IsAlbumValid}" IsValidForeground="{StaticResource TagLabelForeground}" IsInvalidForeground="{StaticResource TagLabelForegroundError}" Grid.Row="1" />
-        <controls:ValidationTextBlock Text="Title"        IsValid="{Binding IsTitleValid}" IsValidForeground="{StaticResource TagLabelForeground}" IsInvalidForeground="{StaticResource TagLabelForegroundError}" Grid.Row="2" />
-        <controls:ValidationTextBlock Text="Genre"        IsValid="{Binding IsGenreValid}" IsValidForeground="{StaticResource TagLabelForeground}" IsInvalidForeground="{StaticResource TagLabelForegroundError}" Grid.Row="3" />
-        <controls:ValidationTextBlock Text="Track"        IsValid="{Binding IsTrackValid}" IsValidForeground="{StaticResource TagLabelForeground}" IsInvalidForeground="{StaticResource TagLabelForegroundError}" Grid.Row="4" />
-        <controls:ValidationTextBlock Text="Track Total"  IsValid="{Binding IsTrackTotalValid}" IsValidForeground="{StaticResource TagLabelForeground}" IsInvalidForeground="{StaticResource TagLabelForegroundError}" Grid.Row="5" />
-        <controls:ValidationTextBlock Text="Disc #"       IsValid="{Binding IsDiscNumberValid}" IsValidForeground="{StaticResource TagLabelForeground}" IsInvalidForeground="{StaticResource TagLabelForegroundError}" Grid.Row="6" />
-        <controls:ValidationTextBlock Text="Disc Count"   IsValid="{Binding IsDiscTotalValid}" IsValidForeground="{StaticResource TagLabelForeground}" IsInvalidForeground="{StaticResource TagLabelForegroundError}" Grid.Row="7" />
+    <ListBox x:Name="TagLB"
+             Style="{StaticResource PlainListBoxStyle}"
+             ItemContainerStyle="{StaticResource NoHoverSelectItemContainerStyleWithAlteration}">
 
-        <TextBlock Text="{Binding AlbumArtist}" ToolTip="{Binding AlbumArtist}" Style="{StaticResource TagLabelDetailTextBlock}" Grid.Row="0" Grid.Column="1" />
-        <TextBlock Text="{Binding Album}"       ToolTip="{Binding Album}"       Style="{StaticResource TagLabelDetailTextBlock}" Grid.Row="1" Grid.Column="1" />
-        <TextBlock Text="{Binding Title}"       ToolTip="{Binding Title}"       Style="{StaticResource TagLabelDetailTextBlock}" Grid.Row="2" Grid.Column="1" />
-        <TextBlock Text="{Binding Genre}"       ToolTip="{Binding Genre}"       Style="{StaticResource TagLabelDetailTextBlock}" Grid.Row="3" Grid.Column="1" />
-        <TextBlock Text="{Binding Track}"       ToolTip="{Binding Track}"       Style="{StaticResource TagLabelDetailTextBlock}" Grid.Row="4" Grid.Column="1" />
-        <TextBlock Text="{Binding TrackTotal}"  ToolTip="{Binding TrackTotal}"  Style="{StaticResource TagLabelDetailTextBlock}" Grid.Row="5" Grid.Column="1" />
-        <TextBlock Text="{Binding DiscNumber}"  ToolTip="{Binding DiscNumber}"  Style="{StaticResource TagLabelDetailTextBlock}" Grid.Row="6" Grid.Column="1" />
-        <TextBlock Text="{Binding DiscTotal}"   ToolTip="{Binding DiscTotal}"   Style="{StaticResource TagLabelDetailTextBlock}" Grid.Row="7" Grid.Column="1" />
+        <!-- Album Artist -->
+        <propertyGrid:PropertyStringCopyControl x:Name="AlbumArtistCtrl"
+                                                CopyEvent="AlbumArtistCtrl_CopyEvent"
+                                                CanCopy="{Binding CanCopy, ElementName=BaseControl}"
+                                                LabelColumnWidth="100"
+                                                LabelText="Album Artist"
+                                                IsValid="{Binding IsAlbumArtistValid}"
+                                                IsReadOnly="{Binding IsReadOnly, ElementName=BaseControl}"
+                                                IsRequired="{Binding UseRequiredFields, ElementName=BaseControl}"
+                                                Style="{StaticResource PropertyGridUserControl}"
+                                                Value="{Binding AlbumArtist}" />
 
-    </Grid>
+        <!-- Album -->
+        <propertyGrid:PropertyStringCopyControl x:Name="AlbumCtrl"
+                                                CopyEvent="AlbumCtrl_CopyEvent"
+                                                CanCopy="{Binding CanCopy, ElementName=BaseControl}"
+                                                LabelColumnWidth="100"
+                                                LabelText="Album"
+                                                IsValid="{Binding IsAlbumValid}"
+                                                IsReadOnly="{Binding IsReadOnly, ElementName=BaseControl}"
+                                                IsRequired="{Binding UseRequiredFields, ElementName=BaseControl}"
+                                                Style="{StaticResource PropertyGridUserControl}"
+                                                Value="{Binding Album}" />
+
+        <!-- Title -->
+        <propertyGrid:PropertyStringCopyControl x:Name="TitleCtrl"
+                                                CopyEvent="TitleCtrl_CopyEvent"
+                                                CanCopy="{Binding CanCopy, ElementName=BaseControl}"
+                                                LabelColumnWidth="100"
+                                                LabelText="Title"
+                                                IsValid="{Binding IsTitleValid}"
+                                                IsReadOnly="{Binding IsReadOnly, ElementName=BaseControl}"
+                                                IsRequired="{Binding UseRequiredFields, ElementName=BaseControl}"
+                                                Style="{StaticResource PropertyGridUserControl}"
+                                                Value="{Binding Title}" />
+
+        <!-- Genre -->
+        <propertyGrid:PropertyStringCopyControl x:Name="GenreCtrl"
+                                                CopyEvent="GenreCtrl_CopyEvent"
+                                                CanCopy="{Binding CanCopy, ElementName=BaseControl}"
+                                                LabelColumnWidth="100"
+                                                LabelText="Genre"
+                                                IsValid="{Binding IsGenreValid}"
+                                                IsReadOnly="{Binding IsReadOnly, ElementName=BaseControl}"
+                                                IsRequired="{Binding UseRequiredFields, ElementName=BaseControl}"
+                                                Style="{StaticResource PropertyGridUserControl}"
+                                                Value="{Binding Genre}" />
+
+        <!-- Track # -->
+        <propertyGrid:PropertyIntCopyControl x:Name="TrackNumberCtrl"
+                                                CopyEvent="TrackNumberCtrl_CopyEvent"
+                                                CanCopy="{Binding CanCopy, ElementName=BaseControl}"
+                                                LabelColumnWidth="100"
+                                                LabelText="Track Number"
+                                                IsValid="{Binding IsTrackNumberValid}"
+                                                IsReadOnly="{Binding IsReadOnly, ElementName=BaseControl}"
+                                                IsRequired="{Binding UseRequiredFields, ElementName=BaseControl}"
+                                                Style="{StaticResource PropertyGridUserControl}"
+                                                Value="{Binding TrackNumber}" />
+
+        <!-- Track Total -->
+        <propertyGrid:PropertyIntCopyControl x:Name="TrackTotalCtrl"
+                                                CopyEvent="TrackTotalCtrl_CopyEvent"
+                                                CanCopy="{Binding CanCopy, ElementName=BaseControl}"
+                                                LabelColumnWidth="100"
+                                                LabelText="Track Total"
+                                                IsValid="{Binding IsTrackTotalValid}"
+                                                IsReadOnly="{Binding IsReadOnly, ElementName=BaseControl}"
+                                                IsRequired="{Binding UseRequiredFields, ElementName=BaseControl}"
+                                                Style="{StaticResource PropertyGridUserControl}"
+                                                Value="{Binding TrackTotal}" />
+
+        <!-- Media (Disc / Vinyl / Casette) Number -->
+        <propertyGrid:PropertyIntCopyControl x:Name="MediaNumberCtrl"
+                                                CopyEvent="MediaNumberCtrl_CopyEvent"
+                                                CanCopy="{Binding CanCopy, ElementName=BaseControl}"
+                                                LabelColumnWidth="100"
+                                                LabelText="Media Number"
+                                                IsValid="{Binding IsMediaNumberValid}"
+                                                IsReadOnly="{Binding IsReadOnly, ElementName=BaseControl}"
+                                                IsRequired="{Binding UseRequiredFields, ElementName=BaseControl}"
+                                                Style="{StaticResource PropertyGridUserControl}"
+                                                Value="{Binding MediaNumber}" />
+
+        <!-- Media (Disc / Vinyl / Casette) Total -->
+        <propertyGrid:PropertyIntCopyControl x:Name="MediaTotalCtrl"
+                                                CopyEvent="MediaTotalCtrl_CopyEvent"
+                                                CanCopy="{Binding CanCopy, ElementName=BaseControl}"
+                                                LabelColumnWidth="100"
+                                                LabelText="Media Total"
+                                                IsValid="{Binding IsMediaTotalValid}"
+                                                IsReadOnly="{Binding IsReadOnly, ElementName=BaseControl}"
+                                                IsRequired="{Binding UseRequiredFields, ElementName=BaseControl}"
+                                                Style="{StaticResource PropertyGridUserControl}"
+                                                Value="{Binding MediaTotal}" />
+
+        <!-- Duration (ms) -->
+        <propertyGrid:PropertyIntCopyControl x:Name="DurationMillisecondsCtrl"
+                                                CopyEvent="DurationMillisecondsCtrl_CopyEvent"
+                                                CanCopy="{Binding CanCopy, ElementName=BaseControl}"
+                                                LabelColumnWidth="100"
+                                                LabelText="Duration (ms)"
+                                                IsValid="{Binding IsDurationMillisecondsValid}"
+                                                IsReadOnly="{Binding IsReadOnly, ElementName=BaseControl}"
+                                                IsRequired="{Binding UseRequiredFields, ElementName=BaseControl}"
+                                                Style="{StaticResource PropertyGridUserControl}"
+                                                Value="{Binding DurationMilliseconds}" />
+
+        <!-- Media (Disc / Vinyl / Casette) Format -->
+        <propertyGrid:PropertyStringCopyControl x:Name="MediaFormatCtrl"
+                                                CopyEvent="MediaFormatCtrl_CopyEvent"
+                                                CanCopy="{Binding CanCopy, ElementName=BaseControl}"
+                                                LabelColumnWidth="100"
+                                                LabelText="Media Format"
+                                                IsValid="{Binding IsMediaFormatValid}"
+                                                IsReadOnly="{Binding IsReadOnly, ElementName=BaseControl}"
+                                                IsRequired="{Binding UseRequiredFields, ElementName=BaseControl}"
+                                                Style="{StaticResource PropertyGridUserControl}"
+                                                Value="{Binding MediaFormat}" />
+
+    </ListBox>
 </UserControl>

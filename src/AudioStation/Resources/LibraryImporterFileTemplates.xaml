@@ -118,9 +118,42 @@
     </DataTemplate>
 
     <DataTemplate x:Key="AcoustIDResultTemplate" DataType="{x:Type acoustIDViewModel:AcoustIDLookupResultViewModel}">
-        <Grid ColumnDefinitions="Auto, *" HorizontalAlignment="Stretch">
-            <TextBlock Text="{Binding LookupId, StringFormat='AcoustID={0}'}" />
-            <TextBlock Text="{Binding Score, StringFormat='P2'}" Grid.Column="3" Margin="5 0 0 0" HorizontalAlignment="Right" />
+        <Grid ColumnDefinitions="*, Auto, Auto" RowDefinitions="Auto, Auto" HorizontalAlignment="Stretch">
+            <TextBlock Text="{Binding Title, TargetNullValue='(No Result)'}" Grid.Column="0" Margin="5 0 0 0" />
+            <TextBlock Text="{Binding TrackNumber, StringFormat='Track {0}'}" Grid.Column="1" Margin="5 0 0 0" HorizontalAlignment="Right" />
+            <TextBlock Text="{Binding TrackTotal, StringFormat='(of) {0}'}" Grid.Column="2" Margin="5 0 0 0" />
+
+            <Grid RowDefinitions="Auto, Auto, Auto, Auto"
+                  Grid.ColumnSpan="3"
+                  Grid.Row="1">
+
+                <propertyGrid:PropertyLabelControl LabelColumnWidth="160"
+                                                   LabelText="Artist"
+                                                   IsReadOnly="True"
+                                                   Margin="0"
+                                                   Value="{Binding AlbumArtist}" />
+
+                <propertyGrid:PropertyLabelControl LabelColumnWidth="160"
+                                                   LabelText="Album"
+                                                   IsReadOnly="True"
+                                                   Grid.Row="1"
+                                                   Margin="0"
+                                                   Value="{Binding Album}" />
+
+                <propertyGrid:PropertyLabelControl LabelColumnWidth="160"
+                                                   LabelText="Title"
+                                                   IsReadOnly="True"
+                                                   Grid.Row="2"
+                                                   Margin="0"
+                                                   Value="{Binding Title, TargetNullValue='(No Result)'}" />
+
+                <propertyGrid:PropertyLabelControl LabelColumnWidth="160"
+                                                   LabelText="Match Score"
+                                                   IsReadOnly="True"
+                                                   Grid.Row="3"
+                                                   Margin="0"
+                                                   Value="{Binding Score, StringFormat=P2}" />
+            </Grid>
         </Grid>
     </DataTemplate>
 

@@ -12,33 +12,28 @@ namespace AudioStation.Views.Converter
             if (values == null)
                 return Binding.DoNothing;
 
-            if (values.Length != 3)
+            if (values.Length != 2)
                 return Binding.DoNothing;
 
             if (values[0] == DependencyProperty.UnsetValue ||
-                values[1] == DependencyProperty.UnsetValue ||
-                values[2] == DependencyProperty.UnsetValue)
+                values[1] == DependencyProperty.UnsetValue)
                 return Binding.DoNothing;
 
-            var isTagDirty = (bool)values[0];
-            var isImportValid = (bool)values[1];
-            var isInError = (bool)values[2];
+            var isValid = (bool)values[0];
+            var isModified = (bool)values[1];
 
-            if (isImportValid)
-                return Brushes.LawnGreen;
+            if (isValid)
+            {
+                if (isModified)
+                    return Brushes.LawnGreen;
 
-            // Fields have been added to the tag in memory (also from online services)
-            else if (isTagDirty && isImportValid)
-                return Brushes.DodgerBlue;
-
-            else if (isTagDirty && !isImportValid)
-                return Brushes.Violet;
-
-            else if (!isImportValid || isInError)
-                return Brushes.Red;
-
+                else
+                    return Brushes.LightGray;
+            }
             else
-                return Brushes.DimGray;
+            {
+                return Brushes.Red;
+            }
         }
 
 

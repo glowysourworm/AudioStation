@@ -1,4 +1,5 @@
 ﻿<UserControl x:Class="AudioStation.Views.LibraryImportViews.LibraryImportTagSelectionView"
+             x:Name="BaseControl"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:xceed="http://schemas.xceed.com/wpf/xaml/toolkit"
@@ -7,79 +8,133 @@
              xmlns:controls="clr-namespace:AudioStation.Controls"
              xmlns:importView="clr-namespace:AudioStation.Views.LibraryImportViews"
              xmlns:coreModel="clr-namespace:AudioStation.Core.Model;assembly=AudioStation.Core"
-             xmlns:simpleUI="clr-namespace:SimpleWpf.UI.Controls;assembly=SimpleWpf.UI">
+             xmlns:simpleUI="clr-namespace:SimpleWpf.UI.Controls;assembly=SimpleWpf.UI"
+             xmlns:enumUI="clr-namespace:SimpleWpf.UI.Controls.EnumUI;assembly=SimpleWpf.UI">
     
     <!-- Tag Detail -->
-    <Grid ColumnDefinitions="*, 2*" RowDefinitions="Auto, Auto, Auto">
+    <Grid ColumnDefinitions="*, *" RowDefinitions="Auto, Auto, Auto">
 
-        <!-- Tag (Clean / Dirty) -->
-        <importView:LibraryImportTagIssuesView DataContext="{Binding Tag}">
+        <!-- Control Panel -->
+        <Border Grid.ColumnSpan="2" Style="{StaticResource HeaderBorderStyle}">
+
+            <Grid Margin="3" HorizontalAlignment="Stretch" ColumnDefinitions="Auto, *, Auto, Auto, Auto, Auto">
+
+                <TextBlock Text="Import Source(s)" Style="{StaticResource LabelTextBlock}" />
+
+                <!-- Tag Record Source (File, Database, Service) -->
+                <enumUI:SimpleEnumComboBox x:Name="TagSourceCB" 
+                                           EnumType="{x:Type coreModel:LibraryImportSource}"
+                                           EnumValue="{Binding TagSource, Mode=TwoWay, ElementName=BaseControl}"
+                                           HorizontalAlignment="Right"
+                                           Width="180"
+                                           Margin="0 0 5 0"
+                                           Style="{StaticResource PropertyGridSimpleEnumComboBox}"
+                                           Grid.Column="1" />
+
+                <TextBlock Text="Music Brainz Result(s)" 
+                           Style="{StaticResource LabelTextBlock}" 
+                           Visibility="{Binding TagSource, ElementName=BaseControl, 
+                           Converter={StaticResource ParameterVisibilityCollapsedConverter},
+                           ConverterParameter={x:Static coreModel:LibraryImportSource.DataService}}"
+                           Grid.Column="2" />
+
+                <!-- AcoustID / Music Brainz Result(s) -->
+                <ComboBox x:Name="MusicBrainzCB" 
+                          Grid.Column="3"
+                          Width="260"
+                          Margin="5 0"
+                          Visibility="{Binding TagSource, ElementName=BaseControl, 
+                          Converter={StaticResource ParameterVisibilityCollapsedConverter},
+                          ConverterParameter={x:Static coreModel:LibraryImportSource.DataService}}"                          
+                          Style="{StaticResource PropertyGridComboBox}"
+                          ItemsSource="{Binding ImportOutput.MusicBrainzAcoustIDResults}">
+                </ComboBox>
+
+                <!-- Save Tag -->
+                <Button Style="{StaticResource UserControlButton}" 
+                        Command="{Binding SaveTagCommand}"
+                        ToolTip="Save Tag To Disk"
+                        Visibility="{Binding IsTagDirty, Converter={StaticResource BoolVisibilityCollapseConverter}}"
+                        Grid.Column="4">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Save" Margin="3 1" FontSize="12" />
+                        <fa5:ImageAwesome Icon="Solid_Save" 
+                                                  Style="{StaticResource FontAwesomeIconManagerViewPager}" 
+                                                  Margin="1" />
+                    </StackPanel>
+                </Button>
+
+                <!-- Clear Tag (Revert) -->
+                <Button Style="{StaticResource UserControlButton}" 
+                        Command="{Binding RefreshCommand}"
+                        Visibility="{Binding IsTagDirty, Converter={StaticResource BoolVisibilityCollapseConverter}}"
+                        ToolTip="Clear All Imported Data And Restart"
+                        Grid.Column="5">
+
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Clear" Margin="3 1" FontSize="12" />
+                        <fa5:ImageAwesome Icon="Solid_Recycle" 
+                                                  Style="{StaticResource FontAwesomeIconManagerViewPager}" 
+                                                  Margin="1" />
+                    </StackPanel>
+                </Button>
+            </Grid>
+        </Border>
+
+        <!-- Tag (Record) (this is our target) -->
+        <importView:LibraryImportTagIssuesView DataContext="{Binding TagRecord}" 
+                                               IsReadOnly="False"
+                                               CanCopy="False"
+                                               UseRequiredFields="False"
+                                               Grid.Row="1" Grid.Column="0">
             <importView:LibraryImportTagIssuesView.TagHeader>
-                
+
                 <StackPanel Orientation="Horizontal">
                     <fa5:SvgAwesome Icon="Solid_Database" Style="{StaticResource FontAwesomeIconDefault}" />
                     <TextBlock Text="Final Record" Style="{StaticResource TagLabelTextBlock}" />
                 </StackPanel>
-                
+
             </importView:LibraryImportTagIssuesView.TagHeader>
         </importView:LibraryImportTagIssuesView>
 
-        <!-- Copy Music Brainz -> Tag -->
-        <Button Style="{StaticResource UserControlButton}" 
-                            Command="{Binding CopyMusicBrainzToTagCommand}"
-                            ToolTip="Copy Music Brainz Data To Tag"
-                            Visibility="{Binding ImportOutput.MusicBrainzRecordingMatchSuccess, Converter={StaticResource BoolVisibilityCollapseConverter}}"
-                            Grid.Row="1"
-                            Height="36"
-                            Width="36"
-                            Margin="5">
-
-            <fa5:ImageAwesome Icon="Solid_ArrowUp" 
-                                              Style="{StaticResource FontAwesomeIconManagerViewPager}" 
-                                              Margin="1" />
-        </Button>
-
-        <!-- Music Brainz Tag -->
-        <importView:LibraryImportTagIssuesView DataContext="{Binding SelectedMusicBrainzRecordingMatch}" Grid.Row="2">
+        <!-- Tag (File) -->
+        <importView:LibraryImportTagIssuesView DataContext="{Binding Tag}" 
+                                               CopyTarget="{Binding DataContext.TagRecord, ElementName=BaseControl}"
+                                               CanCopy="True"
+                                               IsReadOnly="True"
+                                               Grid.Row="1" Grid.Column="1"
+                                               Visibility="{Binding TagSource, ElementName=BaseControl, 
+                                               Converter={StaticResource ParameterVisibilityCollapsedConverter},
+                                               ConverterParameter={x:Static coreModel:LibraryImportSource.File}}">
             <importView:LibraryImportTagIssuesView.TagHeader>
+
                 <StackPanel Orientation="Horizontal">
-                    <fa5:SvgAwesome Icon="Solid_Tag" Style="{StaticResource FontAwesomeIconDefault}" />
-                    <TextBlock Text="Source Information" Style="{StaticResource TagLabelTextBlock}" />
+                    <fa5:SvgAwesome Icon="Solid_Save" Style="{StaticResource FontAwesomeIconDefault}" />
+                    <TextBlock Text="File Record (Tag Data)" Style="{StaticResource TagLabelTextBlock}" />
                 </StackPanel>
 
             </importView:LibraryImportTagIssuesView.TagHeader>
         </importView:LibraryImportTagIssuesView>
 
-        <!-- AcoustID -->
-        <GroupBox Header="AcoustID Results" 
-                  Style="{StaticResource TagIssuesGroupBoxStyle}"
-                  Grid.Row="0" 
-                  Grid.Column="2">
-            <ListBox x:Name="AcoustIDListBox" 
-                     Style="{StaticResource PlainListBoxStyle}"
-                     AlternationCount="2"
-                     ItemTemplate="{StaticResource AcoustIDResultTemplate}"
-                     ItemContainerStyle="{StaticResource HoverSelectItemContainerStyleWithAlternation_Playlist}"
-                     ItemsSource="{Binding ImportOutput.AcoustIDResults}">
-                
-            </ListBox>
-        </GroupBox>
+        <!-- Data Service (Music Brainz, ...) -->
+        <importView:LibraryImportTagIssuesView DataContext="{Binding SelectedItem, ElementName=MusicBrainzCB}" 
+                                               CopyTarget="{Binding DataContext.TagRecord, ElementName=BaseControl}"
+                                               CanCopy="True"
+                                               IsReadOnly="True"
+                                               UseRequiredFields="False"
+                                               Visibility="{Binding TagSource, ElementName=BaseControl, 
+                                               Converter={StaticResource ParameterVisibilityCollapsedConverter},
+                                               ConverterParameter={x:Static coreModel:LibraryImportSource.DataService}}"
+                                               Grid.Row="1" Grid.Column="1">
+            <importView:LibraryImportTagIssuesView.TagHeader>
 
-        <!-- Music Brainz (basic) -->
-        <GroupBox Header="Music Brainz Results" 
-                  Style="{StaticResource TagIssuesGroupBoxStyle}"
-                  Grid.Row="1" 
-                  Grid.RowSpan="2"
-                  Grid.Column="2">
-            <ListBox x:Name="MusicBrainzListBox" 
-                     Style="{StaticResource PlainListBoxStyle}"                     
-                     AlternationCount="2"
-                     ItemTemplate="{StaticResource TagSmallTemplate}"   
-                     ItemContainerStyle="{StaticResource HoverSelectItemContainerStyleWithAlternation_Playlist}"
-                     ItemsSource="{Binding ImportOutput.MusicBrainzRecordingMatches}">
+                <StackPanel Orientation="Horizontal">
+                    <fa5:SvgAwesome Icon="Solid_Music" Style="{StaticResource FontAwesomeIconDefault}" />
+                    <TextBlock Text="Music Brainz Result" Style="{StaticResource TagLabelTextBlock}" />
+                </StackPanel>
 
-            </ListBox>
-        </GroupBox>        
+            </importView:LibraryImportTagIssuesView.TagHeader>
+        </importView:LibraryImportTagIssuesView>
 
     </Grid>
 </UserControl>

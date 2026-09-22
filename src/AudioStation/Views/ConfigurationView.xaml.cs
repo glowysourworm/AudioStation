@@ -22,7 +22,6 @@ namespace AudioStation.Views
                 this.PasswordTB.Password = viewModel.Configuration.DatabasePassword;
                 this.LastFmPasswordTB.Password = viewModel.Configuration.LastFmPassword;
                 this.FanartPasswordTB.Password = viewModel.Configuration.FanartPassword;
-                this.MusicBrainzPasswordTB.Password = viewModel.Configuration.MusicBrainzPassword;
                 this.BandcampPasswordTB.Password = viewModel.Configuration.BandcampPassword;
 
                 // Problem adding DataGridRow
@@ -61,16 +60,6 @@ namespace AudioStation.Views
             if (viewModel != null)
             {
                 viewModel.Configuration.FanartPassword = this.FanartPasswordTB.Password;
-            }
-        }
-
-        private void MusicBrainzPasswordTB_PasswordChanged(object sender, System.Windows.RoutedEventArgs e)
-        {
-            var viewModel = this.DataContext as MainViewModel;
-
-            if (viewModel != null)
-            {
-                viewModel.Configuration.MusicBrainzPassword = this.MusicBrainzPasswordTB.Password;
             }
         }
 

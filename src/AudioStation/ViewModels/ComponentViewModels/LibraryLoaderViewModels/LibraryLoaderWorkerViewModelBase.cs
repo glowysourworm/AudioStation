@@ -512,7 +512,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels
             if (sender.GetOwnerId() == this.Id)
             {
                 // This is essentially the same code (update/add)
-                OnWorkItemComplete(sender);
+                AddUpdateWorkItem(sender, false);
             }
         }
         private void OnWorkItemCanceled(LibraryLoaderWorkItem sender)
@@ -520,44 +520,12 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels
             if (sender.GetOwnerId() == this.Id)
             {
                 // This is essentially the same code (update/add)
-                OnWorkItemComplete(sender);
+                AddUpdateWorkItem(sender, true);
             }
         }
         private void OnWorkItemComplete(LibraryLoaderWorkItem complete)
         {
-            if (complete.GetOwnerId() != this.Id)
-                return;
-
-            LibraryWorkItemViewModel workItem;
-
-            // Update
-            if (_workItems.ContainsKey(complete.GetId()))
-            {
-                workItem = _workItems[complete.GetId()];
-            }
-
-            // Add
-            else
-            {
-                workItem = new LibraryWorkItemViewModel();
-
-                workItem.Id = complete.GetId();
-                workItem.LoadType = complete.GetLoadType();
-                workItem.Load = MapWorkLoad(complete.GetWorkItem());
-                workItem.Output = MapWorkOutput(complete.GetOutputItem());
-
-                _workItems.Add(workItem.Id, workItem);
-            }
-
-            LibraryLoaderHelpers.ApplyLibraryLoaderWorkItem(complete, ref workItem);
-
-            // Allow inherited class to complete work
-            CompleteWorkItem(workItem);
-
-            if (this.WorkItemChangedEvent != null)
-                this.WorkItemChangedEvent(this, workItem);
-
-            OnUpdate();
+            AddUpdateWorkItem(complete, true);
         }
         private void OnWorkItemUIPropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
@@ -570,6 +538,43 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels
 
             if (this.WorkItemUIChangedEvent != null)
                 this.WorkItemUIChangedEvent(this, sender as LibraryWorkItemViewModel);
+        }
+        private void AddUpdateWorkItem(LibraryLoaderWorkItem sender, bool isComplete)
+        {
+            if (sender.GetOwnerId() != this.Id)
+                return;
+
+            LibraryWorkItemViewModel workItem;
+
+            // Update
+            if (_workItems.ContainsKey(sender.GetId()))
+            {
+                workItem = _workItems[sender.GetId()];
+            }
+
+            // Add
+            else
+            {
+                workItem = new LibraryWorkItemViewModel();
+
+                workItem.Id = sender.GetId();
+                workItem.LoadType = sender.GetLoadType();
+                workItem.Load = MapWorkLoad(sender.GetWorkItem());
+                workItem.Output = MapWorkOutput(sender.GetOutputItem());
+
+                _workItems.Add(workItem.Id, workItem);
+            }
+
+            LibraryLoaderHelpers.ApplyLibraryLoaderWorkItem(sender, ref workItem);
+
+            // Allow inherited class to complete work
+            if (isComplete)
+                CompleteWorkItem(workItem);
+
+            if (this.WorkItemChangedEvent != null)
+                this.WorkItemChangedEvent(this, workItem);
+
+            OnUpdate();
         }
     }
 }

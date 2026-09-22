@@ -9,42 +9,40 @@ using AudioStation.Core.Utility;
 
 using Microsoft.Extensions.Logging;
 
-using SimpleWpf.Extensions.Event;
 using SimpleWpf.IocFramework.Application.Attribute;
 
 namespace AudioStation.Core.Service.Vendor
 {
     [IocExport(typeof(IAcoustIDClient))]
-    public class AcoustIDClient : IAcoustIDClient, IAudioStationDataService
+    public class AcoustIDClient : VendorServiceBase, IAcoustIDClient
     {
-        // IAudioStationComponent
-        //
-        public event SimpleEventHandler<IAudioStationDataService, IAudioStationDataService.Status> StatusChangeEvent;
-
-        private IAudioStationDataService.Status _status;
+        // Configuration Properties
+        double _acoustIDMinScore;
+        int _acoustIDMaxResults;
 
         [IocImportingConstructor]
-        public AcoustIDClient()
+        public AcoustIDClient() : base("Acoust ID Client", "Acoust ID Client")
         {
-            _status = IAudioStationDataService.Status.Disabled;
         }
 
         /// <summary>
         /// Calculates library entry by audio fingerprint using an online api.
         /// </summary>
-        public Task<IEnumerable<AcoustIDLookupResult>> IdentifyFingerprintAsync(string fileName, int minScore)
+        public Task<IEnumerable<AcoustIDLookupResult>> IdentifyFingerprintAsync(string fileName)
         {
             return Task.Run(async () =>
             {
-                return IdentifyFingerprint(fileName, minScore);
+                return IdentifyFingerprint(fileName);
             });
         }
 
         /// <summary>
         /// Calculates library entry by audio fingerprint using an online api.
         /// </summary>
-        public IEnumerable<AcoustIDLookupResult> IdentifyFingerprint(string fileName, int minScore)
+        public IEnumerable<AcoustIDLookupResult> IdentifyFingerprint(string fileName)
         {
+            ServiceWait();
+
             try
             {
                 // -> Working
@@ -82,7 +80,7 @@ namespace AudioStation.Core.Service.Vendor
                 OnStatusChanged(IAudioStationDataService.Status.Idle);
 
                 return response.Results
-                               .Where(x => x.Score >= (minScore / 100.0D))
+                               .Where(x => x.Score >= _acoustIDMinScore)
                                .Where(x => x.Recordings != null && x.Recordings.Any())
                                .OrderByDescending(x => x.Score)
                                .SelectMany(x =>
@@ -101,7 +99,9 @@ namespace AudioStation.Core.Service.Vendor
                                    }
 
                                    return results;
-                               }).ToList();
+                               })
+                               .Take(_acoustIDMaxResults)
+                               .ToList();
             }
             catch (Exception ex)
             {
@@ -113,57 +113,27 @@ namespace AudioStation.Core.Service.Vendor
         }
 
         #region (public) IAudioStationComponent Methods
-        public string GetName()
-        {
-            return "Acoust ID Client";
-        }
-        public string GetDisplayName()
-        {
-            return "Acoust ID Client";
-        }
-        public IAudioStationDataService.Status GetStatus()
-        {
-            return _status;
-        }
-        public IAudioStationDataService.Status Initialize(AudioStationConfiguration configuration)
+        public override IAudioStationDataService.Status Initialize(AudioStationConfiguration configuration)
         {
             if (string.IsNullOrWhiteSpace(configuration.AcoustIDAPIKey))
-                return _status;
+            {
+                return base.Initialize(configuration);
+            }
 
             // Setup Static Configuration
             AcoustID.Configuration.ClientKey = configuration.AcoustIDAPIKey;
 
+            _acoustIDMaxResults = configuration.AcoustIDMaxResults;
+            _acoustIDMinScore = configuration.AcoustIDMinScore;
+
+            // Wait period between calls
+            SetThrottleLimit((uint)configuration.AcoustIDWaitMilliseconds);
+
             // -> Idle
             OnStatusChanged(IAudioStationDataService.Status.Idle);
 
-            return _status;
-        }
-
-        public Task<IAudioStationDataService.Status> InitializeAsync(AudioStationConfiguration configuration)
-        {
-            return Task.Run(() => Initialize(configuration));
-        }
-
-        public IAudioStationDataService.Status ReInitialize(AudioStationConfiguration configuration)
-        {
-            return IAudioStationDataService.Status.Idle;
-        }
-
-        public Task<IAudioStationDataService.Status> ReInitializeAsync(AudioStationConfiguration configuration)
-        {
-            return Task.FromResult(IAudioStationDataService.Status.Idle);
-        }
-        public string GetStatusMessage()
-        {
-            return this.GetDisplayName() + " " + IAudioStationDataService.GetDefaultStatusMessage(_status);
-        }
-
-        private void OnStatusChanged(IAudioStationDataService.Status status)
-        {
-            _status = status;
-
-            if (this.StatusChangeEvent != null)
-                this.StatusChangeEvent(this, _status);
+            // -> Return Status
+            return base.Initialize(configuration);
         }
         #endregion
     }

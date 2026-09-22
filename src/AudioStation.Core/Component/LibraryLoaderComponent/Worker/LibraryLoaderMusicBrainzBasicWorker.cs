@@ -78,11 +78,12 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
                         Log("Music Brainz client lookup started:  " + entity.FileName);
 
                         var response = _musicBrainzClient.ProcessRequest(new AudioStationTagServiceRequest(AudioStationTagRequestType.TagSmall, (Guid)entity.MusicBrainzRecordingId));
-                        var result = (response.Payload as TagSmallPayload).Data;
-                        var validation = TagValidator.ValidateTagSmallImport(result);
 
                         if (response.Success)
                         {
+                            var result = (response.Payload as TagSmallPayload).Data;
+                            var validation = TagValidator.ValidateTagSmallImport(result);
+
                             if (validation.IsValid)
                             {
                                 Log("Music Brainz client lookup finished (valid):  " + entity.FileName);
@@ -118,7 +119,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
 
                 return new LibraryWorkerStepResult()
                 {
-                    Completed = !hasInvalidTags,
+                    Completed = true,
                     Message = "Music Brainz (basic) finished with some invalid tag data",
                     StepNumber = stepNumber,
                     Result = !hasInvalidTags ? LibraryWorkerResultLevel.Success : LibraryWorkerResultLevel.DataWarning

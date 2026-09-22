@@ -8,7 +8,7 @@
              xmlns:importView="clr-namespace:AudioStation.Views.LibraryImportViews"
              xmlns:coreModel="clr-namespace:AudioStation.Core.Model;assembly=AudioStation.Core"
              xmlns:simpleUI="clr-namespace:SimpleWpf.UI.Controls;assembly=SimpleWpf.UI"
-             Height="460" Width="800">
+             Height="460" Width="840">
     
     <!-- Detail Panel:  SelectedItem.File (LibraryImportFileViewModel) -->
     <TabControl>
@@ -43,52 +43,22 @@
                                     VerticalAlignment="Center"
                                     Grid.Column="1">
 
-                    <fa5:ImageAwesome Icon="Solid_Tag" 
-                                          Margin="3"
-                                          Style="{StaticResource FontAwesomeIconManagerViewPager}"
-                                          ToolTip="Tag data is required to complete the import">
-                        <fa5:ImageAwesome.Foreground>
+                    <fa5:SvgAwesome Icon="Solid_Tag" 
+                                      Margin="3"
+                                      Style="{StaticResource FontAwesomeIconDefault}"
+                                      ToolTip="Tag data is required to complete the import">
+                        <fa5:SvgAwesome.Foreground>
                             <MultiBinding Converter="{StaticResource LibraryLoaderImportTagForegroundConverter}">
-                                <Binding Path="IsTagDirty" />
-                                <Binding Path="MinimumImportValid" />
-                                <Binding Path="InError" />
+                                <Binding Path="Tag.IsValid" />
+                                <Binding Path="Tag.IsModified" />
                             </MultiBinding>
-                        </fa5:ImageAwesome.Foreground>
-                    </fa5:ImageAwesome>
+                        </fa5:SvgAwesome.Foreground>
+                    </fa5:SvgAwesome>
 
                     <TextBlock Text="Tag Import" Style="{StaticResource LabelTextBlock}" />
-
-                    <!-- Save Tag -->
-                    <Button Style="{StaticResource UserControlButton}" 
-                                    Command="{Binding SaveTagCommand}"
-                                    ToolTip="Save Tag To Disk"
-                                    Visibility="{Binding IsTagDirty, Converter={StaticResource BoolVisibilityCollapseConverter}}"
-                                    Margin="5 0 0 0">
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="Save" Margin="3 1" FontSize="12" />
-                            <fa5:ImageAwesome Icon="Solid_Save" 
-                                                  Style="{StaticResource FontAwesomeIconManagerViewPager}" 
-                                                  Margin="1" />
-                        </StackPanel>
-                    </Button>
-
-                    <!-- Clear Tag (Revert) -->
-                    <Button Style="{StaticResource UserControlButton}" 
-                                Command="{Binding RefreshCommand}"
-                                Visibility="{Binding IsTagDirty, Converter={StaticResource BoolVisibilityCollapseConverter}}"
-                                ToolTip="Clear All Imported Data And Restart"
-                                Margin="5 0 0 0">
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="Clear" Margin="3 1" FontSize="12" />
-                            <fa5:ImageAwesome Icon="Solid_Recycle" 
-                                                  Style="{StaticResource FontAwesomeIconManagerViewPager}" 
-                                                  Margin="1" />
-                        </StackPanel>
-
-                    </Button>
                 </StackPanel>
             </TabItem.Header>
-
+            
             <importView:LibraryImportTagSelectionView />
 
         </TabItem>

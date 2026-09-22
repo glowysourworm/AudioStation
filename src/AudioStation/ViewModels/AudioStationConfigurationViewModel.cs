@@ -55,8 +55,12 @@ namespace AudioStation.ViewModels
 
         string _musicBrainzUser;
         string _musicBrainzPassword;
+        double _musicBrainzWaitMilliseconds;
 
         string _acoustIDAPIKey;
+        double _acoustIDWaitMilliseconds;
+        double _acoustIDMinScore;
+        int _acoustIDMaxResults;
 
         public SimpleCommand<string> AddDirectoryCommand
         {
@@ -225,10 +229,30 @@ namespace AudioStation.ViewModels
             get { return _musicBrainzPassword; }
             set { this.RaiseAndSetIfChanged(ref _musicBrainzPassword, value); }
         }
+        public double MusicBrainzWaitMilliseconds
+        {
+            get { return _musicBrainzWaitMilliseconds; }
+            set { this.RaiseAndSetIfChanged(ref _musicBrainzWaitMilliseconds, value); }
+        }
         public string AcoustIDAPIKey
         {
             get { return _acoustIDAPIKey; }
             set { this.RaiseAndSetIfChanged(ref _acoustIDAPIKey, value); }
+        }
+        public double AcoustIDWaitMilliseconds
+        {
+            get { return _acoustIDWaitMilliseconds; }
+            set { this.RaiseAndSetIfChanged(ref _acoustIDWaitMilliseconds, value); }
+        }
+        public double AcoustIDMinScore
+        {
+            get { return _acoustIDMinScore; }
+            set { this.RaiseAndSetIfChanged(ref _acoustIDMinScore, value); }
+        }
+        public int AcoustIDMaxResults
+        {
+            get { return _acoustIDMaxResults; }
+            set { this.RaiseAndSetIfChanged(ref _acoustIDMaxResults, value); }
         }
 
         public AudioStationConfigurationViewModel() : base("Audio Station Configuration")

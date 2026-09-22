@@ -1,20 +1,25 @@
 ﻿<local:PropertyGridControl x:Class="AudioStation.Controls.PropertyGrid.PropertyDoubleSliderControl"
-             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:controls="clr-namespace:AudioStation.Controls"
-             xmlns:local="clr-namespace:AudioStation.Controls.PropertyGrid">
+                           xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                           xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                           xmlns:controls="clr-namespace:AudioStation.Controls"
+                           xmlns:local="clr-namespace:AudioStation.Controls.PropertyGrid">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="{Binding LabelColumnWidth, RelativeSource={RelativeSource AncestorType=UserControl}}" />
             <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
 
         <TextBlock Text="{Binding LabelText, RelativeSource={RelativeSource AncestorType=UserControl}}" 
 				   Style="{StaticResource PropertyGridLabel}" />
 
-        <controls:ScrubberControl Grid.Column="1" 
-				                   ScrubbedRatio="{Binding Value, RelativeSource={RelativeSource AncestorType=UserControl}}" 
-				                   IsEnabled="{Binding IsReadOnly, RelativeSource={RelativeSource AncestorType=UserControl}}" />
+        <Slider Value="{Binding Value, RelativeSource={RelativeSource AncestorType=UserControl}}" Grid.Column="1"
+                IsEnabled="{Binding IsReadOnly, Converter={StaticResource BoolInverseConverter}, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                Minimum="{Binding ValueMin, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                Maximum="{Binding ValueMax, RelativeSource={RelativeSource AncestorType=UserControl}}" />
+
+        <!-- Set Text Manually (can't bind to the string format)-->
+        <TextBlock x:Name="ValueLabelTB" Style="{StaticResource PropertyGridLabel}" Grid.Column="2" />
     </Grid>
     
 </local:PropertyGridControl>

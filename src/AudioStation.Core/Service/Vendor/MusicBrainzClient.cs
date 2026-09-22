@@ -17,7 +17,6 @@ using MetaBrainz.MusicBrainz.Interfaces.Entities;
 using Microsoft.Extensions.Logging;
 
 using SimpleWpf.Extensions.Collection;
-using SimpleWpf.Extensions.Event;
 using SimpleWpf.IocFramework.Application.Attribute;
 
 using Query = MetaBrainz.MusicBrainz.Query;
@@ -25,36 +24,11 @@ using Query = MetaBrainz.MusicBrainz.Query;
 namespace AudioStation.Core.Service.Vendor
 {
     [IocExport(typeof(IMusicBrainzClient))]
-    public class MusicBrainzClient : IMusicBrainzClient
+    public class MusicBrainzClient : VendorServiceBase, IMusicBrainzClient
     {
-        // IAudioStationComponent
-        //
-        public event SimpleEventHandler<IAudioStationDataService, IAudioStationDataService.Status> StatusChangeEvent;
-
-        private IAudioStationDataService.Status _status;
-        private uint _throttleLimitMilliseconds;
-        private DateTime _lastServiceCall;
-        private const int SERVICE_WAIT_MILLISEC = 100;
-        private const int FIND_LIMIT = 10;
-
         [IocImportingConstructor]
-        public MusicBrainzClient()
+        public MusicBrainzClient() : base("Music Brainz Client", "Music Brainz Client")
         {
-            _status = IAudioStationDataService.Status.Disabled;
-            _throttleLimitMilliseconds = 3000;
-            _lastServiceCall = DateTime.MinValue;
-        }
-
-        protected void ServiceWait()
-        {
-            // Throttle limit for service calls
-            while (DateTime.Now < _lastServiceCall.AddMilliseconds(_throttleLimitMilliseconds))
-            {
-                Thread.Sleep(SERVICE_WAIT_MILLISEC);
-            }
-
-            // UPDATE SERVICE WAIT
-            _lastServiceCall = DateTime.Now;
         }
 
         protected async Task<IRecording?> RecordingQuery(Guid recordingId)
@@ -267,15 +241,20 @@ namespace AudioStation.Core.Service.Vendor
                 Comment = null,
                 Copyright = null,
                 DurationMilliseconds = (int)(recording?.Length?.TotalMilliseconds ?? 0),
-                Genre = recordingRelease?.Genres?.FirstOrDefault()?.Name,
+                Genre = recordingRelease?.Genres?.FirstOrDefault()?.Name ??
+                        release?.Genres?.FirstOrDefault()?.Name ??
+                        recording?.Genres?.FirstOrDefault()?.Name ??
+                        recording?.UserGenres?.FirstOrDefault()?.Name ??
+                        recordingRelease?.UserGenres?.FirstOrDefault()?.Name ??
+                        release?.UserGenres?.FirstOrDefault()?.Name,
                 MediaFormat = media?.Format,
                 MediaNumber = media?.Position,
-                MediaTotal = release.Media.Count,
-                Publisher = release.LabelInfo.FirstOrDefault()?.Label?.Name,
+                MediaTotal = release?.Media.Count,
+                Publisher = release?.LabelInfo.FirstOrDefault()?.Label?.Name,
                 Title = recording?.Title,
                 TrackNumber = track?.Position,
                 TrackTotal = media?.TrackCount,
-                Year = release.Date?.Year
+                Year = release?.Date?.Year
             };
             //return new AudioStationTag()
             //{
@@ -503,50 +482,16 @@ namespace AudioStation.Core.Service.Vendor
         #endregion
 
         #region (public) IAudioStationComponent Methods
-        public string GetName()
+        public override IAudioStationDataService.Status Initialize(AudioStationConfiguration configuration)
         {
-            return "Music Brainz Client";
-        }
-        public string GetDisplayName()
-        {
-            return "Music Brainz Client";
-        }
-        public IAudioStationDataService.Status GetStatus()
-        {
-            return _status;
-        }
-        public IAudioStationDataService.Status Initialize(AudioStationConfiguration configuration)
-        {
-            //_client = Authenticate();
+            // Wait period between calls
+            SetThrottleLimit((uint)configuration.MusicBrainzWaitMilliseconds);
 
-            return _status;
-        }
+            // -> Idle
+            OnStatusChanged(IAudioStationDataService.Status.Idle);
 
-        public Task<IAudioStationDataService.Status> InitializeAsync(AudioStationConfiguration configuration)
-        {
-            return Task.Run(() => Initialize(configuration));
-        }
-
-        public IAudioStationDataService.Status ReInitialize(AudioStationConfiguration configuration)
-        {
-            return IAudioStationDataService.Status.Idle;
-        }
-
-        public Task<IAudioStationDataService.Status> ReInitializeAsync(AudioStationConfiguration configuration)
-        {
-            return Task.FromResult(IAudioStationDataService.Status.Idle);
-        }
-
-        public string GetStatusMessage()
-        {
-            return this.GetDisplayName() + " " + IAudioStationDataService.GetDefaultStatusMessage(_status);
-        }
-        private void OnStatusChanged(IAudioStationDataService.Status status)
-        {
-            _status = status;
-
-            if (this.StatusChangeEvent != null)
-                this.StatusChangeEvent(this, _status);
+            // -> Return Status
+            return base.Initialize(configuration);
         }
         #endregion
     }

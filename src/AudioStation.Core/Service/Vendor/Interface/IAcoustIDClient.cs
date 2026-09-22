@@ -5,7 +5,7 @@ namespace AudioStation.Core.Service.Vendor.Interface
 {
     public interface IAcoustIDClient : IAudioStationDataService
     {
-        IEnumerable<AcoustIDLookupResult> IdentifyFingerprint(string fileName, int minScore);
-        Task<IEnumerable<AcoustIDLookupResult>> IdentifyFingerprintAsync(string fileName, int minScore);
+        IEnumerable<AcoustIDLookupResult> IdentifyFingerprint(string fileName);
+        Task<IEnumerable<AcoustIDLookupResult>> IdentifyFingerprintAsync(string fileName);
     }
 }

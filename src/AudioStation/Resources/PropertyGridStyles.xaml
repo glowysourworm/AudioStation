@@ -14,7 +14,7 @@
 
     <!-- User Control (Blanket Properties) -->
     <Style x:Key="PropertyGridUserControl" TargetType="UserControl">
-        
+
         <Setter Property="FontSize" Value="14" />
         <Setter Property="Foreground" Value="#FF555555" />
         <Setter Property="Background" Value="Transparent" />
@@ -61,6 +61,22 @@
     <Style x:Key="PropertyGridTextBox" TargetType="TextBox">
         <Setter Property="VerticalContentAlignment" Value="Center" />
 
+        <Style.Triggers>
+            <Trigger Property="Validation.HasError" Value="true">
+                <Setter Property="BorderBrush" Value="Red" />
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <Style x:Key="PropertyGridPasswordBox" TargetType="{x:Type xceed:WatermarkPasswordBox}" BasedOn="{StaticResource PropertyGridTextBox}">
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="Foreground" Value="#FF555555" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="BorderBrush" Value="LightGray" />
+        <Setter Property="Margin" Value="1" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        
         <Style.Triggers>
             <Trigger Property="Validation.HasError" Value="true">
                 <Setter Property="BorderBrush" Value="Red" />

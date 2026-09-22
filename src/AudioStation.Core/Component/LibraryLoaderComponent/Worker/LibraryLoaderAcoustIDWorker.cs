@@ -10,7 +10,6 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
         private readonly IAcoustIDClient _acoustIDClient;
         private readonly IAudioStationDbClient _audioStationDbClient;
 
-        private readonly int ACOUSTID_MIN_SCORE = 70;
         private static readonly int WORK_STEPS = 2;
 
         public LibraryLoaderAcoustIDWorker(IAcoustIDClient acoustIDClient, IAudioStationDbClient audioStationDbClient, LibraryLoaderWorkItem workItem)
@@ -57,7 +56,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
         {
             try
             {
-                var resultSet = _acoustIDClient.IdentifyFingerprint(this.Load.Payload.File, ACOUSTID_MIN_SCORE);
+                var resultSet = _acoustIDClient.IdentifyFingerprint(this.Load.Payload.File);
 
                 foreach (var result in resultSet)
                 {

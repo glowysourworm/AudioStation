@@ -1,6 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 
 using AudioStation.Core.Component.LibraryLoaderComponent.Payload.Output.Interface;
+using AudioStation.Core.Database.AudioStationDatabase;
 using AudioStation.Core.Database.AudioStationDatabase.Interface;
 using AudioStation.Core.Model.Interface;
 
@@ -16,6 +17,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Pa
         ObservableCollection<ILogMessage> _logMessages;
         ObservableCollection<IAcoustIDLookupResult> _acoustIDResults;
         ObservableCollection<ITagSmall> _musicBrainzRecordingMatches;
+        ObservableCollection<MusicBrainzAcoustIDResult> _musicBrainzAcoustIDResults;
 
         int _tagSmallId;
         int _tagSmallFileReferenceMapId;
@@ -62,6 +64,11 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Pa
         {
             get { return _musicBrainzRecordingMatches; }
             set { this.RaiseAndSetIfChanged(ref _musicBrainzRecordingMatches, value); }
+        }
+        public ObservableCollection<MusicBrainzAcoustIDResult> MusicBrainzAcoustIDResults
+        {
+            get { return _musicBrainzAcoustIDResults; }
+            set { this.RaiseAndSetIfChanged(ref _musicBrainzAcoustIDResults, value); }
         }
         public int TagSmallId
         {
@@ -174,6 +181,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Pa
             this.AcoustIDResults = new ObservableCollection<IAcoustIDLookupResult>();
             this.LogMessages = new ObservableCollection<ILogMessage>();
             this.MusicBrainzRecordingMatches = new ObservableCollection<ITagSmall>();
+            this.MusicBrainzAcoustIDResults = new ObservableCollection<MusicBrainzAcoustIDResult>();
         }
     }
 }

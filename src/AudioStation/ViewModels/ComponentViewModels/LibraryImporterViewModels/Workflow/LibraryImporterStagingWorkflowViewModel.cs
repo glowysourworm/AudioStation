@@ -263,9 +263,11 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
                                           .MusicBrainzRecordingMatches
                                           .Add(_audioStationMapper.Map<TagSmall, TagSmallViewModel>(tagSmall));
                             }
+
+                            // Also, add this combined entity to our import output
+                            stagedFile.ImportOutput.MusicBrainzAcoustIDResults.Add(result);
                         }
                     }
-
 
                     // Check For Library Conflict
                     //
