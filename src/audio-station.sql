@@ -5,7 +5,7 @@
 -- Dumped from database version 17.4
 -- Dumped by pg_dump version 17.4
 
--- Started on 2026-09-20 23:46:40
+-- Started on 2026-09-21 22:09:42
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -412,6 +412,29 @@ ALTER TABLE public."Track" ALTER COLUMN "Id" ADD GENERATED ALWAYS AS IDENTITY (
 
 
 --
+-- TOC entry 235 (class 1259 OID 50669)
+-- Name: TagSmall; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public."TagSmall" (
+    "Id" integer NOT NULL,
+    "AlbumArtist" character varying,
+    "Album" character varying,
+    "Title" character varying,
+    "Genre" character varying,
+    "TrackNumber" integer,
+    "TrackTotal" integer,
+    "MediaNumber" integer,
+    "MediaTotal" integer,
+    "MediaFormat" character varying,
+    "DurationMilliseconds" integer,
+    "Year" integer
+);
+
+
+ALTER TABLE public."TagSmall" OWNER TO postgres;
+
+--
 -- TOC entry 240 (class 1259 OID 52115)
 -- Name: TagSmallVendorMap; Type: TABLE; Schema: public; Owner: postgres
 --
@@ -427,18 +450,30 @@ CREATE TABLE public."TagSmallVendorMap" (
 ALTER TABLE public."TagSmallVendorMap" OWNER TO postgres;
 
 --
--- TOC entry 249 (class 1259 OID 58131)
+-- TOC entry 249 (class 1259 OID 58154)
 -- Name: MusicBrainzAcoustIDResult; Type: VIEW; Schema: public; Owner: postgres
 --
 
 CREATE VIEW public."MusicBrainzAcoustIDResult" AS
  SELECT tagmap."TagSmallId",
-    acoustid."LookupId" AS acoustidlookupid,
+    acoustid."LookupId" AS "AcoustIDLookupId",
     acoustid."MusicBrainzRecordingId",
     acoustid."Score",
-    acoustid."FileName"
-   FROM (public."AcoustIDLookupResult" acoustid
+    acoustid."FileName",
+    tag."Genre",
+    tag."AlbumArtist",
+    tag."Album",
+    tag."Title",
+    tag."TrackNumber",
+    tag."TrackTotal",
+    tag."MediaNumber",
+    tag."MediaTotal",
+    tag."MediaFormat",
+    tag."DurationMilliseconds",
+    tag."Year"
+   FROM ((public."AcoustIDLookupResult" acoustid
      JOIN public."TagSmallVendorMap" tagmap ON ((acoustid."MusicBrainzRecordingId" = tagmap."MusicBrainzRecordingId")))
+     JOIN public."TagSmall" tag ON ((tag."Id" = tagmap."TagSmallId")))
   WHERE (acoustid."MusicBrainzRecordingId" IS NOT NULL);
 
 
@@ -471,29 +506,6 @@ CREATE TABLE public."RadioBrowserStation" (
 
 
 ALTER TABLE public."RadioBrowserStation" OWNER TO postgres;
-
---
--- TOC entry 235 (class 1259 OID 50669)
--- Name: TagSmall; Type: TABLE; Schema: public; Owner: postgres
---
-
-CREATE TABLE public."TagSmall" (
-    "Id" integer NOT NULL,
-    "AlbumArtist" character varying,
-    "Album" character varying,
-    "Title" character varying,
-    "Genre" character varying,
-    "TrackNumber" integer,
-    "TrackTotal" integer,
-    "MediaNumber" integer,
-    "MediaTotal" integer,
-    "MediaFormat" character varying,
-    "DurationMilliseconds" integer,
-    "Year" integer
-);
-
-
-ALTER TABLE public."TagSmall" OWNER TO postgres;
 
 --
 -- TOC entry 247 (class 1259 OID 52219)
@@ -896,7 +908,7 @@ ALTER TABLE ONLY public."TrackGenreMap"
     ADD CONSTRAINT "Track_ForeignKey" FOREIGN KEY ("TrackId") REFERENCES public."Track"("Id");
 
 
--- Completed on 2026-09-20 23:46:41
+-- Completed on 2026-09-21 22:09:42
 
 --
 -- PostgreSQL database dump complete
