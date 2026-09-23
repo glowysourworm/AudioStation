@@ -2,9 +2,7 @@
 
 using AudioStation.Controller.Interface;
 using AudioStation.Core.Component.Interface;
-using AudioStation.Core.Database.AudioStationDatabase.Interface;
 using AudioStation.Core.Model;
-using AudioStation.Core.Model.Interface;
 using AudioStation.Core.Model.Vendor.ATLExtension.Interface;
 using AudioStation.Core.Utility;
 using AudioStation.Event;
@@ -47,33 +45,34 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels
         string _fileImportName;
         string _fileImportFullPath;
 
-        // Validation data is available for ITagSmall
-        TagSmallEditViewModel _tag;
-        TagSmallViewModel _tagRecord;
-
-        LibraryLoaderImportInputViewModel _importLoad;
-        LibraryLoaderImportOutputViewModel _importOutput;
-
-        // These are both view model instances. Interfaces are just more convenient (from the backend)
-        //
-        IAcoustIDLookupResult _selectedAcoustIDResult;
-        ITagSmall _selectedMusicBrainzRecordingMatch;
-
         // ID3v2 [TXXX] User tag information typically set by MusicBrainz applications (e.g. Picard)
         //              that was found during import. These id's are used to load the "TagRecord" and
         //              to expedite the import process.
         //
-        Guid? _acoustIDTag;
-        Guid? _musicBrainzTrackIDTag;
+        // Tag Source(s):
+        //
+        // 1) File (readonly) (embed tag is an option after import completes)
+        // 2) Music Brainz Id ([TXXX] data left over from importing tag in another application)
+        // 3) Music Brainz / AcoustID Result(s)
+        // 
+        // -> TagRecordDirty (final write location)
+        //
+        //    This will be where we edit our "tag" until the import is ready. Then, it
+        //    will be used to create our database entities (Track, Album, Artist, Genre, ..)
+        //
+        TagSmallViewModel _tag;                      // File
+        TagSmallViewModel _tagMusicBrainz;           // Music Brainz (from [TXXX] tag ID)
+        TagSmallViewModel _tagRecordClean;           // Final Record (readonly)
+        TagSmallEditViewModel _tagRecordDirty;       // Final Record (edit)
+
+        LibraryLoaderImportInputViewModel _importLoad;
+        LibraryLoaderImportOutputViewModel _importOutput;
+
+        bool _musicBrainzReleaseTrackQuerySuccess;
         Guid? _musicBrainzReleaseTrackIDTag;
 
         SimpleCommand _selectTagSourceCommand;
-        SimpleCommand _selectMusicBrainzCommand;
-        SimpleCommand _selectAcoustIDCommand;
         SimpleCommand _playAudioCommand;
-        SimpleCommand _saveTagCommand;
-        SimpleCommand _copyMusicBrainzToTagCommand;
-        SimpleCommand _refreshCommand;
 
         public bool ServiceError
         {
@@ -100,15 +99,25 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels
             get { return _fileImportFullPath; }
             set { this.RaiseAndSetIfChanged(ref _fileImportFullPath, value); }
         }
-        public TagSmallEditViewModel Tag
+        public TagSmallViewModel Tag
         {
             get { return _tag; }
             set { this.RaiseAndSetIfChanged(ref _tag, value); }
         }
-        public TagSmallViewModel TagRecord
+        public TagSmallViewModel TagMusicBrainz
         {
-            get { return _tagRecord; }
-            set { this.RaiseAndSetIfChanged(ref _tagRecord, value); }
+            get { return _tagMusicBrainz; }
+            set { this.RaiseAndSetIfChanged(ref _tagMusicBrainz, value); }
+        }
+        public TagSmallViewModel TagRecordClean
+        {
+            get { return _tagRecordClean; }
+            set { this.RaiseAndSetIfChanged(ref _tagRecordClean, value); }
+        }
+        public TagSmallEditViewModel TagRecordDirty
+        {
+            get { return _tagRecordDirty; }
+            set { this.RaiseAndSetIfChanged(ref _tagRecordDirty, value); }
         }
         public LibraryLoaderImportInputViewModel ImportLoad
         {
@@ -120,25 +129,11 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels
             get { return _importOutput; }
             set { this.RaiseAndSetIfChanged(ref _importOutput, value); }
         }
-        public IAcoustIDLookupResult SelectedAcoustIDResult
+
+        public bool MusicBrainzReleaseTrackQuerySuccess
         {
-            get { return _selectedAcoustIDResult; }
-            set { this.RaiseAndSetIfChanged(ref _selectedAcoustIDResult, value); }
-        }
-        public ITagSmall SelectedMusicBrainzRecordingMatch
-        {
-            get { return _selectedMusicBrainzRecordingMatch; }
-            set { this.RaiseAndSetIfChanged(ref _selectedMusicBrainzRecordingMatch, value); }
-        }
-        public Guid? AcoustIDTag
-        {
-            get { return _acoustIDTag; }
-            set { this.RaiseAndSetIfChanged(ref _acoustIDTag, value); }
-        }
-        public Guid? MusicBrainzTrackIDTag
-        {
-            get { return _musicBrainzTrackIDTag; }
-            set { this.RaiseAndSetIfChanged(ref _musicBrainzTrackIDTag, value); }
+            get { return _musicBrainzReleaseTrackQuerySuccess; }
+            set { this.RaiseAndSetIfChanged(ref _musicBrainzReleaseTrackQuerySuccess, value); }
         }
         public Guid? MusicBrainzReleaseTrackIDTag
         {
@@ -146,41 +141,15 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels
             set { this.RaiseAndSetIfChanged(ref _musicBrainzReleaseTrackIDTag, value); }
         }
 
-
         public SimpleCommand SelectTagSourceCommand
         {
             get { return _selectTagSourceCommand; }
             set { this.RaiseAndSetIfChanged(ref _selectTagSourceCommand, value); }
         }
-        public SimpleCommand SelectMusicBrainzCommand
-        {
-            get { return _selectMusicBrainzCommand; }
-            set { this.RaiseAndSetIfChanged(ref _selectMusicBrainzCommand, value); }
-        }
-        public SimpleCommand SelectAcoustIDCommand
-        {
-            get { return _selectAcoustIDCommand; }
-            set { this.RaiseAndSetIfChanged(ref _selectAcoustIDCommand, value); }
-        }
         public SimpleCommand PlayAudioCommand
         {
             get { return _playAudioCommand; }
             set { this.RaiseAndSetIfChanged(ref _playAudioCommand, value); }
-        }
-        public SimpleCommand SaveTagCommand
-        {
-            get { return _saveTagCommand; }
-            set { this.RaiseAndSetIfChanged(ref _saveTagCommand, value); }
-        }
-        public SimpleCommand CopyMusicBrainzToTagCommand
-        {
-            get { return _copyMusicBrainzToTagCommand; }
-            set { this.RaiseAndSetIfChanged(ref _copyMusicBrainzToTagCommand, value); }
-        }
-        public SimpleCommand RefreshCommand
-        {
-            get { return _refreshCommand; }
-            set { this.RaiseAndSetIfChanged(ref _refreshCommand, value); }
         }
 
         bool _updating;
@@ -233,51 +202,22 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels
                 TrackCategory = importerConfiguration.ImportDirectory.TrackCategory,
             };
 
-            this.Tag = new TagSmallEditViewModel();
-            this.TagRecord = new TagSmallViewModel();
+            this.Tag = new TagSmallViewModel();
+            this.TagMusicBrainz = new TagSmallViewModel();
+            this.TagRecordClean = new TagSmallViewModel();
+            this.TagRecordDirty = new TagSmallEditViewModel();
             this.ImportOutput = new LibraryLoaderImportOutputViewModel();
 
             this.SelectTagSourceCommand = new SimpleCommand(() =>
             {
                 dialogController.ShowDialogWindowSync(DialogEventData.ShowDialogEditor("Tag Source(s)", DialogEditorView.TagSourceView, this));
             });
-            this.SelectAcoustIDCommand = new SimpleCommand(() =>
-            {
-                if (this.SelectAcoustIDEvent != null)
-                    this.SelectAcoustIDEvent(this);
-
-            }/*,  () => this.ImportOutput.AcoustIDSuccess */);
-
-            this.SelectMusicBrainzCommand = new SimpleCommand(() =>
-            {
-                if (this.SelectMusicBrainzEvent != null)
-                    this.SelectMusicBrainzEvent(this);
-
-            }/*, () => this.ImportOutput.MusicBrainzRecordingMatchSuccess*/);
 
             this.PlayAudioCommand = new SimpleCommand(() =>
             {
                 if (this.PlayAudioEvent != null)
                     this.PlayAudioEvent(this);
             });
-
-            this.CopyMusicBrainzToTagCommand = new SimpleCommand(() =>
-            {
-                CopyMusicBrainzToTag();
-
-            }, () => this.ImportLoad.ImportType == LibraryImportType.Migration);  /*, () => this.ImportOutput.MusicBrainzRecordingMatchSuccess*/
-
-            this.SaveTagCommand = new SimpleCommand(() =>
-            {
-                Save();
-
-            }, () => this.ImportLoad.ImportType == LibraryImportType.Migration);
-
-            this.RefreshCommand = new SimpleCommand(() =>
-            {
-                Reload();
-
-            }, () => this.Tag.IsModified);
 
             // Initializes the import output
             Reload();
@@ -305,24 +245,19 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels
 
             //this.MinimumImportValid = !this.InError && _libraryImporter.CanImportEntity(this.ImportLoad, this.ImportOutput);
 
-            if (this.Tag.IsValid)
-            {
-                //var fileMigrationName = _modelFileService.CalculateFileName(_tagDirty, this.ImportLoad.NamingType);
-                //var fileMigrationFolder = _modelFileService.CalculateFolderPath(_tagDirty, this.ImportLoad.DestinationFolder, this.ImportLoad.GroupingType);
+            //if (this.Tag.valid)
+            //{
+            //var fileMigrationName = _modelFileService.CalculateFileName(_tagDirty, this.ImportLoad.NamingType);
+            //var fileMigrationFolder = _modelFileService.CalculateFolderPath(_tagDirty, this.ImportLoad.DestinationFolder, this.ImportLoad.GroupingType);
 
-                //this.FileMigrationName = fileMigrationName;
-                //this.FileMigrationFullPath = System.IO.Path.Combine(fileMigrationFolder, fileMigrationName);
+            //this.FileMigrationName = fileMigrationName;
+            //this.FileMigrationFullPath = System.IO.Path.Combine(fileMigrationFolder, fileMigrationName);
 
-                //this.TagIssues = "(None)";
-            }
+            //this.TagIssues = "(None)";
+            //}
 
             // Commands update
-            this.SelectAcoustIDCommand.RaiseCanExecuteChanged();
-            this.SelectMusicBrainzCommand.RaiseCanExecuteChanged();
-            this.CopyMusicBrainzToTagCommand.RaiseCanExecuteChanged();
             this.PlayAudioCommand.RaiseCanExecuteChanged();
-            this.RefreshCommand.RaiseCanExecuteChanged();
-            this.SaveTagCommand.RaiseCanExecuteChanged();
 
             // Tag Dirty Flag
             //this.IsTagDirty = !ApplicationHelpers.Compare(_tagClean, _tagDirty);

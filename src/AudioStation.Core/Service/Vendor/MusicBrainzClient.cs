@@ -2,11 +2,12 @@
 
 using ATL;
 
-using AudioStation.Core.Database.AudioStationDatabase;
 using AudioStation.Core.Model;
 using AudioStation.Core.Model.Interface;
 using AudioStation.Core.Service.Interface;
-using AudioStation.Core.Service.Payload;
+using AudioStation.Core.Service.Payload.Input;
+using AudioStation.Core.Service.Payload.Interface;
+using AudioStation.Core.Service.Payload.Output;
 using AudioStation.Core.Service.Vendor.Interface;
 using AudioStation.Core.Utility;
 
@@ -16,6 +17,7 @@ using MetaBrainz.MusicBrainz.Interfaces.Entities;
 
 using Microsoft.Extensions.Logging;
 
+using SimpleWpf.Extensions;
 using SimpleWpf.Extensions.Collection;
 using SimpleWpf.IocFramework.Application.Attribute;
 
@@ -26,12 +28,29 @@ namespace AudioStation.Core.Service.Vendor
     [IocExport(typeof(IMusicBrainzClient))]
     public class MusicBrainzClient : VendorServiceBase, IMusicBrainzClient
     {
+        // Music Brainz Query Syntax: https://musicbrainz.org/doc/MusicBrainz_API/Search
+        //
+        private const string QUERY_FORMAT = "{0}:{1}";
+        private const string QUERY_ALBUM = "album";
+        private const string QUERY_ARTIST = "artist";
+        private const string QUERY_TITLE = "title";
+        private const string QUERY_TRACK_ID = "tid";
+        private const string QUERY_RECORDING_ID = "rid";
+
         [IocImportingConstructor]
         public MusicBrainzClient() : base("Music Brainz Client", "Music Brainz Client")
         {
         }
 
-        protected async Task<IRecording?> RecordingQuery(Guid recordingId)
+        protected string BuildQuery(params (string, string)[] parameters)
+        {
+            var query = parameters.Select(pair => string.Format(QUERY_FORMAT, pair.Item1, pair.Item2)).ToArray();
+
+            // The separator character may be flexible. The space seems to work.
+            return query.Join(" ");
+        }
+
+        protected async Task<IRecording?> RecordingQuery(MusicBrainzLookupPayload payload)
         {
             ServiceWait();
 
@@ -41,7 +60,32 @@ namespace AudioStation.Core.Service.Vendor
 
                 // Initialize MetaBrainz.MusicBrainz client
                 var query = new Query();
-                var result = await query.LookupRecordingAsync(recordingId, CreateIncludeRecording());
+
+                IRecording? result = null;
+
+                switch (payload.IdType)
+                {
+                    case MusicBrainzLookupRequestType.ArtistAlbumTitle:
+                        result = (await query.FindRecordingsAsync(BuildQuery((QUERY_ALBUM, payload.Album), (QUERY_ARTIST, payload.Artist), (QUERY_TITLE, payload.Title))))
+                                           .Results
+                                           .FirstOrDefault()
+                                           ?.Item;
+                        break;
+
+                    case MusicBrainzLookupRequestType.MusicBrainzRecordingId:
+                        result = await query.LookupRecordingAsync(payload.MusicBrainzId.Value, CreateIncludeRecording());
+                        break;
+
+                    case MusicBrainzLookupRequestType.MusicBrainzTrackId:
+                    case MusicBrainzLookupRequestType.MusicBrainzReleaseTrackId:
+                        result = (await query.FindRecordingsAsync(BuildQuery((QUERY_TRACK_ID, payload.MusicBrainzId.Value.ToString()))))
+                                           .Results
+                                           .FirstOrDefault()
+                                           ?.Item;
+                        break;
+                    default:
+                        throw new Exception("Unhandled Music Brainz Lookup ID Type");
+                }
 
                 OnStatusChanged(IAudioStationDataService.Status.Idle);
 
@@ -72,37 +116,6 @@ namespace AudioStation.Core.Service.Vendor
                 OnStatusChanged(IAudioStationDataService.Status.Idle);
 
                 return result;
-            }
-            catch (Exception ex)
-            {
-                ApplicationHelpers.Log("Music Brainz Client Error:  {0}", LogMessageServiceType.MusicBrainz, LogLevel.Error, ex, ex.Message?.Trim() ?? string.Empty);
-
-                OnStatusChanged(IAudioStationDataService.Status.Error);
-
-                throw new Exception("Music Brainz Client Error", ex);
-            }
-        }
-
-        private async Task<IRecording?> FindTrack(string artist, string album, string title, Include include)
-        {
-            ServiceWait();
-
-            try
-            {
-                OnStatusChanged(IAudioStationDataService.Status.Working);
-
-                // Initialize MetaBrainz.MusicBrainz client
-                var query = new Query();
-                var searchResults = await query.FindRecordingsAsync(string.Format("title:{0} artist:{1} release:{2}", title, artist, album));
-
-                if (searchResults.Results.Count > 1)
-                    ApplicationHelpers.Log("Music Brainz artist/album/title search is returning more than one result with 100% score:  {0}/{1}/{2}", LogMessageServiceType.MusicBrainz, LogLevel.Warning, null, artist, album, title);
-
-                OnStatusChanged(IAudioStationDataService.Status.Idle);
-
-                return searchResults.Results
-                                    .Where(result => result.Score >= 100)
-                                    .FirstOrDefault()?.Item;
             }
             catch (Exception ex)
             {
@@ -321,39 +334,10 @@ namespace AudioStation.Core.Service.Vendor
             //    UserTags = track.Recording?.UserTags?.Select(x => x.Name)?.ToList() ?? Enumerable.Empty<string>(),
             //};
         }
-        private async Task<PictureInfo?> LookupArtMusicBrainzId(Guid recordingId, bool frontOrBack)
+
+        private async Task<AudioStationTagServiceResponse> Lookup(MusicBrainzLookupPayload payload, bool smallPayload)
         {
-            var recording = await RecordingQuery(recordingId);
-
-            if (recording == null)
-                return null;
-
-            var release = recording.Releases?.FirstOrDefault(x => x.Date == recording.FirstReleaseDate);
-
-            if (release == null)
-                return null;
-
-            var art = frontOrBack ? await FrontArtQuery(release.Id) : await BackArtQuery(release.Id);
-
-            if (art == null)
-                return null;
-
-            using (var streamReader = new BinaryReader(art.Data))
-            {
-                art.Data.Position = 0;
-
-                var binaryData = streamReader.ReadBytes((int)art.Data.Length);
-                var pictureInfo = PictureInfo.fromBinaryData(binaryData, PictureInfo.PIC_TYPE.Front);
-
-                art.Dispose();
-
-                return pictureInfo;
-            }
-        }
-
-        private async Task<ITagFull?> LookupByArtistAlbumTitle(AudioStationTagServiceRequest serviceModel)
-        {
-            var recording = await FindTrack(serviceModel.Artist, serviceModel.Album, serviceModel.Title, CreateIncludeRecording());
+            var recording = await RecordingQuery(payload);
 
             if (recording == null)
                 return null;
@@ -369,77 +353,47 @@ namespace AudioStation.Core.Service.Vendor
             if (release == null)
                 return null;
 
-            return MapRecording(recording, release);
+            ITagSmall? tagSmall = null;
+            ITagFull tagFull = MapRecording(recording, release);
+
+            // -> Map
+            if (tagFull != null)
+                tagSmall = TagMapper.Map(tagFull);
+            else
+                tagSmall = null;
+
+            ITagServiceOutputPayload outputPayload = smallPayload ? new TagSmallPayload(tagSmall) : new TagPayload(tagFull);
+
+            return new AudioStationTagServiceResponse(outputPayload, tagSmall != null, tagSmall != null ? "Music Brainz client successful" : "Music Brainz client error");
         }
-        private async Task<ITagFull?> LookupByMusicBrainzId(AudioStationTagServiceRequest serviceModel)
+        private async Task<AudioStationTagServiceResponse> LookupArt(MusicBrainzLookupPayload payload, AudioStationTagRequestType artRequestType)
         {
-            var recording = await RecordingQuery(serviceModel.MusicBrainzRecordingId);
+            var recording = await RecordingQuery(payload);
 
             if (recording == null)
                 return null;
 
-            var releaseDate = recording.FirstReleaseDate;
-            var releaseId = recording.Releases?.FirstOrDefault(x => x.Date == releaseDate)?.Id;
-
-            if (releaseId == null)
-                return null;
-
-            var release = await ReleaseQuery((Guid)releaseId);
+            var release = recording.Releases?.FirstOrDefault(x => x.Date == recording.FirstReleaseDate);
 
             if (release == null)
                 return null;
 
-            return MapRecording(recording, release);
-        }
-        private async Task<AudioStationTagServiceResponse> Lookup(AudioStationTagServiceRequest serviceModel)
-        {
-            ITagFull? result = null;
+            var art = artRequestType == AudioStationTagRequestType.ArtworkFront ? await FrontArtQuery(release.Id) : await BackArtQuery(release.Id);
 
-            // -> Music Brainz
-            switch (serviceModel.IdType)
+            if (art == null)
+                return null;
+
+            PictureInfo? pictureInfo = null;
+
+            using (var streamReader = new BinaryReader(art.Data))
             {
-                case AudioStationTagIdentity.ArtistAlbumTitle:
-                    result = await LookupByArtistAlbumTitle(serviceModel);
-                    break;
-                case AudioStationTagIdentity.MusicBrainzId:
-                    result = await LookupByMusicBrainzId(serviceModel);
-                    break;
-                default:
-                    throw new Exception("Unhandled AudioStationTagIdentity type");
+                art.Data.Position = 0;
+
+                var binaryData = streamReader.ReadBytes((int)art.Data.Length);
+                pictureInfo = PictureInfo.fromBinaryData(binaryData, PictureInfo.PIC_TYPE.Front);
+
+                art.Dispose();
             }
-
-            return new AudioStationTagServiceResponse(new TagPayload(result), result != null, result != null ? "Music Brainz client successful" : "Music Brainz client error");
-        }
-        private async Task<AudioStationTagServiceResponse> LookupSmall(AudioStationTagServiceRequest serviceModel)
-        {
-            ITagFull? result = null;
-            TagSmall tagSmall = null;
-            string message = string.Empty;
-
-            // -> Music Brainz
-            switch (serviceModel.IdType)
-            {
-                case AudioStationTagIdentity.ArtistAlbumTitle:
-                    result = await LookupByArtistAlbumTitle(serviceModel);
-                    break;
-                case AudioStationTagIdentity.MusicBrainzId:
-                    result = await LookupByMusicBrainzId(serviceModel);
-                    break;
-                default:
-                    throw new Exception("Unhandled AudioStationTagIdentity type");
-            }
-
-            // -> Map
-            if (result != null)
-                tagSmall = TagMapper.Map(result);
-            else
-                tagSmall = null;
-
-            return new AudioStationTagServiceResponse(new TagSmallPayload(tagSmall), tagSmall != null, tagSmall != null ? "Music Brainz client successful" : "Music Brainz client error");
-        }
-        private async Task<AudioStationTagServiceResponse> LookupArt(AudioStationTagServiceRequest request)
-        {
-            var pictureInfo = await LookupArtMusicBrainzId(request.MusicBrainzRecordingId, request.Type == AudioStationTagRequestType.ArtworkFront);
 
             return new AudioStationTagServiceResponse(new ArtworkPayload(pictureInfo), pictureInfo != null, pictureInfo != null ? "Music Brainz client successful" : "Music Brainz client error");
         }
@@ -448,17 +402,21 @@ namespace AudioStation.Core.Service.Vendor
         #region (public) IAudioStationTagService
         public Task<AudioStationTagServiceResponse> ProcessRequestAsync(AudioStationTagServiceRequest request)
         {
+            var inputPayload = request.Payload as MusicBrainzLookupPayload;
+
+            if (inputPayload == null)
+                throw new ArgumentException("Invalid Music Brainz Client Payload");
+
             return Task.Run(async () =>
             {
                 switch (request.Type)
                 {
                     case AudioStationTagRequestType.Tag:
-                        return await Lookup(request);
                     case AudioStationTagRequestType.TagSmall:
-                        return await LookupSmall(request);
+                        return await Lookup(inputPayload, request.Type == AudioStationTagRequestType.TagSmall);
                     case AudioStationTagRequestType.ArtworkFront:
                     case AudioStationTagRequestType.ArtworkBack:
-                        return await LookupArt(request);
+                        return await LookupArt(inputPayload, request.Type);
                     default:
                         throw new Exception("Unhandled service request type");
                 }
@@ -466,15 +424,19 @@ namespace AudioStation.Core.Service.Vendor
         }
         public AudioStationTagServiceResponse ProcessRequest(AudioStationTagServiceRequest request)
         {
+            var inputPayload = request.Payload as MusicBrainzLookupPayload;
+
+            if (inputPayload == null)
+                throw new ArgumentException("Invalid Music Brainz Client Payload");
+
             switch (request.Type)
             {
                 case AudioStationTagRequestType.Tag:
-                    return Lookup(request).Result;
                 case AudioStationTagRequestType.TagSmall:
-                    return LookupSmall(request).Result;
+                    return Lookup(inputPayload, request.Type == AudioStationTagRequestType.TagSmall).Result;
                 case AudioStationTagRequestType.ArtworkFront:
                 case AudioStationTagRequestType.ArtworkBack:
-                    return LookupArt(request).Result;
+                    return LookupArt(inputPayload, request.Type).Result;
                 default:
                     throw new Exception("Unhandled service request type");
             }

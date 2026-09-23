@@ -50,39 +50,42 @@
                           ItemsSource="{Binding ImportOutput.MusicBrainzAcoustIDResults}">
                 </ComboBox>
 
-                <!-- Save Tag -->
-                <Button Style="{StaticResource UserControlButton}" 
-                        Command="{Binding SaveTagCommand}"
-                        ToolTip="Save Tag To Disk"
-                        Visibility="{Binding IsTagDirty, Converter={StaticResource BoolVisibilityCollapseConverter}}"
+                <!-- Apply Tag -->
+                <Button x:Name="ApplyButton" 
+                        Click="ApplyButton_Click"
+                        Style="{StaticResource UserControlButton}" 
+                        ToolTip="Apply this to Final Record"
                         Grid.Column="4">
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="Save" Margin="3 1" FontSize="12" />
-                        <fa5:ImageAwesome Icon="Solid_Save" 
+                        <TextBlock Text="Apply" Margin="3 1" FontSize="12" />
+                        <fa5:ImageAwesome Icon="Solid_Database" 
                                                   Style="{StaticResource FontAwesomeIconManagerViewPager}" 
                                                   Margin="1" />
                     </StackPanel>
                 </Button>
 
                 <!-- Clear Tag (Revert) -->
-                <Button Style="{StaticResource UserControlButton}" 
-                        Command="{Binding RefreshCommand}"
-                        Visibility="{Binding IsTagDirty, Converter={StaticResource BoolVisibilityCollapseConverter}}"
-                        ToolTip="Clear All Imported Data And Restart"
+                <Button x:Name="RevertButton" 
+                        Click="RevertButton_Click"
+                        Style="{StaticResource UserControlButton}" 
+                        IsEnabled="{Binding TagRecordDirty.IsModified}"
+                        ToolTip="Revert Final Record"
                         Grid.Column="5">
 
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="Clear" Margin="3 1" FontSize="12" />
+                        <TextBlock Text="Revert" Margin="3 1" FontSize="12" />
                         <fa5:ImageAwesome Icon="Solid_Recycle" 
                                                   Style="{StaticResource FontAwesomeIconManagerViewPager}" 
                                                   Margin="1" />
                     </StackPanel>
                 </Button>
+
+
             </Grid>
         </Border>
 
         <!-- Tag (Record) (this is our target) -->
-        <importView:LibraryImportTagIssuesView DataContext="{Binding TagRecord}" 
+        <importView:LibraryImportTagIssuesView DataContext="{Binding TagRecordDirty}" 
                                                IsReadOnly="False"
                                                CanCopy="False"
                                                UseRequiredFields="False"
@@ -99,7 +102,7 @@
 
         <!-- Tag (File) -->
         <importView:LibraryImportTagIssuesView DataContext="{Binding Tag}" 
-                                               CopyTarget="{Binding DataContext.TagRecord, ElementName=BaseControl}"
+                                               CopyTarget="{Binding DataContext.TagRecordDirty, ElementName=BaseControl}"
                                                CanCopy="True"
                                                IsReadOnly="True"
                                                Grid.Row="1" Grid.Column="1"
@@ -118,7 +121,7 @@
 
         <!-- Data Service (Music Brainz, ...) -->
         <importView:LibraryImportTagIssuesView DataContext="{Binding SelectedItem, ElementName=MusicBrainzCB}" 
-                                               CopyTarget="{Binding DataContext.TagRecord, ElementName=BaseControl}"
+                                               CopyTarget="{Binding DataContext.TagRecordDirty, ElementName=BaseControl}"
                                                CanCopy="True"
                                                IsReadOnly="True"
                                                UseRequiredFields="False"

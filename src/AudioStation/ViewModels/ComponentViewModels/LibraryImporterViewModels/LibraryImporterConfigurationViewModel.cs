@@ -27,9 +27,12 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels
         bool _serviceIncludeAcoustID;
         bool _serviceIncludeMusicBrainzBasic;
         bool _serviceIncludeMusicBrainzArtwork;
+
         bool _serviceOverwriteAcoustID;                 // AcoustIDLookupResult
-        bool _serviceOverwriteMusicBrainzBasic;         // TagSmall
+        bool _serviceOverwriteMusicBrainzBasic;         // TagSmall(s)
         bool _serviceOverwriteMusicBrainzArtwork;       // Artwork files in the cache directory
+
+        bool _serviceMusicBrainzBasicIncludeTagLookup;  // Music Brainz (basic): include [TXXX] data in an extra tag lookup
 
         // Convert Audio Format (to folder preference)
         bool _convertAudioFormat;
@@ -96,6 +99,11 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels
         {
             get { return _serviceIncludeMusicBrainzArtwork; }
             set { this.RaiseAndSetIfChanged(ref _serviceIncludeMusicBrainzArtwork, value); }
+        }
+        public bool ServiceMusicBrainzBasicIncludeTagLookup
+        {
+            get { return _serviceMusicBrainzBasicIncludeTagLookup; }
+            set { this.RaiseAndSetIfChanged(ref _serviceMusicBrainzBasicIncludeTagLookup, value); }
         }
         public bool ServiceOverwriteAcoustID
         {

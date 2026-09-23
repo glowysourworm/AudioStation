@@ -73,6 +73,24 @@ namespace AudioStation.Core.Component
             }
         }
 
+        public int GetDurationMilliseconds(Stream sourceStream)
+        {
+            try
+            {
+                using (var source = new MediaFoundationDecoder(sourceStream))
+                {
+
+                    // -> [Byte] * [Second / Byte] * [Milliseconds / Second] = Milliseconds
+                    return (int)((source.Length / (double)source.WaveFormat.BytesPerSecond) * 1000);
+                }
+            }
+            catch (Exception ex)
+            {
+                ApplicationHelpers.Log("Error reading audio file:  " + ex.Message, LogLevel.Error, ex, null);
+                throw ex;
+            }
+        }
+
         public Task ConvertToAsync(string fileNameIn, string fileNameOut, AudioEncoderInfo encoderInfo)
         {
             return Task.Run(() =>

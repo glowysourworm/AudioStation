@@ -106,8 +106,8 @@ namespace AudioStation.Core.Component
                 {
                     workItem = new LibraryLoaderWorkItem(_workItemIdCounter, workLoad.OwnerId, LibraryLoadType.MusicBrainzBasic);
                     workItem.Initialize(LibraryWorkItemState.Pending, workLoad,
-                                        new LibraryLoaderOutput<IList<TagSmall>>(workLoad.LoadType,
-                                        new List<TagSmall>(), LibraryLoaderMusicBrainzBasicWorker.GetNumberSteps()));
+                                        new LibraryLoaderOutput<LibraryLoaderMusicBrainzBasicOutputPayload>(workLoad.LoadType,
+                                        new LibraryLoaderMusicBrainzBasicOutputPayload(), LibraryLoaderMusicBrainzBasicWorker.GetNumberSteps()));
                 }
                 break;
                 case LibraryLoadType.MusicBrainzAlbumArt:

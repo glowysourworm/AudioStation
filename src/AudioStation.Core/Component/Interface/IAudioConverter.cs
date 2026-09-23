@@ -1,4 +1,6 @@
-﻿using AudioStation.Core.Model;
+﻿using System.IO;
+
+using AudioStation.Core.Model;
 
 using CSCore;
 
@@ -44,6 +46,12 @@ namespace AudioStation.Core.Component.Interface
         /// Returns the audio format for a particular audio file decoded by the Media Foundation MSFT library
         /// </summary>
         AudioEncoding GetAudioEncoding(string filePath);
+
+        /// <summary>
+        /// Returns the stream's audio length - interpreting it using the Media Foundation decoder 
+        /// library from CSCore.
+        /// </summary>
+        int GetDurationMilliseconds(Stream sourceStream);
 
         /// <summary>
         /// Converts file to requested format

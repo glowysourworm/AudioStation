@@ -124,7 +124,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
                 }
 
                 Log("Validating tag data");
-                var validation = TagValidator.ValidateTagSmallImport(entity);
+                var validation = TagValidator.ValidateTag(entity);
 
                 if (!validation.IsValid)
                 {
@@ -353,7 +353,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
                 //tagData.Year = (int)(tag.Year ?? 0);
 
                 // Validation
-                var validation = TagValidator.ValidateTagImport(tagData);
+                var validation = TagValidator.ValidateTag(tagData);
 
                 if (!validation.IsValid)
                 {
@@ -405,7 +405,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
                     };
                 }
 
-                var validation = TagValidator.ValidateTagSmallImport(tag);
+                var validation = TagValidator.ValidateTag(tag);
 
                 if (!validation.IsValid)
                 {

@@ -72,7 +72,7 @@
 
                     <fa5:ImageAwesome Icon="Solid_Tag" 
                                       Margin="3"
-                                      Foreground="{Binding Tag.IsValid, Converter={StaticResource ValidationBoolForegroundParameterConverter}}"
+                                      Foreground="{Binding TagRecordDirty.IsValid, Converter={StaticResource ValidationBoolForegroundParameterConverter}}"
                                       Style="{StaticResource FontAwesomeIconManagerViewPager}"
                                       ToolTip="Tag data is required to complete the import">
                     </fa5:ImageAwesome>

@@ -1,8 +1,9 @@
 ﻿using AudioStation.Core.Model.Interface;
+using AudioStation.Core.Service.Payload.Interface;
 
-namespace AudioStation.Core.Service.Payload
+namespace AudioStation.Core.Service.Payload.Output
 {
-    public class TagPayload : PayloadBase
+    public class TagPayload : ITagServiceOutputPayload
     {
         public ITagFull Data { get; }
 

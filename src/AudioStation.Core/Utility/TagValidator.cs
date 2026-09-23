@@ -30,7 +30,7 @@ namespace AudioStation.Core.Utility
                                                                        .TrackCount > 0;
         }
 
-        public static ITagSmallValidation ValidateTagImport(ITagFull simpleTag)
+        public static ITagSmallValidation ValidateTag(ITagFull simpleTag)
         {
             throw new NotImplementedException();
 
@@ -47,24 +47,9 @@ namespace AudioStation.Core.Utility
             //                      simpleTag.Year);
         }
 
-        public static ITagSmallValidation ValidateTagImport(ITagSmall simpleTag)
+        public static ITagSmallValidation ValidateTag(ITagSmall tagSmall)
         {
-            return ValidateImport(simpleTag.AlbumArtist,
-                                  simpleTag.Album,
-                                  simpleTag.Title,
-                                  simpleTag.Genre,
-                                  (int)simpleTag.TrackNumber,
-                                  simpleTag.TrackTotal,
-                                  simpleTag.MediaNumber,
-                                  simpleTag.MediaTotal,
-                                  simpleTag.MediaFormat,
-                                  (int)simpleTag.DurationMilliseconds,
-                                  simpleTag.Year);
-        }
-
-        public static ITagSmallValidation ValidateTagSmallImport(ITagSmall tagSmall)
-        {
-            return ValidateImport(tagSmall.AlbumArtist,
+            return Validate(tagSmall.AlbumArtist,
                                   tagSmall.Album,
                                   tagSmall.Title,
                                   tagSmall.Genre,
@@ -77,7 +62,7 @@ namespace AudioStation.Core.Utility
                                   tagSmall.Year);
         }
 
-        private static ITagSmallValidation ValidateImport(string? albumArtist,
+        private static ITagSmallValidation Validate(string? albumArtist,
                                                    string? album,
                                                    string? title,
                                                    string? genre,
@@ -180,7 +165,7 @@ namespace AudioStation.Core.Utility
                 validation.IsYearValid = false;
             }
 
-            validation.ValidationMessage = invalidFields.Join(",", x => x);
+            validation.ValidationMessage = invalidFields.Join(", ", x => x);
             validation.IsValid = invalidFields.Count == 0;
 
             return validation;

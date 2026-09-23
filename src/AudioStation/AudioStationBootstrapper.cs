@@ -226,6 +226,18 @@ namespace AudioStation
             mapper.ConfigureMap<TagSmallViewModel, TagSmall>()
                   .DeclareSourceInterface<ITagSmall>();
 
+            mapper.ConfigureMap<TagSmall, TagSmallEditViewModel>()
+                  .DeclareSourceInterface<ITagSmall>();
+
+            mapper.ConfigureMap<TagSmallEditViewModel, TagSmall>()
+                  .DeclareSourceInterface<ITagSmall>();
+
+            mapper.ConfigureMap<TagSmallViewModel, TagSmallEditViewModel>()
+                  .DeclareSourceInterface<ITagSmall>();
+
+            mapper.ConfigureMap<TagSmallEditViewModel, TagSmallViewModel>()
+                  .DeclareSourceInterface<ITagSmall>();
+
             // Audio Station Core (model)
             mapper.ConfigureMap<AudioStationTag, AudioStationTag>()
                   .DeclareSourceInterface<IAudioStationTag>();

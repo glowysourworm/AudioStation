@@ -1,11 +1,11 @@
 ﻿using AudioStation.Core.Model.Interface;
-using AudioStation.Core.Model.Vendor.ATLExtension.Interface;
+using AudioStation.Core.Utility;
 
 using SimpleWpf.UI.ViewModel;
 
 namespace AudioStation.ViewModels.TagViewModels
 {
-    public class TagSmallEditViewModel : ViewModelBase, ITagSmallValidation
+    public class TagSmallEditViewModel : ViewModelBase, ITagSmallValidation, ITagSmall
     {
         int _id;
 
@@ -33,17 +33,17 @@ namespace AudioStation.ViewModels.TagViewModels
         bool _isDurationMillisecondsModified;
         bool _isYearModified;
 
-        string _albumArtist;
-        string _album;
-        string _title;
-        string _genre;
-        int _track;
-        int _trackTotal;
-        int _mediaNumber;
-        int _mediaTotal;
-        string _mediaFormat;
-        int _durationMilliseconds;
-        int _year;
+        string? _albumArtist;
+        string? _album;
+        string? _title;
+        string? _genre;
+        int? _trackNumber;
+        int? _trackTotal;
+        int? _mediaNumber;
+        int? _mediaTotal;
+        string? _mediaFormat;
+        int? _durationMilliseconds;
+        int? _year;
 
         bool _isValid;
         bool _isModified;
@@ -166,57 +166,57 @@ namespace AudioStation.ViewModels.TagViewModels
             set { this.RaiseAndSetIfChanged(ref _isYearModified, value); }
         }
 
-        public string AlbumArtist
+        public string? AlbumArtist
         {
             get { return _albumArtist; }
             set { this.RaiseAndSetIfChanged(ref _albumArtist, value); }
         }
-        public string Album
+        public string? Album
         {
             get { return _album; }
             set { this.RaiseAndSetIfChanged(ref _album, value); }
         }
-        public string Title
+        public string? Title
         {
             get { return _title; }
             set { this.RaiseAndSetIfChanged(ref _title, value); }
         }
-        public string Genre
+        public string? Genre
         {
             get { return _genre; }
             set { this.RaiseAndSetIfChanged(ref _genre, value); }
         }
-        public int Track
+        public int? TrackNumber
         {
-            get { return _track; }
-            set { this.RaiseAndSetIfChanged(ref _track, value); }
+            get { return _trackNumber; }
+            set { this.RaiseAndSetIfChanged(ref _trackNumber, value); }
         }
-        public int TrackTotal
+        public int? TrackTotal
         {
             get { return _trackTotal; }
             set { this.RaiseAndSetIfChanged(ref _trackTotal, value); }
         }
-        public int MediaNumber
+        public int? MediaNumber
         {
             get { return _mediaNumber; }
             set { this.RaiseAndSetIfChanged(ref _mediaNumber, value); }
         }
-        public int MediaTotal
+        public int? MediaTotal
         {
             get { return _mediaTotal; }
             set { this.RaiseAndSetIfChanged(ref _mediaTotal, value); }
         }
-        public string MediaFormat
+        public string? MediaFormat
         {
             get { return _mediaFormat; }
             set { this.RaiseAndSetIfChanged(ref _mediaFormat, value); }
         }
-        public int DurationMilliseconds
+        public int? DurationMilliseconds
         {
             get { return _durationMilliseconds; }
             set { this.RaiseAndSetIfChanged(ref _durationMilliseconds, value); }
         }
-        public int Year
+        public int? Year
         {
             get { return _year; }
             set { this.RaiseAndSetIfChanged(ref _year, value); }
@@ -238,9 +238,58 @@ namespace AudioStation.ViewModels.TagViewModels
             set { this.RaiseAndSetIfChanged(ref _validationMessage, value); }
         }
 
-
-        public void Update(IAudioStationTag tagClean, IAudioStationTag tagDirty, ITagSmallValidation validation)
+        protected override void OnPropertyChanged(string name)
         {
+            // <- RaiseAndSetIfChanged
+            base.OnPropertyChanged(name);
+
+            switch (name)
+            {
+                case "AlbumArtist":
+                    this.IsAlbumArtistModified = true;
+                    break;
+                case "Album":
+                    this.IsAlbumModified = true;
+                    break;
+                case "Title":
+                    this.IsTitleModified = true;
+                    break;
+                case "Genre":
+                    this.IsGenreModified = true;
+                    break;
+                case "TrackNumber":
+                    this.IsTrackModified = true;
+                    break;
+                case "TrackTotal":
+                    this.IsTrackTotalModified = true;
+                    break;
+                case "MediaNumber":
+                    this.IsMediaNumberModified = true;
+                    break;
+                case "MediaTotal":
+                    this.IsMediaTotalModified = true;
+                    break;
+                case "MediaFormat":
+                    this.IsMediaFormatModified = true;
+                    break;
+                case "DurationMilliseconds":
+                    this.IsDurationMillisecondsModified = true;
+                    break;
+                case "Year":
+                    this.IsYearModified = true;
+                    break;
+                default:
+                    break;
+            }
+
+            // Run Validation
+            OnUpdate();
+        }
+
+        protected void OnUpdate()
+        {
+            var validation = TagValidator.ValidateTag(this);
+
             this.ValidationMessage = validation.ValidationMessage;
             this.IsValid = validation.IsValid;
 
@@ -255,30 +304,6 @@ namespace AudioStation.ViewModels.TagViewModels
             this.IsMediaFormatValid = validation.IsMediaFormatValid;
             this.IsDurationMillisecondsValid = validation.IsDurationMillisecondsValid;
             this.IsYearValid = validation.IsYearValid;
-
-            this.Album = tagDirty.Album;
-            this.AlbumArtist = tagDirty.AlbumArtist;
-            this.Title = tagDirty.Title;
-            this.Genre = tagDirty.Genre;
-            this.Track = (int)tagDirty.Track;
-            this.TrackTotal = tagDirty.TrackTotal;
-            this.MediaNumber = tagDirty.DiscNumber;
-            this.MediaTotal = tagDirty.DiscTotal;
-            this.MediaFormat = tagDirty.MediaFormat;
-            this.DurationMilliseconds = (int)tagDirty.Duration.TotalMilliseconds;
-            this.Year = tagDirty.Year;
-
-            this.IsAlbumModified = tagDirty.Album != tagClean.Album;
-            this.IsAlbumArtistModified = tagDirty.AlbumArtist != tagClean.AlbumArtist;
-            this.IsGenreModified = tagDirty.Genre != tagClean.Genre;
-            this.IsTitleModified = tagDirty.Title != tagClean.Title;
-            this.IsTrackModified = tagDirty.Track != tagClean.Track;
-            this.IsTrackTotalModified = tagDirty.TrackTotal != tagClean.TrackTotal;
-            this.IsMediaNumberModified = tagDirty.DiscNumber != tagClean.DiscNumber;
-            this.IsMediaTotalModified = tagDirty.DiscTotal != tagClean.DiscTotal;
-            this.IsMediaFormatModified = tagDirty.MediaFormat != tagClean.MediaFormat;
-            this.IsDurationMillisecondsModified = tagDirty.Duration != tagClean.Duration;
-            this.IsYearModified = tagDirty.Year != tagClean.Year;
 
             this.IsModified = this.IsAlbumModified ||
                               this.IsAlbumArtistModified ||
@@ -295,41 +320,11 @@ namespace AudioStation.ViewModels.TagViewModels
 
         public TagSmallEditViewModel()
         {
-            this.Album = string.Empty;
-            this.AlbumArtist = string.Empty;
-            this.Title = string.Empty;
-            this.Genre = string.Empty;
-
             this.IsValid = false;
+            this.IsModified = false;
             this.ValidationMessage = "Validation Not Checked!";
-        }
 
-        public TagSmallEditViewModel(ITagSmall tagSmall)
-        {
-            this.AlbumArtist = tagSmall.AlbumArtist ?? string.Empty;
-            this.Album = tagSmall.Album ?? string.Empty;
-            this.Genre = tagSmall.Genre ?? string.Empty;
-            this.MediaFormat = tagSmall.MediaFormat ?? string.Empty;
-            this.MediaNumber = tagSmall.MediaNumber ?? 0;
-            this.MediaTotal = tagSmall.MediaTotal ?? 0;
-            this.Title = tagSmall.Title ?? string.Empty;
-            this.Track = tagSmall.TrackNumber ?? 0;
-            this.TrackTotal = tagSmall.TrackTotal ?? 0;
-            this.Year = tagSmall.Year ?? 0;
-        }
-
-        public TagSmallEditViewModel(ITagFull tagFull)
-        {
-            this.AlbumArtist = tagFull.AlbumArtist ?? string.Empty;
-            this.Album = tagFull.Album ?? string.Empty;
-            this.Genre = tagFull.Genre ?? string.Empty;
-            this.MediaFormat = tagFull.MediaFormat ?? string.Empty;
-            this.MediaNumber = tagFull.MediaNumber ?? 0;
-            this.MediaTotal = tagFull.MediaTotal ?? 0;
-            this.Title = tagFull.Title ?? string.Empty;
-            this.Track = tagFull.TrackNumber ?? 0;
-            this.TrackTotal = tagFull.TrackTotal ?? 0;
-            this.Year = tagFull.Year ?? 0;
+            OnUpdate();
         }
     }
 }

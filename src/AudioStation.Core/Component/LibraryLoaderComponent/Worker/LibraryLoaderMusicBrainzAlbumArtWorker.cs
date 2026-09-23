@@ -3,7 +3,8 @@ using AudioStation.Core.Database.AudioStationDatabase.Interface;
 using AudioStation.Core.Model;
 using AudioStation.Core.Service;
 using AudioStation.Core.Service.Interface;
-using AudioStation.Core.Service.Payload;
+using AudioStation.Core.Service.Payload.Input;
+using AudioStation.Core.Service.Payload.Output;
 using AudioStation.Core.Service.Vendor.Interface;
 using AudioStation.Core.Utility.FileUtility;
 
@@ -81,10 +82,10 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
                 switch (fileType)
                 {
                     case FileTypes.FrontCover:
-                        response = _musicBrainzClient.ProcessRequest(new AudioStationTagServiceRequest(AudioStationTagRequestType.ArtworkFront, musicBrainzRecordingId));
+                        response = _musicBrainzClient.ProcessRequest(new AudioStationTagServiceRequest(AudioStationTagRequestType.ArtworkFront, new MusicBrainzLookupPayload(MusicBrainzLookupRequestType.MusicBrainzRecordingId, musicBrainzRecordingId)));
                         break;
                     case FileTypes.BackCover:
-                        response = _musicBrainzClient.ProcessRequest(new AudioStationTagServiceRequest(AudioStationTagRequestType.ArtworkBack, musicBrainzRecordingId));
+                        response = _musicBrainzClient.ProcessRequest(new AudioStationTagServiceRequest(AudioStationTagRequestType.ArtworkBack, new MusicBrainzLookupPayload(MusicBrainzLookupRequestType.MusicBrainzRecordingId, musicBrainzRecordingId)));
                         break;
                     case FileTypes.AudioFile:
                     case FileTypes.FanArt:

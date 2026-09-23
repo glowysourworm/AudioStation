@@ -38,7 +38,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Wo
         {
             return new LibraryLoaderLoad<LibraryLoaderImportPayload>(this.Id, LibraryLoadType.Import, loadItem.FullPath, new LibraryLoaderImportPayload()
             {
-                TagSmallId = loadItem.TagRecord.Id,
+                TagSmallId = loadItem.TagRecordClean.Id,
 
                 SourceFullPath = loadItem.FullPath,
                 DestinationFolder = _libraryImporterConfiguration.ImportDirectory.Directory,

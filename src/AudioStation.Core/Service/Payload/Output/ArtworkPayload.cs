@@ -1,6 +1,8 @@
-﻿namespace AudioStation.Core.Service.Payload
+﻿using AudioStation.Core.Service.Payload.Interface;
+
+namespace AudioStation.Core.Service.Payload.Output
 {
-    public class ArtworkPayload : PayloadBase
+    public class ArtworkPayload : ITagServiceOutputPayload
     {
         ATL.PictureInfo _data;
 

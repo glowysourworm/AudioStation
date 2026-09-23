@@ -208,6 +208,11 @@
                                                      Description="Convert audio formats to folder preference (this can be done after import)"
                                                      Value="{Binding WorkflowConfiguration.ConvertAudioFormat, Mode=TwoWay}" IsReadOnly="False" Margin="1" LabelText="Convert Audio Format(s)" />
 
+                    <propertyGrid:PropertyBooleanControl LabelColumnWidth="250" 
+                                                     Description="Music Brainz information is sometimes left in the ID3V2 [TXXX] (user data) tags. This will provide an extra source of tag information during import."
+                                                     Visibility="{Binding WorkflowConfiguration.ServiceIncludeMusicBrainzBasic, Converter={StaticResource BoolVisibilityCollapseConverter}}"
+                                                     Value="{Binding WorkflowConfiguration.ServiceMusicBrainzBasicIncludeTagLookup, Mode=TwoWay}" IsReadOnly="False" Margin="1" LabelText="Include Music Brainz [TXXX] Lookup" />                    
+                    
                     <propertyGrid:PropertyValueSelectorControl x:Name="AudioFormatCB" 
                                                                Style="{StaticResource PropertyGridUserControl}"
                                                                LabelColumnWidth="250" Grid.Row="1" Grid.Column="1"

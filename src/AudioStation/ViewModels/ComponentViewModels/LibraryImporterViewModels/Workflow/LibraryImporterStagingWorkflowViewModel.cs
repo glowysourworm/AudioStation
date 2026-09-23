@@ -6,6 +6,7 @@ using AudioStation.Core.Database.AudioStationDatabase;
 using AudioStation.Core.Database.AudioStationDatabase.Interface;
 using AudioStation.Core.Model.Interface;
 using AudioStation.Core.Service.Interface;
+using AudioStation.Core.Utility;
 using AudioStation.Event;
 using AudioStation.Service.Interface;
 using AudioStation.ViewModels.TagViewModels;
@@ -224,19 +225,24 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
                     var stagedFile = new LibraryImporterFileViewModel(subNode.FullPath, subNode.BaseDirectory, _workflowConfiguration);
 
                     // Tag
-                    var tagData = _tagCache.Get(stagedFile.FullPath);
+                    var tagData = _tagCache.GetFullTag(stagedFile.FullPath);
 
                     // (AcoustID / Music Brainz) Stored in Tag
-                    stagedFile.AcoustIDTag = tagData.GetAcoustIDIdentifier();
-                    stagedFile.MusicBrainzTrackIDTag = tagData.GetMusicBrainzTrackId();
                     stagedFile.MusicBrainzReleaseTrackIDTag = tagData.GetMusicBrainzReleaseTrackId();
 
                     // Tag (Record)
                     if (tagFileMaps.ContainsKey(stagedFile.FullPath))
-                        stagedFile.TagRecord = _audioStationMapper.Map<TagSmall, TagSmallViewModel>(tagFileMaps[stagedFile.FullPath].TagSmall);
+                    {
+                        stagedFile.TagRecordDirty = _audioStationMapper.Map<TagSmall, TagSmallEditViewModel>(tagFileMaps[stagedFile.FullPath].TagSmall);
+                        stagedFile.TagRecordClean = _audioStationMapper.Map<TagSmall, TagSmallViewModel>(tagFileMaps[stagedFile.FullPath].TagSmall);
+                    }
 
                     // Tag (Edit)
-                    stagedFile.Tag = new TagSmallEditViewModel(tagData);
+                    if (tagData != null)
+                    {
+                        stagedFile.Tag = _audioStationMapper.Map<TagSmall, TagSmallViewModel>(TagMapper.Map(tagData));
+                    }
+
 
                     // AcoustID Result
                     if (acoustIDResults.ContainsKey(stagedFile.FullPath))

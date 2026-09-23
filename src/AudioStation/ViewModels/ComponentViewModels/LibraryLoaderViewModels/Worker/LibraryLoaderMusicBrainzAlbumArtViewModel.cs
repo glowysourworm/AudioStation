@@ -23,8 +23,10 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Wo
 
         protected override ILibraryLoaderLoad CreateWorkLoad(LibraryImporterFileViewModel loadItem, IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
         {
+            throw new NotImplementedException();
+
             var audioStationDbClient = audioStationController.ServiceController.GetDataService<IAudioStationDbClient>();
-            var vendorMap = audioStationDbClient.FirstEntity<TagSmallVendorMap>(x => x.TagSmallId == loadItem.SelectedMusicBrainzRecordingMatch.Id);
+            var vendorMap = audioStationDbClient.FirstEntity<TagSmallVendorMap>(x => x.TagSmallId == loadItem.TagRecordClean.Id);
 
             if (vendorMap != null)
                 return new LibraryLoaderLoad<TagSmallVendorMap>(this.Id, LibraryLoadType.MusicBrainzAlbumArt, loadItem.DisplayName, vendorMap);
@@ -34,26 +36,27 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Wo
         }
         protected override IEnumerable<ILibraryLoaderLoad> CreateWorkLoads(IEnumerable<LibraryImporterFileViewModel> loadItems, IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
         {
+            throw new NotImplementedException();
             try
             {
-                var audioStationDbClient = audioStationController.ServiceController.GetDataService<IAudioStationDbClient>();
-                var result = new List<ILibraryLoaderLoad>();
-                var counter = 0;
+                //var audioStationDbClient = audioStationController.ServiceController.GetDataService<IAudioStationDbClient>();
+                //var result = new List<ILibraryLoaderLoad>();
+                //var counter = 0;
 
-                foreach (var map in loadItems.Where(x => x.SelectedMusicBrainzRecordingMatch != null))
-                {
-                    progressHandler(loadItems.Count(), counter++, 0, 0, "Loading: Music Brainz Id=" + map.MusicBrainzTrackIDTag);
+                //foreach (var map in loadItems)
+                //{
+                //    progressHandler(loadItems.Count(), counter++, 0, 0, "Loading: Music Brainz Id=" + map.MusicBrainzTrackIDTag);
 
-                    var vendorMap = audioStationDbClient.FirstEntity<TagSmallVendorMap>(x => x.TagSmallId == map.SelectedMusicBrainzRecordingMatch.Id);
+                //    var vendorMap = audioStationDbClient.FirstEntity<TagSmallVendorMap>(x => x.TagSmallId == map.SelectedMusicBrainzRecordingMatch.Id);
 
-                    if (vendorMap != null)
-                        result.Add(new LibraryLoaderLoad<TagSmallVendorMap>(this.Id, LibraryLoadType.MusicBrainzAlbumArt, map.DisplayName, vendorMap));
+                //    if (vendorMap != null)
+                //        result.Add(new LibraryLoaderLoad<TagSmallVendorMap>(this.Id, LibraryLoadType.MusicBrainzAlbumArt, map.DisplayName, vendorMap));
 
-                    else
-                        throw new Exception("Invalid Music Brainz Album Art Input:  Missing valid TagSmallVendorMap");
-                }
+                //    else
+                //        throw new Exception("Invalid Music Brainz Album Art Input:  Missing valid TagSmallVendorMap");
+                //}
 
-                return result;
+                //return result;
             }
             catch (Exception ex)
             {

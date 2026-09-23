@@ -2,6 +2,8 @@
 using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Component.LibraryLoaderComponent;
 using AudioStation.Core.Component.LibraryLoaderComponent.Interface;
+using AudioStation.Core.Component.LibraryLoaderComponent.Payload.Input;
+using AudioStation.Core.Component.LibraryLoaderComponent.Payload.Output;
 using AudioStation.Core.Database.AudioStationDatabase;
 using AudioStation.Core.Database.AudioStationDatabase.Interface;
 using AudioStation.Core.Model.Interface;
@@ -24,11 +26,14 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Wo
 
         Dictionary<string, LibraryImporterFileViewModel> _loadItemDict;
 
+        private readonly bool _serviceMusicBrainzBasicIncludeTagLookup;
+
         public LibraryLoaderMusicBrainzBasicViewModel()
             : base("Music Brainz (basic)", "Downloads basic tag details for recordings in the library with a Music Brainz ID")
         {
             _audioStationMapper = IocContainer.Get<IAudioStationMapper>();
             _loadItemDict = new Dictionary<string, LibraryImporterFileViewModel>();
+            _serviceMusicBrainzBasicIncludeTagLookup = false;
         }
 
         public LibraryLoaderMusicBrainzBasicViewModel(LibraryImporterConfigurationViewModel configuration)
@@ -36,12 +41,15 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Wo
         {
             _audioStationMapper = IocContainer.Get<IAudioStationMapper>();
             _loadItemDict = new Dictionary<string, LibraryImporterFileViewModel>();
+            _serviceMusicBrainzBasicIncludeTagLookup = configuration.ServiceMusicBrainzBasicIncludeTagLookup;
         }
 
         protected override ILibraryLoaderLoad CreateWorkLoad(LibraryImporterFileViewModel loadItem, IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
         {
 
-            return new LibraryLoaderLoad<IEnumerable<IAcoustIDLookupResult>>(this.Id, LibraryLoadType.MusicBrainzBasic, loadItem.DisplayName, new IAcoustIDLookupResult[] { loadItem.SelectedAcoustIDResult });
+            return CreateWorkLoads(new LibraryImporterFileViewModel[] { loadItem }, configuration, audioStationController, progressHandler).FirstOrDefault();
+
+            //return new LibraryLoaderLoad<IEnumerable<IAcoustIDLookupResult>>(this.Id, LibraryLoadType.MusicBrainzBasic, loadItem.DisplayName, new IAcoustIDLookupResult[] { loadItem.SelectedAcoustIDResult });
         }
 
         protected override IEnumerable<ILibraryLoaderLoad> CreateWorkLoads(IEnumerable<LibraryImporterFileViewModel> loadItems, IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
@@ -78,8 +86,15 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Wo
                     progressHandler(1, 1, loadItems.Count(), counter, "Loading: " + stagedFile.FullPath);
 
                     // Create Load
-                    result.Add(new LibraryLoaderLoad<IEnumerable<IAcoustIDLookupResult>>(this.Id,
-                                    LibraryLoadType.MusicBrainzBasic, stagedFile.DisplayName, existingResults[stagedFile.FullPath]));
+                    result.Add(new LibraryLoaderLoad<LibraryLoaderMusicBrainzBasicPayload>(
+                        this.Id, LibraryLoadType.MusicBrainzBasic, stagedFile.DisplayName,
+                        new LibraryLoaderMusicBrainzBasicPayload()
+                        {
+                            AcoustIDResults = existingResults[stagedFile.FullPath],
+                            FileName = stagedFile.FullPath,
+                            MusicBrainzReleaseTrackIDTag = stagedFile.MusicBrainzReleaseTrackIDTag,
+                            PerformExtraTagLookup = _serviceMusicBrainzBasicIncludeTagLookup
+                        }));
                 }
 
                 return result;
@@ -109,33 +124,38 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Wo
         }
         protected override ILibraryLoaderLoad ResetWorkLoad(LibraryWorkItemViewModel workItem)
         {
-            return new LibraryLoaderLoad<IEnumerable<IAcoustIDLookupResult>>(
+            return new LibraryLoaderLoad<LibraryLoaderMusicBrainzBasicPayload>(
                 workItem.Load.OwnerId,
                 workItem.Load.LoadType,
                 workItem.Load.DisplayName,
-                workItem.Load.Payload as IEnumerable<IAcoustIDLookupResult>);
+                workItem.Load.Payload as LibraryLoaderMusicBrainzBasicPayload);
         }
         protected override void CompleteWorkItem(LibraryWorkItemViewModel workItem)
         {
-            var tagResults = workItem.Output.Payload as IEnumerable<TagSmall>;
-            var acoustIDResults = workItem.Load.Payload as IEnumerable<IAcoustIDLookupResult>;
+            var output = workItem.Output.Payload as LibraryLoaderMusicBrainzBasicOutputPayload;
+            var input = workItem.Load.Payload as LibraryLoaderMusicBrainzBasicPayload;
 
-            if (tagResults == null)
+            if (output == null)
                 throw new Exception("Corrupt work item output");
 
-            if (acoustIDResults == null || !acoustIDResults.Any())
+            if (input == null)
                 throw new Exception("Corrupt AcoustID load");
 
-            if (!_loadItemDict.ContainsKey(acoustIDResults.First().FileName))
+            if (!_loadItemDict.ContainsKey(input.FileName))
                 throw new Exception("Missing work item payload");
 
-            var loadItem = _loadItemDict[acoustIDResults.First().FileName];
-            var tagViewModels = tagResults.Select(tag => _audioStationMapper.Map<TagSmall, TagSmallViewModel>(tag)).Actualize();
+            var loadItem = _loadItemDict[input.FileName];
+            var acoustIDResults = output.AcoustIDResults.Select(tag => _audioStationMapper.Map<TagSmall, TagSmallViewModel>(tag)).Actualize();
             var comparer = new SimpleRecursiveComparer();
 
+            // Music Brainz (special tag result)
+            if (output.MusicBrainzResult != null)
+                _audioStationMapper.MapOnto(output.MusicBrainzResult, loadItem.TagMusicBrainz);
+
             // Pass results to the Import Output
-            foreach (var result in tagViewModels)
+            foreach (var result in acoustIDResults)
             {
+                // Compare (by value)
                 if (!loadItem.ImportOutput.MusicBrainzRecordingMatches.Any(x => comparer.Compare(x, result)))
                     loadItem.ImportOutput.MusicBrainzRecordingMatches.Add(result);
             }

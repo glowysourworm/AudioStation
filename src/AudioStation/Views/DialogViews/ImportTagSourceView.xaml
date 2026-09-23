@@ -49,8 +49,8 @@
                                       ToolTip="Tag data is required to complete the import">
                         <fa5:SvgAwesome.Foreground>
                             <MultiBinding Converter="{StaticResource LibraryLoaderImportTagForegroundConverter}">
-                                <Binding Path="Tag.IsValid" />
-                                <Binding Path="Tag.IsModified" />
+                                <Binding Path="TagRecordDirty.IsValid" />
+                                <Binding Path="TagRecordDirty.IsModified" />
                             </MultiBinding>
                         </fa5:SvgAwesome.Foreground>
                     </fa5:SvgAwesome>
