@@ -7,8 +7,6 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Payload.Input
     {
         public LibraryImportType ImportType { get; set; }
         public LibraryImportSource TagSourcePreference { get; set; }
-        public LibraryImportSource AcoustIDSourcePreference { get; set; }
-        public LibraryImportSource MusicBrainzSourcePreference { get; set; }
 
         public int TagSmallId { get; set; }
 

@@ -8,8 +8,7 @@
              xmlns:controls="clr-namespace:AudioStation.Controls"
              xmlns:importView="clr-namespace:AudioStation.Views.LibraryImportViews"
              xmlns:coreModel="clr-namespace:AudioStation.Core.Model;assembly=AudioStation.Core"
-             xmlns:simpleUI="clr-namespace:SimpleWpf.UI.Controls;assembly=SimpleWpf.UI"
-             xmlns:enumUI="clr-namespace:SimpleWpf.UI.Controls.EnumUI;assembly=SimpleWpf.UI">
+             xmlns:simpleUI="clr-namespace:SimpleWpf.UI.Controls;assembly=SimpleWpf.UI">
     
     <!-- Tag Detail -->
     <Grid ColumnDefinitions="*, *" RowDefinitions="Auto, Auto, Auto">
@@ -22,32 +21,28 @@
                 <TextBlock Text="Import Source(s)" Style="{StaticResource LabelTextBlock}" />
 
                 <!-- Tag Record Source (File, Database, Service) -->
-                <enumUI:SimpleEnumComboBox x:Name="TagSourceCB" 
-                                           EnumType="{x:Type coreModel:LibraryImportSource}"
-                                           EnumValue="{Binding TagSource, Mode=TwoWay, ElementName=BaseControl}"
-                                           HorizontalAlignment="Right"
-                                           Width="180"
-                                           Margin="0 0 5 0"
-                                           Style="{StaticResource PropertyGridSimpleEnumComboBox}"
-                                           Grid.Column="1" />
+                <ComboBox x:Name="TagSourceCB" 
+                          SelectionChanged="TagSourceCB_SelectionChanged"
+                          HorizontalAlignment="Right"
+                          Width="180"
+                          Margin="0 0 5 0"
+                          Style="{StaticResource PropertyGridComboBox}"
+                          Grid.Column="1" />
 
-                <TextBlock Text="Music Brainz Result(s)" 
+                <TextBlock x:Name="MusicBrainzTB"
+                           Text="Music Brainz Result(s)" 
+                           Visibility="Collapsed"
                            Style="{StaticResource LabelTextBlock}" 
-                           Visibility="{Binding TagSource, ElementName=BaseControl, 
-                           Converter={StaticResource ParameterVisibilityCollapsedConverter},
-                           ConverterParameter={x:Static coreModel:LibraryImportSource.DataService}}"
                            Grid.Column="2" />
 
                 <!-- AcoustID / Music Brainz Result(s) -->
                 <ComboBox x:Name="MusicBrainzCB" 
+                          SelectionChanged="MusicBrainzCB_SelectionChanged"
+                          Visibility="Collapsed"
                           Grid.Column="3"
                           Width="260"
                           Margin="5 0"
-                          Visibility="{Binding TagSource, ElementName=BaseControl, 
-                          Converter={StaticResource ParameterVisibilityCollapsedConverter},
-                          ConverterParameter={x:Static coreModel:LibraryImportSource.DataService}}"                          
-                          Style="{StaticResource PropertyGridComboBox}"
-                          ItemsSource="{Binding ImportOutput.MusicBrainzAcoustIDResults}">
+                          Style="{StaticResource PropertyGridComboBox}">
                 </ComboBox>
 
                 <!-- Apply Tag -->
@@ -101,14 +96,12 @@
         </importView:LibraryImportTagIssuesView>
 
         <!-- Tag (File) -->
-        <importView:LibraryImportTagIssuesView DataContext="{Binding Tag}" 
+        <importView:LibraryImportTagIssuesView x:Name="TagFileView"
+                                               DataContext="{Binding Tag}" 
                                                CopyTarget="{Binding DataContext.TagRecordDirty, ElementName=BaseControl}"
                                                CanCopy="True"
                                                IsReadOnly="True"
-                                               Grid.Row="1" Grid.Column="1"
-                                               Visibility="{Binding TagSource, ElementName=BaseControl, 
-                                               Converter={StaticResource ParameterVisibilityCollapsedConverter},
-                                               ConverterParameter={x:Static coreModel:LibraryImportSource.File}}">
+                                               Grid.Row="1" Grid.Column="1">
             <importView:LibraryImportTagIssuesView.TagHeader>
 
                 <StackPanel Orientation="Horizontal">
@@ -120,14 +113,12 @@
         </importView:LibraryImportTagIssuesView>
 
         <!-- Data Service (Music Brainz, ...) -->
-        <importView:LibraryImportTagIssuesView DataContext="{Binding SelectedItem, ElementName=MusicBrainzCB}" 
+        <importView:LibraryImportTagIssuesView x:Name="MusicBrainzView"
+                                               Visibility="Collapsed"
                                                CopyTarget="{Binding DataContext.TagRecordDirty, ElementName=BaseControl}"
                                                CanCopy="True"
                                                IsReadOnly="True"
                                                UseRequiredFields="False"
-                                               Visibility="{Binding TagSource, ElementName=BaseControl, 
-                                               Converter={StaticResource ParameterVisibilityCollapsedConverter},
-                                               ConverterParameter={x:Static coreModel:LibraryImportSource.DataService}}"
                                                Grid.Row="1" Grid.Column="1">
             <importView:LibraryImportTagIssuesView.TagHeader>
 

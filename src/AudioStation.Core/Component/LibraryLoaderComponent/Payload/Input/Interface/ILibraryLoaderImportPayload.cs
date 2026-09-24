@@ -17,8 +17,6 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Payload.Input.Inter
 
         public LibraryImportType ImportType { get; set; }
         public LibraryImportSource TagSourcePreference { get; set; }
-        public LibraryImportSource AcoustIDSourcePreference { get; set; }
-        public LibraryImportSource MusicBrainzSourcePreference { get; set; }
 
         public string SourceFullPath { get; set; }
         public string DestinationFolder { get; set; }

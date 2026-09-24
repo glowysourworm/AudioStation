@@ -134,6 +134,10 @@ namespace AudioStation.Core.Service.Vendor.Bandcamp
         {
             return "Bandcamp Client";
         }
+        public LogMessageServiceType GetLogServiceType()
+        {
+            return LogMessageServiceType.Bandcamp;
+        }
         public IAudioStationDataService.Status GetStatus()
         {
             // TODO
@@ -163,6 +167,10 @@ namespace AudioStation.Core.Service.Vendor.Bandcamp
         public string GetStatusMessage()
         {
             return "TODO (Bandcamp Client)";
+        }
+        public void Dispose()
+        {
+
         }
         #endregion
     }

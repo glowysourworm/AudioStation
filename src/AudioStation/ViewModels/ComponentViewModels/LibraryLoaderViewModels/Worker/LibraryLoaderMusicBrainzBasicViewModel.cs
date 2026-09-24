@@ -150,7 +150,13 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Wo
 
             // Music Brainz (special tag result)
             if (output.MusicBrainzResult != null)
+            {
                 _audioStationMapper.MapOnto(output.MusicBrainzResult, loadItem.TagMusicBrainz);
+
+                // Music Brainz (special tag result) Success!
+                loadItem.MusicBrainzReleaseTrackQuerySuccess = true;
+            }
+
 
             // Pass results to the Import Output
             foreach (var result in acoustIDResults)

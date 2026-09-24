@@ -1,4 +1,5 @@
-﻿using AudioStation.Core.Model.Vendor;
+﻿using AudioStation.Core.Model;
+using AudioStation.Core.Model.Vendor;
 using AudioStation.Core.Service.Interface;
 using AudioStation.Core.Service.Vendor.Interface;
 
@@ -34,6 +35,10 @@ namespace AudioStation.Core.Service.Vendor
         {
             return _status;
         }
+        public LogMessageServiceType GetLogServiceType()
+        {
+            return LogMessageServiceType.iTunes;
+        }
         public IAudioStationDataService.Status Initialize(AudioStationConfiguration configuration)
         {
             return IAudioStationDataService.Status.Idle;
@@ -64,6 +69,10 @@ namespace AudioStation.Core.Service.Vendor
 
             if (this.StatusChangeEvent != null)
                 this.StatusChangeEvent(this, _status);
+        }
+        public void Dispose()
+        {
+
         }
         #endregion
     }

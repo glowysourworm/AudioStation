@@ -4,6 +4,7 @@ using AudioStation.Controller.Interface;
 using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Database.AudioStationDatabase;
 using AudioStation.Core.Database.AudioStationDatabase.Interface;
+using AudioStation.Core.Model;
 using AudioStation.Core.Model.Interface;
 using AudioStation.Core.Service.Interface;
 using AudioStation.Core.Utility;
@@ -230,13 +231,6 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
                     // (AcoustID / Music Brainz) Stored in Tag
                     stagedFile.MusicBrainzReleaseTrackIDTag = tagData.GetMusicBrainzReleaseTrackId();
 
-                    // Tag (Record)
-                    if (tagFileMaps.ContainsKey(stagedFile.FullPath))
-                    {
-                        stagedFile.TagRecordDirty = _audioStationMapper.Map<TagSmall, TagSmallEditViewModel>(tagFileMaps[stagedFile.FullPath].TagSmall);
-                        stagedFile.TagRecordClean = _audioStationMapper.Map<TagSmall, TagSmallViewModel>(tagFileMaps[stagedFile.FullPath].TagSmall);
-                    }
-
                     // Tag (Edit)
                     if (tagData != null)
                     {
@@ -273,6 +267,45 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
                             // Also, add this combined entity to our import output
                             stagedFile.ImportOutput.MusicBrainzAcoustIDResults.Add(result);
                         }
+                    }
+
+                    // Tag (Record) (Preference)
+                    switch (_workflowConfiguration.TagSourcePreference)
+                    {
+                        case LibraryImportSource.File:
+                        {
+                            if (tagData != null)
+                            {
+                                var tagSmall = TagMapper.Map(tagData);
+
+                                _audioStationMapper.MapOnto(tagSmall, stagedFile.TagRecordDirty);
+                                _audioStationMapper.MapOnto(tagSmall, stagedFile.TagRecordClean);
+                            }
+                            else if (tagFileMaps.ContainsKey(stagedFile.FullPath))
+                            {
+                                _audioStationMapper.MapOnto(tagFileMaps[stagedFile.FullPath].TagSmall, stagedFile.TagRecordDirty);
+                                _audioStationMapper.MapOnto(tagFileMaps[stagedFile.FullPath].TagSmall, stagedFile.TagRecordClean);
+                            }
+                        }
+                        break;
+                        case LibraryImportSource.DataService:
+                        {
+                            if (tagFileMaps.ContainsKey(stagedFile.FullPath))
+                            {
+                                _audioStationMapper.MapOnto(tagFileMaps[stagedFile.FullPath].TagSmall, stagedFile.TagRecordDirty);
+                                _audioStationMapper.MapOnto(tagFileMaps[stagedFile.FullPath].TagSmall, stagedFile.TagRecordClean);
+                            }
+                            else if (tagData != null)
+                            {
+                                var tagSmall = TagMapper.Map(tagData);
+
+                                _audioStationMapper.MapOnto(tagSmall, stagedFile.TagRecordDirty);
+                                _audioStationMapper.MapOnto(tagSmall, stagedFile.TagRecordClean);
+                            }
+                        }
+                        break;
+                        default:
+                            break;
                     }
 
                     // Check For Library Conflict

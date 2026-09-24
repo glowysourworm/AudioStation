@@ -169,7 +169,6 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels
 
             this.ImportLoad = new LibraryLoaderImportInputViewModel()
             {
-                AcoustIDSourcePreference = importerConfiguration.AcoustIDSourcePreference,
                 ConvertAudioFormat = importerConfiguration.ConvertAudioFormat,
                 DestinationFolder = importerConfiguration.ImportDirectory.Directory,
                 EmbedImportTagData = importerConfiguration.EmbedImportTagData,
@@ -186,7 +185,6 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels
                 MigrationDeleteSourceFolders = importerConfiguration.MigrationDeleteSourceFolders,
                 MigrationOverwriteDestinationFiles = importerConfiguration.MigrationOverwriteDestinationFiles,
                 MigrationSourceDirectory = importerConfiguration.MigrationSourceDirectory,
-                MusicBrainzSourcePreference = importerConfiguration.MusicBrainzSourcePreference,
                 NamingType = importerConfiguration.ImportDirectory.NamingType,
                 ServiceIncludeAcoustID = importerConfiguration.ServiceIncludeAcoustID,
                 ServiceIncludeMusicBrainzArtwork = importerConfiguration.ServiceIncludeMusicBrainzArtwork,

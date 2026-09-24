@@ -267,6 +267,10 @@ namespace AudioStation.Controller
         {
             return "Audio Player";
         }
+        public LogMessageServiceType GetLogServiceType()
+        {
+            return LogMessageServiceType.None;
+        }
         public IAudioStationDataService.Status GetStatus()
         {
             // TODO

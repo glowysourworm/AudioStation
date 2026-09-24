@@ -21,7 +21,7 @@ namespace AudioStation.Core.Service.Vendor
         int _acoustIDMaxResults;
 
         [IocImportingConstructor]
-        public AcoustIDClient() : base("Acoust ID Client", "Acoust ID Client")
+        public AcoustIDClient() : base("Acoust ID Client", "Acoust ID Client", LogMessageServiceType.AcoustID)
         {
         }
 

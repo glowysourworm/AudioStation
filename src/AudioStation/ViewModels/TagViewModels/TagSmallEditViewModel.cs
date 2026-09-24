@@ -326,5 +326,10 @@ namespace AudioStation.ViewModels.TagViewModels
 
             OnUpdate();
         }
+
+        public override string ToString()
+        {
+            return TagUtility.CreateDropdownText(this);
+        }
     }
 }

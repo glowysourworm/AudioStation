@@ -68,27 +68,13 @@
                             <propertyGrid:PropertyBooleanControl LabelColumnWidth="250" 
                                                                  IsRequired="False"
                                                                  Description="(Tag) Embed tag data to the import file. The tag data will be a small segment of the total data supported by Audio Station. This will help to get things started; and you can fill out the detail using Music Brainz at any time."
-                                                                 Value="{Binding WorkflowConfiguration.EmbedImportTagData, Mode=TwoWay}" IsReadOnly="False" Margin="1" LabelText="Embed Tag Data" />                            
-                            
+                                                                 Value="{Binding WorkflowConfiguration.EmbedImportTagData, Mode=TwoWay}" IsReadOnly="False" Margin="1" LabelText="Embed Tag Data" />
+
                             <propertyGrid:PropertyEnumControl EnumType="{x:Type coreModel:LibraryImportSource}" 
                                                           Value="{Binding WorkflowConfiguration.TagSourcePreference}" 
                                                           LabelColumnWidth="250" IsReadOnly="False" Margin="1" 
                                                           LabelText="Tag Source (preference)"
                                                           Description="The data for your import can be drawn from the tag data already there. This would be a good option if you have already had tag data filled out by another music service."
-                                                          />
-
-                            <propertyGrid:PropertyEnumControl EnumType="{x:Type coreModel:LibraryImportSource}" 
-                                                          Value="{Binding WorkflowConfiguration.AcoustIDSourcePreference}" 
-                                                          LabelColumnWidth="250" IsReadOnly="False" Margin="1" 
-                                                          LabelText="AcoustID Source (preference)"
-                                                          Description="The data for AcoustID is often stored in the tag header. This is common for most tagging programs that interact with Music Brainz via AcoustID. This option will either use this data, or go ahead with a new lookup. NOTE: This option will also be applied if there is already sufficient Music Brainz data in the tag to bypass AcoustID in the event that it is set to 'File'. Setting it to 'DataService' will force a new lookup."
-                                                          />
-
-                            <propertyGrid:PropertyEnumControl EnumType="{x:Type coreModel:LibraryImportSource}" 
-                                                          Value="{Binding WorkflowConfiguration.MusicBrainzSourcePreference}" 
-                                                          LabelColumnWidth="250" IsReadOnly="False" Margin="1" 
-                                                          LabelText="Music Brainz Source (preference)"
-                                                          Description="The data for Music Brainz is often stored in the tag header. This is common for most tagging programs that interact with Music Brainz. This option will either use this data, or go ahead with a new lookup."
                                                           />
                         </StackPanel>
 
@@ -108,26 +94,12 @@
                                                                  IsRequired="False"
                                                                  Description="(Tag) Embed tag data to the import file. The tag data will be a small segment of the total data supported by Audio Station. This will help to get things started; and you can fill out the detail using Music Brainz at any time."
                                                                  Value="{Binding WorkflowConfiguration.EmbedImportTagData, Mode=TwoWay}" IsReadOnly="False" Margin="1" LabelText="Embed Tag Data" />
-                            
+
                             <propertyGrid:PropertyEnumControl EnumType="{x:Type coreModel:LibraryImportSource}" 
                                                           Value="{Binding WorkflowConfiguration.TagSourcePreference}" 
                                                           LabelColumnWidth="250" IsReadOnly="False" Margin="1" 
                                                           LabelText="Tag Source (preference)"
                                                           Description="The data for your import can be drawn from the tag data already there. This would be a good option if you have already had tag data filled out by another music service."
-                                                          />
-
-                            <propertyGrid:PropertyEnumControl EnumType="{x:Type coreModel:LibraryImportSource}" 
-                                                          Value="{Binding WorkflowConfiguration.AcoustIDSourcePreference}" 
-                                                          LabelColumnWidth="250" IsReadOnly="False" Margin="1" 
-                                                          LabelText="AcoustID Source (preference)"
-                                                          Description="The data for AcoustID is often stored in the tag header. This is common for most tagging programs that interact with Music Brainz via AcoustID. This option will either use this data, or go ahead with a new lookup. NOTE: This option will also be applied if there is already sufficient Music Brainz data in the tag to bypass AcoustID in the event that it is set to 'File'. Setting it to 'DataService' will force a new lookup."
-                                                          />
-
-                            <propertyGrid:PropertyEnumControl EnumType="{x:Type coreModel:LibraryImportSource}" 
-                                                          Value="{Binding WorkflowConfiguration.MusicBrainzSourcePreference}" 
-                                                          LabelColumnWidth="250" IsReadOnly="False" Margin="1" 
-                                                          LabelText="Music Brainz Source (preference)"
-                                                          Description="The data for Music Brainz is often stored in the tag header. This is common for most tagging programs that interact with Music Brainz. This option will either use this data, or go ahead with a new lookup."
                                                           />
 
                             <propertyGrid:PropertyBooleanControl LabelColumnWidth="250" 

@@ -1,4 +1,6 @@
-﻿using SimpleWpf.Extensions.Event;
+﻿using AudioStation.Core.Model;
+
+using SimpleWpf.Extensions.Event;
 
 namespace AudioStation.Core.Service.Interface
 {
@@ -8,7 +10,7 @@ namespace AudioStation.Core.Service.Interface
     /// each piece has had some malfunction; and this interface will be called during startup to gather
     /// component status and initialize the service.
     /// </summary>
-    public interface IAudioStationDataService
+    public interface IAudioStationDataService : IDisposable
     {
         public enum Status
         {
@@ -41,6 +43,11 @@ namespace AudioStation.Core.Service.Interface
         /// Gets display name of component
         /// </summary>
         string GetDisplayName();
+
+        /// <summary>
+        /// Identifies the type of service for this component
+        /// </summary>
+        LogMessageServiceType GetLogServiceType();
 
         /// <summary>
         /// Signals a status change event

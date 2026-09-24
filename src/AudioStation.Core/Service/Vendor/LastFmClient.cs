@@ -122,6 +122,10 @@ namespace AudioStation.Core.Service.Vendor
         {
             return _status;
         }
+        public LogMessageServiceType GetLogServiceType()
+        {
+            return LogMessageServiceType.LastFm;
+        }
         public IAudioStationDataService.Status Initialize(AudioStationConfiguration configuration)
         {
             _client = Authenticate(configuration);
@@ -154,6 +158,10 @@ namespace AudioStation.Core.Service.Vendor
 
             if (this.StatusChangeEvent != null)
                 this.StatusChangeEvent(this, _status);
+        }
+        public void Dispose()
+        {
+
         }
         #endregion
     }

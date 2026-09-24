@@ -1,4 +1,5 @@
-﻿using System.Windows.Threading;
+﻿using System.Collections.ObjectModel;
+using System.Windows.Threading;
 
 using AudioStation.Controller.Interface;
 using AudioStation.Core.Event;
@@ -17,8 +18,15 @@ namespace AudioStation.ViewModels.ComponentViewModels
     {
         LogSetViewModel _viewModel;
 
+        public ObservableCollection<LogComponentViewModel> Logs
+        {
+            get { return _viewModel.Logs; }
+        }
+
         public LogViewModel(IIocEventAggregator eventAggregator) : base("Log")
         {
+            _viewModel = new LogSetViewModel();
+
             eventAggregator.GetEvent<LogEvent>().Subscribe(OnLog);
         }
 
@@ -41,10 +49,6 @@ namespace AudioStation.ViewModels.ComponentViewModels
 
         private void OnLog(LogMessage message)
         {
-            // During Initialization
-            if (_viewModel == null)
-                return;
-
             if (BasicHelpers.IsDispatcher() == ApplicationIsDispatcherResult.False)
                 BasicHelpers.BeginInvokeDispatcher(OnLog, DispatcherPriority.Background, message);
 

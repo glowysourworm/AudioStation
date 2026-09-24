@@ -231,11 +231,16 @@ namespace AudioStation.Core.Service
         {
             return "Log";
         }
+
         public IAudioStationDataService.Status GetStatus()
         {
             // TODO: This status should maintain the "new log" / "logs viewed" status.
 
             return IAudioStationDataService.Status.Idle;
+        }
+        public LogMessageServiceType GetLogServiceType()
+        {
+            return LogMessageServiceType.None;
         }
         public IAudioStationDataService.Status Initialize(AudioStationConfiguration configuration)
         {

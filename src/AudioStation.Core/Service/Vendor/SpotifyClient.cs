@@ -118,6 +118,10 @@ namespace AudioStation.Core.Service.Vendor
         {
             return _status;
         }
+        public LogMessageServiceType GetLogServiceType()
+        {
+            return LogMessageServiceType.Spotify;
+        }
         public IAudioStationDataService.Status Initialize(AudioStationConfiguration configuration)
         {
             if (string.IsNullOrWhiteSpace(configuration.SpotifyClientId))
@@ -164,6 +168,10 @@ namespace AudioStation.Core.Service.Vendor
 
             if (this.StatusChangeEvent != null)
                 this.StatusChangeEvent(this, _status);
+        }
+        public void Dispose()
+        {
+
         }
         #endregion
     }

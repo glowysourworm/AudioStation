@@ -79,6 +79,10 @@ namespace AudioStation.Core.Service.Vendor
         {
             return _status;
         }
+        public LogMessageServiceType GetLogServiceType()
+        {
+            return LogMessageServiceType.Fanart;
+        }
         public IAudioStationDataService.Status Initialize(AudioStationConfiguration configuration)
         {
             // No formal authentication (these keys are set in their nuget package. They should probably be substituted
@@ -122,6 +126,10 @@ namespace AudioStation.Core.Service.Vendor
 
             if (this.StatusChangeEvent != null)
                 this.StatusChangeEvent(this, _status);
+        }
+        public void Dispose()
+        {
+
         }
         #endregion
     }

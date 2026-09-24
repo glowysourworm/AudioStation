@@ -1,5 +1,6 @@
 ﻿using System.Net.Http;
 
+using AudioStation.Core.Model;
 using AudioStation.Core.Model.Vendor;
 using AudioStation.Core.Service.Interface;
 
@@ -57,6 +58,10 @@ namespace AudioStation.Core.Service.Vendor
         {
             return "Discogs Client";
         }
+        public LogMessageServiceType GetLogServiceType()
+        {
+            return LogMessageServiceType.Discogs;
+        }
         public IAudioStationDataService.Status Initialize(AudioStationConfiguration configuration)
         {
             //if (string.IsNullOrWhiteSpace(_configurationManager.GetConfiguration().AcoustIDAPIKey))
@@ -99,6 +104,10 @@ namespace AudioStation.Core.Service.Vendor
         public IAudioStationDataService.Status GetStatus()
         {
             return _status;
+        }
+        public void Dispose()
+        {
+
         }
         #endregion
     }

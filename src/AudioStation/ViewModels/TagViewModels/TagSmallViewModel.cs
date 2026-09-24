@@ -1,4 +1,5 @@
 ﻿using AudioStation.Core.Model.Interface;
+using AudioStation.Core.Utility;
 
 using SimpleWpf.UI.ViewModel;
 
@@ -83,6 +84,11 @@ namespace AudioStation.ViewModels.TagViewModels
 
         public TagSmallViewModel()
         {
+        }
+
+        public override string ToString()
+        {
+            return TagUtility.CreateDropdownText(this);
         }
     }
 }

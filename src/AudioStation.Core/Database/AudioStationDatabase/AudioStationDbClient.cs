@@ -633,6 +633,10 @@ namespace AudioStation.Core.Database.AudioStationDatabase
         {
             return "Audio Station Database";
         }
+        public LogMessageServiceType GetLogServiceType()
+        {
+            return LogMessageServiceType.None;
+        }
         public IAudioStationDataService.Status GetStatus()
         {
             return _status;

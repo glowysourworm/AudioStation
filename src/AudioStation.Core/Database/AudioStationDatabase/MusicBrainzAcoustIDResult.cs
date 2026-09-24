@@ -1,4 +1,6 @@
-﻿namespace AudioStation.Core.Database.AudioStationDatabase
+﻿using AudioStation.Core.Utility;
+
+namespace AudioStation.Core.Database.AudioStationDatabase
 {
     public class MusicBrainzAcoustIDResult : AudioStationViewEntityBase
     {
@@ -24,13 +26,7 @@
         /// </summary>
         public override string ToString()
         {
-            var header = this.Title ?? this.Album ?? this.AlbumArtist ?? "(Not Set)";
-            var footer = "[" + (this.TrackNumber ?? 0).ToString() + " (of) " + (this.TrackTotal ?? 0).ToString() + "]";
-
-            if (this.Score != null)
-                footer += string.Format(" ({0:P2})", this.Score);
-
-            return header + " " + footer;
+            return TagUtility.CreateDropdownText(this);
         }
     }
 }

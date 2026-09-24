@@ -4,6 +4,7 @@ using System.Windows.Threading;
 using AudioStation.Controller.Interface;
 using AudioStation.Core;
 using AudioStation.Core.Component.CDPlayer.Interface;
+using AudioStation.Core.Model;
 using AudioStation.Core.Service.Interface;
 using AudioStation.Core.Utility.FileUtility;
 using AudioStation.Service.Interface;
@@ -132,7 +133,10 @@ namespace AudioStation.Service
         {
             return "CDImportService";
         }
-
+        public LogMessageServiceType GetLogServiceType()
+        {
+            return LogMessageServiceType.None;
+        }
         public IAudioStationDataService.Status GetStatus()
         {
             return IAudioStationDataService.Status.Idle;
@@ -162,6 +166,10 @@ namespace AudioStation.Service
         public Task<IAudioStationDataService.Status> ReInitializeAsync(AudioStationConfiguration configuration)
         {
             return Task.FromResult(ReInitialize(configuration));
+        }
+        public void Dispose()
+        {
+
         }
         #endregion
     }

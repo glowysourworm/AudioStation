@@ -38,7 +38,7 @@ namespace AudioStation.Core.Service.Vendor
         private const string QUERY_RECORDING_ID = "rid";
 
         [IocImportingConstructor]
-        public MusicBrainzClient() : base("Music Brainz Client", "Music Brainz Client")
+        public MusicBrainzClient() : base("Music Brainz Client", "Music Brainz Client", LogMessageServiceType.MusicBrainz)
         {
         }
 

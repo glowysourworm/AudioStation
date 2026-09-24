@@ -481,6 +481,10 @@ namespace AudioStation.Core.Component
         {
             return "File Controller";
         }
+        public LogMessageServiceType GetLogServiceType()
+        {
+            return LogMessageServiceType.None;
+        }
         public IAudioStationDataService.Status GetStatus()
         {
             return IAudioStationDataService.Status.Idle;
@@ -549,6 +553,10 @@ namespace AudioStation.Core.Component
         public string GetStatusMessage()
         {
             return IAudioStationDataService.GetDefaultStatusMessage(GetStatus());
+        }
+        public void Dispose()
+        {
+
         }
         #endregion
     }

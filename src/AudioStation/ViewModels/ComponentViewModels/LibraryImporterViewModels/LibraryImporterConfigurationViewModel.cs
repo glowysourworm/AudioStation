@@ -20,8 +20,6 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels
 
         // Tag Source Options
         LibraryImportSource _tagSourcePreference;
-        LibraryImportSource _acoustIDSourcePreference;
-        LibraryImportSource _musicBrainzSourcePreference;
 
         // Tag Service Options
         bool _serviceIncludeAcoustID;
@@ -74,16 +72,6 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels
         {
             get { return _tagSourcePreference; }
             set { this.RaiseAndSetIfChanged(ref _tagSourcePreference, value); }
-        }
-        public LibraryImportSource AcoustIDSourcePreference
-        {
-            get { return _acoustIDSourcePreference; }
-            set { this.RaiseAndSetIfChanged(ref _acoustIDSourcePreference, value); }
-        }
-        public LibraryImportSource MusicBrainzSourcePreference
-        {
-            get { return _musicBrainzSourcePreference; }
-            set { this.RaiseAndSetIfChanged(ref _musicBrainzSourcePreference, value); }
         }
         public bool ServiceIncludeAcoustID
         {

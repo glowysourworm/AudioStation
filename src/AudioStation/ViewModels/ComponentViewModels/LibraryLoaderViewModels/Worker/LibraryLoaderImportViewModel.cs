@@ -46,8 +46,6 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Wo
                 ConvertAudioFormat = _libraryImporterConfiguration.ConvertAudioFormat,
                 ImportFormat = _audioStationMapper.Map<AudioEncoderViewModel, AudioEncoderInfo>(_libraryImporterConfiguration.ImportFormat),
 
-                AcoustIDSourcePreference = _libraryImporterConfiguration.AcoustIDSourcePreference,
-                MusicBrainzSourcePreference = _libraryImporterConfiguration.MusicBrainzSourcePreference,
                 TagSourcePreference = _libraryImporterConfiguration.TagSourcePreference,
 
                 ServiceIncludeAcoustID = _libraryImporterConfiguration.ServiceIncludeAcoustID,
