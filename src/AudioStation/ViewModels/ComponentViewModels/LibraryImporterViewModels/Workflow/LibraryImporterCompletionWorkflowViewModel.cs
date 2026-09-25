@@ -8,7 +8,6 @@ using AudioStation.Event.DialogEvents;
 using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Interface;
 using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Worker;
 
-using SimpleWpf.Extensions.ObservableCollection;
 using SimpleWpf.IocFramework.Application;
 using SimpleWpf.UI.Command;
 
@@ -22,13 +21,15 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
         private readonly LibraryImporterConfigurationViewModel _workflowConfiguration;
 
         // Staged Files (carries the import load / output)
-        private readonly KeyedObservableCollection<string, LibraryImporterFileViewModel> _stagedFiles;
+        private readonly LibraryImporterStagedFileCollection _stagedFiles;
+        LibraryImporterStagedFileFilterType _stagedFileFilterType;
 
         // Import Worker:  This will require a load of type ILibraryLoaderImportLoad. It operates on
         //                 the current workflow entities; and performs the rest of the import and file
         //                 handling tasks that are needed to complete the import workflow.
         //
         LibraryLoaderImportViewModel _importWorker;
+
 
         int _selectedFileCount;
 
@@ -41,9 +42,14 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
             get { return _importWorker; }
             set { this.RaiseAndSetIfChanged(ref _importWorker, value); }
         }
-        public IEnumerable<LibraryImporterFileViewModel> StagedFiles
+        public LibraryImporterStagedFileCollection StagedFiles
         {
             get { return _stagedFiles; }
+        }
+        public LibraryImporterStagedFileFilterType StagedFileFilterType
+        {
+            get { return _stagedFileFilterType; }
+            set { this.RaiseAndSetIfChanged(ref _stagedFileFilterType, value); }
         }
         public int SelectedFileCount
         {
@@ -68,7 +74,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
         }
 
         public LibraryImporterCompletionWorkflowViewModel(
-                KeyedObservableCollection<string, LibraryImporterFileViewModel> stagedFiles,
+                LibraryImporterStagedFileCollection stagedFiles,
                 LibraryImporterConfigurationViewModel workflowConfiguration)
             : base("Library Importer (completion)")
         {

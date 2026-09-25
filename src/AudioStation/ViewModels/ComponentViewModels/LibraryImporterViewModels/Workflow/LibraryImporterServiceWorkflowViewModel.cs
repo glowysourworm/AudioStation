@@ -12,7 +12,6 @@ using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Interf
 using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Worker;
 
 using SimpleWpf.Extensions.Event;
-using SimpleWpf.Extensions.ObservableCollection;
 using SimpleWpf.UI.Command;
 
 namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.Workflow
@@ -27,7 +26,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
         private IDialogController _dialogController;
 
         private readonly LibraryImporterConfigurationViewModel _workflowConfiguration;
-        private readonly KeyedObservableCollection<string, LibraryImporterFileViewModel> _stagedFiles;
+        private readonly LibraryImporterStagedFileCollection _stagedFiles;
 
         private ObservableCollection<ILibraryLoaderWorkerViewModel> _serviceWorkers;
 
@@ -84,7 +83,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
         }
 
         public LibraryImporterServiceWorkflowViewModel(LibraryImporterConfigurationViewModel configuration,
-                                                       KeyedObservableCollection<string, LibraryImporterFileViewModel> stagedFiles) : base("Library Importer (loader)")
+                                                       LibraryImporterStagedFileCollection stagedFiles) : base("Library Importer (loader)")
         {
             _workflowConfiguration = configuration;
             _stagedFiles = stagedFiles;

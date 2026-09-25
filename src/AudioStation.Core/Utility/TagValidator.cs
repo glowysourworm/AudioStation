@@ -118,28 +118,28 @@ namespace AudioStation.Core.Utility
                 validation.IsGenreValid = false;
             }
 
-            if (trackNumber <= 0 || trackNumber > trackCount)
+            if (trackNumber == null || trackCount == null || trackNumber <= 0 || trackNumber > trackCount)
             {
                 invalidFields.Add("Track Number");
 
                 validation.IsTrackValid = false;
             }
 
-            if (trackCount <= 0 || trackCount < trackNumber)
+            if (trackNumber == null || trackCount == null || trackCount <= 0 || trackCount < trackNumber)
             {
                 invalidFields.Add("Track Count");
 
                 validation.IsTrackTotalValid = false;
             }
 
-            if (mediaNumber <= 0)
+            if (mediaNumber == null || mediaCount == null || mediaNumber <= 0)
             {
                 invalidFields.Add("Media Number");
 
                 validation.IsMediaNumberValid = false;
             }
 
-            if (mediaCount <= 0)
+            if (mediaNumber == null || mediaCount == null || mediaCount <= 0)
             {
                 invalidFields.Add("Media Count");
 
@@ -152,13 +152,13 @@ namespace AudioStation.Core.Utility
 
                 validation.IsMediaFormatValid = false;
             }
-            if (durationMilliseconds <= 0)
+            if (durationMilliseconds == null || durationMilliseconds <= 0)
             {
                 invalidFields.Add("Duration");
 
                 validation.IsDurationMillisecondsValid = false;
             }
-            if (year <= 0)
+            if (year == null || year <= 0)
             {
                 invalidFields.Add("Year");
 

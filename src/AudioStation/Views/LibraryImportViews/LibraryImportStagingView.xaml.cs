@@ -34,15 +34,6 @@ namespace AudioStation.Views.LibraryImportViews
 
         private void StagedLB_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            var viewModel = this.DataContext as LibraryImporterViewModel;
-
-            if (viewModel != null)
-            {
-                // Selection Counts
-                viewModel.StagingWorkflow.StagedSelectedCount = viewModel.StagingWorkflow.StagedFiles.Count(x => x.IsSelected);
-                viewModel.StagingWorkflow.LibraryConflictCount = viewModel.StagingWorkflow.StagedFiles.Count(x => x.LibraryConflict);
-            }
-
             // TODO: The following code will need to be put with an implementation 
             //       for virtualizing list box + the selection view model should
             //       be part of the ViewModel inheritance hierarchy.

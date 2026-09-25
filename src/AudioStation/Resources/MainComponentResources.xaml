@@ -14,6 +14,8 @@
     <converter:ConfirmationBoolForegroundParameterConverter x:Key="ConfirmationBoolForegroundParameterConverter" />
     <converter:ConfirmationCollectionNonEmptyForegroundParameterConverter x:Key="ConfirmationCollectionNonEmptyForegroundParameterConverter" />
     <converter:ConfirmationNullForegroundParameterConverter x:Key="ConfirmationNullForegroundParameterConverter" />
+    <converter:LibraryImporterStagedFileCollectionConverter x:Key="LibraryImporterStagedFileCollectionConverter" />
+    <converter:LibraryImporterStagedFileCollectionCountConverter x:Key="LibraryImporterStagedFileCollectionCountConverter" />
     <converter:LibraryLoaderImportTagForegroundConverter x:Key="LibraryLoaderImportTagForegroundConverter" />
     <converter:MetaEntryConverter x:Key="MetaEntryConverter" />
     <converter:MusicBrainzConverter x:Key="MusicBrainzConverter" />

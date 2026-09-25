@@ -44,10 +44,8 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
         //                finished - with the bare minimum tag data - and moved into the library's 
         //                directory structure.
         //
-        KeyedObservableCollection<string, LibraryImporterFileViewModel> _stagedFiles;
-
-        int _libraryConflictCount;
-        int _stagedSelectedCount;
+        LibraryImporterStagedFileCollection _stagedFiles;
+        LibraryImporterStagedFileFilterType _stagedFileFilterType;
 
         // Import Directory:  Selected file count
         //
@@ -60,20 +58,15 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
             get { return _importDirectory; }
             set { this.RaiseAndSetIfChanged(ref _importDirectory, value); }
         }
-        public KeyedObservableCollection<string, LibraryImporterFileViewModel> StagedFiles
+        public LibraryImporterStagedFileCollection StagedFiles
         {
             get { return _stagedFiles; }
             set { this.RaiseAndSetIfChanged(ref _stagedFiles, value); }
         }
-        public int LibraryConflictCount
+        public LibraryImporterStagedFileFilterType StagedFileFilterType
         {
-            get { return _libraryConflictCount; }
-            set { this.RaiseAndSetIfChanged(ref _libraryConflictCount, value); }
-        }
-        public int StagedSelectedCount
-        {
-            get { return _stagedSelectedCount; }
-            set { this.RaiseAndSetIfChanged(ref _stagedSelectedCount, value); }
+            get { return _stagedFileFilterType; }
+            set { this.RaiseAndSetIfChanged(ref _stagedFileFilterType, value); }
         }
         public int TotalFileCount
         {
@@ -107,8 +100,8 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
         {
             _workflowConfiguration = workflowConfiguration;
 
-            this.StagedFiles = new KeyedObservableCollection<string, LibraryImporterFileViewModel>();
-            this.StagedFiles.ItemPropertyChanged += StagedFiles_ItemPropertyChanged;
+            this.StagedFiles = new LibraryImporterStagedFileCollection();
+            this.StagedFiles.SelectionChanged += StagedFiles_SelectionChanged;
 
             this.StageCommand = new SimpleCommand(() => Stage(dialogController), CanStage);
             this.UnstageCommand = new SimpleCommand(Unstage, CanUnstage);
@@ -218,7 +211,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
                 var subNode = subTree.GetNodeValue();
 
                 // Careful to avoid other files that have been staged
-                if (!subNode.IsDirectory && !this.StagedFiles.ContainsKey(subNode.FullPath))
+                if (!subNode.IsDirectory && !this.StagedFiles.Contains(subNode))
                 {
                     // Progress
                     progressHandler(1, 1, selectedFileCount, counter++, "Loading:  " + treeBase.NodeValue.DisplayName);
@@ -322,7 +315,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
                     stagedFile.LibraryConflict = libraryFiles.ContainsKey(stagedFile.FullPath);
                     stagedFile.FileConflict = false;                                                  // Calculate migration path
 
-                    this.StagedFiles.Add(stagedFile.FullPath, stagedFile);
+                    this.StagedFiles.Add(stagedFile);
                 }
             });
 
@@ -337,17 +330,10 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
             this.StageCommand.RaiseCanExecuteChanged();
             this.UnstageCommand.RaiseCanExecuteChanged();
         }
-        private void StagedFiles_ItemPropertyChanged(LibraryImporterFileViewModel item, PropertyChangedEventArgs propertyArgs)
+        private void StagedFiles_SelectionChanged()
         {
-            if (propertyArgs.PropertyName == "IsSelected")
-            {
-                this.StageCommand.RaiseCanExecuteChanged();
-                this.UnstageCommand.RaiseCanExecuteChanged();
-
-                // Selection Counts (PERFORMANCE LAG)
-                this.StagedSelectedCount = this.StagedFiles.Count(x => x.IsSelected);
-                this.LibraryConflictCount = this.StagedFiles.Count(x => x.LibraryConflict);
-            }
+            this.StageCommand.RaiseCanExecuteChanged();
+            this.UnstageCommand.RaiseCanExecuteChanged();
         }
     }
 }
