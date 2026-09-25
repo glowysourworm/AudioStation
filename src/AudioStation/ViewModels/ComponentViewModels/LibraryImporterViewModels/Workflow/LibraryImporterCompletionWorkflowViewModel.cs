@@ -120,7 +120,9 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
         }
         private void EditTag()
         {
-            _dialogController.ShowDialogWindowSync(DialogEventData.ShowDialogEditor("Tag Source(s)", DialogEditorView.TagSourceView, this));
+            var stagedFile = _stagedFiles.First(x => x.IsSelected);
+
+            _dialogController.ShowDialogWindowSync(DialogEventData.ShowDialogEditor("Tag Source(s)", DialogEditorView.TagSourceView, stagedFile));
         }
         private void PlayAudio()
         {

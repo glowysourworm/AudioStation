@@ -58,13 +58,15 @@ namespace AudioStation.Core.Service
         }
         public TagSmall GetCopy(string fileName)
         {
-            var fullTag = FromFileFull(fileName);
+            var duration = TimeSpan.Zero;
+            var fullTag = FromFileFull(fileName, out duration);
 
             return TagMapper.Map(fullTag);
         }
-        public TagFull GetFullTag(string fileName)
+        public TagFull GetFullTag(string fileName, out TimeSpan duration)
         {
-            return FromFileFull(fileName);
+            duration = TimeSpan.Zero;
+            return FromFileFull(fileName, out duration);
         }
         public void Set(string fileName)
         {
@@ -72,7 +74,8 @@ namespace AudioStation.Core.Service
                 _tags.Remove(fileName);
 
             // IdSharp -> AudioStation
-            var tagFile = FromFileFull(fileName);
+            var duration = TimeSpan.Zero;
+            var tagFile = FromFileFull(fileName, out duration);
 
             // ITagFull -> ITagSmall
             var tagFileSmall = TagMapper.Map(tagFile);
@@ -127,7 +130,7 @@ namespace AudioStation.Core.Service
             }
         }
 
-        private TagFull FromFileFull(string fileName)
+        private TagFull FromFileFull(string fileName, out TimeSpan duration)
         {
             try
             {
@@ -141,6 +144,13 @@ namespace AudioStation.Core.Service
                     Options = FileOptions.SequentialScan
                 }))
                 {
+                    // TODO: Decide how to handle duration
+                    //
+                    //var durationMilliseconds = _audioConverter.GetDurationMilliseconds(fileStream);
+                    //duration = TimeSpan.FromMilliseconds(durationMilliseconds);
+
+                    duration = TimeSpan.Zero;
+
                     // Reset Stream
                     fileStream.Position = 0;
 

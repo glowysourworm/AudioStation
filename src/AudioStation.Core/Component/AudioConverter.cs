@@ -77,12 +77,11 @@ namespace AudioStation.Core.Component
         {
             try
             {
-                using (var source = new MediaFoundationDecoder(sourceStream))
-                {
+                // DO NOT DISPOSE!
+                var source = new MediaFoundationDecoder(sourceStream);
 
-                    // -> [Byte] * [Second / Byte] * [Milliseconds / Second] = Milliseconds
-                    return (int)((source.Length / (double)source.WaveFormat.BytesPerSecond) * 1000);
-                }
+                // -> [Byte] * [Second / Byte] * [Milliseconds / Second] = Milliseconds
+                return (int)((source.Length / (double)source.WaveFormat.BytesPerSecond) * 1000);
             }
             catch (Exception ex)
             {

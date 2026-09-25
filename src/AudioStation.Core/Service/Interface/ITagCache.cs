@@ -19,7 +19,7 @@ namespace AudioStation.Core.Service.Interface
         /// <summary>
         /// Returns the full tag after reading the specified file. These tags are not cached.
         /// </summary>
-        TagFull GetFullTag(string fileName);
+        TagFull GetFullTag(string fileName, out TimeSpan duration);
 
         /// <summary>
         /// Sets a tag file into the cache. You must set the full tag explicitly. Otherwise,

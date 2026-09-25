@@ -93,7 +93,11 @@
                  SelectedValuePath="IsSelected"
                  SelectionMode="Extended"
                  AlternationCount="2"                 
-                 HorizontalContentAlignment="Stretch">
+                 HorizontalContentAlignment="Stretch"
+                 VirtualizingPanel.IsVirtualizing="True"
+                 VirtualizingPanel.VirtualizationMode="Recycling"
+                 VirtualizingPanel.CacheLength="3"
+                 VirtualizingPanel.CacheLengthUnit="Item">
         </ListBox>
 
         <Border Grid.Column="0" 

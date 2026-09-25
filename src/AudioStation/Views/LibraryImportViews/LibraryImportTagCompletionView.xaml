@@ -73,6 +73,7 @@
         <!-- Input Files -->
         <ListBox x:Name="StagedFileLB"
                  ItemsSource="{Binding StagingWorkflow.StagedFiles}"
+                 SelectionChanged="StagedFileLB_SelectionChanged"
                  Grid.Column="0"
                  Grid.ColumnSpan="2"
                  Grid.Row="1"
@@ -81,7 +82,7 @@
                  ItemContainerStyle="{StaticResource LibraryImportFileItemContainerStyle}"
                  SelectionMode="Extended"
                  AlternationCount="2"
-                 HorizontalContentAlignment="Stretch"                 
+                 HorizontalContentAlignment="Stretch"
                  VirtualizingPanel.IsVirtualizing="True"
                  VirtualizingPanel.VirtualizationMode="Recycling"
                  VirtualizingPanel.CacheLength="3">

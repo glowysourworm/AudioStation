@@ -226,12 +226,13 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
                     var stagedFile = new LibraryImporterFileViewModel(subNode.FullPath, subNode.BaseDirectory, _workflowConfiguration);
 
                     // Tag
-                    var tagData = _tagCache.GetFullTag(stagedFile.FullPath);
+                    var duration = TimeSpan.Zero;
+                    var tagData = _tagCache.GetFullTag(stagedFile.FullPath, out duration);
 
                     // (AcoustID / Music Brainz) Stored in Tag
                     stagedFile.MusicBrainzReleaseTrackIDTag = tagData.GetMusicBrainzReleaseTrackId();
 
-                    // Tag (Edit)
+                    // Tag (read only)
                     if (tagData != null)
                     {
                         stagedFile.Tag = _audioStationMapper.Map<TagSmall, TagSmallViewModel>(TagMapper.Map(tagData));
@@ -280,6 +281,10 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
 
                                 _audioStationMapper.MapOnto(tagSmall, stagedFile.TagRecordDirty);
                                 _audioStationMapper.MapOnto(tagSmall, stagedFile.TagRecordClean);
+
+                                //// Audio Duration (Deduce from IAudioConverter)
+                                //stagedFile.TagRecordDirty.DurationMilliseconds = (int)duration.TotalMilliseconds;
+                                //stagedFile.TagRecordClean.DurationMilliseconds = (int)duration.TotalMilliseconds;
                             }
                             else if (tagFileMaps.ContainsKey(stagedFile.FullPath))
                             {
@@ -301,6 +306,10 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
 
                                 _audioStationMapper.MapOnto(tagSmall, stagedFile.TagRecordDirty);
                                 _audioStationMapper.MapOnto(tagSmall, stagedFile.TagRecordClean);
+
+                                //// Audio Duration (Deduce from IAudioConverter)
+                                //stagedFile.TagRecordDirty.DurationMilliseconds = (int)duration.TotalMilliseconds;
+                                //stagedFile.TagRecordClean.DurationMilliseconds = (int)duration.TotalMilliseconds;
                             }
                         }
                         break;
