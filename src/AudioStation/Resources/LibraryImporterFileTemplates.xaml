@@ -63,48 +63,95 @@
     <!-- Library Importer (Tag Completion) -->
     <DataTemplate x:Key="LibraryImportFileItemTemplate">
 
-        <Border Margin="0" Padding="0" BorderThickness="0" BorderBrush="Transparent">
+        <Grid ColumnDefinitions="Auto, Auto, *">
 
-            <Grid ColumnDefinitions="Auto, *, Auto" RowDefinitions="Auto, Auto">
+            <!-- Import Indicators -->
+            <StackPanel Orientation="Horizontal" Grid.Column="0">
 
-                <!-- Import Indicators -->
-                <StackPanel Orientation="Horizontal" Grid.Column="0">
-
-                    <fa5:ImageAwesome Icon="Solid_Tag" 
+                <fa5:ImageAwesome Icon="Solid_Tag" 
                                       Margin="3"
                                       Foreground="{Binding TagRecordDirty.IsValid, Converter={StaticResource ValidationBoolForegroundParameterConverter}}"
                                       Style="{StaticResource FontAwesomeIconManagerViewPager}"
                                       ToolTip="Tag data is required to complete the import">
-                    </fa5:ImageAwesome>
+                </fa5:ImageAwesome>
 
-                    <fa5:ImageAwesome Icon="Solid_VolumeUp" 
+                <fa5:ImageAwesome Icon="Solid_VolumeUp" 
                                       Margin="3"
                                       Style="{StaticResource FontAwesomeIconManagerViewPager}"
                                       ToolTip="AcoustID data may be downloaded prior to import; or after."
                                       Foreground="{Binding ImportOutput.AcoustIDResults, 
                                                            Converter={StaticResource ConfirmationCollectionNonEmptyForegroundParameterConverter},
                                                            ConverterParameter={x:Static Brushes.DodgerBlue}}" />
-                    <fa5:ImageAwesome Icon="Solid_Music" 
+                <fa5:ImageAwesome Icon="Solid_Music" 
                                       Margin="3"
                                       ToolTip="Music Brainz data may be downloaded prior to import; or after."              
                                       Style="{StaticResource FontAwesomeIconManagerViewPager}"
                                       Foreground="{Binding ImportOutput.MusicBrainzRecordingMatches, 
                                                            Converter={StaticResource ConfirmationCollectionNonEmptyForegroundParameterConverter},
                                                            ConverterParameter={x:Static Brushes.DodgerBlue}}" />
-                </StackPanel>
+            </StackPanel>
 
-                <!-- Import File Name -->
-                <TextBlock Text="{Binding ShortPath}" 
-                           Margin="3"
-                           Padding="0"
-                           VerticalAlignment="Center"
-                           TextWrapping="NoWrap"
-                           TextTrimming="CharacterEllipsis"
-                           FontSize="14"
-                           Grid.Column="1" />
+            <!-- Import File Name -->
+            <TextBlock Text="{Binding ShortPath}" 
+                       Style="{StaticResource LabelTextBlock}"
+                       Margin="3"
+                       VerticalAlignment="Center"
+                       TextWrapping="NoWrap"
+                       TextTrimming="CharacterEllipsis"
+                       Grid.Column="1" />
 
-            </Grid>
-        </Border>
+            <!-- Invalid Field Names -->
+            <TextBlock Text="{Binding TagRecordDirty.ValidationMessage}"
+                       Style="{StaticResource LabelDetailDarkTextBlock}"
+                       VerticalAlignment="Center"                       
+                       HorizontalAlignment="Right"
+                       Margin="3"
+                       Grid.Column="2" />
+
+        </Grid>
+    </DataTemplate>
+
+    <!-- Library Importer (Tag Completion) -->
+    <DataTemplate x:Key="LibraryImportFileSmallItemTemplate">
+
+        <Grid ColumnDefinitions="Auto, *">
+
+            <!-- Import Indicators -->
+            <StackPanel Orientation="Horizontal" Grid.Column="0">
+
+                <fa5:ImageAwesome Icon="Solid_Tag" 
+                                      Margin="3"
+                                      Foreground="{Binding TagRecordDirty.IsValid, Converter={StaticResource ValidationBoolForegroundParameterConverter}}"
+                                      Style="{StaticResource FontAwesomeIconManagerViewPager}"
+                                      ToolTip="Tag data is required to complete the import">
+                </fa5:ImageAwesome>
+
+                <fa5:ImageAwesome Icon="Solid_VolumeUp" 
+                                      Margin="3"
+                                      Style="{StaticResource FontAwesomeIconManagerViewPager}"
+                                      ToolTip="AcoustID data may be downloaded prior to import; or after."
+                                      Foreground="{Binding ImportOutput.AcoustIDResults, 
+                                                           Converter={StaticResource ConfirmationCollectionNonEmptyForegroundParameterConverter},
+                                                           ConverterParameter={x:Static Brushes.DodgerBlue}}" />
+                <fa5:ImageAwesome Icon="Solid_Music" 
+                                      Margin="3"
+                                      ToolTip="Music Brainz data may be downloaded prior to import; or after."              
+                                      Style="{StaticResource FontAwesomeIconManagerViewPager}"
+                                      Foreground="{Binding ImportOutput.MusicBrainzRecordingMatches, 
+                                                           Converter={StaticResource ConfirmationCollectionNonEmptyForegroundParameterConverter},
+                                                           ConverterParameter={x:Static Brushes.DodgerBlue}}" />
+            </StackPanel>
+
+            <!-- Import File Name -->
+            <TextBlock Text="{Binding ShortPath}" 
+                       Style="{StaticResource LabelTextBlock}"
+                       Margin="3"
+                       VerticalAlignment="Center"
+                       TextWrapping="NoWrap"
+                       TextTrimming="CharacterEllipsis"
+                       Grid.Column="1" />
+
+        </Grid>
     </DataTemplate>
 
     <DataTemplate x:Key="TagSmallTemplate" DataType="{x:Type tagViewModel:TagSmallViewModel}">

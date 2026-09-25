@@ -181,7 +181,14 @@ namespace AudioStation.Controller
         {
             _player?.SetPosition(time);
         }
-
+        public void SetCurrentTime(float timeRatio)
+        {
+            _player?.SetPosition(timeRatio);
+        }
+        public TimeSpan GetDuration()
+        {
+            return _player?.GetDuration() ?? TimeSpan.Zero;
+        }
         private void Resume()
         {
             _player.Resume();

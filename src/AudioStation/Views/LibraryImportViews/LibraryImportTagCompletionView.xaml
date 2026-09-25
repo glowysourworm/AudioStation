@@ -27,7 +27,8 @@
                     Grid.Column="2" Grid.Row="0" Margin="3" 
                     HorizontalAlignment="Right"
                     VerticalAlignment="Center"
-                    Command="{Binding SelectedItem.SelectTagSourceCommand, ElementName=StagedFileLB}">
+                    Command="{Binding CompletionWorkflow.EditTagCommand}">
+                
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="Tag(s)" Margin="3" Style="{StaticResource LabelTextBlock}" FontSize="12" />
                     <fa5:SvgAwesome Icon="Solid_Tag" Style="{StaticResource FontAwesomeIconDefault}" Height="12" Width="12" Margin="3" VerticalAlignment="Center" />
@@ -38,16 +39,18 @@
                     Grid.Column="2" Grid.Row="1" Margin="3" 
                     HorizontalAlignment="Right"
                     VerticalAlignment="Center"
-                    Command="{Binding SelectAcoustIDCommand}">
+                    Command="{Binding CompletionWorkflow.PlayAudioCommand}">
+                
                 <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="Acoust ID" Margin="3" Style="{StaticResource LabelTextBlock}" FontSize="12" />
-                    <fa5:SvgAwesome Icon="Solid_VolumeUp" Style="{StaticResource FontAwesomeIconDefault}" Height="12" Width="12" Margin="3" VerticalAlignment="Center" />
+                    <TextBlock Text="Play" Margin="3" Style="{StaticResource LabelTextBlock}" FontSize="12" />
+                    <fa5:SvgAwesome Icon="Solid_Play" Style="{StaticResource FontAwesomeIconDefault}" Height="12" Width="12" Margin="3" VerticalAlignment="Center" />
                 </StackPanel>
             </Button>
 
             <Button Style="{StaticResource UserControlButton}" Grid.Column="2" Grid.Row="2" Margin="3" HorizontalAlignment="Right"
                     VerticalAlignment="Center"
                     Command="{Binding SelectedMusicBrainzRecordingMatch}">
+                
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="Music Brainz" Margin="3" Style="{StaticResource LabelTextBlock}" FontSize="12" />
                     <fa5:SvgAwesome Icon="Solid_Music" Style="{StaticResource FontAwesomeIconDefault}" Height="12" Width="12" Margin="3" VerticalAlignment="Center" />
@@ -64,6 +67,7 @@
                     <fa5:SvgAwesome Icon="Solid_Database" Style="{StaticResource FontAwesomeIconDefault}" Margin="3" Height="12" Width="12" />
                 </StackPanel>
             </Button>
+            
         </StackPanel>
 
         <!-- Input Files -->
@@ -81,6 +85,53 @@
                  VirtualizingPanel.IsVirtualizing="True"
                  VirtualizingPanel.VirtualizationMode="Recycling"
                  VirtualizingPanel.CacheLength="3">
+
+            <ListBox.ContextMenu>
+                <ContextMenu>
+
+                    <MenuItem Style="{StaticResource UserMenuItemStyle}" BorderBrush="Gray" BorderThickness="0 0 0 1">
+                        <MenuItem.Header>
+                            <StackPanel Orientation="Horizontal">
+                                <Image Source="/Resources/Images/icon.bmp" Width="20" Height="20"  />
+                                <TextBlock Text="Library Importer" Margin="5 0 0 0" />
+                            </StackPanel>
+                        </MenuItem.Header>
+                    </MenuItem>
+                    
+                    <!-- Play Audio -->
+                    <MenuItem Style="{StaticResource UserMenuItemStyle}" Header="Play Track" 
+                              Command="{Binding CompletionWorkflow.PlayAudioCommand}"
+                              IsEnabled="{Binding CompletionWorkflow.PlayAudioCommand.IsReady}" />
+                    
+                    <!-- Tag(s) -->
+                    <MenuItem Style="{StaticResource UserMenuItemStyle}" Header="Tag(s)" 
+                              Command="{Binding CompletionWorkflow.EditTagCommand}"
+                              IsEnabled="{Binding CompletionWorkflow.EditTagCommand.IsReady}" />
+
+                    <!-- Tag Group -->
+                    <MenuItem x:Name="EditTagGroupMI" 
+                                  Style="{StaticResource UserMenuItemStyle}" 
+                                  Header="Edit Tag (Group)" 
+                                  IsEnabled="{Binding CompletionWorkflow.EditTagGroupCommand.IsReady}">
+
+                        <MenuItem Style="{StaticResource UserMenuItemStyle}" BorderBrush="Gray" BorderThickness="0 0 0 1">
+                            <MenuItem.Header>
+                                <TextBlock Text="Tag (Group) Fields" Margin="5 0 0 0" />
+                            </MenuItem.Header>
+                        </MenuItem>
+
+                        <MenuItem Header="Artist" Command="{Binding CompletionWorkflow.EditTagGroupCommand}" CommandParameter="AlbumArtists" Style="{StaticResource UserMenuItemStyle}"  />
+                        <MenuItem Header="Album" Command="{Binding CompletionWorkflow.EditTagGroupCommand}" CommandParameter="Album" Style="{StaticResource UserMenuItemStyle}" />
+                        <MenuItem Header="Genre" Command="{Binding CompletionWorkflow.EditTagGroupCommand}" CommandParameter="Genres" Style="{StaticResource UserMenuItemStyle}" />
+                        <MenuItem Header="Track Count" Command="{Binding CompletionWorkflow.EditTagGroupCommand}" CommandParameter="TrackTotal" Style="{StaticResource UserMenuItemStyle}" />
+                        <MenuItem Header="Media (Disc, Vinyl, ..) Count" Command="{Binding CompletionWorkflow.EditTagGroupCommand}" CommandParameter="MediaTotal" Style="{StaticResource UserMenuItemStyle}" />
+                        <MenuItem Header="Artwork" Command="{Binding CompletionWorkflow.EditTagGroupCommand}" CommandParameter="Artwork" Style="{StaticResource UserMenuItemStyle}" />
+                    </MenuItem>
+
+                </ContextMenu>
+
+            </ListBox.ContextMenu>
+
         </ListBox>
 
 

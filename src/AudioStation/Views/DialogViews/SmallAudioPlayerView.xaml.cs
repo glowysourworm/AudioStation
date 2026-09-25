@@ -39,6 +39,9 @@ namespace AudioStation.Views.DialogViews
                 _audioController.Stop();
                 _audioController.Load(viewModel.FileName, viewModel.SourceType);
                 _audioController.Play();
+
+                viewModel.Duration = _audioController.GetDuration();
+                viewModel.CurrentTime = TimeSpan.Zero;
             }
             else
             {
@@ -61,9 +64,7 @@ namespace AudioStation.Views.DialogViews
 
             if (_sourceValid && viewModel != null)
             {
-                var positionMilliSeconds = viewModel.Duration.TotalMilliseconds * currentTimeRatio;
-
-                _audioController.SetCurrentTime(TimeSpan.FromMilliseconds(positionMilliSeconds));
+                _audioController.SetCurrentTime(currentTimeRatio);
             }
         }
 

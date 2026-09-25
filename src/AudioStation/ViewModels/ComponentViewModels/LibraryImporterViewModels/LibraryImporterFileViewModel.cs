@@ -5,7 +5,6 @@ using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Model;
 using AudioStation.Core.Model.Vendor.ATLExtension.Interface;
 using AudioStation.Core.Utility;
-using AudioStation.Event;
 using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Payload.Input;
 using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Payload.Output;
 using AudioStation.ViewModels.MainViewModels;
@@ -13,9 +12,7 @@ using AudioStation.ViewModels.TagViewModels;
 
 using Microsoft.Extensions.Logging;
 
-using SimpleWpf.Extensions.Event;
 using SimpleWpf.IocFramework.Application;
-using SimpleWpf.UI.Command;
 using SimpleWpf.UI.ViewModel.FileTreeView;
 
 namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels
@@ -26,10 +23,6 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels
     /// </summary>
     public class LibraryImporterFileViewModel : FileTreeNodeViewModel
     {
-        public event SimpleEventHandler<LibraryImporterFileViewModel> SelectMusicBrainzEvent;
-        public event SimpleEventHandler<LibraryImporterFileViewModel> SelectAcoustIDEvent;
-        public event SimpleEventHandler<LibraryImporterFileViewModel> PlayAudioEvent;
-
         // This will be used to indicate errors from the service workflow
         bool _serviceError;
 
@@ -70,9 +63,6 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels
 
         bool _musicBrainzReleaseTrackQuerySuccess;
         Guid? _musicBrainzReleaseTrackIDTag;
-
-        SimpleCommand _selectTagSourceCommand;
-        SimpleCommand _playAudioCommand;
 
         public bool ServiceError
         {
@@ -141,17 +131,6 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels
             set { this.RaiseAndSetIfChanged(ref _musicBrainzReleaseTrackIDTag, value); }
         }
 
-        public SimpleCommand SelectTagSourceCommand
-        {
-            get { return _selectTagSourceCommand; }
-            set { this.RaiseAndSetIfChanged(ref _selectTagSourceCommand, value); }
-        }
-        public SimpleCommand PlayAudioCommand
-        {
-            get { return _playAudioCommand; }
-            set { this.RaiseAndSetIfChanged(ref _playAudioCommand, value); }
-        }
-
         bool _updating;
 
         /// <summary>
@@ -206,17 +185,6 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels
             this.TagRecordDirty = new TagSmallEditViewModel();
             this.ImportOutput = new LibraryLoaderImportOutputViewModel();
 
-            this.SelectTagSourceCommand = new SimpleCommand(() =>
-            {
-                dialogController.ShowDialogWindowSync(DialogEventData.ShowDialogEditor("Tag Source(s)", DialogEditorView.TagSourceView, this));
-            });
-
-            this.PlayAudioCommand = new SimpleCommand(() =>
-            {
-                if (this.PlayAudioEvent != null)
-                    this.PlayAudioEvent(this);
-            });
-
             // Initializes the import output
             Reload();
         }
@@ -255,7 +223,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels
             //}
 
             // Commands update
-            this.PlayAudioCommand.RaiseCanExecuteChanged();
+            //this.PlayAudioCommand.RaiseCanExecuteChanged();
 
             // Tag Dirty Flag
             //this.IsTagDirty = !ApplicationHelpers.Compare(_tagClean, _tagDirty);

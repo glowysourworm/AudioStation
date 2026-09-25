@@ -46,6 +46,25 @@ namespace AudioStation.Model.AudioProcessing
         {
             _player.Position = position;
         }
+        public void SetPosition(float positionRatio)
+        {
+            if (_player != null)
+            {
+                var totalTime = _player.NaturalDuration.TimeSpan;
+                var positionMilliseconds = totalTime.TotalMilliseconds * positionRatio;
+
+                _player.Position = TimeSpan.FromMilliseconds(positionMilliseconds);
+            }
+        }
+        public TimeSpan GetDuration()
+        {
+            if (_player != null)
+            {
+                return _player.NaturalDuration.TimeSpan;
+            }
+            else
+                return TimeSpan.Zero;
+        }
         public void Play(string source, StreamSourceType type)
         {
             if (type != StreamSourceType.Network)

@@ -238,6 +238,63 @@ namespace AudioStation.ViewModels.TagViewModels
             set { this.RaiseAndSetIfChanged(ref _validationMessage, value); }
         }
 
+        public void SetField(string fieldName, string value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+                throw new ArgumentException("Invalid field value");
+
+            switch (fieldName)
+            {
+                case "AlbumArtist":
+                    this.AlbumArtist = value;
+                    break;
+                case "Album":
+                    this.Album = value;
+                    break;
+                case "Title":
+                    this.Title = value;
+                    break;
+                case "Genre":
+                    this.Genre = value;
+                    break;
+                case "TrackNumber":
+                    var trackNumber = 0;
+                    if (int.TryParse(value, out trackNumber))
+                        this.TrackNumber = trackNumber;
+                    break;
+                case "TrackTotal":
+                    var trackTotal = 0;
+                    if (int.TryParse(value, out trackTotal))
+                        this.TrackTotal = trackTotal;
+                    break;
+                case "MediaNumber":
+                    var mediaNumber = 0;
+                    if (int.TryParse(value, out mediaNumber))
+                        this.MediaNumber = mediaNumber;
+                    break;
+                case "MediaTotal":
+                    var mediaTotal = 0;
+                    if (int.TryParse(value, out mediaTotal))
+                        this.MediaTotal = mediaTotal;
+                    break;
+                case "MediaFormat":
+                    this.MediaFormat = value;
+                    break;
+                case "DurationMilliseconds":
+                    var duration = 0;
+                    if (int.TryParse(value, out duration))
+                        this.DurationMilliseconds = duration;
+                    break;
+                case "Year":
+                    var year = 0;
+                    if (int.TryParse(value, out year))
+                        this.Year = year;
+                    break;
+                default:
+                    throw new Exception("Unhandled tag field name: " + fieldName);
+            }
+        }
+
         protected override void OnPropertyChanged(string name)
         {
             // <- RaiseAndSetIfChanged
@@ -320,11 +377,10 @@ namespace AudioStation.ViewModels.TagViewModels
 
         public TagSmallEditViewModel()
         {
+            OnUpdate();
+
             this.IsValid = false;
             this.IsModified = false;
-            this.ValidationMessage = "Validation Not Checked!";
-
-            OnUpdate();
         }
 
         public override string ToString()

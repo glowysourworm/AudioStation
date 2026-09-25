@@ -15,7 +15,7 @@ namespace AudioStation.Views.Converter
             if (value is not bool)
                 return true;
 
-            return (bool)value;
+            return false;
         }
 
         public override bool IsConfirmed(object value)

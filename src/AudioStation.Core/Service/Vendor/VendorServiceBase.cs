@@ -26,11 +26,7 @@ namespace AudioStation.Core.Service.Vendor
         private const int SERVICE_THROTTLE_MILLISEC_MAX = 5000;
 
         // Rate Limit Data: Music Brainz (has their own); AcoustID (none); ...
-        private int _rateLimitAllowedRequsts;
-        private int _rateLimitRemainingRequests;
-        private DateTime _rateLimitLastRequest;
-        private DateTime _rateLimitResetAt;
-        private bool _hasRateLimitInformation;
+        private Dictionary<string, RateLimitInfo> _serviceRateLimits;
 
 
         // Check for response headers (rate limiting, auth, etc...)
@@ -50,7 +46,7 @@ namespace AudioStation.Core.Service.Vendor
             _serviceName = serviceName;
             _serviceDisplayName = serviceDisplayName;
             _serviceType = serviceType;
-            _hasRateLimitInformation = false;
+            _serviceRateLimits = new Dictionary<string, RateLimitInfo>();
 
             // Must Initialize
             _httpObserver = new HttpRequestResponseObserver();
@@ -62,11 +58,28 @@ namespace AudioStation.Core.Service.Vendor
 
         private void OnHttpResponseEvent(HttpResponseMessage sender)
         {
-            // Rate Limit: Data may be overridden by service
-            _rateLimitLastRequest = DateTime.Now;
-
             if (sender != null)
-                ApplicationHelpers.Log(sender.ToString(), _serviceType, LogLevel.Information, null);
+            {
+                //// Rate Limit: Data may be overridden by service
+                //var serviceUrl = sender.RequestMessage.RequestUri.GetLeftPart(UriPartial.Path);
+
+                //// Let inherited class set these
+                //if (!_serviceRateLimits.ContainsKey(serviceUrl))
+                //{
+                //    _serviceRateLimits.Add(serviceUrl, new RateLimitInfo(serviceUrl)
+                //    {
+                //        IsSet = false,
+                //        LastRequest = DateTime.Now
+                //    });
+                //}
+
+                // Information
+                ApplicationHelpers.Log(sender.RequestMessage.RequestUri.ToString(), _serviceType, LogLevel.Information, null);
+
+                // Trace
+                ApplicationHelpers.Log(sender.ToString(), _serviceType, LogLevel.Trace, null);
+            }
+
 
             // TODO: Look for rate limit information
 
@@ -117,14 +130,19 @@ namespace AudioStation.Core.Service.Vendor
         /// data in the Http headers using an Http Observer; but you can override it here. This data will appear
         /// in the status logs and messages for each component.
         /// </summary>
-        protected void SetRateLimit(int allowedRequests, int remainingRequests, DateTime lastRequest, DateTime resetAt)
+        protected void SetRateLimit(string serviceUrl, int allowedRequests, int remainingRequests, DateTimeOffset lastRequest, DateTimeOffset resetAt)
         {
-            _rateLimitAllowedRequsts = allowedRequests;
-            _rateLimitRemainingRequests = remainingRequests;
-            _rateLimitLastRequest = lastRequest;
-            _rateLimitResetAt = resetAt;
+            // Let inherited class set these
+            if (!_serviceRateLimits.ContainsKey(serviceUrl))
+            {
+                _serviceRateLimits.Add(serviceUrl, new RateLimitInfo(serviceUrl));
+            }
 
-            _hasRateLimitInformation = true;
+            _serviceRateLimits[serviceUrl].IsSet = true;
+            _serviceRateLimits[serviceUrl].LastRequest = lastRequest;
+            _serviceRateLimits[serviceUrl].ResetAt = resetAt;
+            _serviceRateLimits[serviceUrl].AllowedRequsts = allowedRequests;
+            _serviceRateLimits[serviceUrl].RemainingRequests = remainingRequests;
         }
 
         #region (public) IAudioStationComponent Methods
@@ -168,10 +186,11 @@ namespace AudioStation.Core.Service.Vendor
         {
             var baseMessage = this.GetDisplayName() + " " + IAudioStationDataService.GetDefaultStatusMessage(_status);
 
-            if (_hasRateLimitInformation)
+            if (_serviceRateLimits.Any())
             {
+                var rateLimit = _serviceRateLimits.First().Value;
                 var rateLimitFormat = "Rate Limit:  {0} remaining of {1}. Resets at {2}";
-                var rateLimitInfo = string.Format(rateLimitFormat, _rateLimitRemainingRequests, _rateLimitAllowedRequsts, _rateLimitResetAt);
+                var rateLimitInfo = string.Format(rateLimitFormat, rateLimit.RemainingRequests, rateLimit.AllowedRequsts, rateLimit.ResetAt);
 
                 return string.Format("{0} ({1})", baseMessage, rateLimitInfo);
             }

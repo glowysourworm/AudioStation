@@ -9,6 +9,9 @@ namespace AudioStation.Views.Converter
             if (value == DependencyProperty.UnsetValue)
                 return true;
 
+            if (value is not bool)
+                return true;
+
             return false;
         }
 
@@ -18,6 +21,9 @@ namespace AudioStation.Views.Converter
                 return false;
 
             if (value == null)
+                return false;
+
+            if (value is not bool)
                 return false;
 
             return true;

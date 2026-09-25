@@ -62,6 +62,7 @@ namespace AudioStation.Core.Service.Vendor
                 var query = new Query();
 
                 IRecording? result = null;
+                string serviceName = string.Empty;
 
                 switch (payload.IdType)
                 {
@@ -70,10 +71,12 @@ namespace AudioStation.Core.Service.Vendor
                                            .Results
                                            .FirstOrDefault()
                                            ?.Item;
+                        serviceName = "FindRecordingsAsync";
                         break;
 
                     case MusicBrainzLookupRequestType.MusicBrainzRecordingId:
                         result = await query.LookupRecordingAsync(payload.MusicBrainzId.Value, CreateIncludeRecording());
+                        serviceName = "LookupRecordingAsync";
                         break;
 
                     case MusicBrainzLookupRequestType.MusicBrainzTrackId:
@@ -82,10 +85,18 @@ namespace AudioStation.Core.Service.Vendor
                                            .Results
                                            .FirstOrDefault()
                                            ?.Item;
+                        serviceName = "FindRecordingsAsync";
                         break;
                     default:
                         throw new Exception("Unhandled Music Brainz Lookup ID Type");
                 }
+
+                // TODO: Need Service "Name" from their client
+                SetRateLimit(serviceName,
+                             query.RateLimitInfo.AllowedRequests ?? 0,
+                             query.RateLimitInfo.RemainingRequests ?? 0,
+                             query.RateLimitInfo.LastRequest,
+                             query.RateLimitInfo.ResetAt ?? DateTimeOffset.MinValue);
 
                 OnStatusChanged(IAudioStationDataService.Status.Idle);
 
@@ -114,6 +125,13 @@ namespace AudioStation.Core.Service.Vendor
                 var result = await query.LookupReleaseAsync(releaseId, CreateIncludeRelease());
 
                 OnStatusChanged(IAudioStationDataService.Status.Idle);
+
+                // TODO: Need Service "Name" from their client
+                SetRateLimit("LookupReleaseAsync",
+                             query.RateLimitInfo.AllowedRequests ?? 0,
+                             query.RateLimitInfo.RemainingRequests ?? 0,
+                             query.RateLimitInfo.LastRequest,
+                             query.RateLimitInfo.ResetAt ?? DateTimeOffset.MinValue);
 
                 return result;
             }
@@ -198,6 +216,13 @@ namespace AudioStation.Core.Service.Vendor
                 var searchResults = query.FindAllArtists("artist:Coldplay", 1);
 
                 OnStatusChanged(IAudioStationDataService.Status.Idle);
+
+                // TODO: Need Service "Name" from their client
+                SetRateLimit("FindAllArtists",
+                             query.RateLimitInfo.AllowedRequests ?? 0,
+                             query.RateLimitInfo.RemainingRequests ?? 0,
+                             query.RateLimitInfo.LastRequest,
+                             query.RateLimitInfo.ResetAt ?? DateTimeOffset.MinValue);
 
                 return true;
             }

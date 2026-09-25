@@ -1,5 +1,4 @@
 ﻿using AudioStation.Core.Model;
-using AudioStation.Model.AudioProcessing;
 
 using CSCore;
 using CSCore.SoundOut;
@@ -18,11 +17,14 @@ namespace AudioStation.Model.AudioProcessing.Interface
         void SetVolume(float volume);
         float GetVolume();
         void SetPosition(TimeSpan position);
+        void SetPosition(float positionRatio);
         void SetEqualizerGain(float frequency, float gain);
         void Play(string source, StreamSourceType sourceType);
         void Resume();
         void Pause();
         void Stop();
+
+        TimeSpan GetDuration();
 
         bool HasAudio { get; }
 
