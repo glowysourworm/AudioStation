@@ -17,11 +17,11 @@ using AudioStation.Core.Model.Vendor.ATLExtension;
 using AudioStation.Core.Model.Vendor.ATLExtension.Interface;
 using AudioStation.Event;
 using AudioStation.Event.DialogEvents;
-using AudioStation.ViewModels;
-using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Payload.Input;
-using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Payload.Output;
-using AudioStation.ViewModels.MainViewModels;
-using AudioStation.ViewModels.TagViewModels;
+using AudioStation.ViewModels.DataComponent;
+using AudioStation.ViewModels.DataComponent.MainViewModels;
+using AudioStation.ViewModels.LibraryLoaderViewModels.Payload.Input;
+using AudioStation.ViewModels.LibraryLoaderViewModels.Payload.Output;
+using AudioStation.ViewModels.LibraryViewModels;
 using AudioStation.ViewModels.Vendor.AcoustIDViewModel;
 using AudioStation.ViewModels.Vendor.ATLViewModel;
 
@@ -87,7 +87,7 @@ namespace AudioStation
                 Application.Current.Dispatcher.Invoke(() =>
                 {
                     // Show Main Window
-                    this.GetShell().Initialize(mainController.ComponentController.GetComponent<MainViewModel>());
+                    this.GetShell().Initialize(mainController.ComponentController.GetDataComponent<MainViewModel>());
                     Application.Current.MainWindow.WindowState = WindowState.Normal;
 
                 }, DispatcherPriority.ApplicationIdle);

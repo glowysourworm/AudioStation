@@ -1,4 +1,4 @@
-﻿using AudioStation.ViewModels.OtherViewModels;
+﻿using AudioStation.ViewModels.LibraryViewModels;
 
 using MetaBrainz.MusicBrainz.Interfaces.Entities;
 

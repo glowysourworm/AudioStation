@@ -1,6 +1,6 @@
 ﻿using System.Windows.Controls;
 
-using AudioStation.ViewModels;
+using AudioStation.ViewModels.DataComponent;
 
 namespace AudioStation.Views
 {

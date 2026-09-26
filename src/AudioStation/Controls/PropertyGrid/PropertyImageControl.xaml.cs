@@ -2,7 +2,7 @@
 
 using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Service.ImageCacheModel;
-using AudioStation.ViewModels.OtherViewModels;
+using AudioStation.ViewModels.LibraryViewModels;
 
 using SimpleWpf.IocFramework.Application;
 

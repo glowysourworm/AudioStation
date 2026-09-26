@@ -2,7 +2,7 @@
 using System.Windows.Controls;
 
 using AudioStation.Controller.Interface;
-using AudioStation.ViewModels.ComponentViewModels;
+using AudioStation.ViewModels.ServiceComponent;
 using AudioStation.Views.LibraryImportViews;
 
 using SimpleWpf.IocFramework.Application.Attribute;
@@ -291,7 +291,7 @@ namespace AudioStation.Views
             {
                 // Load the Importer Component
                 if (!_viewModel.Loaded)
-                    _componentViewModelLoader.LoadComponent<LibraryImporterViewModel>();
+                    _componentViewModelLoader.LoadComponent<LibraryImporterViewModel>(true);
             }
 
             // Import Loader

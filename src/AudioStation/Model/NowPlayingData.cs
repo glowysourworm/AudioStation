@@ -1,4 +1,4 @@
-﻿using AudioStation.ViewModels.MainViewModels.Interface;
+﻿using AudioStation.ViewModels.DataComponent.MainViewModels.Interface;
 
 namespace AudioStation.Model
 {

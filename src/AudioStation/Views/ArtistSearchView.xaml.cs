@@ -5,8 +5,7 @@ using System.Windows.Input;
 using AudioStation.Controller.Interface;
 using AudioStation.Event;
 using AudioStation.Service.Interface;
-using AudioStation.ViewModels.ComponentViewModels.LibraryViewModels;
-using AudioStation.ViewModels.ComponentViewModels.LoadViewModels;
+using AudioStation.ViewModels.LibraryViewModels;
 
 using EMA.ExtendedWPFVisualTreeHelper;
 

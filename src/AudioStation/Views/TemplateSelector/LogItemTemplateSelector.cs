@@ -2,7 +2,7 @@
 using System.Windows.Controls;
 
 using AudioStation.Model;
-using AudioStation.ViewModels.ComponentViewModels.LogViewModels;
+using AudioStation.ViewModels.DataComponent.LogViewModels;
 
 using Microsoft.Extensions.Logging;
 

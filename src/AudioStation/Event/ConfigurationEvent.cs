@@ -1,5 +1,5 @@
 ﻿using AudioStation.Core;
-using AudioStation.ViewModels;
+using AudioStation.ViewModels.DataComponent;
 
 using SimpleWpf.IocFramework.EventAggregation;
 

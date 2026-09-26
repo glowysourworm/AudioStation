@@ -1,6 +1,6 @@
 ﻿using AudioStation.Core.Component.LibraryLoaderComponent;
-using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels;
-using AudioStation.ViewModels.ComponentViewModels.LogViewModels;
+using AudioStation.ViewModels.DataComponent.LogViewModels;
+using AudioStation.ViewModels.LibraryLoaderViewModels;
 
 namespace AudioStation.Service
 {

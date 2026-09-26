@@ -1,7 +1,7 @@
 ﻿using System.Windows.Controls;
 
 using AudioStation.Controller.Interface;
-using AudioStation.ViewModels.ComponentViewModels;
+using AudioStation.ViewModels.ServiceComponent;
 
 using SimpleWpf.IocFramework.Application.Attribute;
 
@@ -15,7 +15,7 @@ namespace AudioStation.Views
         {
             InitializeComponent();
 
-            this.DataContext = audioStationController.ComponentController.GetComponent<LibraryLoaderViewModel>();
+            this.DataContext = audioStationController.ComponentController.GetServiceComponent<LibraryLoaderViewModel>();
         }
     }
 }

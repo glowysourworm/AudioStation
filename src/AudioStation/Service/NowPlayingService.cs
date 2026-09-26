@@ -6,8 +6,8 @@ using AudioStation.Core.Utility;
 using AudioStation.Event;
 using AudioStation.Model;
 using AudioStation.Service.Interface;
-using AudioStation.ViewModels.ComponentViewModels.LibraryViewModels;
-using AudioStation.ViewModels.MainViewModels;
+using AudioStation.ViewModels.DataComponent.MainViewModels;
+using AudioStation.ViewModels.LibraryViewModels;
 
 using Microsoft.Extensions.Logging;
 

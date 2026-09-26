@@ -3,7 +3,7 @@ using AudioStation.Core;
 using AudioStation.Core.Component.Interface;
 using AudioStation.Event;
 using AudioStation.Service.Interface;
-using AudioStation.ViewModels;
+using AudioStation.ViewModels.DataComponent;
 
 using SimpleWpf.IocFramework.Application.Attribute;
 using SimpleWpf.IocFramework.EventAggregation;

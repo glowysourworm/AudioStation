@@ -1,5 +1,5 @@
 ﻿using AudioStation.Core;
-using AudioStation.ViewModels.ComponentViewModels;
+using AudioStation.ViewModels;
 
 using static AudioStation.Event.DialogEventHandlers;
 
@@ -13,18 +13,48 @@ namespace AudioStation.Controller.Interface
         /// Returns a component from the application's view model tree
         /// </summary>
         /// <typeparam name="T">Component type</typeparam>
-        T GetComponent<T>() where T : ComponentViewModelBase;
+        T GetServiceComponent<T>() where T : ServiceComponentViewModelBase;
+
+        /// <summary>
+        /// Returns a component from the application's view model tree
+        /// </summary>
+        /// <typeparam name="T">Component type</typeparam>
+        T GetDataComponent<T>() where T : DataComponentViewModelBase;
 
         /// <summary>
         /// Loads or re-initializes a component to prepare for work load
         /// </summary>
         /// <typeparam name="T">Component type</typeparam>
-        void LoadComponent<T>() where T : ComponentViewModelBase;
+        void LoadComponent<T>(bool showProgress) where T : ServiceComponentViewModelBase;
 
         /// <summary>
         /// Asynchronously loads or re-initializes a component to prepare for work load
         /// </summary>
         /// <typeparam name="T">Component type</typeparam>
-        Task LoadComponentAsync<T>() where T : ComponentViewModelBase;
+        Task LoadComponentAsync<T>() where T : ServiceComponentViewModelBase;
+
+        /// <summary>
+        /// Executes or re-initializes a component to prepare for work load
+        /// </summary>
+        /// <typeparam name="T">Component type</typeparam>
+        void ExecuteComponent<T>(bool showProgress) where T : ServiceComponentViewModelBase;
+
+        /// <summary>
+        /// Asynchronously executes or re-initializes a component to prepare for work load
+        /// </summary>
+        /// <typeparam name="T">Component type</typeparam>
+        Task ExecuteComponentAsync<T>() where T : ServiceComponentViewModelBase;
+
+        /// <summary>
+        /// Resets or re-initializes a component to prepare for work load
+        /// </summary>
+        /// <typeparam name="T">Component type</typeparam>
+        void ResetComponent<T>(bool showProgress) where T : ServiceComponentViewModelBase;
+
+        /// <summary>
+        /// Asynchronously resets or re-initializes a component to prepare for work load
+        /// </summary>
+        /// <typeparam name="T">Component type</typeparam>
+        Task ResetComponentAsync<T>() where T : ServiceComponentViewModelBase;
     }
 }

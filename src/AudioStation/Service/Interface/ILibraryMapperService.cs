@@ -1,5 +1,5 @@
 ﻿using AudioStation.Core.Database.AudioStationDatabase;
-using AudioStation.ViewModels.ComponentViewModels.LibraryViewModels;
+using AudioStation.ViewModels.LibraryViewModels;
 
 namespace AudioStation.Service.Interface
 {

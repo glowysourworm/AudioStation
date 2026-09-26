@@ -1,7 +1,7 @@
 ﻿using System.Globalization;
 using System.Windows.Data;
 
-using AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels;
+using AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels;
 
 namespace AudioStation.Views.Converter
 {

@@ -7,7 +7,7 @@ using AudioStation.Controller.Interface;
 using AudioStation.Core.Component.CDPlayer;
 using AudioStation.Core.Component.CDPlayer.Interface;
 using AudioStation.Event;
-using AudioStation.ViewModels;
+using AudioStation.ViewModels.DataComponent;
 
 using SimpleWpf.IocFramework.Application.Attribute;
 using SimpleWpf.IocFramework.EventAggregation;

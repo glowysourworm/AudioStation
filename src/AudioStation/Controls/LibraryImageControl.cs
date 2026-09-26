@@ -4,7 +4,7 @@ using System.Windows.Threading;
 
 using AudioStation.Core.Service.ImageCacheModel;
 using AudioStation.Core.Service.Interface;
-using AudioStation.ViewModels.OtherViewModels;
+using AudioStation.ViewModels.LibraryViewModels;
 
 using SimpleWpf.IocFramework.Application;
 using SimpleWpf.Utilities;

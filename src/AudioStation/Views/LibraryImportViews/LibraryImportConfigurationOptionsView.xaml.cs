@@ -2,7 +2,7 @@
 
 using AudioStation.Controller.Interface;
 using AudioStation.Event;
-using AudioStation.ViewModels;
+using AudioStation.ViewModels.DataComponent;
 
 using SimpleWpf.IocFramework.Application.Attribute;
 using SimpleWpf.IocFramework.EventAggregation;
@@ -27,7 +27,7 @@ namespace AudioStation.Views.LibraryImportViews
                     // Initial Configuration
                     if (eventData.ViewModel != null)
                     {
-                        this.AudioFormatCB.ItemsSource = audioStationController.ComponentController.GetComponent<MainViewModel>().Encoders;
+                        this.AudioFormatCB.ItemsSource = audioStationController.ComponentController.GetDataComponent<MainViewModel>().Encoders;
                     }
                 }
             });
@@ -40,7 +40,7 @@ namespace AudioStation.Views.LibraryImportViews
             if (!audioStationController.Initialized)
                 return;
 
-            this.AudioFormatCB.ItemsSource = audioStationController.ComponentController.GetComponent<MainViewModel>().Encoders;
+            this.AudioFormatCB.ItemsSource = audioStationController.ComponentController.GetDataComponent<MainViewModel>().Encoders;
         }
     }
 }

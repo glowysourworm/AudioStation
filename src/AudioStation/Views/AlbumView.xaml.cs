@@ -2,7 +2,7 @@
 using System.Windows.Controls;
 using System.Windows.Input;
 
-using AudioStation.ViewModels.ComponentViewModels.LibraryViewModels;
+using AudioStation.ViewModels.LibraryViewModels;
 
 namespace AudioStation.Views
 {

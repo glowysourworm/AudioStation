@@ -2,8 +2,8 @@
 
 using AudioStation.Controller.Interface;
 using AudioStation.Event;
-using AudioStation.ViewModels;
-using AudioStation.ViewModels.ComponentViewModels.RadioViewModels;
+using AudioStation.ViewModels.DataComponent;
+using AudioStation.ViewModels.ServiceComponent.RadioViewModels;
 
 using SimpleWpf.IocFramework.Application.Attribute;
 using SimpleWpf.IocFramework.EventAggregation;

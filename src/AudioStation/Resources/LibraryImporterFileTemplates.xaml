@@ -6,7 +6,7 @@
                     xmlns:controls="clr-namespace:AudioStation.Controls"
                     xmlns:coreModel="clr-namespace:AudioStation.Core.Model;assembly=AudioStation.Core"
                     xmlns:simpleUI="clr-namespace:SimpleWpf.UI.Controls;assembly=SimpleWpf.UI"
-                    xmlns:tagViewModel="clr-namespace:AudioStation.ViewModels.TagViewModels"
+                    xmlns:tagViewModel="clr-namespace:AudioStation.ViewModels.LibraryViewModels"
                     xmlns:acoustIDViewModel="clr-namespace:AudioStation.ViewModels.Vendor.AcoustIDViewModel">
 
     <ResourceDictionary.MergedDictionaries>

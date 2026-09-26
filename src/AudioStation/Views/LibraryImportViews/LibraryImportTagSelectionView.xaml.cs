@@ -2,8 +2,8 @@
 using System.Windows.Controls;
 
 using AudioStation.Core.Component.Interface;
-using AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels;
-using AudioStation.ViewModels.TagViewModels;
+using AudioStation.ViewModels.LibraryViewModels;
+using AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels;
 
 using SimpleWpf.IocFramework.Application;
 

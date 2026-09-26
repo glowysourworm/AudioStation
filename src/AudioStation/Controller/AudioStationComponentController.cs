@@ -8,7 +8,8 @@ using AudioStation.Core.Service.Vendor.Bandcamp.Interface;
 using AudioStation.Event;
 using AudioStation.Service.Interface;
 using AudioStation.ViewModels;
-using AudioStation.ViewModels.ComponentViewModels;
+using AudioStation.ViewModels.DataComponent;
+using AudioStation.ViewModels.ServiceComponent;
 using AudioStation.ViewModels.Vendor;
 
 using SimpleWpf.IocFramework.Application.Attribute;
@@ -50,8 +51,9 @@ namespace AudioStation.Controller
         // Configuration
         private AudioStationConfiguration? _configuration;
 
-        // View Models
-        private List<ComponentViewModelBase> _components;
+        // View Models (primary services, primary data)
+        private List<ServiceComponentViewModelBase> _serviceComponents;
+        private List<DataComponentViewModelBase> _dataComponents;
 
         [IocImportingConstructor]
         public AudioStationComponentController(
@@ -92,17 +94,20 @@ namespace AudioStation.Controller
             _radioViewModel = new RadioViewModel(dialogController);
             _statusViewModel = new StatusViewModel();
 
-            _components = new List<ComponentViewModelBase>()
+            _serviceComponents = new List<ServiceComponentViewModelBase>()
             {
                 _bandcampViewModel,
                 _cdImporterViewModel,
                 _libraryImporterViewModel,
                 _libraryLoaderViewModel,
+                _radioViewModel
+            };
+            _dataComponents = new List<DataComponentViewModelBase>()
+            {
                 _libraryManagerViewModel,
                 _logViewModel,
                 _mainViewModel,
                 _nowPlayingViewModel,
-                _radioViewModel,
                 _statusViewModel
             };
 
@@ -110,14 +115,14 @@ namespace AudioStation.Controller
             eventAggregator.GetEvent<ConfigurationEvent>().Subscribe(eventData =>
             {
                 if (_audioStationConfigurationViewModel != null &&
-                    _components.Contains(_audioStationConfigurationViewModel))
-                    _components.Remove(_audioStationConfigurationViewModel);
+                    _dataComponents.Contains(_audioStationConfigurationViewModel))
+                    _dataComponents.Remove(_audioStationConfigurationViewModel);
 
                 _audioStationConfigurationViewModel = eventData.ViewModel;
                 _configuration = eventData.Configuration;
 
                 if (_audioStationConfigurationViewModel != null)
-                    _components.Add(_audioStationConfigurationViewModel);
+                    _dataComponents.Add(_audioStationConfigurationViewModel);
             });
         }
 
@@ -133,36 +138,54 @@ namespace AudioStation.Controller
             //             Configuration, then the rest of the initializers.
             //
 
-            var taskCount = _components.Count;
+            var taskCount = _serviceComponents.Count + _dataComponents.Count;
             var task = 1;
 
             // Log (first)
             progressHandler(taskCount, task++, 0, 0, "Initializing " + _logViewModel.DisplayName);
-            _logViewModel.Initialize(configuration, audioStationController, progressHandler);
+            _logViewModel.Initialize(configuration);
 
             // Configuration (may need lazy loading) (currently, there's nothing to do)
             if (_audioStationConfigurationViewModel != null)
             {
                 progressHandler(taskCount, task++, 0, 0, "Initializing " + _audioStationConfigurationViewModel.DisplayName);
-                _cdImporterViewModel.Initialize(configuration, audioStationController, progressHandler);
+                _audioStationConfigurationViewModel.Initialize(configuration);
             }
 
-            foreach (ComponentViewModelBase component in _components)
+            foreach (DataComponentViewModelBase component in _dataComponents)
             {
                 if (component == _logViewModel ||
                     component == _audioStationConfigurationViewModel)
                     continue;
 
                 progressHandler(taskCount, task++, 0, 0, "Initializing " + component.DisplayName);
+                component.Initialize(configuration);
+            }
+
+            foreach (ServiceComponentViewModelBase component in _serviceComponents)
+            {
+                progressHandler(taskCount, task++, 0, 0, "Initializing " + component.DisplayName);
                 component.Initialize(configuration, audioStationController, progressHandler);
             }
         }
 
-        public T GetComponent<T>() where T : ComponentViewModelBase
+        public T GetServiceComponent<T>() where T : ServiceComponentViewModelBase
         {
             var type = typeof(T);
 
-            foreach (var component in _components)
+            foreach (var component in _serviceComponents)
+            {
+                if (component.GetType() == type)
+                    return (T)component;
+            }
+
+            throw new Exception("Component not found, or unhandled:  " + type);
+        }
+        public T GetDataComponent<T>() where T : DataComponentViewModelBase
+        {
+            var type = typeof(T);
+
+            foreach (var component in _dataComponents)
             {
                 if (component.GetType() == type)
                     return (T)component;
@@ -171,24 +194,68 @@ namespace AudioStation.Controller
             throw new Exception("Component not found, or unhandled:  " + type);
         }
 
-        public void LoadComponent<T>() where T : ComponentViewModelBase
+        public void LoadComponent<T>(bool showProgress) where T : ServiceComponentViewModelBase
         {
             if (_configuration == null)
                 throw new Exception("Configuration is not yet loaded. Must load configuration before loading components");
 
-            var component = GetComponent<T>();
+            var component = GetServiceComponent<T>();
 
             // Dialog (Loading)
-            _dialogController.ShowLoading("Loading " + component.DisplayName, progressHandler =>
+            if (showProgress)
             {
-                // Load Component
-                component.Load(_configuration, _audioStationController, progressHandler);
-            });
+                _dialogController.ShowLoading("Loading " + component.DisplayName, progressHandler =>
+                {
+                    // Load Component
+                    component.Load(_configuration, _audioStationController, progressHandler);
+                });
+            }
+            else
+            {
+                // TODO:
+            }
         }
-
-        public Task LoadComponentAsync<T>() where T : ComponentViewModelBase
+        public void ExecuteComponent<T>(bool showProgress) where T : ServiceComponentViewModelBase
         {
-            return Task.Run(LoadComponent<T>);
+            if (_configuration == null)
+                throw new Exception("Configuration is not yet loaded. Must load configuration before loading components");
+
+            var component = GetServiceComponent<T>();
+
+            // Dialog (Loading)
+            if (showProgress)
+                _dialogController.ShowLoading("Executing " + component.DisplayName, component.Execute);
+            else
+            {
+                // TODO
+            }
+        }
+        public void ResetComponent<T>(bool showProgress) where T : ServiceComponentViewModelBase
+        {
+            if (_configuration == null)
+                throw new Exception("Configuration is not yet loaded. Must load configuration before loading components");
+
+            var component = GetServiceComponent<T>();
+
+            // Dialog (Loading)
+            if (showProgress)
+                _dialogController.ShowLoading("Executing " + component.DisplayName, component.Reset);
+            else
+            {
+                // TODO
+            }
+        }
+        public Task LoadComponentAsync<T>() where T : ServiceComponentViewModelBase
+        {
+            return Task.Run(() => LoadComponent<T>(false));
+        }
+        public Task ExecuteComponentAsync<T>() where T : ServiceComponentViewModelBase
+        {
+            return Task.Run(() => ExecuteComponent<T>(false));
+        }
+        public Task ResetComponentAsync<T>() where T : ServiceComponentViewModelBase
+        {
+            return Task.Run(() => ResetComponent<T>(false));
         }
     }
 }

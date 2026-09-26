@@ -1,8 +1,7 @@
 ﻿using AudioStation.Core.Database.AudioStationDatabase;
 using AudioStation.Core.Model;
-using AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels;
-using AudioStation.ViewModels.ComponentViewModels.LibraryViewModels;
-using AudioStation.ViewModels.ComponentViewModels.LoadViewModels;
+using AudioStation.ViewModels.LibraryViewModels;
+using AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels;
 
 using SimpleWpf.UI.ViewModel.FileTreeView;
 

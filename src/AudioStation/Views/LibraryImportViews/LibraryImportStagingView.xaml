@@ -9,7 +9,7 @@
              xmlns:simpleUI="clr-namespace:SimpleWpf.UI.Controls;assembly=SimpleWpf.UI"
              xmlns:simpleUITreeview="clr-namespace:SimpleWpf.UI.Controls.TreeViewUI;assembly=SimpleWpf.UI"
              xmlns:enumUI="clr-namespace:SimpleWpf.UI.Controls.EnumUI;assembly=SimpleWpf.UI"
-             xmlns:libraryImporterViewModel="clr-namespace:AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels">
+             xmlns:libraryImporterViewModel="clr-namespace:AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels">
     
     <Grid RowDefinitions="Auto, Auto, *, Auto" ColumnDefinitions="*, Auto, *" DataContext="{Binding StagingWorkflow}">
 

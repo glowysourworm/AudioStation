@@ -4,8 +4,8 @@ using System.Windows.Documents;
 using System.Windows.Input;
 
 using AudioStation.Event;
-using AudioStation.ViewModels.ComponentViewModels;
-using AudioStation.ViewModels.MainViewModels.Interface;
+using AudioStation.ViewModels.DataComponent;
+using AudioStation.ViewModels.DataComponent.MainViewModels.Interface;
 
 using SimpleWpf.IocFramework.Application.Attribute;
 using SimpleWpf.IocFramework.EventAggregation;

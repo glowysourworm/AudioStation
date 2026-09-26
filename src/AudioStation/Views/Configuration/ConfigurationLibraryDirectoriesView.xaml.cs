@@ -2,8 +2,8 @@
 using System.Windows;
 using System.Windows.Controls;
 
-using AudioStation.ViewModels;
-using AudioStation.ViewModels.MainViewModels;
+using AudioStation.ViewModels.DataComponent;
+using AudioStation.ViewModels.DataComponent.MainViewModels;
 
 namespace AudioStation.Views.Configuration
 {

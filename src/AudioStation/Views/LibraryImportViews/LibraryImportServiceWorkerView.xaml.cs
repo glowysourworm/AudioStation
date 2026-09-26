@@ -6,9 +6,9 @@ using System.Windows.Input;
 using AudioStation.Controller.Interface;
 using AudioStation.Core.Component;
 using AudioStation.Event;
-using AudioStation.ViewModels.ComponentViewModels;
-using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels;
-using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Interface;
+using AudioStation.ViewModels.LibraryLoaderViewModels;
+using AudioStation.ViewModels.LibraryLoaderViewModels.Interface;
+using AudioStation.ViewModels.ServiceComponent;
 
 using SimpleWpf.IocFramework.Application.Attribute;
 using SimpleWpf.IocFramework.EventAggregation;

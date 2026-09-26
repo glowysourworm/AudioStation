@@ -1,0 +1,168 @@
+﻿using System.Collections.ObjectModel;
+using System.IO;
+
+using AudioStation.Controller.Interface;
+using AudioStation.Core.Component.CDPlayer;
+using AudioStation.Core.Model.Interface;
+using AudioStation.Event;
+using AudioStation.Service.Interface;
+using AudioStation.ViewModels.ServiceComponent.CDImporterViewModels;
+
+using SimpleWpf.IocFramework.EventAggregation;
+using SimpleWpf.UI.Command;
+
+using static AudioStation.Event.DialogEventHandlers;
+
+namespace AudioStation.ViewModels.ServiceComponent
+{
+    public class CDImporterViewModel : ServiceComponentViewModelBase
+    {
+        private readonly ICDImportService _cdImportService;
+
+        bool _cdPlayerLoaded;
+        string _cdPlayerDrive;
+        int _discNumber;
+        int _discCount;
+        string _artist;
+        string _album;
+        ObservableCollection<CDImporterTrackViewModel> _tracks;
+
+        SimpleCommand _importCommand;
+
+        public bool CDPlayerLoaded
+        {
+            get { return _cdPlayerLoaded; }
+            set { this.RaiseAndSetIfChanged(ref _cdPlayerLoaded, value); }
+        }
+        public string CDPlayerDrive
+        {
+            get { return _cdPlayerDrive; }
+            set { this.RaiseAndSetIfChanged(ref _cdPlayerDrive, value); }
+        }
+        public int DiscNumber
+        {
+            get { return _discNumber; }
+            set { this.RaiseAndSetIfChanged(ref _discNumber, value); }
+        }
+        public int DiscCount
+        {
+            get { return _discCount; }
+            set { this.RaiseAndSetIfChanged(ref _discCount, value); }
+        }
+        public string Artist
+        {
+            get { return _artist; }
+            set { this.RaiseAndSetIfChanged(ref _artist, value); }
+        }
+        public string Album
+        {
+            get { return _album; }
+            set { this.RaiseAndSetIfChanged(ref _album, value); }
+        }
+        public ObservableCollection<CDImporterTrackViewModel> Tracks
+        {
+            get { return _tracks; }
+            set { this.RaiseAndSetIfChanged(ref _tracks, value); }
+        }
+
+        public SimpleCommand ImportCommand
+        {
+            get { return _importCommand; }
+            set { this.RaiseAndSetIfChanged(ref _importCommand, value); }
+        }
+
+        public CDImporterViewModel(IIocEventAggregator eventAggregator,
+                                   ICDImportService cdImportService) : base("CD Importer")
+        {
+            _cdImportService = cdImportService;
+
+            this.CDPlayerLoaded = false;
+            this.Artist = string.Empty;
+            this.Album = string.Empty;
+            this.Tracks = new ObservableCollection<CDImporterTrackViewModel>();
+
+            // CD-ROM
+            eventAggregator.GetEvent<CDPlayerLoadEvent>().Subscribe(OnCDPlayerLoaded);
+            eventAggregator.GetEvent<CDPlayerReadEvent>().Subscribe(OnCDPlayerRead);
+
+            this.ImportCommand = new SimpleCommand(async () =>
+            {
+                foreach (var track in this.Tracks)
+                {
+                    await cdImportService.ImportTrack(track.Track, this.Artist, this.Album, this.DiscNumber, this.DiscCount, progress =>
+                    {
+                        track.Progress = progress;
+                    });
+                }
+
+            }, () => this.Tracks.Count > 0 && this.CDPlayerLoaded);
+        }
+
+        private void OnCDPlayerRead(CDDataReadEventArgs args)
+        {
+
+        }
+        private void OnCDPlayerLoaded(CDDeviceTracksLoadedEventArgs args)
+        {
+            var driveInfo = DriveInfo.GetDrives().FirstOrDefault(x => x.Name == args.Drive.ToString() + ":\\");
+
+            if (driveInfo != null && driveInfo.IsReady)
+            {
+                this.CDPlayerDrive = driveInfo.VolumeLabel;
+                this.CDPlayerLoaded = args.CDDeviceReady;
+                this.Tracks.Clear();
+
+                for (int index = 0; index < args.TrackCount; index++)
+                {
+                    this.Tracks.Add(new CDImporterTrackViewModel()
+                    {
+                        Complete = false,
+                        Progress = 0,
+                        Track = index + 1
+                    });
+                }
+            }
+            else
+            {
+                this.CDPlayerDrive = string.Empty;
+                this.CDPlayerLoaded = false;
+                this.Tracks.Clear();
+            }
+
+            this.ImportCommand.RaiseCanExecuteChanged();
+        }
+
+        public override bool CanExecute()
+        {
+            return true;
+        }
+        public override bool CanLoad()
+        {
+            return !this.Loaded;
+        }
+        public override bool CanReset()
+        {
+            return this.Loaded;
+        }
+
+        protected override void InitializeWork(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogProgressHandler progressHandler)
+        {
+
+        }
+
+        protected override void LoadWork(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogProgressHandler progressHandler)
+        {
+
+        }
+
+        protected override void ExecuteWork(DialogProgressHandler progressHandler)
+        {
+
+        }
+
+        protected override void ResetWork(DialogProgressHandler progressHandler)
+        {
+
+        }
+    }
+}

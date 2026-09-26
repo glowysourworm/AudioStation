@@ -5,7 +5,7 @@ using System.Windows.Input;
 using AudioStation.Controller.Interface;
 using AudioStation.Core.Model;
 using AudioStation.ViewModels;
-using AudioStation.ViewModels.ComponentViewModels.RadioViewModels;
+using AudioStation.ViewModels.ServiceComponent.RadioViewModels;
 
 using SimpleWpf.IocFramework.Application.Attribute;
 

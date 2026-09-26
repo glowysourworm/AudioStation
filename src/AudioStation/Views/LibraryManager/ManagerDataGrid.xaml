@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:fa5="http://schemas.fontawesome.com/icons/"
              xmlns:xceed="http://schemas.xceed.com/wpf/xaml/toolkit"             
-             xmlns:componentViewModel="clr-namespace:AudioStation.ViewModels.ComponentViewModels"             
+             xmlns:componentViewModel="clr-namespace:AudioStation.ViewModels.DataComponent"             
              xmlns:system="clr-namespace:System;assembly=System.Runtime"             
              xmlns:enumUI="clr-namespace:SimpleWpf.UI.Controls.EnumUI;assembly=SimpleWpf.UI">
     <Grid>

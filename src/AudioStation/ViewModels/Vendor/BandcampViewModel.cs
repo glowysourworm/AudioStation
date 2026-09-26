@@ -2,14 +2,13 @@
 using AudioStation.Core.Model.Interface;
 using AudioStation.Core.Service.Vendor.Bandcamp.Interface;
 using AudioStation.Event;
-using AudioStation.ViewModels.ComponentViewModels;
 
 using SimpleWpf.IocFramework.EventAggregation;
 using SimpleWpf.UI.Command;
 
 namespace AudioStation.ViewModels.Vendor
 {
-    public class BandcampViewModel : ComponentViewModelBase
+    public class BandcampViewModel : ServiceComponentViewModelBase
     {
         SimpleCommand<string> _searchBandcampCommand;
 
@@ -31,6 +30,14 @@ namespace AudioStation.ViewModels.Vendor
             });
         }
         public override bool CanExecute()
+        {
+            return true;
+        }
+        public override bool CanLoad()
+        {
+            return true;
+        }
+        public override bool CanReset()
         {
             return true;
         }

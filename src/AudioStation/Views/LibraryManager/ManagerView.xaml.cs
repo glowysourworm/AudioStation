@@ -7,8 +7,7 @@ using AudioStation.Controller.Interface;
 using AudioStation.Controls;
 using AudioStation.Core.Service.Interface;
 using AudioStation.Core.Service.Vendor.Interface;
-using AudioStation.ViewModels.ComponentViewModels.LibraryViewModels;
-using AudioStation.ViewModels.ComponentViewModels.LoadViewModels;
+using AudioStation.ViewModels.LibraryViewModels;
 using AudioStation.Views.LibraryEntryViews;
 
 using SimpleWpf.IocFramework.Application.Attribute;

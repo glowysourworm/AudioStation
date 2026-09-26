@@ -2,7 +2,7 @@
 
 using AudioStation.Controller.Interface;
 using AudioStation.Event;
-using AudioStation.ViewModels;
+using AudioStation.ViewModels.DataComponent;
 
 using SimpleWpf.IocFramework.Application.Attribute;
 using SimpleWpf.IocFramework.EventAggregation;
@@ -28,7 +28,7 @@ namespace AudioStation.Views.LibraryImportViews
                     if (eventData.ViewModel != null)
                     {
                         this.LibraryDirectoriesView.ItemsSource = eventData.ViewModel.LibraryDirectories;
-                        this.LibraryDirectoriesView.Encoders = audioStationController.ComponentController.GetComponent<MainViewModel>().Encoders;
+                        this.LibraryDirectoriesView.Encoders = audioStationController.ComponentController.GetDataComponent<MainViewModel>().Encoders;
 
                         this.LibraryDirectoriesView.ItemsSource = eventData.ViewModel.LibraryDirectories;
                         this.LibraryDirectoriesCB.ItemsSource = eventData.ViewModel.LibraryDirectories;
@@ -44,11 +44,11 @@ namespace AudioStation.Views.LibraryImportViews
             if (!audioStationController.Initialized)
                 return;
 
-            var configuration = audioStationController.ComponentController.GetComponent<AudioStationConfigurationViewModel>();
+            var configuration = audioStationController.ComponentController.GetDataComponent<AudioStationConfigurationViewModel>();
 
             // Initial Configuration
             this.LibraryDirectoriesView.ItemsSource = configuration.LibraryDirectories;
-            this.LibraryDirectoriesView.Encoders = audioStationController.ComponentController.GetComponent<MainViewModel>().Encoders;
+            this.LibraryDirectoriesView.Encoders = audioStationController.ComponentController.GetDataComponent<MainViewModel>().Encoders;
 
             this.LibraryDirectoriesView.ItemsSource = configuration.LibraryDirectories;
             this.LibraryDirectoriesCB.ItemsSource = configuration.LibraryDirectories;

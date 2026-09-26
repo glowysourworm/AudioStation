@@ -1,8 +1,8 @@
 ﻿using System.Windows.Controls;
 
 using AudioStation.Service.Interface;
-using AudioStation.ViewModels.ComponentViewModels;
-using AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels;
+using AudioStation.ViewModels.ServiceComponent;
+using AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels;
 
 using SimpleWpf.IocFramework.Application.Attribute;
 using SimpleWpf.UI.Controls.TreeViewUI;

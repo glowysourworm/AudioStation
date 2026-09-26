@@ -2,7 +2,7 @@
 using System.Windows.Controls;
 
 using AudioStation.Core.Component.LibraryLoaderComponent;
-using AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels;
+using AudioStation.ViewModels.LibraryLoaderViewModels;
 
 namespace AudioStation.Views.StyleSelectors
 {
