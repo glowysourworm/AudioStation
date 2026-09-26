@@ -26,15 +26,58 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Wo
 
         private readonly LibraryImporterConfigurationViewModel _libraryImporterConfiguration;
 
+        private Dictionary<string, LibraryImporterFileViewModel> _loadItemDict;
+
         public LibraryLoaderImportViewModel(LibraryImporterConfigurationViewModel libraryImporterConfiguration)
             : base("Library Import Worker", "Library import worker task is for importing library records during an import workflow")
         {
             _audioStationMapper = IocContainer.Get<IAudioStationMapper>();
-
+            _loadItemDict = new Dictionary<string, LibraryImporterFileViewModel>();
             _libraryImporterConfiguration = libraryImporterConfiguration;
         }
 
         protected override ILibraryLoaderLoad CreateWorkLoad(LibraryImporterFileViewModel loadItem, IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
+        {
+            return CreateWorkLoads(new LibraryImporterFileViewModel[] { loadItem }, configuration, audioStationController, progressHandler).First();
+        }
+
+        protected override IEnumerable<ILibraryLoaderLoad> CreateWorkLoads(IEnumerable<LibraryImporterFileViewModel> loadItems, IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
+        {
+            var result = new List<ILibraryLoaderLoad>();
+            var counter = 0;
+
+            // Load / Output:  These are part of the workflow process. All of the import data is setup here
+            //                 so that the view binding can happen without a big mess in the code. Also, the
+            //                 back and forth with the backend for imports is kept clean by using these objects.
+            //
+            foreach (LibraryImporterFileViewModel stagedFile in loadItems)
+            {
+                progressHandler(1, 1, loadItems.Count(), counter++, "Staging: " + stagedFile.FullPath);
+
+                // -> CompleteWorkItem
+                _loadItemDict.Add(stagedFile.FullPath, stagedFile);
+
+                result.Add(CreateLoad(stagedFile));
+
+
+                // PERFORMANCE ISSUE:  The tag data must be read; and minimal during file reading. The objects
+                //                     involved must be small. So, we're going to try making "TagSmall" objects
+                //                     in the cache to help out. And, we need to be sure that the tag library 
+                //                     is optimized. (IdSharp seems to be fairly good)
+                //
+
+                // STAGED FILES:       The Load / Output view models are used for this file object. So, they
+                //                     will be set along with the results
+
+                // UI INTERACTION:     Specialized collections are needed to reduce UI lag; and to still listen
+                //                     to selection events; and to have filtering.
+                //
+            }
+
+            return result;
+        }
+
+        private ILibraryLoaderLoad CreateLoad(LibraryImporterFileViewModel loadItem)
         {
             return new LibraryLoaderLoad<LibraryLoaderImportPayload>(this.Id, LibraryLoadType.Import, loadItem.FullPath, new LibraryLoaderImportPayload()
             {
@@ -75,34 +118,6 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Wo
             });
         }
 
-        protected override IEnumerable<ILibraryLoaderLoad> CreateWorkLoads(IEnumerable<LibraryImporterFileViewModel> loadItems, IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
-        {
-            var result = new List<ILibraryLoaderLoad>();
-            var counter = 0;
-
-            // Load / Output:  These are part of the workflow process. All of the import data is setup here
-            //                 so that the view binding can happen without a big mess in the code. Also, the
-            //                 back and forth with the backend for imports is kept clean by using these objects.
-            //
-            foreach (LibraryImporterFileViewModel stagedFile in loadItems)
-            {
-                progressHandler(1, 1, loadItems.Count(), counter++, "Staging: " + stagedFile.FullPath);
-
-                result.Add(CreateWorkLoad(stagedFile, configuration, audioStationController, progressHandler));
-
-                // PERFORMANCE ISSUE:  The tag data must be read; and minimal during file reading. The objects
-                //                     involved must be small. So, we're going to try making "TagSmall" objects
-                //                     in the cache to help out. And, we need to be sure that the tag library 
-                //                     is optimized. (IdSharp seems to be fairly good)
-                //
-
-                // STAGED FILES:  The Load / Output view models are used for this file object. So, they
-                //                will be set along with the results
-            }
-
-            return result;
-        }
-
         protected override LibraryLoaderLoadViewModel MapWorkLoad(ILibraryLoaderLoad workLoad)
         {
             var importLoad = workLoad.Payload as LibraryLoaderImportPayload;
@@ -135,7 +150,17 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Wo
         }
         protected override void CompleteWorkItem(LibraryWorkItemViewModel workItem)
         {
-            throw new NotImplementedException();
+            var input = workItem.Load.Payload as LibraryLoaderImportInputViewModel;
+            var output = workItem.Output.Payload as LibraryLoaderImportOutputViewModel;
+
+            if (output == null || input == null)
+                throw new Exception("Corrupt library loader work item");
+
+            if (!_loadItemDict.ContainsKey(input.SourceFullPath))
+                throw new Exception("Corrupt library loader work item");
+
+            // Import Result (error level)
+            _loadItemDict[input.SourceFullPath].ImportOutput.ImportResult = workItem.WorkSteps.Max(x => x.Result);
         }
     }
 }

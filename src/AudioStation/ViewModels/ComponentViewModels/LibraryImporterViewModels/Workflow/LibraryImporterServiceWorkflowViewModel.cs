@@ -247,6 +247,9 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
                 throw new ArgumentException("Must first select worker before loading");
 
             // Initialize Component Parts
+            if (this.SelectedWorker is LibraryLoaderAudioDurationViewModel)
+                (this.SelectedWorker as LibraryLoaderAudioDurationViewModel).Load(_stagedFiles, configuration, audioStationController, progressHandler);
+
             if (this.SelectedWorker is LibraryLoaderAcoustIDViewModel)
                 (this.SelectedWorker as LibraryLoaderAcoustIDViewModel).Load(_stagedFiles, configuration, audioStationController, progressHandler);
 
@@ -268,6 +271,9 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
             var audioStationDbClient = audioStationController.ServiceController.GetDataService<IAudioStationDbClient>();
 
             // Create Service Workers
+            if (_workflowConfiguration.ServiceIncludeAudioDuration)
+                this.ServiceWorkers.Add(new LibraryLoaderAudioDurationViewModel());
+
             if (_workflowConfiguration.ServiceIncludeAcoustID)
                 this.ServiceWorkers.Add(new LibraryLoaderAcoustIDViewModel(_workflowConfiguration));
 

@@ -84,6 +84,8 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
             _stagedFiles = stagedFiles;
             _stagedFiles.ItemPropertyChanged += OnStagedFilePropertyChanged;
 
+            this.ImportWorker = new LibraryLoaderImportViewModel(workflowConfiguration);
+
             this.EditTagCommand = new SimpleCommand(EditTag, CanEditTag);
             this.EditTagGroupCommand = new SimpleCommand<string>(EditSelectedTagsField, CanEditSelectedTagsField);
             this.PlayAudioCommand = new SimpleCommand(PlayAudio, CanPlayAudio);
@@ -155,7 +157,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.
             this.ImportWorker.StatusChangeEvent += OnWorkerStatusChangeEvent;
 
             // Initialize Component Parts
-            //this.ImportWorker.Load(this.StagedFiles, configuration, audioStationController, progressHandler);
+            this.ImportWorker.Load(this.StagedFiles, configuration, audioStationController, progressHandler);
         }
 
         protected override void ExecuteWork(DialogEventHandlers.DialogProgressHandler progressHandler)

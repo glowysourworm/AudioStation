@@ -134,6 +134,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels
 
             OnPropertyChanged("Count");
 
+            // Bubble Up Events (There are two on the staged file object)
             file.PropertyChanged -= File_PropertyChanged;
             file.PropertyChanged += File_PropertyChanged;
         }
@@ -171,7 +172,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels
                     this.SelectionChanged();
             }
 
-            // IsValid
+            // IsValid (Bubble Up Event)
             if (file.TagRecordDirty.IsValid && !_validFiles.ContainsKey(file.FullPath))
             {
                 _validFiles.Add(file.FullPath, file);
@@ -181,7 +182,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels
                 _validFiles.Remove(file.FullPath);
             }
 
-            // (not) IsValid
+            // (not) IsValid (Bubble Up Event)
             if (!file.TagRecordDirty.IsValid && !_invalidFiles.ContainsKey(file.FullPath))
             {
                 _invalidFiles.Add(file.FullPath, file);
@@ -201,7 +202,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels
                 _acoustIDFiles.Remove(file.FullPath);
             }
 
-            // Music Brainz (basic)
+            // Music Brainz (basic) (Bubble Up Event)
             if (file.ImportOutput.MusicBrainzAcoustIDResults.Any() && !_musicBrainzFiles.ContainsKey(file.FullPath))
             {
                 _musicBrainzFiles.Add(file.FullPath, file);

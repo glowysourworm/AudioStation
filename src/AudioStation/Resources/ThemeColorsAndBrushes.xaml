@@ -77,6 +77,14 @@
     <SolidColorBrush x:Key="UserControlButtonBackgroundPressed">#AF33AAFF</SolidColorBrush>
     <SolidColorBrush x:Key="UserControlButtonBorder">#FF888888</SolidColorBrush>
 
+    <SolidColorBrush x:Key="LibraryWorkerResultLevel_Foreground_Unset" Color="#FFDDDDDD" />
+    <SolidColorBrush x:Key="LibraryWorkerResultLevel_Foreground_Success" Color="DodgerBlue" />
+    <SolidColorBrush x:Key="LibraryWorkerResultLevel_Foreground_ServiceNoResult" Color="DimGray" />
+    <SolidColorBrush x:Key="LibraryWorkerResultLevel_Foreground_DataWarning" Color="Yellow" />
+    <SolidColorBrush x:Key="LibraryWorkerResultLevel_Foreground_DataError" Color="OrangeRed" />
+    <SolidColorBrush x:Key="LibraryWorkerResultLevel_Foreground_ServiceFailure" Color="Red" />
+    <SolidColorBrush x:Key="LibraryWorkerResultLevel_Foreground_Failure" Color="Red" />
+
     <SolidColorBrush x:Key="LargeInputButtonBackground">White</SolidColorBrush>
     <SolidColorBrush x:Key="LargeInputButtonBackgroundHover">#8F33AAFF</SolidColorBrush>
     <SolidColorBrush x:Key="LargeInputButtonBackgroundPressed">#AF33AAFF</SolidColorBrush>

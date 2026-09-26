@@ -20,9 +20,11 @@ namespace AudioStation.Core.Component
     [IocExport(typeof(IAudioConverter))]
     public class AudioConverter : IAudioConverter
     {
+        readonly List<AudioEncoderInfo> _supportedFormats;
+
         public AudioConverter()
         {
-
+            _supportedFormats = new List<AudioEncoderInfo>(GetSupportedFormats());
         }
 
         public void ConvertTo(string filePathIn, string filePathOut, AudioEncoderInfo outputEncoding)
@@ -98,7 +100,7 @@ namespace AudioStation.Core.Component
             });
         }
 
-        public AudioEncoding GetAudioEncoding(string filePath)
+        public AudioEncoderInfo GetAudioEncoding(string filePath, out TimeSpan duration)
         {
             try
             {
@@ -106,7 +108,11 @@ namespace AudioStation.Core.Component
                 {
                     using (var source = new MediaFoundationDecoder(fileStream))
                     {
-                        return source.WaveFormat.WaveFormatTag;
+                        // Duration
+                        duration = source.GetTime(source.Length);
+
+                        return this.GetSupportedFormats()
+                                   .First(x => x.Encoding == source.WaveFormat.WaveFormatTag);
                     }
                 }
             }
@@ -149,6 +155,9 @@ namespace AudioStation.Core.Component
 
         public IEnumerable<AudioEncoderInfo> GetSupportedFormats()
         {
+            if (_supportedFormats != null)
+                return _supportedFormats;
+
             return new List<AudioEncoderInfo>
             {
                 // MP3

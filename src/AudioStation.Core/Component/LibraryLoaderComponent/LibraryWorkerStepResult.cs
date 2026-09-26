@@ -5,25 +5,25 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent
     public enum LibraryWorkerResultLevel : int
     {
         [Display(Name = "(None)", Description = "No library worker steps have been executed")]
-        None = -1,
+        None = 0,
 
         [Display(Name = "Success", Description = "Library worker step was successful")]
-        Success = 0,
+        Success = 1,
 
         [Display(Name = "No Result (service)", Description = "Library worker service call yielded no result(s)")]
-        ServiceNoResult = 1,
+        ServiceNoResult = 2,
 
         [Display(Name = "Data Warning", Description = "Library worker step had data warning(s) that won't affect application processing. Typically these are related to data validation.")]
-        DataWarning = 2,
+        DataWarning = 3,
 
         [Display(Name = "Data Error", Description = "Library worker step had data error(s) that won't affect application processing")]
-        DataError = 3,
+        DataError = 4,
 
         [Display(Name = "Failure (service)", Description = "Library worker service call failed")]
-        ServiceFailure = 4,
+        ServiceFailure = 5,
 
         [Display(Name = "Failure", Description = "Library worker step had error(s)")]
-        Failure = 5
+        Failure = 6
     }
 
     public class LibraryWorkerStepResult

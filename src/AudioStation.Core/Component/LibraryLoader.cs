@@ -86,6 +86,14 @@ namespace AudioStation.Core.Component
             //
             switch (workLoad.LoadType)
             {
+                case LibraryLoadType.AudioEncoding:
+                {
+                    workItem = new LibraryLoaderWorkItem(_workItemIdCounter, workLoad.OwnerId, LibraryLoadType.AudioEncoding);
+                    workItem.Initialize(LibraryWorkItemState.Pending, workLoad,
+                                        new LibraryLoaderOutput<LibraryLoaderAudioEncodingOutputPayload>(workLoad.LoadType,
+                                        new LibraryLoaderAudioEncodingOutputPayload(), LibraryLoaderAudioEncodingWorker.GetNumberSteps()));
+                }
+                break;
                 case LibraryLoadType.Import:
                 {
                     workItem = new LibraryLoaderWorkItem(_workItemIdCounter, workLoad.OwnerId, LibraryLoadType.Import);
@@ -295,6 +303,11 @@ namespace AudioStation.Core.Component
 
                 switch (workItem.GetLoadType())
                 {
+                    case LibraryLoadType.AudioEncoding:
+                    {
+                        thread = new LibraryLoaderAudioEncodingWorker(_audioConverter, workItem);
+                    }
+                    break;
                     case LibraryLoadType.Import:
                     {
                         thread = new LibraryLoaderImportWorker(workItem, _audioStationDbClient, _fileController, _tagCacheController, _audioConverter);

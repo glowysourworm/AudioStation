@@ -269,10 +269,11 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
                     Log("OPTION: File Conversion (checking source / destination format(s))");
 
                     // Get Audio Format (performance will be slower than just checking file extension)
-                    var audioEncoding = _audioConverter.GetAudioEncoding(workLoad.SourceFullPath);
+                    TimeSpan duration;
+                    var audioEncoding = _audioConverter.GetAudioEncoding(workLoad.SourceFullPath, out duration);
 
                     // Convert
-                    if (audioEncoding != workLoad.ImportFormat.Encoding)
+                    if (audioEncoding.Encoding != workLoad.ImportFormat.Encoding)
                     {
                         // Calculate new destination path
                         var nextDestinationPath = Path.GetFileNameWithoutExtension(_destinationPath) + workLoad.ImportFormat.Extension;

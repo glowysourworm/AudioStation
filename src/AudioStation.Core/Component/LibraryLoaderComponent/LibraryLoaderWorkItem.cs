@@ -7,28 +7,34 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent
     public enum LibraryLoadType
     {
         /// <summary>
+        /// Calculates audio encoding information for an audio file; and returns the payload along with the audio duration.
+        /// </summary>
+        [Display(Name = "Audio Encoding", Description = "Task that opens an audio file, determines its encoding and duration, and stores the results with your import")]
+        AudioEncoding,
+
+        /// <summary>
         /// Loads mp3 file waiting for import. The tag data must (also) meet minimum requirements for import (see IModelValidationService). 
         /// The complete record of detailed data is filled out using Music Brainz; and any other album or fan art for the work.
         /// </summary>
-        [Display(Name = "Load Mp3 File Into Library", Description = "Task that imports an mp3 file based on its tag data; and also data collected using the Music Brainz service; and other artwork for the work.")]
+        [Display(Name = "Import Audio File", Description = "Task that imports a file which has been prepared using the Audio Station importer")]
         Import,
 
         /// <summary>
         /// Opens m3u file, and adds it to the M3UStream table int the database.
         /// </summary>
-        [Display(Name = "Load M3U Files Into Library", Description = "This task will load M3U's for internet streaming radio only. This is not to be used for Mp3 file management; and will not overwrite any existing radio entries.")]
+        [Display(Name = "Import Radio File", Description = "This task will load M3U's for internet streaming radio")]
         ImportRadio,
 
         /// <summary>
         /// Opens m3u file, and adds it to the M3UStream table int the database.
         /// </summary>
-        [Display(Name = "AcoustID Download", Description = "This task will download results for the AcoustID audio fingerprint service and store them locally.")]
+        [Display(Name = "AcoustID Fingerprint", Description = "This task will download results for the AcoustID audio fingerprint service and store them locally")]
         AcoustID,
 
         /// <summary>
         /// Import small amount of tag data to local database using the AcoustID matching output.
         /// </summary>
-        [Display(Name = "Music Brainz (basic)", Description = "This task will retrieve basic Music Brainz data for any completed AcoustID records in your library")]
+        [Display(Name = "Music Brainz (basic)", Description = "This task will retrieve Music Brainz (basic) data for any completed AcoustID records in your library's database")]
         MusicBrainzBasic,
 
         /// <summary>

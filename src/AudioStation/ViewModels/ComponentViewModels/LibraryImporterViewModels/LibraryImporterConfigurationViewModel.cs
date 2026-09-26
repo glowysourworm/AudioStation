@@ -22,6 +22,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels
         LibraryImportSource _tagSourcePreference;
 
         // Tag Service Options
+        bool _serviceIncludeAudioDuration;
         bool _serviceIncludeAcoustID;
         bool _serviceIncludeMusicBrainzBasic;
         bool _serviceIncludeMusicBrainzArtwork;
@@ -72,6 +73,11 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels
         {
             get { return _tagSourcePreference; }
             set { this.RaiseAndSetIfChanged(ref _tagSourcePreference, value); }
+        }
+        public bool ServiceIncludeAudioDuration
+        {
+            get { return _serviceIncludeAudioDuration; }
+            set { this.RaiseAndSetIfChanged(ref _serviceIncludeAudioDuration, value); }
         }
         public bool ServiceIncludeAcoustID
         {

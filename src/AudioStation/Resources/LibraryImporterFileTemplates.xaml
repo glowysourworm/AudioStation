@@ -103,10 +103,23 @@
             <!-- Invalid Field Names -->
             <TextBlock Text="{Binding TagRecordDirty.ValidationMessage}"
                        Style="{StaticResource LabelDetailDarkTextBlock}"
+                       Visibility="{Binding TagRecordDirty.IsValid, Converter={StaticResource BoolInverseVisibilityCollapseConverter}}"
                        VerticalAlignment="Center"                       
                        HorizontalAlignment="Right"
                        Margin="3"
                        Grid.Column="2" />
+
+            <!-- Import Indicator (final) -->
+            <fa5:ImageAwesome Icon="Solid_Database" 
+                              Margin="3"
+                              Grid.Column="2"
+                              ToolTip="{Binding ImportOutput.ImportResult}"          
+                              VerticalAlignment="Center"                       
+                              HorizontalAlignment="Right"                              
+                              Visibility="{Binding TagRecordDirty.IsValid, Converter={StaticResource BoolVisibilityCollapseConverter}}"
+                              Style="{StaticResource FontAwesomeIconManagerViewPager}"
+                              Foreground="{Binding ImportOutput.ImportResult, 
+                                                   Converter={StaticResource LibraryWorkerResultLevelForegroundConverter}}" />
 
         </Grid>
     </DataTemplate>

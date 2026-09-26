@@ -17,6 +17,7 @@
     <converter:LibraryImporterStagedFileCollectionConverter x:Key="LibraryImporterStagedFileCollectionConverter" />
     <converter:LibraryImporterStagedFileCollectionCountConverter x:Key="LibraryImporterStagedFileCollectionCountConverter" />
     <converter:LibraryLoaderImportTagForegroundConverter x:Key="LibraryLoaderImportTagForegroundConverter" />
+    <converter:LibraryWorkerResultLevelForegroundConverter x:Key="LibraryWorkerResultLevelForegroundConverter" />
     <converter:MetaEntryConverter x:Key="MetaEntryConverter" />
     <converter:MusicBrainzConverter x:Key="MusicBrainzConverter" />
     <converter:MusicBrainzValidColorConverter x:Key="MusicBrainzValidColorConverter" />

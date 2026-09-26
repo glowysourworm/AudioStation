@@ -7,7 +7,6 @@ using AudioStation.Core.Model.Interface;
 using AudioStation.Core.Service.Interface;
 using AudioStation.Event;
 using AudioStation.Event.DialogEvents;
-using AudioStation.Service.Interface;
 using AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels;
 using AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels.Workflow;
 using AudioStation.ViewModels.MainViewModels;
@@ -22,11 +21,6 @@ namespace AudioStation.ViewModels.ComponentViewModels
 {
     public class LibraryImporterViewModel : ComponentViewModelBase
     {
-        // TODO: Try (Initialize, Load, Execute, and Save) for the component view model base
-        //       to clean up this view model issue. We need components injected for other
-        //       functions.
-        private ILibraryLoaderService _libraryLoaderService;
-
         private readonly IDialogController _dialogController;
         private readonly ITagCache _tagCacheController;
 
@@ -136,19 +130,12 @@ namespace AudioStation.ViewModels.ComponentViewModels
         }
         protected override void InitializeWork(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogProgressHandler progressHandler)
         {
-            // TODO: Try making a new couple of pattern methods for components (Save, and Execute)
-            _libraryLoaderService = audioStationController.LibraryLoaderService;
-
             // Sub-component(s)
             this.Configuration = audioStationController.ComponentController.GetComponent<AudioStationConfigurationViewModel>();
             this.Encoders = audioStationController.ComponentController.GetComponent<MainViewModel>().Encoders;
         }
         protected override void LoadWork(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
         {
-            // TODO: VALIDATION
-            if (this.WorkflowConfiguration.ImportDirectory == null)
-                return;
-
             // Sub-component(s)
             this.ServiceWorkflow.Load(configuration, audioStationController, progressHandler);
             this.StagingWorkflow.Load(configuration, audioStationController, progressHandler);

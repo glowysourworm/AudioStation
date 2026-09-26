@@ -1,5 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 
+using AudioStation.Core.Component.LibraryLoaderComponent;
 using AudioStation.Core.Component.LibraryLoaderComponent.Payload.Output.Interface;
 using AudioStation.Core.Database.AudioStationDatabase;
 using AudioStation.Core.Database.AudioStationDatabase.Interface;
@@ -39,6 +40,9 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Pa
         bool _tagEmbeddingSuccess;
         bool _fileMoveSuccess;
         bool _fileConversionSuccess;
+        LibraryWorkerResultLevel _importResult;
+
+
 
         public string DestinationFolderBase
         {
@@ -150,6 +154,11 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Pa
             get { return _fileConversionSuccess; }
             set { this.RaiseAndSetIfChanged(ref _fileConversionSuccess, value); }
         }
+        public LibraryWorkerResultLevel ImportResult
+        {
+            get { return _importResult; }
+            set { this.RaiseAndSetIfChanged(ref _importResult, value); }
+        }
 
         IEnumerable<ILogMessage> ILibraryLoaderImportOutputPayload.LogMessages
         {
@@ -182,6 +191,7 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryLoaderViewModels.Pa
             this.LogMessages = new ObservableCollection<ILogMessage>();
             this.MusicBrainzRecordingMatches = new ObservableCollection<ITagSmall>();
             this.MusicBrainzAcoustIDResults = new ObservableCollection<MusicBrainzAcoustIDResult>();
+            this.ImportResult = LibraryWorkerResultLevel.None;
         }
     }
 }

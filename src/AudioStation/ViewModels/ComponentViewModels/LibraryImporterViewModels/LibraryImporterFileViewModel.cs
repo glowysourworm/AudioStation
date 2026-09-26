@@ -185,8 +185,28 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels
             this.TagRecordDirty = new TagSmallEditViewModel();
             this.ImportOutput = new LibraryLoaderImportOutputViewModel();
 
+            // Bubble Up Events
+            this.TagRecordDirty.PropertyChanged += TagRecordDirty_PropertyChanged;
+            this.ImportOutput.PropertyChanged += ImportOutput_PropertyChanged;
+
             // Initializes the import output
             Reload();
+        }
+
+        private void ImportOutput_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            // Bubble Up
+            OnPropertyChanged("ImportOutput");
+
+
+            //OnPropertyChanged("FinalImportDetail");
+            //OnPropertyChanged("TagDetail");
+        }
+
+        private void TagRecordDirty_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            // Bubble Up
+            OnPropertyChanged("TagRecordDirty");
         }
 
         /// <summary>
@@ -394,11 +414,6 @@ namespace AudioStation.ViewModels.ComponentViewModels.LibraryImporterViewModels
             //if (!string.IsNullOrEmpty(_tagDirty.Genre))
             //    _tagDirty.Genres.Add(_tagDirty.Genre);
 
-            Update();
-        }
-
-        private void ImportOutput_PropertyChanged(object? sender, PropertyChangedEventArgs e)
-        {
             Update();
         }
 
