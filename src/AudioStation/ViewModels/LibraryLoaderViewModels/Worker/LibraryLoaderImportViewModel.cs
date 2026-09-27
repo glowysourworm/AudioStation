@@ -127,7 +127,9 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels.Worker
             return new LibraryLoaderLoadViewModel()
             {
                 Payload = _audioStationMapper.Map<LibraryLoaderImportPayload, LibraryLoaderImportInputViewModel>(importLoad),
-                DisplayName = workLoad.DisplayName
+                DisplayName = workLoad.DisplayName,
+                LoadType = workLoad.LoadType,
+                OwnerId = workLoad.OwnerId
             };
         }
 
@@ -161,8 +163,8 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels.Worker
             if (!_loadItemDict.ContainsKey(input.SourceFullPath))
                 throw new Exception("Corrupt library loader work item");
 
-            // Import Result (error level)
-            _loadItemDict[input.SourceFullPath].ImportOutput.ImportResult = workItem.WorkSteps.Max(x => x.Result);
+            // ImportOutput (map onto!)
+            _audioStationMapper.MapOnto(output, _loadItemDict[input.SourceFullPath].ImportOutput);
         }
     }
 }

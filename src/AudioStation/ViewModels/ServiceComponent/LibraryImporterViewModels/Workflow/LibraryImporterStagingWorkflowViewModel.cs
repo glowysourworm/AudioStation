@@ -102,6 +102,7 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Wor
 
             this.StagedFiles = new LibraryImporterStagedFileCollection();
             this.StagedFiles.SelectionChanged += StagedFiles_SelectionChanged;
+            this.StagedFiles.CollectionChanged += StagedFiles_CollectionChanged;
 
             this.StageCommand = new SimpleCommand(() => Stage(dialogController), CanStage);
             this.UnstageCommand = new SimpleCommand(Unstage, CanUnstage);
@@ -344,6 +345,11 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Wor
         {
             this.StageCommand.RaiseCanExecuteChanged();
             this.UnstageCommand.RaiseCanExecuteChanged();
+        }
+        private void StagedFiles_CollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            // Bubble Up Event (notify importer)
+            OnPropertyChanged("StagedFiles");
         }
 
         public override void Dispose()

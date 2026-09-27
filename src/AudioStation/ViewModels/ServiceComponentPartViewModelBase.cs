@@ -103,6 +103,22 @@ namespace AudioStation.ViewModels
         public abstract bool CanReset();
         public abstract void Dispose();
 
+        protected void RaiseLoadEvent()
+        {
+            if (this.LoadRequestEvent != null)
+                this.LoadRequestEvent(this.Id);
+        }
+        protected void RaiseExecuteEvent()
+        {
+            if (this.ExecuteRequestEvent != null)
+                this.ExecuteRequestEvent(this.Id);
+        }
+        protected void RaiseResetEvent()
+        {
+            if (this.ResetRequestEvent != null)
+                this.ResetRequestEvent(this.Id);
+        }
+
         protected void RaiseStatusChangedEvent()
         {
             if (this.StatusChangeEvent != null)

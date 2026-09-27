@@ -148,7 +148,7 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Wor
         }
         public override bool CanLoad()
         {
-            return CanLoadWorker();
+            return !this.Working && !this.Loaded;
         }
         public override bool CanReset()
         {
@@ -297,6 +297,8 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Wor
                 worker.WorkItemUIChangedEvent += OnWorkerItemChangedEvent;
                 worker.PropertyChanged += OnWorkerPropertyChanged;
             }
+
+            this.Loaded = true;
         }
 
         public override void Execute(DialogEventHandlers.DialogProgressHandler progressHandler)
@@ -306,9 +308,6 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Wor
 
         public override void Reset(DialogEventHandlers.DialogProgressHandler progressHandler)
         {
-            if (this.Working)
-                throw new Exception("Cannot reset service workflow while it is running");
-
             // Call to unload some memory before completing workflow step
             foreach (var worker in this.ServiceWorkers)
                 worker.Reset();

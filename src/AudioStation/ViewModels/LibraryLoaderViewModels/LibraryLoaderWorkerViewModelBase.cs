@@ -219,6 +219,9 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
             _libraryLoader.WorkItemCanceled += OnWorkItemCanceled;
             _libraryLoader.StateChangeEvent += OnStateChangeEvent;
 
+            // Initial Loader State
+            this.LibraryLoaderState = _libraryLoader.GetState();
+
             // BeginUpdate()
             _updating = true;
 
@@ -262,6 +265,9 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels
             _libraryLoader.WorkItemQueued += OnWorkItemQueued;
             _libraryLoader.WorkItemCanceled += OnWorkItemCanceled;
             _libraryLoader.StateChangeEvent += OnStateChangeEvent;
+
+            // Initial Loader State
+            this.LibraryLoaderState = _libraryLoader.GetState();
 
             // BeginUpdate()
             _updating = true;

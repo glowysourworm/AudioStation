@@ -176,7 +176,7 @@ namespace AudioStation.ViewModels
             _eventAggregator.GetEvent<ServiceComponentRequestEvent>().Publish(new ServiceComponentRequestData()
             {
                 ComponentId = this.Id,
-                ComponentPartId = null,
+                ComponentPartId = partId,
                 Type = ServiceComponentRequestType.Reset
             });
         }
@@ -186,7 +186,7 @@ namespace AudioStation.ViewModels
             _eventAggregator.GetEvent<ServiceComponentRequestEvent>().Publish(new ServiceComponentRequestData()
             {
                 ComponentId = this.Id,
-                ComponentPartId = null,
+                ComponentPartId = partId,
                 Type = ServiceComponentRequestType.Execute
             });
         }
@@ -196,7 +196,7 @@ namespace AudioStation.ViewModels
             _eventAggregator.GetEvent<ServiceComponentRequestEvent>().Publish(new ServiceComponentRequestData()
             {
                 ComponentId = this.Id,
-                ComponentPartId = null,
+                ComponentPartId = partId,
                 Type = ServiceComponentRequestType.Load
             });
         }

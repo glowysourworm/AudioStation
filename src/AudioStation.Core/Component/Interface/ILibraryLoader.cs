@@ -44,6 +44,11 @@ namespace AudioStation.Core.Component.Interface
         void ChangeState(PlayStopPause state);
 
         /// <summary>
+        /// Returns the state of the loader
+        /// </summary>
+        PlayStopPause GetState();
+
+        /// <summary>
         /// Queries the component to get a bulk report on workers left in the loader. This will only return true 
         /// if there are no threads currently running.
         /// </summary>

@@ -38,15 +38,31 @@
             </Button>
 
             <Button Style="{StaticResource UserControlButton}" 
-                    Grid.Column="2" Grid.Row="1" Margin="3" 
+                    Margin="3" 
                     HorizontalAlignment="Right"
                     VerticalAlignment="Center"
-                    Command="{Binding CompletionWorkflow.ImportCommand}">
+                    Command="{Binding CompletionWorkflow.ExecuteCommand}">
                 
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Margin="3" Style="{StaticResource LabelTextBlock}" FontSize="12">
                         <TextBlock.Text>
-                            <Binding Path="CompletionWorkflow.StagedFiles.ValidFiles.Count" StringFormat="Import ({0})" />
+                            <Binding Path="CompletionWorkflow.StagedFiles.ImportReadyFiles.Count" StringFormat="Import ({0})" />
+                        </TextBlock.Text>
+                    </TextBlock>
+                    <fa5:SvgAwesome Icon="Solid_Database" Style="{StaticResource FontAwesomeIconDefault}" Height="12" Width="12" Margin="3" VerticalAlignment="Center" />
+                </StackPanel>
+            </Button>
+
+            <Button Style="{StaticResource UserControlButton}" 
+                    Margin="3" 
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Center"
+                    Command="{Binding CompletionWorkflow.ExecuteSelectedCommand}">
+
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Margin="3" Style="{StaticResource LabelTextBlock}" FontSize="12">
+                        <TextBlock.Text>
+                            <Binding Path="CompletionWorkflow.StagedFiles.SelectedFiles.Count" StringFormat="Import Selected ({0})" />
                         </TextBlock.Text>
                     </TextBlock>
                     <fa5:SvgAwesome Icon="Solid_Database" Style="{StaticResource FontAwesomeIconDefault}" Height="12" Width="12" Margin="3" VerticalAlignment="Center" />
@@ -110,6 +126,11 @@
                             </StackPanel>
                         </MenuItem.Header>
                     </MenuItem>
+                    
+                    <!-- Import -->
+                    <MenuItem Style="{StaticResource UserMenuItemStyle}" Header="Import" 
+                              Command="{Binding CompletionWorkflow.ExecuteSelectedCommand}"
+                              IsEnabled="{Binding CompletionWorkflow.ExecuteSelectedCommand.IsReady}" />                    
                     
                     <!-- Play Audio -->
                     <MenuItem Style="{StaticResource UserMenuItemStyle}" Header="Play Track" 

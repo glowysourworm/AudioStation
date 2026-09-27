@@ -282,6 +282,11 @@ namespace AudioStation.Core.Component
             }
         }
 
+        public PlayStopPause GetState()
+        {
+            return _loaderState;
+        }
+
         /// <summary>
         /// Method that tends to thread "pool" and is used to start new threads or reuse existing threads
         /// for the next work item. This should be called when a thread exits; but we may not have a waiting

@@ -3,6 +3,7 @@ using AudioStation.Core.Model;
 using AudioStation.Core.Model.Interface;
 using AudioStation.Event;
 using AudioStation.Event.DialogEvents;
+using AudioStation.ViewModels.LibraryLoaderViewModels.Interface;
 using AudioStation.ViewModels.LibraryLoaderViewModels.Worker;
 
 using SimpleWpf.IocFramework.Application;
@@ -14,9 +15,6 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Wor
     {
         private readonly IDialogController _dialogController;
 
-        // Workflow Configuration
-        private readonly LibraryImporterConfigurationViewModel _workflowConfiguration;
-
         // Staged Files (carries the import load / output)
         private readonly LibraryImporterStagedFileCollection _stagedFiles;
         LibraryImporterStagedFileFilterType _stagedFileFilterType;
@@ -27,10 +25,12 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Wor
         //
         LibraryLoaderImportViewModel _importWorker;
 
+        bool _executeSelectedEnable;
+
         SimpleCommand _editTagCommand;
         SimpleCommand _playAudioCommand;
-        SimpleCommand _importCommand;
         SimpleCommand<string> _editTagGroupCommand;
+        SimpleCommand _executeSelectedCommand;
 
         public LibraryLoaderImportViewModel ImportWorker
         {
@@ -57,15 +57,15 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Wor
             get { return _playAudioCommand; }
             set { this.RaiseAndSetIfChanged(ref _playAudioCommand, value); }
         }
-        public SimpleCommand ImportCommand
-        {
-            get { return _importCommand; }
-            set { this.RaiseAndSetIfChanged(ref _importCommand, value); }
-        }
         public SimpleCommand<string> EditTagGroupCommand
         {
             get { return _editTagGroupCommand; }
             set { this.RaiseAndSetIfChanged(ref _editTagGroupCommand, value); }
+        }
+        public SimpleCommand ExecuteSelectedCommand
+        {
+            get { return _executeSelectedCommand; }
+            set { this.RaiseAndSetIfChanged(ref _executeSelectedCommand, value); }
         }
 
         public LibraryImporterCompletionWorkflowViewModel(
@@ -75,17 +75,16 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Wor
         {
             _dialogController = IocContainer.Get<IDialogController>();
 
-            _workflowConfiguration = workflowConfiguration;
             _stagedFiles = stagedFiles;
-            _stagedFiles.SelectionChanged += OnStagedFilesSelectionChanged;
+            _stagedFiles.SelectionChanged += UpdateCommands;
 
             this.ImportWorker = new LibraryLoaderImportViewModel(workflowConfiguration);
             this.ImportWorker.StatusChangeEvent += ImportWorker_StatusChangeEvent;
 
             this.EditTagCommand = new SimpleCommand(EditTag, CanEditTag);
             this.EditTagGroupCommand = new SimpleCommand<string>(EditSelectedTagsField, CanEditSelectedTagsField);
-            this.ImportCommand = new SimpleCommand(ImportValidFiles, CanImport);
             this.PlayAudioCommand = new SimpleCommand(PlayAudio, CanPlayAudio);
+            this.ExecuteSelectedCommand = new SimpleCommand(LoadAndExecuteSelected, CanLoadAndExecuteSelected);
         }
 
         public override bool CanExecute()
@@ -94,11 +93,17 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Wor
         }
         public override bool CanLoad()
         {
-            return !this.ImportWorker.Loaded && !this.ImportWorker.Working;
+            return !this.ImportWorker.Loaded &&
+                   !this.ImportWorker.Working &&
+                   this.StagedFiles.ImportReadyFiles.Any();
         }
         public override bool CanReset()
         {
             return this.ImportWorker.CanReset();
+        }
+        public bool CanLoadAndExecuteSelected()
+        {
+            return this.ImportWorker.CanReset() && this.StagedFiles.SelectedFiles.All(x => x.TagRecordDirty.IsValid);
         }
 
         private bool CanEditTag()
@@ -108,10 +113,6 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Wor
         private bool CanEditSelectedTagsField(string fieldName)
         {
             return !_dialogController.IsShowing() && _stagedFiles.Any(x => x.IsSelected);
-        }
-        private bool CanImport()
-        {
-            return !_dialogController.IsShowing() && _stagedFiles.ValidFiles.Any() && !this.ImportWorker.Loaded;
         }
         private bool CanPlayAudio()
         {
@@ -139,14 +140,6 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Wor
 
             _dialogController.ShowDialogWindowSync(DialogEventData.ShowDialogEditor("Tag Source(s)", DialogEditorView.TagSourceView, stagedFile));
         }
-        private void ImportValidFiles()
-        {
-            if (this.ImportWorker.Loaded)
-                throw new Exception("Must first unload and reload import worker before executing");
-
-
-
-        }
         private void PlayAudio()
         {
             var stagedFile = _stagedFiles.First(x => x.IsSelected);
@@ -168,7 +161,13 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Wor
         public override void Load(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
         {
             // Initialize Component Parts
-            this.ImportWorker.Load(this.StagedFiles.ValidFiles, configuration, audioStationController, progressHandler);
+            if (_executeSelectedEnable)
+                this.ImportWorker.Load(this.StagedFiles.SelectedFiles.Where(x => x.TagRecordDirty.IsValid), configuration, audioStationController, progressHandler);
+            else
+                this.ImportWorker.Load(this.StagedFiles.ImportReadyFiles, configuration, audioStationController, progressHandler);
+
+            // Disable special execute
+            _executeSelectedEnable = false;
 
             this.Loaded = this.ImportWorker.Loaded;
         }
@@ -183,21 +182,38 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Wor
             this.ImportWorker.Reset();
         }
 
-        private void ImportWorker_StatusChangeEvent(LibraryLoaderViewModels.Interface.ILibraryLoaderWorkerViewModel sender)
+        private void LoadAndExecuteSelected()
+        {
+            // Enable special execute
+            _executeSelectedEnable = true;
+
+            RaiseResetEvent();
+            RaiseLoadEvent();
+            RaiseExecuteEvent();
+        }
+
+        private void ImportWorker_StatusChangeEvent(ILibraryLoaderWorkerViewModel sender)
         {
             this.Loaded = this.ImportWorker.Loaded;
             this.Working = this.ImportWorker.Working;
+
+            UpdateCommands();
         }
-        private void OnStagedFilesSelectionChanged()
+        private void UpdateCommands()
         {
+            // These are needed for the base class
+            this.ExecuteCommand.RaiseCanExecuteChanged();
+            this.LoadCommand.RaiseCanExecuteChanged();
+            this.ResetCommand.RaiseCanExecuteChanged();
+
             this.EditTagCommand.RaiseCanExecuteChanged();
             this.PlayAudioCommand.RaiseCanExecuteChanged();
             this.EditTagGroupCommand.RaiseCanExecuteChanged("");
-            this.ImportCommand.RaiseCanExecuteChanged();
+            this.ExecuteSelectedCommand.RaiseCanExecuteChanged();
         }
         public override void Dispose()
         {
-            // TODO
+            //TODO
         }
     }
 }

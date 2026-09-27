@@ -2,6 +2,8 @@
 using System.Collections.Specialized;
 using System.ComponentModel;
 
+using AudioStation.Core.Component.LibraryLoaderComponent;
+
 using SimpleWpf.Extensions.Event;
 using SimpleWpf.Extensions.ObservableCollection;
 using SimpleWpf.UI.ViewModel;
@@ -24,6 +26,8 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels
         private KeyedObservableCollection<string, LibraryImporterFileViewModel> _musicBrainzFiles;
         private KeyedObservableCollection<string, LibraryImporterFileViewModel> _musicBrainzSpecialTagFiles;
         private KeyedObservableCollection<string, LibraryImporterFileViewModel> _libraryConflictFiles;
+        private KeyedObservableCollection<string, LibraryImporterFileViewModel> _importReadyFiles;
+        private KeyedObservableCollection<string, LibraryImporterFileViewModel> _completedFiles;
 
         public event CollectionItemChangedHandler<LibraryImporterFileViewModel> ItemPropertyChanged
         {
@@ -48,6 +52,8 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels
             _musicBrainzFiles = new KeyedObservableCollection<string, LibraryImporterFileViewModel>();
             _musicBrainzSpecialTagFiles = new KeyedObservableCollection<string, LibraryImporterFileViewModel>();
             _libraryConflictFiles = new KeyedObservableCollection<string, LibraryImporterFileViewModel>();
+            _importReadyFiles = new KeyedObservableCollection<string, LibraryImporterFileViewModel>();
+            _completedFiles = new KeyedObservableCollection<string, LibraryImporterFileViewModel>();
         }
         public LibraryImporterStagedFileCollection(IEnumerable<LibraryImporterFileViewModel> stagedFiles)
             : this()
@@ -96,6 +102,14 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels
         {
             get { return _libraryConflictFiles; }
         }
+        public IReadOnlyCollection<LibraryImporterFileViewModel> ImportReadyFiles
+        {
+            get { return _importReadyFiles; }
+        }
+        public IReadOnlyCollection<LibraryImporterFileViewModel> CompletedFiles
+        {
+            get { return _completedFiles; }
+        }
 
         public void BeginUpdate()
         {
@@ -107,6 +121,8 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels
             _musicBrainzFiles.BeginUpdate();
             _musicBrainzSpecialTagFiles.BeginUpdate();
             _libraryConflictFiles.BeginUpdate();
+            _importReadyFiles.BeginUpdate();
+            _completedFiles.BeginUpdate();
         }
         public void EndUpdate(bool notifyObservers = false)
         {
@@ -118,6 +134,8 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels
             _musicBrainzFiles.EndUpdate(notifyObservers);
             _musicBrainzSpecialTagFiles.EndUpdate(notifyObservers);
             _libraryConflictFiles.EndUpdate(notifyObservers);
+            _importReadyFiles.EndUpdate(notifyObservers);
+            _completedFiles.EndUpdate(notifyObservers);
         }
 
         private void AddUpdate(LibraryImporterFileViewModel file)
@@ -231,6 +249,29 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels
             {
                 _libraryConflictFiles.Remove(file.FullPath);
             }
+
+            // Import Complete
+            if (file.ImportOutput.ImportResult != LibraryWorkerResultLevel.None && !_completedFiles.ContainsKey(file.FullPath))
+            {
+                _completedFiles.Add(file.FullPath, file);
+            }
+            else if (file.ImportOutput.ImportResult == LibraryWorkerResultLevel.None && _completedFiles.ContainsKey(file.FullPath))
+            {
+                _completedFiles.Remove(file.FullPath);
+            }
+
+            // Import Ready
+            if (_validFiles.ContainsKey(file.FullPath))
+            {
+                if (file.ImportOutput.ImportResult == LibraryWorkerResultLevel.None && !_importReadyFiles.ContainsKey(file.FullPath))
+                {
+                    _importReadyFiles.Add(file.FullPath, file);
+                }
+                else if (file.ImportOutput.ImportResult != LibraryWorkerResultLevel.None && _importReadyFiles.ContainsKey(file.FullPath))
+                {
+                    _importReadyFiles.Remove(file.FullPath);
+                }
+            }
         }
 
         #region (public) IList
@@ -253,6 +294,8 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels
             _musicBrainzFiles.Clear();
             _musicBrainzSpecialTagFiles.Clear();
             _libraryConflictFiles.Clear();
+            _importReadyFiles.Clear();
+            _completedFiles.Clear();
 
             if (this.SelectionChanged != null)
                 this.SelectionChanged();
@@ -316,6 +359,14 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels
             // Library Conflict
             if (_libraryConflictFiles.ContainsKey(file.FullPath))
                 _libraryConflictFiles.Remove(file.FullPath);
+
+            // Import Ready
+            if (_importReadyFiles.ContainsKey(file.FullPath))
+                _importReadyFiles.Remove(file.FullPath);
+
+            // Completed Files
+            if (_completedFiles.ContainsKey(file.FullPath))
+                _completedFiles.Remove(file.FullPath);
 
             OnPropertyChanged("Count");
 
