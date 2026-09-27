@@ -3,6 +3,7 @@ using System.Windows.Controls;
 
 using AudioStation.Controller.Interface;
 using AudioStation.ViewModels.ServiceComponent;
+using AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Workflow;
 using AudioStation.Views.LibraryImportViews;
 
 using SimpleWpf.IocFramework.Application.Attribute;
@@ -13,20 +14,9 @@ namespace AudioStation.Views
     [IocExportDefault]
     public partial class LibraryImportView : UserControl
     {
-        public static readonly DependencyProperty NextStepReadyProperty =
-            DependencyProperty.Register("NextStepReady", typeof(bool), typeof(LibraryImportView));
-
         public static readonly DependencyProperty PreviousStepReadyProperty =
             DependencyProperty.Register("PreviousStepReady", typeof(bool), typeof(LibraryImportView));
 
-        public static readonly DependencyProperty ExecuteReadyProperty =
-            DependencyProperty.Register("ExecuteReady", typeof(bool), typeof(LibraryImportView));
-
-        public bool NextStepReady
-        {
-            get { return (bool)GetValue(NextStepReadyProperty); }
-            set { SetValue(NextStepReadyProperty, value); }
-        }
         public bool PreviousStepReady
         {
             get { return (bool)GetValue(PreviousStepReadyProperty); }
@@ -58,129 +48,10 @@ namespace AudioStation.Views
 
             this.DataContextChanged += LibraryImportView_DataContextChanged;
         }
-        private void ViewModel_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
-        {
-            var viewModel = this.DataContext as LibraryImporterViewModel;
-
-            if (viewModel == null)
-                return;
-
-            RefreshFromDataContext(viewModel);
-        }
         private void LibraryImportView_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
-            // Unhook
-            if (e.OldValue != null)
-            {
-                var viewModel = e.OldValue as LibraryImporterViewModel;
-
-                if (viewModel != null)
-                {
-                    viewModel.PropertyChanged -= ViewModel_PropertyChanged;
-                }
-            }
-
-            // Hook
             if (e.NewValue != null)
-            {
                 _viewModel = e.NewValue as LibraryImporterViewModel;
-
-                if (_viewModel != null)
-                {
-                    _viewModel.PropertyChanged += ViewModel_PropertyChanged;
-
-                    // Initialize Buttons
-                    RefreshFromDataContext(_viewModel);
-                }
-            }
-        }
-
-        private bool AreStagingRequirementsMet(LibraryImporterViewModel viewModel)
-        {
-            return true;
-        }
-        private bool AreTagCompletionRequirementsMet(LibraryImporterViewModel viewModel)
-        {
-            return true;
-        }
-        private bool AreWorkflowSelectionRequirementsMet(LibraryImporterViewModel viewModel)
-        {
-            return true;
-        }
-        private bool AreConfigurationRequirementsMet(LibraryImporterViewModel viewModel)
-        {
-            return true;
-        }
-        private bool AreConfigurationOptionsRequirementsMet(LibraryImporterViewModel viewModel)
-        {
-            return true;
-        }
-        private bool AreImportLoaderRequirementsMet(LibraryImporterViewModel viewModel)
-        {
-            return true;
-        }
-        private bool AreMigrationRequirementsMet(LibraryImporterViewModel viewModel)
-        {
-            return true;
-        }
-        private bool AreFinalRequirementsMet(LibraryImporterViewModel viewModel)
-        {
-            return true;
-        }
-
-        private void RefreshFromDataContext(LibraryImporterViewModel viewModel)
-        {
-            // Configuration
-            if (_regionManager.GetRegion("LibraryImporterControlRegion").Content is LibraryImportConfigurationView)
-            {
-                this.NextStepReady = AreConfigurationRequirementsMet(viewModel);
-                this.PreviousStepReady = false;
-            }
-
-            // Configuration Options
-            else if (_regionManager.GetRegion("LibraryImporterControlRegion").Content is LibraryImportConfigurationOptionsView)
-            {
-                this.NextStepReady = AreConfigurationOptionsRequirementsMet(viewModel);
-                this.PreviousStepReady = true;
-            }
-
-            // Staging
-            else if (_regionManager.GetRegion("LibraryImporterControlRegion").Content is LibraryImportStagingView)
-            {
-                this.NextStepReady = AreStagingRequirementsMet(viewModel);
-                this.PreviousStepReady = true;
-            }
-
-            // Import Loader
-            else if (_regionManager.GetRegion("LibraryImporterControlRegion").Content is LibraryImportServiceWorkerView)
-            {
-                this.NextStepReady = AreImportLoaderRequirementsMet(viewModel);
-                this.PreviousStepReady = true;
-            }
-
-            // Tag Completion 
-            else if (_regionManager.GetRegion("LibraryImporterControlRegion").Content is LibraryImportTagCompletionView)
-            {
-                this.NextStepReady = AreTagCompletionRequirementsMet(viewModel);
-                this.PreviousStepReady = true;
-            }
-
-            // Migration
-            else if (_regionManager.GetRegion("LibraryImporterControlRegion").Content is LibraryImportCompletionView)
-            {
-                this.NextStepReady = AreMigrationRequirementsMet(viewModel);
-                this.PreviousStepReady = true;
-            }
-
-            // Final View (User can go back as long as they haven't pressed "Execute")
-            else if (_regionManager.GetRegion("LibraryImporterControlRegion").Content is LibraryImportFinalReportView)
-            {
-                this.NextStepReady = AreFinalRequirementsMet(viewModel);
-                this.PreviousStepReady = true;
-            }
-
-            else
-                throw new Exception("Unhandled region view type");
         }
 
         private void LoadImportView(Type viewType, bool previous, bool ignoreTransition)
@@ -188,336 +59,225 @@ namespace AudioStation.Views
             _regionManager.LoadNamedInstance("LibraryImporterControlRegion", viewType, ignoreTransition);
         }
 
-        private bool ConfirmImportStep(Type viewType)
+        private bool ConfirmImportStep(LibraryImporterWorkflowStep step)
         {
-            // Configuration
-            if (viewType == typeof(LibraryImportConfigurationView))
+            switch (step)
             {
-                return true;
-            }
-
-            // Configuration Options
-            else if (viewType == typeof(LibraryImportConfigurationOptionsView))
-            {
-                // Run Acoust ID -> Music Brainz (cache results)
-                if (_dialogController.ShowConfirmation("Continue to Configuration Options?",
-                    string.Format("You have chosen import type:  {0}", _viewModel.WorkflowConfiguration.ImportType),
-                    "",
-                    "Are you ready to proceed?"))
-                {
+                case LibraryImporterWorkflowStep.Configuration:
                     return true;
-                }
-                else
-                    return false;
-            }
-
-            // Staging -> Import Loader
-            else if (viewType == typeof(LibraryImportStagingView))
-            {
-                // Run Acoust ID -> Music Brainz (cache results)
-                if (_dialogController.ShowConfirmation("Continue to Staging?",
-                    "You have now completed the import configuration.",
-                    "",
-                    "It is STRONGLY RECOMMENDED that you backup your files!",
-                    "",
-                    "Are you ready to proceed?"))
+                case LibraryImporterWorkflowStep.ConfigurationOptions:
                 {
-                    return true;
+                    // Run Acoust ID -> Music Brainz (cache results)
+                    if (_dialogController.ShowConfirmation("Continue to Configuration Options?",
+                        string.Format("You have chosen import type:  {0}", _viewModel.WorkflowConfiguration.ImportType),
+                        "",
+                        "Are you ready to proceed?"))
+                    {
+                        return true;
+                    }
+                    else
+                        return false;
                 }
-                else
-                    return false;
-            }
-
-            // Import Loader -> Tag Completion
-            else if (viewType == typeof(LibraryImportServiceWorkerView))
-            {
-                return true;
-            }
-
-            // Tag Completion -> Migration
-            else if (viewType == typeof(LibraryImportTagCompletionView))
-            {
-                // Run Acoust ID -> Music Brainz (cache results)
-                if (_dialogController.ShowConfirmation("Continue to Finalize Import?",
-                    "Your current tag information will be imported for {0} tags",
-                    "",
-                    "These tracks will be imported into your library. However, you can",
-                    "come back later on to revisit this import and complete tags that",
-                    "have not yet been completed:  ({1} tags)",
-                    "",
-                    "You may also change your library data at any time using Audio Station's",
-                    "Library Maintainence features - which essentially allow you to detail",
-                    "you library tracks using Music Brainz, LastFm, and other available data",
-                    "services at any time.",
-                    "",
-                    "Are you ready to finalize your import?"))
+                case LibraryImporterWorkflowStep.Staging:
                 {
-                    return true;
+                    // Run Acoust ID -> Music Brainz (cache results)
+                    if (_dialogController.ShowConfirmation("Continue to Staging?",
+                        "You have now completed the import configuration.",
+                        "",
+                        "It is STRONGLY RECOMMENDED that you backup your files!",
+                        "",
+                        "Are you ready to proceed?"))
+                    {
+                        return true;
+                    }
+                    else
+                        return false;
                 }
-                else
-                    return false;
+                case LibraryImporterWorkflowStep.ServiceWorkers:
+                    return true;
+                case LibraryImporterWorkflowStep.TagCompletion:
+                {
+                    // Run Acoust ID -> Music Brainz (cache results)
+                    if (_dialogController.ShowConfirmation("Continue to Finalize Import?",
+                        "Your current tag information will be imported for {0} tags",
+                        "",
+                        "These tracks will be imported into your library. However, you can",
+                        "come back later on to revisit this import and complete tags that",
+                        "have not yet been completed:  ({1} tags)",
+                        "",
+                        "You may also change your library data at any time using Audio Station's",
+                        "Library Maintainence features - which essentially allow you to detail",
+                        "you library tracks using Music Brainz, LastFm, and other available data",
+                        "services at any time.",
+                        "",
+                        "Are you ready to finalize your import?"))
+                    {
+                        return true;
+                    }
+                    else
+                        return false;
+                }
+                case LibraryImporterWorkflowStep.ImportCompletion:
+                    return true;
+                case LibraryImporterWorkflowStep.FinalReport:
+                    return true;
+                default:
+                    throw new Exception("Unhandled import step type");
             }
-
-            // Migration -> Final Report
-            else if (viewType == typeof(LibraryImportCompletionView))
-            {
-                return true;
-            }
-
-            // Final View
-            else if (viewType == typeof(LibraryImportFinalReportView))
-            {
-                return true;
-            }
-            else
-                throw new Exception("Unhandled view type");
         }
 
-        private void PostLoadImportStep(Type viewType)
+        private void PostLoadImportStep(LibraryImporterWorkflowStep step)
         {
-            // Configuration
-            if (viewType == typeof(LibraryImportConfigurationView))
-            {
-            }
+            // Procedure: The component parts are loaded using a top-down controller
+            //            design. So, we need to invoke the load method on the component
+            //            controller. The view model will tell us which component part is
+            //            needed for the current step. 
+            //
+            //            We can chose when to load this component part based on how
+            //            we want to handle the view loading..
+            //
 
-            // Configuration Options
-            else if (viewType == typeof(LibraryImportConfigurationOptionsView))
-            {
+            var componentPart = _viewModel.GetWorkflowComponentPart(step);
 
-            }
-
-            // Staging
-            else if (viewType == typeof(LibraryImportStagingView))
-            {
-                // Load the Importer Component
-                if (!_viewModel.Loaded)
-                    _componentViewModelLoader.LoadComponent<LibraryImporterViewModel>(true);
-            }
-
-            // Import Loader
-            else if (viewType == typeof(LibraryImportServiceWorkerView))
-            {
-            }
-
-            // Tag Completion
-            else if (viewType == typeof(LibraryImportTagCompletionView))
-            {
-
-            }
-
-            // Migration
-            else if (viewType == typeof(LibraryImportCompletionView))
-            {
-
-            }
-
-            // Final View
-            else if (viewType == typeof(LibraryImportFinalReportView))
-            {
-
-            }
-            else
-                throw new Exception("Unhandled view type");
+            // Not every step has a component part
+            if (componentPart != null &&
+                componentPart.CanLoad())
+                _componentViewModelLoader.LoadComponent<LibraryImporterViewModel>(true, componentPart.Id);
         }
 
-        private void PreLoadImportStep(Type viewType)
+        private void PreLoadImportStep(LibraryImporterWorkflowStep step)
         {
-            // Configuration
-            if (viewType == typeof(LibraryImportConfigurationView))
+            switch (step)
             {
+                case LibraryImporterWorkflowStep.Configuration:
+                    break;
+                case LibraryImporterWorkflowStep.ConfigurationOptions:
+                    break;
+                case LibraryImporterWorkflowStep.Staging:
+                    break;
+                case LibraryImporterWorkflowStep.ServiceWorkers:
+                    break;
+                case LibraryImporterWorkflowStep.TagCompletion:
+                    break;
+                case LibraryImporterWorkflowStep.ImportCompletion:
+                    break;
+                case LibraryImporterWorkflowStep.FinalReport:
+                    break;
+                default:
+                    throw new Exception("Unhandled import step type");
             }
-
-            // Configuration Options
-            else if (viewType == typeof(LibraryImportConfigurationOptionsView))
-            {
-
-            }
-
-            // Staging
-            else if (viewType == typeof(LibraryImportStagingView))
-            {
-            }
-
-            // Import Loader
-            else if (viewType == typeof(LibraryImportServiceWorkerView))
-            {
-            }
-
-            // Tag Completion
-            else if (viewType == typeof(LibraryImportTagCompletionView))
-            {
-
-            }
-
-            // Migration
-            else if (viewType == typeof(LibraryImportCompletionView))
-            {
-
-            }
-
-            // Final View
-            else if (viewType == typeof(LibraryImportFinalReportView))
-            {
-
-            }
-            else
-                throw new Exception("Unhandled view type");
         }
 
-        private void CompleteImportStep(Type viewType)
+        private void CompleteImportStep(LibraryImporterWorkflowStep step)
         {
-            // Configuration
-            if (viewType == typeof(LibraryImportConfigurationView))
+            switch (step)
             {
-                // Save Current Workflow
-                //_viewModel.SaveCurrentWorkflow();
+                case LibraryImporterWorkflowStep.Configuration:
+                    // Save Current Workflow
+                    //_viewModel.SaveCurrentWorkflow();
+                    break;
+                case LibraryImporterWorkflowStep.ConfigurationOptions:
+                    // Save Current Workflow
+                    //_viewModel.SaveCurrentWorkflow();
+                    break;
+                case LibraryImporterWorkflowStep.Staging:
+                    break;
+                case LibraryImporterWorkflowStep.ServiceWorkers:
+                    break;
+                case LibraryImporterWorkflowStep.TagCompletion:
+                    break;
+                case LibraryImporterWorkflowStep.ImportCompletion:
+                    break;
+                case LibraryImporterWorkflowStep.FinalReport:
+                    break;
+                default:
+                    throw new Exception("Unhandled import step type");
             }
-
-            // Configuration Options
-            else if (viewType == typeof(LibraryImportConfigurationOptionsView))
-            {
-                // Save Current Workflow
-                //_viewModel.SaveCurrentWorkflow();
-            }
-
-            // Staging
-            else if (viewType == typeof(LibraryImportStagingView))
-            {
-
-            }
-
-            // Import Loader
-            else if (viewType == typeof(LibraryImportServiceWorkerView))
-            {
-            }
-
-            // Tag Completion
-            else if (viewType == typeof(LibraryImportTagCompletionView))
-            {
-
-            }
-
-            // Migration
-            else if (viewType == typeof(LibraryImportCompletionView))
-            {
-
-            }
-
-            // Final View
-            else if (viewType == typeof(LibraryImportFinalReportView))
-            {
-
-            }
-            else
-                throw new Exception("Unhandled view type");
         }
 
         private async void PreviousButton_Click(object sender, RoutedEventArgs e)
         {
-            // Configuration
-            if (_regionManager.GetRegion("LibraryImporterControlRegion").Content is LibraryImportConfigurationView)
+            switch (_viewModel.WorkflowCurrentStep)
             {
-                // Nothing to do
+                case LibraryImporterWorkflowStep.Configuration:
+                    // Nothing to do
+                    break;
+                case LibraryImporterWorkflowStep.ConfigurationOptions:
+                    MoveToImportStep<LibraryImportConfigurationView>(_viewModel.WorkflowCurrentStep, LibraryImporterWorkflowStep.Configuration, true);
+                    break;
+                case LibraryImporterWorkflowStep.Staging:
+                    MoveToImportStep<LibraryImportConfigurationOptionsView>(_viewModel.WorkflowCurrentStep, LibraryImporterWorkflowStep.ConfigurationOptions, true);
+                    break;
+                case LibraryImporterWorkflowStep.ServiceWorkers:
+                    MoveToImportStep<LibraryImportStagingView>(_viewModel.WorkflowCurrentStep, LibraryImporterWorkflowStep.Staging, true);
+                    break;
+                case LibraryImporterWorkflowStep.TagCompletion:
+                    MoveToImportStep<LibraryImportServiceWorkerView>(_viewModel.WorkflowCurrentStep, LibraryImporterWorkflowStep.ServiceWorkers, true);
+                    break;
+                case LibraryImporterWorkflowStep.ImportCompletion:
+                    MoveToImportStep<LibraryImportTagCompletionView>(_viewModel.WorkflowCurrentStep, LibraryImporterWorkflowStep.TagCompletion, true);
+                    break;
+                case LibraryImporterWorkflowStep.FinalReport:
+                    MoveToImportStep<LibraryImportCompletionView>(_viewModel.WorkflowCurrentStep, LibraryImporterWorkflowStep.ImportCompletion, true);
+                    break;
+                default:
+                    throw new Exception("Unhandled workflow step");
             }
-
-            // Configuration Options
-            else if (_regionManager.GetRegion("LibraryImporterControlRegion").Content is LibraryImportConfigurationOptionsView)
-            {
-                MoveToImportStep<LibraryImportConfigurationOptionsView, LibraryImportConfigurationView>(true);
-            }
-
-            // Staging 
-            else if (_regionManager.GetRegion("LibraryImporterControlRegion").Content is LibraryImportStagingView)
-            {
-                MoveToImportStep<LibraryImportStagingView, LibraryImportConfigurationOptionsView>(true);
-            }
-
-            // Import Service (Workers...)
-            else if (_regionManager.GetRegion("LibraryImporterControlRegion").Content is LibraryImportServiceWorkerView)
-            {
-                MoveToImportStep<LibraryImportServiceWorkerView, LibraryImportStagingView>(true);
-            }
-
-            // Tag Completion
-            else if (_regionManager.GetRegion("LibraryImporterControlRegion").Content is LibraryImportTagCompletionView)
-            {
-                MoveToImportStep<LibraryImportTagCompletionView, LibraryImportServiceWorkerView>(true);
-            }
-
-            // Migration
-            else if (_regionManager.GetRegion("LibraryImporterControlRegion").Content is LibraryImportCompletionView)
-            {
-                MoveToImportStep<LibraryImportCompletionView, LibraryImportTagCompletionView>(true);
-            }
-
-            // Final Report
-            else if (_regionManager.GetRegion("LibraryImporterControlRegion").Content is LibraryImportFinalReportView)
-            {
-                MoveToImportStep<LibraryImportFinalReportView, LibraryImportCompletionView>(true);
-            }
-
-            RefreshFromDataContext(this.DataContext as LibraryImporterViewModel);
         }
 
         private async void NextButton_Click(object sender, RoutedEventArgs e)
         {
-            // Configuration
-            if (_regionManager.GetRegion("LibraryImporterControlRegion").Content is LibraryImportConfigurationView)
+            switch (_viewModel.WorkflowCurrentStep)
             {
-                MoveToImportStep<LibraryImportConfigurationView, LibraryImportConfigurationOptionsView>(false);
+                case LibraryImporterWorkflowStep.Configuration:
+                    MoveToImportStep<LibraryImportConfigurationOptionsView>(_viewModel.WorkflowCurrentStep, LibraryImporterWorkflowStep.ConfigurationOptions, false);
+                    break;
+                case LibraryImporterWorkflowStep.ConfigurationOptions:
+                    MoveToImportStep<LibraryImportStagingView>(_viewModel.WorkflowCurrentStep, LibraryImporterWorkflowStep.Staging, false);
+                    break;
+                case LibraryImporterWorkflowStep.Staging:
+                    MoveToImportStep<LibraryImportServiceWorkerView>(_viewModel.WorkflowCurrentStep, LibraryImporterWorkflowStep.ServiceWorkers, false);
+                    break;
+                case LibraryImporterWorkflowStep.ServiceWorkers:
+                    MoveToImportStep<LibraryImportTagCompletionView>(_viewModel.WorkflowCurrentStep, LibraryImporterWorkflowStep.TagCompletion, false);
+                    break;
+                case LibraryImporterWorkflowStep.TagCompletion:
+                    MoveToImportStep<LibraryImportFinalReportView>(_viewModel.WorkflowCurrentStep, LibraryImporterWorkflowStep.ImportCompletion, false);
+                    break;
+                case LibraryImporterWorkflowStep.ImportCompletion:
+                    MoveToImportStep<LibraryImportFinalReportView>(_viewModel.WorkflowCurrentStep, LibraryImporterWorkflowStep.FinalReport, false);
+                    break;
+                case LibraryImporterWorkflowStep.FinalReport:
+                    // Nothing to do
+                    break;
+                default:
+                    throw new Exception("Unhandled workflow step");
             }
-
-            // Configuration Options
-            else if (_regionManager.GetRegion("LibraryImporterControlRegion").Content is LibraryImportConfigurationOptionsView)
-            {
-                MoveToImportStep<LibraryImportConfigurationOptionsView, LibraryImportStagingView>(false);
-            }
-
-            // Staging
-            else if (_regionManager.GetRegion("LibraryImporterControlRegion").Content is LibraryImportStagingView)
-            {
-                MoveToImportStep<LibraryImportStagingView, LibraryImportServiceWorkerView>(false);
-            }
-
-            // Import Loader
-            else if (_regionManager.GetRegion("LibraryImporterControlRegion").Content is LibraryImportServiceWorkerView)
-            {
-                MoveToImportStep<LibraryImportServiceWorkerView, LibraryImportTagCompletionView>(false);
-            }
-
-            // Tag Completinon
-            else if (_regionManager.GetRegion("LibraryImporterControlRegion").Content is LibraryImportTagCompletionView)
-            {
-                MoveToImportStep<LibraryImportTagCompletionView, LibraryImportFinalReportView>(false);
-            }
-
-            // Final View (User can go back as long as they haven't pressed "Execute")
-            else if (_regionManager.GetRegion("LibraryImporterControlRegion").Content is LibraryImportFinalReportView)
-            {
-                // Nothing to do
-            }
-
-            RefreshFromDataContext(this.DataContext as LibraryImporterViewModel);
         }
 
-        private void MoveToImportStep<TFrom, TTo>(bool isPrevious)
+        private void MoveToImportStep<TView>(LibraryImporterWorkflowStep from, LibraryImporterWorkflowStep to, bool isPrevious)
         {
-            var toView = typeof(TTo);
-            var fromView = typeof(TFrom);
+            var view = typeof(TView);
 
             if (isPrevious)
             {
-                LoadImportView(toView, isPrevious, true);
+                LoadImportView(view, isPrevious, true);
+
+                // Workflow!
+                _viewModel.WorkflowPrevious();
             }
-            else if (ConfirmImportStep(fromView))
+            else if (ConfirmImportStep(from))
             {
                 // From
-                CompleteImportStep(fromView);
+                CompleteImportStep(from);
 
                 // To
-                PreLoadImportStep(toView);
-                LoadImportView(toView, isPrevious, true);
-                PostLoadImportStep(toView);
+                PreLoadImportStep(to);
+                LoadImportView(view, isPrevious, true);
+                PostLoadImportStep(to);
+
+                // Workflow!
+                _viewModel.WorkflowNext();
             }
         }
     }

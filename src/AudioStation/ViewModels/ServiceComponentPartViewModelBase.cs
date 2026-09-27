@@ -1,14 +1,12 @@
-﻿using System.Windows.Threading;
-
-using AudioStation.Controller.Interface;
+﻿using AudioStation.Controller.Interface;
 using AudioStation.Core.Model.Interface;
 
 using SimpleWpf.Extensions.Event;
 using SimpleWpf.UI.Command;
 using SimpleWpf.UI.ViewModel;
-using SimpleWpf.Utilities;
 
 using static AudioStation.Event.DialogEventHandlers;
+using static AudioStation.ViewModels.ServiceComponentDelegates;
 
 namespace AudioStation.ViewModels
 {
@@ -36,12 +34,12 @@ namespace AudioStation.ViewModels
         public bool Working
         {
             get { return _working; }
-            protected set { this.RaiseAndSetIfChanged(ref _working, value); }
+            protected set { this.RaiseAndSetIfChanged(ref _working, value); RaiseStatusChangedEvent(); }
         }
         public bool Loaded
         {
             get { return _loaded; }
-            protected set { this.RaiseAndSetIfChanged(ref _loaded, value); }
+            protected set { this.RaiseAndSetIfChanged(ref _loaded, value); RaiseStatusChangedEvent(); }
         }
         public string DisplayName
         {
@@ -67,6 +65,11 @@ namespace AudioStation.ViewModels
         public event SimpleEventHandler<Guid> ExecuteRequestEvent;
         public event SimpleEventHandler<Guid> LoadRequestEvent;
         public event SimpleEventHandler<Guid> ResetRequestEvent;
+
+        /// <summary>
+        /// Event that executes when the working status has changed
+        /// </summary>
+        public event ServiceComponentStatusUpdateHandler StatusChangeEvent;
 
         public ServiceComponentPartViewModelBase(string displayName)
         {
@@ -100,79 +103,14 @@ namespace AudioStation.ViewModels
         public abstract bool CanReset();
         public abstract void Dispose();
 
-        protected abstract void LoadWork(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogProgressHandler progressHandler);
-        protected abstract void ExecuteWork(DialogProgressHandler progressHandler);
-        protected abstract void ResetWork(DialogProgressHandler progressHandler);
-
-        /// <summary>
-        /// Function to load component view model. This would be called when a a view is loaded; or when needed in the application.
-        /// </summary>
-        /// <exception cref="Exception">Component must have first been initialized</exception>
-        public void Load(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogProgressHandler progressHandler)
+        protected void RaiseStatusChangedEvent()
         {
-            if (!CanLoad())
-                throw new Exception("Component already loaded. Must call Reset(..) before reloading the component");
-
-            // Synchronous Invoke:  This should be used where there is no (async / await). Also, it is needed for completing the work during
-            //                      the application's initialization waiter. So, there is already a waiter for this load; but the work must
-            //                      be completed on the main thread because of view model binding.
-            //
-            if (BasicHelpers.IsDispatcher() == ApplicationIsDispatcherResult.False)
-                BasicHelpers.InvokeDispatcher(Load, DispatcherPriority.Background, configuration, audioStationController, progressHandler);
-
-            else
-            {
-                this.Working = true;
-
-                LoadWork(configuration, audioStationController, progressHandler);
-
-                this.Working = false;
-                this.Loaded = true;
-            }
+            if (this.StatusChangeEvent != null)
+                this.StatusChangeEvent(this, this.Working, this.Loaded);
         }
-        public void Execute(DialogProgressHandler progressHandler)
-        {
-            if (!CanExecute())
-                throw new Exception("Component not yet loaded. Must first load the component part before calling Execute()");
 
-            // Synchronous Invoke:  This should be used where there is no (async / await). Also, it is needed for completing the work during
-            //                      the application's initialization waiter. So, there is already a waiter for this load; but the work must
-            //                      be completed on the main thread because of view model binding.
-            //
-            if (BasicHelpers.IsDispatcher() == ApplicationIsDispatcherResult.False)
-                BasicHelpers.InvokeDispatcher(Execute, DispatcherPriority.Background, progressHandler);
-
-            else
-            {
-                this.Working = true;
-
-                ExecuteWork(progressHandler);
-
-                this.Working = false;
-                this.Loaded = false;
-            }
-        }
-        public void Reset(DialogProgressHandler progressHandler)
-        {
-            if (!CanReset())
-                throw new Exception("Component not yet loaded. Must first load the component part before calling Reset()");
-
-            // Synchronous Invoke:  This should be used where there is no (async / await). Also, it is needed for completing the work during
-            //                      the application's initialization waiter. So, there is already a waiter for this load; but the work must
-            //                      be completed on the main thread because of view model binding.
-            //
-            if (BasicHelpers.IsDispatcher() == ApplicationIsDispatcherResult.False)
-                BasicHelpers.InvokeDispatcher(Reset, DispatcherPriority.Background, progressHandler);
-
-            else
-            {
-                this.Working = true;
-
-                ResetWork(progressHandler);
-
-                this.Working = false;
-                this.Loaded = false;
-            }
-        }
+        public abstract void Load(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogProgressHandler progressHandler);
+        public abstract void Execute(DialogProgressHandler progressHandler);
+        public abstract void Reset(DialogProgressHandler progressHandler);
     }
 }

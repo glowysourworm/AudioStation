@@ -152,7 +152,9 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels
                 DestinationFolder = importerConfiguration.ImportDirectory.Directory,
                 EmbedImportTagData = importerConfiguration.EmbedImportTagData,
                 GroupingType = importerConfiguration.ImportDirectory.GroupingType,
-                ImportFormat = audioStationMapper.Map<AudioEncoderViewModel, AudioEncoderInfo>(importerConfiguration.ImportFormat),
+                ImportFormat = importerConfiguration.ImportFormat != null ?
+                                    audioStationMapper.Map<AudioEncoderViewModel, AudioEncoderInfo>(importerConfiguration.ImportFormat) :
+                                    null,
                 ImportType = importerConfiguration.ImportType,
                 IsSourceDirectoryReadonly = importerConfiguration.ImportDirectory.IsReadOnly,
                 LibraryOverwriteExistingAlbums = importerConfiguration.LibraryOverwriteExistingAlbums,

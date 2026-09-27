@@ -44,7 +44,6 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Wor
         /// Event that occurs when a worker's work item is updated
         /// </summary>
         public event SimpleEventHandler<ILibraryLoaderWorkerViewModel, LibraryWorkItemViewModel> WorkItemChangedEvent;
-        public event SimpleEventHandler<ILibraryLoaderWorkerViewModel, bool> StatusChangeEvent;
 
         public ObservableCollection<ILibraryLoaderWorkerViewModel> ServiceWorkers
         {
@@ -225,7 +224,7 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Wor
 
                     // -> Execute (if there are any work loads)
                     if (this.SelectedWorker.CanExecute())
-                        ExecuteWork(progressHandler);
+                        Execute(progressHandler);
                 }
             });
         }
@@ -268,7 +267,7 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Wor
                 (this.SelectedWorker as LibraryLoaderMusicBrainzAlbumArtViewModel).Load(_stagedFiles, configuration, audioStationController, progressHandler);
         }
 
-        protected override void LoadWork(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
+        public override void Load(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
         {
             // Loader State Changes
             _configuration = configuration;
@@ -300,12 +299,12 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Wor
             }
         }
 
-        protected override void ExecuteWork(DialogEventHandlers.DialogProgressHandler progressHandler)
+        public override void Execute(DialogEventHandlers.DialogProgressHandler progressHandler)
         {
             this.SelectedWorker.Execute();
         }
 
-        protected override void ResetWork(DialogEventHandlers.DialogProgressHandler progressHandler)
+        public override void Reset(DialogEventHandlers.DialogProgressHandler progressHandler)
         {
             if (this.Working)
                 throw new Exception("Cannot reset service workflow while it is running");
@@ -320,9 +319,6 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Wor
             this.LibraryLoaderState = sender.LibraryLoaderState;
 
             UpdateCommands();
-
-            if (this.StatusChangeEvent != null)
-                this.StatusChangeEvent(sender, this.Working);
         }
         private void OnWorkerItemChangedEvent(ILibraryLoaderWorkerViewModel worker, LibraryWorkItemViewModel workItem)
         {

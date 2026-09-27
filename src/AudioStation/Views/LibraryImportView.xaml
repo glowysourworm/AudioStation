@@ -36,7 +36,7 @@
             <Button x:Name="PreviousButton"
                     Margin="0"
                     Click="PreviousButton_Click"
-                    IsEnabled="{Binding PreviousStepReady, ElementName=BaseControl}"
+                    IsEnabled="{Binding WorkflowPreviousEnabled}"
                     Style="{StaticResource UserControlButton}">
                 <StackPanel Orientation="Horizontal">
                     <fa5:SvgAwesome Icon="Solid_ArrowLeft" Style="{StaticResource FontAwesomeIconDefault}" Margin="5" />
@@ -48,7 +48,7 @@
             <Button x:Name="NextButton" 
                     Margin="5 0 0 0" 
                     Click="NextButton_Click"
-                    IsEnabled="{Binding NextStepReady, ElementName=BaseControl}"
+                    IsEnabled="{Binding WorkflowNextEnabled}"
                     Style="{StaticResource UserControlButton}">
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="Next" Style="{StaticResource LabelTextBlock}" Margin="5" />

@@ -144,25 +144,22 @@ namespace AudioStation.ViewModels.ServiceComponent
         {
             return this.Loaded;
         }
-
-        protected override void InitializeWork(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogProgressHandler progressHandler)
+        public override void Initialize(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogProgressHandler progressHandler)
         {
 
         }
 
-        protected override void LoadWork(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogProgressHandler progressHandler)
+        public override void Load(Guid? componentPartId, IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogProgressHandler progressHandler)
         {
 
         }
 
-        protected override void ExecuteWork(DialogProgressHandler progressHandler)
+        public override void Execute(Guid? componentPartId, DialogProgressHandler progressHandler)
         {
-
         }
 
-        protected override void ResetWork(DialogProgressHandler progressHandler)
+        public override void Reset(Guid? componentPartId, DialogProgressHandler progressHandler)
         {
-
         }
     }
 }

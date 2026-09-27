@@ -46,8 +46,7 @@ namespace AudioStation.ViewModels.ServiceComponent
         {
             return false;
         }
-
-        protected override void InitializeWork(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
+        public override void Initialize(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
         {
             var libraryLoaderService = audioStationController.ServiceController.GetService<ILibraryLoaderService>();
             var audioStationDbClient = audioStationController.ServiceController.GetDataService<IAudioStationDbClient>();
@@ -59,20 +58,20 @@ namespace AudioStation.ViewModels.ServiceComponent
             this.LoaderTasks.Add(new LibraryLoaderMusicBrainzAlbumArtViewModel());
         }
 
-        protected override void LoadWork(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
+        public override void Load(Guid? componentPartId, IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
         {
             //foreach (var task in this.LoaderTasks)
             //    task.Load(configuration, audioStationController, progressHandler);
         }
 
-        protected override void ExecuteWork(DialogEventHandlers.DialogProgressHandler progressHandler)
+        public override void Execute(Guid? componentPartId, DialogEventHandlers.DialogProgressHandler progressHandler)
         {
-
+            throw new NotImplementedException();
         }
 
-        protected override void ResetWork(DialogEventHandlers.DialogProgressHandler progressHandler)
+        public override void Reset(Guid? componentPartId, DialogEventHandlers.DialogProgressHandler progressHandler)
         {
-
+            throw new NotImplementedException();
         }
     }
 }

@@ -41,16 +41,17 @@ namespace AudioStation.ViewModels.Vendor
         {
             return true;
         }
-        protected override void InitializeWork(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
+
+        public override void Initialize(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
         {
         }
-        protected override void LoadWork(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
+        public override void Load(Guid? componentPartId, IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
         {
         }
-        protected override void ExecuteWork(DialogEventHandlers.DialogProgressHandler progressHandler)
+        public override void Execute(Guid? componentPartId, DialogEventHandlers.DialogProgressHandler progressHandler)
         {
         }
-        protected override void ResetWork(DialogEventHandlers.DialogProgressHandler progressHandler)
+        public override void Reset(Guid? componentPartId, DialogEventHandlers.DialogProgressHandler progressHandler)
         {
         }
     }

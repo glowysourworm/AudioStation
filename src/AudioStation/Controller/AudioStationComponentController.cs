@@ -1,4 +1,6 @@
-﻿using AudioStation.Controller.Interface;
+﻿using System.Windows.Threading;
+
+using AudioStation.Controller.Interface;
 using AudioStation.Core;
 using AudioStation.Core.Component.CDPlayer.Interface;
 using AudioStation.Core.Component.Interface;
@@ -14,6 +16,7 @@ using AudioStation.ViewModels.Vendor;
 
 using SimpleWpf.IocFramework.Application.Attribute;
 using SimpleWpf.IocFramework.EventAggregation;
+using SimpleWpf.Utilities;
 
 using static AudioStation.Event.DialogEventHandlers;
 
@@ -52,8 +55,8 @@ namespace AudioStation.Controller
         private AudioStationConfiguration? _configuration;
 
         // View Models (primary services, primary data)
-        private List<ServiceComponentViewModelBase> _serviceComponents;
-        private List<DataComponentViewModelBase> _dataComponents;
+        private Dictionary<Guid, ServiceComponentViewModelBase> _serviceComponents;
+        private Dictionary<Guid, DataComponentViewModelBase> _dataComponents;
 
         [IocImportingConstructor]
         public AudioStationComponentController(
@@ -94,35 +97,54 @@ namespace AudioStation.Controller
             _radioViewModel = new RadioViewModel(dialogController);
             _statusViewModel = new StatusViewModel();
 
-            _serviceComponents = new List<ServiceComponentViewModelBase>()
+            _serviceComponents = new Dictionary<Guid, ServiceComponentViewModelBase>()
             {
-                _bandcampViewModel,
-                _cdImporterViewModel,
-                _libraryImporterViewModel,
-                _libraryLoaderViewModel,
-                _radioViewModel
+                { _bandcampViewModel.Id, _bandcampViewModel },
+                { _cdImporterViewModel.Id, _cdImporterViewModel },
+                { _libraryImporterViewModel.Id, _libraryImporterViewModel },
+                { _libraryLoaderViewModel.Id, _libraryLoaderViewModel },
+                { _radioViewModel.Id, _radioViewModel }
+
             };
-            _dataComponents = new List<DataComponentViewModelBase>()
+            _dataComponents = new Dictionary<Guid, DataComponentViewModelBase>()
             {
-                _libraryManagerViewModel,
-                _logViewModel,
-                _mainViewModel,
-                _nowPlayingViewModel,
-                _statusViewModel
+                { _libraryManagerViewModel.Id, _libraryManagerViewModel },
+                { _logViewModel.Id, _logViewModel },
+                { _mainViewModel.Id, _mainViewModel },
+                { _nowPlayingViewModel.Id, _nowPlayingViewModel },
+                { _statusViewModel.Id, _statusViewModel }
             };
 
             // Configuration Updates
             eventAggregator.GetEvent<ConfigurationEvent>().Subscribe(eventData =>
             {
                 if (_audioStationConfigurationViewModel != null &&
-                    _dataComponents.Contains(_audioStationConfigurationViewModel))
-                    _dataComponents.Remove(_audioStationConfigurationViewModel);
+                    _dataComponents.ContainsKey(eventData.ViewModel.Id))
+                    _dataComponents.Remove(eventData.ViewModel.Id);
 
                 _audioStationConfigurationViewModel = eventData.ViewModel;
                 _configuration = eventData.Configuration;
 
                 if (_audioStationConfigurationViewModel != null)
-                    _dataComponents.Add(_audioStationConfigurationViewModel);
+                    _dataComponents.Add(_audioStationConfigurationViewModel.Id, _audioStationConfigurationViewModel);
+            });
+
+            eventAggregator.GetEvent<ServiceComponentRequestEvent>().Subscribe(eventData =>
+            {
+                switch (eventData.Type)
+                {
+                    case ServiceComponentRequestType.Execute:
+                        ExecuteComponent(eventData.ComponentId, eventData.ShowProgress, eventData.ComponentPartId);
+                        break;
+                    case ServiceComponentRequestType.Load:
+                        LoadComponent(eventData.ComponentId, eventData.ShowProgress, eventData.ComponentPartId);
+                        break;
+                    case ServiceComponentRequestType.Reset:
+                        ResetComponent(eventData.ComponentId, eventData.ShowProgress, eventData.ComponentPartId);
+                        break;
+                    default:
+                        throw new Exception("Unhandled service component request type");
+                }
             });
         }
 
@@ -152,7 +174,7 @@ namespace AudioStation.Controller
                 _audioStationConfigurationViewModel.Initialize(configuration);
             }
 
-            foreach (DataComponentViewModelBase component in _dataComponents)
+            foreach (DataComponentViewModelBase component in _dataComponents.Values)
             {
                 if (component == _logViewModel ||
                     component == _audioStationConfigurationViewModel)
@@ -162,7 +184,7 @@ namespace AudioStation.Controller
                 component.Initialize(configuration);
             }
 
-            foreach (ServiceComponentViewModelBase component in _serviceComponents)
+            foreach (ServiceComponentViewModelBase component in _serviceComponents.Values)
             {
                 progressHandler(taskCount, task++, 0, 0, "Initializing " + component.DisplayName);
                 component.Initialize(configuration, audioStationController, progressHandler);
@@ -173,7 +195,7 @@ namespace AudioStation.Controller
         {
             var type = typeof(T);
 
-            foreach (var component in _serviceComponents)
+            foreach (var component in _serviceComponents.Values)
             {
                 if (component.GetType() == type)
                     return (T)component;
@@ -185,7 +207,7 @@ namespace AudioStation.Controller
         {
             var type = typeof(T);
 
-            foreach (var component in _dataComponents)
+            foreach (var component in _dataComponents.Values)
             {
                 if (component.GetType() == type)
                     return (T)component;
@@ -194,12 +216,12 @@ namespace AudioStation.Controller
             throw new Exception("Component not found, or unhandled:  " + type);
         }
 
-        public void LoadComponent<T>(bool showProgress) where T : ServiceComponentViewModelBase
+        private void LoadComponent(Guid componentId, bool showProgress, Guid? componentPartId = null)
         {
             if (_configuration == null)
                 throw new Exception("Configuration is not yet loaded. Must load configuration before loading components");
 
-            var component = GetServiceComponent<T>();
+            var component = _serviceComponents[componentId];
 
             // Dialog (Loading)
             if (showProgress)
@@ -207,55 +229,110 @@ namespace AudioStation.Controller
                 _dialogController.ShowLoading("Loading " + component.DisplayName, progressHandler =>
                 {
                     // Load Component
-                    component.Load(_configuration, _audioStationController, progressHandler);
+                    component.Load(componentPartId, _configuration, _audioStationController, progressHandler);
                 });
             }
             else
             {
-                // TODO:
+                component.Load(componentPartId, _configuration, _audioStationController, (x, y, z, w, a) => { });
             }
         }
-        public void ExecuteComponent<T>(bool showProgress) where T : ServiceComponentViewModelBase
+        private void ExecuteComponent(Guid componentId, bool showProgress, Guid? componentPartId = null)
+        {
+            if (_configuration == null)
+                throw new Exception("Configuration is not yet loaded. Must load configuration before loading components");
+
+            var component = _serviceComponents[componentId];
+
+            // Dialog (Loading)
+            if (showProgress)
+            {
+                _dialogController.ShowLoading("Executing " + component.DisplayName, progressHandler =>
+                {
+                    component.Execute(componentPartId, progressHandler);
+                });
+            }
+            else
+            {
+                component.Execute(componentPartId, (x, y, z, w, a) => { });
+            }
+        }
+        private void ResetComponent(Guid componentId, bool showProgress, Guid? componentPartId = null)
+        {
+            if (_configuration == null)
+                throw new Exception("Configuration is not yet loaded. Must load configuration before loading components");
+
+            var component = _serviceComponents[componentId];
+
+            // Dialog (Loading)
+            if (showProgress)
+            {
+                _dialogController.ShowLoading("Resetting " + component.DisplayName, progressHandler =>
+                {
+                    component.Reset(componentPartId, progressHandler);
+                });
+            }
+            else
+            {
+                component.Reset(componentPartId, (x, y, z, w, a) => { });
+            }
+        }
+        public void LoadComponent<T>(bool showProgress, Guid? componentPartId = null) where T : ServiceComponentViewModelBase
         {
             if (_configuration == null)
                 throw new Exception("Configuration is not yet loaded. Must load configuration before loading components");
 
             var component = GetServiceComponent<T>();
 
-            // Dialog (Loading)
-            if (showProgress)
-                _dialogController.ShowLoading("Executing " + component.DisplayName, component.Execute);
-            else
-            {
-                // TODO
-            }
+            LoadComponent(component.Id, showProgress, componentPartId);
         }
-        public void ResetComponent<T>(bool showProgress) where T : ServiceComponentViewModelBase
+        public void ExecuteComponent<T>(bool showProgress, Guid? componentPartId = null) where T : ServiceComponentViewModelBase
         {
             if (_configuration == null)
                 throw new Exception("Configuration is not yet loaded. Must load configuration before loading components");
 
             var component = GetServiceComponent<T>();
 
-            // Dialog (Loading)
-            if (showProgress)
-                _dialogController.ShowLoading("Executing " + component.DisplayName, component.Reset);
-            else
+            ExecuteComponent(component.Id, showProgress, componentPartId);
+        }
+        public void ResetComponent<T>(bool showProgress, Guid? componentPartId = null) where T : ServiceComponentViewModelBase
+        {
+            if (_configuration == null)
+                throw new Exception("Configuration is not yet loaded. Must load configuration before loading components");
+
+            var component = GetServiceComponent<T>();
+
+            ResetComponent(component.Id, showProgress, componentPartId);
+        }
+        public Task LoadComponentAsync<T>(bool showProgress, Guid? componentPartId = null) where T : ServiceComponentViewModelBase
+        {
+            return Task.Run(() =>
             {
-                // TODO
-            }
+                if (BasicHelpers.IsDispatcher() == ApplicationIsDispatcherResult.False)
+                    BasicHelpers.InvokeDispatcher(LoadComponent<T>, DispatcherPriority.Background, showProgress, componentPartId);
+                else
+                    LoadComponent<T>(showProgress, componentPartId);
+            });
         }
-        public Task LoadComponentAsync<T>() where T : ServiceComponentViewModelBase
+        public Task ExecuteComponentAsync<T>(bool showProgress, Guid? componentPartId = null) where T : ServiceComponentViewModelBase
         {
-            return Task.Run(() => LoadComponent<T>(false));
+            return Task.Run(() =>
+            {
+                if (BasicHelpers.IsDispatcher() == ApplicationIsDispatcherResult.False)
+                    BasicHelpers.InvokeDispatcher(ExecuteComponent<T>, DispatcherPriority.Background, showProgress, componentPartId);
+                else
+                    ExecuteComponent<T>(showProgress, componentPartId);
+            });
         }
-        public Task ExecuteComponentAsync<T>() where T : ServiceComponentViewModelBase
+        public Task ResetComponentAsync<T>(bool showProgress, Guid? componentPartId = null) where T : ServiceComponentViewModelBase
         {
-            return Task.Run(() => ExecuteComponent<T>(false));
-        }
-        public Task ResetComponentAsync<T>() where T : ServiceComponentViewModelBase
-        {
-            return Task.Run(() => ResetComponent<T>(false));
+            return Task.Run(() =>
+            {
+                if (BasicHelpers.IsDispatcher() == ApplicationIsDispatcherResult.False)
+                    BasicHelpers.InvokeDispatcher(ResetComponent<T>, DispatcherPriority.Background, showProgress, componentPartId);
+                else
+                    ResetComponent<T>(showProgress, componentPartId);
+            });
         }
     }
 }

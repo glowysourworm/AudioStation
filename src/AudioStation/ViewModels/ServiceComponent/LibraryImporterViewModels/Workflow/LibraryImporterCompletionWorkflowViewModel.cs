@@ -80,6 +80,7 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Wor
             _stagedFiles.SelectionChanged += OnStagedFilesSelectionChanged;
 
             this.ImportWorker = new LibraryLoaderImportViewModel(workflowConfiguration);
+            this.ImportWorker.StatusChangeEvent += ImportWorker_StatusChangeEvent;
 
             this.EditTagCommand = new SimpleCommand(EditTag, CanEditTag);
             this.EditTagGroupCommand = new SimpleCommand<string>(EditSelectedTagsField, CanEditSelectedTagsField);
@@ -164,20 +165,28 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Wor
             }));
         }
 
-        protected override void LoadWork(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
+        public override void Load(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
         {
             // Initialize Component Parts
             this.ImportWorker.Load(this.StagedFiles.ValidFiles, configuration, audioStationController, progressHandler);
+
+            this.Loaded = this.ImportWorker.Loaded;
         }
 
-        protected override void ExecuteWork(DialogEventHandlers.DialogProgressHandler progressHandler)
+        public override void Execute(DialogEventHandlers.DialogProgressHandler progressHandler)
         {
             this.ImportWorker.Execute();
         }
 
-        protected override void ResetWork(DialogEventHandlers.DialogProgressHandler progressHandler)
+        public override void Reset(DialogEventHandlers.DialogProgressHandler progressHandler)
         {
             this.ImportWorker.Reset();
+        }
+
+        private void ImportWorker_StatusChangeEvent(LibraryLoaderViewModels.Interface.ILibraryLoaderWorkerViewModel sender)
+        {
+            this.Loaded = this.ImportWorker.Loaded;
+            this.Working = this.ImportWorker.Working;
         }
         private void OnStagedFilesSelectionChanged()
         {

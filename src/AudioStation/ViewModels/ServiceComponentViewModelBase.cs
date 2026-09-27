@@ -1,13 +1,12 @@
-﻿using System.Collections.ObjectModel;
-using System.Windows.Threading;
-
-using AudioStation.Controller.Interface;
+﻿using AudioStation.Controller.Interface;
 using AudioStation.Core.Model.Interface;
+using AudioStation.Event;
 
-using SimpleWpf.Extensions.Event;
+using SimpleWpf.Extensions.ObservableCollection;
+using SimpleWpf.IocFramework.Application;
+using SimpleWpf.IocFramework.EventAggregation;
 using SimpleWpf.UI.Command;
 using SimpleWpf.UI.ViewModel;
-using SimpleWpf.Utilities;
 
 using static AudioStation.Event.DialogEventHandlers;
 
@@ -20,6 +19,8 @@ namespace AudioStation.ViewModels
     /// </summary>
     public abstract class ServiceComponentViewModelBase : ViewModelBase, IDisposable
     {
+        private IIocEventAggregator _eventAggregator;
+
         Guid _id;
         bool _loading;
         bool _loaded;
@@ -30,31 +31,27 @@ namespace AudioStation.ViewModels
         SimpleCommand _loadCommand;
         SimpleCommand _resetCommand;
 
-        ObservableCollection<ServiceComponentPartViewModelBase> _componentParts;
-
-        public event SimpleEventHandler<ServiceComponentId> ExecuteRequestEvent;
-        public event SimpleEventHandler<ServiceComponentId> LoadRequestEvent;
-        public event SimpleEventHandler<ServiceComponentId> ResetRequestEvent;
+        KeyedObservableCollection<Guid, ServiceComponentPartViewModelBase> _componentParts;
 
         public Guid Id
         {
             get { return _id; }
-            set { this.RaiseAndSetIfChanged(ref _id, value); }
+            private set { this.RaiseAndSetIfChanged(ref _id, value); }
         }
         public bool Loading
         {
             get { return _loading; }
-            private set { this.RaiseAndSetIfChanged(ref _loading, value); }
+            protected set { this.RaiseAndSetIfChanged(ref _loading, value); OnStatusChanged(); }
         }
         public bool Loaded
         {
             get { return _loaded; }
-            private set { this.RaiseAndSetIfChanged(ref _loaded, value); }
+            protected set { this.RaiseAndSetIfChanged(ref _loaded, value); OnStatusChanged(); }
         }
         public bool Initialized
         {
             get { return _initialized; }
-            private set { this.RaiseAndSetIfChanged(ref _initialized, value); }
+            protected set { this.RaiseAndSetIfChanged(ref _initialized, value); }
         }
         public string DisplayName
         {
@@ -85,23 +82,25 @@ namespace AudioStation.ViewModels
 
         public ServiceComponentViewModelBase(string displayName)
         {
+            _eventAggregator = IocContainer.Get<IIocEventAggregator>();
+
+            this.Id = Guid.NewGuid();
             this.Loading = false;
             this.Initialized = false;
             this.DisplayName = displayName;
 
-            _componentParts = new ObservableCollection<ServiceComponentPartViewModelBase>();
+            _componentParts = new KeyedObservableCollection<Guid, ServiceComponentPartViewModelBase>();
 
             // Execute Command (component level)
             //
             this.ExecuteCommand = new SimpleCommand(() =>
             {
-                if (this.ExecuteRequestEvent != null)
+                _eventAggregator.GetEvent<ServiceComponentRequestEvent>().Publish(new ServiceComponentRequestData()
                 {
-                    this.ExecuteRequestEvent(new ServiceComponentId()
-                    {
-                        ComponentId = this.Id
-                    });
-                }
+                    ComponentId = this.Id,
+                    ComponentPartId = null,
+                    Type = ServiceComponentRequestType.Execute
+                });
 
             }, CanExecute);
 
@@ -109,13 +108,12 @@ namespace AudioStation.ViewModels
             //
             this.LoadCommand = new SimpleCommand(() =>
             {
-                if (this.LoadRequestEvent != null)
+                _eventAggregator.GetEvent<ServiceComponentRequestEvent>().Publish(new ServiceComponentRequestData()
                 {
-                    this.LoadRequestEvent(new ServiceComponentId()
-                    {
-                        ComponentId = this.Id
-                    });
-                }
+                    ComponentId = this.Id,
+                    ComponentPartId = null,
+                    Type = ServiceComponentRequestType.Load
+                });
 
             }, CanLoad);
 
@@ -123,13 +121,12 @@ namespace AudioStation.ViewModels
             //
             this.ResetCommand = new SimpleCommand(() =>
             {
-                if (this.ResetRequestEvent != null)
+                _eventAggregator.GetEvent<ServiceComponentRequestEvent>().Publish(new ServiceComponentRequestData()
                 {
-                    this.ResetRequestEvent(new ServiceComponentId()
-                    {
-                        ComponentId = this.Id
-                    });
-                }
+                    ComponentId = this.Id,
+                    ComponentPartId = null,
+                    Type = ServiceComponentRequestType.Reset
+                });
 
             }, CanReset);
         }
@@ -141,6 +138,12 @@ namespace AudioStation.ViewModels
             // -> Update Command Bindings
             if (this.ExecuteCommand != null)
                 this.ExecuteCommand.RaiseCanExecuteChanged();
+
+            if (this.LoadCommand != null)
+                this.LoadCommand.RaiseCanExecuteChanged();
+
+            if (this.ResetCommand != null)
+                this.ResetCommand.RaiseCanExecuteChanged();
         }
 
         public abstract bool CanExecute();
@@ -152,137 +155,60 @@ namespace AudioStation.ViewModels
             part.LoadRequestEvent += Part_LoadRequestEvent;
             part.ExecuteRequestEvent += Part_ExecuteRequestEvent;
             part.ResetRequestEvent += Part_ResetRequestEvent;
+            part.StatusChangeEvent += Part_StatusChangeEvent;
 
-            _componentParts.Add(part);
+            _componentParts.Add(part.Id, part);
+        }
+
+        protected void Part_StatusChangeEvent(ServiceComponentPartViewModelBase sender, bool working, bool loaded)
+        {
+            this.Loading = _componentParts.Any(x => x.Working);
+            this.Loaded = _componentParts.Any(x => x.Loaded);
+        }
+
+        protected virtual void OnStatusChanged()
+        {
+            // Hook for inherited class
         }
 
         private void Part_ResetRequestEvent(Guid partId)
         {
-            if (this.ResetRequestEvent != null)
-                this.ResetRequestEvent(new ServiceComponentId()
-                {
-                    ComponentId = this.Id,
-                    ComponentPartId = partId
-                });
+            _eventAggregator.GetEvent<ServiceComponentRequestEvent>().Publish(new ServiceComponentRequestData()
+            {
+                ComponentId = this.Id,
+                ComponentPartId = null,
+                Type = ServiceComponentRequestType.Reset
+            });
         }
 
         private void Part_ExecuteRequestEvent(Guid partId)
         {
-            if (this.ExecuteRequestEvent != null)
-                this.ExecuteRequestEvent(new ServiceComponentId()
-                {
-                    ComponentId = this.Id,
-                    ComponentPartId = partId
-                });
+            _eventAggregator.GetEvent<ServiceComponentRequestEvent>().Publish(new ServiceComponentRequestData()
+            {
+                ComponentId = this.Id,
+                ComponentPartId = null,
+                Type = ServiceComponentRequestType.Execute
+            });
         }
 
         private void Part_LoadRequestEvent(Guid partId)
         {
-            if (this.LoadRequestEvent != null)
-                this.LoadRequestEvent(new ServiceComponentId()
-                {
-                    ComponentId = this.Id,
-                    ComponentPartId = partId
-                });
-        }
-
-        protected abstract void InitializeWork(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogProgressHandler progressHandler);
-        protected abstract void LoadWork(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogProgressHandler progressHandler);
-        protected abstract void ExecuteWork(DialogProgressHandler progressHandler);
-        protected abstract void ResetWork(DialogProgressHandler progressHandler);
-
-        public void Initialize(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogProgressHandler progressHandler)
-        {
-            // Synchronous Invoke:  This should be used where there is no (async / await). Also, it is needed for completing the work during
-            //                      the application's initialization waiter. So, there is already a waiter for this load; but the work must
-            //                      be completed on the main thread because of view model binding.
-            //
-            if (BasicHelpers.IsDispatcher() == ApplicationIsDispatcherResult.False)
-                BasicHelpers.InvokeDispatcher(Initialize, DispatcherPriority.Background, configuration, audioStationController, progressHandler);
-
-            else
+            _eventAggregator.GetEvent<ServiceComponentRequestEvent>().Publish(new ServiceComponentRequestData()
             {
-                this.Loading = true;
-
-                InitializeWork(configuration, audioStationController, progressHandler);
-
-                // To be used by subclasses
-                this.Initialized = true;
-                this.Loading = false;
-            }
+                ComponentId = this.Id,
+                ComponentPartId = null,
+                Type = ServiceComponentRequestType.Load
+            });
         }
-        public void Load(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogProgressHandler progressHandler)
-        {
-            if (!this.Initialized)
-                throw new Exception("Must first initialize ComponentViewModelBase before calling Load");
 
-            if (this.Loaded)
-                throw new Exception("ComponentViewModelBase is already loaded");
-
-            // Synchronous Invoke:  This should be used where there is no (async / await). Also, it is needed for completing the work during
-            //                      the application's initialization waiter. So, there is already a waiter for this load; but the work must
-            //                      be completed on the main thread because of view model binding.
-            //
-            if (BasicHelpers.IsDispatcher() == ApplicationIsDispatcherResult.False)
-                BasicHelpers.InvokeDispatcher(Load, DispatcherPriority.Background, configuration, audioStationController, progressHandler);
-
-            else
-            {
-                this.Loading = true;
-
-                LoadWork(configuration, audioStationController, progressHandler);
-
-                this.Loading = false;
-                this.Loaded = true;
-            }
-        }
-        public void Execute(DialogProgressHandler progressHandler)
-        {
-            if (!this.Initialized)
-                throw new Exception("Must first initialize ComponentViewModelBase before calling Execute");
-
-            // Synchronous Invoke:  This should be used where there is no (async / await). Also, it is needed for completing the work during
-            //                      the application's initialization waiter. So, there is already a waiter for this load; but the work must
-            //                      be completed on the main thread because of view model binding.
-            //
-            if (BasicHelpers.IsDispatcher() == ApplicationIsDispatcherResult.False)
-                BasicHelpers.InvokeDispatcher(Execute, DispatcherPriority.Background, progressHandler);
-
-            else
-            {
-                this.Loading = true;
-
-                ExecuteWork(progressHandler);
-
-                this.Loading = false;
-            }
-        }
-        public void Reset(DialogProgressHandler progressHandler)
-        {
-            if (!this.Initialized)
-                throw new Exception("Must first initialize ComponentViewModelBase before calling Execute");
-
-            // Synchronous Invoke:  This should be used where there is no (async / await). Also, it is needed for completing the work during
-            //                      the application's initialization waiter. So, there is already a waiter for this load; but the work must
-            //                      be completed on the main thread because of view model binding.
-            //
-            if (BasicHelpers.IsDispatcher() == ApplicationIsDispatcherResult.False)
-                BasicHelpers.InvokeDispatcher(Reset, DispatcherPriority.Background, progressHandler);
-
-            else
-            {
-                this.Loading = true;
-
-                ResetWork(progressHandler);
-
-                this.Loading = false;
-                this.Loaded = false;
-            }
-        }
+        public abstract void Initialize(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogProgressHandler progressHandler);
+        public abstract void Load(Guid? componentPartId, IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogProgressHandler progressHandler);
+        public abstract void Execute(Guid? componentPartId, DialogProgressHandler progressHandler);
+        public abstract void Reset(Guid? componentPartId, DialogProgressHandler progressHandler);
 
         public virtual void Dispose()
         {
-            foreach (var part in _componentParts)
+            foreach (ServiceComponentPartViewModelBase part in _componentParts)
             {
                 part.Dispose();
             }

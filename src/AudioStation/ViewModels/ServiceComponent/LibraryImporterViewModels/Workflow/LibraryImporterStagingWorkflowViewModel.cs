@@ -109,7 +109,7 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Wor
 
         public void Stage(IDialogController dialogController)
         {
-            dialogController.ShowLoading("Staging Files", ExecuteWork);
+            dialogController.ShowLoading("Staging Files", Execute);
         }
         public void Unstage()
         {
@@ -134,15 +134,14 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Wor
         }
         public override bool CanLoad()
         {
-            return CanStage();
+            return !this.Loaded;
         }
         public override bool CanReset()
         {
             // This might where to put "UnStage", but also, just clear out staged files
             return true;
         }
-
-        protected override void LoadWork(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
+        public override void Load(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
         {
             _audioStationDbClient = audioStationController.ServiceController.GetDataService<IAudioStationDbClient>();
             _audioStationMapper = IocContainer.Get<IAudioStationMapper>();
@@ -178,7 +177,8 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Wor
                 this.ImportDirectory.ItemPropertyChangedTreeEvent += OnImportTreePropertyChanged;
             }
         }
-        protected override void ExecuteWork(DialogEventHandlers.DialogProgressHandler progressHandler)
+
+        public override void Execute(DialogEventHandlers.DialogProgressHandler progressHandler)
         {
             // Block Events
             this.StagedFiles.BeginUpdate();
@@ -330,7 +330,8 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Wor
 
             this.StagedFiles.EndUpdate(true);
         }
-        protected override void ResetWork(DialogEventHandlers.DialogProgressHandler progressHandler)
+
+        public override void Reset(DialogEventHandlers.DialogProgressHandler progressHandler)
         {
 
         }

@@ -8,7 +8,6 @@ using AudioStation.Core.Model;
 using AudioStation.Core.Model.Interface;
 using AudioStation.Event;
 using AudioStation.ViewModels.DataComponent.MainViewModels;
-using AudioStation.ViewModels.LibraryLoaderViewModels;
 using AudioStation.ViewModels.LibraryLoaderViewModels.Payload.Input;
 using AudioStation.ViewModels.LibraryLoaderViewModels.Payload.Output;
 using AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels;
@@ -88,7 +87,9 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels.Worker
                 DestinationFolder = _libraryImporterConfiguration.ImportDirectory.Directory,
 
                 ConvertAudioFormat = _libraryImporterConfiguration.ConvertAudioFormat,
-                ImportFormat = _audioStationMapper.Map<AudioEncoderViewModel, AudioEncoderInfo>(_libraryImporterConfiguration.ImportFormat),
+                ImportFormat = _libraryImporterConfiguration.ImportFormat != null ?
+                                    _audioStationMapper.Map<AudioEncoderViewModel, AudioEncoderInfo>(_libraryImporterConfiguration.ImportFormat) :
+                                    null,
 
                 TagSourcePreference = _libraryImporterConfiguration.TagSourcePreference,
 

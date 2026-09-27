@@ -6,6 +6,7 @@ using System.Windows.Input;
 using AudioStation.Controller.Interface;
 using AudioStation.Core.Component;
 using AudioStation.Event;
+using AudioStation.ViewModels;
 using AudioStation.ViewModels.LibraryLoaderViewModels;
 using AudioStation.ViewModels.LibraryLoaderViewModels.Interface;
 using AudioStation.ViewModels.ServiceComponent;
@@ -84,7 +85,7 @@ namespace AudioStation.Views.LibraryImportViews
                 this.LoaderWorkItemsLB.SelectedItem = item;
             }
         }
-        private void ServiceWorkflow_StatusChangeEvent(ILibraryLoaderWorkerViewModel sender, bool isWorking)
+        private void ServiceWorkflow_StatusChangeEvent(ServiceComponentPartViewModelBase sender, bool working, bool loaded)
         {
             UpdateViewContext();
         }

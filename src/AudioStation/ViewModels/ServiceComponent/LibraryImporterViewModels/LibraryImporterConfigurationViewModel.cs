@@ -177,12 +177,12 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels
             set { this.RaiseAndSetIfChanged(ref _selectSourceFolderCommand, value); }
         }
 
-
-
         public LibraryImporterConfigurationViewModel()
         {
-            this.ImportDirectory = new LibraryDirectoryViewModel();
-            this.ImportFormat = new AudioEncoderViewModel();
+            // These must be chosen from the UI to indicate that there is 
+            // valid data for the import.
+            this.ImportDirectory = null;
+            this.ImportFormat = null;
 
             this.SelectSourceFolderCommand = new SimpleCommand(() =>
             {

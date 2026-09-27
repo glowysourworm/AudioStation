@@ -3,17 +3,16 @@ using System.ComponentModel;
 
 using AudioStation.Controller.Interface;
 using AudioStation.Core.Component.Interface;
+using AudioStation.Core.Component.LibraryLoaderComponent;
 using AudioStation.Core.Model.Interface;
 using AudioStation.Core.Service.Interface;
 using AudioStation.Event;
-using AudioStation.Event.DialogEvents;
 using AudioStation.ViewModels.DataComponent;
 using AudioStation.ViewModels.DataComponent.MainViewModels;
 using AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels;
 using AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Workflow;
 
 using SimpleWpf.IocFramework.EventAggregation;
-using SimpleWpf.UI.ViewModel.FileTreeView;
 
 using static AudioStation.Event.DialogEventHandlers;
 
@@ -21,14 +20,6 @@ namespace AudioStation.ViewModels.ServiceComponent
 {
     public class LibraryImporterViewModel : ServiceComponentViewModelBase
     {
-        private readonly IDialogController _dialogController;
-        private readonly ITagCache _tagCacheController;
-
-        // IAudioStationComponentController get lazy loaded when the configuration has processed
-        // along with startup routines. So, loading of sub-components may be requested.
-        //
-        private IAudioStationComponentController _audioStationComponentController;
-
         // Configuration:  This is for the partial configuration editing control area for library directories.
         //
         AudioStationConfigurationViewModel _configuration;
@@ -37,10 +28,15 @@ namespace AudioStation.ViewModels.ServiceComponent
         // Workflow Configuration
         LibraryImporterConfigurationViewModel _workflowConfiguration;
 
-        // Workflow Stages
+        // Workflow Component Parts
         LibraryImporterServiceWorkflowViewModel _serviceWorkflow;
         LibraryImporterStagingWorkflowViewModel _stagingWorkflow;
         LibraryImporterCompletionWorkflowViewModel _completionWorkflow;
+
+        // Workflow Steps
+        LibraryImporterWorkflowStep _workflowCurrentStep;
+        bool _workflowNextEnabled;
+        bool _workflowPreviousEnabled;
 
         string _sourceFolderSearch;
         string _stagedSearch;
@@ -75,6 +71,21 @@ namespace AudioStation.ViewModels.ServiceComponent
             get { return _completionWorkflow; }
             set { this.RaiseAndSetIfChanged(ref _completionWorkflow, value); }
         }
+        public LibraryImporterWorkflowStep WorkflowCurrentStep
+        {
+            get { return _workflowCurrentStep; }
+            private set { this.RaiseAndSetIfChanged(ref _workflowCurrentStep, value); }
+        }
+        public bool WorkflowNextEnabled
+        {
+            get { return _workflowNextEnabled; }
+            private set { this.RaiseAndSetIfChanged(ref _workflowNextEnabled, value); }
+        }
+        public bool WorkflowPreviousEnabled
+        {
+            get { return _workflowPreviousEnabled; }
+            private set { this.RaiseAndSetIfChanged(ref _workflowPreviousEnabled, value); }
+        }
 
         public string SourceFolderSearch
         {
@@ -93,140 +104,241 @@ namespace AudioStation.ViewModels.ServiceComponent
                                         IIocEventAggregator eventAggregator,
                                         ITagCache tagCacheController) : base("Library Importer")
         {
-            _dialogController = dialogController;
-            _tagCacheController = tagCacheController;
-
             this.WorkflowConfiguration = new LibraryImporterConfigurationViewModel();
             this.StagingWorkflow = new LibraryImporterStagingWorkflowViewModel(dialogController, this.WorkflowConfiguration);
             this.ServiceWorkflow = new LibraryImporterServiceWorkflowViewModel(this.WorkflowConfiguration, this.StagingWorkflow.StagedFiles);
             this.CompletionWorkflow = new LibraryImporterCompletionWorkflowViewModel(this.StagingWorkflow.StagedFiles, this.WorkflowConfiguration);
 
-            this.ServiceWorkflow.PropertyChanged += OnImportStepUpdate;
-            this.StagingWorkflow.PropertyChanged += OnImportStepUpdate;
-            this.CompletionWorkflow.PropertyChanged += OnImportStepUpdate;
+            // These are very light weight to bubble up the workflow property changes
+            // 
+            this.WorkflowConfiguration.PropertyChanged += OnBubbleUpViewModelEvent;
+            this.StagingWorkflow.PropertyChanged += OnBubbleUpViewModelEvent;
+            this.ServiceWorkflow.PropertyChanged += OnBubbleUpViewModelEvent;
+            this.CompletionWorkflow.PropertyChanged += OnBubbleUpViewModelEvent;
+
+            // Component Parts:  Status Listeners + Event Forwarding
+            //
+            // When you add parts to the component - it will automatically follow the parts with
+            // its own Loading and Loaded flags. So, you'll need to take that into account when
+            // you expose your CanExecute,... functions.
+            //
+            this.AddComponentPart(this.StagingWorkflow);
+            this.AddComponentPart(this.ServiceWorkflow);
+            this.AddComponentPart(this.CompletionWorkflow);
+
+            // Workflow
+            this.WorkflowCurrentStep = LibraryImporterWorkflowStep.Configuration;
+
+            UpdateWorkflowIndicators();
         }
 
-        private void OnImportStepUpdate(object? sender, PropertyChangedEventArgs e)
+        protected override void OnStatusChanged()
         {
-            //this.Loading = this.ServiceWorkflow.Working || this.StagingWorkflow.Working || this.CompletionWorkflow.Working;
+            // -> (currently nothing to do)
+            base.OnStatusChanged();
+
+            if (this.Initialized)
+                UpdateWorkflowIndicators();
         }
+
+        public void WorkflowNext()
+        {
+            switch (_workflowCurrentStep)
+            {
+                case LibraryImporterWorkflowStep.Configuration:
+                    _workflowCurrentStep = LibraryImporterWorkflowStep.ConfigurationOptions;
+                    break;
+                case LibraryImporterWorkflowStep.ConfigurationOptions:
+                    _workflowCurrentStep = LibraryImporterWorkflowStep.Staging;
+                    break;
+                case LibraryImporterWorkflowStep.Staging:
+                    _workflowCurrentStep = LibraryImporterWorkflowStep.ServiceWorkers;
+                    break;
+                case LibraryImporterWorkflowStep.ServiceWorkers:
+                    _workflowCurrentStep = LibraryImporterWorkflowStep.TagCompletion;
+                    break;
+                case LibraryImporterWorkflowStep.TagCompletion:
+                    _workflowCurrentStep = LibraryImporterWorkflowStep.ImportCompletion;
+                    break;
+                case LibraryImporterWorkflowStep.ImportCompletion:
+                    _workflowCurrentStep = LibraryImporterWorkflowStep.FinalReport;
+                    break;
+                case LibraryImporterWorkflowStep.FinalReport:
+                    break;
+                default:
+                    throw new Exception("Unhandled import step type");
+            }
+
+            UpdateWorkflowIndicators();
+        }
+        public void WorkflowPrevious()
+        {
+            switch (_workflowCurrentStep)
+            {
+                case LibraryImporterWorkflowStep.Configuration:
+                    break;
+                case LibraryImporterWorkflowStep.ConfigurationOptions:
+                    _workflowCurrentStep = LibraryImporterWorkflowStep.Configuration;
+                    break;
+                case LibraryImporterWorkflowStep.Staging:
+                    _workflowCurrentStep = LibraryImporterWorkflowStep.ConfigurationOptions;
+                    break;
+                case LibraryImporterWorkflowStep.ServiceWorkers:
+                    _workflowCurrentStep = LibraryImporterWorkflowStep.Staging;
+                    break;
+                case LibraryImporterWorkflowStep.TagCompletion:
+                    _workflowCurrentStep = LibraryImporterWorkflowStep.ServiceWorkers;
+                    break;
+                case LibraryImporterWorkflowStep.ImportCompletion:
+                    _workflowCurrentStep = LibraryImporterWorkflowStep.TagCompletion;
+                    break;
+                case LibraryImporterWorkflowStep.FinalReport:
+                    _workflowCurrentStep = LibraryImporterWorkflowStep.ImportCompletion;
+                    break;
+                default:
+                    throw new Exception("Unhandled import step type");
+            }
+
+            UpdateWorkflowIndicators();
+        }
+
+        /// <summary>
+        /// Returns the component part associated with the workflow step. This would be
+        /// the part that must be loaded prior to execution. This should allow you to 
+        /// use the view model to manage the workflow. So, this does not depend on the
+        /// current step of the workflow - just the one you are requesting.
+        /// </summary>
+        public ServiceComponentPartViewModelBase? GetWorkflowComponentPart(LibraryImporterWorkflowStep workflowStep)
+        {
+            switch (workflowStep)
+            {
+                case LibraryImporterWorkflowStep.Configuration:
+                    return null;
+                case LibraryImporterWorkflowStep.ConfigurationOptions:
+                    return null;
+                case LibraryImporterWorkflowStep.Staging:
+                    return this.StagingWorkflow;
+                case LibraryImporterWorkflowStep.ServiceWorkers:
+                    return this.ServiceWorkflow;
+                case LibraryImporterWorkflowStep.TagCompletion:
+                    return this.CompletionWorkflow;
+                case LibraryImporterWorkflowStep.ImportCompletion:
+                    return null;
+                case LibraryImporterWorkflowStep.FinalReport:
+                    return null;
+                default:
+                    throw new Exception("Unhandled import step type");
+            }
+        }
+        private void UpdateWorkflowIndicators()
+        {
+            // Check Workflow Step Validation
+            //
+            switch (this.WorkflowCurrentStep)
+            {
+                // Validation:  Import Directory
+                //
+                case LibraryImporterWorkflowStep.Configuration:
+                    this.WorkflowNextEnabled = !this.Loading && this.WorkflowConfiguration.ImportDirectory != null;
+                    this.WorkflowPreviousEnabled = false;
+                    break;
+
+                // Validation: (warning) (recommended options)
+                //
+                case LibraryImporterWorkflowStep.ConfigurationOptions:
+                    this.WorkflowNextEnabled = !this.Loading;
+                    this.WorkflowPreviousEnabled = !this.Loading;
+                    break;
+
+                // Validation: Staged Files
+                //
+                case LibraryImporterWorkflowStep.Staging:
+                    this.WorkflowNextEnabled = !this.Loading && this.StagingWorkflow.StagedFiles.Any();
+                    this.WorkflowPreviousEnabled = !this.Loading;
+                    break;
+
+                // Validation: Service Workers (executed) (warnings?, errors?)
+                //
+                case LibraryImporterWorkflowStep.ServiceWorkers:
+                    this.WorkflowNextEnabled = !this.Loading;
+                    this.WorkflowPreviousEnabled = !this.Loading;
+                    break;
+
+                // Validation: Staged Files (all have been imported or attempted) (warning?)
+                //
+                case LibraryImporterWorkflowStep.TagCompletion:
+                    this.WorkflowNextEnabled = !this.Loading && !this.CompletionWorkflow.StagedFiles.Any(x => x.ImportOutput.ImportResult == LibraryWorkerResultLevel.None);
+                    this.WorkflowPreviousEnabled = !this.Loading;
+                    break;
+
+                // Validation: TODO
+                //
+                case LibraryImporterWorkflowStep.ImportCompletion:
+                    this.WorkflowNextEnabled = !this.Loading;
+                    this.WorkflowPreviousEnabled = !this.Loading;
+                    break;
+
+                // Validation: TODO
+                //
+                case LibraryImporterWorkflowStep.FinalReport:
+                    this.WorkflowNextEnabled = false;
+                    this.WorkflowPreviousEnabled = !this.Loading;
+                    break;
+                default:
+                    throw new Exception("Unhandled workflow step");
+            }
+        }
+
         public override bool CanExecute()
         {
-            return false;
+            return this.ComponentParts.Any(x => x.CanExecute());
         }
         public override bool CanReset()
         {
-            return false;
+            return this.ComponentParts.Any(x => x.CanReset());
         }
         public override bool CanLoad()
         {
-            return !this.Loaded;
+            return this.ComponentParts.Any(x => x.CanLoad());
         }
-        protected override void InitializeWork(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogProgressHandler progressHandler)
+
+        public override void Initialize(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogProgressHandler progressHandler)
         {
             // Sub-component(s)
-            //this.Configuration = audioStationController.ComponentController.GetComponent<AudioStationConfigurationViewModel>();
-            //this.Encoders = audioStationController.ComponentController.GetComponent<MainViewModel>().Encoders;
+            this.Configuration = audioStationController.ComponentController.GetDataComponent<AudioStationConfigurationViewModel>();
+            this.Encoders = audioStationController.ComponentController.GetDataComponent<MainViewModel>().Encoders;
+
+            this.Initialized = true;
         }
-        protected override void LoadWork(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
+        public override void Load(Guid? componentPartId, IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
         {
-            // Sub-component(s)
-            this.ServiceWorkflow.Load(configuration, audioStationController, progressHandler);
-            this.StagingWorkflow.Load(configuration, audioStationController, progressHandler);
-            this.CompletionWorkflow.Load(configuration, audioStationController, progressHandler);
+            // Component Part
+            if (componentPartId != null)
+            {
+                this.ComponentParts
+                    .First(x => x.Id == componentPartId)
+                    .Load(configuration, audioStationController, progressHandler);
+            }
         }
-        protected override void ExecuteWork(DialogProgressHandler progressHandler)
+        public override void Execute(Guid? componentPartId, DialogProgressHandler progressHandler)
         {
-
+            // Component Part
+            if (componentPartId != null)
+            {
+                this.ComponentParts
+                    .First(x => x.Id == componentPartId)
+                    .Execute(progressHandler);
+            }
         }
-
-        protected override void ResetWork(DialogProgressHandler progressHandler)
+        public override void Reset(Guid? componentPartId, DialogProgressHandler progressHandler)
         {
-
-        }
-        private bool CanEditTag()
-        {
-            //return this.SourceFileSelectedCount == 1;
-            return false;
-        }
-        private bool CanEditTagGroup(string fieldName)
-        {
-            //return this.SourceFileSelectedCount > 1;
-            return false;
-        }
-
-        private void SourceDirectory_ItemPropertyChanged(FileTreeNodeViewModel item, PropertyChangedEventArgs propertyArgs)
-        {
-            SourceTreeNotify();
-        }
-        private void SourceFile_PropertyChanged(object? sender, PropertyChangedEventArgs e)
-        {
-            SourceTreeNotify();
-        }
-
-        private void SourceTreeNotify()
-        {
-            OnPropertyChanged("SourceFileSelectedCount");
-            OnPropertyChanged("SourceFileCount");
-        }
-
-        private void ClearSourceFiles()
-        {
-            //// Un-Hook Events (Recursively)
-            //foreach (var file in this.SourceDirectory.RecursiveWhere(x => !x.IsDirectory).Cast<LibraryImporterFileViewModel>())
-            //{
-            //    file.PlayAudioEvent -= ShowSmallAudioPlayer;
-            //    file.SelectAcoustIDEvent -= ShowAcoustIDResults;
-            //    file.SelectMusicBrainzEvent -= ShowMusicBrainzResults;
-            //    file.PropertyChanged -= SourceFile_PropertyChanged;
-            //}
-            //// Nodes have list properties
-            //this.SourceDirectory.ItemPropertyChanged -= SourceDirectory_ItemPropertyChanged;
-        }
-
-        private void StageFiles()
-        {
-            //// Initialization (?)
-            //if (this.SourceDirectory == null)
-            //    return;
-
-            //this.SourceDirectory.RecurseForEach(path =>
-            //{
-            //    var pathNode = path as LibraryImporterTreeViewModel;
-
-            //    if (pathNode.HasSelectedParent() ||
-            //        pathNode.NodeValue.IsSelected)
-            //    {
-            //        // File
-            //        if (!pathNode.NodeValue.IsDirectory &&
-            //            !this.StagedFiles.Any(x => x.FullPath == pathNode.NodeValue.FullPath))
-            //        {
-            //            this.StagedFiles.Add(path.NodeValue as LibraryImporterFileViewModel);
-            //        }
-
-            //        // Directory
-            //        else
-            //        {
-            //            // Nothing to do
-            //        }
-            //    }
-            //});
-        }
-
-        private void UnstageFiles()
-        {
-            //// Initialization (?)
-            //if (this.SourceDirectory == null)
-            //    return;
-
-            //// Remove unstaged files
-            //var removedFiles = this.StagedFiles.Remove(x => x.IsSelected);
-
-            //// Unhook
-            //foreach (var file in removedFiles)
-            //{
-            //    file.PropertyChanged -= SourceFile_PropertyChanged;
-            //}
+            // Component Part
+            if (componentPartId != null)
+            {
+                this.ComponentParts
+                    .First(x => x.Id == componentPartId)
+                    .Reset(progressHandler);
+            }
         }
 
         private void EditTag()
@@ -264,7 +376,6 @@ namespace AudioStation.ViewModels.ServiceComponent
             //    throw ex;
             //}
         }
-
         private void EditTagGroup(string fieldName)
         {
             //var inputFiles = this.SourceDirectory.RecursiveWhere(x => !x.IsDirectory && x.IsSelected).Cast<LibraryImporterFileViewModel>().ToList();
@@ -304,88 +415,9 @@ namespace AudioStation.ViewModels.ServiceComponent
             //}
         }
 
-        private void ShowAcoustIDResults(LibraryImporterFileViewModel selectedFile)
+        private void OnBubbleUpViewModelEvent(object? sender, PropertyChangedEventArgs e)
         {
-            //// Format AcoustID Output
-            //var format = "Id={0}\nScore={1:P2}\nMusic Brainz Id={2}";
-
-            //var oldSelection = selectedFile.SelectedAcoustIDResult;
-            //var dialogViewModel = new DialogSelectionListViewModel()
-            //{
-            //    SelectionMode = SelectionMode.Single,
-            //    SelectionList = new NotifyingObservableCollection<SelectionViewModel>(
-            //                        selectedFile.ImportOutput
-            //                                    .AcoustIDResults
-            //                                    .Select(x => new SelectionViewModel(x, string.Format(format, x.Id, x.Score, x.MusicBrainzRecordingId),
-            //                                                                           x == selectedFile.SelectedAcoustIDResult)))
-            //};
-
-            //// Show Dialog (MODAL)
-            //_dialogController.ShowDialogWindowSync(new DialogEventData("Acoust ID Results (Min Score = 30%)", dialogViewModel));
-
-            //// Take Selection
-            //selectedFile.SelectedAcoustIDResult = (AcoustIDLookupResultViewModel)dialogViewModel.SelectionList.Single(x => x.Selected).Item;
-
-            //if (selectedFile.SelectedAcoustIDResult != oldSelection)
-            //    selectedFile.SelectedMusicBrainzRecordingMatch = null;
-        }
-
-        private void ShowMusicBrainzResults(LibraryImporterFileViewModel selectedFile)
-        {
-            //// Format Music Brainz Output
-            //var format = "Id={0}\nArtist={1}\nAlbum={2}\nTrack={3}";
-
-            //var zippedCollections = selectedFile.ImportOutput
-            //                                    .AcoustIDResults
-            //                                    .Zip(selectedFile.ImportOutput.MusicBrainzRecordingMatches);
-
-            //var dialogViewModel = new DialogSelectionListViewModel()
-            //{
-            //    SelectionMode = SelectionMode.Single,
-            //    SelectionList = new NotifyingObservableCollection<SelectionViewModel>(
-            //                        zippedCollections
-            //                            .Select(x => x.Second)
-            //                            .Select(x => new SelectionViewModel(x, string.Format(format, x,
-            //                                                                                        x.AlbumArtist,
-            //                                                                                        x.Album,
-            //                                                                                        x.Title ?? string.Empty),
-            //                                                                   x == selectedFile.SelectedMusicBrainzRecordingMatch)))
-            //};
-
-            //// Show Dialog (MODAL)
-            //_dialogController.ShowDialogWindowSync(new DialogEventData("Music Brainz Results", dialogViewModel));
-
-            //// Take Selection
-            //var result = (TagSmallViewModel)dialogViewModel.SelectionList.Single(x => x.Selected).Item;
-            //var acoustIDResult = zippedCollections.Where(x => x.Second == result).Select(z => z.First).Single();
-
-            //// Select Both Records
-            //selectedFile.SelectedMusicBrainzRecordingMatch = result;
-            //selectedFile.SelectedAcoustIDResult = acoustIDResult;
-        }
-
-        private void ShowSmallAudioPlayer(LibraryImporterFileViewModel selectedFile)
-        {
-            // Small Audio Player:  This follows the dialog pattern; but is self-dismissing!
-            //
-
-            var tagFile = _tagCacheController.Get(selectedFile.FullPath);
-
-            var dialogViewModel = new DialogSmallAudioPlayerViewModel()
-            {
-                //Album = tagFile.Album,
-                //Artist = tagFile.AlbumArtist,
-                //CurrentTime = TimeSpan.Zero,
-                //CurrentTimeRatio = 0,
-                //Duration = tagFile.Duration,
-                //FileName = selectedFile.FullPath,
-                //PlayState = PlayStopPause.Stop,
-                //SourceType = StreamSourceType.File,
-                //Track = tagFile.Title
-            };
-
-            // Show Dialog (starts on load)
-            _dialogController.ShowDialogWindowSync(new DialogEventData(selectedFile.ShortPath, dialogViewModel));
+            UpdateWorkflowIndicators();
         }
     }
 }

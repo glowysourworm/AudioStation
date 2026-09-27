@@ -5,6 +5,7 @@ using AudioStation.Core.Database.AudioStationDatabase;
 using AudioStation.Core.Model.Interface;
 using AudioStation.Core.Service.Vendor;
 using AudioStation.Core.Utility;
+using AudioStation.Event;
 using AudioStation.Utility;
 using AudioStation.ViewModels.ServiceComponent.RadioViewModels;
 
@@ -13,8 +14,6 @@ using Microsoft.Extensions.Logging;
 using SimpleWpf.Extensions.ObservableCollection;
 using SimpleWpf.UI.Command;
 using SimpleWpf.Utilities;
-
-using static AudioStation.Event.DialogEventHandlers;
 
 namespace AudioStation.ViewModels.ServiceComponent
 {
@@ -79,18 +78,6 @@ namespace AudioStation.ViewModels.ServiceComponent
         public override bool CanReset()
         {
             return true;
-        }
-        protected override void InitializeWork(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogProgressHandler progressHandler)
-        {
-        }
-        protected override void LoadWork(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogProgressHandler progressHandler)
-        {
-        }
-        protected override void ExecuteWork(DialogProgressHandler progressHandler)
-        {
-        }
-        protected override void ResetWork(DialogProgressHandler progressHandler)
-        {
         }
         public async void SearchRadioBrowser(string search)
         {
@@ -187,6 +174,22 @@ namespace AudioStation.ViewModels.ServiceComponent
                     //}
                 }
             }
+        }
+
+        public override void Initialize(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
+        {
+        }
+
+        public override void Load(Guid? componentPartId, IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
+        {
+        }
+
+        public override void Execute(Guid? componentPartId, DialogEventHandlers.DialogProgressHandler progressHandler)
+        {
+        }
+
+        public override void Reset(Guid? componentPartId, DialogEventHandlers.DialogProgressHandler progressHandler)
+        {
         }
         #endregion
     }
