@@ -4,10 +4,8 @@ using AudioStation.Core.Component.LibraryLoaderComponent;
 using AudioStation.Core.Component.LibraryLoaderComponent.Interface;
 using AudioStation.Core.Component.LibraryLoaderComponent.Payload.Input;
 using AudioStation.Core.Component.LibraryLoaderComponent.Payload.Output;
-using AudioStation.Core.Model;
 using AudioStation.Core.Model.Interface;
 using AudioStation.Event;
-using AudioStation.ViewModels.DataComponent.MainViewModels;
 using AudioStation.ViewModels.LibraryLoaderViewModels.Payload.Input;
 using AudioStation.ViewModels.LibraryLoaderViewModels.Payload.Output;
 using AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels;
@@ -24,16 +22,13 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels.Worker
     {
         private readonly IAudioStationMapper _audioStationMapper;
 
-        private readonly LibraryImporterConfigurationViewModel _libraryImporterConfiguration;
-
         private Dictionary<string, LibraryImporterFileViewModel> _loadItemDict;
 
-        public LibraryLoaderImportViewModel(LibraryImporterConfigurationViewModel libraryImporterConfiguration)
+        public LibraryLoaderImportViewModel()
             : base("Library Import Worker", "Library import worker task is for importing library records during an import workflow")
         {
             _audioStationMapper = IocContainer.Get<IAudioStationMapper>();
             _loadItemDict = new Dictionary<string, LibraryImporterFileViewModel>();
-            _libraryImporterConfiguration = libraryImporterConfiguration;
         }
 
         protected override ILibraryLoaderLoad CreateWorkLoad(LibraryImporterFileViewModel loadItem, IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
@@ -79,45 +74,9 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels.Worker
 
         private ILibraryLoaderLoad CreateLoad(LibraryImporterFileViewModel loadItem)
         {
-            return new LibraryLoaderLoad<LibraryLoaderImportPayload>(this.Id, LibraryLoadType.Import, loadItem.FullPath, new LibraryLoaderImportPayload()
-            {
-                TagSmallId = loadItem.TagRecordClean.Id,
+            var importLoad = _audioStationMapper.Map<LibraryLoaderImportInputViewModel, LibraryLoaderImportPayload>(loadItem.ImportLoad);
 
-                SourceFullPath = loadItem.FullPath,
-                DestinationFolder = _libraryImporterConfiguration.ImportDirectory.Directory,
-
-                ConvertAudioFormat = _libraryImporterConfiguration.ConvertAudioFormat,
-                ImportFormat = _libraryImporterConfiguration.ImportFormat != null ?
-                                    _audioStationMapper.Map<AudioEncoderViewModel, AudioEncoderInfo>(_libraryImporterConfiguration.ImportFormat) :
-                                    null,
-
-                TagSourcePreference = _libraryImporterConfiguration.TagSourcePreference,
-
-                ServiceIncludeAcoustID = _libraryImporterConfiguration.ServiceIncludeAcoustID,
-                ServiceIncludeMusicBrainzBasic = _libraryImporterConfiguration.ServiceIncludeMusicBrainzBasic,
-                ServiceIncludeMusicBrainzArtwork = _libraryImporterConfiguration.ServiceIncludeMusicBrainzArtwork,
-
-                ServiceOverwriteAcoustID = _libraryImporterConfiguration.ServiceOverwriteAcoustID,
-                ServiceOverwriteMusicBrainzBasic = _libraryImporterConfiguration.ServiceOverwriteMusicBrainzBasic,
-                ServiceOverwriteMusicBrainzArtwork = _libraryImporterConfiguration.ServiceOverwriteMusicBrainzArtwork,
-
-                TrackCategory = _libraryImporterConfiguration.ImportDirectory.TrackCategory,
-                GroupingType = _libraryImporterConfiguration.ImportDirectory.GroupingType,
-                NamingType = _libraryImporterConfiguration.ImportDirectory.NamingType,
-
-                IsSourceDirectoryReadonly = _libraryImporterConfiguration.ImportDirectory.IsReadOnly,
-
-                LibraryOverwriteExistingAlbums = _libraryImporterConfiguration.LibraryOverwriteExistingAlbums,
-                LibraryOverwriteExistingArtists = _libraryImporterConfiguration.LibraryOverwriteExistingArtists,
-                LibraryOverwriteExistingFiles = _libraryImporterConfiguration.LibraryOverwriteExistingFiles,
-                LibraryOverwriteExistingGenres = _libraryImporterConfiguration.LibraryOverwriteExistingGenres,
-                LibraryOverwriteExistingTracks = _libraryImporterConfiguration.LibraryOverwriteExistingTracks,
-
-                MigrationDeleteSourceFiles = _libraryImporterConfiguration.MigrationDeleteSourceFiles,
-                MigrationDeleteSourceFolders = _libraryImporterConfiguration.MigrationDeleteSourceFolders,
-                MigrationOverwriteDestinationFiles = _libraryImporterConfiguration.MigrationOverwriteDestinationFiles,
-                MigrationSourceDirectory = _libraryImporterConfiguration.MigrationSourceDirectory,
-            });
+            return new LibraryLoaderLoad<LibraryLoaderImportPayload>(this.Id, LibraryLoadType.Import, loadItem.FullPath, importLoad);
         }
 
         protected override LibraryLoaderLoadViewModel MapWorkLoad(ILibraryLoaderLoad workLoad)
@@ -162,6 +121,9 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels.Worker
 
             if (!_loadItemDict.ContainsKey(input.SourceFullPath))
                 throw new Exception("Corrupt library loader work item");
+
+            // Final Result! (error level)
+            output.ImportResult = workItem.WorkSteps.Max(x => x.Result);
 
             // ImportOutput (map onto!)
             _audioStationMapper.MapOnto(output, _loadItemDict[input.SourceFullPath].ImportOutput);

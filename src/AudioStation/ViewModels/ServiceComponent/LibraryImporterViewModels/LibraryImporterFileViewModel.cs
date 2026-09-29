@@ -2,6 +2,7 @@
 
 using AudioStation.Controller.Interface;
 using AudioStation.Core.Component.Interface;
+using AudioStation.Core.Database.AudioStationDatabase;
 using AudioStation.Core.Model;
 using AudioStation.Core.Model.Vendor.ATLExtension.Interface;
 using AudioStation.Core.Utility;
@@ -23,6 +24,8 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels
     /// </summary>
     public class LibraryImporterFileViewModel : FileTreeNodeViewModel
     {
+        private readonly IAudioStationMapper _audioStationMapper;
+
         // This will be used to indicate errors from the service workflow
         bool _serviceError;
 
@@ -34,9 +37,6 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels
         //
         bool _libraryConflict;      // Reported as a conflict in database records
         bool _fileConflict;         // This is a conflict in the actual file
-
-        string _fileImportName;
-        string _fileImportFullPath;
 
         // ID3v2 [TXXX] User tag information typically set by MusicBrainz applications (e.g. Picard)
         //              that was found during import. These id's are used to load the "TagRecord" and
@@ -78,16 +78,6 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels
         {
             get { return _fileConflict; }
             set { this.RaiseAndSetIfChanged(ref _fileConflict, value); }
-        }
-        public string FileImportName
-        {
-            get { return _fileImportName; }
-            set { this.RaiseAndSetIfChanged(ref _fileImportName, value); }
-        }
-        public string FileImportFullPath
-        {
-            get { return _fileImportFullPath; }
-            set { this.RaiseAndSetIfChanged(ref _fileImportFullPath, value); }
         }
         public TagSmallViewModel Tag
         {
@@ -141,7 +131,7 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels
                                             LibraryImporterConfigurationViewModel importerConfiguration)
             : base(fileBaseDirectory, fileFullPath, 0)
         {
-            var audioStationMapper = IocContainer.Get<IAudioStationMapper>();
+            _audioStationMapper = IocContainer.Get<IAudioStationMapper>();
             var dialogController = IocContainer.Get<IDialogController>();
 
             _updating = false;
@@ -153,8 +143,8 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels
                 EmbedImportTagData = importerConfiguration.EmbedImportTagData,
                 GroupingType = importerConfiguration.ImportDirectory.GroupingType,
                 ImportFormat = importerConfiguration.ImportFormat != null ?
-                                    audioStationMapper.Map<AudioEncoderViewModel, AudioEncoderInfo>(importerConfiguration.ImportFormat) :
-                                    null,
+                                    _audioStationMapper.Map<AudioEncoderViewModel, AudioEncoderInfo>(importerConfiguration.ImportFormat) :
+                                    new AudioEncoderInfo(),
                 ImportType = importerConfiguration.ImportType,
                 IsSourceDirectoryReadonly = importerConfiguration.ImportDirectory.IsReadOnly,
                 LibraryOverwriteExistingAlbums = importerConfiguration.LibraryOverwriteExistingAlbums,
@@ -173,10 +163,8 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels
                 ServiceOverwriteAcoustID = importerConfiguration.ServiceOverwriteAcoustID,
                 ServiceOverwriteMusicBrainzArtwork = importerConfiguration.ServiceOverwriteMusicBrainzArtwork,
                 ServiceOverwriteMusicBrainzBasic = importerConfiguration.ServiceOverwriteMusicBrainzBasic,
-                SourceFullPath = importerConfiguration.ImportType == LibraryImportType.Migration ?
-                                 importerConfiguration.MigrationSourceDirectory :
-                                 importerConfiguration.ImportDirectory.Directory,
-                TagSmallId = -1,
+                SourceFullPath = fileFullPath,
+                TagFinal = new TagSmall(),
                 TagSourcePreference = importerConfiguration.TagSourcePreference,
                 TrackCategory = importerConfiguration.ImportDirectory.TrackCategory,
             };
@@ -209,6 +197,9 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels
         {
             // Bubble Up
             OnPropertyChanged("TagRecordDirty");
+
+            // Map -> ImportLoad
+            _audioStationMapper.MapOnto(this.TagRecordDirty, this.ImportLoad.TagFinal);
         }
 
         /// <summary>

@@ -24,48 +24,16 @@
 
         <!-- Control Panel (File Buttons) -->
         <StackPanel Orientation="Horizontal" Grid.Column="1" Grid.Row="0">
-            
+
             <Button Style="{StaticResource UserControlButton}" 
                     Grid.Column="2" Grid.Row="0" Margin="3" 
                     HorizontalAlignment="Right"
                     VerticalAlignment="Center"
                     Command="{Binding CompletionWorkflow.EditTagCommand}">
-                
+
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="Tag(s)" Margin="3" Style="{StaticResource LabelTextBlock}" FontSize="12" />
                     <fa5:SvgAwesome Icon="Solid_Tag" Style="{StaticResource FontAwesomeIconDefault}" Height="12" Width="12" Margin="3" VerticalAlignment="Center" />
-                </StackPanel>
-            </Button>
-
-            <Button Style="{StaticResource UserControlButton}" 
-                    Margin="3" 
-                    HorizontalAlignment="Right"
-                    VerticalAlignment="Center"
-                    Command="{Binding CompletionWorkflow.ExecuteCommand}">
-                
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock Margin="3" Style="{StaticResource LabelTextBlock}" FontSize="12">
-                        <TextBlock.Text>
-                            <Binding Path="CompletionWorkflow.StagedFiles.ImportReadyFiles.Count" StringFormat="Import ({0})" />
-                        </TextBlock.Text>
-                    </TextBlock>
-                    <fa5:SvgAwesome Icon="Solid_Database" Style="{StaticResource FontAwesomeIconDefault}" Height="12" Width="12" Margin="3" VerticalAlignment="Center" />
-                </StackPanel>
-            </Button>
-
-            <Button Style="{StaticResource UserControlButton}" 
-                    Margin="3" 
-                    HorizontalAlignment="Right"
-                    VerticalAlignment="Center"
-                    Command="{Binding CompletionWorkflow.ExecuteSelectedCommand}">
-
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock Margin="3" Style="{StaticResource LabelTextBlock}" FontSize="12">
-                        <TextBlock.Text>
-                            <Binding Path="CompletionWorkflow.StagedFiles.SelectedFiles.Count" StringFormat="Import Selected ({0})" />
-                        </TextBlock.Text>
-                    </TextBlock>
-                    <fa5:SvgAwesome Icon="Solid_Database" Style="{StaticResource FontAwesomeIconDefault}" Height="12" Width="12" Margin="3" VerticalAlignment="Center" />
                 </StackPanel>
             </Button>
 
@@ -154,12 +122,12 @@
                             </MenuItem.Header>
                         </MenuItem>
 
-                        <MenuItem Header="Artist" Command="{Binding CompletionWorkflow.EditTagGroupCommand}" CommandParameter="AlbumArtists" Style="{StaticResource UserMenuItemStyle}"  />
+                        <MenuItem Header="Artist" Command="{Binding CompletionWorkflow.EditTagGroupCommand}" CommandParameter="AlbumArtist" Style="{StaticResource UserMenuItemStyle}"  />
                         <MenuItem Header="Album" Command="{Binding CompletionWorkflow.EditTagGroupCommand}" CommandParameter="Album" Style="{StaticResource UserMenuItemStyle}" />
-                        <MenuItem Header="Genre" Command="{Binding CompletionWorkflow.EditTagGroupCommand}" CommandParameter="Genres" Style="{StaticResource UserMenuItemStyle}" />
+                        <MenuItem Header="Genre" Command="{Binding CompletionWorkflow.EditTagGroupCommand}" CommandParameter="Genre" Style="{StaticResource UserMenuItemStyle}" />
                         <MenuItem Header="Track Count" Command="{Binding CompletionWorkflow.EditTagGroupCommand}" CommandParameter="TrackTotal" Style="{StaticResource UserMenuItemStyle}" />
                         <MenuItem Header="Media (Disc, Vinyl, ..) Count" Command="{Binding CompletionWorkflow.EditTagGroupCommand}" CommandParameter="MediaTotal" Style="{StaticResource UserMenuItemStyle}" />
-                        <MenuItem Header="Artwork" Command="{Binding CompletionWorkflow.EditTagGroupCommand}" CommandParameter="Artwork" Style="{StaticResource UserMenuItemStyle}" />
+                        <!-- MenuItem Header="Artwork" Command="{Binding CompletionWorkflow.EditTagGroupCommand}" CommandParameter="Artwork" Style="{StaticResource UserMenuItemStyle}" /-->
                     </MenuItem>
 
                 </ContextMenu>

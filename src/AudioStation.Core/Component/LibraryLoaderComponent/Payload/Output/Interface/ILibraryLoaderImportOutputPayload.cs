@@ -1,4 +1,5 @@
-﻿using AudioStation.Core.Database.AudioStationDatabase.Interface;
+﻿using AudioStation.Core.Database.AudioStationDatabase;
+using AudioStation.Core.Database.AudioStationDatabase.Interface;
 using AudioStation.Core.Model.Interface;
 
 namespace AudioStation.Core.Component.LibraryLoaderComponent.Payload.Output.Interface
@@ -10,6 +11,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Payload.Output.Inte
         public IEnumerable<ILogMessage> LogMessages { get; set; }
         public IEnumerable<IAcoustIDLookupResult> AcoustIDResults { get; set; }
         public IEnumerable<ITagSmall> MusicBrainzRecordingMatches { get; set; }
+        public IEnumerable<MusicBrainzAcoustIDResult> MusicBrainzAcoustIDResults { get; set; }
         public int TagSmallId { get; set; }
         public int TagSmallFileReferenceMapId { get; set; }
         public int TagSmallVendorMapId { get; set; }
@@ -28,6 +30,6 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Payload.Output.Inte
         public bool TagEmbeddingSuccess { get; set; }
         public bool FileMoveSuccess { get; set; }
         public bool FileConversionSuccess { get; set; }
-
+        public LibraryWorkerResultLevel ImportResult { get; set; }
     }
 }

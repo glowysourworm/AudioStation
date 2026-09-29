@@ -47,6 +47,8 @@ namespace AudioStation.Views.Converter
                     return collection.MusicBrainzSpecialTagFiles;
                 case LibraryImporterStagedFileFilterType.LibraryConflict:
                     return collection.LibraryConflictFiles;
+                case LibraryImporterStagedFileFilterType.ImportReadyFiles:
+                    return collection.ImportReadyFiles;
                 default:
                     throw new Exception("Unhandled staged file filter type");
             }

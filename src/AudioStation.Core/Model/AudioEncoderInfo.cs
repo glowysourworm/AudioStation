@@ -13,5 +13,13 @@ namespace AudioStation.Core.Model
         public string Extension { get; set; }
         public string Filter { get; set; }
         public AudioEncoding Encoding { get; set; }
+
+        public AudioEncoderInfo()
+        {
+            this.Name = string.Empty;
+            this.Extension = string.Empty;
+            this.Filter = string.Empty;
+            this.Encoding = AudioEncoding.Unknown;
+        }
     }
 }

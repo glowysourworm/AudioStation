@@ -67,8 +67,8 @@ namespace AudioStation.Core.Component
 
         public void MapOnto<TSource, TDest>(TSource source, TDest destination, IAudioStationMapper.MapType type = IAudioStationMapper.MapType.Permissive)
         {
-            // Check for mapper configuration
-            var configuration = GetMapperConfiguration<TSource, TDest>();
+            if (destination == null)
+                throw new ArgumentException("Cannot map onto a non-instantiated destination object");
 
             try
             {
@@ -158,7 +158,12 @@ namespace AudioStation.Core.Component
                 {
                     // Source Null
                     if (ReferenceEquals(sourcePropertyValue, null))
+                    {
+                        // Destination -> Null
                         destinationProperty.SetValue(destination, null);
+                        continue;
+                    }
+
 
                     // Destination Null (construct)
                     else if (ReferenceEquals(destPropertyValue, null))
@@ -166,6 +171,9 @@ namespace AudioStation.Core.Component
                         // Destination Constructor (Null)
                         if (!HandleReferenceConstruction(propertyName, destinationProperty.PropertyType, ref destPropertyValue))
                             continue;
+
+                        // Destination
+                        destinationProperty.SetValue(destination, destPropertyValue);
                     }
 
                     // -> Recurse
@@ -178,7 +186,11 @@ namespace AudioStation.Core.Component
                 {
                     // Source Null
                     if (ReferenceEquals(sourcePropertyValue, null))
+                    {
                         destinationProperty.SetValue(destination, null);
+                        continue;
+                    }
+
 
                     // Destination Null
                     else if (ReferenceEquals(destPropertyValue, null))
@@ -186,6 +198,9 @@ namespace AudioStation.Core.Component
                         // Destination Constructor (Null)
                         if (!HandleReferenceConstruction(propertyName, destinationProperty.PropertyType, ref destPropertyValue))
                             continue;
+
+                        // Destination
+                        destinationProperty.SetValue(destination, destPropertyValue);
                     }
 
                     // -> Recurse

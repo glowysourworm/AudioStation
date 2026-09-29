@@ -220,6 +220,9 @@ namespace AudioStation
             mapper.ConfigureMap<AcoustIDLookupResultViewModel, AcoustIDLookupResult>()
                   .DeclareSourceInterface<IAcoustIDLookupResult>();
 
+            mapper.ConfigureMap<TagSmall, TagSmall>()
+                  .DeclareSourceInterface<ITagSmall>();
+
             mapper.ConfigureMap<TagSmall, TagSmallViewModel>()
                   .DeclareSourceInterface<ITagSmall>();
 
@@ -245,6 +248,9 @@ namespace AudioStation
             mapper.ConfigureMap<AudioStationTag, TagViewModel>()
                   .DeclareSourceInterface<IAudioStationTag>();
 
+            mapper.ConfigureMap<AudioEncoderInfo, AudioEncoderInfo>()
+                  .DeclareSourceInterface<IAudioEncoderInfo>();
+
             mapper.ConfigureMap<TagViewModel, AudioStationTag>()
                   .DeclareSourceInterface<IAudioStationTag>();
 
@@ -254,6 +260,9 @@ namespace AudioStation
 
             mapper.ConfigureMap<LibraryLoaderImportPayload, LibraryLoaderImportInputViewModel>()
                   .DeclareSourceInterface<ILibraryLoaderImportPayload>();
+
+            mapper.ConfigureMap<LibraryLoaderImportOutputViewModel, LibraryLoaderImportOutputViewModel>()
+                  .DeclareSourceInterface<ILibraryLoaderImportOutputPayload>();
 
             mapper.ConfigureMap<LibraryLoaderImportOutputPayload, LibraryLoaderImportOutputViewModel>()
                   .DeclareSourceInterface<ILibraryLoaderImportOutputPayload>();

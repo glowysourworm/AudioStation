@@ -1,4 +1,3 @@
-DELETE FROM public."ImportWorkflow";
 DELETE FROM public."AcoustIDLookupResult";
 DELETE FROM public."AlbumFileReferenceMap";
 DELETE FROM public."ArtistFileReferenceMap";
@@ -6,6 +5,9 @@ DELETE FROM public."TagSmallVendorMap";
 DELETE FROM public."TagSmallFileReferenceMap";
 DELETE FROM public."TrackGenreMap";
 DELETE FROM public."TrackArtistMap";
+
+DELETE FROM public."Track";
+DELETE FROM public."TagSmall";
 
 DELETE FROM public."M3UStream";
 DELETE FROM public."Genre";
@@ -15,5 +17,4 @@ DELETE FROM public."RadioBrowserStation";
 DELETE FROM public."FileType";
 DELETE FROM public."FileReference";
 DELETE FROM public."Vendor";
-DELETE FROM public."TagSmall";
-DELETE FROM public."Track";
+

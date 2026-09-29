@@ -3,12 +3,12 @@ using System.ComponentModel;
 
 using AudioStation.Controller.Interface;
 using AudioStation.Core.Component.Interface;
-using AudioStation.Core.Component.LibraryLoaderComponent;
 using AudioStation.Core.Model.Interface;
 using AudioStation.Core.Service.Interface;
 using AudioStation.Event;
 using AudioStation.ViewModels.DataComponent;
 using AudioStation.ViewModels.DataComponent.MainViewModels;
+using AudioStation.ViewModels.LibraryLoaderViewModels.Worker;
 using AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels;
 using AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Workflow;
 
@@ -32,6 +32,7 @@ namespace AudioStation.ViewModels.ServiceComponent
         LibraryImporterServiceWorkflowViewModel _serviceWorkflow;
         LibraryImporterStagingWorkflowViewModel _stagingWorkflow;
         LibraryImporterCompletionWorkflowViewModel _completionWorkflow;
+        LibraryImporterServiceWorkflowViewModel _importWorkflow;
 
         // Workflow Steps
         LibraryImporterWorkflowStep _workflowCurrentStep;
@@ -71,6 +72,11 @@ namespace AudioStation.ViewModels.ServiceComponent
             get { return _completionWorkflow; }
             set { this.RaiseAndSetIfChanged(ref _completionWorkflow, value); }
         }
+        public LibraryImporterServiceWorkflowViewModel ImportWorkflow
+        {
+            get { return _importWorkflow; }
+            set { this.RaiseAndSetIfChanged(ref _importWorkflow, value); }
+        }
         public LibraryImporterWorkflowStep WorkflowCurrentStep
         {
             get { return _workflowCurrentStep; }
@@ -106,7 +112,8 @@ namespace AudioStation.ViewModels.ServiceComponent
         {
             this.WorkflowConfiguration = new LibraryImporterConfigurationViewModel();
             this.StagingWorkflow = new LibraryImporterStagingWorkflowViewModel(dialogController, this.WorkflowConfiguration);
-            this.ServiceWorkflow = new LibraryImporterServiceWorkflowViewModel(this.WorkflowConfiguration, this.StagingWorkflow.StagedFiles);
+            this.ServiceWorkflow = new LibraryImporterServiceWorkflowViewModel(this.StagingWorkflow.StagedFiles);
+            this.ImportWorkflow = new LibraryImporterServiceWorkflowViewModel(this.StagingWorkflow.StagedFiles);
             this.CompletionWorkflow = new LibraryImporterCompletionWorkflowViewModel(this.StagingWorkflow.StagedFiles, this.WorkflowConfiguration);
 
             // These are very light weight to bubble up the workflow property changes
@@ -114,6 +121,7 @@ namespace AudioStation.ViewModels.ServiceComponent
             this.WorkflowConfiguration.PropertyChanged += OnBubbleUpViewModelEvent;
             this.StagingWorkflow.PropertyChanged += OnBubbleUpViewModelEvent;
             this.ServiceWorkflow.PropertyChanged += OnBubbleUpViewModelEvent;
+            this.ImportWorkflow.PropertyChanged += OnBubbleUpViewModelEvent;
             this.CompletionWorkflow.PropertyChanged += OnBubbleUpViewModelEvent;
 
             // Component Parts:  Status Listeners + Event Forwarding
@@ -125,6 +133,7 @@ namespace AudioStation.ViewModels.ServiceComponent
             this.AddComponentPart(this.StagingWorkflow);
             this.AddComponentPart(this.ServiceWorkflow);
             this.AddComponentPart(this.CompletionWorkflow);
+            this.AddComponentPart(this.ImportWorkflow);
 
             // Workflow
             this.WorkflowCurrentStep = LibraryImporterWorkflowStep.Configuration;
@@ -223,7 +232,7 @@ namespace AudioStation.ViewModels.ServiceComponent
                 case LibraryImporterWorkflowStep.TagCompletion:
                     return this.CompletionWorkflow;
                 case LibraryImporterWorkflowStep.ImportCompletion:
-                    return null;
+                    return this.ImportWorkflow;
                 case LibraryImporterWorkflowStep.FinalReport:
                     return null;
                 default:
@@ -267,7 +276,7 @@ namespace AudioStation.ViewModels.ServiceComponent
                 // Validation: Staged Files (all have been imported or attempted) (warning?)
                 //
                 case LibraryImporterWorkflowStep.TagCompletion:
-                    this.WorkflowNextEnabled = !this.Loading && !this.CompletionWorkflow.StagedFiles.Any(x => x.ImportOutput.ImportResult == LibraryWorkerResultLevel.None);
+                    this.WorkflowNextEnabled = !this.Loading && this.CompletionWorkflow.StagedFiles.ImportReadyFiles.Any();
                     this.WorkflowPreviousEnabled = !this.Loading;
                     break;
 
@@ -291,15 +300,15 @@ namespace AudioStation.ViewModels.ServiceComponent
 
         public override bool CanExecute()
         {
-            return this.ComponentParts.Any(x => x.CanExecute());
+            return this.GetWorkflowComponentPart(this.WorkflowCurrentStep)?.CanExecute() ?? false;
         }
         public override bool CanReset()
         {
-            return this.ComponentParts.Any(x => x.CanReset());
+            return this.GetWorkflowComponentPart(this.WorkflowCurrentStep)?.CanReset() ?? false;
         }
         public override bool CanLoad()
         {
-            return this.ComponentParts.Any(x => x.CanLoad());
+            return this.GetWorkflowComponentPart(this.WorkflowCurrentStep)?.CanLoad() ?? false;
         }
 
         public override void Initialize(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogProgressHandler progressHandler)
@@ -312,6 +321,45 @@ namespace AudioStation.ViewModels.ServiceComponent
         }
         public override void Load(Guid? componentPartId, IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
         {
+            // Check Workers
+            if (this.WorkflowCurrentStep == LibraryImporterWorkflowStep.ServiceWorkers)
+            {
+                // AcoustID
+                if (this.WorkflowConfiguration.ServiceIncludeAcoustID &&
+                   !this.ServiceWorkflow.HasWorker<LibraryLoaderAcoustIDViewModel>())
+                {
+                    this.ServiceWorkflow.AddWorker(new LibraryLoaderAcoustIDViewModel(this.WorkflowConfiguration));
+                }
+
+                // Audio Duration
+                if (this.WorkflowConfiguration.ServiceIncludeAudioDuration &&
+                   !this.ServiceWorkflow.HasWorker<LibraryLoaderAudioDurationViewModel>())
+                {
+                    this.ServiceWorkflow.AddWorker(new LibraryLoaderAudioDurationViewModel());
+                }
+
+                // Music Brainz (basic)
+                if (this.WorkflowConfiguration.ServiceIncludeMusicBrainzBasic &&
+                   !this.ServiceWorkflow.HasWorker<LibraryLoaderMusicBrainzBasicViewModel>())
+                {
+                    this.ServiceWorkflow.AddWorker(new LibraryLoaderMusicBrainzBasicViewModel(this.WorkflowConfiguration));
+                }
+
+                // Music Brainz (artwork)
+                if (this.WorkflowConfiguration.ServiceIncludeMusicBrainzArtwork &&
+                   !this.ServiceWorkflow.HasWorker<LibraryLoaderMusicBrainzAlbumArtViewModel>())
+                {
+                    this.ServiceWorkflow.AddWorker(new LibraryLoaderMusicBrainzAlbumArtViewModel(this.WorkflowConfiguration));
+                }
+            }
+            else if (this.WorkflowCurrentStep == LibraryImporterWorkflowStep.ImportCompletion)
+            {
+                if (!this.ImportWorkflow.HasWorker<LibraryLoaderImportViewModel>())
+                {
+                    this.ImportWorkflow.AddWorker(new LibraryLoaderImportViewModel());
+                }
+            }
+
             // Component Part
             if (componentPartId != null)
             {

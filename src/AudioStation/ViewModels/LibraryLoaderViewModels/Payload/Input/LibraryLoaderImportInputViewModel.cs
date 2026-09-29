@@ -1,4 +1,5 @@
 ﻿using AudioStation.Core.Component.LibraryLoaderComponent.Payload.Input.Interface;
+using AudioStation.Core.Database.AudioStationDatabase;
 using AudioStation.Core.Model;
 
 using SimpleWpf.UI.ViewModel;
@@ -7,7 +8,9 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels.Payload.Input
 {
     public class LibraryLoaderImportInputViewModel : ViewModelBase, ILibraryLoaderImportPayload
     {
-        int _tagSmallId;
+        TagSmall _tagFinal;
+        VendorNames _tagSourceVendor;
+        Guid? _musicBrainzRecordingId;
 
         LibraryImportType _importType;
         AudioEncoderInfo _importFormat;
@@ -49,10 +52,20 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels.Payload.Input
         bool _migrationDeleteSourceFolders;
         bool _migrationOverwriteDestinationFiles;
 
-        public int TagSmallId
+        public TagSmall TagFinal
         {
-            get { return _tagSmallId; }
-            set { this.RaiseAndSetIfChanged(ref _tagSmallId, value); }
+            get { return _tagFinal; }
+            set { this.RaiseAndSetIfChanged(ref _tagFinal, value); }
+        }
+        public VendorNames TagSourceVendor
+        {
+            get { return _tagSourceVendor; }
+            set { this.RaiseAndSetIfChanged(ref _tagSourceVendor, value); }
+        }
+        public Guid? MusicBrainzRecordingId
+        {
+            get { return _musicBrainzRecordingId; }
+            set { this.RaiseAndSetIfChanged(ref _musicBrainzRecordingId, value); }
         }
         public string SourceFullPath
         {
@@ -191,6 +204,7 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels.Payload.Input
             this.DestinationFolder = string.Empty;
             this.MigrationSourceDirectory = string.Empty;
             this.ImportFormat = new AudioEncoderInfo();
+            this.TagFinal = new TagSmall();
         }
 
         public override string ToString()

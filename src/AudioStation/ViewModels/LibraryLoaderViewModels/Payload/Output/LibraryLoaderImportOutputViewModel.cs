@@ -184,6 +184,14 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels.Payload.Output
                 throw new NotSupportedException("Must not allow cast-setting of MusicBrainzRecordingMatches collection");
             }
         }
+        IEnumerable<MusicBrainzAcoustIDResult> ILibraryLoaderImportOutputPayload.MusicBrainzAcoustIDResults
+        {
+            get { return _musicBrainzAcoustIDResults; }
+            set
+            {
+                throw new NotSupportedException("Must not allow cast-setting of MusicBrainzAcoustIDResults collection");
+            }
+        }
 
         public LibraryLoaderImportOutputViewModel()
         {

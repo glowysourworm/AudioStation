@@ -23,6 +23,9 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels
         MusicBrainzSpecialTag = 5,
 
         [Display(Name = "Library Conflict", Description = "Only staged files with library conflicts will be shown")]
-        LibraryConflict = 6
+        LibraryConflict = 6,
+
+        [Display(Name = "Import Ready", Description = "Only staged files ready for import will be shown")]
+        ImportReadyFiles = 7
     }
 }

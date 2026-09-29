@@ -1,12 +1,17 @@
-﻿using System.IO;
+﻿using System.ComponentModel.DataAnnotations;
+using System.IO;
 
 using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Component.LibraryLoaderComponent.Payload.Input;
 using AudioStation.Core.Component.LibraryLoaderComponent.Payload.Output;
 using AudioStation.Core.Database.AudioStationDatabase;
 using AudioStation.Core.Database.AudioStationDatabase.Interface;
+using AudioStation.Core.Model;
+using AudioStation.Core.Model.Interface;
 using AudioStation.Core.Service.Interface;
 using AudioStation.Core.Utility;
+
+using SimpleWpf.Extensions;
 
 namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
 {
@@ -19,8 +24,17 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
 
         private const int WORK_STEPS = 6;
 
+        // During Import
         private string _destinationPath;
-        private bool _migrationRequired;
+        private string _destinationDirectoryName;
+
+        TagSmall? _sourceTag;                                    // File
+        ITagSmallValidation _tagValidation;                      // Final Tag Validation
+
+        Vendor? _tagSourceVendor;                                // Vendor for tag source
+
+        bool _existingTagRecord;
+
 
         public LibraryLoaderImportWorker(LibraryLoaderWorkItem workItem,
                                          IAudioStationDbClient audioStationDbClient,
@@ -103,53 +117,86 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
         {
             try
             {
+                // Procedure: Check file paths and existing records against
+                //            the import options.
+                //
+                // 0) Validate Import Type:  File Paths
+                // 1) Load Existing Tag Record (from service calls)
+                // 
+
                 Log("Calculating file / folder paths");
 
                 var workLoad = this.Load.Payload;
                 var workOutput = this.Output.Payload;
 
-                Log("Retrieving database record for tag data:  Id=" + workLoad.TagSmallId);
-
-                var entity = _audioStationDbClient.GetEntity<TagSmall>(workLoad.TagSmallId);
-
-                if (entity == null)
+                // Source File (validation)
+                if (!File.Exists(workLoad.SourceFullPath))
                 {
-                    return new LibraryWorkerStepResult()
-                    {
-                        Completed = false,
-                        Message = "Database record for tag not found:  Id=" + workLoad.TagSmallId,
-                        Result = LibraryWorkerResultLevel.DataError,
-                        StepNumber = stepNumber,
-                    };
+                    return LibraryWorkerStepResult.Failure(stepNumber, "Source File Invalid:  " + workLoad.SourceFullPath);
                 }
 
-                Log("Validating tag data");
-                var validation = TagValidator.ValidateTag(entity);
+                Log("Retrieving existing database record for tag data:  Id=" + workLoad.TagFinal.Id);
 
-                if (!validation.IsValid)
+                var existingEntity = _audioStationDbClient.GetEntity<TagSmall>(workLoad.TagFinal.Id);
+
+                // Existing Tag Record (from data service)
+                if (existingEntity == null)
                 {
-                    Log("Validation error:  " + validation.ValidationMessage);
+                    Log("Tag not found in database - using import tag information");
+
+                    _existingTagRecord = false;
                 }
                 else
                 {
-                    Log("Calculating file name based on preferences and tag information");
+                    Log("Tag record found in database:  Id=" + existingEntity.Id);
+
+                    _existingTagRecord = true;
+                }
+
+                // Validation
+                _tagValidation = TagValidator.ValidateTag(workLoad.TagFinal);
+
+                if (!_tagValidation.IsValid)
+                {
+                    Log("Validation Error:  " + _tagValidation.ValidationMessage);
+
+                    return LibraryWorkerStepResult.Failure(stepNumber, "Tag Validation Error. Please re-check your tag information and try again.");
+                }
+
+                // In Place
+                if (workLoad.ImportType == LibraryImportType.InPlaceDirectory)
+                {
+                    Log("In Place: No further action is required for source file");
+
+                    // Calculate standard file name for the import
+                    _destinationPath = workLoad.SourceFullPath;
+
+                    // Directory Name
+                    _destinationDirectoryName = Path.GetDirectoryName(_destinationPath);
+                }
+
+                // Migration
+                else
+                {
+                    Log("Migration: Calculating file name based on preferences and tag information");
 
                     // Calculate standard file name for the import
                     _destinationPath = _fileController.CalculateGivenFileName(
                         workLoad.SourceFullPath,
                         workLoad.DestinationFolder,
                         workLoad.TrackCategory,
-                        entity.Genre,
-                        entity.AlbumArtist,
-                        entity.Album,
-                        entity.Title,
-                        entity.TrackNumber ?? 0,
-                        entity.TrackTotal ?? 0,
+                        workLoad.TagFinal.Genre,
+                        workLoad.TagFinal.AlbumArtist,
+                        workLoad.TagFinal.Album,
+                        workLoad.TagFinal.Title,
+                        workLoad.TagFinal.TrackNumber ?? 0,
+                        workLoad.TagFinal.TrackTotal ?? 0,
                         true);
 
-                    _migrationRequired = _destinationPath != workLoad.SourceFullPath;
+                    // Directory Name
+                    _destinationDirectoryName = Path.GetDirectoryName(_destinationPath);
 
-                    Log("Calculation complete:  " + _destinationPath);
+                    Log("Migration: Calculation complete:  " + _destinationPath);
                 }
 
                 return LibraryWorkerStepResult.Success(stepNumber, "Import file validation successful");
@@ -163,53 +210,56 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
         {
             try
             {
+                // Procedure:  Retrieve existing libary records and validate
+                //             them against import options.
+                //
+
                 Log("Validating import records");
 
                 var workLoad = this.Load.Payload;
                 var workOutput = this.Output.Payload;
 
-                Log("Retrieving file tag data from source file");
-
-                var tagData = _tagCache.Get(workLoad.SourceFullPath);
-
-                if (tagData == null)
+                if (_existingTagRecord)
                 {
-                    return new LibraryWorkerStepResult()
+                    Log("Retrieving database records for tag:  Id=" + workLoad.TagFinal.Id);
+
+                    var tag = _audioStationDbClient.GetEntity<TagSmall>(workLoad.TagFinal.Id);
+                    var tagMap = _audioStationDbClient.FirstEntity<TagSmallFileReferenceMap>(x => x.TagSmallId == workLoad.TagFinal.Id);
+                    var track = tagMap != null ? _audioStationDbClient.FirstEntity<Track>(x => x.FileReferenceId == tagMap.FileReferenceId) : null;
+
+                    // Show User:  Album, Artist, Track, Genre, FileReference
+                    if (tagMap != null && tag != null && track != null)
                     {
-                        Completed = false,
-                        Message = "Error reading tag data from source file",
-                        Result = LibraryWorkerResultLevel.DataError,
-                        StepNumber = stepNumber,
-                    };
+                        Log("WARNING:       Existing Tag Information");
+                        Log("Track:         Tag=({0})  Existing=({1})", tag.Title ?? string.Empty, track.Title ?? string.Empty);
+                        Log("Album:         Tag=({0})  Existing=({1})", tag.Album ?? string.Empty, track.Album?.Name ?? string.Empty);
+                        Log("Artist:        Tag=({0})  Existing=({1})", tag.AlbumArtist ?? string.Empty, track.PrimaryArtist?.Name ?? string.Empty);
+                        Log("Genre:         Tag=({0})  Existing=({1})", tag.Genre ?? string.Empty, track.PrimaryGenre?.Name ?? string.Empty);
+                        Log("File (ref):    Tag=({0})  Existing=({1})", workLoad.SourceFullPath, track.FileReference?.FileName ?? string.Empty);
+                    }
+                    else if (track != null)
+                    {
+                        Log("WARNING:  Records indicate that there has been a previous import for this tag");
+
+                        if (workLoad.LibraryOverwriteExistingTracks)
+                            Log("WARNING:  Record will be overwritten with new tag information");
+
+                        else
+                        {
+                            return new LibraryWorkerStepResult()
+                            {
+                                Completed = false,
+                                Message = "EXISTING TRACK:  Track was already found in library",
+                                Result = LibraryWorkerResultLevel.DataError,
+                                StepNumber = stepNumber
+                            };
+                        }
+                    }
                 }
-
-                Log("Retrieving database records for tag:  Id=" + workLoad.TagSmallId);
-
-                var tag = _audioStationDbClient.GetEntity<TagSmall>(workLoad.TagSmallId);
-                var tagMap = tag != null ? _audioStationDbClient.FirstEntity<TagSmallFileReferenceMap>(x => x.TagSmallId == tag.Id) : null;
-                var track = tagMap != null ? _audioStationDbClient.FirstEntity<Track>(x => x.FileReferenceId == tagMap.FileReferenceId) : null;
-
-                // Show User:  Album, Artist, Track, Genre, FileReference
-                if (tagMap != null && tag != null && track != null)
-                {
-                    Log("WARNING:       Existing Tag Information");
-                    Log("Track:         Tag=({0})  Existing=({1})", tag.Title ?? string.Empty, track.Title ?? string.Empty);
-                    Log("Album:         Tag=({0})  Existing=({1})", tag.Album ?? string.Empty, track.Album?.Name ?? string.Empty);
-                    Log("Artist:        Tag=({0})  Existing=({1})", tag.AlbumArtist ?? string.Empty, track.PrimaryArtist?.Name ?? string.Empty);
-                    Log("Genre:         Tag=({0})  Existing=({1})", tag.Genre ?? string.Empty, track.PrimaryGenre?.Name ?? string.Empty);
-                    Log("File (ref):    Tag=({0})  Existing=({1})", workLoad.SourceFullPath, track.FileReference?.FileName ?? string.Empty);
-                }
-                else if (track != null)
-                {
-                    Log("WARNING:  Records indicate that there has been a previous import for this tag");
-                    Log("WARNING:  Record will be overwritten with new tag information");
-                }
-
-                // Validate Destination Directory
-                var destinationDirectory = Path.GetDirectoryName(_destinationPath);
 
                 // File Move
-                if (workLoad.SourceFullPath != _destinationPath)
+                if ((workLoad.ImportType == LibraryImportType.Migration) &&
+                    (_destinationPath != workLoad.SourceFullPath))
                 {
                     if (!_fileController.CanWriteToPath(_destinationPath))
                     {
@@ -228,10 +278,35 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
                         Log("File migration valid based on library settings");
                 }
 
-                // File (In Place)
-                else
+                // Tag Source Vendor
+                if (workLoad.MusicBrainzRecordingId != null)
                 {
-                    Log("File migration (copy / move / delete) not required");
+                    // Vendor Name
+                    var vendorName = VendorNames.MusicBrainz.GetAttribute<DisplayAttribute>().Name;
+
+                    // Vendor Entity
+                    _tagSourceVendor = _audioStationDbClient.FirstEntity<Vendor>(x => x.VendorName == vendorName);
+
+                    switch (workLoad.TagSourceVendor)
+                    {
+                        case VendorNames.AudioDB:
+                        case VendorNames.Discogs:
+                        case VendorNames.iTunes:
+                        case VendorNames.LastFm:
+                        case VendorNames.Spotify:
+                            return LibraryWorkerStepResult.Failure(stepNumber, "Mis-handled vendor tag source:  Expecting Music Brainz!");
+                        case VendorNames.MusicBrainz:
+                        {
+                            if (_tagSourceVendor == null)
+                                return LibraryWorkerStepResult.Failure(stepNumber, "Vendor name not found in database:  Expecting Music Brainz!");
+
+                            else
+                                Log("Vendor tag source verified: " + vendorName);
+                        }
+                        break;
+                        default:
+                            throw new Exception("Vendor database name not handled");
+                    }
                 }
 
                 return LibraryWorkerStepResult.Success(stepNumber, "Import record validation successful");
@@ -248,10 +323,9 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
                 var workLoad = this.Load.Payload;
                 var workOutput = this.Output.Payload;
 
-                if (!_migrationRequired)
-                    Log("File migration not required (in place import)");
-
-                else
+                // File Migration
+                if ((workLoad.ImportType == LibraryImportType.Migration) &&
+                    (_destinationPath != workLoad.SourceFullPath))
                 {
                     Log("Copying (source) -> (destination)");
                     Log("Source:  " + workLoad.SourceFullPath);
@@ -316,10 +390,9 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
                     return LibraryWorkerStepResult.Success(stepNumber, "Import file tag embedding option not selected");
                 }
 
-                var tag = _audioStationDbClient.GetEntity<TagSmall>(workLoad.TagSmallId);
-                var tagData = _tagCache.Get(_destinationPath);
+                _sourceTag = _tagCache.Get(_destinationPath);
 
-                if (tagData == null)
+                if (_sourceTag == null)
                 {
                     return new LibraryWorkerStepResult()
                     {
@@ -329,32 +402,21 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
                         StepNumber = stepNumber,
                     };
                 }
-                if (tag == null)
-                {
-                    return new LibraryWorkerStepResult()
-                    {
-                        Completed = false,
-                        Message = "Error retrieving working tag information from database",
-                        Result = LibraryWorkerResultLevel.DataError,
-                        StepNumber = stepNumber,
-                    };
-                }
 
-                //tagData.Album = tag.Album;
-                //tagData.AlbumArtist = tag.AlbumArtist;
-                //tagData.Artist = tag.AlbumArtist;
-                //tagData.DiscNumber = (ushort)(tag.MediaNumber ?? 0);
-                //tagData.DiscTotal = (ushort)(tag.MediaTotal ?? 0);
-                //tagData.Duration = TimeSpan.FromMilliseconds(tag.DurationMilliseconds ?? 0);
-                //tagData.Genre = tag.Genre ?? string.Empty;
-                //tagData.MediaFormat = tag.MediaFormat ?? string.Empty;
-                //tagData.Title = tag.Title ?? string.Empty;
-                //tagData.Track = (uint)(tag.TrackNumber ?? 0);
-                //tagData.TrackTotal = (ushort)(tag.TrackTotal ?? 0);
-                //tagData.Year = (int)(tag.Year ?? 0);
+                _sourceTag.Album = workLoad.TagFinal.Album;
+                _sourceTag.AlbumArtist = workLoad.TagFinal.AlbumArtist;
+                _sourceTag.MediaNumber = workLoad.TagFinal.MediaNumber;
+                _sourceTag.MediaTotal = workLoad.TagFinal.MediaTotal;
+                _sourceTag.DurationMilliseconds = workLoad.TagFinal.DurationMilliseconds;
+                _sourceTag.Genre = workLoad.TagFinal.Genre;
+                _sourceTag.MediaFormat = workLoad.TagFinal.MediaFormat;
+                _sourceTag.Title = workLoad.TagFinal.Title;
+                _sourceTag.TrackNumber = workLoad.TagFinal.TrackNumber;
+                _sourceTag.TrackTotal = workLoad.TagFinal.TrackTotal;
+                _sourceTag.Year = workLoad.TagFinal.Year;
 
                 // Validation
-                var validation = TagValidator.ValidateTag(tagData);
+                var validation = TagValidator.ValidateTag(_sourceTag);
 
                 if (!validation.IsValid)
                 {
@@ -374,7 +436,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
                 Log("Embedding tag data from records");
 
                 // -> Save
-                _tagCache.SetData(_destinationPath, tagData);
+                _tagCache.SetData(_destinationPath, _sourceTag);
 
                 Log("Tag information saved:  " + _destinationPath);
 
@@ -393,43 +455,15 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
 
                 var workLoad = this.Load.Payload;
                 var workOutput = this.Output.Payload;
-                var tag = _audioStationDbClient.GetEntity<TagSmall>(workLoad.TagSmallId);
 
-                if (tag == null)
-                {
-                    return new LibraryWorkerStepResult()
-                    {
-                        Completed = false,
-                        Message = "Tag database records missing for the import!Please retry after completing your import.",
-                        Result = LibraryWorkerResultLevel.DataError,
-                        StepNumber = stepNumber
-                    };
-                }
-
-                var validation = TagValidator.ValidateTag(tag);
-
-                if (!validation.IsValid)
-                {
-                    Log("Tag information is invalid (from the database record):  " + tag.Id);
-                    Log("VALIDATION MESSAGE:  " + validation.ValidationMessage);
-
-                    return new LibraryWorkerStepResult()
-                    {
-                        Completed = false,
-                        Message = "Tag information invalid: " + validation.ValidationMessage,
-                        Result = LibraryWorkerResultLevel.DataError,
-                        StepNumber = stepNumber
-                    };
-                }
-
-                var tagMap = _audioStationDbClient.FirstEntity<TagSmallFileReferenceMap>(x => x.TagSmallId == workLoad.TagSmallId);
-                var vendorMap = _audioStationDbClient.FirstEntity<TagSmallVendorMap>(x => x.TagSmallId == tag.Id);
+                var tagMap = _existingTagRecord ? _audioStationDbClient.FirstEntity<TagSmallFileReferenceMap>(x => x.TagSmallId == workLoad.TagFinal.Id) : null;
+                var vendorMap = _existingTagRecord ? _audioStationDbClient.FirstEntity<TagSmallVendorMap>(x => x.TagSmallId == workLoad.TagFinal.Id) : null;
                 var fileRef = tagMap != null ? tagMap.FileReference : null;
                 var fileRefExisting = _audioStationDbClient.FirstEntity<FileReference>(x => x.FileName == _destinationPath);
-                var genre = _audioStationDbClient.FirstEntity<Genre>(x => x.Name == tag.Genre);
-                var artist = _audioStationDbClient.FirstEntity<Artist>(x => x.Name == tag.AlbumArtist);
-                var album = _audioStationDbClient.FirstEntity<Album>(x => x.Name == tag.Album);
-                var track = _audioStationDbClient.FirstEntity<Track>(x => x.Title == tag.Title);
+                var genre = _existingTagRecord ? _audioStationDbClient.FirstEntity<Genre>(x => x.Name == workLoad.TagFinal.Genre) : null;
+                var artist = _existingTagRecord ? _audioStationDbClient.FirstEntity<Artist>(x => x.Name == workLoad.TagFinal.AlbumArtist) : null;
+                var album = _existingTagRecord ? _audioStationDbClient.FirstEntity<Album>(x => x.Name == workLoad.TagFinal.Album) : null;
+                var track = _existingTagRecord ? _audioStationDbClient.FirstEntity<Track>(x => x.Title == workLoad.TagFinal.Title) : null;
 
                 // Library Conflicts
                 //
@@ -494,6 +528,18 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
                     };
                 }
 
+                // Library Entities
+
+                // TagSmall
+                if (!_existingTagRecord)
+                {
+                    AddEntity(workLoad.TagFinal, "Tag Record");
+                }
+                else
+                {
+                    UpdateEntity(workLoad.TagFinal, "Tag Record");
+                }
+
                 // New File
                 if (tagMap == null)
                 {
@@ -510,15 +556,15 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
                         LastModified = DateTime.Now.ToUniversalTime()
                     };
 
-                    AddEntity(fileRef, "File");
+                    AddEntity(fileRef, "File Reference");
 
                     tagMap = new TagSmallFileReferenceMap()
                     {
-                        TagSmallId = workLoad.TagSmallId,
-                        FileReference = fileRef
+                        TagSmallId = workLoad.TagFinal.Id,
+                        FileReferenceId = fileRef.Id
                     };
 
-                    AddEntity(fileRef, "File Reference Map");
+                    AddEntity(tagMap, "Tag -> File Reference Map");
                 }
                 else // Foreign Key (FileReference)
                 {
@@ -535,10 +581,23 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
                     UpdateEntity(fileRef, "File Reference Map");
                 }
 
+                // Tag -> Vendor Map (update not required, can remove during cleanup)
+                if (vendorMap == null && workLoad.MusicBrainzRecordingId != null)
+                {
+                    vendorMap = new TagSmallVendorMap()
+                    {
+                        MusicBrainzRecordingId = workLoad.MusicBrainzRecordingId,
+                        TagSmallId = workLoad.TagFinal.Id,
+                        VendorId = _tagSourceVendor.Id                                  // Validated above                        
+                    };
+
+                    AddEntity(vendorMap, "Tag -> Vendor Map");
+                }
+
                 // Genre
                 if (genre == null)
                 {
-                    genre = new Genre() { Name = tag.Genre };
+                    genre = new Genre() { Name = workLoad.TagFinal.Genre };
 
                     AddEntity(genre, "Genre");
                 }
@@ -546,7 +605,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
                 // Artist
                 if (artist == null)
                 {
-                    artist = new Artist() { Name = tag.AlbumArtist };
+                    artist = new Artist() { Name = workLoad.TagFinal.AlbumArtist };
 
                     AddEntity(artist, "Artist");
                 }
@@ -556,22 +615,22 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
                 {
                     album = new Album()
                     {
-                        Name = tag.Album,
-                        MediaCount = tag.MediaTotal,
-                        MediaFormat = tag.MediaFormat,
-                        MediaNumber = tag.MediaNumber,
-                        Year = tag.Year
+                        Name = workLoad.TagFinal.Album,
+                        MediaCount = workLoad.TagFinal.MediaTotal,
+                        MediaFormat = workLoad.TagFinal.MediaFormat,
+                        MediaNumber = workLoad.TagFinal.MediaNumber,
+                        Year = workLoad.TagFinal.Year
                     };
 
                     AddEntity(album, "Album");
                 }
                 else
                 {
-                    album.MediaCount = tag.MediaTotal;
-                    album.MediaFormat = tag.MediaFormat;
-                    album.MediaNumber = tag.MediaNumber;
-                    album.Name = tag.Album;
-                    album.Year = tag.Year;
+                    album.MediaCount = workLoad.TagFinal.MediaTotal;
+                    album.MediaFormat = workLoad.TagFinal.MediaFormat;
+                    album.MediaNumber = workLoad.TagFinal.MediaNumber;
+                    album.Name = workLoad.TagFinal.Album;
+                    album.Year = workLoad.TagFinal.Year;
 
                     UpdateEntity(album, "Album");
                 }
@@ -582,12 +641,12 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
                     track = new Track()
                     {
                         AlbumId = album.Id,
-                        DurationMilliseconds = tag.DurationMilliseconds,
+                        DurationMilliseconds = workLoad.TagFinal.DurationMilliseconds,
                         FileReferenceId = fileRef.Id,
-                        Number = tag.MediaNumber,
+                        Number = workLoad.TagFinal.MediaNumber,
                         PrimaryArtistId = artist.Id,
                         PrimaryGenreId = genre.Id,
-                        Title = tag.Title
+                        Title = workLoad.TagFinal.Title
                     };
 
                     AddEntity(track, "Track");
@@ -609,16 +668,19 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
                     };
 
                     AddEntity(trackGenreMap, "Track Genre Map");
+
+                    workOutput.TrackGenreMapId = trackGenreMap.Id;
+                    workOutput.TrackArtistMapId = trackArtistMap.Id;
                 }
                 else
                 {
                     track.AlbumId = album.Id;
-                    track.DurationMilliseconds = tag.DurationMilliseconds;
+                    track.DurationMilliseconds = workLoad.TagFinal.DurationMilliseconds;
                     track.FileReferenceId = fileRef.Id;
-                    track.Number = tag.MediaNumber;
+                    track.Number = workLoad.TagFinal.MediaNumber;
                     track.PrimaryArtistId = artist.Id;
                     track.PrimaryGenreId = genre.Id;
-                    track.Title = tag.Title;
+                    track.Title = workLoad.TagFinal.Title;
 
                     UpdateEntity(track, "Track");
 
@@ -670,9 +732,9 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
                 }
 
                 // Reference Database Id's
-                workOutput.TagSmallId = tag.Id;
+                workOutput.TagSmallId = workLoad.TagFinal.Id;
                 workOutput.TagSmallFileReferenceMapId = tagMap.Id;
-                workOutput.TagSmallVendorMapId = vendorMap.Id;
+                workOutput.TagSmallVendorMapId = vendorMap != null ? vendorMap.Id : 0;
                 workOutput.FileReferenceId = fileRef.Id;
                 workOutput.GenreId = genre.Id;
                 workOutput.ArtistId = artist.Id;
@@ -695,7 +757,9 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
 
                 Log("Completing import...");
 
-                if (_migrationRequired)
+                // Migration
+                if ((workLoad.ImportType == LibraryImportType.Migration) &&
+                    (_destinationPath != workLoad.SourceFullPath))
                 {
                     Log("Completing file migration");
 

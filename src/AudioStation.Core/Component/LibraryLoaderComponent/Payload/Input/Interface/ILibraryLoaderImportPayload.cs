@@ -1,4 +1,5 @@
-﻿using AudioStation.Core.Model;
+﻿using AudioStation.Core.Database.AudioStationDatabase;
+using AudioStation.Core.Model;
 
 namespace AudioStation.Core.Component.LibraryLoaderComponent.Payload.Input.Interface
 {
@@ -13,7 +14,17 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Payload.Input.Inter
         /// The reference ID for tag information should be used during import. This will facilitate
         /// the read-only options in the library configuration. 
         /// </summary>
-        int TagSmallId { get; set; }
+        TagSmall TagFinal { get; set; }
+
+        /// <summary>
+        /// Source vendor for the tag data
+        /// </summary>
+        VendorNames TagSourceVendor { get; set; }
+
+        /// <summary>
+        /// RecordingId used to identify Music Brainz tag source data
+        /// </summary>
+        Guid? MusicBrainzRecordingId { get; set; }
 
         public LibraryImportType ImportType { get; set; }
         public LibraryImportSource TagSourcePreference { get; set; }

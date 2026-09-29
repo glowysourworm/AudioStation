@@ -54,9 +54,16 @@ namespace AudioStation.Views
                 _viewModel = e.NewValue as LibraryImporterViewModel;
         }
 
-        private void LoadImportView(Type viewType, bool previous, bool ignoreTransition)
+        private void LoadImportView(Type viewType, LibraryImporterWorkflowStep workflowStep, bool previous, bool ignoreTransition)
         {
-            _regionManager.LoadNamedInstance("LibraryImporterControlRegion", viewType, ignoreTransition);
+            if (viewType != typeof(LibraryImportServiceWorkerView))
+                _regionManager.LoadNamedInstance("LibraryImporterControlRegion", viewType, ignoreTransition);
+
+            // Service Worker(s):  This view is still a singleton; and has multiple uses.
+            //
+            else
+                _regionManager.LoadNamedInstance("LibraryImporterControlRegion", viewType, ignoreTransition)
+                              .DataContext = _viewModel.GetWorkflowComponentPart(workflowStep);
         }
 
         private bool ConfirmImportStep(LibraryImporterWorkflowStep step)
@@ -218,7 +225,7 @@ namespace AudioStation.Views
                     MoveToImportStep<LibraryImportTagCompletionView>(_viewModel.WorkflowCurrentStep, LibraryImporterWorkflowStep.TagCompletion, true);
                     break;
                 case LibraryImporterWorkflowStep.FinalReport:
-                    MoveToImportStep<LibraryImportCompletionView>(_viewModel.WorkflowCurrentStep, LibraryImporterWorkflowStep.ImportCompletion, true);
+                    MoveToImportStep<LibraryImportServiceWorkerView>(_viewModel.WorkflowCurrentStep, LibraryImporterWorkflowStep.ImportCompletion, true);
                     break;
                 default:
                     throw new Exception("Unhandled workflow step");
@@ -242,7 +249,7 @@ namespace AudioStation.Views
                     MoveToImportStep<LibraryImportTagCompletionView>(_viewModel.WorkflowCurrentStep, LibraryImporterWorkflowStep.TagCompletion, false);
                     break;
                 case LibraryImporterWorkflowStep.TagCompletion:
-                    MoveToImportStep<LibraryImportFinalReportView>(_viewModel.WorkflowCurrentStep, LibraryImporterWorkflowStep.ImportCompletion, false);
+                    MoveToImportStep<LibraryImportServiceWorkerView>(_viewModel.WorkflowCurrentStep, LibraryImporterWorkflowStep.ImportCompletion, false);
                     break;
                 case LibraryImporterWorkflowStep.ImportCompletion:
                     MoveToImportStep<LibraryImportFinalReportView>(_viewModel.WorkflowCurrentStep, LibraryImporterWorkflowStep.FinalReport, false);
@@ -261,23 +268,23 @@ namespace AudioStation.Views
 
             if (isPrevious)
             {
-                LoadImportView(view, isPrevious, true);
-
                 // Workflow!
                 _viewModel.WorkflowPrevious();
+
+                LoadImportView(view, to, isPrevious, true);
             }
             else if (ConfirmImportStep(from))
             {
                 // From
                 CompleteImportStep(from);
 
-                // To
-                PreLoadImportStep(to);
-                LoadImportView(view, isPrevious, true);
-                PostLoadImportStep(to);
-
                 // Workflow!
                 _viewModel.WorkflowNext();
+
+                // To
+                PreLoadImportStep(to);
+                LoadImportView(view, to, isPrevious, true);
+                PostLoadImportStep(to);
             }
         }
     }

@@ -5,7 +5,7 @@
 -- Dumped from database version 17.4
 -- Dumped by pg_dump version 17.4
 
--- Started on 2026-09-21 22:09:42
+-- Started on 2026-09-28 21:23:36
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -528,9 +528,9 @@ ALTER TABLE public."TagSmallFileReferenceMap" OWNER TO postgres;
 
 ALTER TABLE public."TagSmallFileReferenceMap" ALTER COLUMN "Id" ADD GENERATED ALWAYS AS IDENTITY (
     SEQUENCE NAME public."TagSmallFileReferenceMap_Id_seq"
-    START WITH 0
+    START WITH 1
     INCREMENT BY 1
-    MINVALUE 0
+    NO MINVALUE
     NO MAXVALUE
     CACHE 1
 );
@@ -908,7 +908,7 @@ ALTER TABLE ONLY public."TrackGenreMap"
     ADD CONSTRAINT "Track_ForeignKey" FOREIGN KEY ("TrackId") REFERENCES public."Track"("Id");
 
 
--- Completed on 2026-09-21 22:09:42
+-- Completed on 2026-09-28 21:23:37
 
 --
 -- PostgreSQL database dump complete
