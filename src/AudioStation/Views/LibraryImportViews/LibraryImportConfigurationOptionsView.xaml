@@ -165,7 +165,7 @@
             <TabItem Header="Import Services">
                 <StackPanel>
                     <propertyGrid:PropertyBooleanControl LabelColumnWidth="250" 
-                                                     Description="(recommended) Use this Audio Station service for checking your import files for the encoding + duration data. This data is stored as part of the import record and is handled by Audio Station."
+                                                     Description="Use this Audio Station service for checking your import files for the encoding + duration data. This data is stored as part of the import record and is handled by Audio Station."
                                                      Value="{Binding WorkflowConfiguration.ServiceIncludeAudioDuration, Mode=TwoWay}" IsReadOnly="False" Margin="1" LabelText="Use Audio Encoding Checker" />                    
                     
                     <propertyGrid:PropertyBooleanControl LabelColumnWidth="250" 

@@ -103,12 +103,12 @@ namespace AudioStation.Controller
                 { _cdImporterViewModel.Id, _cdImporterViewModel },
                 { _libraryImporterViewModel.Id, _libraryImporterViewModel },
                 { _libraryLoaderViewModel.Id, _libraryLoaderViewModel },
+                { _libraryManagerViewModel.Id, _libraryManagerViewModel },
                 { _radioViewModel.Id, _radioViewModel }
 
             };
             _dataComponents = new Dictionary<Guid, DataComponentViewModelBase>()
             {
-                { _libraryManagerViewModel.Id, _libraryManagerViewModel },
                 { _logViewModel.Id, _logViewModel },
                 { _mainViewModel.Id, _mainViewModel },
                 { _nowPlayingViewModel.Id, _nowPlayingViewModel },

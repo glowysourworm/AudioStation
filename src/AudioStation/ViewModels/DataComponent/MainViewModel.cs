@@ -322,7 +322,7 @@ public class MainViewModel : DataComponentViewModelBase
         });
     }
 
-    protected override void InitializeWork(IAudioStationConfiguration configuration)
+    public override void Initialize(IAudioStationConfiguration configuration)
     {
         _audioStationServiceController = IocContainer.Get<IAudioStationServiceController>();
         _audioStationComponentController = IocContainer.Get<IAudioStationComponentController>();
@@ -350,7 +350,7 @@ public class MainViewModel : DataComponentViewModelBase
         this.Log = _audioStationComponentController.GetDataComponent<LogViewModel>();
         this.NowPlaying = _audioStationComponentController.GetDataComponent<NowPlayingViewModel>();
         this.PlayState = PlayStopPause.Stop;
-        this.LibraryManager = _audioStationComponentController.GetDataComponent<LibraryManagerViewModel>();
+        this.LibraryManager = _audioStationComponentController.GetServiceComponent<LibraryManagerViewModel>();
         this.StatusViewModel = _audioStationComponentController.GetDataComponent<StatusViewModel>();
         this.Radio = _audioStationComponentController.GetServiceComponent<RadioViewModel>();
         this.LibraryImporter = _audioStationComponentController.GetServiceComponent<LibraryImporterViewModel>();

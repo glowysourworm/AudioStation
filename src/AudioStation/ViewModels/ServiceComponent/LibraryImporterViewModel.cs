@@ -3,6 +3,7 @@ using System.ComponentModel;
 
 using AudioStation.Controller.Interface;
 using AudioStation.Core.Component.Interface;
+using AudioStation.Core.Model;
 using AudioStation.Core.Model.Interface;
 using AudioStation.Core.Service.Interface;
 using AudioStation.Event;
@@ -13,6 +14,7 @@ using AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels;
 using AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Workflow;
 
 using SimpleWpf.IocFramework.EventAggregation;
+using SimpleWpf.UI.Command;
 
 using static AudioStation.Event.DialogEventHandlers;
 
@@ -39,8 +41,17 @@ namespace AudioStation.ViewModels.ServiceComponent
         bool _workflowNextEnabled;
         bool _workflowPreviousEnabled;
 
+        // Readonly Convenience Properties (part of the configuration)
+        string _sourceFolder;
+        string _destinationFolder;
+
+        int _sourceFileCount;
+        int _sourceFileTodoCount;
+
         string _sourceFolderSearch;
         string _stagedSearch;
+
+        SimpleCommand _cleanupImportCommand;
 
         public AudioStationConfigurationViewModel Configuration
         {
@@ -82,6 +93,7 @@ namespace AudioStation.ViewModels.ServiceComponent
             get { return _workflowCurrentStep; }
             private set { this.RaiseAndSetIfChanged(ref _workflowCurrentStep, value); }
         }
+
         public bool WorkflowNextEnabled
         {
             get { return _workflowNextEnabled; }
@@ -93,6 +105,27 @@ namespace AudioStation.ViewModels.ServiceComponent
             private set { this.RaiseAndSetIfChanged(ref _workflowPreviousEnabled, value); }
         }
 
+        public int SourceFileCount
+        {
+            get { return _sourceFileCount; }
+            set { this.RaiseAndSetIfChanged(ref _sourceFileCount, value); }
+        }
+        public int SourceFileTodoCount
+        {
+            get { return _sourceFileTodoCount; }
+            set { this.RaiseAndSetIfChanged(ref _sourceFileTodoCount, value); }
+        }
+        public string SourceFolder
+        {
+            get { return _sourceFolder; }
+            set { this.RaiseAndSetIfChanged(ref _sourceFolder, value); }
+        }
+        public string DestinationFolder
+        {
+            get { return _destinationFolder; }
+            set { this.RaiseAndSetIfChanged(ref _destinationFolder, value); }
+        }
+
         public string SourceFolderSearch
         {
             get { return _sourceFolderSearch; }
@@ -102,6 +135,12 @@ namespace AudioStation.ViewModels.ServiceComponent
         {
             get { return _stagedSearch; }
             set { this.RaiseAndSetIfChanged(ref _stagedSearch, value); }
+        }
+
+        public SimpleCommand CleanupImportCommand
+        {
+            get { return _cleanupImportCommand; }
+            set { this.RaiseAndSetIfChanged(ref _cleanupImportCommand, value); }
         }
 
         public LibraryImporterViewModel(IAudioStationMapper audioStationMapper,
@@ -138,7 +177,10 @@ namespace AudioStation.ViewModels.ServiceComponent
             // Workflow
             this.WorkflowCurrentStep = LibraryImporterWorkflowStep.Configuration;
 
-            UpdateWorkflowIndicators();
+            // Import Completion
+            this.CleanupImportCommand = new SimpleCommand(CleanupImport, CanCleanupImport);
+
+            Update();
         }
 
         protected override void OnStatusChanged()
@@ -147,7 +189,7 @@ namespace AudioStation.ViewModels.ServiceComponent
             base.OnStatusChanged();
 
             if (this.Initialized)
-                UpdateWorkflowIndicators();
+                Update();
         }
 
         public void WorkflowNext()
@@ -178,7 +220,7 @@ namespace AudioStation.ViewModels.ServiceComponent
                     throw new Exception("Unhandled import step type");
             }
 
-            UpdateWorkflowIndicators();
+            Update();
         }
         public void WorkflowPrevious()
         {
@@ -208,7 +250,7 @@ namespace AudioStation.ViewModels.ServiceComponent
                     throw new Exception("Unhandled import step type");
             }
 
-            UpdateWorkflowIndicators();
+            Update();
         }
 
         /// <summary>
@@ -239,7 +281,7 @@ namespace AudioStation.ViewModels.ServiceComponent
                     throw new Exception("Unhandled import step type");
             }
         }
-        private void UpdateWorkflowIndicators()
+        private void Update()
         {
             // Check Workflow Step Validation
             //
@@ -250,6 +292,15 @@ namespace AudioStation.ViewModels.ServiceComponent
                 case LibraryImporterWorkflowStep.Configuration:
                     this.WorkflowNextEnabled = !this.Loading && this.WorkflowConfiguration.ImportDirectory != null;
                     this.WorkflowPreviousEnabled = false;
+
+                    // Source / Destination Folders
+                    //
+                    this.SourceFolder = this.WorkflowConfiguration.ImportType == LibraryImportType.InPlaceDirectory ?
+                                        this.WorkflowConfiguration.ImportDirectory?.Directory ?? string.Empty :
+                                        this.WorkflowConfiguration.MigrationSourceDirectory;
+
+                    this.DestinationFolder = this.WorkflowConfiguration.ImportDirectory?.Directory ?? string.Empty;
+
                     break;
 
                 // Validation: (warning) (recommended options)
@@ -264,6 +315,9 @@ namespace AudioStation.ViewModels.ServiceComponent
                 case LibraryImporterWorkflowStep.Staging:
                     this.WorkflowNextEnabled = !this.Loading && this.StagingWorkflow.StagedFiles.Any();
                     this.WorkflowPreviousEnabled = !this.Loading;
+
+                    // Execute Recursive File Count (probably not a performance issue; but check for too much UI interaction) (IsSelected Binding)
+                    this.SourceFileCount = this.StagingWorkflow.ImportDirectory?.RecursiveCount(x => !x.CanHaveChildren) ?? 0;
                     break;
 
                 // Validation: Service Workers (executed) (warnings?, errors?)
@@ -285,6 +339,7 @@ namespace AudioStation.ViewModels.ServiceComponent
                 case LibraryImporterWorkflowStep.ImportCompletion:
                     this.WorkflowNextEnabled = !this.Loading;
                     this.WorkflowPreviousEnabled = !this.Loading;
+                    this.SourceFileTodoCount = this.SourceFileCount - this.StagingWorkflow.StagedFiles.SuccessfulFiles.Count;
                     break;
 
                 // Validation: TODO
@@ -296,6 +351,17 @@ namespace AudioStation.ViewModels.ServiceComponent
                 default:
                     throw new Exception("Unhandled workflow step");
             }
+        }
+
+        private void CleanupImport()
+        {
+            // Cleanup Datasets
+        }
+        private bool CanCleanupImport()
+        {
+            return !this.Loading &&
+                    this.Loaded &&
+                    this.WorkflowCurrentStep == LibraryImporterWorkflowStep.FinalReport;
         }
 
         public override bool CanExecute()
@@ -387,6 +453,17 @@ namespace AudioStation.ViewModels.ServiceComponent
                     .First(x => x.Id == componentPartId)
                     .Reset(progressHandler);
             }
+
+            // All Components
+            else
+            {
+                // 1) Free up memory; 2) Set Loaded = false
+                //
+                foreach (var componentPart in this.ComponentParts)
+                {
+                    componentPart.Reset(progressHandler);
+                }
+            }
         }
 
         private void EditTag()
@@ -465,7 +542,7 @@ namespace AudioStation.ViewModels.ServiceComponent
 
         private void OnBubbleUpViewModelEvent(object? sender, PropertyChangedEventArgs e)
         {
-            UpdateWorkflowIndicators();
+            Update();
         }
     }
 }

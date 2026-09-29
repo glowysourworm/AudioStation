@@ -137,6 +137,7 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Wor
 
         public override void Reset(DialogEventHandlers.DialogProgressHandler progressHandler)
         {
+            this.Loaded = false;
         }
         private void UpdateCommands()
         {

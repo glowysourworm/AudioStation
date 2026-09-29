@@ -277,7 +277,7 @@ namespace AudioStation.ViewModels.DataComponent
             });
         }
 
-        protected override void InitializeWork(IAudioStationConfiguration configuration)
+        public override void Initialize(IAudioStationConfiguration configuration)
         {
             // Nothing to do (Could move the configuration mapping here)
         }

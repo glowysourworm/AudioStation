@@ -98,7 +98,7 @@ namespace AudioStation.ViewModels.DataComponent
             this.MusicBrainzClient = new StatusIconViewModel();
             this.SpotifyClient = new StatusIconViewModel();
         }
-        protected override void InitializeWork(IAudioStationConfiguration configuration)
+        public override void Initialize(IAudioStationConfiguration configuration)
         {
         }
 

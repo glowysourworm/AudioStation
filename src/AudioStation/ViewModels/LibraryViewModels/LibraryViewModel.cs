@@ -2,7 +2,7 @@
 
 using AudioStation.Core.Database.AudioStationDatabase;
 using AudioStation.Core.Model;
-using AudioStation.ViewModels.DataComponent;
+using AudioStation.ViewModels.ServiceComponent;
 
 using SimpleWpf.Extensions.ObservableCollection;
 using SimpleWpf.UI.Command;
@@ -10,7 +10,7 @@ using SimpleWpf.UI.ViewModel;
 
 namespace AudioStation.ViewModels.LibraryViewModels
 {
-    public class LibraryViewModel : ViewModelBase
+    public class LibraryViewModel : ViewModelBase, IDisposable
     {
         private readonly int _trackPageSize = 100;
 
@@ -334,6 +334,15 @@ namespace AudioStation.ViewModels.LibraryViewModels
                 result &= entity.Number == this.TrackSearch.Track;
 
             return result;
+        }
+
+        public void Dispose()
+        {
+            this.Tracks.Clear();
+            this.TrackTabItems.Clear();
+            this.Albums.Clear();
+            this.Artists.Clear();
+            this.Genres.Clear();
         }
     }
 }

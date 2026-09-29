@@ -1,15 +1,19 @@
 ﻿using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
 
+using AudioStation.Controller.Interface;
 using AudioStation.Core.Model.Interface;
+using AudioStation.Core.Utility;
 using AudioStation.Event;
 using AudioStation.Event.DialogEvents;
 using AudioStation.ViewModels.LibraryViewModels;
 
+using Microsoft.Extensions.Logging;
+
 using SimpleWpf.IocFramework.EventAggregation;
 using SimpleWpf.UI.Command;
 
-namespace AudioStation.ViewModels.DataComponent
+namespace AudioStation.ViewModels.ServiceComponent
 {
     public enum LibraryManagerErrorFilterType
     {
@@ -23,7 +27,7 @@ namespace AudioStation.ViewModels.DataComponent
         FileUnavailable
     }
 
-    public class LibraryManagerViewModel : DataComponentViewModelBase
+    public class LibraryManagerViewModel : ServiceComponentViewModelBase
     {
         LibraryViewModel _library;
 
@@ -92,38 +96,93 @@ namespace AudioStation.ViewModels.DataComponent
                 //this.NonConvertedFiles.AddRange(viewModelLoader.LoadNonConvertedFiles());
             });
         }
-
-        public override void Dispose()
+        public override bool CanExecute()
         {
-            // TODO: Dispose the library
+            return this.Initialized && this.Loaded && !this.Loading;
+        }
+        public override bool CanReset()
+        {
+            return this.Initialized && this.Loaded && !this.Loading;
+        }
+        public override bool CanLoad()
+        {
+            return this.Initialized && !this.Loaded && !this.Loading;
         }
 
-        protected override void InitializeWork(IAudioStationConfiguration configuration)
+        public override void Initialize(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
         {
-            //this.Library = load;
+            // We're going to also load the library on startup
+            this.Initialized = true;
+
+            try
+            {
+                // Audio Station Library!
+                //
+                this.Library = audioStationController.LibraryLoaderService.LoadLibrary(progressHandler);
+
+                //var allFiles = BasicHelpers.FastGetFileData(configuration.DirectoryBase, "*.*", false, System.IO.SearchOption.AllDirectories);
+
+                //var convertibleFiles = allFiles.Where(x => CONVERTIBLE_FILE_EXT.Any(z => x.Path.EndsWith(z)))
+                //                               .Select(x => x.Path)
+                //                               .ToList();
+
+                //this.NonConvertedFiles.AddRange(convertibleFiles);
+
+                // Load Artists / Albums / Genres
+                //await this.Library.Initialize(progressHandler);
+
+                this.Loaded = true;
+            }
+            catch (Exception ex)
+            {
+                ApplicationHelpers.Log("Error loading non-converted files:  {0}", LogLevel.Error, ex, ex.Message);
+                //this.NonConvertedFiles.Clear();
+            }
+        }
+
+        public override void Load(Guid? componentPartId, IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
+        {
+            // TODO: Component Parts:  Library Maintainence Tasks:  Convert Files; Check Files; ...
 
             //try
             //{
-            //    // TODO: CHECK CONFIGURATION!
-            //    if (!System.IO.Path.Exists(configuration.DirectoryBase))
-            //        return;
+            //    // Audio Station Library!
+            //    //
+            //    this.Library = audioStationController.LibraryLoaderService.LoadLibrary(progressHandler);
 
-            //    var allFiles = BasicHelpers.FastGetFileData(configuration.DirectoryBase, "*.*", false, System.IO.SearchOption.AllDirectories);
+            //    //var allFiles = BasicHelpers.FastGetFileData(configuration.DirectoryBase, "*.*", false, System.IO.SearchOption.AllDirectories);
 
-            //    var convertibleFiles = allFiles.Where(x => CONVERTIBLE_FILE_EXT.Any(z => x.Path.EndsWith(z)))
-            //                                   .Select(x => x.Path)
-            //                                   .ToList();
+            //    //var convertibleFiles = allFiles.Where(x => CONVERTIBLE_FILE_EXT.Any(z => x.Path.EndsWith(z)))
+            //    //                               .Select(x => x.Path)
+            //    //                               .ToList();
 
-            //    this.NonConvertedFiles.AddRange(convertibleFiles);
+            //    //this.NonConvertedFiles.AddRange(convertibleFiles);
 
             //    // Load Artists / Albums / Genres
             //    //await this.Library.Initialize(progressHandler);
+
+            //    this.Loaded = true;
             //}
             //catch (Exception ex)
             //{
             //    ApplicationHelpers.Log("Error loading non-converted files:  {0}", LogLevel.Error, ex, ex.Message);
-            //    this.NonConvertedFiles.Clear();
+            //    //this.NonConvertedFiles.Clear();
             //}
+        }
+
+        public override void Execute(Guid? componentPartId, DialogEventHandlers.DialogProgressHandler progressHandler)
+        {
+            // TODO: Component Parts
+        }
+        public override void Reset(Guid? componentPartId, DialogEventHandlers.DialogProgressHandler progressHandler)
+        {
+            this.Library.Dispose();
+
+            this.Loaded = false;
+        }
+        public override void Dispose()
+        {
+
         }
     }
 }

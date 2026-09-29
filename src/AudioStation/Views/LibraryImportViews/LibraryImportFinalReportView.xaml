@@ -7,7 +7,133 @@
              xmlns:controls="clr-namespace:AudioStation.Controls"
              xmlns:coreModel="clr-namespace:AudioStation.Core.Model;assembly=AudioStation.Core"
              xmlns:simpleUI="clr-namespace:SimpleWpf.UI.Controls;assembly=SimpleWpf.UI">
-    <Grid>
-            
+    
+    <Grid RowDefinitions="400, *">
+        <controls:NoSelectListBox Style="{StaticResource PlainListBoxStyle}" 
+                                  ItemContainerStyle="{StaticResource HoverSelectItemContainerStyleWithAlternation}"
+                                  AlternationCount="2">
+
+            <!-- Source Directory -->
+            <propertyGrid:PropertyLabelControl LabelColumnWidth="240"
+                                                   LabelText="Source Directory"
+                                                   Style="{StaticResource PropertyGridUserControl}"
+                                                   Value="{Binding SourceFolder}" />
+
+            <!-- Destination Directory -->
+            <propertyGrid:PropertyLabelControl LabelColumnWidth="240"
+                                                   LabelText="Destination Directory"
+                                                   Style="{StaticResource PropertyGridUserControl}"
+                                                   Value="{Binding DestinationFolder}" />
+
+            <!-- Import Type -->
+            <propertyGrid:PropertyLabelControl LabelColumnWidth="240"
+                                                   LabelText="Import Type"
+                                                   Style="{StaticResource PropertyGridUserControl}"
+                                                   Value="{Binding WorkflowConfiguration.ImportType}" />
+
+            <!-- Input File(s) -->
+            <propertyGrid:PropertyLabelControl LabelColumnWidth="240"
+                                                   LabelText="Input File Count"
+                                                   Style="{StaticResource PropertyGridUserControl}"
+                                                   Value="{Binding SourceFileCount}" />
+
+            <!-- Staged File(s) -->
+            <propertyGrid:PropertyLabelControl LabelColumnWidth="240"
+                                                   LabelText="Staged File Count"
+                                                   Style="{StaticResource PropertyGridUserControl}"
+                                                   Value="{Binding StagingWorkflow.StagedFiles.Count}" />
+
+            <!-- Valid Staged File(s) -->
+            <propertyGrid:PropertyLabelControl LabelColumnWidth="240"
+                                                   LabelText="Valid Tag Count"
+                                                   Description="This is a count of the number of staged files that had their (basic) tags completed during import."
+                                                   Style="{StaticResource PropertyGridUserControl}"
+                                                   Value="{Binding StagingWorkflow.StagedFiles.ValidFiles.Count}" />
+
+            <!-- Library Conflict File(s) -->
+            <propertyGrid:PropertyLabelControl LabelColumnWidth="240"
+                                                   LabelText="Library Conflict Count"
+                                                   Description="This is a count of the number of staged files that had library conflicts."
+                                                   Style="{StaticResource PropertyGridUserControl}"
+                                                   Value="{Binding StagingWorkflow.StagedFiles.LibraryConflictFiles.Count}" />
+
+            <!-- AcoustID Result(s) -->
+            <propertyGrid:PropertyLabelControl LabelColumnWidth="240"
+                                                   LabelText="AcoustID Result Count"
+                                                   Description="This is a count of AcoustID results queried from the AcoustID service."
+                                                   Style="{StaticResource PropertyGridUserControl}"
+                                                   Value="{Binding StagingWorkflow.StagedFiles.AcoustIDFiles.Count}" />
+
+            <!-- Music Brainz(s) (basic) -->
+            <propertyGrid:PropertyLabelControl LabelColumnWidth="240"
+                                                   LabelText="Music Brainz (basic) Count"
+                                                   Description="This is a count of the number of Music Brainz (basic) results based on AcoustID."
+                                                   Style="{StaticResource PropertyGridUserControl}"
+                                                   Value="{Binding StagingWorkflow.StagedFiles.MusicBrainzFiles.Count}" />
+
+            <!-- Music Brainz(s) (special tag) -->
+            <propertyGrid:PropertyLabelControl LabelColumnWidth="240"
+                                                   LabelText="Music Brainz (special tag) Count"
+                                                   Description="This is a count of the number of Music Brainz (special tag) results based on data left in the audio file tag from other applications."
+                                                   Style="{StaticResource PropertyGridUserControl}"
+                                                   Value="{Binding StagingWorkflow.StagedFiles.MusicBrainzSpecialTagFiles.Count}" />
+
+            <!-- Successful File(s) -->
+            <propertyGrid:PropertyLabelControl LabelColumnWidth="240"
+                                                   LabelText="Successful Import Count"
+                                                   Description="This is a count of the number of staged files that completed successfully."
+                                                   Style="{StaticResource PropertyGridUserControl}"
+                                                   Value="{Binding StagingWorkflow.StagedFiles.SuccessfulFiles.Count}" />
+
+            <!-- Failed File(s) -->
+            <propertyGrid:PropertyLabelControl LabelColumnWidth="240"
+                                                   LabelText="Failed Import Count"
+                                                   Description="This is a count of the number of staged files that completed with data warnings, errors, or service failures."
+                                                   Style="{StaticResource PropertyGridUserControl}"
+                                                   Value="{Binding StagingWorkflow.StagedFiles.FailureFiles.Count}" />
+
+            <!-- Source Files Todo -->
+            <propertyGrid:PropertyLabelControl LabelColumnWidth="240"
+                                                   LabelText="Un-Imported Count"
+                                                   Description="This is a count of the files still in your source directory that have not yet been completed."
+                                                   Style="{StaticResource PropertyGridUserControl}"
+                                                   Value="{Binding SourceFileTodoCount}" />
+
+        </controls:NoSelectListBox>
+
+        <Border Grid.Row="1"
+                Style="{StaticResource HeaderBorderStyle}">
+            <StackPanel>
+
+                <!-- Cleanup Datasets -->
+                <propertyGrid:PropertyButtonLabelControl LabelColumnWidth="240"                                                     
+                                                     LabelText="Cleanup Datasets"
+                                                     ButtonWidth="200"
+                                                     ButtonCommand="{Binding CleanupImportCommand}"
+                                                     Description="There are data leftover from the import process that will be in your database in case you choose to complete other imports. Once you are finished you may clean them up here or in Library Maintainence.">
+                    <propertyGrid:PropertyButtonLabelControl.ButtonContent>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="{Binding SourceFileTodoCount, StringFormat='Cleanup Datasets ({0})'}" Style="{StaticResource LabelTextBlock}" />
+                            <fa5:SvgAwesome Icon="Solid_Database" Style="{StaticResource FontAwesomeIconDefault}" />
+                        </StackPanel>
+                    </propertyGrid:PropertyButtonLabelControl.ButtonContent>
+                </propertyGrid:PropertyButtonLabelControl>
+
+                <!-- Finalize Import -->
+                <propertyGrid:PropertyButtonLabelControl LabelColumnWidth="240"
+                                                     LabelText="Finalize Import"
+                                                     ButtonWidth="200"
+                                                     ButtonCommand="{Binding ResetCommand}"
+                                                     Description="Complete the import and listen to your music!">
+                    <propertyGrid:PropertyButtonLabelControl.ButtonContent>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Finalize"  Style="{StaticResource LabelTextBlock}" />
+                            <fa5:SvgAwesome Icon="Solid_Play" Style="{StaticResource FontAwesomeIconDefault}" />
+                        </StackPanel>
+                    </propertyGrid:PropertyButtonLabelControl.ButtonContent>
+                </propertyGrid:PropertyButtonLabelControl>
+
+            </StackPanel>
+        </Border>
     </Grid>
 </UserControl>

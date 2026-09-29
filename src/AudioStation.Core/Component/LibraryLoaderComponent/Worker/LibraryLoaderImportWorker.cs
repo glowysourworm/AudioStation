@@ -460,10 +460,10 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
                 var vendorMap = _existingTagRecord ? _audioStationDbClient.FirstEntity<TagSmallVendorMap>(x => x.TagSmallId == workLoad.TagFinal.Id) : null;
                 var fileRef = tagMap != null ? tagMap.FileReference : null;
                 var fileRefExisting = _audioStationDbClient.FirstEntity<FileReference>(x => x.FileName == _destinationPath);
-                var genre = _existingTagRecord ? _audioStationDbClient.FirstEntity<Genre>(x => x.Name == workLoad.TagFinal.Genre) : null;
-                var artist = _existingTagRecord ? _audioStationDbClient.FirstEntity<Artist>(x => x.Name == workLoad.TagFinal.AlbumArtist) : null;
-                var album = _existingTagRecord ? _audioStationDbClient.FirstEntity<Album>(x => x.Name == workLoad.TagFinal.Album) : null;
-                var track = _existingTagRecord ? _audioStationDbClient.FirstEntity<Track>(x => x.Title == workLoad.TagFinal.Title) : null;
+                var genre = _audioStationDbClient.FirstEntity<Genre>(x => x.Name == workLoad.TagFinal.Genre);
+                var artist = _audioStationDbClient.FirstEntity<Artist>(x => x.Name == workLoad.TagFinal.AlbumArtist);
+                var album = _audioStationDbClient.FirstEntity<Album>(x => x.Name == workLoad.TagFinal.Album);
+                var track = _audioStationDbClient.FirstEntity<Track>(x => x.Title == workLoad.TagFinal.Title);
 
                 // Library Conflicts
                 //
@@ -480,41 +480,41 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
                     };
                 }
 
-                // Genre
-                if (genre != null && !workLoad.LibraryOverwriteExistingGenres)
-                {
-                    return new LibraryWorkerStepResult()
-                    {
-                        Completed = false,
-                        Message = string.Format("Library (Genre) Conflict Found: Id={0}, Name={1} ", genre.Id, genre.Name),
-                        Result = LibraryWorkerResultLevel.DataError,
-                        StepNumber = stepNumber
-                    };
-                }
+                //// Genre
+                //if (genre != null && !workLoad.LibraryOverwriteExistingGenres)
+                //{
+                //    return new LibraryWorkerStepResult()
+                //    {
+                //        Completed = false,
+                //        Message = string.Format("Library (Genre) Conflict Found: Id={0}, Name={1} ", genre.Id, genre.Name),
+                //        Result = LibraryWorkerResultLevel.DataError,
+                //        StepNumber = stepNumber
+                //    };
+                //}
 
-                // Artist
-                if (artist != null && !workLoad.LibraryOverwriteExistingArtists)
-                {
-                    return new LibraryWorkerStepResult()
-                    {
-                        Completed = false,
-                        Message = string.Format("Library (Artist) Conflict Found: Id={0}, Name={1} ", artist.Id, artist.Name),
-                        Result = LibraryWorkerResultLevel.DataError,
-                        StepNumber = stepNumber
-                    };
-                }
+                //// Artist
+                //if (artist != null && !workLoad.LibraryOverwriteExistingArtists)
+                //{
+                //    return new LibraryWorkerStepResult()
+                //    {
+                //        Completed = false,
+                //        Message = string.Format("Library (Artist) Conflict Found: Id={0}, Name={1} ", artist.Id, artist.Name),
+                //        Result = LibraryWorkerResultLevel.DataError,
+                //        StepNumber = stepNumber
+                //    };
+                //}
 
-                // Album
-                if (album != null && !workLoad.LibraryOverwriteExistingAlbums)
-                {
-                    return new LibraryWorkerStepResult()
-                    {
-                        Completed = false,
-                        Message = string.Format("Library (Album) Conflict Found: Id={0}, Name={1} ", album.Id, album.Name),
-                        Result = LibraryWorkerResultLevel.DataError,
-                        StepNumber = stepNumber
-                    };
-                }
+                //// Album
+                //if (album != null && !workLoad.LibraryOverwriteExistingAlbums)
+                //{
+                //    return new LibraryWorkerStepResult()
+                //    {
+                //        Completed = false,
+                //        Message = string.Format("Library (Album) Conflict Found: Id={0}, Name={1} ", album.Id, album.Name),
+                //        Result = LibraryWorkerResultLevel.DataError,
+                //        StepNumber = stepNumber
+                //    };
+                //}
 
                 // Track
                 if (track != null && !workLoad.LibraryOverwriteExistingTracks)

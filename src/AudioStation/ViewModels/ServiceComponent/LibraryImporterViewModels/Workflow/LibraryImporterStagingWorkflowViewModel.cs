@@ -334,7 +334,16 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Wor
 
         public override void Reset(DialogEventHandlers.DialogProgressHandler progressHandler)
         {
+            // Most of the memory
+            this.StagedFiles.Clear();
 
+            // This gets re-instantiated; but there are lots of event hooks that need to
+            // be unhooked or there will be memory leaks from repeat imports.
+            //
+            this.ImportDirectory.Dispose();
+            this.ImportDirectory = null;
+
+            this.Loaded = false;
         }
         private void OnImportTreePropertyChanged(TreeViewModelBase treeSender, ITreeViewNode item, PropertyChangedEventArgs eventArgs)
         {
@@ -354,7 +363,7 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Wor
 
         public override void Dispose()
         {
-            // TODO
+
         }
     }
 }

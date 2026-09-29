@@ -191,7 +191,7 @@ namespace AudioStation.ViewModels.DataComponent
 
         }
 
-        protected override void InitializeWork(IAudioStationConfiguration configuration)
+        public override void Initialize(IAudioStationConfiguration configuration)
         {
 
         }

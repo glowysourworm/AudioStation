@@ -76,7 +76,7 @@ namespace AudioStation.ViewModels.DataComponent
             this.Logs.Clear();
         }
 
-        protected override void InitializeWork(IAudioStationConfiguration configuration)
+        public override void Initialize(IAudioStationConfiguration configuration)
         {
 
         }

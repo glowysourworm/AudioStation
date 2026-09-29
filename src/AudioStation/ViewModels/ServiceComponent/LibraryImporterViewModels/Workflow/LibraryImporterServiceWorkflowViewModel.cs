@@ -370,7 +370,7 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Wor
 
         public override void Dispose()
         {
-
+            // Nothing to do
         }
     }
 }

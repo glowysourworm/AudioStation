@@ -27,7 +27,8 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels
         private KeyedObservableCollection<string, LibraryImporterFileViewModel> _musicBrainzSpecialTagFiles;
         private KeyedObservableCollection<string, LibraryImporterFileViewModel> _libraryConflictFiles;
         private KeyedObservableCollection<string, LibraryImporterFileViewModel> _importReadyFiles;
-        private KeyedObservableCollection<string, LibraryImporterFileViewModel> _completedFiles;
+        private KeyedObservableCollection<string, LibraryImporterFileViewModel> _successfulFiles;
+        private KeyedObservableCollection<string, LibraryImporterFileViewModel> _failureFiles;
 
         public event CollectionItemChangedHandler<LibraryImporterFileViewModel> ItemPropertyChanged
         {
@@ -53,7 +54,8 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels
             _musicBrainzSpecialTagFiles = new KeyedObservableCollection<string, LibraryImporterFileViewModel>();
             _libraryConflictFiles = new KeyedObservableCollection<string, LibraryImporterFileViewModel>();
             _importReadyFiles = new KeyedObservableCollection<string, LibraryImporterFileViewModel>();
-            _completedFiles = new KeyedObservableCollection<string, LibraryImporterFileViewModel>();
+            _successfulFiles = new KeyedObservableCollection<string, LibraryImporterFileViewModel>();
+            _failureFiles = new KeyedObservableCollection<string, LibraryImporterFileViewModel>();
         }
         public LibraryImporterStagedFileCollection(IEnumerable<LibraryImporterFileViewModel> stagedFiles)
             : this()
@@ -106,9 +108,13 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels
         {
             get { return _importReadyFiles; }
         }
-        public IReadOnlyCollection<LibraryImporterFileViewModel> CompletedFiles
+        public IReadOnlyCollection<LibraryImporterFileViewModel> SuccessfulFiles
         {
-            get { return _completedFiles; }
+            get { return _successfulFiles; }
+        }
+        public IReadOnlyCollection<LibraryImporterFileViewModel> FailureFiles
+        {
+            get { return _failureFiles; }
         }
 
         public void BeginUpdate()
@@ -122,7 +128,8 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels
             _musicBrainzSpecialTagFiles.BeginUpdate();
             _libraryConflictFiles.BeginUpdate();
             _importReadyFiles.BeginUpdate();
-            _completedFiles.BeginUpdate();
+            _successfulFiles.BeginUpdate();
+            _failureFiles.BeginUpdate();
         }
         public void EndUpdate(bool notifyObservers = false)
         {
@@ -135,7 +142,8 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels
             _musicBrainzSpecialTagFiles.EndUpdate(notifyObservers);
             _libraryConflictFiles.EndUpdate(notifyObservers);
             _importReadyFiles.EndUpdate(notifyObservers);
-            _completedFiles.EndUpdate(notifyObservers);
+            _successfulFiles.EndUpdate(notifyObservers);
+            _failureFiles.EndUpdate(notifyObservers);
         }
 
         private void AddUpdate(LibraryImporterFileViewModel file)
@@ -250,14 +258,28 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels
                 _libraryConflictFiles.Remove(file.FullPath);
             }
 
-            // Import Complete
-            if (file.ImportOutput.ImportResult != LibraryWorkerResultLevel.None && !_completedFiles.ContainsKey(file.FullPath))
+            // Successful Import
+            if (file.ImportOutput.ImportResult == LibraryWorkerResultLevel.Success && !_successfulFiles.ContainsKey(file.FullPath))
             {
-                _completedFiles.Add(file.FullPath, file);
+                _successfulFiles.Add(file.FullPath, file);
             }
-            else if (file.ImportOutput.ImportResult == LibraryWorkerResultLevel.None && _completedFiles.ContainsKey(file.FullPath))
+            else if (file.ImportOutput.ImportResult != LibraryWorkerResultLevel.Success && _successfulFiles.ContainsKey(file.FullPath))
             {
-                _completedFiles.Remove(file.FullPath);
+                _successfulFiles.Remove(file.FullPath);
+            }
+
+            // Failed Import
+            if (file.ImportOutput.ImportResult != LibraryWorkerResultLevel.Success &&
+                file.ImportOutput.ImportResult != LibraryWorkerResultLevel.None &&
+                !_failureFiles.ContainsKey(file.FullPath))
+            {
+                _failureFiles.Add(file.FullPath, file);
+            }
+            else if ((file.ImportOutput.ImportResult == LibraryWorkerResultLevel.Success ||
+                      file.ImportOutput.ImportResult == LibraryWorkerResultLevel.None) &&
+                      _failureFiles.ContainsKey(file.FullPath))
+            {
+                _failureFiles.Remove(file.FullPath);
             }
 
             // Import Ready
@@ -295,7 +317,8 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels
             _musicBrainzSpecialTagFiles.Clear();
             _libraryConflictFiles.Clear();
             _importReadyFiles.Clear();
-            _completedFiles.Clear();
+            _successfulFiles.Clear();
+            _failureFiles.Clear();
 
             if (this.SelectionChanged != null)
                 this.SelectionChanged();
@@ -364,9 +387,13 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels
             if (_importReadyFiles.ContainsKey(file.FullPath))
                 _importReadyFiles.Remove(file.FullPath);
 
-            // Completed Files
-            if (_completedFiles.ContainsKey(file.FullPath))
-                _completedFiles.Remove(file.FullPath);
+            // Successful Files
+            if (_successfulFiles.ContainsKey(file.FullPath))
+                _successfulFiles.Remove(file.FullPath);
+
+            // Failed Files
+            if (_failureFiles.ContainsKey(file.FullPath))
+                _failureFiles.Remove(file.FullPath);
 
             OnPropertyChanged("Count");
 
