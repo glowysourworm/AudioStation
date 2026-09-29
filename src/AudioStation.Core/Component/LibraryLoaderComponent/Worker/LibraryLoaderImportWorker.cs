@@ -184,7 +184,6 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
                     _destinationPath = _fileController.CalculateGivenFileName(
                         workLoad.SourceFullPath,
                         workLoad.DestinationFolder,
-                        workLoad.TrackCategory,
                         workLoad.TagFinal.Genre,
                         workLoad.TagFinal.AlbumArtist,
                         workLoad.TagFinal.Album,

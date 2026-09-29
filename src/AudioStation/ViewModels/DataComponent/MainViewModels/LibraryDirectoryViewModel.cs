@@ -1,10 +1,10 @@
-﻿using AudioStation.Core.Model;
+﻿using AudioStation.Controller.Interface;
+using AudioStation.Core.Model;
 using AudioStation.Core.Model.Interface;
-
-using Microsoft.Win32;
 
 using Newtonsoft.Json;
 
+using SimpleWpf.IocFramework.Application;
 using SimpleWpf.UI.Command;
 using SimpleWpf.UI.ViewModel;
 
@@ -14,14 +14,17 @@ namespace AudioStation.ViewModels.DataComponent.MainViewModels
     {
         string _directory;
         string _directoryLabel;
+        string _customGroupingFormat;
+        string _customNamingFormat;
         bool _isPrimary;
         bool _isReadOnly;
         bool _deleteUnusedFolders;
-        TrackCategory _trackCategory;
         TrackGroupingType _groupingType;
         TrackNamingType _namingType;
 
         SimpleCommand _openFolderCommand;
+        SimpleCommand _editCustomNamingFormatCommand;
+        SimpleCommand _editCustomGroupingFormatCommand;
 
         public string Directory
         {
@@ -48,11 +51,6 @@ namespace AudioStation.ViewModels.DataComponent.MainViewModels
             get { return _deleteUnusedFolders; }
             set { this.RaiseAndSetIfChanged(ref _deleteUnusedFolders, value); }
         }
-        public TrackCategory TrackCategory
-        {
-            get { return _trackCategory; }
-            set { this.RaiseAndSetIfChanged(ref _trackCategory, value); }
-        }
         public TrackGroupingType GroupingType
         {
             get { return _groupingType; }
@@ -63,6 +61,16 @@ namespace AudioStation.ViewModels.DataComponent.MainViewModels
             get { return _namingType; }
             set { this.RaiseAndSetIfChanged(ref _namingType, value); }
         }
+        public string CustomGroupingFormat
+        {
+            get { return _customGroupingFormat; }
+            set { this.RaiseAndSetIfChanged(ref _customGroupingFormat, value); }
+        }
+        public string CustomNamingFormat
+        {
+            get { return _customNamingFormat; }
+            set { this.RaiseAndSetIfChanged(ref _customNamingFormat, value); }
+        }
 
         [JsonIgnore]
         public SimpleCommand OpenFolderCommand
@@ -71,28 +79,45 @@ namespace AudioStation.ViewModels.DataComponent.MainViewModels
             set { this.RaiseAndSetIfChanged(ref _openFolderCommand, value); }
         }
 
+        [JsonIgnore]
+        public SimpleCommand EditCustomNamingFormatCommand
+        {
+            get { return _editCustomNamingFormatCommand; }
+            set { this.RaiseAndSetIfChanged(ref _editCustomNamingFormatCommand, value); }
+        }
+
+        [JsonIgnore]
+        public SimpleCommand EditCustomGroupingFormatCommand
+        {
+            get { return _editCustomGroupingFormatCommand; }
+            set { this.RaiseAndSetIfChanged(ref _editCustomGroupingFormatCommand, value); }
+        }
+
         public LibraryDirectoryViewModel()
         {
+            var dialogController = IocContainer.Get<IDialogController>();
+
             this.Directory = string.Empty;
             this.DirectoryLabel = string.Empty;
-            this.TrackCategory = TrackCategory.Any;
             this.GroupingType = TrackGroupingType.None;
             this.NamingType = TrackNamingType.None;
             this.IsReadOnly = true;
             this.DeleteUnusedFolders = false;
+            this.CustomGroupingFormat = string.Empty;
+            this.CustomNamingFormat = string.Empty;
 
             this.OpenFolderCommand = new SimpleCommand(() =>
             {
-                var dialog = new OpenFolderDialog();
-                dialog.Multiselect = false;
+                this.Directory = dialogController.ShowSelectFolder();
+            });
 
-                if (!string.IsNullOrWhiteSpace(this.Directory))
-                    dialog.InitialDirectory = this.Directory;
+            this.EditCustomGroupingFormatCommand = new SimpleCommand(() =>
+            {
 
-                if (dialog.ShowDialog() == true)
-                {
-                    this.Directory = dialog.FolderName;
-                }
+            });
+            this.EditCustomNamingFormatCommand = new SimpleCommand(() =>
+            {
+
             });
         }
     }

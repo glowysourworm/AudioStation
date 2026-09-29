@@ -1,6 +1,5 @@
 ﻿using System.Windows;
-
-using SimpleWpf.UI.Command;
+using System.Windows.Input;
 
 namespace AudioStation.Controls.PropertyGrid
 {
@@ -10,20 +9,28 @@ namespace AudioStation.Controls.PropertyGrid
             DependencyProperty.Register("ButtonContent", typeof(object), typeof(PropertyButtonLabelControl));
 
         public static readonly DependencyProperty ButtonCommandProperty =
-            DependencyProperty.Register("ButtonCommand", typeof(SimpleCommand), typeof(PropertyButtonLabelControl));
+            DependencyProperty.Register("ButtonCommand", typeof(ICommand), typeof(PropertyButtonLabelControl));
+
+        public static readonly DependencyProperty ButtonCommandParameterProperty =
+            DependencyProperty.Register("ButtonCommandParameter", typeof(object), typeof(PropertyButtonLabelControl));
 
         public static readonly DependencyProperty ButtonWidthProperty =
             DependencyProperty.Register("ButtonWidth", typeof(double), typeof(PropertyButtonLabelControl));
 
-        public SimpleCommand ButtonCommand
+        public ICommand ButtonCommand
         {
-            get { return (SimpleCommand)GetValue(ButtonCommandProperty); }
+            get { return (ICommand)GetValue(ButtonCommandProperty); }
             set { SetValue(ButtonCommandProperty, value); }
         }
         public object ButtonContent
         {
             get { return (object)GetValue(ButtonContentProperty); }
             set { SetValue(ButtonContentProperty, value); }
+        }
+        public object ButtonCommandParameter
+        {
+            get { return (object)GetValue(ButtonCommandParameterProperty); }
+            set { SetValue(ButtonCommandParameterProperty, value); }
         }
         public double ButtonWidth
         {

@@ -18,7 +18,6 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels.Payload.Input
         string _sourceFullPath;
         string _destinationFolder;
 
-        TrackCategory _trackCategory;
         TrackGroupingType _groupingType;
         TrackNamingType _namingType;
 
@@ -76,11 +75,6 @@ namespace AudioStation.ViewModels.LibraryLoaderViewModels.Payload.Input
         {
             get { return _destinationFolder; }
             set { this.RaiseAndSetIfChanged(ref _destinationFolder, value); }
-        }
-        public TrackCategory TrackCategory
-        {
-            get { return _trackCategory; }
-            set { this.RaiseAndSetIfChanged(ref _trackCategory, value); }
         }
         public TrackGroupingType GroupingType
         {

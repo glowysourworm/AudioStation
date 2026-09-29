@@ -22,6 +22,12 @@ namespace AudioStation.Core.Model
         /// tag data.
         /// </summary>
         [Display(Name = "Descriptive", ShortName = "Descriptive", Description = "[Artist]-[Album]-[Track Name]-[Track Number].[File Extension]")]
-        Descriptive = 2
+        Descriptive = 2,
+
+        /// <summary>
+        /// Custom format used for track naming
+        /// </summary>
+        [Display(Name = "Custom", ShortName = "Custom", Description = "Use custom format to name tracks")]
+        Custom = 3
     }
 }

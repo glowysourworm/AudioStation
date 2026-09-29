@@ -32,7 +32,6 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Payload.Input
         public bool IsSourceDirectoryReadonly { get; set; }
         public bool EmbedImportTagData { get; set; }
 
-        public TrackCategory TrackCategory { get; set; }
         public TrackGroupingType GroupingType { get; set; }
         public TrackNamingType NamingType { get; set; }
 

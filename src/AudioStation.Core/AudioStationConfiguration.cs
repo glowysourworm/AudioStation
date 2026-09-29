@@ -13,6 +13,8 @@ namespace AudioStation.Core
         public LibraryDirectory StagingFolder { get; set; }
         public LibraryDirectory DownloadFolder { get; set; }
 
+        public LibraryImageStorage ImageStorage { get; set; }
+
         public string DatabaseHost { get; set; }
         public string DatabaseName { get; set; }
         public string DatabaseUser { get; set; }

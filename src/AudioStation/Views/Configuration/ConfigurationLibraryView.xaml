@@ -8,22 +8,33 @@
              xmlns:enumUI="clr-namespace:SimpleWpf.UI.Controls.EnumUI;assembly=SimpleWpf.UI"
              xmlns:coreModel="clr-namespace:AudioStation.Core.Model;assembly=AudioStation.Core"
              xmlns:configurationView="clr-namespace:AudioStation.Views.Configuration"
+             xmlns:propertyGrid="clr-namespace:AudioStation.Controls.PropertyGrid"
              Background="White">
 
-        <Grid RowDefinitions="Auto, Auto">
+    <Grid RowDefinitions="Auto, Auto, Auto">
 
-            <!-- Library Directories (User) -->
-            <configurationView:ConfigurationLibraryDirectoriesView x:Name="LibraryDirectoriesView"
+        <!-- Library Directories (User) -->
+        <configurationView:ConfigurationLibraryDirectoriesView x:Name="LibraryDirectoriesView"
                                                                ItemsSource="{Binding Configuration.LibraryDirectories}"
                                                                IsApplicationDirectoryView="False"
                                                                Encoders="{Binding Encoders}"
                                                                ConfigurationLocked="{Binding ConfigurationLocked}" />
 
-            <!-- Application Directories -->
-            <configurationView:ConfigurationLibraryDirectoriesView x:Name="ApplicationDirectoriesView" Grid.Row="1"
+        <!-- Image Storage -->
+        <propertyGrid:PropertyEnumControl EnumType="{x:Type coreModel:LibraryImageStorage}" Grid.Row="1"
+                                          IsReadOnly="{Binding ConfigurationLocked, Mode=OneWay}"
+                                          Value="{Binding Configuration.ImageStorage, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                          LabelColumnWidth="240"
+                                          LabelText="Library Image Storage"
+                                          Description="Images typically are stored in the file tag (or header) of the audio file. This allows you to have your album art visible wherever you go. There are other storage options; and each are mutually exclusive. Storing your album art on the disk saves you a lot of extra disk space; and is recommended for stationary files. You may 'export' your audio files to re-add the album artwork at any time in case you need to take them with you on some other device or app."
+                                          Style="{StaticResource PropertyGridUserControl}" />
+
+
+        <!-- Application Directories -->
+        <configurationView:ConfigurationLibraryDirectoriesView x:Name="ApplicationDirectoriesView" Grid.Row="2"
                                                                VerticalAlignment="Top"
                                                                IsApplicationDirectoryView="True"
-                                                               ConfigurationLocked="{Binding ConfigurationLocked}" />
+                                                               ConfigurationLocked="{Binding ConfigurationLocked, Mode=OneWay}" />
 
-        </Grid>
+    </Grid>
 </UserControl>

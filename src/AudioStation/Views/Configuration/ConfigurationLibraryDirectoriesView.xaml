@@ -28,19 +28,37 @@
 
                         <Grid RowDefinitions="Auto, Auto, Auto, Auto">
 
-                            <propertyGrid:PropertyBooleanControl LabelColumnWidth="240" Grid.Row="2" Grid.Column="1"
+                            <propertyGrid:PropertyBooleanControl LabelColumnWidth="240" Grid.Row="0"
                                                                  LabelText="Readonly" 
                                                                  Value="{Binding IsReadOnly, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
                                                                  IsRequired="False"
                                                                  IsReadOnly="{Binding IsReadOnly, RelativeSource={RelativeSource AncestorType=DataGrid}}"
                                                                  Style="{StaticResource PropertyGridUserControl}" />
 
-                            <propertyGrid:PropertyBooleanControl LabelColumnWidth="240" Grid.Row="3" Grid.Column="1"
+                            <propertyGrid:PropertyBooleanControl LabelColumnWidth="240" Grid.Row="1"
                                                                  LabelText="Delete Empty Folders (auto)" 
                                                                  Value="{Binding DeleteUnusedFolders, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
                                                                  IsReadOnly="{Binding IsReadOnly, RelativeSource={RelativeSource AncestorType=DataGrid}}"
                                                                  IsRequired="False"
                                                                  Style="{StaticResource PropertyGridUserControl}" />
+
+                            <propertyGrid:PropertyButtonLabelControl LabelColumnWidth="240" Grid.Row="2"
+                                                                     LabelText="Custom Naming Format"
+                                                                     ButtonCommand="{Binding EditCustomNamingFormatCommand}"
+                                                                     ButtonWidth="100"
+                                                                     ButtonContent="Edit Format"
+                                                                     Description="{Binding CustomNamingFormat, TargetNullValue='(Not Set)'}"
+                                                                     Style="{StaticResource PropertyGridUserControl}"
+                                                                     IsReadOnly="{Binding IsReadOnly, RelativeSource={RelativeSource AncestorType=DataGrid}}" />
+
+                            <propertyGrid:PropertyButtonLabelControl LabelColumnWidth="240" Grid.Row="3"
+                                                                     LabelText="Custom Grouping Format"
+                                                                     ButtonCommand="{Binding EditCustomGroupingFormatCommand}"
+                                                                     ButtonWidth="100"
+                                                                     ButtonContent="Edit Format"
+                                                                     Description="{Binding CustomGroupingFormat, TargetNullValue='(Not Set)'}"
+                                                                     Style="{StaticResource PropertyGridUserControl}"
+                                                                     IsReadOnly="{Binding IsReadOnly, RelativeSource={RelativeSource AncestorType=DataGrid}}" />
                         </Grid>
                     </Border>
 
@@ -59,17 +77,6 @@
                                          HorizontalAlignment="Center" 
                                          IsEnabled="{Binding IsReadOnly, RelativeSource={RelativeSource AncestorType=DataGridCell}, Converter={StaticResource BoolInverseConverter}}"
                                          IsChecked="{Binding IsPrimary, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-                        </DataTemplate>
-                    </DataGridTemplateColumn.CellTemplate>
-                </DataGridTemplateColumn>
-
-                <DataGridTemplateColumn Header="Category" Width="120">
-                    <DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate>
-                            <enumUI:SimpleEnumComboBox EnumType="{x:Type coreModel:TrackCategory}" 
-                                                       EnumValue="{Binding TrackCategory, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-                                                       IsEnabled="{Binding IsReadOnly, RelativeSource={RelativeSource AncestorType=DataGridCell}, Converter={StaticResource BoolInverseConverter}}"
-                                                       />
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>

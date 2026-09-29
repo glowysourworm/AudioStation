@@ -281,6 +281,8 @@ namespace AudioStation
 
             mapper.ConfigureMap<LibraryDirectoryViewModel, LibraryDirectory>()
                   .DeclareSourceInterface<ILibraryDirectory>()
+                  .IgnoreSourceProperty("EditCustomGroupingFormatCommand")
+                  .IgnoreSourceProperty("EditCustomNamingFormatCommand")
                   .IgnoreSourceProperty("OpenFolderCommand");
 
             mapper.ConfigureMap<AudioStationConfiguration, AudioStationConfigurationViewModel>()
@@ -296,6 +298,7 @@ namespace AudioStation
             mapper.ConfigureMap<AudioStationConfigurationViewModel, AudioStationConfiguration>()
                   .DeclareSourceInterface<IAudioStationConfiguration>()
                   .IgnoreSourceProperty("AddDirectoryCommand")
+                  .IgnoreSourceProperty("RemoveDirectoryCommand")
                   .DeclarePropertyConverter<ObservableCollection<LibraryDirectoryViewModel>, List<LibraryDirectory>>("LibraryDirectories", (mapper, source, dest) =>
                   {
                       // Need to be able to declare destination interface -> constructor selectcion

@@ -165,8 +165,7 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels
                 ServiceOverwriteMusicBrainzBasic = importerConfiguration.ServiceOverwriteMusicBrainzBasic,
                 SourceFullPath = fileFullPath,
                 TagFinal = new TagSmall(),
-                TagSourcePreference = importerConfiguration.TagSourcePreference,
-                TrackCategory = importerConfiguration.ImportDirectory.TrackCategory,
+                TagSourcePreference = importerConfiguration.TagSourcePreference
             };
 
             this.Tag = new TagSmallViewModel();

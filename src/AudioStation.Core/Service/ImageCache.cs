@@ -243,7 +243,7 @@ namespace AudioStation.Core.Service
             var files = forArtist ? _audioStationDbClient.GetArtistFiles(entityId) : _audioStationDbClient.GetAlbumTracks(entityId);
 
             // Take all the artwork - consolidating the images
-            //var images = files.Select(entity => _tagCache.Get(entity.FileReference.FileName))
+            //var images = files.Select(entity => _tagCache.GetFullTag(entity.FileReference.FileName))
             //                  .Where(tagRef => tagRef != null)                              // TODO: Application Level Validation (Library Maintenance)
             //                  .SelectMany(tagRef => tagRef.EmbeddedPictures)
             //                  .DistinctBy(picture => picture.FrameId);                      // (TODO) VERIFY UNIQUE PICTURE ID's

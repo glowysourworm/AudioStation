@@ -16,5 +16,8 @@ namespace AudioStation.Core.Model
 
         [Display(Name = "Genre / Artist / Album", ShortName = "GenreArtistAlbum", Description = "..Genre/Artist/Album/... (Genre required for imports)")]
         GenreArtistAlbum = 2,
+
+        [Display(Name = "Custom", ShortName = "Custom", Description = "Custom format for library folder hierarchy")]
+        Custom = 3
     }
 }

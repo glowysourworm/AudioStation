@@ -59,7 +59,7 @@ namespace AudioStation.Core.Service.Interface
         /// <param name="artist">Artist related to the image (from database entities)</param>
         /// <param name="genre">Genre related to the image (from database entities)</param>
         /// <returns>File name of music file for database reference</returns>
-        string CalculateGivenFileName(string sourceFilePath, string destinationDirectory, TrackCategory trackType, string genre, string artist, string album, string track, int trackNumber, int trackCount, bool createIntermediateDirectories);
+        string CalculateGivenFileName(string sourceFilePath, string destinationDirectory, string genre, string artist, string album, string track, int trackNumber, int trackCount, bool createIntermediateDirectories);
 
         /// <summary>
         /// Save audio file to music (or) audio books library permanent storage
@@ -74,7 +74,7 @@ namespace AudioStation.Core.Service.Interface
         /// <param name="genre">Genre related to the image (from database entities)</param>
         /// <param name="overwrite">Option to overwrite existing file</param>
         /// <returns>File name of music file for database reference</returns>
-        string SaveAudioFile(string stagedFilePath, TrackCategory trackType, string genre, string artist, string album, string track, int trackNumber, int trackCount, bool overwrite = false);
+        string SaveAudioFile(string stagedFilePath, string genre, string artist, string album, string track, int trackNumber, int trackCount, bool overwrite = false);
 
         /// <summary>
         /// Stores image given album / artist / genre / file type / (storage type)

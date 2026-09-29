@@ -32,7 +32,6 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Payload.Input.Inter
         public string SourceFullPath { get; set; }
         public string DestinationFolder { get; set; }
 
-        public TrackCategory TrackCategory { get; set; }
         public TrackGroupingType GroupingType { get; set; }
         public TrackNamingType NamingType { get; set; }
 

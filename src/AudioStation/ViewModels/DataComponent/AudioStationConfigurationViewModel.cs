@@ -1,5 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 
+using AudioStation.Core.Model;
 using AudioStation.Core.Model.Interface;
 using AudioStation.ViewModels.DataComponent.MainViewModels;
 
@@ -19,6 +20,8 @@ namespace AudioStation.ViewModels.DataComponent
 
         LibraryDirectoryViewModel _stagingFolder;
         LibraryDirectoryViewModel _downloadFolder;
+
+        LibraryImageStorage _imageStorage;
 
         string _databaseHost;
         string _databaseName;
@@ -95,6 +98,11 @@ namespace AudioStation.ViewModels.DataComponent
         {
             get { return _downloadFolder; }
             set { this.RaiseAndSetIfChanged(ref _downloadFolder, value); }
+        }
+        public LibraryImageStorage ImageStorage
+        {
+            get { return _imageStorage; }
+            set { this.RaiseAndSetIfChanged(ref _imageStorage, value); }
         }
         public string DatabaseHost
         {

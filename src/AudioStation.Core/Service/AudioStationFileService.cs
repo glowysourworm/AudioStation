@@ -114,7 +114,7 @@ namespace AudioStation.Core.Component
                                             _configuration.ApplicationStorageFolder;
 
                 // Calculate Path:  Also, create intermediate directories
-                var finalPath = CalculateFilePath(libraryDirectory, genre, artist, album, specificFileName, fileType, TrackCategory.Any, storageType, true);
+                var finalPath = CalculateFilePath(libraryDirectory, genre, artist, album, specificFileName, fileType, storageType, true);
 
                 // -> Save
                 StoreImageFileImpl(imageData, finalPath, overwrite);
@@ -127,7 +127,7 @@ namespace AudioStation.Core.Component
             }
         }
 
-        public string SaveAudioFile(string stagedFilePath, TrackCategory trackType, string genre, string artist, string album, string track, int trackNumber, int trackCount, bool overwrite = false)
+        public string SaveAudioFile(string stagedFilePath, string genre, string artist, string album, string track, int trackNumber, int trackCount, bool overwrite = false)
         {
             // Procedure:
             //
@@ -145,7 +145,7 @@ namespace AudioStation.Core.Component
                 var fileName = CalculateTrackFileName(libraryDirectory.NamingType, stagedFilePath, track, artist, album, trackNumber, trackCount);
 
                 // Calculate Path:  Also, create intermediate directories
-                var finalPath = CalculateFilePath(libraryDirectory, genre, artist, album, fileName, FileTypes.AudioFile, trackType, IAudioStationFileService.StorageType.DiskPermanent, true);
+                var finalPath = CalculateFilePath(libraryDirectory, genre, artist, album, fileName, FileTypes.AudioFile, IAudioStationFileService.StorageType.DiskPermanent, true);
 
                 if (File.Exists(finalPath))
                 {
@@ -252,7 +252,7 @@ namespace AudioStation.Core.Component
             }
         }
 
-        public string CalculateGivenFileName(string sourceFilePath, string destinationDirectory, TrackCategory trackType, string genre, string artist, string album, string track, int trackNumber, int trackCount, bool createIntermediateDirectories)
+        public string CalculateGivenFileName(string sourceFilePath, string destinationDirectory, string genre, string artist, string album, string track, int trackNumber, int trackCount, bool createIntermediateDirectories)
         {
             // Procedure:
             //
@@ -272,7 +272,7 @@ namespace AudioStation.Core.Component
                     throw new Exception("Trying to create directories in a readonly library folder");
 
                 // Calculate Path:  DO NOT CREATE DIRECTORIES
-                var finalPath = CalculateFilePath(libraryDirectory, genre, artist, album, fileName, FileTypes.AudioFile, trackType, IAudioStationFileService.StorageType.DiskPermanent, createIntermediateDirectories);
+                var finalPath = CalculateFilePath(libraryDirectory, genre, artist, album, fileName, FileTypes.AudioFile, IAudioStationFileService.StorageType.DiskPermanent, createIntermediateDirectories);
 
                 return finalPath;
             }
@@ -305,7 +305,6 @@ namespace AudioStation.Core.Component
                                          string album,
                                          string fileName,
                                          FileTypes fileType,
-                                         TrackCategory trackType,
                                          IAudioStationFileService.StorageType storageType,
                                          bool createIntermediateDirectories = false)
         {

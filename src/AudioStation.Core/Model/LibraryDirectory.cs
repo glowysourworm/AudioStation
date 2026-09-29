@@ -9,19 +9,21 @@ namespace AudioStation.Core.Model
         public bool IsPrimary { get; set; }
         public bool IsReadOnly { get; set; }
         public bool DeleteUnusedFolders { get; set; }
-        public TrackCategory TrackCategory { get; set; }
         public TrackGroupingType GroupingType { get; set; }
         public TrackNamingType NamingType { get; set; }
+        public string CustomGroupingFormat { get; set; }
+        public string CustomNamingFormat { get; set; }
 
         public LibraryDirectory()
         {
             this.DirectoryLabel = string.Empty;
             this.Directory = string.Empty;
-            this.TrackCategory = TrackCategory.Any;
             this.GroupingType = TrackGroupingType.None;
             this.NamingType = TrackNamingType.None;
             this.IsReadOnly = true;
             this.DeleteUnusedFolders = false;
+            this.CustomNamingFormat = string.Empty;
+            this.CustomGroupingFormat = string.Empty;
         }
     }
 }

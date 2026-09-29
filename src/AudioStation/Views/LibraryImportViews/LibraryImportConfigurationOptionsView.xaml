@@ -86,7 +86,6 @@
                             <propertyGrid:PropertyStringControl LabelColumnWidth="250" Value="{Binding WorkflowConfiguration.MigrationSourceDirectory}" IsRequired="True" IsReadOnly="True" Margin="1" LabelText="Source Folder" />
                             <propertyGrid:PropertyStringControl LabelColumnWidth="250" Value="{Binding WorkflowConfiguration.ImportDirectory.Directory}" IsRequired="True" IsReadOnly="True" Margin="1" LabelText="Destination Folder" />
 
-                            <propertyGrid:PropertyEnumControl EnumType="{x:Type coreModel:TrackCategory}" Value="{Binding WorkflowConfiguration.ImportDirectory.TrackCategory}" LabelColumnWidth="250" IsReadOnly="True" Margin="1" LabelText="Destination File Category" />
                             <propertyGrid:PropertyEnumControl EnumType="{x:Type coreModel:TrackNamingType}" Value="{Binding WorkflowConfiguration.ImportDirectory.NamingType}" LabelColumnWidth="250" IsReadOnly="True" Margin="1" LabelText="Destination File Naming" />
                             <propertyGrid:PropertyEnumControl EnumType="{x:Type coreModel:TrackGroupingType}" Value="{Binding WorkflowConfiguration.ImportDirectory.GroupingType}" LabelColumnWidth="250" IsReadOnly="True" Margin="1" LabelText="Destination File Grouping" />
 
