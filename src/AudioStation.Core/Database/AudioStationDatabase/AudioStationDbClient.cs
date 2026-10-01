@@ -84,7 +84,8 @@ namespace AudioStation.Core.Database.AudioStationDatabase
                         {
                             FileReference = fileReference,
                             Title = tagRef.Title?.Trim() ?? string.Empty,
-                            Number = (int)tagRef.Track,
+                            TrackNumber = (int)tagRef.Track,
+                            MediaNumber = tagRef.DiscNumber,
                             DurationMilliseconds = (int)tagRef.Duration.TotalMilliseconds
                         };
                         newEntity = true;
@@ -115,7 +116,7 @@ namespace AudioStation.Core.Database.AudioStationDatabase
                         {
                             MediaFormat = tagRef.MediaFormat,
                             MediaCount = (int)tagRef.DiscTotal,
-                            MediaNumber = (int)tagRef.DiscNumber,
+                            TrackCount = (int)tagRef.TrackTotal,
                             Year = (int)tagRef.Year,
                             Name = tagRef.Album.Trim()
                         };

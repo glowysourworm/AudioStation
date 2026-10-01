@@ -5,7 +5,7 @@
 -- Dumped from database version 17.4
 -- Dumped by pg_dump version 17.4
 
--- Started on 2026-09-30 23:06:30
+-- Started on 2026-10-01 13:43:50
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -62,7 +62,6 @@ ALTER TABLE public."AcoustIDLookupResult" ALTER COLUMN "Id" ADD GENERATED ALWAYS
 CREATE TABLE public."Album" (
     "Id" integer NOT NULL,
     "Name" character varying NOT NULL,
-    "MediaNumber" integer NOT NULL,
     "MediaCount" integer NOT NULL,
     "Year" integer NOT NULL,
     "MediaFormat" character varying NOT NULL,
@@ -372,12 +371,13 @@ ALTER TABLE public."Genre" ALTER COLUMN "Id" ADD GENERATED ALWAYS AS IDENTITY (
 CREATE TABLE public."Track" (
     "Id" integer NOT NULL,
     "Title" character varying NOT NULL,
-    "Number" integer NOT NULL,
+    "TrackNumber" integer NOT NULL,
     "AlbumId" integer NOT NULL,
     "ArtistId" integer NOT NULL,
     "DurationMilliseconds" integer NOT NULL,
     "GenreId" integer NOT NULL,
-    "FileReferenceId" integer NOT NULL
+    "FileReferenceId" integer NOT NULL,
+    "MediaNumber" integer NOT NULL
 );
 
 
@@ -904,7 +904,7 @@ ALTER TABLE ONLY public."TrackGenreMap"
     ADD CONSTRAINT "Track_ForeignKey" FOREIGN KEY ("TrackId") REFERENCES public."Track"("Id");
 
 
--- Completed on 2026-09-30 23:06:30
+-- Completed on 2026-10-01 13:43:50
 
 --
 -- PostgreSQL database dump complete

@@ -196,6 +196,7 @@ namespace AudioStation.ViewModels.ServiceComponent
 
             // Ignore Case
             return viewModel.Albums
+                            .SelectMany(x => x.Media)
                             .SelectMany(x => x.Tracks)
                             .Any(x => StringHelpers.ContainsIC(x.Genre, _searchText));
         }
@@ -208,6 +209,7 @@ namespace AudioStation.ViewModels.ServiceComponent
 
             // Ignore Case
             return viewModel.Albums
+                            .SelectMany(x => x.Media)
                             .SelectMany(x => x.Tracks)
                             .Any(x => StringHelpers.ContainsIC(x.Title, _searchText));
         }

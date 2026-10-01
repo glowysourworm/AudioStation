@@ -22,18 +22,18 @@ namespace AudioStation.Views
 
         private void OnTracksDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            foreach (var item in this.TracksLB.Items.Cast<TrackViewModel>())
-            {
-                if (item == (e.OriginalSource as FrameworkElement).DataContext)
-                {
-                    if (this.TrackSelected != null)
-                        this.TrackSelected(this, item);
+            //foreach (var item in this.TracksLB.Items.Cast<TrackViewModel>())
+            //{
+            //    if (item == (e.OriginalSource as FrameworkElement).DataContext)
+            //    {
+            //        if (this.TrackSelected != null)
+            //            this.TrackSelected(this, item);
 
-                    e.Handled = true;
+            //        e.Handled = true;
 
-                    return;
-                }
-            }
+            //        return;
+            //    }
+            //}
         }
     }
 }

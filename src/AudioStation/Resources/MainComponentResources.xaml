@@ -30,12 +30,6 @@
     <converter:MusicBrainzValidColorConverter x:Key="MusicBrainzValidColorConverter" />
     <converter:NowPlayingBoolConverter x:Key="NowPlayingBoolConverter" />
     <converter:NowPlayingPlaylistBoolConverter x:Key="NowPlayingPlaylistBoolConverter" />
-
-    <converter:ParameterConverterBase x:Key="ParameterVisibilityLessThanConverter"
-                                      TrueValue="{x:Static Visibility.Visible}"
-                                      FalseValue="{x:Static Visibility.Collapsed}"
-                                      Comparison="LessThan" />
-    
     <converter:PlayStopPauseParameterBoolConverter x:Key="PlayStopPauseParameterBoolConverter" />
     <converter:RatioParameterConverter x:Key="RatioParameterConverter" />
     <converter:StringArrayConverter x:Key="StringArrayConverter" />
@@ -68,6 +62,12 @@
     <simpleConverter:ParameterVisibilityCollapsedInverseConverter x:Key="ParameterVisibilityCollapsedInverseConverter" />
     <simpleConverter:TimeSpanMillisecondsConverter x:Key="TimeSpanMillisecondsConverter" />
     <simpleConverter:TimeSpanRatioParameterConverter x:Key="TimeSpanRatioParameterConverter" />
+    
+    <!-- Parameter Converters -->
+    <!--simpleConverter:ParameterConverterBase x:Key="ParameterVisibilityLessThanConverter"
+                                            TrueValue="{x:Static Visibility.Visible}"
+                                            FalseValue="{x:Static Visibility.Collapsed}"
+                                            Comparison="LessThan" /-->
 
     <simpleConverter:BoolORMultiConverter x:Key="BoolORMultiConverter" />
     <simpleConverter:BoolANDMultiConverter x:Key="BoolANDMultiConverter" />
@@ -81,7 +81,6 @@
 
     <!-- Template Selectors -->
     <templateSelector:LogItemTemplateSelector x:Key="LogItemTemplateSelector" />
-    <templateSelector:AlbumViewTemplateSelector x:Key="AlbumViewTemplateSelector" />
 
     <!-- Style Selectors -->
     <styleSelector:LibraryWorkItemContainerStyleSelector x:Key="LibraryWorkItemContainerStyleSelector" />

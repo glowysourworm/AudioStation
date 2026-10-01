@@ -5,7 +5,7 @@ using AudioStation.Event;
 using AudioStation.Service.Interface;
 using AudioStation.ViewModels.LibraryViewModels;
 
-using SimpleWpf.Extensions.ObservableCollection;
+using SimpleWpf.Extensions.Collection;
 using SimpleWpf.IocFramework.Application.Attribute;
 
 namespace AudioStation.Service
@@ -26,14 +26,40 @@ namespace AudioStation.Service
 
         public AlbumViewModel MapAlbum(Artist primaryArtist, Album albumEntity, IEnumerable<Track> tracks)
         {
-            return new AlbumViewModel(albumEntity.Id)
+            var album = new AlbumViewModel(albumEntity.Id)
             {
                 Album = albumEntity.Name,
                 Duration = TimeSpan.FromMilliseconds((double)tracks.Sum(track => track.DurationMilliseconds)),
                 PrimaryArtist = primaryArtist.Name,
-                Tracks = new SortedObservableCollection<TrackViewModel>(tracks.Select(MapTrack)),
                 Year = (uint)albumEntity.Year
             };
+
+            album.Media.AddRange(MapMedia(albumEntity, tracks));
+
+            return album;
+        }
+
+        public IEnumerable<MediaViewModel> MapMedia(Album albumEntity, IEnumerable<Track> tracks)
+        {
+            // Media (group by)
+            var albumMedia = tracks.GroupBy(x => x.MediaNumber)
+                                   .Select(x => new MediaViewModel()
+                                   {
+                                       Duration = TimeSpan.FromMilliseconds(x.Sum(track => track.DurationMilliseconds)),
+                                       Format = albumEntity.MediaFormat,
+                                       MediaNumber = x.Key
+                                   })
+                                   .Actualize();
+
+            // Map Media's Tracks
+            foreach (var media in albumMedia)
+            {
+                media.Tracks
+                     .AddRange(tracks.Where(x => x.MediaNumber == media.MediaNumber)
+                                     .Select(MapTrack));
+            }
+
+            return albumMedia;
         }
 
         public TrackViewModel MapTrack(Track track)
@@ -47,9 +73,9 @@ namespace AudioStation.Service
                 Genre = track.Genre.Name,
                 MediaCount = track.Album.MediaCount,
                 MediaFormat = track.Album.MediaFormat,
-                MediaNumber = track.Album.MediaNumber,
+                MediaNumber = track.MediaNumber,
                 TrackCount = track.Album.TrackCount,
-                TrackNumber = track.Number,
+                TrackNumber = track.TrackNumber,
                 Title = track.Title,
                 FileCorruptMessage = track.FileReference.FileCorruptMessage ?? "",
                 FileLoadErrorMessage = track.FileReference.FileErrorMessage ?? "",

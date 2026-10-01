@@ -617,7 +617,6 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
                         Name = workLoad.TagFinal.Album,
                         MediaCount = workLoad.TagFinal.MediaTotal ?? 0,
                         MediaFormat = workLoad.TagFinal.MediaFormat ?? string.Empty,
-                        MediaNumber = workLoad.TagFinal.MediaNumber ?? 0,
                         TrackCount = workLoad.TagFinal.TrackTotal ?? 0,
                         Year = workLoad.TagFinal.Year ?? DateTime.MinValue.Year
                     };
@@ -628,7 +627,6 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
                 {
                     album.MediaCount = workLoad.TagFinal.MediaTotal ?? 0;
                     album.MediaFormat = workLoad.TagFinal.MediaFormat ?? string.Empty;
-                    album.MediaNumber = workLoad.TagFinal.MediaNumber ?? 0;
                     album.TrackCount = workLoad.TagFinal.TrackTotal ?? 0;
                     album.Name = workLoad.TagFinal.Album ?? string.Empty;
                     album.Year = workLoad.TagFinal.Year ?? DateTime.MinValue.Year;
@@ -644,7 +642,8 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
                         AlbumId = album.Id,
                         DurationMilliseconds = workLoad.TagFinal.DurationMilliseconds ?? 0,
                         FileReferenceId = fileRef.Id,
-                        Number = workLoad.TagFinal.TrackNumber ?? 0,
+                        TrackNumber = workLoad.TagFinal.TrackNumber ?? 0,
+                        MediaNumber = workLoad.TagFinal.MediaNumber ?? 0,
                         ArtistId = artist.Id,
                         GenreId = genre.Id,
                         Title = workLoad.TagFinal.Title ?? string.Empty
@@ -678,7 +677,8 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
                     track.AlbumId = album.Id;
                     track.DurationMilliseconds = workLoad.TagFinal.DurationMilliseconds ?? 0;
                     track.FileReferenceId = fileRef.Id;
-                    track.Number = workLoad.TagFinal.TrackNumber ?? 0;
+                    track.TrackNumber = workLoad.TagFinal.TrackNumber ?? 0;
+                    track.MediaNumber = workLoad.TagFinal.MediaNumber ?? 0;
                     track.ArtistId = artist.Id;
                     track.GenreId = genre.Id;
                     track.Title = workLoad.TagFinal.Title ?? string.Empty;

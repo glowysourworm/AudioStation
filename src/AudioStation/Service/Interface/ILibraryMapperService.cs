@@ -8,7 +8,8 @@ namespace AudioStation.Service.Interface
     /// </summary>
     public interface ILibraryMapperService : IAudioStationService
     {
-        public AlbumViewModel MapAlbum(Artist primaryArtist, Album albumEntity, IEnumerable<Track> tracks);
-        public TrackViewModel MapTrack(Track track);
+        AlbumViewModel MapAlbum(Artist primaryArtist, Album albumEntity, IEnumerable<Track> tracks);
+        IEnumerable<MediaViewModel> MapMedia(Album albumEntity, IEnumerable<Track> tracks);
+        TrackViewModel MapTrack(Track track);
     }
 }

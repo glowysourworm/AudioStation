@@ -6,7 +6,7 @@
                  xmlns:controls="clr-namespace:AudioStation.Controls"
                  xmlns:cacheModel="clr-namespace:AudioStation.Core.Service.ImageCacheModel;assembly=AudioStation.Core"
                  xmlns:controlAnimation="clr-namespace:AudioStation.Controls.Animation">
-    
+
     <Border>
         <Grid ColumnDefinitions="Auto, *" RowDefinitions="Auto, *">
 
@@ -14,8 +14,8 @@
                                           DataContext="{Binding}" 
                                           ImageSize="{x:Static cacheModel:ImageCacheType.FullSize}"
                                           Margin="10"                                          
-                                          MaxHeight="280"
-                                          MaxWidth="280"
+                                          MaxHeight="300"
+                                          MaxWidth="300"
                                           Stretch="Uniform"
                                           Grid.RowSpan="2" 
                                           VerticalAlignment="Top" />
@@ -28,7 +28,7 @@
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
-                    
+
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="{Binding PrimaryArtist}" HorizontalAlignment="Left" FontSize="16" Foreground="#555555" Margin="12 5 5 5" />
                         <fa5:SvgAwesome Icon="Solid_Circle" Width="3" Height="3" Foreground="#555555" Margin="10" VerticalAlignment="Center" />
@@ -37,42 +37,79 @@
 
 
                     <!-- Album Year / Genre / Other Details... -->
-                    <TextBlock Text="{Binding Year}" HorizontalAlignment="Left" FontSize="12" Foreground="Gray" Grid.Row="1" Margin="12 5 5 5" />
-                    <TextBlock Text="{Binding Duration, StringFormat={}{0:hh}:{0:mm}:{0:ss}}" HorizontalAlignment="Right" FontSize="12" Foreground="Gray" Grid.Row="1" Margin="5 5 12 5" />
+                    <TextBlock Text="{Binding Year}" HorizontalAlignment="Left" Style="{StaticResource AlbumViewTextBlock}" Grid.Row="1" Margin="12 5 5 5" />
+                    <TextBlock Text="{Binding Duration, StringFormat={}{0:hh}:{0:mm}:{0:ss}}" Style="{StaticResource AlbumViewTextBlock}" HorizontalAlignment="Right" Grid.Row="1" Margin="5 0 17 0" />
 
                 </Grid>
             </Border>
 
-            <controls:NoScrollListBox x:Name="TracksLB"
-                                      ItemsSource="{Binding Tracks}"
-                                      ItemContainerStyle="{StaticResource HoverSelectItemContainerStyleWithAlternation_Playlist}"
-                                      AlternationCount="2"
-                                      MouseDoubleClick="OnTracksDoubleClick"
+            <!-- Album -> Media -->
+            <controls:NoScrollListBox x:Name="MediaLB"
+                                      ItemsSource="{Binding Media}"
+                                      ItemContainerStyle="{StaticResource NoHoverSelectItemContainerStyleWithAlteration}"
+                                      Style="{StaticResource PlainListBoxStyle}"
+                                      Grid.Column="1" Grid.Row="1"
+                                      Margin="0 0 10 10"
                                       HorizontalContentAlignment="Stretch"
-                                      Grid.Column="1" Grid.Row="1" Margin="0 0 10 10"
                                       ScrollViewer.CanContentScroll="False"
                                       Background="White">
 
                 <controls:NoScrollListBox.ItemTemplate>
                     <DataTemplate>
-                        <Border HorizontalAlignment="Stretch">
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="Auto" />
-                                </Grid.ColumnDefinitions>
 
-                                <TextBlock Text="{Binding TrackNumber}" Grid.Column="0" FontSize="12" Foreground="Gray" Margin="5" />
-                                <TextBlock Text="{Binding Title}" Grid.Column="1" FontSize="12" Foreground="Gray" Margin="5" />
-                                <TextBlock Text="{Binding Duration, StringFormat={}{0:hh}:{0:mm}:{0:ss}}" Grid.Column="2" FontSize="12" Foreground="Gray" Margin="5" />
-                            </Grid>
-                        </Border>
+                        <Grid RowDefinitions="Auto, Auto">
+
+                            <!-- Media Header -->
+                            <Border Grid.Row="0"
+                                    BorderBrush="LightGray"
+                                    BorderThickness="1"
+                                    CornerRadius="3"
+                                    Padding="10">
+                                <Grid ColumnDefinitions="Auto, Auto, *">
+                                    <TextBlock Text="{Binding Format}"  Style="{StaticResource AlbumViewTextBlock}"/>
+                                    <TextBlock Text="{Binding MediaNumber}" Style="{StaticResource AlbumViewTextBlock}" Grid.Column="1" Margin="5 0" />
+                                    <TextBlock Text="{Binding Duration, StringFormat={}{0:hh}:{0:mm}:{0:ss}}" Style="{StaticResource AlbumViewTextBlock}" Margin="5 0" Grid.Column="2" HorizontalAlignment="Right" />
+                                </Grid>
+
+                            </Border>
+
+                            <!-- Media -> Tracks -->
+                            <controls:NoScrollListBox x:Name="TracksLB"
+                                                      Grid.Row="1"
+                                                      ItemsSource="{Binding Tracks}"
+                                                      ItemContainerStyle="{StaticResource HoverSelectItemContainerStyleWithAlternation_Playlist}"
+                                                      Margin="0"
+                                                      Padding="0"
+                                                      AlternationCount="2"
+                                                      MouseDoubleClick="OnTracksDoubleClick"
+                                                      HorizontalContentAlignment="Stretch"                                   
+                                                      ScrollViewer.CanContentScroll="False">
+
+                                <controls:NoScrollListBox.ItemTemplate>
+
+                                    <!-- Track -->
+                                    <DataTemplate>
+                                        <Border HorizontalAlignment="Stretch" Padding="5">
+                                            <Grid ColumnDefinitions="Auto, *, Auto">
+                                                <TextBlock Text="{Binding TrackNumber}" Style="{StaticResource AlbumViewTextBlock}" Grid.Column="0" Margin="0" />
+                                                <TextBlock Text="{Binding Title}" Style="{StaticResource AlbumViewTextBlock}" Grid.Column="1" Margin="5 0" />
+                                                <TextBlock Text="{Binding Duration, StringFormat={}{0:hh}:{0:mm}:{0:ss}}" Style="{StaticResource AlbumViewTextBlock}" Grid.Column="2" Margin="5 0" />
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+
+                                </controls:NoScrollListBox.ItemTemplate>
+
+                            </controls:NoScrollListBox>
+
+                        </Grid>
+
                     </DataTemplate>
                 </controls:NoScrollListBox.ItemTemplate>
-                
+
             </controls:NoScrollListBox>
 
         </Grid>
     </Border>
+    
 </local:AlbumView>

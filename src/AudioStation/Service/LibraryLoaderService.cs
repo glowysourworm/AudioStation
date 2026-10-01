@@ -186,22 +186,13 @@ namespace AudioStation.Service
                 // Add Album - Query Tracks
                 foreach (var album in albums)
                 {
-                    var albumViewModel = new AlbumViewModel(album.Id)
-                    {
-                        Album = album.Name,
-                        PrimaryArtist = artist.Name,
-                        Year = (uint)album.Year
-                    };
-
                     // Database:  Load the track entities
                     var tracks = _audioStationDbClient.GetAlbumTracks(album.Id);
 
-                    // Create tracks for the album
-                    albumViewModel.Tracks.AddRange(tracks.Select(_libraryMapperService.MapTrack));
+                    // Map Album 
+                    var albumViewModel = _libraryMapperService.MapAlbum(artist, album, tracks);
 
-                    // Calculate the album duration
-                    albumViewModel.Duration = TimeSpan.FromMilliseconds(albumViewModel.Tracks.Sum(track => track.Duration.TotalMilliseconds));
-
+                    // Add Album to Artist
                     artistViewModel.Albums.Add(albumViewModel);
                 }
 

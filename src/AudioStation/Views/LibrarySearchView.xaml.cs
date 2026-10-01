@@ -115,7 +115,7 @@ namespace AudioStation.Views
 
             if (viewModel != null && album != null && artist != null)
             {
-                LoadPlaylist(album.Tracks.First(), album, artist);
+                LoadPlaylist(album.Media.First().Tracks.First(), album, artist);
             }
         }
         private void ResultsLB_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -140,7 +140,7 @@ namespace AudioStation.Views
 
             if (viewModel != null && album != null && artist != null)
             {
-                LoadPlaylist(album.Tracks.First(), album, artist);
+                LoadPlaylist(album.Media.First().Tracks.First(), album, artist);
             }
         }
         private void AlbumDetailLB_PreviewMouseWheel(object sender, System.Windows.Input.MouseWheelEventArgs e)
@@ -155,7 +155,7 @@ namespace AudioStation.Views
 
             if (viewModel != null && album != null && artist != null)
             {
-                foreach (var track in album.Tracks)
+                foreach (var track in album.Media.SelectMany(x => x.Tracks))
                 {
                     if (track == selectedTrack)
                     {

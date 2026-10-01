@@ -237,7 +237,7 @@ namespace AudioStation.ViewModels.LibraryViewModels
                 result &= entity.Album?.Name?.Contains(this.TrackSearch.Album, StringComparison.OrdinalIgnoreCase) ?? false;
 
             if (result && this.TrackSearch.MediaNumber > 0)
-                result &= entity.Album?.MediaNumber == this.TrackSearch.MediaNumber;
+                result &= entity.MediaNumber == this.TrackSearch.MediaNumber;
 
             if (result && this.TrackSearch.FileCorruptMessage != string.Empty)
                 result &= entity.FileReference.FileCorruptMessage?.Contains(this.TrackSearch.FileCorruptMessage, StringComparison.OrdinalIgnoreCase) ?? false;
@@ -261,7 +261,7 @@ namespace AudioStation.ViewModels.LibraryViewModels
                 result &= entity.Title?.Contains(this.TrackSearch.Title, StringComparison.OrdinalIgnoreCase) ?? false;
 
             if (result && this.TrackSearch.TrackNumber > 0)
-                result &= entity.Number == this.TrackSearch.TrackNumber;
+                result &= entity.TrackNumber == this.TrackSearch.TrackNumber;
 
             return result;
         }

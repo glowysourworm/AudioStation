@@ -58,7 +58,7 @@ namespace AudioStation.Service
 
                 var playlistEntries = new List<PlaylistEntryViewModel>();
 
-                foreach (var track in album.Tracks)
+                foreach (var track in album.Media.SelectMany(x => x.Tracks))
                 {
                     playlistEntries.Add(new PlaylistEntryViewModel(artist, album, track));
                 }

@@ -14,7 +14,7 @@ namespace AudioStation.ViewModels.LibraryViewModels
         string _primaryArtist;
         uint _year;
         TimeSpan _duration;
-        SortedObservableCollection<TrackViewModel> _tracks;
+        SortedObservableCollection<MediaViewModel> _media;
 
         public string Album
         {
@@ -36,15 +36,15 @@ namespace AudioStation.ViewModels.LibraryViewModels
             get { return _duration; }
             set { this.RaiseAndSetIfChanged(ref _duration, value); }
         }
-        public SortedObservableCollection<TrackViewModel> Tracks
+        public SortedObservableCollection<MediaViewModel> Media
         {
-            get { return _tracks; }
-            set { this.RaiseAndSetIfChanged(ref _tracks, value); }
+            get { return _media; }
+            set { this.RaiseAndSetIfChanged(ref _media, value); }
         }
 
         public AlbumViewModel(int id) : base(id, LibraryEntryType.Album)
         {
-            this.Tracks = new SortedObservableCollection<TrackViewModel>(new PropertyComparer<int, TrackViewModel>(x => x.TrackNumber));
+            this.Media = new SortedObservableCollection<MediaViewModel>(new PropertyComparer<int, MediaViewModel>(x => x.MediaNumber));
             this.Duration = TimeSpan.Zero;
             this.Album = string.Empty;
             this.PrimaryArtist = string.Empty;

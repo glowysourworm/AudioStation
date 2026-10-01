@@ -21,7 +21,8 @@ namespace AudioStation.Core.Database.AudioStationDatabase
         public int GenreId { get; set; }
 
         public string Title { get; set; }
-        public int Number { get; set; }
+        public int TrackNumber { get; set; }
+        public int MediaNumber { get; set; }
         public int DurationMilliseconds { get; set; }
 
         // Relationship properties
