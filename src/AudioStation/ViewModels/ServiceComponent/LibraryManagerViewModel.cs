@@ -6,6 +6,7 @@ using AudioStation.Core.Model.Interface;
 using AudioStation.Core.Utility;
 using AudioStation.Event;
 using AudioStation.Event.DialogEvents;
+using AudioStation.ViewModels.DataComponent;
 using AudioStation.ViewModels.LibraryViewModels;
 
 using Microsoft.Extensions.Logging;
@@ -32,22 +33,26 @@ namespace AudioStation.ViewModels.ServiceComponent
         LibraryViewModel _library;
 
         ObservableCollection<string> _nonConvertedFiles;
+        ObservableCollection<TrackViewModel> _trackTabItems;
 
         SimpleCommand _convertCommand;
-
-        private readonly string[] CONVERTIBLE_FILE_EXT;
-        private readonly string CONVERT_OUTPUT_FOLDER = "ConvertedFiles";
+        SimpleCommand<TrackViewModel> _addTrackTabCommand;
+        SimpleCommand<TrackViewModel> _removeTrackTabCommand;
 
         public LibraryViewModel Library
         {
             get { return _library; }
-            set { this.RaiseAndSetIfChanged(ref _library, value); }
+            private set { this.RaiseAndSetIfChanged(ref _library, value); }
         }
-
         public ObservableCollection<string> NonConvertedFiles
         {
             get { return _nonConvertedFiles; }
-            set { this.RaiseAndSetIfChanged(ref _nonConvertedFiles, value); }
+            private set { this.RaiseAndSetIfChanged(ref _nonConvertedFiles, value); }
+        }
+        public ObservableCollection<TrackViewModel> TrackTabItems
+        {
+            get { return _trackTabItems; }
+            private set { this.RaiseAndSetIfChanged(ref _trackTabItems, value); }
         }
 
         public SimpleCommand ConvertCommand
@@ -55,16 +60,31 @@ namespace AudioStation.ViewModels.ServiceComponent
             get { return _convertCommand; }
             set { this.RaiseAndSetIfChanged(ref _convertCommand, value); }
         }
+        public SimpleCommand<TrackViewModel> AddTrackTabCommand
+        {
+            get { return _addTrackTabCommand; }
+            set { RaiseAndSetIfChanged(ref _addTrackTabCommand, value); }
+        }
+        public SimpleCommand<TrackViewModel> RemoveTrackTabCommand
+        {
+            get { return _removeTrackTabCommand; }
+            set { RaiseAndSetIfChanged(ref _removeTrackTabCommand, value); }
+        }
 
         public LibraryManagerViewModel(IIocEventAggregator eventAggregator) : base("Library Manager")
         {
-            CONVERTIBLE_FILE_EXT = new string[]
-            {
-                                        ".wma", ".wav", ".m4a"
-            };
-
-            this.Library = new LibraryViewModel();
+            this.Library = null;
             this.NonConvertedFiles = new ObservableCollection<string>();
+
+            // Library Entry Tabs (closeable / ManagerView)
+            this.AddTrackTabCommand = new SimpleCommand<TrackViewModel>(viewModel =>
+            {
+                this.TrackTabItems.Add(viewModel);
+            });
+            this.RemoveTrackTabCommand = new SimpleCommand<TrackViewModel>(viewModel =>
+            {
+                this.TrackTabItems.Remove(viewModel);
+            });
 
             this.ConvertCommand = new SimpleCommand(async () =>
             {

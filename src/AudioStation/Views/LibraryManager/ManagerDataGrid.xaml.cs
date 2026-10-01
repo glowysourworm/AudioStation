@@ -3,6 +3,7 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
 
+using AudioStation.ViewModels.DataComponent;
 using AudioStation.ViewModels.LibraryViewModels;
 
 namespace AudioStation.Views.LibraryManager
@@ -44,8 +45,8 @@ namespace AudioStation.Views.LibraryManager
             if (viewModel != null)
             {
                 // Invoke main pager request
-                viewModel.TrackRequestPage = 1;
-                viewModel.TrackPageRequestCommand.Execute(1);
+                //viewModel.TrackRequestPage = 1;
+                //viewModel.TrackPageRequestCommand.Execute(1);
             }
         }
 
@@ -55,8 +56,8 @@ namespace AudioStation.Views.LibraryManager
             var viewModel = this.DataContext as LibraryViewModel;
             var selectedItem = this.LibraryEntryGrid.SelectedItem as TrackViewModel;
 
-            if (selectedItem != null && viewModel != null)
-                viewModel.AddTrackTabCommand.Execute(selectedItem);
+            //if (selectedItem != null && viewModel != null)
+            //    viewModel.AddTrackTabCommand.Execute(selectedItem);
         }
     }
 }

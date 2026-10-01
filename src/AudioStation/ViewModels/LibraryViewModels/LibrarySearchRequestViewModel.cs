@@ -1,25 +1,18 @@
-﻿using System.Collections.ObjectModel;
-
-using AudioStation.Core.Database.AudioStationDatabase;
+﻿using AudioStation.Core.Database.AudioStationDatabase;
 using AudioStation.Core.Model;
 using AudioStation.ViewModels.ServiceComponent;
 
-using SimpleWpf.Extensions.ObservableCollection;
 using SimpleWpf.UI.Command;
 using SimpleWpf.UI.ViewModel;
 
 namespace AudioStation.ViewModels.LibraryViewModels
 {
-    public class LibraryViewModel : ViewModelBase, IDisposable
+    /// <summary>
+    /// Component for library search request
+    /// </summary>
+    public class LibrarySearchRequestViewModel : ViewModelBase
     {
         private readonly int _trackPageSize = 100;
-
-        ObservableCollection<TrackViewModel> _tracks;
-        ObservableCollection<TrackViewModel> _trackTabItems;
-        ObservableCollection<AlbumViewModel> _albums;
-        ObservableCollection<ArtistViewModel> _artists;
-        ObservableCollection<ArtistViewModel> _artistsFull;
-        ObservableCollection<GenreViewModel> _genres;
 
         int _totalArtistCount;
         int _totalAlbumCount;
@@ -43,33 +36,21 @@ namespace AudioStation.ViewModels.LibraryViewModels
         SimpleCommand _trackPageRequestCommand;
         SimpleCommand<int> _trackPageRequestBackCommand;
         SimpleCommand<int> _trackPageRequestForwardCommand;
-        SimpleCommand<TrackViewModel> _addTrackTabCommand;
-        SimpleCommand<TrackViewModel> _removeTrackTabCommand;
 
-        public ObservableCollection<TrackViewModel> Tracks
+        public string ArtistSearch
         {
-            get { return _tracks; }
-            set { RaiseAndSetIfChanged(ref _tracks, value); }
+            get { return _artistSearch; }
+            set { RaiseAndSetIfChanged(ref _artistSearch, value); ExecuteArtistSearch(); }
         }
-        public ObservableCollection<TrackViewModel> TrackTabItems
+        public TrackViewModel TrackSearch
         {
-            get { return _trackTabItems; }
-            set { RaiseAndSetIfChanged(ref _trackTabItems, value); }
+            get { return _trackSearch; }
+            set { RaiseAndSetIfChanged(ref _trackSearch, value); }
         }
-        public ObservableCollection<AlbumViewModel> Albums
+        public LibraryManagerErrorFilterType LibraryManagerFilterType
         {
-            get { return _albums; }
-            set { RaiseAndSetIfChanged(ref _albums, value); }
-        }
-        public ObservableCollection<ArtistViewModel> Artists
-        {
-            get { return _artists; }
-            set { RaiseAndSetIfChanged(ref _artists, value); }
-        }
-        public ObservableCollection<GenreViewModel> Genres
-        {
-            get { return _genres; }
-            set { RaiseAndSetIfChanged(ref _genres, value); }
+            get { return _libraryManagerFilterType; }
+            set { RaiseAndSetIfChanged(ref _libraryManagerFilterType, value); }
         }
 
         public int TotalArtistCount
@@ -113,22 +94,6 @@ namespace AudioStation.ViewModels.LibraryViewModels
             set { RaiseAndSetIfChanged(ref _totalGenresFilteredCount, value); }
         }
 
-        public string ArtistSearch
-        {
-            get { return _artistSearch; }
-            set { RaiseAndSetIfChanged(ref _artistSearch, value); ExecuteArtistSearch(); }
-        }
-        public TrackViewModel TrackSearch
-        {
-            get { return _trackSearch; }
-            set { RaiseAndSetIfChanged(ref _trackSearch, value); }
-        }
-        public LibraryManagerErrorFilterType LibraryManagerFilterType
-        {
-            get { return _libraryManagerFilterType; }
-            set { RaiseAndSetIfChanged(ref _libraryManagerFilterType, value); }
-        }
-
         public int TrackPageBeginEntryNumber
         {
             get { return _trackPageBeginEntryNumber; }
@@ -165,42 +130,10 @@ namespace AudioStation.ViewModels.LibraryViewModels
             get { return _trackPageRequestForwardCommand; }
             set { RaiseAndSetIfChanged(ref _trackPageRequestForwardCommand, value); }
         }
-        public SimpleCommand<TrackViewModel> AddTrackTabCommand
-        {
-            get { return _addTrackTabCommand; }
-            set { RaiseAndSetIfChanged(ref _addTrackTabCommand, value); }
-        }
-        public SimpleCommand<TrackViewModel> RemoveTrackTabCommand
-        {
-            get { return _removeTrackTabCommand; }
-            set { RaiseAndSetIfChanged(ref _removeTrackTabCommand, value); }
-        }
 
-        /// <summary>
-        /// This instance should be owned by the LibraryManagerViewModel. The primary view model (main) 
-        /// will have the manager view model injected (as a pattern).
-        /// </summary>
-        public LibraryViewModel()
+        public LibrarySearchRequestViewModel()
         {
-            _artistsFull = new ObservableCollection<ArtistViewModel>();
-
-            this.Tracks = new ObservableCollection<TrackViewModel>();
-            this.TrackTabItems = new ObservableCollection<TrackViewModel>();
-            this.Albums = new ObservableCollection<AlbumViewModel>();
-            this.Artists = new ObservableCollection<ArtistViewModel>();
-            this.Genres = new ObservableCollection<GenreViewModel>();
-
             this.TrackSearch = new TrackViewModel(-1);
-
-            // Library Entry Tabs (closeable / ManagerView)
-            this.AddTrackTabCommand = new SimpleCommand<TrackViewModel>(viewModel =>
-            {
-                this.TrackTabItems.Add(viewModel);
-            });
-            this.RemoveTrackTabCommand = new SimpleCommand<TrackViewModel>(viewModel =>
-            {
-                this.TrackTabItems.Remove(viewModel);
-            });
 
             // Manager Grid (pager)
             this.TrackPageRequestCommand = new SimpleCommand(() =>
@@ -231,21 +164,20 @@ namespace AudioStation.ViewModels.LibraryViewModels
 
         private void ExecuteArtistSearch()
         {
-            this.Artists.Clear();
+            //this.Artists.Clear();
 
-            if (!string.IsNullOrWhiteSpace(this.ArtistSearch))
-                this.Artists.AddRange(_artistsFull.Where(artist => artist.Artist.Contains(this.ArtistSearch)));
+            //if (!string.IsNullOrWhiteSpace(this.ArtistSearch))
+            //    this.Artists.AddRange(_artistsFull.Where(artist => artist.Artist.Contains(this.ArtistSearch)));
 
-            else
-                this.Artists.AddRange(_artistsFull);
+            //else
+            //    this.Artists.AddRange(_artistsFull);
         }
-
         public void LoadEntryPage(PageResult<TrackViewModel> result, bool reset)
         {
-            if (reset)
-                this.Tracks.Clear();
+            //if (reset)
+            //    this.Tracks.Clear();
 
-            this.Tracks.AddRange(result.Results);
+            //this.Tracks.AddRange(result.Results);
 
             this.TrackPage = result.PageNumber;
             this.TrackRequestPage = result.PageNumber;
@@ -254,7 +186,6 @@ namespace AudioStation.ViewModels.LibraryViewModels
             this.TotalTrackCount = result.TotalRecordCount;
             this.TotalTrackFilteredCount = result.TotalRecordCountFiltered;
         }
-
         private void ExecuteSearch(int pageNumber)
         {
             PageResult<TrackViewModel> result;
@@ -280,7 +211,6 @@ namespace AudioStation.ViewModels.LibraryViewModels
 
             //LoadEntryPage(result, true);
         }
-
         private bool FilterFileErrors(Track entity)
         {
             switch (this.LibraryManagerFilterType)
@@ -334,15 +264,6 @@ namespace AudioStation.ViewModels.LibraryViewModels
                 result &= entity.Number == this.TrackSearch.TrackNumber;
 
             return result;
-        }
-
-        public void Dispose()
-        {
-            this.Tracks.Clear();
-            this.TrackTabItems.Clear();
-            this.Albums.Clear();
-            this.Artists.Clear();
-            this.Genres.Clear();
         }
     }
 }

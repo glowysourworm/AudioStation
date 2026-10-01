@@ -42,6 +42,8 @@ namespace AudioStation.Controller
         private readonly LibraryImporterViewModel _libraryImporterViewModel;
         private readonly LibraryLoaderViewModel _libraryLoaderViewModel;
         private readonly LibraryManagerViewModel _libraryManagerViewModel;
+        private readonly LibrarySearchViewModel _librarySearchViewModel;
+        private readonly LibraryViewModel _libraryViewModel;
         private readonly LogViewModel _logViewModel;
         private readonly MainViewModel _mainViewModel;
         private readonly NowPlayingViewModel _nowPlayingViewModel;
@@ -91,6 +93,8 @@ namespace AudioStation.Controller
             _libraryImporterViewModel = new LibraryImporterViewModel(audioStationMapper, audioConverter, dialogController, eventAggregator, tagCacheController);
             _libraryLoaderViewModel = new LibraryLoaderViewModel(eventAggregator, audioConverter);
             _libraryManagerViewModel = new LibraryManagerViewModel(eventAggregator);
+            _librarySearchViewModel = new LibrarySearchViewModel();
+            _libraryViewModel = new LibraryViewModel();
             _logViewModel = new LogViewModel(eventAggregator);
             _mainViewModel = new MainViewModel(audioController, audioStationMapper, dialogController, eventAggregator, cdDrive, audioConverter);
             _nowPlayingViewModel = new NowPlayingViewModel(eventAggregator);
@@ -103,6 +107,7 @@ namespace AudioStation.Controller
                 { _cdImporterViewModel.Id, _cdImporterViewModel },
                 { _libraryImporterViewModel.Id, _libraryImporterViewModel },
                 { _libraryLoaderViewModel.Id, _libraryLoaderViewModel },
+                { _librarySearchViewModel.Id, _librarySearchViewModel },
                 { _libraryManagerViewModel.Id, _libraryManagerViewModel },
                 { _radioViewModel.Id, _radioViewModel }
 
@@ -111,6 +116,7 @@ namespace AudioStation.Controller
             {
                 { _logViewModel.Id, _logViewModel },
                 { _mainViewModel.Id, _mainViewModel },
+                {_libraryViewModel.Id, _libraryViewModel },
                 { _nowPlayingViewModel.Id, _nowPlayingViewModel },
                 { _statusViewModel.Id, _statusViewModel }
             };

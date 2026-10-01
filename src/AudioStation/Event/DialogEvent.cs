@@ -19,7 +19,7 @@ namespace AudioStation.Event
         LibraryImporter,
         LibraryLoader,
         LibraryManager,
-        ArtistSearch,
+        LibrarySearch,
         NowPlaying,
         Radio,
         RadioBrowser,

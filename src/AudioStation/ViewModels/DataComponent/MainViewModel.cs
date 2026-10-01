@@ -32,8 +32,6 @@ public class MainViewModel : DataComponentViewModelBase
     private IAudioStationServiceController _audioStationServiceController;
     private IAudioStationComponentController _audioStationComponentController;
 
-
-
     #region Backing Fields
     AudioStationConfigurationViewModel _configuration;
     bool _loadedFromConfiguration;
@@ -50,6 +48,7 @@ public class MainViewModel : DataComponentViewModelBase
     BandcampViewModel _bandcamp;
     LibraryImporterViewModel _libraryImportViewModel;
     LibraryLoaderViewModel _libraryLoaderViewModel;
+    LibrarySearchViewModel _librarySearchViewModel;
     CDImporterViewModel _libraryLoaderCDImport;
 
     ObservableCollection<float> _equalizerValues;
@@ -112,6 +111,11 @@ public class MainViewModel : DataComponentViewModelBase
     {
         get { return _libraryLoaderViewModel; }
         set { this.RaiseAndSetIfChanged(ref _libraryLoaderViewModel, value); }
+    }
+    public LibrarySearchViewModel LibrarySearch
+    {
+        get { return _librarySearchViewModel; }
+        set { this.RaiseAndSetIfChanged(ref _librarySearchViewModel, value); }
     }
     public CDImporterViewModel LibraryLoaderCDImport
     {
@@ -356,6 +360,7 @@ public class MainViewModel : DataComponentViewModelBase
         this.LibraryImporter = _audioStationComponentController.GetServiceComponent<LibraryImporterViewModel>();
         this.LibraryLoader = _audioStationComponentController.GetServiceComponent<LibraryLoaderViewModel>();
         this.LibraryLoaderCDImport = _audioStationComponentController.GetServiceComponent<CDImporterViewModel>();
+        this.LibrarySearch = _audioStationComponentController.GetServiceComponent<LibrarySearchViewModel>();
         this.Bandcamp = _audioStationComponentController.GetServiceComponent<BandcampViewModel>();
         this.Volume = 1.0f;
     }

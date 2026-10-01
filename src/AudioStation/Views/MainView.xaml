@@ -67,9 +67,9 @@
                     </region:IocRegion>
                 </controls:TabItemPressable>
 
-                <controls:TabItemPressable x:Name="ArtistSearchTab" FontSize="14" Margin="0" Header="Artist Search" Style="{StaticResource MainTabItemControlStyle}">
-                    <region:IocRegion region:IocRegionManager.RegionName="ArtistSearchView"
-                                      region:IocRegionManager.DefaultViewType="{x:Type local:ArtistSearchView}">
+                <controls:TabItemPressable x:Name="LibrarySearchTab" FontSize="14" Margin="0" Header="Library Search" Style="{StaticResource MainTabItemControlStyle}">
+                    <region:IocRegion region:IocRegionManager.RegionName="LibrarySearchView"
+                                      region:IocRegionManager.DefaultViewType="{x:Type local:LibrarySearchView}">
                     </region:IocRegion>
                 </controls:TabItemPressable>
 

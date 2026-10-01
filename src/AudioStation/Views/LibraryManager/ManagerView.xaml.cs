@@ -7,6 +7,7 @@ using AudioStation.Controller.Interface;
 using AudioStation.Controls;
 using AudioStation.Core.Service.Interface;
 using AudioStation.Core.Service.Vendor.Interface;
+using AudioStation.ViewModels.DataComponent;
 using AudioStation.ViewModels.LibraryViewModels;
 using AudioStation.Views.LibraryEntryViews;
 
@@ -52,11 +53,11 @@ namespace AudioStation.Views.LibraryManager
             var oldViewModel = e.OldValue as LibraryViewModel;
             var newViewModel = e.NewValue as LibraryViewModel;
 
-            if (oldViewModel != null)
-                oldViewModel.TrackTabItems.CollectionChanged -= OnLibraryEntryTabsChanged;
+            //if (oldViewModel != null)
+            //    oldViewModel.TrackTabItems.CollectionChanged -= OnLibraryEntryTabsChanged;
 
-            if (newViewModel != null)
-                newViewModel.TrackTabItems.CollectionChanged += OnLibraryEntryTabsChanged;
+            //if (newViewModel != null)
+            //    newViewModel.TrackTabItems.CollectionChanged += OnLibraryEntryTabsChanged;
         }
 
         private async void OnLibraryEntryTabsChanged(object? sender, NotifyCollectionChangedEventArgs e)
@@ -65,26 +66,26 @@ namespace AudioStation.Views.LibraryManager
 
             // Tab Item Header:  Set the header here because it's used to reference the view model
             //
-            if (viewModel != null)
-            {
-                // Removed Tab(s)
-                for (int index = _tabItems.Count - 1; index >= 3 /* Skipping Non-Closeable Tabs */; index--)
-                {
-                    var entryViewModel = viewModel.TrackTabItems.FirstOrDefault(x => GetFileTabName(x) == (string)_tabItems[index].Header);
+            //if (viewModel != null)
+            //{
+            //    // Removed Tab(s)
+            //    for (int index = _tabItems.Count - 1; index >= 3 /* Skipping Non-Closeable Tabs */; index--)
+            //    {
+            //        var entryViewModel = viewModel.TrackTabItems.FirstOrDefault(x => GetFileTabName(x) == (string)_tabItems[index].Header);
 
-                    if (entryViewModel == null)
-                        _tabItems.RemoveAt(index);
-                }
+            //        if (entryViewModel == null)
+            //            _tabItems.RemoveAt(index);
+            //    }
 
-                // Sync the tab items w/ the view model
-                foreach (var tabViewModel in viewModel.TrackTabItems)
-                {
-                    var tabItem = _tabItems.FirstOrDefault(x => (string)x.Header == GetFileTabName(tabViewModel));
+            //    // Sync the tab items w/ the view model
+            //    foreach (var tabViewModel in viewModel.TrackTabItems)
+            //    {
+            //        var tabItem = _tabItems.FirstOrDefault(x => (string)x.Header == GetFileTabName(tabViewModel));
 
-                    if (tabItem == null)
-                        _tabItems.Add(await CreateLibraryEntryFileTab(tabViewModel));
-                }
-            }
+            //        if (tabItem == null)
+            //            _tabItems.Add(await CreateLibraryEntryFileTab(tabViewModel));
+            //    }
+            //}
         }
 
         // Gets a consistent readable tab item header / name
@@ -170,7 +171,7 @@ namespace AudioStation.Views.LibraryManager
             {
                 var libraryViewModel = this.DataContext as LibraryViewModel;
 
-                libraryViewModel?.RemoveTrackTabCommand.Execute(viewModel);
+                //libraryViewModel?.RemoveTrackTabCommand.Execute(viewModel);
             });
             return tabItem;
         }

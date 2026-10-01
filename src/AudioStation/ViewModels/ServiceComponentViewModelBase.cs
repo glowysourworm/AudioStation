@@ -131,6 +131,19 @@ namespace AudioStation.ViewModels
             }, CanReset);
         }
 
+        protected void RaiseLoadEvent()
+        {
+            this.LoadCommand.Execute(null);
+        }
+        protected void RaiseExecuteEvent()
+        {
+            this.ExecuteCommand.Execute(null);
+        }
+        protected void RaiseResetEvent()
+        {
+            this.ResetCommand.Execute(null);
+        }
+
         protected override void OnPropertyChanged(string name)
         {
             base.OnPropertyChanged(name);

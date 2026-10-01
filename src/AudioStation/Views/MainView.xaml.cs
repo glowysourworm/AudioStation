@@ -46,8 +46,8 @@ namespace AudioStation.Views
                 case NavigationView.LibraryManager:
                     this.LibraryManagerTab.IsSelected = true;
                     break;
-                case NavigationView.ArtistSearch:
-                    this.ArtistSearchTab.IsSelected = true;
+                case NavigationView.LibrarySearch:
+                    this.LibrarySearchTab.IsSelected = true;
                     break;
                 case NavigationView.NowPlaying:
                     this.NowPlayingTab.IsSelected = true;

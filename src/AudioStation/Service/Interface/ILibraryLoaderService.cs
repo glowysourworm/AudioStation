@@ -1,5 +1,6 @@
 ﻿using AudioStation.Core.Database.AudioStationDatabase;
 using AudioStation.Core.Model;
+using AudioStation.ViewModels.DataComponent;
 using AudioStation.ViewModels.LibraryViewModels;
 using AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels;
 

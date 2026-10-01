@@ -7,6 +7,7 @@ using AudioStation.Core.Model;
 using AudioStation.Core.Utility;
 using AudioStation.Service.Interface;
 using AudioStation.Utility;
+using AudioStation.ViewModels.DataComponent;
 using AudioStation.ViewModels.LibraryViewModels;
 using AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels;
 
@@ -53,17 +54,20 @@ namespace AudioStation.Service
             // Load Searchable Data (except for the library entries)
             try
             {
-                var loadViewModel = new LibraryViewModel();
+                var libraryViewModel = _audioStationComponentController.GetDataComponent<LibraryViewModel>();
+
+                // Clear out any old data
+                libraryViewModel.Dispose();
 
                 var artists = LoadArtists(progressHandler);
                 var albums = LoadAlbums(progressHandler);
                 var genres = LoadGenres(progressHandler);
 
-                loadViewModel.Artists.AddRange(artists);
-                loadViewModel.Albums.AddRange(albums);
-                loadViewModel.Genres.AddRange(genres);
+                libraryViewModel.Artists.AddRange(artists);
+                libraryViewModel.Albums.AddRange(albums);
+                libraryViewModel.Genres.AddRange(genres);
 
-                return loadViewModel;
+                return libraryViewModel;
             }
             catch (Exception ex)
             {
