@@ -1,8 +1,6 @@
-﻿using SimpleWpf.UI.ViewModel;
-
-namespace AudioStation.Event.DialogEvents
+﻿namespace AudioStation.Event.DialogEvents.DialogEditorEvents
 {
-    public class DialogSingleTextFieldViewModel : ViewModelBase
+    public class DialogSingleTextFieldViewModel : DialogEditorViewModelBase
     {
         string _name;
         string _value;
@@ -22,6 +20,16 @@ namespace AudioStation.Event.DialogEvents
         public DialogSingleTextFieldViewModel()
         {
             this.Value = string.Empty;
+        }
+
+        protected override bool Validate(out bool isComplete, out string validationMessage)
+        {
+            var valid = !string.IsNullOrWhiteSpace(this.Value);
+
+            isComplete = valid;
+            validationMessage = valid ? string.Empty : "Please enter a value";
+
+            return valid;
         }
     }
 }

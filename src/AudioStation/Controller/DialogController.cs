@@ -277,6 +277,12 @@ namespace AudioStation.Controller
                                 DataContext = data.DataContext
                             };
                             break;
+                        case DialogEditorView.NamingGroupingFormatView:
+                            _dialogWindow.DataContext = new NamingGroupingFormatView()
+                            {
+                                DataContext = data.DataContext
+                            };
+                            break;
                         case DialogEditorView.None:
                         default:
                             throw new Exception("Unhandled dialog editor view type:  DialogController.cs");

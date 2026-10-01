@@ -1,10 +1,8 @@
 ﻿using AudioStation.ViewModels.Vendor.ATLViewModel;
 
-using SimpleWpf.UI.ViewModel;
-
-namespace AudioStation.Event.DialogEvents
+namespace AudioStation.Event.DialogEvents.DialogEditorEvents
 {
-    public class DialogTagFieldEditorViewModel : ViewModelBase
+    public class DialogTagFieldEditorViewModel : DialogEditorViewModelBase
     {
         string _tagFieldName;
         TagViewModel _tag;
@@ -23,6 +21,13 @@ namespace AudioStation.Event.DialogEvents
         public DialogTagFieldEditorViewModel()
         {
             this.Tag = new TagViewModel();
+        }
+
+        protected override bool Validate(out bool isComplete, out string validationMessage)
+        {
+            isComplete = true;
+            validationMessage = string.Empty;
+            return true;
         }
     }
 }

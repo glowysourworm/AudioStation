@@ -142,7 +142,7 @@ namespace AudioStation.Core.Component
                 var libraryDirectory = GetLibraryDirectory(stagedFilePath);
 
                 // Calculate Track File Name:  needs all info from a valid tag to proceed
-                var fileName = CalculateTrackFileName(libraryDirectory.NamingType, stagedFilePath, track, artist, album, trackNumber, trackCount);
+                var fileName = CalculateTrackFileName(libraryDirectory.FileFormatType, stagedFilePath, track, artist, album, trackNumber, trackCount);
 
                 // Calculate Path:  Also, create intermediate directories
                 var finalPath = CalculateFilePath(libraryDirectory, genre, artist, album, fileName, FileTypes.AudioFile, IAudioStationFileService.StorageType.DiskPermanent, true);
@@ -266,7 +266,7 @@ namespace AudioStation.Core.Component
                 var libraryDirectory = GetLibraryDirectory(destinationDirectory);
 
                 // Calculate Track File Name:  needs all info from a valid tag to proceed
-                var fileName = CalculateTrackFileName(libraryDirectory.NamingType, sourceFilePath, track, artist, album, trackNumber, trackCount);
+                var fileName = CalculateTrackFileName(libraryDirectory.FileFormatType, sourceFilePath, track, artist, album, trackNumber, trackCount);
 
                 if (libraryDirectory.IsReadOnly && createIntermediateDirectories)
                     throw new Exception("Trying to create directories in a readonly library folder");
@@ -389,7 +389,7 @@ namespace AudioStation.Core.Component
                                                 string album,
                                                 bool createFolders = false)
         {
-            switch (libraryDirectory.GroupingType)
+            switch (libraryDirectory.FolderFormatType)
             {
                 case TrackGroupingType.None:
                     return libraryDirectory.Directory;

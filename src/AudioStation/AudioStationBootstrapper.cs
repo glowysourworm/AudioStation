@@ -220,6 +220,19 @@ namespace AudioStation
             mapper.ConfigureMap<AcoustIDLookupResultViewModel, AcoustIDLookupResult>()
                   .DeclareSourceInterface<IAcoustIDLookupResult>();
 
+            mapper.ConfigureMap<LibraryFormatField, LibraryFormatFieldViewModel>()
+                  .DeclareSourceInterface<ILibraryFormatField>();
+
+            mapper.ConfigureMap<LibraryFormat, LibraryFormatViewModel>()
+                  .DeclareSourceInterface<ILibraryFormat>()
+                  .DeclarePropertyConverter<IEnumerable<ILibraryFormatField>, ObservableCollection<LibraryFormatFieldViewModel>>("Fields", (mapper, source, dest) =>
+                  {
+                      // Need to be able to declare destination interface -> constructor selectcion
+                      dest.Clear();
+                      foreach (var item in source)
+                          dest.Add(mapper.Map<ILibraryFormatField, LibraryFormatFieldViewModel>(item));
+                  });
+
             mapper.ConfigureMap<TagSmall, TagSmall>()
                   .DeclareSourceInterface<ITagSmall>();
 

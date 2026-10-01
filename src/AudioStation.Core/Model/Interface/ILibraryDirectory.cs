@@ -7,9 +7,9 @@
         public bool IsPrimary { get; set; }
         public bool IsReadOnly { get; set; }
         public bool DeleteUnusedFolders { get; set; }
-        public TrackGroupingType GroupingType { get; set; }
-        public TrackNamingType NamingType { get; set; }
-        public string CustomGroupingFormat { get; set; }
-        public string CustomNamingFormat { get; set; }
+        public TrackGroupingType FolderFormatType { get; set; }
+        public TrackNamingType FileFormatType { get; set; }
+        public string CustomFolderFormat { get; set; }
+        public string CustomFileFormat { get; set; }
     }
 }

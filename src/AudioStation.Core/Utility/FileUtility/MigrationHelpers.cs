@@ -1,7 +1,11 @@
 ﻿using System.IO;
+using System.Reflection;
 using System.Security.AccessControl;
 using System.Security.Principal;
 using System.Text;
+
+using AudioStation.Core.Model;
+using AudioStation.Core.Model.Interface;
 
 using Microsoft.Extensions.Logging;
 
@@ -12,6 +16,138 @@ namespace AudioStation.Core.Utility.FileUtility
 {
     public static class MigrationHelpers
     {
+        public static string FormatLeftToken = "{";
+        public static string FormatRightToken = "}";
+
+        /// <summary>
+        /// Extra format token:  extension
+        /// </summary>
+        private static LibraryFormatAttribute FileExtension = new LibraryFormatAttribute()
+        {
+            Name = "File Extension",
+            Description = "This may be used to represent the file extension for the file",
+            TokenName = "extension",
+            Use = LibraryFormatUse.File
+        };
+
+        public static char[] GetInvalidFileCharacters()
+        {
+            // NOTE*** This does not include all invalid path characters!!! 
+            //
+            //         Adding:  ['?', '\'', '%', '$', '#', '@', '^', '&', '*', '(', ')', '+', '=']
+            //
+            return System.IO.Path.GetInvalidPathChars()
+                                 .Concat(new char[] { '?', '\'', ':', ';', '\"', '%', '$', '#', '@', '^', '&', '*', '(', ')', '+', '=' })
+                                 .ToArray();
+        }
+
+        public static LibraryFormat GetFormat<T>(LibraryFormatUse use, params LibraryExtraneousFields[] extraFields)
+        {
+            var keywords = typeof(T).GetProperties()
+                                    .Select(propertyInfo =>
+                                    {
+                                        var formatAttribute = propertyInfo.GetCustomAttribute<LibraryFormatAttribute>();
+
+                                        if (formatAttribute == null)
+                                            return null;
+
+                                        return new LibraryFormatField()
+                                        {
+                                            IsExtraneous = false,
+                                            Description = formatAttribute.Description,
+                                            Name = formatAttribute.Name,
+                                            PropertyName = propertyInfo.Name,
+                                            TokenName = formatAttribute.TokenName,
+                                            Use = formatAttribute.Use
+                                        };
+
+                                    }).Where(x => x != null && x.Use.Has(use))
+                                      .ToList();
+
+
+            foreach (var enumValue in extraFields)
+            {
+                switch (enumValue)
+                {
+                    case LibraryExtraneousFields.FileExtension:
+                        keywords.Add(new LibraryFormatField()
+                        {
+                            IsExtraneous = true,
+                            Name = FileExtension.Name,
+                            Description = FileExtension.Description,
+                            PropertyName = string.Empty,
+                            TokenName = FileExtension.TokenName,
+                            Use = LibraryFormatUse.File
+                        });
+                        break;
+                    default:
+                        throw new Exception("Unhandled extra field type");
+                }
+            }
+
+
+            return new LibraryFormat()
+            {
+                Fields = keywords,
+                Use = use
+            };
+        }
+
+        /// <summary>
+        /// Applies the ILibraryFormat to the source string using a source object to produce a result string
+        /// </summary>
+        /// <param name="format">Format information:  how to draw data from the source object</param>
+        /// <param name="source">Source (object):  properties are used (from the ILibraryFormat) to provide value strings</param>
+        /// <param name="sourceFormatString">Inpupt string to operate on</param>
+        /// <param name="extraneousFieldGetter">Getter for extraneous fields</param>
+        /// <returns>Formatted string with the result data</returns>
+        public static string Format(ILibraryFormat format, string sourceFormatString, object source, Func<LibraryExtraneousFields, string> extraneousFieldGetter = null)
+        {
+            if (string.IsNullOrWhiteSpace(sourceFormatString))
+                throw new ArgumentException("Invalid format string");
+
+            if (format == null ||
+                source == null)
+                throw new ArgumentNullException("Invalid format input");
+
+            var result = sourceFormatString;
+
+            foreach (var field in format.Fields)
+            {
+                // Field Property (token)
+                var fieldTokenized = format.LeftToken + field.TokenName + format.RightToken;
+
+                // Check for token
+                if (result.Contains(fieldTokenized))
+                {
+                    // Property
+                    if (!field.IsExtraneous)
+                    {
+                        // Field Property (value)
+                        var propertyValue = source.GetProperty(field.PropertyName)?.ToString() ?? string.Empty;
+
+                        // Field (value) Replacement
+                        result = result.Replace(fieldTokenized, propertyValue);
+                    }
+
+                    // Extraneous
+                    else if (extraneousFieldGetter != null)
+                    {
+                        // Field (value)
+                        var propertyValue = extraneousFieldGetter(field.ExtraneousType);
+
+                        // Field (value) Replacement
+                        result = result.Replace(fieldTokenized, propertyValue);
+                    }
+
+                    else
+                        throw new Exception("Unable to resolve format field:  " + field.Name);
+                }
+            }
+
+            return result;
+        }
+
         /// <summary>
         /// Checks all possible file movement issues (that are allowed without yet moving the file); and returns the result. DOES NOT
         /// CREATE / DELETE ANY FILES OR FOLDERS.
@@ -176,13 +312,7 @@ namespace AudioStation.Core.Utility.FileUtility
             // Convert UTF-8 character sequences
             var result = Encoding.UTF8.GetString(Encoding.Default.GetBytes(pathPart));
 
-            // NOTE*** This does not include all invalid path characters!!! 
-            //
-            //         Adding:  ['?', '\'', '%', '$', '#', '@', '^', '&', '*', '(', ')', '+', '=']
-            var invalidChars = System.IO.Path.GetInvalidPathChars()
-                                             .Concat(new char[] { '?', '\'', ':', ';', '\"', '%', '$', '#', '@', '^', '&', '*', '(', ')', '+', '=' });
-
-            foreach (var invalidChar in invalidChars)
+            foreach (var invalidChar in GetInvalidFileCharacters())
             {
                 result = result.Replace(invalidChar.ToString(), string.Empty);
             }

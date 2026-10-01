@@ -43,7 +43,8 @@ namespace AudioStation.Event
         SingleTextField,
         TagView,
         TagFieldView,
-        TagSourceView
+        TagSourceView,
+        NamingGroupingFormatView
     }
 
     public class DialogEventData

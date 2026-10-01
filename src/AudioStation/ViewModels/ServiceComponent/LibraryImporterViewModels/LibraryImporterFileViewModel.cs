@@ -141,7 +141,7 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels
                 ConvertAudioFormat = importerConfiguration.ConvertAudioFormat,
                 DestinationFolder = importerConfiguration.ImportDirectory.Directory,
                 EmbedImportTagData = importerConfiguration.EmbedImportTagData,
-                GroupingType = importerConfiguration.ImportDirectory.GroupingType,
+                GroupingType = importerConfiguration.ImportDirectory.FolderFormatType,
                 ImportFormat = importerConfiguration.ImportFormat != null ?
                                     _audioStationMapper.Map<AudioEncoderViewModel, AudioEncoderInfo>(importerConfiguration.ImportFormat) :
                                     new AudioEncoderInfo(),
@@ -156,7 +156,7 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels
                 MigrationDeleteSourceFolders = importerConfiguration.MigrationDeleteSourceFolders,
                 MigrationOverwriteDestinationFiles = importerConfiguration.MigrationOverwriteDestinationFiles,
                 MigrationSourceDirectory = importerConfiguration.MigrationSourceDirectory,
-                NamingType = importerConfiguration.ImportDirectory.NamingType,
+                NamingType = importerConfiguration.ImportDirectory.FileFormatType,
                 ServiceIncludeAcoustID = importerConfiguration.ServiceIncludeAcoustID,
                 ServiceIncludeMusicBrainzArtwork = importerConfiguration.ServiceIncludeMusicBrainzArtwork,
                 ServiceIncludeMusicBrainzBasic = importerConfiguration.ServiceIncludeMusicBrainzBasic,

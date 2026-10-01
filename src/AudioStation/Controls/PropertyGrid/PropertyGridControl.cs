@@ -9,6 +9,9 @@ namespace AudioStation.Controls.PropertyGrid
         public static readonly DependencyProperty DescriptionProperty =
             DependencyProperty.Register("Description", typeof(string), typeof(PropertyGridControl));
 
+        public static readonly DependencyProperty DescriptionPlacementProperty =
+            DependencyProperty.Register("DescriptionPlacement", typeof(PropertyGridDescriptionPlacement), typeof(PropertyGridControl));
+
         public static readonly DependencyProperty LabelTextProperty =
             DependencyProperty.Register("LabelText", typeof(string), typeof(PropertyGridControl));
 
@@ -31,6 +34,11 @@ namespace AudioStation.Controls.PropertyGrid
         {
             get { return (string)GetValue(DescriptionProperty); }
             set { SetValue(DescriptionProperty, value); }
+        }
+        public PropertyGridDescriptionPlacement DescriptionPlacement
+        {
+            get { return (PropertyGridDescriptionPlacement)GetValue(DescriptionPlacementProperty); }
+            set { SetValue(DescriptionPlacementProperty, value); }
         }
         public string LabelText
         {

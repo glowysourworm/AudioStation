@@ -43,20 +43,22 @@
                                                                  Style="{StaticResource PropertyGridUserControl}" />
 
                             <propertyGrid:PropertyButtonLabelControl LabelColumnWidth="240" Grid.Row="2"
-                                                                     LabelText="Custom Naming Format"
-                                                                     ButtonCommand="{Binding EditCustomNamingFormatCommand}"
+                                                                     LabelText="Custom File Format"
+                                                                     ButtonCommand="{Binding EditCustomFileFormatCommand}"
                                                                      ButtonWidth="100"
                                                                      ButtonContent="Edit Format"
-                                                                     Description="{Binding CustomNamingFormat, TargetNullValue='(Not Set)'}"
+                                                                     Description="{Binding CustomFileFormat, TargetNullValue='(Not Set)'}"
+                                                                     DescriptionPlacement="Right"
                                                                      Style="{StaticResource PropertyGridUserControl}"
                                                                      IsReadOnly="{Binding IsReadOnly, RelativeSource={RelativeSource AncestorType=DataGrid}}" />
 
                             <propertyGrid:PropertyButtonLabelControl LabelColumnWidth="240" Grid.Row="3"
-                                                                     LabelText="Custom Grouping Format"
-                                                                     ButtonCommand="{Binding EditCustomGroupingFormatCommand}"
+                                                                     LabelText="Custom Folder Format"
+                                                                     ButtonCommand="{Binding EditCustomFolderFormatCommand}"
                                                                      ButtonWidth="100"
                                                                      ButtonContent="Edit Format"
-                                                                     Description="{Binding CustomGroupingFormat, TargetNullValue='(Not Set)'}"
+                                                                     DescriptionPlacement="Right"
+                                                                     Description="{Binding CustomFolderFormat, TargetNullValue='(Not Set)'}"
                                                                      Style="{StaticResource PropertyGridUserControl}"
                                                                      IsReadOnly="{Binding IsReadOnly, RelativeSource={RelativeSource AncestorType=DataGrid}}" />
                         </Grid>
@@ -81,22 +83,22 @@
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
 
-                <DataGridTemplateColumn Header="Naming" Width="140">
+                <DataGridTemplateColumn Header="File Naming" Width="140">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <enumUI:SimpleEnumComboBox EnumType="{x:Type coreModel:TrackNamingType}" 
-                                                       EnumValue="{Binding NamingType, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                       EnumValue="{Binding FileFormatType, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                        IsEnabled="{Binding IsReadOnly, RelativeSource={RelativeSource AncestorType=DataGridCell}, Converter={StaticResource BoolInverseConverter}}"
                                                        />
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
 
-                <DataGridTemplateColumn Header="Grouping" Width="180">
+                <DataGridTemplateColumn Header="Folder Naming" Width="180">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <enumUI:SimpleEnumComboBox EnumType="{x:Type coreModel:TrackGroupingType}" 
-                                                       EnumValue="{Binding GroupingType, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                       EnumValue="{Binding FolderFormatType, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                        IsEnabled="{Binding IsReadOnly, RelativeSource={RelativeSource AncestorType=DataGridCell}, Converter={StaticResource BoolInverseConverter}}"
                                                        />
                         </DataTemplate>
