@@ -1,4 +1,5 @@
 ﻿<UserControl x:Class="AudioStation.Views.LibrarySearchView"
+             x:Name="BaseControl"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:fa5="http://schemas.fontawesome.com/icons/"
@@ -6,13 +7,16 @@
              xmlns:controls="clr-namespace:AudioStation.Controls"
              xmlns:controlAnimation="clr-namespace:AudioStation.Controls.Animation"             
              xmlns:views="clr-namespace:AudioStation.Views"
+             xmlns:viewBehavior="clr-namespace:AudioStation.Views.Behavior"
+             xmlns:behavior="clr-namespace:Microsoft.Xaml.Behaviors;assembly=Microsoft.Xaml.Behaviors"             
              xmlns:libraryViewModel="clr-namespace:AudioStation.ViewModels.LibraryViewModels"
              xmlns:cacheModel="AudioStation.Core.Controller.ImageCacheModel;assembly=AudioStation.Core"
              xmlns:region="clr-namespace:SimpleWpf.IocFramework.RegionManagement;assembly=SimpleWpf.IocFramework"
              xmlns:propertyGrid="clr-namespace:AudioStation.Controls.PropertyGrid"
+             xmlns:sys="clr-namespace:System;assembly=System.Core"
              DataContext="{Binding LibrarySearch}"
              Background="White">
-    
+
     <Grid RowDefinitions="Auto, *">
 
         <Grid.ColumnDefinitions>
@@ -117,23 +121,17 @@
 
         <!-- Album Detail (List of Album Details) -->
         <ListBox x:Name="AlbumDetailLB" Grid.Column="1" Grid.RowSpan="2"
-                 ItemsSource="{Binding SelectedItem.Albums, ElementName=ResultsLB}"
+                 ItemsSource="{Binding SelectedItem.Albums, ElementName=ResultsLB}"                 
                  VirtualizingPanel.IsVirtualizing="False"
                  VirtualizingPanel.ScrollUnit="Pixel"
                  HorizontalContentAlignment="Stretch"
                  MouseDoubleClick="AlbumDetailLB_MouseDoubleClick"
                  PreviewMouseWheel="AlbumDetailLB_PreviewMouseWheel"
-                 ItemContainerStyle="{StaticResource TransparentItemContainerStyle}"
+                 ItemContainerStyle="{StaticResource TransparentItemContainerStyle}"                 
 				 BorderBrush="LightGray" BorderThickness="0,1,1,1">
-
-            <ListBox.ItemTemplate>
-                <DataTemplate>
-                    <Border BorderBrush="LightGray" BorderThickness="0 0 0 0">
-                        <views:AlbumView x:Name="AlbumViewItem" TrackSelected="AlbumViewItem_TrackSelected" />
-                    </Border>
-                </DataTemplate>
-            </ListBox.ItemTemplate>
-
+            <behavior:Interaction.Behaviors>
+                <viewBehavior:ListBoxResponsiveBehavior />
+            </behavior:Interaction.Behaviors>
         </ListBox>
 
     </Grid>

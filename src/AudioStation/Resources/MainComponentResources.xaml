@@ -3,8 +3,15 @@
                     xmlns:converter="clr-namespace:AudioStation.Views.Converter"             
                     xmlns:simpleConverter="clr-namespace:SimpleWpf.UI.Converter;assembly=SimpleWpf.UI"
                     xmlns:styleSelector="clr-namespace:AudioStation.Views.StyleSelectors"
-                    xmlns:templateSelector="clr-namespace:AudioStation.Views.TemplateSelector">
-    
+                    xmlns:templateSelector="clr-namespace:AudioStation.Views.TemplateSelector"
+                    xmlns:sys="clr-namespace:System;assembly=System.Core">
+
+    <sys:Double x:Key="ScreenMinWidth">1140</sys:Double>
+    <sys:Double x:Key="ScreenMinHeight">700</sys:Double>
+    <sys:Double x:Key="ScreenSmallWidth">1300</sys:Double>
+    <sys:Double x:Key="ScreenMediumWidth">1500</sys:Double>
+    <sys:Double x:Key="ScreenLargeWidth">1700</sys:Double>
+
     <!-- TEST CONVERTERS (go to simple library) -->
     <converter:ListConverter x:Key="ListConverter" />
 
@@ -22,7 +29,13 @@
     <converter:MusicBrainzConverter x:Key="MusicBrainzConverter" />
     <converter:MusicBrainzValidColorConverter x:Key="MusicBrainzValidColorConverter" />
     <converter:NowPlayingBoolConverter x:Key="NowPlayingBoolConverter" />
-    <converter:NowPlayingPlaylistBoolConverter x:Key="NowPlayingPlaylistBoolConverter" />    
+    <converter:NowPlayingPlaylistBoolConverter x:Key="NowPlayingPlaylistBoolConverter" />
+
+    <converter:ParameterConverterBase x:Key="ParameterVisibilityLessThanConverter"
+                                      TrueValue="{x:Static Visibility.Visible}"
+                                      FalseValue="{x:Static Visibility.Collapsed}"
+                                      Comparison="LessThan" />
+    
     <converter:PlayStopPauseParameterBoolConverter x:Key="PlayStopPauseParameterBoolConverter" />
     <converter:RatioParameterConverter x:Key="RatioParameterConverter" />
     <converter:StringArrayConverter x:Key="StringArrayConverter" />
@@ -68,6 +81,7 @@
 
     <!-- Template Selectors -->
     <templateSelector:LogItemTemplateSelector x:Key="LogItemTemplateSelector" />
+    <templateSelector:AlbumViewTemplateSelector x:Key="AlbumViewTemplateSelector" />
 
     <!-- Style Selectors -->
     <styleSelector:LibraryWorkItemContainerStyleSelector x:Key="LibraryWorkItemContainerStyleSelector" />

@@ -7,7 +7,11 @@
         xmlns:fa5assembly="clr-namespace:FontAwesome5;assembly=FontAwesome5"        
         WindowState="Minimized"
         WindowStartupLocation="CenterOwner"
-        Title="Audio Station" Height="800" Width="1200"
+        Title="Audio Station" 
+        MinWidth="{StaticResource ScreenMinWidth}"
+        MinHeight="{StaticResource ScreenMinHeight}"
+        Width="{StaticResource ScreenMinWidth}"
+        Height="{StaticResource ScreenMinHeight}"        
         Icon="/Resources/Images/icon.bmp"
         IsEnabled="{Binding Loading, Converter={StaticResource BoolInverseConverter}}">
     

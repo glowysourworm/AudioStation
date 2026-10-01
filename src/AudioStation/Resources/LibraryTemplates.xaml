@@ -1,0 +1,17 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:view="clr-namespace:AudioStation.Views">
+
+    <DataTemplate x:Key="AlbumViewSmallTemplate">
+        <view:AlbumViewSmall />
+    </DataTemplate>
+
+    <DataTemplate x:Key="AlbumViewMediumTemplate">
+        <view:AlbumViewMedium />
+    </DataTemplate>
+
+    <DataTemplate x:Key="AlbumViewLargeTemplate">
+        <view:AlbumViewLarge />
+    </DataTemplate>
+
+</ResourceDictionary>

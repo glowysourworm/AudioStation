@@ -6,11 +6,11 @@ using AudioStation.ViewModels.LibraryViewModels;
 
 namespace AudioStation.Views
 {
-    public partial class AlbumView : UserControl
+    public partial class AlbumViewMedium : UserControl
     {
         public event EventHandler<TrackViewModel> TrackSelected;
 
-        public AlbumView()
+        public AlbumViewMedium()
         {
             InitializeComponent();
         }

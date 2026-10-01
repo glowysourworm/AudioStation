@@ -44,6 +44,17 @@ namespace AudioStation.Views
             InitializeComponent();
 
             this.DataContextChanged += LibrarySearchView_DataContextChanged;
+
+            // Responsive Design
+            Application.Current.MainWindow.SizeChanged += OnMainWindowSizeChanged;
+        }
+
+        private void OnMainWindowSizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            //this.AlbumDetailLB.ItemTemplateSelector = null;
+            //this.AlbumDetailLB.ItemTemplateSelector = new AlbumViewTemplateSelector();
+
+            this.AlbumDetailLB.InvalidateVisual();
         }
 
         private void LibrarySearchView_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
@@ -139,7 +150,7 @@ namespace AudioStation.Views
         private async void AlbumViewItem_TrackSelected(object sender, TrackViewModel selectedTrack)
         {
             var viewModel = this.DataContext as LibraryViewModel;
-            var album = (sender as AlbumView).DataContext as AlbumViewModel;
+            var album = (sender as FrameworkElement).DataContext as AlbumViewModel;
             var artist = this.ResultsLB.SelectedItem as ArtistViewModel;
 
             if (viewModel != null && album != null && artist != null)
