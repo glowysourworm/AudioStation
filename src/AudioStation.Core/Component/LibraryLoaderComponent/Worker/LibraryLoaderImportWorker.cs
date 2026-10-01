@@ -232,8 +232,8 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
                         Log("WARNING:       Existing Tag Information");
                         Log("Track:         Tag=({0})  Existing=({1})", tag.Title ?? string.Empty, track.Title ?? string.Empty);
                         Log("Album:         Tag=({0})  Existing=({1})", tag.Album ?? string.Empty, track.Album?.Name ?? string.Empty);
-                        Log("Artist:        Tag=({0})  Existing=({1})", tag.AlbumArtist ?? string.Empty, track.PrimaryArtist?.Name ?? string.Empty);
-                        Log("Genre:         Tag=({0})  Existing=({1})", tag.Genre ?? string.Empty, track.PrimaryGenre?.Name ?? string.Empty);
+                        Log("Artist:        Tag=({0})  Existing=({1})", tag.AlbumArtist ?? string.Empty, track.Artist?.Name ?? string.Empty);
+                        Log("Genre:         Tag=({0})  Existing=({1})", tag.Genre ?? string.Empty, track.Genre?.Name ?? string.Empty);
                         Log("File (ref):    Tag=({0})  Existing=({1})", workLoad.SourceFullPath, track.FileReference?.FileName ?? string.Empty);
                     }
                     else if (track != null)
@@ -404,15 +404,15 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
 
                 _sourceTag.Album = workLoad.TagFinal.Album;
                 _sourceTag.AlbumArtist = workLoad.TagFinal.AlbumArtist;
-                _sourceTag.MediaNumber = workLoad.TagFinal.MediaNumber;
-                _sourceTag.MediaTotal = workLoad.TagFinal.MediaTotal;
-                _sourceTag.DurationMilliseconds = workLoad.TagFinal.DurationMilliseconds;
+                _sourceTag.MediaNumber = workLoad.TagFinal.MediaNumber ?? 0;
+                _sourceTag.MediaTotal = workLoad.TagFinal.MediaTotal ?? 0;
+                _sourceTag.DurationMilliseconds = workLoad.TagFinal.DurationMilliseconds ?? 0;
                 _sourceTag.Genre = workLoad.TagFinal.Genre;
                 _sourceTag.MediaFormat = workLoad.TagFinal.MediaFormat;
                 _sourceTag.Title = workLoad.TagFinal.Title;
-                _sourceTag.TrackNumber = workLoad.TagFinal.TrackNumber;
-                _sourceTag.TrackTotal = workLoad.TagFinal.TrackTotal;
-                _sourceTag.Year = workLoad.TagFinal.Year;
+                _sourceTag.TrackNumber = workLoad.TagFinal.TrackNumber ?? 0;
+                _sourceTag.TrackTotal = workLoad.TagFinal.TrackTotal ?? 0;
+                _sourceTag.Year = workLoad.TagFinal.Year ?? 0;
 
                 // Validation
                 var validation = TagValidator.ValidateTag(_sourceTag);
@@ -615,21 +615,23 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
                     album = new Album()
                     {
                         Name = workLoad.TagFinal.Album,
-                        MediaCount = workLoad.TagFinal.MediaTotal,
-                        MediaFormat = workLoad.TagFinal.MediaFormat,
-                        MediaNumber = workLoad.TagFinal.MediaNumber,
-                        Year = workLoad.TagFinal.Year
+                        MediaCount = workLoad.TagFinal.MediaTotal ?? 0,
+                        MediaFormat = workLoad.TagFinal.MediaFormat ?? string.Empty,
+                        MediaNumber = workLoad.TagFinal.MediaNumber ?? 0,
+                        TrackCount = workLoad.TagFinal.TrackTotal ?? 0,
+                        Year = workLoad.TagFinal.Year ?? DateTime.MinValue.Year
                     };
 
                     AddEntity(album, "Album");
                 }
                 else
                 {
-                    album.MediaCount = workLoad.TagFinal.MediaTotal;
-                    album.MediaFormat = workLoad.TagFinal.MediaFormat;
-                    album.MediaNumber = workLoad.TagFinal.MediaNumber;
-                    album.Name = workLoad.TagFinal.Album;
-                    album.Year = workLoad.TagFinal.Year;
+                    album.MediaCount = workLoad.TagFinal.MediaTotal ?? 0;
+                    album.MediaFormat = workLoad.TagFinal.MediaFormat ?? string.Empty;
+                    album.MediaNumber = workLoad.TagFinal.MediaNumber ?? 0;
+                    album.TrackCount = workLoad.TagFinal.TrackTotal ?? 0;
+                    album.Name = workLoad.TagFinal.Album ?? string.Empty;
+                    album.Year = workLoad.TagFinal.Year ?? DateTime.MinValue.Year;
 
                     UpdateEntity(album, "Album");
                 }
@@ -640,12 +642,12 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
                     track = new Track()
                     {
                         AlbumId = album.Id,
-                        DurationMilliseconds = workLoad.TagFinal.DurationMilliseconds,
+                        DurationMilliseconds = workLoad.TagFinal.DurationMilliseconds ?? 0,
                         FileReferenceId = fileRef.Id,
-                        Number = workLoad.TagFinal.MediaNumber,
-                        PrimaryArtistId = artist.Id,
-                        PrimaryGenreId = genre.Id,
-                        Title = workLoad.TagFinal.Title
+                        Number = workLoad.TagFinal.TrackNumber ?? 0,
+                        ArtistId = artist.Id,
+                        GenreId = genre.Id,
+                        Title = workLoad.TagFinal.Title ?? string.Empty
                     };
 
                     AddEntity(track, "Track");
@@ -674,12 +676,12 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
                 else
                 {
                     track.AlbumId = album.Id;
-                    track.DurationMilliseconds = workLoad.TagFinal.DurationMilliseconds;
+                    track.DurationMilliseconds = workLoad.TagFinal.DurationMilliseconds ?? 0;
                     track.FileReferenceId = fileRef.Id;
-                    track.Number = workLoad.TagFinal.MediaNumber;
-                    track.PrimaryArtistId = artist.Id;
-                    track.PrimaryGenreId = genre.Id;
-                    track.Title = workLoad.TagFinal.Title;
+                    track.Number = workLoad.TagFinal.TrackNumber ?? 0;
+                    track.ArtistId = artist.Id;
+                    track.GenreId = genre.Id;
+                    track.Title = workLoad.TagFinal.Title ?? string.Empty;
 
                     UpdateEntity(track, "Track");
 

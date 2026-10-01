@@ -5,7 +5,7 @@
 -- Dumped from database version 17.4
 -- Dumped by pg_dump version 17.4
 
--- Started on 2026-09-28 21:23:36
+-- Started on 2026-09-30 23:06:30
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -62,11 +62,11 @@ ALTER TABLE public."AcoustIDLookupResult" ALTER COLUMN "Id" ADD GENERATED ALWAYS
 CREATE TABLE public."Album" (
     "Id" integer NOT NULL,
     "Name" character varying NOT NULL,
-    "MediaNumber" integer,
-    "MediaCount" integer,
-    "Year" integer,
-    "MusicBrainzReleaseId" uuid,
-    "MediaFormat" character varying
+    "MediaNumber" integer NOT NULL,
+    "MediaCount" integer NOT NULL,
+    "Year" integer NOT NULL,
+    "MediaFormat" character varying NOT NULL,
+    "TrackCount" integer NOT NULL
 );
 
 
@@ -118,8 +118,7 @@ ALTER TABLE public."AlbumFileReferenceMap" ALTER COLUMN "Id" ADD GENERATED ALWAY
 
 CREATE TABLE public."Artist" (
     "Id" integer NOT NULL,
-    "Name" character varying NOT NULL,
-    "MusicBrainzArtistId" uuid
+    "Name" character varying NOT NULL
 );
 
 
@@ -211,8 +210,7 @@ ALTER TABLE public."FileType" ALTER COLUMN "Id" ADD GENERATED ALWAYS AS IDENTITY
 
 CREATE TABLE public."Genre" (
     "Id" integer NOT NULL,
-    "Name" character varying NOT NULL,
-    "MusicBrainzGenreId" uuid
+    "Name" character varying NOT NULL
 );
 
 
@@ -373,14 +371,12 @@ ALTER TABLE public."Genre" ALTER COLUMN "Id" ADD GENERATED ALWAYS AS IDENTITY (
 
 CREATE TABLE public."Track" (
     "Id" integer NOT NULL,
-    "Title" character varying,
-    "Number" integer,
-    "AlbumId" integer,
-    "PrimaryArtistId" integer,
-    "DurationMilliseconds" integer,
-    "PrimaryGenreId" integer,
-    "AmazonId" character varying,
-    "MusicBrainzTrackId" character varying,
+    "Title" character varying NOT NULL,
+    "Number" integer NOT NULL,
+    "AlbumId" integer NOT NULL,
+    "ArtistId" integer NOT NULL,
+    "DurationMilliseconds" integer NOT NULL,
+    "GenreId" integer NOT NULL,
     "FileReferenceId" integer NOT NULL
 );
 
@@ -613,6 +609,15 @@ ALTER TABLE ONLY public."AlbumFileReferenceMap"
 
 
 --
+-- TOC entry 4834 (class 2606 OID 16850)
+-- Name: Album Album_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Album"
+    ADD CONSTRAINT "Album_pkey" PRIMARY KEY ("Id");
+
+
+--
 -- TOC entry 4852 (class 2606 OID 52179)
 -- Name: ArtistFileReferenceMap ArtistFileReferenceMap_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
@@ -628,6 +633,15 @@ ALTER TABLE ONLY public."ArtistFileReferenceMap"
 
 ALTER TABLE ONLY public."TrackArtistMap"
     ADD CONSTRAINT "ArtistMap_pkey" PRIMARY KEY ("Id");
+
+
+--
+-- TOC entry 4832 (class 2606 OID 16837)
+-- Name: Artist Artist_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Artist"
+    ADD CONSTRAINT "Artist_pkey" PRIMARY KEY ("Id");
 
 
 --
@@ -658,48 +672,21 @@ ALTER TABLE ONLY public."TrackGenreMap"
 
 
 --
+-- TOC entry 4836 (class 2606 OID 16863)
+-- Name: Genre Genre_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Genre"
+    ADD CONSTRAINT "Genre_pkey" PRIMARY KEY ("Id");
+
+
+--
 -- TOC entry 4825 (class 2606 OID 16775)
 -- Name: M3UStream M3UInfo_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."M3UStream"
     ADD CONSTRAINT "M3UInfo_pkey" PRIMARY KEY ("Id");
-
-
---
--- TOC entry 4834 (class 2606 OID 16850)
--- Name: Album Mp3FileReferenceAlbum_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public."Album"
-    ADD CONSTRAINT "Mp3FileReferenceAlbum_pkey" PRIMARY KEY ("Id");
-
-
---
--- TOC entry 4832 (class 2606 OID 16837)
--- Name: Artist Mp3FileReferenceArtist_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public."Artist"
-    ADD CONSTRAINT "Mp3FileReferenceArtist_pkey" PRIMARY KEY ("Id");
-
-
---
--- TOC entry 4836 (class 2606 OID 16863)
--- Name: Genre Mp3FileReferenceGenre_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public."Genre"
-    ADD CONSTRAINT "Mp3FileReferenceGenre_pkey" PRIMARY KEY ("Id");
-
-
---
--- TOC entry 4830 (class 2606 OID 16829)
--- Name: Track Mp3FileReference_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public."Track"
-    ADD CONSTRAINT "Mp3FileReference_pkey" PRIMARY KEY ("Id");
 
 
 --
@@ -718,6 +705,15 @@ ALTER TABLE ONLY public."RadioBrowserStation"
 
 ALTER TABLE ONLY public."TagSmallFileReferenceMap"
     ADD CONSTRAINT "TagSmallFileReferenceMap_pkey" PRIMARY KEY ("Id");
+
+
+--
+-- TOC entry 4830 (class 2606 OID 16829)
+-- Name: Track Track_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Track"
+    ADD CONSTRAINT "Track_pkey" PRIMARY KEY ("Id");
 
 
 --
@@ -770,7 +766,7 @@ ALTER TABLE ONLY public."TrackArtistMap"
 --
 
 ALTER TABLE ONLY public."Track"
-    ADD CONSTRAINT "Artist_ForeignKey" FOREIGN KEY ("PrimaryArtistId") REFERENCES public."Artist"("Id") NOT VALID;
+    ADD CONSTRAINT "Artist_ForeignKey" FOREIGN KEY ("ArtistId") REFERENCES public."Artist"("Id") NOT VALID;
 
 
 --
@@ -797,7 +793,7 @@ ALTER TABLE ONLY public."TrackGenreMap"
 --
 
 ALTER TABLE ONLY public."Track"
-    ADD CONSTRAINT "Genre_ForeignKey" FOREIGN KEY ("PrimaryGenreId") REFERENCES public."Genre"("Id") NOT VALID;
+    ADD CONSTRAINT "Genre_ForeignKey" FOREIGN KEY ("GenreId") REFERENCES public."Genre"("Id") NOT VALID;
 
 
 --
@@ -908,7 +904,7 @@ ALTER TABLE ONLY public."TrackGenreMap"
     ADD CONSTRAINT "Track_ForeignKey" FOREIGN KEY ("TrackId") REFERENCES public."Track"("Id");
 
 
--- Completed on 2026-09-28 21:23:37
+-- Completed on 2026-09-30 23:06:30
 
 --
 -- PostgreSQL database dump complete

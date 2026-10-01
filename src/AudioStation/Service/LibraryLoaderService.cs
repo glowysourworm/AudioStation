@@ -249,7 +249,7 @@ namespace AudioStation.Service
                 var tracks = trackEntities.Where(track => track.AlbumId == albumEntity.Id);
 
                 // Primary Artist Id (TODO!!! MULTIPLE ARTISTS, VARYING PER TRACK!)
-                var artistId = tracks.Select(track => track.PrimaryArtistId)
+                var artistId = tracks.Select(track => track.ArtistId)
                                      .FirstOrDefault();
 
                 if (artistId == null)

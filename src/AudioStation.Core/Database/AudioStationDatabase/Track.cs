@@ -12,26 +12,23 @@ namespace AudioStation.Core.Database.AudioStationDatabase
         public int FileReferenceId { get; set; }
 
         [ForeignKey("Album")]
-        public int? AlbumId { get; set; }
+        public int AlbumId { get; set; }
 
         [ForeignKey("PrimaryArtist")]
-        public int? PrimaryArtistId { get; set; }
+        public int ArtistId { get; set; }
 
         [ForeignKey("PrimaryGenre")]
-        public int? PrimaryGenreId { get; set; }
+        public int GenreId { get; set; }
 
-        public string? Title { get; set; }
-        public int? Number { get; set; }
-        public int? DurationMilliseconds { get; set; }
-
-        public string? AmazonId { get; set; }
-        public Guid? MusicBrainzTrackId { get; set; }
+        public string Title { get; set; }
+        public int Number { get; set; }
+        public int DurationMilliseconds { get; set; }
 
         // Relationship properties
         public FileReference FileReference { get; set; }
-        public Album? Album { get; set; }
-        public Artist? PrimaryArtist { get; set; }
-        public Genre? PrimaryGenre { get; set; }
+        public Album Album { get; set; }
+        public Artist Artist { get; set; }
+        public Genre Genre { get; set; }
 
         public Track() { }
     }

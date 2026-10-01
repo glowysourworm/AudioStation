@@ -44,7 +44,7 @@ namespace AudioStation.ViewModels.LibraryViewModels
 
         public AlbumViewModel(int id) : base(id, LibraryEntryType.Album)
         {
-            this.Tracks = new SortedObservableCollection<TrackViewModel>(new PropertyComparer<uint, TrackViewModel>(x => x.Track));
+            this.Tracks = new SortedObservableCollection<TrackViewModel>(new PropertyComparer<int, TrackViewModel>(x => x.TrackNumber));
             this.Duration = TimeSpan.Zero;
             this.Album = string.Empty;
             this.PrimaryArtist = string.Empty;

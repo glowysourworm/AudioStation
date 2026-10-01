@@ -306,8 +306,8 @@ namespace AudioStation.ViewModels.LibraryViewModels
             if (this.TrackSearch.Album != string.Empty)
                 result &= entity.Album?.Name?.Contains(this.TrackSearch.Album, StringComparison.OrdinalIgnoreCase) ?? false;
 
-            if (result && this.TrackSearch.Disc > 0)
-                result &= entity.Album?.MediaNumber == this.TrackSearch.Disc;
+            if (result && this.TrackSearch.MediaNumber > 0)
+                result &= entity.Album?.MediaNumber == this.TrackSearch.MediaNumber;
 
             if (result && this.TrackSearch.FileCorruptMessage != string.Empty)
                 result &= entity.FileReference.FileCorruptMessage?.Contains(this.TrackSearch.FileCorruptMessage, StringComparison.OrdinalIgnoreCase) ?? false;
@@ -321,17 +321,17 @@ namespace AudioStation.ViewModels.LibraryViewModels
             if (result && this.TrackSearch.Id > 0)
                 result &= entity.Id.ToString().Contains(this.TrackSearch.Id.ToString());
 
-            if (result && this.TrackSearch.PrimaryArtist != string.Empty)
-                result &= entity.PrimaryArtist?.Name?.Contains(this.TrackSearch.PrimaryArtist, StringComparison.OrdinalIgnoreCase) ?? false;
+            if (result && this.TrackSearch.Artist != string.Empty)
+                result &= entity.Artist?.Name?.Contains(this.TrackSearch.Artist, StringComparison.OrdinalIgnoreCase) ?? false;
 
-            if (result && this.TrackSearch.PrimaryGenre != string.Empty)
-                result &= entity.PrimaryGenre?.Name?.Contains(this.TrackSearch.PrimaryGenre, StringComparison.OrdinalIgnoreCase) ?? false;
+            if (result && this.TrackSearch.Genre != string.Empty)
+                result &= entity.Genre?.Name?.Contains(this.TrackSearch.Genre, StringComparison.OrdinalIgnoreCase) ?? false;
 
             if (result && this.TrackSearch.Title != string.Empty)
                 result &= entity.Title?.Contains(this.TrackSearch.Title, StringComparison.OrdinalIgnoreCase) ?? false;
 
-            if (result && this.TrackSearch.Track > 0)
-                result &= entity.Number == this.TrackSearch.Track;
+            if (result && this.TrackSearch.TrackNumber > 0)
+                result &= entity.Number == this.TrackSearch.TrackNumber;
 
             return result;
         }

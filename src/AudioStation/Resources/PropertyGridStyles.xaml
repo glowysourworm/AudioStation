@@ -36,7 +36,14 @@
     </Style>
 
     <Style x:Key="PropertyGridButtonLabel" TargetType="Button" BasedOn="{StaticResource UserControlButton}">
-    </Style>        
+    </Style>
+
+    <Style x:Key="PropertyGridLabelControlStyle" 
+           TargetType="{x:Type propertyGrid:PropertyLabelControl}" 
+           BasedOn="{StaticResource PropertyGridUserControl}">
+        <Setter Property="DescriptionPlacement" Value="Below" />
+        <Setter Property="ValueColumnWidth" Value="Auto" />
+    </Style>
 
     <!-- User Control Large -->
     <Style x:Key="PropertyGridLargeUserControl" TargetType="UserControl" BasedOn="{StaticResource PropertyGridUserControl}">

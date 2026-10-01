@@ -5,12 +5,15 @@ namespace AudioStation.ViewModels.LibraryViewModels
     public class TrackViewModel : EntityViewModel
     {
         string _fileName;
-        string _primaryArtist;
-        string _primaryGenre;
+        string _artist;
+        string _genre;
         string _album;
         string _title;
-        uint _track;
-        uint _disc;
+        int _trackNumber;
+        int _trackCount;
+        int _mediaNumber;
+        int _mediaCount;
+        string _mediaFormat;
         TimeSpan _duration;
 
         bool _isFileAvailable;
@@ -28,15 +31,15 @@ namespace AudioStation.ViewModels.LibraryViewModels
             get { return _fileName; }
             set { this.RaiseAndSetIfChanged(ref _fileName, value); }
         }
-        public string PrimaryArtist
+        public string Artist
         {
-            get { return _primaryArtist; }
-            set { this.RaiseAndSetIfChanged(ref _primaryArtist, value); }
+            get { return _artist; }
+            set { this.RaiseAndSetIfChanged(ref _artist, value); }
         }
-        public string PrimaryGenre
+        public string Genre
         {
-            get { return _primaryGenre; }
-            set { this.RaiseAndSetIfChanged(ref _primaryGenre, value); }
+            get { return _genre; }
+            set { this.RaiseAndSetIfChanged(ref _genre, value); }
         }
         public string Album
         {
@@ -48,15 +51,30 @@ namespace AudioStation.ViewModels.LibraryViewModels
             get { return _title; }
             set { this.RaiseAndSetIfChanged(ref _title, value); }
         }
-        public uint Track
+        public int TrackNumber
         {
-            get { return _track; }
-            set { this.RaiseAndSetIfChanged(ref _track, value); }
+            get { return _trackNumber; }
+            set { this.RaiseAndSetIfChanged(ref _trackNumber, value); }
         }
-        public uint Disc
+        public int TrackCount
         {
-            get { return _disc; }
-            set { this.RaiseAndSetIfChanged(ref _disc, value); }
+            get { return _trackCount; }
+            set { this.RaiseAndSetIfChanged(ref _trackCount, value); }
+        }
+        public int MediaNumber
+        {
+            get { return _mediaNumber; }
+            set { this.RaiseAndSetIfChanged(ref _mediaNumber, value); }
+        }
+        public int MediaCount
+        {
+            get { return _mediaCount; }
+            set { this.RaiseAndSetIfChanged(ref _mediaCount, value); }
+        }
+        public string MediaFormat
+        {
+            get { return _mediaFormat; }
+            set { this.RaiseAndSetIfChanged(ref _mediaFormat, value); }
         }
         public TimeSpan Duration
         {
@@ -94,13 +112,15 @@ namespace AudioStation.ViewModels.LibraryViewModels
             set { this.RaiseAndSetIfChanged(ref _crc32, value); }
         }
 
+
+
         public TrackViewModel(int id) : base(id, LibraryEntryType.Track)
         {
             this.FileName = string.Empty;
             this.Title = string.Empty;
             this.Album = string.Empty;
-            this.PrimaryArtist = string.Empty;
-            this.PrimaryGenre = string.Empty;
+            this.Artist = string.Empty;
+            this.Genre = string.Empty;
             this.Duration = TimeSpan.Zero;
             this.FileLoadErrorMessage = string.Empty;
             this.FileCorruptMessage = string.Empty;

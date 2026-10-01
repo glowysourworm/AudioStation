@@ -9,7 +9,6 @@ namespace AudioStation.Core.Database.AudioStationDatabase
     public class Artist : AudioStationEntityBase
     {
         public string Name { get; set; }
-        public Guid? MusicBrainzArtistId { get; set; }
 
         public Artist() { }
     }

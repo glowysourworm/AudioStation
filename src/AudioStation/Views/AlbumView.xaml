@@ -75,7 +75,7 @@
                                     <ColumnDefinition Width="Auto" />
                                 </Grid.ColumnDefinitions>
 
-                                <TextBlock Text="{Binding Track}" Grid.Column="0" FontSize="12" Foreground="Gray" Margin="5" />
+                                <TextBlock Text="{Binding TrackNumber}" Grid.Column="0" FontSize="12" Foreground="Gray" Margin="5" />
                                 <TextBlock Text="{Binding Title}" Grid.Column="1" FontSize="12" Foreground="Gray" Margin="5" />
                                 <TextBlock Text="{Binding Duration, StringFormat={}{0:hh}:{0:mm}:{0:ss}}" Grid.Column="2" FontSize="12" Foreground="Gray" Margin="5" />
                             </Grid>

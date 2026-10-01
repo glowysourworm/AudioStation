@@ -121,7 +121,7 @@ namespace AudioStation.ViewModels.DataComponent
             this.ExternalLinks.AddRange(eventData.NowPlayingData.ExternalLinks);
 
             this.Playlist.Entries.Clear();
-            this.Playlist.Entries.AddRange(eventData.NowPlayingData.Entries.OrderBy(x => x.Track.Track));
+            this.Playlist.Entries.AddRange(eventData.NowPlayingData.Entries.OrderBy(x => x.Track.TrackNumber));
             this.Playlist.CurrentTrack = eventData.NowPlayingData.NowPlaying;
             this.Playlist.CurrentTrack.IsPlaying = true;
 

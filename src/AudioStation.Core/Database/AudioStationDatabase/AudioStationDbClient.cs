@@ -141,9 +141,9 @@ namespace AudioStation.Core.Database.AudioStationDatabase
                         context.Genres.Add(existingGenre);
                     }
 
-                    entity.PrimaryArtist = existingArtist;
+                    entity.Artist = existingArtist;
                     entity.Album = existingAlbum;
-                    entity.PrimaryGenre = existingGenre;
+                    entity.Genre = existingGenre;
 
                     if (newEntity)
                     {
@@ -331,7 +331,7 @@ namespace AudioStation.Core.Database.AudioStationDatabase
                 using (var context = CreateContext())
                 {
                     return context.Tracks
-                                  .Where(x => x.PrimaryArtistId == artistId)
+                                  .Where(x => x.ArtistId == artistId)
                                   .ToList();
                 }
             }

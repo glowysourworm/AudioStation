@@ -12,11 +12,14 @@ namespace AudioStation.Controls.PropertyGrid
         public static readonly DependencyProperty DescriptionPlacementProperty =
             DependencyProperty.Register("DescriptionPlacement", typeof(PropertyGridDescriptionPlacement), typeof(PropertyGridControl));
 
+        public static readonly DependencyProperty ValueColumnWidthProperty =
+            DependencyProperty.Register("ValueColumnWidth", typeof(GridLength), typeof(PropertyGridControl), new PropertyMetadata(GridLength.Auto));
+
         public static readonly DependencyProperty LabelTextProperty =
             DependencyProperty.Register("LabelText", typeof(string), typeof(PropertyGridControl));
 
         public static readonly DependencyProperty LabelColumnWidthProperty =
-            DependencyProperty.Register("LabelColumnWidth", typeof(double), typeof(PropertyGridControl), new PropertyMetadata(150.0D));
+            DependencyProperty.Register("LabelColumnWidth", typeof(GridLength), typeof(PropertyGridControl), new PropertyMetadata(GridLength.Auto));
 
         public static readonly DependencyProperty LabelForegroundProperty =
             DependencyProperty.Register("LabelForeground", typeof(Brush), typeof(PropertyLabelControl), new PropertyMetadata(Brushes.Black));
@@ -40,14 +43,19 @@ namespace AudioStation.Controls.PropertyGrid
             get { return (PropertyGridDescriptionPlacement)GetValue(DescriptionPlacementProperty); }
             set { SetValue(DescriptionPlacementProperty, value); }
         }
+        public GridLength ValueColumnWidth
+        {
+            get { return (GridLength)GetValue(ValueColumnWidthProperty); }
+            set { SetValue(ValueColumnWidthProperty, value); }
+        }
         public string LabelText
         {
             get { return (string)GetValue(LabelTextProperty); }
             set { SetValue(LabelTextProperty, value); }
         }
-        public double LabelColumnWidth
+        public GridLength LabelColumnWidth
         {
-            get { return (double)GetValue(LabelColumnWidthProperty); }
+            get { return (GridLength)GetValue(LabelColumnWidthProperty); }
             set { SetValue(LabelColumnWidthProperty, value); }
         }
         public Brush LabelForeground

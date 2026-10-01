@@ -5,6 +5,7 @@
     <Grid RowDefinitions="Auto, Auto">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="{Binding LabelColumnWidth, RelativeSource={RelativeSource AncestorType=UserControl}}" />
+            <ColumnDefinition Width="{Binding ValueColumnWidth, RelativeSource={RelativeSource AncestorType=UserControl}}" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
 
@@ -18,12 +19,44 @@
                    Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=UserControl}}"
 			       Text="{Binding Value, RelativeSource={RelativeSource AncestorType=UserControl}}" />
 
-        <TextBlock Grid.Column="1" 
-                   Grid.Row="1"
-                   Visibility="{Binding Description, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource NonNullVisibilityConverter}}"
+        <!-- Description (Right) -->
+        <TextBlock Grid.Column="2" 
+                   HorizontalAlignment="Left"
+                   TextAlignment="Left"
                    Style="{StaticResource PropertyGridLabelDetail}"
                    TextWrapping="{Binding TextWrap, RelativeSource={RelativeSource AncestorType=UserControl}}"
                    Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=UserControl}}"
-			       Text="{Binding Description, RelativeSource={RelativeSource AncestorType=UserControl}}" />
+			       Text="{Binding Description, RelativeSource={RelativeSource AncestorType=UserControl}}">
+            <TextBlock.Visibility>
+                <MultiBinding Converter="{StaticResource BoolANDVisibilityMultiConverter}">
+                    <Binding Path="Description" RelativeSource="{RelativeSource AncestorType=UserControl}" Converter="{StaticResource NonNullBoolConverter}" />
+                    <Binding Path="DescriptionPlacement" 
+                             RelativeSource="{RelativeSource AncestorType=UserControl}" 
+                             Converter="{StaticResource ParameterEqualityBoolConverter}"
+                             ConverterParameter="{x:Static local:PropertyGridDescriptionPlacement.Right}" />
+                </MultiBinding>
+            </TextBlock.Visibility>            
+        </TextBlock>
+
+        <!-- Description (Below) -->
+        <TextBlock Grid.Column="1" 
+                   Grid.Row="1"
+                   HorizontalAlignment="Left"
+                   TextAlignment="Left"
+                   Style="{StaticResource PropertyGridLabelDetail}"
+                   TextWrapping="{Binding TextWrap, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                   Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=UserControl}}"
+			       Text="{Binding Description, RelativeSource={RelativeSource AncestorType=UserControl}}">
+            <TextBlock.Visibility>
+                <MultiBinding Converter="{StaticResource BoolANDVisibilityMultiConverter}">
+                    <Binding Path="Description" RelativeSource="{RelativeSource AncestorType=UserControl}" Converter="{StaticResource NonNullBoolConverter}" />
+                    <Binding Path="DescriptionPlacement" 
+                             RelativeSource="{RelativeSource AncestorType=UserControl}" 
+                             Converter="{StaticResource ParameterEqualityBoolConverter}"
+                             ConverterParameter="{x:Static local:PropertyGridDescriptionPlacement.Below}" />
+                </MultiBinding>
+            </TextBlock.Visibility>
+        </TextBlock>
+
     </Grid>
 </local:PropertyGridControl>

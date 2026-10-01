@@ -15,9 +15,9 @@
 
             <!-- Source Directory -->
             <propertyGrid:PropertyLabelControl LabelColumnWidth="240"
-                                                   LabelText="Source Directory"
-                                                   Style="{StaticResource PropertyGridUserControl}"
-                                                   Value="{Binding SourceFolder}" />
+                                               LabelText="Source Directory"
+                                               Style="{StaticResource PropertyGridLabelControlStyle}"
+                                               Value="{Binding SourceFolder}" />
 
             <!-- Destination Directory -->
             <propertyGrid:PropertyLabelControl LabelColumnWidth="240"
@@ -39,65 +39,81 @@
 
             <!-- Staged File(s) -->
             <propertyGrid:PropertyLabelControl LabelColumnWidth="240"
-                                                   LabelText="Staged File Count"
-                                                   Style="{StaticResource PropertyGridUserControl}"
-                                                   Value="{Binding StagingWorkflow.StagedFiles.Count}" />
+                                               LabelText="Staged File Count"
+                                               Style="{StaticResource PropertyGridUserControl}"
+                                               Value="{Binding StagingWorkflow.StagedFiles.Count}" />
 
             <!-- Valid Staged File(s) -->
             <propertyGrid:PropertyLabelControl LabelColumnWidth="240"
-                                                   LabelText="Valid Tag Count"
-                                                   Description="This is a count of the number of staged files that had their (basic) tags completed during import."
-                                                   Style="{StaticResource PropertyGridUserControl}"
-                                                   Value="{Binding StagingWorkflow.StagedFiles.ValidFiles.Count}" />
+                                               LabelText="Valid Tag Count"
+                                               Description="This is a count of the number of staged files that had their (basic) tags completed during import"
+                                               DescriptionPlacement="Right"                                               
+                                               Style="{StaticResource PropertyGridLabelControlStyle}"
+                                               Value="{Binding StagingWorkflow.StagedFiles.ValidFiles.Count}"
+                                               ValueColumnWidth="100"/>
 
             <!-- Library Conflict File(s) -->
             <propertyGrid:PropertyLabelControl LabelColumnWidth="240"
-                                                   LabelText="Library Conflict Count"
-                                                   Description="This is a count of the number of staged files that had library conflicts."
-                                                   Style="{StaticResource PropertyGridUserControl}"
-                                                   Value="{Binding StagingWorkflow.StagedFiles.LibraryConflictFiles.Count}" />
+                                               LabelText="Library Conflict Count"
+                                               Description="This is a count of the number of staged files that had library conflicts"
+                                               DescriptionPlacement="Right"
+                                               Style="{StaticResource PropertyGridLabelControlStyle}"
+                                               Value="{Binding StagingWorkflow.StagedFiles.LibraryConflictFiles.Count}" 
+                                               ValueColumnWidth="100"/>
 
             <!-- AcoustID Result(s) -->
             <propertyGrid:PropertyLabelControl LabelColumnWidth="240"
-                                                   LabelText="AcoustID Result Count"
-                                                   Description="This is a count of AcoustID results queried from the AcoustID service."
-                                                   Style="{StaticResource PropertyGridUserControl}"
-                                                   Value="{Binding StagingWorkflow.StagedFiles.AcoustIDFiles.Count}" />
+                                               LabelText="AcoustID Result Count"
+                                               Description="This is a count of AcoustID results queried from the AcoustID service"
+                                               DescriptionPlacement="Right"
+                                               Style="{StaticResource PropertyGridLabelControlStyle}"
+                                               Value="{Binding StagingWorkflow.StagedFiles.AcoustIDFiles.Count}" 
+                                               ValueColumnWidth="100" />
 
             <!-- Music Brainz(s) (basic) -->
             <propertyGrid:PropertyLabelControl LabelColumnWidth="240"
-                                                   LabelText="Music Brainz (basic) Count"
-                                                   Description="This is a count of the number of Music Brainz (basic) results based on AcoustID."
-                                                   Style="{StaticResource PropertyGridUserControl}"
-                                                   Value="{Binding StagingWorkflow.StagedFiles.MusicBrainzFiles.Count}" />
+                                               LabelText="Music Brainz (basic) Count"
+                                               Description="This is a count of the number of Music Brainz (basic) results based on AcoustID"
+                                               DescriptionPlacement="Right"
+                                               Style="{StaticResource PropertyGridLabelControlStyle}"
+                                               Value="{Binding StagingWorkflow.StagedFiles.MusicBrainzFiles.Count}" 
+                                               ValueColumnWidth="100"/>
 
             <!-- Music Brainz(s) (special tag) -->
             <propertyGrid:PropertyLabelControl LabelColumnWidth="240"
-                                                   LabelText="Music Brainz (special tag) Count"
-                                                   Description="This is a count of the number of Music Brainz (special tag) results based on data left in the audio file tag from other applications."
-                                                   Style="{StaticResource PropertyGridUserControl}"
-                                                   Value="{Binding StagingWorkflow.StagedFiles.MusicBrainzSpecialTagFiles.Count}" />
+                                               LabelText="Music Brainz (special tag) Count"
+                                               Description="This is a count of the number of Music Brainz (special tag) results"
+                                               DescriptionPlacement="Right"
+                                               Style="{StaticResource PropertyGridLabelControlStyle}"
+                                               Value="{Binding StagingWorkflow.StagedFiles.MusicBrainzSpecialTagFiles.Count}" 
+                                               ValueColumnWidth="100"/>
 
             <!-- Successful File(s) -->
             <propertyGrid:PropertyLabelControl LabelColumnWidth="240"
-                                                   LabelText="Successful Import Count"
-                                                   Description="This is a count of the number of staged files that completed successfully."
-                                                   Style="{StaticResource PropertyGridUserControl}"
-                                                   Value="{Binding StagingWorkflow.StagedFiles.SuccessfulFiles.Count}" />
+                                               LabelText="Successful Import Count"
+                                               Description="This is a count of the number of staged files that completed successfully"
+                                               DescriptionPlacement="Right"
+                                               Style="{StaticResource PropertyGridLabelControlStyle}"
+                                               Value="{Binding StagingWorkflow.StagedFiles.SuccessfulFiles.Count}" 
+                                               ValueColumnWidth="100"/>
 
             <!-- Failed File(s) -->
             <propertyGrid:PropertyLabelControl LabelColumnWidth="240"
-                                                   LabelText="Failed Import Count"
-                                                   Description="This is a count of the number of staged files that completed with data warnings, errors, or service failures."
-                                                   Style="{StaticResource PropertyGridUserControl}"
-                                                   Value="{Binding StagingWorkflow.StagedFiles.FailureFiles.Count}" />
+                                               LabelText="Failed Import Count"
+                                               Description="This is a count of the number of staged files that completed with data warnings, errors, or service failures"
+                                               DescriptionPlacement="Right"
+                                               Style="{StaticResource PropertyGridLabelControlStyle}"
+                                               Value="{Binding StagingWorkflow.StagedFiles.FailureFiles.Count}" 
+                                               ValueColumnWidth="100"/>
 
             <!-- Source Files Todo -->
             <propertyGrid:PropertyLabelControl LabelColumnWidth="240"
-                                                   LabelText="Un-Imported Count"
-                                                   Description="This is a count of the files still in your source directory that have not yet been completed."
-                                                   Style="{StaticResource PropertyGridUserControl}"
-                                                   Value="{Binding SourceFileTodoCount}" />
+                                               LabelText="Un-Imported Count"
+                                               Description="This is a count of the files still in your source directory that have not yet been completed."
+                                               DescriptionPlacement="Right"
+                                               Style="{StaticResource PropertyGridLabelControlStyle}"
+                                               Value="{Binding SourceFileTodoCount}" 
+                                               ValueColumnWidth="100"/>
 
         </controls:NoSelectListBox>
 
