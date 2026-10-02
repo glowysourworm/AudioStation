@@ -88,18 +88,15 @@ namespace AudioStation.Controls
 
             Rect scrubbedRect, nonScrubbedRect;
 
-            // BUG:  The ScrubbedRatio can get a value of greater than 1 - making the height (and/or) width negative!
-            this.ScrubbedRatio = this.ScrubbedRatio.Clip(0, 1);
-
             if (this.Orientation == Orientation.Horizontal)
             {
                 scrubbedRect = new Rect(0, 0, this.RenderSize.Width * this.ScrubbedRatio, this.RenderSize.Height);
-                nonScrubbedRect = new Rect(scrubbedRect.Width, 0, this.RenderSize.Width * (1 - this.ScrubbedRatio), this.RenderSize.Height);
+                nonScrubbedRect = new Rect(scrubbedRect.Width, 0, this.RenderSize.Width * (1 - this.ScrubbedRatio).Clip(0, 1), this.RenderSize.Height);
             }
             else
             {
                 nonScrubbedRect = new Rect(0, 0, this.RenderSize.Width, this.RenderSize.Height * this.ScrubbedRatio);
-                scrubbedRect = new Rect(0, nonScrubbedRect.Height, this.RenderSize.Width, this.RenderSize.Height * (1 - this.ScrubbedRatio));
+                scrubbedRect = new Rect(0, nonScrubbedRect.Height, this.RenderSize.Width, this.RenderSize.Height * (1 - this.ScrubbedRatio).Clip(0, 1));
             }
 
             drawingContext.DrawRectangle(this.ScrubbedBrush, null, scrubbedRect);

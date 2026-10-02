@@ -1,5 +1,4 @@
 ﻿using System.Numerics;
-using System.Windows;
 using System.Windows.Threading;
 
 using AudioStation.Core.Model;
@@ -39,19 +38,11 @@ namespace AudioStation.Model.AudioProcessing
         int _fftIndex;
         int _fftPeriod;
 
-        DispatcherTimer _timer;
-
         public SimpleAudioPlayerWithEqualizer()
         {
             _soundOut = null;
             _waveSource = null;
             _equalizer = null;
-
-            _timer = new DispatcherTimer(DispatcherPriority.Background, Application.Current.Dispatcher);
-            _timer.Tick += OnTimerTick;
-            _timer.Interval = TimeSpan.FromMilliseconds(10);
-            _timer.Start();
-            _timer.IsEnabled = false;
 
             _fftPeriod = 1024;
             _equalizerResult = new EqualizerResultSet(_fftPeriod, _fftPeriod, 1, 20, 0.80f);
@@ -93,6 +84,10 @@ namespace AudioStation.Model.AudioProcessing
 
         private void OnEquzlierNotifierRead(object? sender, BlockReadEventArgs<float> e)
         {
+            // Use opportunity to update the current time
+            if (this.PlaybackTickEvent != null && _waveSource != null)
+                this.PlaybackTickEvent(_waveSource.GetTime(_waveSource.Position));
+
             // FFT Buffer is circular with its own index
             //
             for (int index = 0; index < e.Length; index++)
@@ -138,7 +133,6 @@ namespace AudioStation.Model.AudioProcessing
                 {
                     _soundOut.Stop();
                     _soundOut.Dispose();
-                    _timer.IsEnabled = false;
                     _equalizer.Dispose();
                     _waveSource.Dispose();
                     _equalizerNotifier.Dispose();
@@ -166,29 +160,6 @@ namespace AudioStation.Model.AudioProcessing
             }
         }
 
-        private void OnTimerTick(object? sender, EventArgs e)
-        {
-            // Dispatcher Timer => Dispatcher Thread. So, go ahead and fire the event.
-            if (this.PlaybackTickEvent != null)
-                this.PlaybackTickEvent(_waveSource == null ? TimeSpan.Zero : _waveSource.GetTime(_waveSource.Position));
-
-            //FftProvider provider;
-
-            //EqualizerResultSet s;
-
-            //// Contends for FFT result from NAudio
-            ////var fftResult = _aggregator.FFTResult;
-
-            //// Update our result set
-            ////var update = _equalizerResult.Update(fftResult);
-
-            ////if (update != EqualizerResultSet.UpdateType.None)
-            ////{
-            ////    if (this.EqualizerCalculated != null)
-            ////        this.EqualizerCalculated(_equalizerResult);
-            ////}
-        }
-
         public PlaybackState GetPlaybackState()
         {
             if (_soundOut != null)
@@ -208,7 +179,6 @@ namespace AudioStation.Model.AudioProcessing
         public void Pause()
         {
             _soundOut?.Pause();
-            _timer.IsEnabled = false;
         }
 
         public void Play(string source, StreamSourceType sourceType)
@@ -219,7 +189,6 @@ namespace AudioStation.Model.AudioProcessing
             }
 
             _soundOut.Play();
-            _timer.IsEnabled = true;
         }
 
         public void Resume()
@@ -227,7 +196,6 @@ namespace AudioStation.Model.AudioProcessing
             if (_soundOut != null && _soundOut.PlaybackState != PlaybackState.Playing)
             {
                 _soundOut.Play();
-                _timer.IsEnabled = true;
             }
         }
 
@@ -279,8 +247,6 @@ namespace AudioStation.Model.AudioProcessing
         {
             if (_soundOut != null && _soundOut.PlaybackState != PlaybackState.Stopped)
                 _soundOut.Stop();
-
-            _timer.IsEnabled = false;
         }
     }
 }
