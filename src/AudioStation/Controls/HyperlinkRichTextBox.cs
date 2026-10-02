@@ -108,7 +108,7 @@ namespace AudioStation.Controls
         private static void OnTextChanged(DependencyObject obj, DependencyPropertyChangedEventArgs e)
         {
             var control = (obj as HyperlinkRichTextBox);
-            if (control != null)
+            if (control != null && !string.IsNullOrWhiteSpace(control.Text))
             {
                 control.Reload();
             }

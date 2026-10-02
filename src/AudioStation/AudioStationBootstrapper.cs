@@ -13,8 +13,6 @@ using AudioStation.Core.Database.AudioStationDatabase;
 using AudioStation.Core.Database.AudioStationDatabase.Interface;
 using AudioStation.Core.Model;
 using AudioStation.Core.Model.Interface;
-using AudioStation.Core.Model.Vendor.ATLExtension;
-using AudioStation.Core.Model.Vendor.ATLExtension.Interface;
 using AudioStation.Event;
 using AudioStation.Event.DialogEvents;
 using AudioStation.ViewModels.DataComponent;
@@ -23,7 +21,6 @@ using AudioStation.ViewModels.LibraryLoaderViewModels.Payload.Input;
 using AudioStation.ViewModels.LibraryLoaderViewModels.Payload.Output;
 using AudioStation.ViewModels.LibraryViewModels;
 using AudioStation.ViewModels.Vendor.AcoustIDViewModel;
-using AudioStation.ViewModels.Vendor.ATLViewModel;
 
 using SimpleWpf.IocFramework.Application;
 using SimpleWpf.IocFramework.EventAggregation;
@@ -255,17 +252,8 @@ namespace AudioStation
                   .DeclareSourceInterface<ITagSmall>();
 
             // Audio Station Core (model)
-            mapper.ConfigureMap<AudioStationTag, AudioStationTag>()
-                  .DeclareSourceInterface<IAudioStationTag>();
-
-            mapper.ConfigureMap<AudioStationTag, TagViewModel>()
-                  .DeclareSourceInterface<IAudioStationTag>();
-
             mapper.ConfigureMap<AudioEncoderInfo, AudioEncoderInfo>()
                   .DeclareSourceInterface<IAudioEncoderInfo>();
-
-            mapper.ConfigureMap<TagViewModel, AudioStationTag>()
-                  .DeclareSourceInterface<IAudioStationTag>();
 
             // Audio Station Services
             mapper.ConfigureMap<LibraryLoaderImportInputViewModel, LibraryLoaderImportPayload>()

@@ -74,6 +74,7 @@
                  VirtualizingPanel.CacheLength="3"
                  VirtualizingPanel.ScrollUnit="Item"                     
                  HorizontalContentAlignment="Stretch"
+                 SelectionMode="Single"
                  ItemContainerStyle="{StaticResource HoverSelectItemContainerStyleWithAlternation}"
                  AlternationCount="2"
 				 Background="White"
@@ -82,16 +83,8 @@
 
             <ListBox.ItemTemplate>
                 <DataTemplate>
-                    <Grid>
 
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="*" />
-                        </Grid.RowDefinitions>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
+                    <Grid ColumnDefinitions="Auto, *" RowDefinitions="Auto, *">
 
                         <!-- Albums (Preview) -->
                         <!--fa5:SvgAwesome Icon="Solid_CompactDisc" Style="{StaticResource FontAwesomeIconDefault}" /-->
@@ -115,6 +108,7 @@
                         </TextBlock>
 
                     </Grid>
+
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>
@@ -125,8 +119,6 @@
                  VirtualizingPanel.IsVirtualizing="False"
                  VirtualizingPanel.ScrollUnit="Pixel"
                  HorizontalContentAlignment="Stretch"
-                 MouseDoubleClick="AlbumDetailLB_MouseDoubleClick"
-                 PreviewMouseWheel="AlbumDetailLB_PreviewMouseWheel"
                  ItemContainerStyle="{StaticResource TransparentItemContainerStyle}"                 
 				 BorderBrush="LightGray" BorderThickness="0,1,1,1">
             <behavior:Interaction.Behaviors>

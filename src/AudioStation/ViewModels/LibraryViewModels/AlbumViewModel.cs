@@ -12,7 +12,8 @@ namespace AudioStation.ViewModels.LibraryViewModels
     {
         string _album;
         string _primaryArtist;
-        uint _year;
+        string _mediaFormat;
+        int _year;
         TimeSpan _duration;
         SortedObservableCollection<MediaViewModel> _media;
 
@@ -21,12 +22,17 @@ namespace AudioStation.ViewModels.LibraryViewModels
             get { return _album; }
             set { this.RaiseAndSetIfChanged(ref _album, value); }
         }
+        public string MediaFormat
+        {
+            get { return _mediaFormat; }
+            set { this.RaiseAndSetIfChanged(ref _mediaFormat, value); }
+        }
         public string PrimaryArtist
         {
             get { return _primaryArtist; }
             set { this.RaiseAndSetIfChanged(ref _primaryArtist, value); }
         }
-        public uint Year
+        public int Year
         {
             get { return _year; }
             set { this.RaiseAndSetIfChanged(ref _year, value); }

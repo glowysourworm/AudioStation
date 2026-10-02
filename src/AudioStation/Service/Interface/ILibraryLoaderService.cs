@@ -18,6 +18,26 @@ namespace AudioStation.Service.Interface
         LibraryViewModel LoadLibrary(DialogProgressHandler progressHandler);
 
         /// <summary>
+        /// Loads NowPlaying data component with default for a track (the album is the playlist)
+        /// </summary>
+        NowPlayingViewModel GetNowPlaying(PlaylistEntryViewModel currentTrack);
+
+        /// <summary>
+        /// Loads NowPlaying data component with default for track (the album's tracks)
+        /// </summary>
+        NowPlayingPlaylistViewModel GetDefaultPlaylist(TrackViewModel track);
+
+        /// <summary>
+        /// Loads NowPlaying data component with default for an album (the album's tracks)
+        /// </summary>
+        NowPlayingPlaylistViewModel GetDefaultPlaylist(AlbumViewModel album);
+
+        /// <summary>
+        /// Loads NowPlaying data component with default for an artist (all artist's album's tracks)
+        /// </summary>
+        NowPlayingPlaylistViewModel GetDefaultPlaylist(ArtistViewModel artist);
+
+        /// <summary>
         /// Loads a library entry page from the database
         /// </summary>
         PageResult<TrackViewModel> LoadEntryPage(PageRequest<Track, int> request);

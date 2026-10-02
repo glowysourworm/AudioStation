@@ -1,11 +1,8 @@
 ﻿using System.Windows.Controls;
-using System.Windows.Input;
-using System.Windows.Media;
 
 using AudioStation.Controls;
 using AudioStation.Event;
-using AudioStation.ViewModels;
-using AudioStation.ViewModels.DataComponent.MainViewModels;
+using AudioStation.ViewModels.LibraryViewModels;
 
 using SimpleWpf.IocFramework.Application.Attribute;
 using SimpleWpf.IocFramework.EventAggregation;

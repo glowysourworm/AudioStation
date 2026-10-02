@@ -48,6 +48,9 @@ namespace AudioStation.Core.Model
         public string? SortAlbum { get; set; }
         public string? SortTitle { get; set; }
         public int? Year { get; set; }
+        public IList<LibraryImage> Images { get; set; }
+        public IList<string> AlbumArtists { get; set; }
+        public IList<string> Genres { get; set; }
         public IList<UserDefinedField> UserDefinedFields { get; set; }
         public IList<InvolvedPerson> InvolvedPeople { get; set; }
         public IList<UniqueFileIdentifier> UniqueFileIdentifiers { get; set; }
@@ -57,6 +60,9 @@ namespace AudioStation.Core.Model
             this.UserDefinedFields = new List<UserDefinedField>();
             this.InvolvedPeople = new List<InvolvedPerson>();
             this.UniqueFileIdentifiers = new List<UniqueFileIdentifier>();
+            this.Images = new List<LibraryImage>();
+            this.AlbumArtists = new List<string>();
+            this.Genres = new List<string>();
         }
 
         public Guid? GetAcoustIDIdentifier()

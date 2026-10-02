@@ -89,7 +89,7 @@ namespace AudioStation.Controls
             Rect scrubbedRect, nonScrubbedRect;
 
             // BUG:  The ScrubbedRatio can get a value of greater than 1 - making the height (and/or) width negative!
-            this.ScrubbedRatio.Clip(0, 1);
+            this.ScrubbedRatio = this.ScrubbedRatio.Clip(0, 1);
 
             if (this.Orientation == Orientation.Horizontal)
             {

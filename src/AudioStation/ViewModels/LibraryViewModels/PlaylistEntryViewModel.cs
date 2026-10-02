@@ -1,9 +1,8 @@
 ﻿using AudioStation.ViewModels.DataComponent.MainViewModels.Interface;
-using AudioStation.ViewModels.LibraryViewModels;
 
 using SimpleWpf.UI.ViewModel;
 
-namespace AudioStation.ViewModels.DataComponent.MainViewModels
+namespace AudioStation.ViewModels.LibraryViewModels
 {
     public class PlaylistEntryViewModel : ViewModelBase, IPlaylistEntryViewModel
     {
@@ -18,17 +17,17 @@ namespace AudioStation.ViewModels.DataComponent.MainViewModels
         public ArtistViewModel Artist
         {
             get { return _artist; }
-            set { RaiseAndSetIfChanged(ref _artist, value); }
+            set { this.RaiseAndSetIfChanged(ref _artist, value); }
         }
         public AlbumViewModel Album
         {
             get { return _album; }
-            set { RaiseAndSetIfChanged(ref _album, value); }
+            set { this.RaiseAndSetIfChanged(ref _album, value); }
         }
         public TrackViewModel Track
         {
             get { return _track; }
-            set { RaiseAndSetIfChanged(ref _track, value); }
+            set { this.RaiseAndSetIfChanged(ref _track, value); }
         }
         public TimeSpan CurrentTime
         {

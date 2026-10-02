@@ -3,7 +3,7 @@
 using AudioStation.Core.Database.AudioStationDatabase.Interface;
 using AudioStation.Core.Event;
 using AudioStation.Core.Model;
-using AudioStation.Core.Model.Vendor.ATLExtension.Interface;
+using AudioStation.Core.Model.Interface;
 using AudioStation.Core.Service.Interface;
 using AudioStation.Core.Utility;
 
@@ -55,7 +55,7 @@ namespace AudioStation.Core.Database.AudioStationDatabase
             });
         }
 
-        public Track AddUpdateLibraryEntry(string fileName, DateTime creationDate, DateTime modifiedDate, int crc32, bool fileAvailable, bool fileLoadError, string fileLoadErrorMessage, IAudioStationTag tagRef)
+        public Track AddUpdateLibraryEntry(string fileName, DateTime creationDate, DateTime modifiedDate, int crc32, bool fileAvailable, bool fileLoadError, string fileLoadErrorMessage, ITagFull tagRef)
         {
             try
             {
@@ -84,9 +84,9 @@ namespace AudioStation.Core.Database.AudioStationDatabase
                         {
                             FileReference = fileReference,
                             Title = tagRef.Title?.Trim() ?? string.Empty,
-                            TrackNumber = (int)tagRef.Track,
-                            MediaNumber = tagRef.DiscNumber,
-                            DurationMilliseconds = (int)tagRef.Duration.TotalMilliseconds
+                            TrackNumber = tagRef.TrackNumber ?? 0,
+                            MediaNumber = tagRef.MediaNumber ?? 0,
+                            DurationMilliseconds = tagRef.DurationMilliseconds ?? 0
                         };
                         newEntity = true;
                     }
@@ -115,7 +115,7 @@ namespace AudioStation.Core.Database.AudioStationDatabase
                         existingAlbum = new Album()
                         {
                             MediaFormat = tagRef.MediaFormat,
-                            MediaCount = (int)tagRef.DiscTotal,
+                            MediaCount = (int)tagRef.MediaTotal,
                             TrackCount = (int)tagRef.TrackTotal,
                             Year = (int)tagRef.Year,
                             Name = tagRef.Album.Trim()

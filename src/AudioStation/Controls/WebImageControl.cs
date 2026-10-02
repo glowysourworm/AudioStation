@@ -5,10 +5,10 @@ using System.Windows.Threading;
 using AudioStation.Core.Service.ImageCacheModel;
 using AudioStation.Core.Service.Interface;
 
+using IdSharp.Tagging.ID3v2;
+
 using SimpleWpf.IocFramework.Application;
 using SimpleWpf.Utilities;
-
-using PictureType = ATL.PictureInfo.PIC_TYPE;
 
 namespace AudioStation.Controls
 {
@@ -36,7 +36,7 @@ namespace AudioStation.Controls
             _cacheController = IocContainer.Get<IImageCache>();
 
             // This may help to detail web images for some services that deal with mp3 tags
-            _cacheType = PictureType.Front;
+            _cacheType = PictureType.CoverFront;
 
             this.Unloaded += WebImageControl_Unloaded;
             this.Loaded += WebImageControl_Loaded;
@@ -97,7 +97,7 @@ namespace AudioStation.Controls
 
                 switch (_cacheType)
                 {
-                    case PictureType.Front:
+                    case PictureType.CoverFront:
                         this.Source = (await _cacheController.GetFromEndpoint(this.ImageEndpoint, _cacheType, this.ImageSize))?.Source;
                         break;
                     default:

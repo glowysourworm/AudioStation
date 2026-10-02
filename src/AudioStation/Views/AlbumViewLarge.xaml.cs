@@ -19,20 +19,12 @@ namespace AudioStation.Views
             base.OnRenderSizeChanged(sizeInfo);
         }
 
-        private void OnTracksDoubleClick(object sender, MouseButtonEventArgs e)
+        private void TracksLB_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            //foreach (var item in this.TracksLB.Items.Cast<TrackViewModel>())
-            //{
-            //    if (item == (e.OriginalSource as FrameworkElement).DataContext)
-            //    {
-            //        if (this.TrackSelected != null)
-            //            this.TrackSelected(this, item);
+            var trackViewModel = (e.OriginalSource as FrameworkElement).DataContext as TrackViewModel;
 
-            //        e.Handled = true;
-
-            //        return;
-            //    }
-            //}
+            if (trackViewModel != null)
+                Load(trackViewModel);
         }
     }
 }

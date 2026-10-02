@@ -1,28 +1,17 @@
-﻿using AudioStation.Core.Service.Payload.Interface;
+﻿using AudioStation.Core.Model;
+using AudioStation.Core.Service.Payload.Interface;
 
 namespace AudioStation.Core.Service.Payload.Output
 {
     public class ArtworkPayload : ITagServiceOutputPayload
     {
-        ATL.PictureInfo _data;
+        LibraryImage _image;
 
-        public byte[] GetBuffer()
-        {
-            return _data.PictureData;
-        }
-        public string GetMimeType()
-        {
-            return _data.MimeType;
-        }
-        public ATL.PictureInfo GetPayload()
-        {
-            return _data;
-        }
+        public LibraryImage Payload { get { return _image; } }
 
-
-        public ArtworkPayload(ATL.PictureInfo data)
+        public ArtworkPayload(LibraryImage image)
         {
-            _data = data;
+            _image = image;
         }
     }
 }

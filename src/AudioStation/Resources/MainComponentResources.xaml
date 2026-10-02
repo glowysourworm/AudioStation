@@ -28,8 +28,6 @@
     <converter:MetaEntryConverter x:Key="MetaEntryConverter" />
     <converter:MusicBrainzConverter x:Key="MusicBrainzConverter" />
     <converter:MusicBrainzValidColorConverter x:Key="MusicBrainzValidColorConverter" />
-    <converter:NowPlayingBoolConverter x:Key="NowPlayingBoolConverter" />
-    <converter:NowPlayingPlaylistBoolConverter x:Key="NowPlayingPlaylistBoolConverter" />
     <converter:PlayStopPauseParameterBoolConverter x:Key="PlayStopPauseParameterBoolConverter" />
     <converter:RatioParameterConverter x:Key="RatioParameterConverter" />
     <converter:StringArrayConverter x:Key="StringArrayConverter" />
@@ -64,10 +62,10 @@
     <simpleConverter:TimeSpanRatioParameterConverter x:Key="TimeSpanRatioParameterConverter" />
     
     <!-- Parameter Converters -->
-    <!--simpleConverter:ParameterConverterBase x:Key="ParameterVisibilityLessThanConverter"
+    <simpleConverter:ParameterConverterBase x:Key="ParameterVisibilityGreaterThanConverter"
                                             TrueValue="{x:Static Visibility.Visible}"
                                             FalseValue="{x:Static Visibility.Collapsed}"
-                                            Comparison="LessThan" /-->
+                                            Comparison="GreaterThan" />
 
     <simpleConverter:BoolORMultiConverter x:Key="BoolORMultiConverter" />
     <simpleConverter:BoolANDMultiConverter x:Key="BoolANDMultiConverter" />

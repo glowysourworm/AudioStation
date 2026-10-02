@@ -1,4 +1,4 @@
-﻿using AudioStation.ViewModels.Vendor.ATLViewModel;
+﻿using AudioStation.ViewModels.Vendor.IdSharpViewModel;
 
 namespace AudioStation.Event.DialogEvents.DialogEditorEvents
 {

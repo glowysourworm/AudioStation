@@ -62,6 +62,12 @@ namespace AudioStation.Model.AudioProcessing
         public float[] ResultPeaks { get; private set; }
 
         /// <summary>
+        /// The max peak of the result peaks (saved during calculation). This should be used for
+        /// normalizing the rendering.
+        /// </summary>
+        public float MaxPeak { get; private set; }
+
+        /// <summary>
         /// Counter for the integration period 
         /// </summary>
         protected int Counter { get; private set; }
@@ -89,6 +95,7 @@ namespace AudioStation.Model.AudioProcessing
             var bucketSize = (int)(fftBuffer.Length / (float)this.ChannelsOutput);
             var lastBucketIndex = -1;
 
+            // Input
             for (int index = 0; index < fftBuffer.Length; index++)
             {
                 // Current output "channel"
@@ -108,6 +115,9 @@ namespace AudioStation.Model.AudioProcessing
 
                 // Average the input into buckets
                 _outputBuffer[bucketIndex] += fftOutput / (float)bucketSize;
+
+                // Track the max peak
+                this.MaxPeak = Math.Max(this.MaxPeak, fftOutput);
 
                 // Integrate this for the period (running average)
                 //var fftOutputAverage = this.Counter == 0 ? fftOutput : (fftOutput + (this.Counter * _inputBuffer[index])) / (this.Counter + 1);
@@ -179,6 +189,7 @@ namespace AudioStation.Model.AudioProcessing
 
             this.Counter = 0;
             this.PeakCounter = 0;
+            this.MaxPeak = 1;
 
             this.Result = new float[this.ChannelsOutput];
             this.ResultPeaks = new float[this.ChannelsOutput];

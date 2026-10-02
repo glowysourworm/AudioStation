@@ -52,16 +52,14 @@ namespace AudioStation.Controller
             });
             eventAggregator.GetEvent<StartPlaybackEvent>().Subscribe(() =>
             {
+                if (string.IsNullOrWhiteSpace(_streamSource))
+                    throw new Exception("Trying to start playback before loading media:  IAudioController");
+
                 if (_player != null && _player.GetPlaybackState() == PlaybackState.Paused)
                     Resume();
 
-                else if (_streamSource != null)
-                {
-                    Play();
-                }
-
                 else
-                    throw new Exception("Trying to start playback before loading media:  IAudioController");
+                    Play();
             });
             eventAggregator.GetEvent<StopPlaybackEvent>().Subscribe(() =>
             {
@@ -131,10 +129,11 @@ namespace AudioStation.Controller
 
         public void Play()
         {
-            if (_player != null &&
-               (_player.GetPlaybackState() == PlaybackState.Paused ||
-                _player.GetPlaybackState() == PlaybackState.Playing))
-                _player.Resume();
+            if (_player != null)
+            {
+                if (_player.GetPlaybackState() == PlaybackState.Paused)
+                    _player.Resume();
+            }
 
             else if (!string.IsNullOrEmpty(_streamSource))
             {

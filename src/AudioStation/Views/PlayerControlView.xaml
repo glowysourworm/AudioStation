@@ -6,7 +6,7 @@
              xmlns:fa5="http://schemas.fontawesome.com/icons/"
              xmlns:coreComponent="clr-namespace:AudioStation.Core.Component;assembly=AudioStation.Core"
              xmlns:region="clr-namespace:SimpleWpf.IocFramework.RegionManagement;assembly=SimpleWpf.IocFramework"
-             Background="#8F000000">
+             Background="{StaticResource PlayerControlBackground}">
     
     <!-- Playlist Controller (Panel) (Bound to MainViewModel -> (Playlist)) -->
     <Grid>
@@ -26,15 +26,10 @@
         <controls:EqualizerOutputControl x:Name="EqualizerOutputControl" 
                                          VerticalAlignment="Stretch" 
                                          HorizontalAlignment="Stretch" 
-                                         BarBorder="#5FFFFFFF"
-                                         PeakBrush="#3FFFFFFF"
+                                         BarBorder="{StaticResource EqualizerBarBorderBrush}"
+                                         PeakBrush="{StaticResource EqualizerPeakBrush}"
+                                         BarBrush="{StaticResource EqualizerBarBrush}"
                                          BarPadding="0" Margin="5" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3">
-            <controls:EqualizerOutputControl.BarBrush>
-                <LinearGradientBrush StartPoint="0.5, 0" EndPoint="0.5, 1">
-                    <GradientStop Offset="0" Color="#5FFFFFFF" />
-                    <GradientStop Offset="1" Color="#7FFFFFFF" />
-                </LinearGradientBrush>
-            </controls:EqualizerOutputControl.BarBrush>
         </controls:EqualizerOutputControl>
 
         <!-- Album Image -->
@@ -43,36 +38,36 @@
         <!-- Artist - Album - Title -->
         <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5" Grid.Column="1">
             <TextBlock Text="{Binding Artist.Artist}"                                
-                               Style="{StaticResource PlayerControlTextBlock}"
-                               Margin="5" />
+                       Style="{StaticResource PlayerControlTextBlock}"
+                       Margin="5" />
 
             <fa5:SvgAwesome Icon="Solid_Circle" Height="4" Width="4" VerticalAlignment="Center" Margin="5 0" />
 
             <TextBlock Text="{Binding Album.Album}" 
-                               Style="{StaticResource PlayerControlTextBlock}"
-                               Margin="5" />
+                       Style="{StaticResource PlayerControlTextBlock}"
+                       Margin="5" />
 
             <fa5:SvgAwesome Icon="Solid_Circle" Height="4" Width="4" VerticalAlignment="Center" Margin="5 0" />
 
             <TextBlock Text="{Binding Track.Title}" 
-                               Style="{StaticResource PlayerControlTextBlock}"
-                               Margin="5" />
+                       Style="{StaticResource PlayerControlTextBlock}"
+                       Margin="5" />
         </StackPanel>
 
         <!-- Time Data -->
         <StackPanel Orientation="Horizontal" Grid.Column="2" VerticalAlignment="Center" Margin="5">
 
             <TextBlock Text="{Binding CurrentTime, StringFormat={}{0:hh}:{0:mm}:{0:ss}}" 
-                               Style="{StaticResource PlayerControlTextBlock}"
-                               Margin="5 5" />
+                       Style="{StaticResource PlayerControlTextBlock}"
+                       Margin="5 5" />
 
             <TextBlock Text=" / "
-                               Style="{StaticResource PlayerControlTextBlock}"
-                               Margin="5 5" />
+                       Style="{StaticResource PlayerControlTextBlock}"
+                       Margin="5 5" />
 
             <TextBlock Text="{Binding Track.Duration, StringFormat={}{0:hh}:{0:mm}:{0:ss}}" 
-                               Style="{StaticResource PlayerControlTextBlock}"
-                               Margin="5 5" />
+                       Style="{StaticResource PlayerControlTextBlock}"
+                       Margin="5 5" />
         </StackPanel>
 
         <!-- Player Controls:  Play / Stop / Pause / View Change / Audio Controls -->

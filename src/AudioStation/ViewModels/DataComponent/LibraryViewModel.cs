@@ -1,36 +1,37 @@
-﻿using System.Collections.ObjectModel;
-
-using AudioStation.Core.Model.Interface;
+﻿using AudioStation.Core.Model.Interface;
 using AudioStation.ViewModels.LibraryViewModels;
+
+using SimpleWpf.Extensions.ObservableCollection;
 
 namespace AudioStation.ViewModels.DataComponent
 {
     public class LibraryViewModel : DataComponentViewModelBase
     {
-        ObservableCollection<TrackViewModel> _tracks;
-        ObservableCollection<AlbumViewModel> _albums;
-        ObservableCollection<ArtistViewModel> _artists;
-        ObservableCollection<GenreViewModel> _genres;
+        KeyedObservableCollection<int, TrackViewModel> _tracks;
+        KeyedObservableCollection<int, AlbumViewModel> _albums;
+        KeyedObservableCollection<int, ArtistViewModel> _artists;
+        KeyedObservableCollection<int, GenreViewModel> _genres;
+        KeyedObservableCollection<int, PlaylistViewModel> _playlists;
 
-        public ObservableCollection<TrackViewModel> Tracks
+        public IReadOnlyCollection<TrackViewModel> Tracks
         {
             get { return _tracks; }
-            set { RaiseAndSetIfChanged(ref _tracks, value); }
         }
-        public ObservableCollection<AlbumViewModel> Albums
+        public IReadOnlyCollection<AlbumViewModel> Albums
         {
             get { return _albums; }
-            set { RaiseAndSetIfChanged(ref _albums, value); }
         }
-        public ObservableCollection<ArtistViewModel> Artists
+        public IReadOnlyCollection<ArtistViewModel> Artists
         {
             get { return _artists; }
-            set { RaiseAndSetIfChanged(ref _artists, value); }
         }
-        public ObservableCollection<GenreViewModel> Genres
+        public IReadOnlyCollection<GenreViewModel> Genres
         {
             get { return _genres; }
-            set { RaiseAndSetIfChanged(ref _genres, value); }
+        }
+        public IReadOnlyCollection<PlaylistViewModel> Playlists
+        {
+            get { return _playlists; }
         }
 
         /// <summary>
@@ -39,10 +40,68 @@ namespace AudioStation.ViewModels.DataComponent
         /// </summary>
         public LibraryViewModel() : base("Library")
         {
-            this.Tracks = new ObservableCollection<TrackViewModel>();
-            this.Albums = new ObservableCollection<AlbumViewModel>();
-            this.Artists = new ObservableCollection<ArtistViewModel>();
-            this.Genres = new ObservableCollection<GenreViewModel>();
+            _tracks = new KeyedObservableCollection<int, TrackViewModel>();
+            _albums = new KeyedObservableCollection<int, AlbumViewModel>();
+            _artists = new KeyedObservableCollection<int, ArtistViewModel>();
+            _genres = new KeyedObservableCollection<int, GenreViewModel>();
+            _playlists = new KeyedObservableCollection<int, PlaylistViewModel>();
+        }
+
+        public GenreViewModel GetGenre(int genreId)
+        {
+            return _genres[genreId];
+        }
+        public ArtistViewModel GetArtist(int artistId)
+        {
+            return _artists[artistId];
+        }
+        public AlbumViewModel GetAlbum(int albumId)
+        {
+            return _albums[albumId];
+        }
+        public TrackViewModel GetTrack(int trackId)
+        {
+            return _tracks[trackId];
+        }
+        public PlaylistViewModel GetPlaylist(int playlistId)
+        {
+            return _playlists[playlistId];
+        }
+
+        public void AddGenre(GenreViewModel genre)
+        {
+            if (_genres.ContainsKey(genre.Id))
+                throw new ArgumentException("Genre already contained in the library");
+
+            _genres.Add(genre.Id, genre);
+        }
+        public void AddArtist(ArtistViewModel artist)
+        {
+            if (_artists.ContainsKey(artist.Id))
+                throw new ArgumentException("Artist already contained in the library");
+
+            _artists.Add(artist.Id, artist);
+        }
+        public void AddAlbum(AlbumViewModel album)
+        {
+            if (_albums.ContainsKey(album.Id))
+                throw new ArgumentException("Album already contained in the library");
+
+            _albums.Add(album.Id, album);
+        }
+        public void AddTrack(TrackViewModel track)
+        {
+            if (_tracks.ContainsKey(track.Id))
+                throw new ArgumentException("Track already contained in the library");
+
+            _tracks.Add(track.Id, track);
+        }
+        public void AddGenre(PlaylistViewModel playlist)
+        {
+            if (_playlists.ContainsKey(playlist.Id))
+                throw new ArgumentException("Playlist already contained in the library");
+
+            _playlists.Add(playlist.Id, playlist);
         }
 
         public override void Initialize(IAudioStationConfiguration configuration)
@@ -52,10 +111,11 @@ namespace AudioStation.ViewModels.DataComponent
 
         public override void Dispose()
         {
-            this.Tracks.Clear();
-            this.Albums.Clear();
-            this.Artists.Clear();
-            this.Genres.Clear();
+            _tracks.Clear();
+            _albums.Clear();
+            _artists.Clear();
+            _genres.Clear();
+            _playlists.Clear();
         }
     }
 }

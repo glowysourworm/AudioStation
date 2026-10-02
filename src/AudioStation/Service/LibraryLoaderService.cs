@@ -26,8 +26,6 @@ namespace AudioStation.Service
     [IocExport(typeof(ILibraryLoaderService))]
     public class LibraryLoaderService : ILibraryLoaderService
     {
-        private readonly ILibraryMapperService _libraryMapperService;
-
         private readonly IAudioStationDbClient _audioStationDbClient;
         private readonly IAudioStationMapper _audioStationMapper;
 
@@ -35,10 +33,9 @@ namespace AudioStation.Service
         IAudioStationComponentController _audioStationComponentController;
 
         [IocImportingConstructor]
-        public LibraryLoaderService(IAudioStationDbClient audioStationDbClient, ILibraryMapperService libraryMapperService, IAudioStationMapper audioStationMapper)
+        public LibraryLoaderService(IAudioStationDbClient audioStationDbClient, IAudioStationMapper audioStationMapper)
         {
             _audioStationDbClient = audioStationDbClient;
-            _libraryMapperService = libraryMapperService;
             _audioStationMapper = audioStationMapper;
         }
 
@@ -59,13 +56,10 @@ namespace AudioStation.Service
                 // Clear out any old data
                 libraryViewModel.Dispose();
 
-                var artists = LoadArtists(progressHandler);
-                var albums = LoadAlbums(progressHandler);
-                var genres = LoadGenres(progressHandler);
-
-                libraryViewModel.Artists.AddRange(artists);
-                libraryViewModel.Albums.AddRange(albums);
-                libraryViewModel.Genres.AddRange(genres);
+                // Load Order:  General -> Specific
+                LoadGenres(ref libraryViewModel, progressHandler);
+                LoadArtists(ref libraryViewModel, progressHandler);
+                LoadTracks(ref libraryViewModel, progressHandler);
 
                 return libraryViewModel;
             }
@@ -76,6 +70,65 @@ namespace AudioStation.Service
             }
         }
 
+        public NowPlayingViewModel GetNowPlaying(PlaylistEntryViewModel currentTrack)
+        {
+            var libraryViewModel = _audioStationComponentController.GetDataComponent<LibraryViewModel>();
+            var nowPlaying = _audioStationComponentController.GetDataComponent<NowPlayingViewModel>();
+
+            nowPlaying.Dispose();
+
+            nowPlaying.ArtistBio = "Artist Bio";
+            nowPlaying.ArtistSummary = "Artist Summary";
+
+            return nowPlaying;
+        }
+
+        public NowPlayingPlaylistViewModel GetDefaultPlaylist(TrackViewModel track)
+        {
+            var libraryViewModel = _audioStationComponentController.GetDataComponent<LibraryViewModel>();
+            var nowPlaying = _audioStationComponentController.GetDataComponent<NowPlayingPlaylistViewModel>();
+
+            nowPlaying.Dispose();
+
+            var tracks = libraryViewModel.Tracks.Where(x => x.Album == track.Album);
+            var album = libraryViewModel.Albums.First(x => x.Album == track.Album);
+            var artist = libraryViewModel.Artists.First(x => x.Artist == track.Artist);
+
+            nowPlaying.Playlist = new PlaylistViewModel();
+            nowPlaying.Playlist.Entries.AddRange(tracks.Select(x => new PlaylistEntryViewModel(artist, album, track)));
+            nowPlaying.Playlist.Name = "New Playlist";
+            nowPlaying.SetPlaying(nowPlaying.Playlist.Entries.First(x => x.Track.Id == track.Id));
+
+            return nowPlaying;
+        }
+        public NowPlayingPlaylistViewModel GetDefaultPlaylist(AlbumViewModel album)
+        {
+            return GetDefaultPlaylist(album.Media.First().Tracks.First());
+        }
+        public NowPlayingPlaylistViewModel GetDefaultPlaylist(ArtistViewModel artist)
+        {
+            var libraryViewModel = _audioStationComponentController.GetDataComponent<LibraryViewModel>();
+            var nowPlaying = _audioStationComponentController.GetDataComponent<NowPlayingPlaylistViewModel>();
+
+            nowPlaying.Dispose();
+
+            nowPlaying.Playlist = new PlaylistViewModel();
+
+            foreach (var album in artist.Albums)
+            {
+                var tracks = libraryViewModel.Tracks.Where(x => x.Album == album.Album);
+
+                nowPlaying.Playlist
+                          .Entries
+                          .AddRange(tracks.Select(x => new PlaylistEntryViewModel(artist, album, x)));
+            }
+
+            nowPlaying.Playlist.Name = "New Playlist";
+            nowPlaying.SetPlaying(nowPlaying.Playlist.Entries.First());
+
+            return nowPlaying;
+        }
+
         public PageResult<TrackViewModel> LoadEntryPage(PageRequest<Track, int> request)
         {
             if (BasicHelpers.IsDispatcher() == ApplicationIsDispatcherResult.False)
@@ -83,14 +136,14 @@ namespace AudioStation.Service
 
             var result = new PageResult<TrackViewModel>();
 
-            // Database:  Load the file (entry) entities
-            var entryPage = _audioStationDbClient.GetPage(request);
+            //// Database:  Load the file (entry) entities
+            //var entryPage = _audioStationDbClient.GetPage(request);
 
-            result.PageNumber = request.PageNumber;
-            result.PageSize = request.PageSize;
-            result.TotalRecordCountFiltered = entryPage.TotalRecordCountFiltered;
-            result.TotalRecordCount = entryPage.TotalRecordCount;
-            result.Results = entryPage.Results.Select(_libraryMapperService.MapTrack).ToList();
+            //result.PageNumber = request.PageNumber;
+            //result.PageSize = request.PageSize;
+            //result.TotalRecordCountFiltered = entryPage.TotalRecordCountFiltered;
+            //result.TotalRecordCount = entryPage.TotalRecordCount;
+            //result.Results = entryPage.Results.Select(_libraryMapperService.MapTrack).ToList();
 
             return result;
         }
@@ -161,11 +214,27 @@ namespace AudioStation.Service
         }
 
         #region (private) Data Loaders
-
-        public IEnumerable<ArtistViewModel> LoadArtists(DialogProgressHandler progressHandler)
+        private void LoadGenres(ref LibraryViewModel libraryViewModel, DialogProgressHandler progressHandler)
         {
-            var resultCollection = new List<ArtistViewModel>();
+            var result = new List<GenreViewModel>();
 
+            var genreEntities = _audioStationDbClient.GetEntities<Genre>();
+            var genreCount = genreEntities.Count();
+            var genreIndex = 0;
+
+            foreach (var genre in genreEntities.OrderBy(x => x.Name))
+            {
+                libraryViewModel.AddGenre(new GenreViewModel(genre.Id)
+                {
+                    Name = genre.Name
+                });
+
+                // Progress Update
+                progressHandler(3, 1, genreCount, ++genreIndex, "Loading Genres...");
+            }
+        }
+        private void LoadArtists(ref LibraryViewModel libraryViewModel, DialogProgressHandler progressHandler)
+        {
             // Database:  Load the artist entities
             var artistEntities = _audioStationDbClient.GetEntities<Artist>();
             var artistCount = artistEntities.Count();
@@ -183,91 +252,94 @@ namespace AudioStation.Service
                     Artist = artist.Name
                 };
 
-                // Add Album - Query Tracks
                 foreach (var album in albums)
                 {
-                    // Database:  Load the track entities
-                    var tracks = _audioStationDbClient.GetAlbumTracks(album.Id);
+                    // NOTE:  The library must have related unique instances!
+                    //
 
-                    // Map Album 
-                    var albumViewModel = _libraryMapperService.MapAlbum(artist, album, tracks);
+                    // Album
+                    libraryViewModel.AddAlbum(new AlbumViewModel(album.Id)
+                    {
+                        Album = album.Name,
+                        Duration = TimeSpan.Zero,        // Need tracks still!
+                        PrimaryArtist = artist.Name,
+                        Year = album.Year,
+                        MediaFormat = album.MediaFormat,
+                    });
 
-                    // Add Album to Artist
-                    artistViewModel.Albums.Add(albumViewModel);
+                    var albumViewModel = libraryViewModel.GetAlbum(album.Id);
+
+                    // Album -> Media
+                    for (int mediaNumber = 1; mediaNumber <= album.MediaCount; mediaNumber++)
+                    {
+                        // Tracks still need to be loaded!
+                        albumViewModel.Media.Add(new MediaViewModel()
+                        {
+                            Duration = TimeSpan.Zero,
+                            MediaNumber = mediaNumber
+                        });
+                    }
+
+                    // Artist -> Albums
+                    artistViewModel.Albums.Add(libraryViewModel.GetAlbum(album.Id));
                 }
 
-                // Add Artist to result page
-                resultCollection.Add(artistViewModel);
+                // Add Artist to Library
+                libraryViewModel.AddArtist(artistViewModel);
 
                 // Progress Update
-                progressHandler(1, 3, artistCount, ++artistIndex, "Loading Artists...");
+                progressHandler(3, 2, artistCount, ++artistIndex, "Loading Artists...");
             }
-
-            return resultCollection;
         }
-
-        public IEnumerable<GenreViewModel> LoadGenres(DialogProgressHandler progressHandler)
+        private void LoadTracks(ref LibraryViewModel libraryViewModel, DialogProgressHandler progressHandler)
         {
-            var result = new List<GenreViewModel>();
+            var result = new List<TrackViewModel>();
 
-            var genreEntities = _audioStationDbClient.GetEntities<Genre>();
-            var genreCount = genreEntities.Count();
-            var genreIndex = 0;
-
-            foreach (var genre in genreEntities.OrderBy(x => x.Name))
-            {
-                result.Add(new GenreViewModel(genre.Id)
-                {
-                    Name = genre.Name
-                });
-
-                // Progress Update
-                progressHandler(3, 3, genreCount, ++genreIndex, "Loading Genres...");
-            }
-
-            return result;
-        }
-
-        public IEnumerable<AlbumViewModel> LoadAlbums(DialogProgressHandler progressHandler)
-        {
-            var result = new List<AlbumViewModel>();
-
-            var albumEntities = _audioStationDbClient.GetEntities<Album>();
             var trackEntities = _audioStationDbClient.GetEntities<Track>();
+            var trackCount = trackEntities.Count();
+            var trackIndex = 0;
 
-            var albumCount = albumEntities.Count();
-            var albumIndex = 0;
-
-            foreach (var albumEntity in albumEntities.OrderBy(x => x.Name))
+            foreach (var track in trackEntities)
             {
-                // Track Entities
-                var tracks = trackEntities.Where(track => track.AlbumId == albumEntity.Id);
-
-                // Primary Artist Id (TODO!!! MULTIPLE ARTISTS, VARYING PER TRACK!)
-                var artistId = tracks.Select(track => track.ArtistId)
-                                     .FirstOrDefault();
-
-                if (artistId == null)
+                var trackViewModel = new TrackViewModel(track.Id, track.AlbumId, track.ArtistId)
                 {
-                    ApplicationHelpers.Log("Error loading album-artist:  AlbumId={0}", LogLevel.Error, null, albumEntity.Id);
-                    continue;
-                }
+                    Album = track.Album.Name,
+                    Artist = track.Artist.Name,
+                    Duration = TimeSpan.FromMilliseconds(track.DurationMilliseconds),
+                    FileName = track.FileReference.FileName,
+                    FileCorruptMessage = track.FileReference.FileCorruptMessage,
+                    FileLoadErrorMessage = track.FileReference.FileErrorMessage,
+                    Crc32 = track.FileReference.CRC32,
+                    Genre = track.Genre.Name,
+                    IsFileAvailable = !track.FileReference.IsFileLoadError,
+                    IsFileCorrupt = track.FileReference.IsFileCorrupt,
+                    IsFileLoadError = track.FileReference.IsFileLoadError,
+                    MediaFormat = track.Album.MediaFormat,
+                    MediaNumber = track.MediaNumber,
+                    Title = track.Title,
+                    TrackNumber = track.TrackNumber
+                };
 
-                // Artist Entity
-                var artist = _audioStationDbClient.GetEntity<Artist>((int)artistId);
+                // Media -> Tracks
+                var media = libraryViewModel.GetAlbum(track.AlbumId)
+                                            .Media
+                                            .First(x => x.MediaNumber == track.MediaNumber);
 
-                // Album Result
-                var album = _libraryMapperService.MapAlbum(artist, albumEntity, tracks);
+                media.Tracks.Add(trackViewModel);
+                media.Duration = TimeSpan.FromMilliseconds(media.Tracks.Sum(x => x.Duration.TotalMilliseconds));
 
-                result.Add(album);
+                // Album -> Media
+                var album = libraryViewModel.GetAlbum(track.AlbumId);
+
+                album.Duration = TimeSpan.FromMilliseconds(media.Duration.TotalMilliseconds);
+
+                // Library Track
+                libraryViewModel.AddTrack(trackViewModel);
 
                 // Progress Update
-                progressHandler(2, 3, albumCount, ++albumIndex, "Loading Albums...");
+                progressHandler(3, 3, trackCount, ++trackIndex, "Loading Tracks...");
             }
-
-            return result;
         }
-
         #endregion
     }
 }

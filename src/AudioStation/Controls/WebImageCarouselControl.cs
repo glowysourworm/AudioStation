@@ -7,10 +7,10 @@ using AudioStation.Controls.Animation;
 using AudioStation.Core.Service.ImageCacheModel;
 using AudioStation.Core.Service.Interface;
 
+using IdSharp.Tagging.ID3v2;
+
 using SimpleWpf.IocFramework.Application;
 using SimpleWpf.Utilities;
-
-using PictureType = ATL.PictureInfo.PIC_TYPE;
 
 namespace AudioStation.Controls
 {
@@ -125,7 +125,7 @@ namespace AudioStation.Controls
                     {
                         Stretch = Stretch.Uniform,
                         StretchDirection = StretchDirection.Both,
-                        Source = (await _imageCacheController.GetFromEndpoint(imageSource, PictureType.Artist, this.ImageSize))?.Source
+                        Source = (await _imageCacheController.GetFromEndpoint(imageSource, PictureType.ArtistPerformer, this.ImageSize))?.Source
                     });
                 }
 

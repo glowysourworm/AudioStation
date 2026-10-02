@@ -1,11 +1,12 @@
 ﻿using System.Windows.Controls;
 
-using ATL;
-
+using AudioStation.Core.Model.Vendor.IdSharp;
 using AudioStation.Core.Service.ImageCacheModel;
 using AudioStation.Core.Service.Interface;
 using AudioStation.Core.Utility;
-using AudioStation.ViewModels.Vendor.ATLViewModel;
+using AudioStation.ViewModels.Vendor.IdSharpViewModel;
+
+using IdSharp.Tagging.ID3v2;
 
 using Microsoft.Extensions.Logging;
 
@@ -39,11 +40,15 @@ namespace AudioStation.Views.VendorEntryViews
                     // Create copy of the image buffer from a memory stream (using WPF API)
                     var defaultImageBuffer = defaultImage.GetBuffer();
 
-                    // Create ATL PictureInfo from the buffer
-                    var pictureInfo = PictureInfo.fromBinaryData(defaultImageBuffer);
+                    // Create LibraryImage from the buffer
+                    var image = new AttachedPicture()
+                    {
+                        PictureData = defaultImageBuffer,
+                        PictureType = PictureType.CoverFront
+                    };
 
                     // Extend the picture array by one
-                    viewModel.EmbeddedPictures.Add(pictureInfo);
+                    viewModel.Id3v2Tag.PictureList.Add(image);
                 }
                 catch (Exception ex)
                 {

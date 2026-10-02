@@ -102,6 +102,6 @@ namespace AudioStation.Core.Service.Interface
         /// <param name="fileType">File type related to usage</param>
         /// <param name="storageType">Storage type (temp / permanent)</param>
         /// <returns>Location of file for adding to the database file reference</returns>
-        string StoreImage(ATL.PictureInfo pictureInfo, string genre, string artist, string album, FileTypes fileType, StorageType storageType = StorageType.DiskCache, bool overwrite = false, string specificFileName = "");
+        string StoreImage(LibraryImage pictureInfo, string genre, string artist, string album, FileTypes fileType, StorageType storageType = StorageType.DiskCache, bool overwrite = false, string specificFileName = "");
     }
 }

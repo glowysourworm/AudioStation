@@ -45,6 +45,7 @@ public class MainViewModel : DataComponentViewModelBase
     RadioViewModel _radio;
     LogViewModel _log;
     NowPlayingViewModel _nowPlaying;
+    NowPlayingPlaylistViewModel _nowPlayingPlaylist;
     BandcampViewModel _bandcamp;
     LibraryImporterViewModel _libraryImportViewModel;
     LibraryLoaderViewModel _libraryLoaderViewModel;
@@ -142,6 +143,11 @@ public class MainViewModel : DataComponentViewModelBase
         get { return _nowPlaying; }
         set { this.RaiseAndSetIfChanged(ref _nowPlaying, value); }
     }
+    public NowPlayingPlaylistViewModel NowPlayingPlaylist
+    {
+        get { return _nowPlayingPlaylist; }
+        set { this.RaiseAndSetIfChanged(ref _nowPlayingPlaylist, value); }
+    }
     public ObservableCollection<float> EqualizerValues
     {
         get { return _equalizerValues; }
@@ -215,6 +221,8 @@ public class MainViewModel : DataComponentViewModelBase
                          ICDDrive cdDrive,
                          IAudioConverter audioConverter) : base("Main")
     {
+        _eventAggregator = eventAggregator;
+
         audioController.CurrentTimeUpdated += OnCurrentTimeUpdated;
         audioController.CurrentBandLevelsUpdated += OnCurrentBandLevelsUpdated;
 
@@ -353,6 +361,7 @@ public class MainViewModel : DataComponentViewModelBase
         // Child View Models
         this.Log = _audioStationComponentController.GetDataComponent<LogViewModel>();
         this.NowPlaying = _audioStationComponentController.GetDataComponent<NowPlayingViewModel>();
+        this.NowPlayingPlaylist = _audioStationComponentController.GetDataComponent<NowPlayingPlaylistViewModel>();
         this.PlayState = PlayStopPause.Stop;
         this.LibraryManager = _audioStationComponentController.GetServiceComponent<LibraryManagerViewModel>();
         this.StatusViewModel = _audioStationComponentController.GetDataComponent<StatusViewModel>();
@@ -450,6 +459,6 @@ public class MainViewModel : DataComponentViewModelBase
     }
     private void OnCurrentTimeUpdated(TimeSpan currentTime)
     {
-        this.NowPlaying.Playlist.CurrentTrack?.UpdateCurrentTime(currentTime);
+        this.NowPlayingPlaylist.CurrentTrack?.UpdateCurrentTime(currentTime);
     }
 }

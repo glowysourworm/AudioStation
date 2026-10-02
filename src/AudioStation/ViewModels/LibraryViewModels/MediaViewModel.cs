@@ -7,16 +7,10 @@ namespace AudioStation.ViewModels.LibraryViewModels
 {
     public class MediaViewModel : ViewModelBase
     {
-        string _format;
         int _mediaNumber;
         TimeSpan _duration;
         SortedObservableCollection<TrackViewModel> _tracks;
 
-        public string Format
-        {
-            get { return _format; }
-            set { this.RaiseAndSetIfChanged(ref _format, value); }
-        }
         public int MediaNumber
         {
             get { return _mediaNumber; }

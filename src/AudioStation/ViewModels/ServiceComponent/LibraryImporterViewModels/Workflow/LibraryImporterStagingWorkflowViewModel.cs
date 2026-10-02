@@ -229,8 +229,7 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Wor
                     var stagedFile = new LibraryImporterFileViewModel(subNode.FullPath, subNode.BaseDirectory, _workflowConfiguration);
 
                     // Tag
-                    var duration = TimeSpan.Zero;
-                    var tagData = _tagCache.GetFullTag(stagedFile.FullPath, out duration);
+                    var tagData = _tagCache.GetFullTag(stagedFile.FullPath);
 
                     // (AcoustID / Music Brainz) Stored in Tag
                     stagedFile.MusicBrainzReleaseTrackIDTag = tagData.GetMusicBrainzReleaseTrackId();

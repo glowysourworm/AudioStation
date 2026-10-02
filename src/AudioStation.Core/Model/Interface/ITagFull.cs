@@ -35,6 +35,11 @@ namespace AudioStation.Core.Model.Interface
         string? SortTitle { get; set; }
         int? Year { get; set; }
 
+        // Non-Primary Data
+        IList<string> AlbumArtists { get; set; }
+        IList<string> Genres { get; set; }
+        IList<LibraryImage> Images { get; set; }
+
         /// <summary>
         /// [TXXX] Field(s) from the ID3v2:  Many of these will be used by programs to show Music Brainz data (for instance)
         /// </summary>

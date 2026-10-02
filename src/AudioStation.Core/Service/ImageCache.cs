@@ -12,10 +12,11 @@ using Microsoft.Extensions.Logging;
 using SimpleWpf.IocFramework.Application.Attribute;
 using SimpleWpf.SimpleCollections.Collection;
 
-using PictureType = ATL.PictureInfo.PIC_TYPE;
 using AudioStation.Core.Service.Interface;
 using AudioStation.Core.Service.ImageCacheModel;
 using SimpleWpf.Extensions.Event;
+using IdSharp.Tagging.ID3v2;
+using SimpleWpf.Extensions.Collection;
 
 namespace AudioStation.Core.Service
 {
@@ -243,17 +244,18 @@ namespace AudioStation.Core.Service
             var files = forArtist ? _audioStationDbClient.GetArtistFiles(entityId) : _audioStationDbClient.GetAlbumTracks(entityId);
 
             // Take all the artwork - consolidating the images
-            //var images = files.Select(entity => _tagCache.GetFullTag(entity.FileReference.FileName))
-            //                  .Where(tagRef => tagRef != null)                              // TODO: Application Level Validation (Library Maintenance)
-            //                  .SelectMany(tagRef => tagRef.EmbeddedPictures)
-            //                  .DistinctBy(picture => picture.FrameId);                      // (TODO) VERIFY UNIQUE PICTURE ID's
+            var images = files.Select(entity => _tagCache.GetFullTag(entity.FileReference.FileName))
+                              .Where(tagRef => tagRef != null)                              // TODO: Application Level Validation (Library Maintenance)
+                              .SelectMany(tagRef => tagRef.Images)
+                              .DistinctBy(picture => picture.Id)                            // Id is a value hash code for LibraryImage
+                              .Actualize();
 
             // Convert all images
             Dictionary<PictureType, BitmapImageData> imageSources = new Dictionary<PictureType, BitmapImageData>();
 
-            //// Contention for web image loading (Task)
-            //imageSources = images.ToDictionary(picture => picture.PicType,
-            //                                   picture => (BitmapImageData)_bitmapConverter.BitmapDataToBitmapSource(picture.PictureData, new ImageSize(cacheAsType), picture.MimeType));
+            // Contention for web image loading (Task)
+            imageSources = images.ToDictionary(picture => picture.PictureType,
+                                               picture => (BitmapImageData)_bitmapConverter.BitmapDataToBitmapSource(picture.Data, new ImageSize(cacheAsType), picture.MimeType));
 
             var cacheItem = new ImageCacheItem(imageSources);
 

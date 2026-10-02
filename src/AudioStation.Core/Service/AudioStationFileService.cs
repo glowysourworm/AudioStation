@@ -1,7 +1,5 @@
 ﻿using System.IO;
 
-using ATL;
-
 using AudioStation.Core.Component.BitmapConverterComponent;
 using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Model;
@@ -67,7 +65,7 @@ namespace AudioStation.Core.Component
         }
 
         public string StoreImage(
-            PictureInfo pictureInfo,
+            LibraryImage image,
             string genre,
             string artist,
             string album,
@@ -79,7 +77,7 @@ namespace AudioStation.Core.Component
             try
             {
                 // Convert -> BMP
-                var bitmapData = _bitmapConverter.BitmapDataToBitmapSource(pictureInfo.PictureData, new ImageSize(ImageCacheType.FullSize), pictureInfo.MimeType);
+                var bitmapData = _bitmapConverter.BitmapDataToBitmapSource(image.Data, new ImageSize(ImageCacheType.FullSize), image.MimeType);
 
                 return StoreImage(bitmapData, genre, artist, album, fileType, storageType, overwrite, specificFileName);
             }

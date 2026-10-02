@@ -13,6 +13,7 @@ namespace AudioStation.ViewModels
     {
         Guid _id;
         bool _initialized;
+        bool _loading;
         string _displayName;
 
         public Guid Id
@@ -24,6 +25,11 @@ namespace AudioStation.ViewModels
         {
             get { return _initialized; }
             private set { this.RaiseAndSetIfChanged(ref _initialized, value); }
+        }
+        public bool Loading
+        {
+            get { return _loading; }
+            set { this.RaiseAndSetIfChanged(ref _loading, value); }
         }
         public string DisplayName
         {

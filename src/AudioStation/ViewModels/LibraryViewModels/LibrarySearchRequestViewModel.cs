@@ -133,7 +133,7 @@ namespace AudioStation.ViewModels.LibraryViewModels
 
         public LibrarySearchRequestViewModel()
         {
-            this.TrackSearch = new TrackViewModel(-1);
+            this.TrackSearch = new TrackViewModel(-1, -1, -1);
 
             // Manager Grid (pager)
             this.TrackPageRequestCommand = new SimpleCommand(() =>

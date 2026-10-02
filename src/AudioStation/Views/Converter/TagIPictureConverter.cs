@@ -1,9 +1,8 @@
 ﻿using System.Globalization;
 using System.Windows.Data;
 
-using ATL;
-
 using AudioStation.Core.Component.Interface;
+using AudioStation.Core.Model;
 using AudioStation.Core.Service.ImageCacheModel;
 
 using SimpleWpf.IocFramework.Application;
@@ -27,13 +26,13 @@ namespace AudioStation.Views.Converter
             if (value == null)
                 return Binding.DoNothing;
 
-            var picture = value as PictureInfo;
+            var picture = value as LibraryImage;
             var cacheType = (ImageCacheType)parameter;
 
             if (picture == null)
                 return Binding.DoNothing;
 
-            return _bitmapConverter.BitmapDataToBitmapSource(picture.PictureData, new ImageSize(cacheType), picture.MimeType);
+            return _bitmapConverter.BitmapDataToBitmapSource(picture.Data, new ImageSize(cacheType), picture.MimeType);
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

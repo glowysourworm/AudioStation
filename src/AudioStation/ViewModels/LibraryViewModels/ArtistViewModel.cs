@@ -27,7 +27,7 @@ namespace AudioStation.ViewModels.LibraryViewModels
         public ArtistViewModel(int id) : base(id, LibraryEntryType.Artist)
         {
             this.Artist = string.Empty;
-            this.Albums = new SortedObservableCollection<AlbumViewModel>(new PropertyComparer<uint, AlbumViewModel>(x => x.Year));
+            this.Albums = new SortedObservableCollection<AlbumViewModel>(new PropertyComparer<int, AlbumViewModel>(x => x.Year));
         }
     }
 }

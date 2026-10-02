@@ -47,6 +47,7 @@ namespace AudioStation.Controller
         private readonly LogViewModel _logViewModel;
         private readonly MainViewModel _mainViewModel;
         private readonly NowPlayingViewModel _nowPlayingViewModel;
+        private readonly NowPlayingPlaylistViewModel _nowPlayingPlaylistViewModel;
         private readonly RadioViewModel _radioViewModel;
         private readonly StatusViewModel _statusViewModel;
 
@@ -98,6 +99,7 @@ namespace AudioStation.Controller
             _logViewModel = new LogViewModel(eventAggregator);
             _mainViewModel = new MainViewModel(audioController, audioStationMapper, dialogController, eventAggregator, cdDrive, audioConverter);
             _nowPlayingViewModel = new NowPlayingViewModel(eventAggregator);
+            _nowPlayingPlaylistViewModel = new NowPlayingPlaylistViewModel(eventAggregator);
             _radioViewModel = new RadioViewModel(dialogController);
             _statusViewModel = new StatusViewModel();
 
@@ -116,8 +118,9 @@ namespace AudioStation.Controller
             {
                 { _logViewModel.Id, _logViewModel },
                 { _mainViewModel.Id, _mainViewModel },
-                {_libraryViewModel.Id, _libraryViewModel },
+                { _libraryViewModel.Id, _libraryViewModel },
                 { _nowPlayingViewModel.Id, _nowPlayingViewModel },
+                { _nowPlayingPlaylistViewModel.Id, _nowPlayingPlaylistViewModel },
                 { _statusViewModel.Id, _statusViewModel }
             };
 

@@ -2,6 +2,7 @@
 using System.Windows.Controls;
 using System.Windows.Threading;
 
+using AudioStation.Core.Model;
 using AudioStation.Core.Service.ImageCacheModel;
 using AudioStation.Core.Service.Interface;
 using AudioStation.ViewModels.LibraryViewModels;
@@ -41,6 +42,7 @@ namespace AudioStation.Controls
             BasicHelpers.InvokeDispatcher(() =>
             {
                 this.Unloaded -= LibraryImageControl_Unloaded;
+                this.Loaded -= LibraryArtistImage_Loaded;
                 this.IsVisibleChanged -= LibraryImageControl_IsVisibleChanged;
                 this.DataContextChanged -= LibraryArtistImage_DataContextChanged;
 
@@ -88,20 +90,20 @@ namespace AudioStation.Controls
 
                 switch (this.ViewModel.Type)
                 {
-                    case Core.Model.LibraryEntryType.Album:
+                    case LibraryEntryType.Album:
                     {
                         var imageData = await _cacheController.GetForAlbum(this.ViewModel.Id, this.ImageSize);
                         this.Source = imageData?.Source;
                     }
                     break;
-                    case Core.Model.LibraryEntryType.Artist:
+                    case LibraryEntryType.Artist:
                     {
                         var imageData = await _cacheController.GetForArtist(this.ViewModel.Id, this.ImageSize);
                         this.Source = imageData?.Source;
                     }
                     break;
-                    case Core.Model.LibraryEntryType.Track:
-                    case Core.Model.LibraryEntryType.Genre:
+                    case LibraryEntryType.Track:
+                    case LibraryEntryType.Genre:
                     default:
                         throw new Exception("Unhandled LibraryEntityType:  LibraryImageControl.cs");
                 }

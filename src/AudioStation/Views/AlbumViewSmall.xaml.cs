@@ -1,39 +1,22 @@
 ﻿using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Input;
 
 using AudioStation.ViewModels.LibraryViewModels;
 
 namespace AudioStation.Views
 {
-    public partial class AlbumViewSmall : UserControl
+    public partial class AlbumViewSmall : AlbumView
     {
-        public event EventHandler<TrackViewModel> TrackSelected;
-
         public AlbumViewSmall()
         {
             InitializeComponent();
         }
 
-        protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)
+        private void TracksLB_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-            base.OnRenderSizeChanged(sizeInfo);
-        }
+            var trackViewModel = (e.OriginalSource as FrameworkElement).DataContext as TrackViewModel;
 
-        private void OnTracksDoubleClick(object sender, MouseButtonEventArgs e)
-        {
-            //foreach (var item in this.TracksLB.Items.Cast<TrackViewModel>())
-            //{
-            //    if (item == (e.OriginalSource as FrameworkElement).DataContext)
-            //    {
-            //        if (this.TrackSelected != null)
-            //            this.TrackSelected(this, item);
-
-            //        e.Handled = true;
-
-            //        return;
-            //    }
-            //}
+            if (trackViewModel != null)
+                Load(trackViewModel);
         }
     }
 }

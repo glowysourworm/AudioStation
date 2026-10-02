@@ -41,16 +41,16 @@
                                                   Artwork="{Binding BackgroundImages, Mode=TwoWay}">
             </controls:WebImageCarouselControl-->
 
-            <controls:WebImageControl HorizontalAlignment="Stretch"
+            <!--controls:WebImageControl HorizontalAlignment="Stretch"
                                       VerticalAlignment="Stretch"
                                       Stretch="UniformToFill"
                                       StretchDirection="Both"
                                       ImageSize="FullSize"                                      
-                                      ImageEndpoint="{Binding BestImage, Mode=TwoWay}">
+                                      ImageEndpoint="{Binding StartImage, Mode=TwoWay}">
                 <controls:WebImageControl.Effect>
                     <BlurEffect Radius="100" />
                 </controls:WebImageControl.Effect>
-            </controls:WebImageControl>
+            </controls:WebImageControl-->
         </Grid>
 
         <!-- Menu -->
@@ -87,13 +87,13 @@
                 IsEnabled="{Binding Loading, Converter={StaticResource BoolInverseConverter}}"
                 Grid.Row="2"
                 Grid.ColumnSpan="2"
-                Visibility="{Binding NowPlaying.Playlist.CurrentTrack, Converter={StaticResource NonNullVisibilityConverter}}"
+                Visibility="{Binding NowPlayingPlaylist.CurrentTrack, Converter={StaticResource NonNullVisibilityConverter}}"
                 Background="Transparent" 
                 BorderBrush="LightGray" 
                 BorderThickness="1">
             <Grid>
                 <region:IocRegion region:IocRegionManager.DefaultViewType="{x:Type views:PlayerControlView}"
-                                  DataContext="{Binding NowPlaying.Playlist.CurrentTrack, Mode=TwoWay, NotifyOnSourceUpdated=True}">
+                                  DataContext="{Binding NowPlayingPlaylist.CurrentTrack}">
                 </region:IocRegion>
             </Grid>
         </Border>

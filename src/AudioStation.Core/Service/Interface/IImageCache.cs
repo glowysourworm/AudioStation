@@ -1,7 +1,7 @@
 ﻿using AudioStation.Core.Component.BitmapConverterComponent;
 using AudioStation.Core.Service.ImageCacheModel;
 
-using PictureType = ATL.PictureInfo.PIC_TYPE;
+using IdSharp.Tagging.ID3v2;
 
 namespace AudioStation.Core.Service.Interface
 {

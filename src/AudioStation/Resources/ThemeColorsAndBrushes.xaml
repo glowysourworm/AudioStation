@@ -65,6 +65,12 @@
     <SolidColorBrush x:Key="OutputTabItemForeground">Gray</SolidColorBrush>
     <SolidColorBrush x:Key="OutputTabItemBorder">LightGray</SolidColorBrush>
 
+    <SolidColorBrush x:Key="PlayerControlForeground">Gray</SolidColorBrush>
+    <SolidColorBrush x:Key="PlayerControlBackground">White</SolidColorBrush>
+    <SolidColorBrush x:Key="EqualizerBarBrush">#1F000000</SolidColorBrush>
+    <SolidColorBrush x:Key="EqualizerBarBorderBrush">#1F000000</SolidColorBrush>
+    <SolidColorBrush x:Key="EqualizerPeakBrush">#AF33AAFF</SolidColorBrush>
+
     <SolidColorBrush x:Key="SmallButtonBackground">White</SolidColorBrush>
     <SolidColorBrush x:Key="SmallButtonBackgroundHover">#8F33AAFF</SolidColorBrush>
     <SolidColorBrush x:Key="SmallButtonBackgroundPressed">#AF33AAFF</SolidColorBrush>

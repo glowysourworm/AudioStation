@@ -4,15 +4,16 @@ namespace AudioStation.ViewModels.LibraryViewModels
 {
     public class TrackViewModel : EntityViewModel
     {
+        int _albumId;
+        int _artistId;
+
         string _fileName;
         string _artist;
         string _genre;
         string _album;
         string _title;
         int _trackNumber;
-        int _trackCount;
         int _mediaNumber;
-        int _mediaCount;
         string _mediaFormat;
         TimeSpan _duration;
 
@@ -30,6 +31,16 @@ namespace AudioStation.ViewModels.LibraryViewModels
         {
             get { return _fileName; }
             set { this.RaiseAndSetIfChanged(ref _fileName, value); }
+        }
+        public int AlbumId
+        {
+            get { return _albumId; }
+            private set { this.RaiseAndSetIfChanged(ref _albumId, value); }
+        }
+        public int ArtistId
+        {
+            get { return _artistId; }
+            private set { this.RaiseAndSetIfChanged(ref _artistId, value); }
         }
         public string Artist
         {
@@ -56,20 +67,10 @@ namespace AudioStation.ViewModels.LibraryViewModels
             get { return _trackNumber; }
             set { this.RaiseAndSetIfChanged(ref _trackNumber, value); }
         }
-        public int TrackCount
-        {
-            get { return _trackCount; }
-            set { this.RaiseAndSetIfChanged(ref _trackCount, value); }
-        }
         public int MediaNumber
         {
             get { return _mediaNumber; }
             set { this.RaiseAndSetIfChanged(ref _mediaNumber, value); }
-        }
-        public int MediaCount
-        {
-            get { return _mediaCount; }
-            set { this.RaiseAndSetIfChanged(ref _mediaCount, value); }
         }
         public string MediaFormat
         {
@@ -112,10 +113,10 @@ namespace AudioStation.ViewModels.LibraryViewModels
             set { this.RaiseAndSetIfChanged(ref _crc32, value); }
         }
 
-
-
-        public TrackViewModel(int id) : base(id, LibraryEntryType.Track)
+        public TrackViewModel(int id, int albumId, int artistId) : base(id, LibraryEntryType.Track)
         {
+            this.AlbumId = albumId;
+            this.ArtistId = artistId;
             this.FileName = string.Empty;
             this.Title = string.Empty;
             this.Album = string.Empty;

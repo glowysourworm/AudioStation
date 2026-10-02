@@ -58,15 +58,13 @@ namespace AudioStation.Core.Service
         }
         public TagSmall GetCopy(string fileName)
         {
-            var duration = TimeSpan.Zero;
-            var fullTag = FromFileFull(fileName, out duration);
+            var fullTag = FromFileFull(fileName);
 
             return TagMapper.Map(fullTag);
         }
-        public TagFull GetFullTag(string fileName, out TimeSpan duration)
+        public TagFull GetFullTag(string fileName)
         {
-            duration = TimeSpan.Zero;
-            return FromFileFull(fileName, out duration);
+            return FromFileFull(fileName);
         }
         public void Set(string fileName)
         {
@@ -74,8 +72,7 @@ namespace AudioStation.Core.Service
                 _tags.Remove(fileName);
 
             // IdSharp -> AudioStation
-            var duration = TimeSpan.Zero;
-            var tagFile = FromFileFull(fileName, out duration);
+            var tagFile = FromFileFull(fileName);
 
             // ITagFull -> ITagSmall
             var tagFileSmall = TagMapper.Map(tagFile);
@@ -130,7 +127,7 @@ namespace AudioStation.Core.Service
             }
         }
 
-        private TagFull FromFileFull(string fileName, out TimeSpan duration)
+        private TagFull FromFileFull(string fileName)
         {
             try
             {
@@ -144,16 +141,6 @@ namespace AudioStation.Core.Service
                     Options = FileOptions.SequentialScan
                 }))
                 {
-                    // TODO: Decide how to handle duration
-                    //
-                    //var durationMilliseconds = _audioConverter.GetDurationMilliseconds(fileStream);
-                    //duration = TimeSpan.FromMilliseconds(durationMilliseconds);
-
-                    duration = TimeSpan.Zero;
-
-                    // Reset Stream
-                    fileStream.Position = 0;
-
                     TagFull result = new TagFull();
 
                     var isId3v1 = ID3v1Tag.DoesTagExist(fileStream);
@@ -236,6 +223,8 @@ namespace AudioStation.Core.Service
                                 result.TrackNumber = trackNumber;
                             }
                         }
+
+                        result.Images = tag.PictureList.Select(x => new LibraryImage(x.PictureType, x.MimeType, x.Description, x.PictureData)).ToList();
 
                         result.Publisher = tag.Publisher;
                         result.SortAlbum = tag.AlbumSortOrder;

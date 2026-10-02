@@ -56,12 +56,12 @@
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
 
-                <controls:WebImageControl Stretch="Uniform"
-                                          StretchDirection="Both"
-                                          HorizontalAlignment="Left"
-                                          VerticalAlignment="Top"
-                                          ImageSize="Medium"
-                                          ImageEndpoint="{Binding BestImage, Mode=TwoWay}" Margin="10 10 0 10" />
+                <controls:LibraryImageControl Stretch="Uniform"
+                                              StretchDirection="Both"
+                                              HorizontalAlignment="Left"
+                                              VerticalAlignment="Top"
+                                              ImageSize="Medium"                                          
+                                              DataContext="{Binding StartImage}" Margin="10 10 0 10" />
 
                 <!-- Artist Header -->
                 <Border Grid.Column="1">
@@ -81,7 +81,7 @@
         <Border Grid.Row="3">
             <ScrollViewer ScrollViewer.VerticalScrollBarVisibility="Auto">
 
-                <controls:HyperlinkRichTextBox Text="{Binding ArtistArticle}" 
+                <controls:HyperlinkRichTextBox Text="{Binding ArtistBio}" 
                                                Style="{StaticResource NowPlayingRichTextBox}">
                 </controls:HyperlinkRichTextBox>
 
@@ -98,10 +98,16 @@
                  Grid.Row="1" Grid.Column="1"
                  Background="#3F000000"
                  BorderThickness="0"
+                 SelectionMode="Single"
 				 ItemsSource="{Binding Playlist.Entries}"
                  HorizontalContentAlignment="Stretch"
-                 ScrollViewer.HorizontalScrollBarVisibility="Hidden"
-				 MouseDoubleClick="OnPlaylistDoubleClick">
+                 ScrollViewer.HorizontalScrollBarVisibility="Hidden">
+            
+            <ListBox.InputBindings>
+                <MouseBinding MouseAction="LeftDoubleClick" 
+                              Command="{Binding SetPlayingCommand}"    
+                              CommandParameter="{Binding SelectedItem, ElementName=PlaylistLB}" />
+            </ListBox.InputBindings>
 
             <ListBox.ItemTemplate>
                 <DataTemplate>

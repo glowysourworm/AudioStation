@@ -1,26 +1,27 @@
-﻿<UserControl x:Class="AudioStation.Views.AlbumViewSmall"
-             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-			 xmlns:fa5="http://schemas.fontawesome.com/icons/"    
-             xmlns:local="clr-namespace:AudioStation.Views"
-             xmlns:controls="clr-namespace:AudioStation.Controls"
-             xmlns:cacheModel="clr-namespace:AudioStation.Core.Service.ImageCacheModel;assembly=AudioStation.Core"
-             xmlns:controlAnimation="clr-namespace:AudioStation.Controls.Animation">
+﻿<local:AlbumView x:Class="AudioStation.Views.AlbumViewSmall"
+                 xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+                 xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+			     xmlns:fa5="http://schemas.fontawesome.com/icons/"    
+                 xmlns:local="clr-namespace:AudioStation.Views"
+                 xmlns:controls="clr-namespace:AudioStation.Controls"
+                 xmlns:cacheModel="clr-namespace:AudioStation.Core.Service.ImageCacheModel;assembly=AudioStation.Core"
+                 xmlns:controlAnimation="clr-namespace:AudioStation.Controls.Animation">
     
     <Border>
         <Grid ColumnDefinitions="Auto, *" RowDefinitions="Auto, *">
 
             <controls:LibraryImageControl x:Name="ImageControl"
                                           DataContext="{Binding}" 
-                                          ImageSize="{x:Static cacheModel:ImageCacheType.Small}"
+                                          ImageSize="{x:Static cacheModel:ImageCacheType.Medium}"
                                           Margin="10"                                          
-                                          MaxHeight="60"
-                                          MaxWidth="60"
+                                          MaxHeight="80"
+                                          MaxWidth="80"
                                           Stretch="Uniform"
                                           Grid.RowSpan="2" 
-                                          VerticalAlignment="Top" />
+                                          VerticalAlignment="Top">
+            </controls:LibraryImageControl>
 
             <!-- Album Banner -->
             <Border x:Name="BannerContainer" Background="AliceBlue" Grid.Column="1" Margin="0 10 10 0">
@@ -57,18 +58,23 @@
                                       Background="White">
 
                 <controls:NoScrollListBox.ItemTemplate>
+                    
                     <DataTemplate>
 
                         <Grid RowDefinitions="Auto, Auto">
                             
                             <!-- Media Header -->
                             <Border Grid.Row="0"
+                                    Visibility="{Binding DataContext.Media.Count, 
+                                        RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type local:AlbumView}}, 
+                                        Converter={StaticResource ParameterVisibilityGreaterThanConverter}, 
+                                        ConverterParameter=1}"
                                     BorderBrush="LightGray"
                                     BorderThickness="1"
                                     CornerRadius="3"
                                     Padding="10">
                                 <Grid ColumnDefinitions="Auto, Auto, *">
-                                    <TextBlock Text="{Binding Format}"  Style="{StaticResource AlbumViewTextBlock}"/>
+                                    <TextBlock Text="{Binding DataContext.MediaFormat, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type local:AlbumViewSmall}}}"  Style="{StaticResource AlbumViewTextBlock}"/>
                                     <TextBlock Text="{Binding MediaNumber}" Style="{StaticResource AlbumViewTextBlock}" Grid.Column="1" Margin="5 0" />
                                     <TextBlock Text="{Binding Duration, StringFormat={}{0:hh}:{0:mm}:{0:ss}}" Style="{StaticResource AlbumViewTextBlock}" Margin="5 0" Grid.Column="2" HorizontalAlignment="Right" />
                                 </Grid>
@@ -83,7 +89,7 @@
                                                       Margin="0"
                                                       Padding="0"
                                                       AlternationCount="2"
-                                                      MouseDoubleClick="OnTracksDoubleClick"
+                                                      MouseDoubleClick="TracksLB_MouseDoubleClick"
                                                       HorizontalContentAlignment="Stretch"                                   
                                                       ScrollViewer.CanContentScroll="False">
 
@@ -113,4 +119,4 @@
 
         </Grid>
     </Border>
-</UserControl>
+</local:AlbumView>

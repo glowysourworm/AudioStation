@@ -21,8 +21,6 @@ namespace AudioStation.Controller
         // IAudioStationService
         private readonly ICDImportService _cdImportService;
         private readonly ILibraryLoaderService _libraryLoaderService;
-        private readonly ILibraryMapperService _libraryMapperService;
-        private readonly INowPlayingService _nowPlayingService;
 
         // IAudioStationDataService
         private readonly IAudioStationDbClient _audioStationDbClient;
@@ -45,8 +43,6 @@ namespace AudioStation.Controller
         [IocImportingConstructor]
         public AudioStationServiceController(ICDImportService cdImportService,
                                              ILibraryLoaderService libraryLoaderService,
-                                             ILibraryMapperService libraryMapperService,
-                                             INowPlayingService nowPlayingService,
 
                                              IAudioStationDbClient audioStationDbClient,
                                              IAudioController audioController,
@@ -65,8 +61,6 @@ namespace AudioStation.Controller
         {
             _cdImportService = cdImportService;
             _libraryLoaderService = libraryLoaderService;
-            _libraryMapperService = libraryMapperService;
-            _nowPlayingService = nowPlayingService;
 
             _audioStationDbClient = audioStationDbClient;
             _audioController = audioController;
@@ -118,8 +112,6 @@ namespace AudioStation.Controller
             //
             _cdImportService.Initialize(configuration);
             _libraryLoaderService.Initialize(configuration, audioStationController, progressHandler);
-            _libraryMapperService.Initialize(configuration, audioStationController, progressHandler);
-            _nowPlayingService.Initialize(configuration, audioStationController, progressHandler);
 
             // IAudioStationDataService (these display their status on the status bar)
             //
@@ -152,12 +144,6 @@ namespace AudioStation.Controller
 
             else if (typeof(T) == typeof(ILibraryLoaderService))
                 return (T)_libraryLoaderService;
-
-            else if (typeof(T) == typeof(ILibraryMapperService))
-                return (T)_libraryMapperService;
-
-            else if (typeof(T) == typeof(INowPlayingService))
-                return (T)_nowPlayingService;
 
             else
                 throw new Exception("Unhandled IAudioStationService type");

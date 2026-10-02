@@ -67,23 +67,45 @@ namespace AudioStation.Controls
                 this.RenderSize.Height <= 0)
                 return;
 
-            if (_barSizes.Count != resultSet.Result.Length)
+            var renderLength = resultSet.Result.Length / 4;
+            var resultIndexStart = (resultSet.Result.Length * 3 / 8) - 1;
+            var resultIndexEnd = (resultSet.Result.Length * 5 / 8) - 1;
+
+            var maxValue = 0.0001f;
+            var maxPeak = 0.0001f;
+
+            for (int resultIndex = resultIndexStart; resultIndex < resultIndexEnd; resultIndex++)
+            {
+                maxValue = Math.Max(maxValue, resultSet.Result[resultIndex]);
+                maxPeak = Math.Max(maxPeak, resultSet.ResultPeaks[resultIndex]);
+            }
+
+            if (_barSizes.Count != renderLength)
             {
                 _barSizes.Clear();
                 _peakSizes.Clear();
-            }    
+            }
 
             //var maxRatio = resultSet.ResultPeaks.Max();
-            var maxRatio = 1.0f;
+            //var maxRatio = resultSet.MaxPeak;
 
-            for (int index = 0; index < resultSet.Result.Length; index++)
+            // The FFT output will be symmetric. We'll take the first quarter of the output, which should
+            // cover most audible frequencies. Otherwise, there's very little to look at.
+            //
+            for (int resultIndex = resultIndexStart; resultIndex <= resultIndexEnd; resultIndex++)
             {
-                var peakRatio = resultSet.ResultPeaks[index];
-                var ratio = resultSet.Result[index];
+                var index = resultIndex - resultIndexStart;
 
-                // Normalizing the bar size: Not sure what to do here. Going to try Db scale.
-                var scaledPeakRatio = peakRatio / maxRatio;
-                var scaledRatio = ratio / maxRatio;             
+                // This may be off by one depending on what window we choose
+                if (index >= renderLength)
+                    break;
+
+                var peakRatio = resultSet.ResultPeaks[resultIndex];
+                var ratio = resultSet.Result[resultIndex];
+
+                // Normalizing the bar size: Not sure what to do here. Going to try Db scale..(?)
+                var scaledPeakRatio = peakRatio / maxPeak;
+                var scaledRatio = ratio / maxValue;
 
                 var width = (this.RenderSize.Width / resultSet.Result.Length) - this.BarPadding.Left - this.BarPadding.Right;
                 var height = (this.RenderSize.Height * scaledRatio) - this.BarPadding.Top - this.BarPadding.Bottom;
@@ -94,7 +116,7 @@ namespace AudioStation.Controls
                 width = Math.Clamp(width, 0, this.RenderSize.Width);
                 height = Math.Clamp(height, 0, this.RenderSize.Height);
 
-                if (_barSizes.Count == resultSet.Result.Length)
+                if (_barSizes.Count == renderLength)
                 {
                     _barSizes[index] = new Size(width, height);
                     _peakSizes[index] = new Size(peakWidth, peakHeight);
@@ -161,7 +183,7 @@ namespace AudioStation.Controls
                     pointTR.Y = pointTL.Y;
 
                     pointBR.X = pointTL.X + barWidth;
-                    pointBR.Y = pointTL.Y + 1;                         
+                    pointBR.Y = pointTL.Y + 1;
 
                     pointBL.X = pointTL.X;
                     pointBL.Y = pointBR.Y;

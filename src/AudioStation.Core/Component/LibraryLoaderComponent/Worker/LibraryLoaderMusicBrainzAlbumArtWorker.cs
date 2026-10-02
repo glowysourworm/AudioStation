@@ -108,7 +108,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
                     };
                 }
 
-                var pictureInfo = (response.Payload as ArtworkPayload).GetPayload();
+                var pictureInfo = (response.Payload as ArtworkPayload).Payload;
 
                 if (pictureInfo != null)
                 {

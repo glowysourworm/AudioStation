@@ -1,9 +1,9 @@
 ﻿using AudioStation.Core.Component.BitmapConverterComponent;
 
+using IdSharp.Tagging.ID3v2;
+
 using SimpleWpf.SimpleCollections.Collection;
 using SimpleWpf.SimpleCollections.Extension;
-
-using PictureType = ATL.PictureInfo.PIC_TYPE;
 
 namespace AudioStation.Core.Service.ImageCacheModel
 {
@@ -13,11 +13,11 @@ namespace AudioStation.Core.Service.ImageCacheModel
 
         public BitmapImageData GetArtistImage()
         {
-            return this.Images.GetValue(PictureType.LeadArtist) ??
-                   this.Images.GetValue(PictureType.Artist) ??
-                   this.Images.GetValue(PictureType.Band) ??
+            return this.Images.GetValue(PictureType.LeadArtistPerformer) ??
+                   this.Images.GetValue(PictureType.ArtistPerformer) ??
+                   this.Images.GetValue(PictureType.BandArtistLogo) ??
                    this.Images.GetValue(PictureType.Composer) ??
-                   this.Images.GetValue(PictureType.Front) ?? null;
+                   this.Images.GetValue(PictureType.CoverFront) ?? null;
         }
 
         public BitmapImageData GetFirstImage()
@@ -27,7 +27,7 @@ namespace AudioStation.Core.Service.ImageCacheModel
 
         public BitmapImageData GetAlbumImage()
         {
-            return this.Images.GetValue(PictureType.Front) ?? null;
+            return this.Images.GetValue(PictureType.CoverFront) ?? null;
         }
 
         public ImageCacheItem(PictureType type, BitmapImageData image)

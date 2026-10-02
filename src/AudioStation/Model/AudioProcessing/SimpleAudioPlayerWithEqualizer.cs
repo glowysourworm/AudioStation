@@ -1,12 +1,15 @@
-﻿using System.Windows;
+﻿using System.Numerics;
+using System.Windows;
 using System.Windows.Threading;
 
 using AudioStation.Core.Model;
+using AudioStation.Core.Utility.MathUtility;
 using AudioStation.Model.AudioProcessing.Interface;
 
 using CSCore;
 using CSCore.Codecs;
 using CSCore.SoundOut;
+using CSCore.Streams;
 using CSCore.Streams.Effects;
 
 using SimpleWpf.Extensions.Event;
@@ -31,6 +34,10 @@ namespace AudioStation.Model.AudioProcessing
         Equalizer? _equalizer;
 
         EqualizerResultSet _equalizerResult;
+        NotificationSource _equalizerNotifier;
+        Complex[] _fftBuffer;
+        int _fftIndex;
+        int _fftPeriod;
 
         DispatcherTimer _timer;
 
@@ -45,6 +52,11 @@ namespace AudioStation.Model.AudioProcessing
             _timer.Interval = TimeSpan.FromMilliseconds(10);
             _timer.Start();
             _timer.IsEnabled = false;
+
+            _fftPeriod = 1024;
+            _equalizerResult = new EqualizerResultSet(_fftPeriod, _fftPeriod, 1, 20, 0.80f);
+            _fftBuffer = new Complex[_fftPeriod];
+            _fftIndex = 0;
         }
 
         private void CreateDevice(string fileSource)
@@ -56,13 +68,16 @@ namespace AudioStation.Model.AudioProcessing
             if (_waveSource != null)
                 Dispose();
 
-
             // Source (+ Effects Chain)
             _waveSource = CodecFactory.Instance.GetCodec(fileSource)
                                       .Loop()
                                       .ToSampleSource()
                                       .AppendSource(Equalizer.Create10BandEqualizer, out _equalizer)
+                                      .AppendSource(equalizer => new NotificationSource(equalizer), out _equalizerNotifier)
                                       .ToWaveSource();
+
+            // Equalizer Updater
+            _equalizerNotifier.BlockRead += OnEquzlierNotifierRead;
 
             // Output (WASAPI, MMF, Direct Sound, ASIO)
             //
@@ -74,6 +89,42 @@ namespace AudioStation.Model.AudioProcessing
 
             _soundOut.Initialize(_waveSource);
             _soundOut.Stopped += OnPlaybackStopped;
+        }
+
+        private void OnEquzlierNotifierRead(object? sender, BlockReadEventArgs<float> e)
+        {
+            // FFT Buffer is circular with its own index
+            //
+            for (int index = 0; index < e.Length; index++)
+            {
+                // Window Function:  This will help define the frequency spectrum. Typically this 
+                //                   shaves off some of the intensity at the ends.
+                //
+                var windowValue = FFTAlgorithm.GaussianWindow(0.1, _fftIndex, _fftPeriod);
+
+                _fftBuffer[_fftIndex] = windowValue * e.Data[index];
+
+                // Independent Circular Index
+                _fftIndex++;
+
+                if (_fftIndex >= _fftPeriod)
+                {
+                    // Reset Index
+                    _fftIndex = 0;
+
+                    // Calculate FFT
+                    FFTAlgorithm.FFT(_fftBuffer);
+
+                    // Update Result Integrator
+                    var update = _equalizerResult.Update(_fftBuffer);
+
+                    if (update != EqualizerResultSet.UpdateType.None)
+                    {
+                        if (this.EqualizerCalculated != null)
+                            this.EqualizerCalculated(_equalizerResult);
+                    }
+                }
+            }
         }
 
         public void Dispose()
@@ -90,11 +141,15 @@ namespace AudioStation.Model.AudioProcessing
                     _timer.IsEnabled = false;
                     _equalizer.Dispose();
                     _waveSource.Dispose();
+                    _equalizerNotifier.Dispose();
 
                     _soundOut.Stopped -= OnPlaybackStopped;
                     _soundOut = null;
                     _equalizer = null;
                     _waveSource = null;
+
+                    _equalizerNotifier.BlockRead -= OnEquzlierNotifierRead;
+                    _equalizerNotifier = null;
                 }
             }
         }
@@ -117,17 +172,21 @@ namespace AudioStation.Model.AudioProcessing
             if (this.PlaybackTickEvent != null)
                 this.PlaybackTickEvent(_waveSource == null ? TimeSpan.Zero : _waveSource.GetTime(_waveSource.Position));
 
-            // Contends for FFT result from NAudio
-            //var fftResult = _aggregator.FFTResult;
+            //FftProvider provider;
 
-            // Update our result set
-            //var update = _equalizerResult.Update(fftResult);
+            //EqualizerResultSet s;
 
-            //if (update != EqualizerResultSet.UpdateType.None)
-            //{
-            //    if (this.EqualizerCalculated != null)
-            //        this.EqualizerCalculated(_equalizerResult);
-            //}
+            //// Contends for FFT result from NAudio
+            ////var fftResult = _aggregator.FFTResult;
+
+            //// Update our result set
+            ////var update = _equalizerResult.Update(fftResult);
+
+            ////if (update != EqualizerResultSet.UpdateType.None)
+            ////{
+            ////    if (this.EqualizerCalculated != null)
+            ////        this.EqualizerCalculated(_equalizerResult);
+            ////}
         }
 
         public PlaybackState GetPlaybackState()

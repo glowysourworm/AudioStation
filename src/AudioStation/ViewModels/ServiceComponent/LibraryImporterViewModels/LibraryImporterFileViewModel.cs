@@ -4,7 +4,6 @@ using AudioStation.Controller.Interface;
 using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Database.AudioStationDatabase;
 using AudioStation.Core.Model;
-using AudioStation.Core.Model.Vendor.ATLExtension.Interface;
 using AudioStation.Core.Utility;
 using AudioStation.ViewModels.DataComponent.MainViewModels;
 using AudioStation.ViewModels.LibraryLoaderViewModels.Payload.Input;
@@ -322,65 +321,65 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels
         /// Gets current (dirty) tag. This has yet to be completed and saved as part of the migration.
         /// </summary>
         /// <returns></returns>
-        public IAudioStationTag GetTagCopy()
-        {
-            throw new NotImplementedException();
-            //return _audioStationMapper.Map<AudioStationTag, AudioStationTag>(_tagDirty);
-        }
+        //public IAudioStationTag GetTagCopy()
+        //{
+        //    throw new NotImplementedException();
+        //    //return _audioStationMapper.Map<AudioStationTag, AudioStationTag>(_tagDirty);
+        //}
 
         /// <summary>
         /// Saves new tag data to the current dirty tag (in memory only)
         /// </summary>
-        public void SaveTagEdit(IAudioStationTag tagEdit)
-        {
-            // Sets calculated fields for the tag
-            tagEdit.ToATL();
+        //public void SaveTagEdit(IAudioStationTag tagEdit)
+        //{
+        //    // Sets calculated fields for the tag
+        //    tagEdit.ToATL();
 
-            //_audioStationMapper.MapOnto(tagEdit, _tagDirty);
+        //    //_audioStationMapper.MapOnto(tagEdit, _tagDirty);
 
-            Update();
-        }
+        //    Update();
+        //}
 
-        public void SaveTagFieldEdit(string fieldName, IAudioStationTag editTag)
-        {
-            //switch (fieldName)
-            //{
-            //    case "AlbumArtists":
-            //        _tagDirty.AlbumArtists = editTag.AlbumArtists;
-            //        break;
-            //    case "Album":
-            //        if (!string.IsNullOrWhiteSpace(editTag.Album))
-            //        {
-            //            _tagDirty.Album = editTag.Album;
-            //        }
-            //        break;
-            //    case "Genres":
-            //        _tagDirty.Genres = editTag.Genres;
-            //        break;
-            //    case "TrackCount":
-            //        if (editTag.TrackTotal > 0)
-            //        {
-            //            _tagDirty.TrackTotal = editTag.TrackTotal;
-            //        }
-            //        break;
-            //    case "DiscCount":
-            //        if (editTag.DiscTotal > 0)
-            //        {
-            //            _tagDirty.DiscTotal = editTag.DiscTotal;
-            //        }
-            //        break;
-            //    case "Artwork":
-            //        _tagDirty.EmbeddedPictures = editTag.EmbeddedPictures;
-            //        break;
-            //    default:
-            //        throw new Exception("Unhandled group tag edit field name:  LibraryLoaderImportViewModel.cs");
-            //}
+        //public void SaveTagFieldEdit(string fieldName, IAudioStationTag editTag)
+        //{
+        //    //switch (fieldName)
+        //    //{
+        //    //    case "AlbumArtists":
+        //    //        _tagDirty.AlbumArtists = editTag.AlbumArtists;
+        //    //        break;
+        //    //    case "Album":
+        //    //        if (!string.IsNullOrWhiteSpace(editTag.Album))
+        //    //        {
+        //    //            _tagDirty.Album = editTag.Album;
+        //    //        }
+        //    //        break;
+        //    //    case "Genres":
+        //    //        _tagDirty.Genres = editTag.Genres;
+        //    //        break;
+        //    //    case "TrackCount":
+        //    //        if (editTag.TrackTotal > 0)
+        //    //        {
+        //    //            _tagDirty.TrackTotal = editTag.TrackTotal;
+        //    //        }
+        //    //        break;
+        //    //    case "DiscCount":
+        //    //        if (editTag.DiscTotal > 0)
+        //    //        {
+        //    //            _tagDirty.DiscTotal = editTag.DiscTotal;
+        //    //        }
+        //    //        break;
+        //    //    case "Artwork":
+        //    //        _tagDirty.EmbeddedPictures = editTag.EmbeddedPictures;
+        //    //        break;
+        //    //    default:
+        //    //        throw new Exception("Unhandled group tag edit field name:  LibraryLoaderImportViewModel.cs");
+        //    //}
 
-            //// Set ATL Fields
-            //_tagDirty.ToATL();
+        //    //// Set ATL Fields
+        //    //_tagDirty.ToATL();
 
-            Update();
-        }
+        //    Update();
+        //}
 
         private void CopyMusicBrainzToTag()
         {

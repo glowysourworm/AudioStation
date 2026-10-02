@@ -7,7 +7,7 @@
              xmlns:propertyGrid="clr-namespace:AudioStation.Controls.PropertyGrid"
              xmlns:controls="clr-namespace:AudioStation.Controls"
              xmlns:system="clr-namespace:System;assembly=System"
-             xmlns:atl="clr-namespace:ATL;assembly=ATL"
+             xmlns:idSharp="clr-namespace:IdSharp.Tagging.ID3v2;assembly=IdSharp.Tagging"
              xmlns:controllerModel="clr-namespace:AudioStation.Core.Service.ImageCacheModel;assembly=AudioStation.Core">
     <Grid>
         <Grid.ColumnDefinitions>
@@ -51,7 +51,7 @@
         <!-- Selected IPicture -->
         <StackPanel Grid.Column="1" Grid.RowSpan="2">
             <propertyGrid:PropertyEnumControl LabelText="Artwork Type" 
-                                              EnumType="{x:Type atl:PictureInfo+PIC_TYPE}"                                                              
+                                              EnumType="{x:Type idSharp:PictureType}"                                                              
                                               Value="{Binding SelectedItem.Type, ElementName=PictureLB}" />
 
             <controls:ImageUserSelectControl Margin="150 0 0 0" 

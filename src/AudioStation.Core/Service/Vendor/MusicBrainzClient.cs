@@ -1,7 +1,5 @@
 ﻿using System.IO;
 
-using ATL;
-
 using AudioStation.Core.Model;
 using AudioStation.Core.Model.Interface;
 using AudioStation.Core.Service.Interface;
@@ -10,6 +8,8 @@ using AudioStation.Core.Service.Payload.Interface;
 using AudioStation.Core.Service.Payload.Output;
 using AudioStation.Core.Service.Vendor.Interface;
 using AudioStation.Core.Utility;
+
+using IdSharp.Tagging.ID3v2;
 
 using MetaBrainz.MusicBrainz;
 using MetaBrainz.MusicBrainz.CoverArt;
@@ -408,19 +408,20 @@ namespace AudioStation.Core.Service.Vendor
             if (art == null)
                 return null;
 
-            PictureInfo? pictureInfo = null;
+            LibraryImage image = null;
 
             using (var streamReader = new BinaryReader(art.Data))
             {
                 art.Data.Position = 0;
 
                 var binaryData = streamReader.ReadBytes((int)art.Data.Length);
-                pictureInfo = PictureInfo.fromBinaryData(binaryData, PictureInfo.PIC_TYPE.Front);
+
+                image = new LibraryImage(PictureType.CoverFront, art.ContentType, art.Id, binaryData);
 
                 art.Dispose();
             }
 
-            return new AudioStationTagServiceResponse(new ArtworkPayload(pictureInfo), pictureInfo != null, pictureInfo != null ? "Music Brainz client successful" : "Music Brainz client error");
+            return new AudioStationTagServiceResponse(new ArtworkPayload(image), image != null, image != null ? "Music Brainz client successful" : "Music Brainz client error");
         }
         #endregion
 
