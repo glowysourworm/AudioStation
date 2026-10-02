@@ -66,7 +66,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent
     public class LibraryLoaderWorkItem
     {
         int _id;
-        int _ownerId;
+        Guid _ownerId;
         DateTime _startTime;
         DateTime _lastUpdateTime;
         ILibraryLoaderLoad _workItem;                                           // Supposed to be a LibraryLoaderLoadBase
@@ -80,13 +80,13 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent
         public LibraryLoaderWorkItem()
         {
             _id = -1;
-            _ownerId = -1;
+            _ownerId = Guid.Empty;
             _startTime = DateTime.MinValue;
             _lastUpdateTime = DateTime.MinValue;
             _loadType = LibraryLoadType.Import;
             _loadState = LibraryWorkItemState.Pending;
         }
-        public LibraryLoaderWorkItem(int id, int ownerId, LibraryLoadType loadType)
+        public LibraryLoaderWorkItem(int id, Guid ownerId, LibraryLoadType loadType)
         {
             _id = id;
             _ownerId = ownerId;
@@ -114,7 +114,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent
                 return _id;
             }
         }
-        public int GetOwnerId()
+        public Guid GetOwnerId()
         {
             lock (_lock)
             {

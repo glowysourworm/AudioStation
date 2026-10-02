@@ -1,7 +1,7 @@
 ﻿using System.Windows;
 
 using AudioStation.Event.DialogEvents;
-using AudioStation.ViewModels.LibraryLoaderViewModels;
+using AudioStation.ViewModels.ServiceComponent.LibraryLoaderViewModels;
 
 using SimpleWpf.IocFramework.EventAggregation;
 using SimpleWpf.UI.ViewModel;

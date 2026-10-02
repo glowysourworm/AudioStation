@@ -21,6 +21,7 @@ namespace AudioStation.ViewModels
         bool _working;
         bool _loaded;
         string _displayName;
+        string _description;
 
         SimpleCommand _executeCommand;
         SimpleCommand _loadCommand;
@@ -45,6 +46,11 @@ namespace AudioStation.ViewModels
         {
             get { return _displayName; }
             protected set { this.RaiseAndSetIfChanged(ref _displayName, value); }
+        }
+        public string Description
+        {
+            get { return _description; }
+            protected set { this.RaiseAndSetIfChanged(ref _description, value); }
         }
         public SimpleCommand ExecuteCommand
         {
@@ -71,12 +77,13 @@ namespace AudioStation.ViewModels
         /// </summary>
         public event ServiceComponentStatusUpdateHandler StatusChangeEvent;
 
-        public ServiceComponentPartViewModelBase(string displayName)
+        public ServiceComponentPartViewModelBase(string displayName, string description)
         {
             this.Id = Guid.NewGuid();
             this.Working = false;
             this.Loaded = false;
             this.DisplayName = displayName;
+            this.Description = description;
 
             this.ExecuteCommand = new SimpleCommand(() =>
             {

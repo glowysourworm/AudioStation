@@ -150,6 +150,13 @@ namespace AudioStation.Views
             if (componentPart != null &&
                 componentPart.CanLoad())
                 _componentViewModelLoader.LoadComponent<LibraryImporterViewModel>(true, componentPart.Id);
+
+            // -> Execute (Service(s))
+            if (componentPart != null &&
+                componentPart.CanExecute() &&
+                step == LibraryImporterWorkflowStep.ServiceWorkers ||
+                step == LibraryImporterWorkflowStep.ImportCompletion)
+                _componentViewModelLoader.ExecuteComponent<LibraryImporterViewModel>(false, componentPart.Id);
         }
 
         private void PreLoadImportStep(LibraryImporterWorkflowStep step)

@@ -17,9 +17,9 @@ using AudioStation.Event;
 using AudioStation.Event.DialogEvents;
 using AudioStation.ViewModels.DataComponent;
 using AudioStation.ViewModels.DataComponent.MainViewModels;
-using AudioStation.ViewModels.LibraryLoaderViewModels.Payload.Input;
-using AudioStation.ViewModels.LibraryLoaderViewModels.Payload.Output;
 using AudioStation.ViewModels.LibraryViewModels;
+using AudioStation.ViewModels.ServiceComponent.LibraryLoaderViewModels.Payload.Input;
+using AudioStation.ViewModels.ServiceComponent.LibraryLoaderViewModels.Payload.Output;
 using AudioStation.ViewModels.Vendor.AcoustIDViewModel;
 
 using SimpleWpf.IocFramework.Application;

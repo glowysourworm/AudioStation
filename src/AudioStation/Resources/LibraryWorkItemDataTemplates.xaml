@@ -1,7 +1,7 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:viewModel="clr-namespace:AudioStation.ViewModels.LibraryLoaderViewModels"
-                    xmlns:viewModelInterface="clr-namespace:AudioStation.ViewModels.LibraryLoaderViewModels.Interface"
+                    xmlns:viewModel="clr-namespace:AudioStation.ViewModels.ServiceComponent.LibraryLoaderViewModels"
+                    xmlns:viewModelInterface="clr-namespace:AudioStation.ViewModels.ServiceComponent.LibraryLoaderViewModels.Interface"
                     xmlns:controls="clr-namespace:AudioStation.Controls"
                     xmlns:coreComponent="clr-namespace:AudioStation.Core.Component;assembly=AudioStation.Core"
                     xmlns:coreModel="clr-namespace:AudioStation.Core.Model;assembly=AudioStation.Core"
@@ -134,7 +134,7 @@
 
             <TextBlock Grid.Row="0" 
                        Margin="5" 
-                       Text="{Binding Name}" 
+                       Text="{Binding DisplayName}" 
                        Style="{StaticResource LabelTextBlock}"  />
             
             <TextBlock Grid.Row="0" 

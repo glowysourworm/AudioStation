@@ -41,15 +41,15 @@ public class MainViewModel : DataComponentViewModelBase
     ObservableCollection<AudioEncoderViewModel> _encoders;
 
     LibraryManagerViewModel _libraryManager;
-    StatusViewModel _statusViewModel;
+    StatusViewModel _status;
     RadioViewModel _radio;
     LogViewModel _log;
     NowPlayingViewModel _nowPlaying;
     NowPlayingPlaylistViewModel _nowPlayingPlaylist;
     BandcampViewModel _bandcamp;
-    LibraryImporterViewModel _libraryImportViewModel;
-    LibraryLoaderViewModel _libraryLoaderViewModel;
-    LibrarySearchViewModel _librarySearchViewModel;
+    LibraryImporterViewModel _libraryImport;
+    LibraryMaintainenceViewModel _libraryMaintainence;
+    LibrarySearchViewModel _librarySearch;
     CDImporterViewModel _libraryLoaderCDImport;
 
     ObservableCollection<float> _equalizerValues;
@@ -75,8 +75,8 @@ public class MainViewModel : DataComponentViewModelBase
     }
     public StatusViewModel StatusViewModel
     {
-        get { return _statusViewModel; }
-        set { this.RaiseAndSetIfChanged(ref _statusViewModel, value); }
+        get { return _status; }
+        set { this.RaiseAndSetIfChanged(ref _status, value); }
     }
     public bool LoadedFromConfiguration
     {
@@ -98,25 +98,25 @@ public class MainViewModel : DataComponentViewModelBase
         get { return _encoders; }
         set { this.RaiseAndSetIfChanged(ref _encoders, value); }
     }
+    public LibraryImporterViewModel LibraryImporter
+    {
+        get { return _libraryImport; }
+        set { this.RaiseAndSetIfChanged(ref _libraryImport, value); }
+    }
     public LibraryManagerViewModel LibraryManager
     {
         get { return _libraryManager; }
         set { this.RaiseAndSetIfChanged(ref _libraryManager, value); }
     }
-    public LibraryImporterViewModel LibraryImporter
+    public LibraryMaintainenceViewModel LibraryMaintainence
     {
-        get { return _libraryImportViewModel; }
-        set { this.RaiseAndSetIfChanged(ref _libraryImportViewModel, value); }
-    }
-    public LibraryLoaderViewModel LibraryLoader
-    {
-        get { return _libraryLoaderViewModel; }
-        set { this.RaiseAndSetIfChanged(ref _libraryLoaderViewModel, value); }
+        get { return _libraryMaintainence; }
+        set { this.RaiseAndSetIfChanged(ref _libraryMaintainence, value); }
     }
     public LibrarySearchViewModel LibrarySearch
     {
-        get { return _librarySearchViewModel; }
-        set { this.RaiseAndSetIfChanged(ref _librarySearchViewModel, value); }
+        get { return _librarySearch; }
+        set { this.RaiseAndSetIfChanged(ref _librarySearch, value); }
     }
     public CDImporterViewModel LibraryLoaderCDImport
     {
@@ -344,33 +344,20 @@ public class MainViewModel : DataComponentViewModelBase
 
         this.ConfigurationLocked = true;
         this.Configuration = _audioStationComponentController.GetDataComponent<AudioStationConfigurationViewModel>();
-        //this.EqualizerValues = new ObservableCollection<float>();
-        //this.EqualizerViewModel = new ObservableCollection<EqualizerBandViewModel>()
-        //{
-        //    // See SimpleMp3PlayerWithEqualizer (channel number won't be input.. just keeping things in sync w/ NAudio)
-        //    new EqualizerBandViewModel(100, 0, 0.8f, 1),
-        //    new EqualizerBandViewModel(200, 0, 0.8f, 1),
-        //    new EqualizerBandViewModel(400, 0, 0.8f, 1),
-        //    new EqualizerBandViewModel(800, 0, 0.8f, 1),
-        //    new EqualizerBandViewModel(1200, 0, 0.8f, 1),
-        //    new EqualizerBandViewModel(2400, 0, 0.8f, 1),
-        //    new EqualizerBandViewModel(4800, 0, 0.8f, 1),
-        //    new EqualizerBandViewModel(9600, 0, 0.8f, 1)
-        //};
 
         // Child View Models
+        this.Bandcamp = _audioStationComponentController.GetServiceComponent<BandcampViewModel>();
+        this.LibraryImporter = _audioStationComponentController.GetServiceComponent<LibraryImporterViewModel>();
+        this.LibraryLoaderCDImport = _audioStationComponentController.GetServiceComponent<CDImporterViewModel>();
+        this.LibraryMaintainence = _audioStationComponentController.GetServiceComponent<LibraryMaintainenceViewModel>();
+        this.LibraryManager = _audioStationComponentController.GetServiceComponent<LibraryManagerViewModel>();
+        this.LibrarySearch = _audioStationComponentController.GetServiceComponent<LibrarySearchViewModel>();
         this.Log = _audioStationComponentController.GetDataComponent<LogViewModel>();
         this.NowPlaying = _audioStationComponentController.GetDataComponent<NowPlayingViewModel>();
         this.NowPlayingPlaylist = _audioStationComponentController.GetDataComponent<NowPlayingPlaylistViewModel>();
         this.PlayState = PlayStopPause.Stop;
-        this.LibraryManager = _audioStationComponentController.GetServiceComponent<LibraryManagerViewModel>();
-        this.StatusViewModel = _audioStationComponentController.GetDataComponent<StatusViewModel>();
         this.Radio = _audioStationComponentController.GetServiceComponent<RadioViewModel>();
-        this.LibraryImporter = _audioStationComponentController.GetServiceComponent<LibraryImporterViewModel>();
-        this.LibraryLoader = _audioStationComponentController.GetServiceComponent<LibraryLoaderViewModel>();
-        this.LibraryLoaderCDImport = _audioStationComponentController.GetServiceComponent<CDImporterViewModel>();
-        this.LibrarySearch = _audioStationComponentController.GetServiceComponent<LibrarySearchViewModel>();
-        this.Bandcamp = _audioStationComponentController.GetServiceComponent<BandcampViewModel>();
+        this.StatusViewModel = _audioStationComponentController.GetDataComponent<StatusViewModel>();
         this.Volume = 1.0f;
     }
     private void IAudioStationComponent_StatusChangeEvent(IAudioStationDataService sender, IAudioStationDataService.Status status)

@@ -126,12 +126,6 @@
     <Compile Update="Views\BandcampView.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Update="Views\LibraryLoaderViews\LibraryLoaderMusicBrainzAlbumArtView.xaml.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Update="Views\LibraryLoaderViews\LibraryLoaderFileCheckerView.xaml.cs">
-      <SubType>Code</SubType>
-    </Compile>
   </ItemGroup>
 
   <ItemGroup>
@@ -139,6 +133,10 @@
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="ViewModels\ServiceComponent\LibraryMaintainenceViewModels\" />
   </ItemGroup>
 
 </Project>

@@ -5,10 +5,10 @@ using AudioStation.Controller.Interface;
 using AudioStation.Core.Component;
 using AudioStation.Core.Model.Interface;
 using AudioStation.Event;
-using AudioStation.ViewModels.LibraryLoaderViewModels;
-using AudioStation.ViewModels.LibraryLoaderViewModels.Interface;
-using AudioStation.ViewModels.LibraryLoaderViewModels.Worker;
+using AudioStation.ViewModels.ServiceComponent.LibraryLoaderViewModels;
+using AudioStation.ViewModels.ServiceComponent.LibraryLoaderViewModels.Interface;
 
+using SimpleWpf.Extensions.Collection;
 using SimpleWpf.Extensions.Event;
 using SimpleWpf.UI.Command;
 
@@ -19,10 +19,6 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Wor
     /// </summary>
     public class LibraryImporterServiceWorkflowViewModel : ServiceComponentPartViewModelBase
     {
-        private IAudioStationController _audioStationController;
-        private IAudioStationConfiguration _configuration;
-        private IDialogController _dialogController;
-
         private readonly LibraryImporterStagedFileCollection _stagedFiles;
 
         private ObservableCollection<ILibraryLoaderWorkerViewModel> _serviceWorkers;
@@ -32,8 +28,6 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Wor
         // ILibraryLoader State
         PlayStopPause _libraryLoaderState;
 
-        SimpleCommand _moveToNextStepCommand;
-        SimpleCommand _moveToPreviousStepCommand;
         SimpleCommand _rerunSelectedWorkItemsCommand;
         SimpleCommand _skipSelectedWorkItemsCommand;
 
@@ -57,16 +51,6 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Wor
             get { return _libraryLoaderState; }
             set { this.RaiseAndSetIfChanged(ref _libraryLoaderState, value); }
         }
-        public SimpleCommand MoveToNextStepCommand
-        {
-            get { return _moveToNextStepCommand; }
-            set { this.RaiseAndSetIfChanged(ref _moveToNextStepCommand, value); }
-        }
-        public SimpleCommand MoveToPreviousStepCommand
-        {
-            get { return _moveToPreviousStepCommand; }
-            set { this.RaiseAndSetIfChanged(ref _moveToPreviousStepCommand, value); }
-        }
         public SimpleCommand RerunSelectedWorkItemsCommand
         {
             get { return _rerunSelectedWorkItemsCommand; }
@@ -78,15 +62,14 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Wor
             set { this.RaiseAndSetIfChanged(ref _skipSelectedWorkItemsCommand, value); }
         }
 
-        public LibraryImporterServiceWorkflowViewModel(LibraryImporterStagedFileCollection stagedFiles) : base("Library Importer (loader)")
+        public LibraryImporterServiceWorkflowViewModel(LibraryImporterStagedFileCollection stagedFiles)
+            : base("Library Service(s)", "This workflow component will execute your selected services")
         {
             _stagedFiles = stagedFiles;
 
             // Might need to get this directly from the service for initialization
             this.LibraryLoaderState = PlayStopPause.Stop;
 
-            this.MoveToNextStepCommand = new SimpleCommand(MoveToNextStep, CanMoveToNextStep);
-            this.MoveToPreviousStepCommand = new SimpleCommand(MoveToPreviousStep, CanMoveToPreviousStep);
             this.RerunSelectedWorkItemsCommand = new SimpleCommand(RerunSelectedWorkItems, CanRerunSelectedWorkItems);
             this.SkipSelectedWorkItemsCommand = new SimpleCommand(SkipSelectedWorkItems, CanSkipSelectedWorkItems);
 
@@ -139,51 +122,49 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Wor
         {
             return !this.Working &&
                     this.Loaded &&
+                    this.ServiceWorkers.Any() &&
                     this.SelectedWorker != null &&
                     this.SelectedWorker.CanExecute();
         }
         public override bool CanLoad()
         {
-            return !this.Working && !this.Loaded;
+            return !this.Working &&
+                   !this.Loaded &&
+                    this.SelectedWorker != null &&
+                    this.SelectedWorker.CanLoad() &&
+                    this.SelectedWorker.CanAddWork();
         }
         public override bool CanReset()
         {
-            return CanMoveToNextStep();
+            return !this.Working &&
+                    this.Loaded;
         }
-        private bool CanLoadWorker()
+        public bool CanMoveNext()
         {
             return !this.Working &&
-                    this.Loaded &&
-                    this.LibraryLoaderState == PlayStopPause.Stop;
+                    this.ServiceWorkers.Any();
         }
-        private bool CanMoveToPreviousStep()
+
+        /// <summary>
+        /// Moves selected worker to next in the list. Returns false if the selected worker is at
+        /// the end of the list.
+        /// </summary>
+        public bool MoveNext()
         {
-            var index = this.SelectedWorker == null ? -1 : this.ServiceWorkers.IndexOf(this.SelectedWorker);
+            if (!CanMoveNext())
+                throw new Exception("Service workers list is empty. Please first add service workers before executing.");
 
-            if (!this.Loaded)
+            // Next
+            var nextWorker = this.ServiceWorkers.Next(this.SelectedWorker);
+
+            // End of List
+            if (nextWorker == this.SelectedWorker)
                 return false;
 
-            if (index <= 0)
-                return false;
+            // Select Worker
+            this.SelectedWorker = nextWorker;
 
-            else
-                return this.LibraryLoaderState == PlayStopPause.Stop;
-        }
-        private bool CanMoveToNextStep()
-        {
-            var index = this.SelectedWorker == null ? -1 : this.ServiceWorkers.IndexOf(this.SelectedWorker);
-
-            if (!this.Loaded)
-                return false;
-
-            if (index == -1)
-                return CanLoadWorker();
-
-            else if (index == this.ServiceWorkers.Count - 1)
-                return false;
-
-            else
-                return CanLoadWorker() && this.SelectedWorker != null && this.SelectedWorker.Complete;
+            return true;
         }
         private bool CanRerunSelectedWorkItems()
         {
@@ -194,46 +175,6 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Wor
         {
             return this.SelectedWorker != null &&
                    this.SelectedWorker.CanSkipSelected();
-        }
-
-        private void MoveToNextStep()
-        {
-            // TODO: Refactor this component "part" pattern
-            _dialogController.ShowLoading("Loading Workflow Service", progressHandler =>
-            {
-                // Select Worker
-                var index = this.SelectedWorker == null ? -1 : this.ServiceWorkers.IndexOf(this.SelectedWorker);
-
-                if (index == -1)
-                    this.SelectedWorker = this.ServiceWorkers.First();
-
-                else if (index == this.ServiceWorkers.Count - 1)
-                    throw new Exception("Invalid worker index");
-
-                else
-                    this.SelectedWorker = this.ServiceWorkers[index + 1];
-
-                if (this.SelectedWorker != null)
-                {
-                    // -> Load
-                    LoadSelectedWorker(_configuration, _audioStationController, progressHandler);
-
-                    // -> Execute (if there are any work loads)
-                    if (this.SelectedWorker.CanExecute())
-                        Execute(progressHandler);
-                }
-            });
-        }
-        private void MoveToPreviousStep()
-        {
-            // Select Worker
-            var index = this.SelectedWorker == null ? -1 : this.ServiceWorkers.IndexOf(this.SelectedWorker);
-
-            if (index == this.ServiceWorkers.Count - 1)
-                this.SelectedWorker = this.ServiceWorkers.Last();
-
-            else if (index > 0)
-                this.SelectedWorker = this.ServiceWorkers[index - 1];
         }
         private void RerunSelectedWorkItems()
         {
@@ -259,82 +200,43 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Wor
             return _serviceWorkers.Any(x => x is T);
         }
 
-        protected void LoadSelectedWorker(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
+        public override void Load(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
         {
             if (this.SelectedWorker == null)
                 throw new ArgumentException("Must first select worker before loading");
 
+            if (!this.SelectedWorker.CanAddWork())
+                throw new Exception("Selected worker cannot add work at this time. Please check state of the worker first.");
+
+            if (!this.SelectedWorker.CanLoad())
+                throw new Exception("Selected worker cannot load at this time. Please check state of the worker first.");
+
             // Load Workers:  This issue still has an overall casting problem we're avoiding. To templatize this whole
             //                LibraryLoader + Workflow design would take a couple more refactorings.
             //
-            if (this.SelectedWorker is LibraryLoaderAudioDurationViewModel)
-                (this.SelectedWorker as LibraryLoaderAudioDurationViewModel).Load(_stagedFiles, configuration, audioStationController, progressHandler);
+            this.SelectedWorker.AddWork(_stagedFiles);
 
-            else if (this.SelectedWorker is LibraryLoaderImportViewModel)
-                (this.SelectedWorker as LibraryLoaderImportViewModel).Load(_stagedFiles, configuration, audioStationController, progressHandler);
-
-            else if (this.SelectedWorker is LibraryLoaderAcoustIDViewModel)
-                (this.SelectedWorker as LibraryLoaderAcoustIDViewModel).Load(_stagedFiles, configuration, audioStationController, progressHandler);
-
-            else if (this.SelectedWorker is LibraryLoaderMusicBrainzBasicViewModel)
-                (this.SelectedWorker as LibraryLoaderMusicBrainzBasicViewModel).Load(_stagedFiles, configuration, audioStationController, progressHandler);
-
-            else if (this.SelectedWorker is LibraryLoaderMusicBrainzAlbumArtViewModel)
-                (this.SelectedWorker as LibraryLoaderMusicBrainzAlbumArtViewModel).Load(_stagedFiles, configuration, audioStationController, progressHandler);
-
-            else
-                throw new Exception("Selected Worker Type Not Found!");
-        }
-
-        public override void Load(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
-        {
-            // Loader State Changes
-            _configuration = configuration;
-            _audioStationController = audioStationController;
-            _dialogController = audioStationController.DialogController;
-
-            //var libraryLoaderService = audioStationController.ServiceController.GetService<ILibraryLoaderService>();
-            //var audioStationDbClient = audioStationController.ServiceController.GetDataService<IAudioStationDbClient>();
-
-            //// Create Service Workers
-            //if (_workflowConfiguration.ServiceIncludeAudioDuration)
-            //    this.ServiceWorkers.Add(new LibraryLoaderAudioDurationViewModel());
-
-            //if (_workflowConfiguration.ServiceIncludeAcoustID)
-            //    this.ServiceWorkers.Add(new LibraryLoaderAcoustIDViewModel(_workflowConfiguration));
-
-            //if (_workflowConfiguration.ServiceIncludeMusicBrainzBasic)
-            //    this.ServiceWorkers.Add(new LibraryLoaderMusicBrainzBasicViewModel(_workflowConfiguration));
-
-            //if (_workflowConfiguration.ServiceIncludeMusicBrainzArtwork)
-            //    this.ServiceWorkers.Add(new LibraryLoaderMusicBrainzAlbumArtViewModel(_workflowConfiguration));
-
-            //foreach (var worker in this.ServiceWorkers)
-            //{
-            //    worker.StatusChangeEvent += OnWorkerStatusChangeEvent;
-            //    worker.WorkItemChangedEvent += OnWorkerItemChangedEvent;
-            //    worker.WorkItemUIChangedEvent += OnWorkerItemChangedEvent;
-            //    worker.PropertyChanged += OnWorkerPropertyChanged;
-            //}
+            // -> Component Part Load
+            this.SelectedWorker.Load(configuration, audioStationController, progressHandler);
 
             this.Loaded = true;
         }
 
         public override void Execute(DialogEventHandlers.DialogProgressHandler progressHandler)
         {
-            this.SelectedWorker.Execute();
+            this.SelectedWorker.Execute(progressHandler);
         }
 
         public override void Reset(DialogEventHandlers.DialogProgressHandler progressHandler)
         {
             // Call to unload some memory before completing workflow step
             foreach (var worker in this.ServiceWorkers)
-                worker.Reset();
+                worker.Reset(progressHandler);
         }
-        private void OnWorkerStatusChangeEvent(ILibraryLoaderWorkerViewModel sender)
+        private void OnWorkerStatusChangeEvent(ServiceComponentPartViewModelBase sender, bool working, bool loaded)
         {
             this.Working = this.ServiceWorkers.Any(x => x.Working);
-            this.LibraryLoaderState = sender.LibraryLoaderState;
+            this.LibraryLoaderState = (sender as ILibraryLoaderWorkerViewModel).LibraryLoaderState;
 
             UpdateCommands();
         }
@@ -356,13 +258,9 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Wor
                 this.LibraryLoaderState = this.SelectedWorker.LibraryLoaderState;
 
             // Constructor sets properties
-            if (this.MoveToNextStepCommand != null &&
-                this.MoveToPreviousStepCommand != null &&
-                this.RerunSelectedWorkItemsCommand != null &&
+            if (this.RerunSelectedWorkItemsCommand != null &&
                 this.SkipSelectedWorkItemsCommand != null)
             {
-                this.MoveToNextStepCommand.RaiseCanExecuteChanged();
-                this.MoveToPreviousStepCommand.RaiseCanExecuteChanged();
                 this.RerunSelectedWorkItemsCommand.RaiseCanExecuteChanged();
                 this.SkipSelectedWorkItemsCommand.RaiseCanExecuteChanged();
             }

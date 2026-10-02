@@ -6,9 +6,9 @@ using AudioStation.Core.Database.AudioStationDatabase;
 using AudioStation.Core.Model;
 using AudioStation.Core.Utility;
 using AudioStation.ViewModels.DataComponent.MainViewModels;
-using AudioStation.ViewModels.LibraryLoaderViewModels.Payload.Input;
-using AudioStation.ViewModels.LibraryLoaderViewModels.Payload.Output;
 using AudioStation.ViewModels.LibraryViewModels;
+using AudioStation.ViewModels.ServiceComponent.LibraryLoaderViewModels.Payload.Input;
+using AudioStation.ViewModels.ServiceComponent.LibraryLoaderViewModels.Payload.Output;
 
 using Microsoft.Extensions.Logging;
 

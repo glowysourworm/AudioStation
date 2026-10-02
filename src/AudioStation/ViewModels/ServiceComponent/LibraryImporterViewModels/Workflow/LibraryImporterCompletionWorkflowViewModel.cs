@@ -51,7 +51,7 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Wor
         public LibraryImporterCompletionWorkflowViewModel(
                 LibraryImporterStagedFileCollection stagedFiles,
                 LibraryImporterConfigurationViewModel workflowConfiguration)
-            : base("Library Importer (completion)")
+            : base("Library Importer", "This workflow component will complete the import process")
         {
             _dialogController = IocContainer.Get<IDialogController>();
 

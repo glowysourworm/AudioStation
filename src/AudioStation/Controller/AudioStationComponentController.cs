@@ -40,8 +40,8 @@ namespace AudioStation.Controller
         private readonly BandcampViewModel _bandcampViewModel;
         private readonly CDImporterViewModel _cdImporterViewModel;
         private readonly LibraryImporterViewModel _libraryImporterViewModel;
-        private readonly LibraryLoaderViewModel _libraryLoaderViewModel;
         private readonly LibraryManagerViewModel _libraryManagerViewModel;
+        private readonly LibraryMaintainenceViewModel _libraryMaintainenceViewModel;
         private readonly LibrarySearchViewModel _librarySearchViewModel;
         private readonly LibraryViewModel _libraryViewModel;
         private readonly LogViewModel _logViewModel;
@@ -92,8 +92,8 @@ namespace AudioStation.Controller
             _bandcampViewModel = new BandcampViewModel(bandcampClient, eventAggregator);
             _cdImporterViewModel = new CDImporterViewModel(eventAggregator, cdImportService);
             _libraryImporterViewModel = new LibraryImporterViewModel(audioStationMapper, audioConverter, dialogController, eventAggregator, tagCacheController);
-            _libraryLoaderViewModel = new LibraryLoaderViewModel(eventAggregator, audioConverter);
             _libraryManagerViewModel = new LibraryManagerViewModel(eventAggregator);
+            _libraryMaintainenceViewModel = new LibraryMaintainenceViewModel();
             _librarySearchViewModel = new LibrarySearchViewModel();
             _libraryViewModel = new LibraryViewModel();
             _logViewModel = new LogViewModel(eventAggregator);
@@ -108,9 +108,9 @@ namespace AudioStation.Controller
                 { _bandcampViewModel.Id, _bandcampViewModel },
                 { _cdImporterViewModel.Id, _cdImporterViewModel },
                 { _libraryImporterViewModel.Id, _libraryImporterViewModel },
-                { _libraryLoaderViewModel.Id, _libraryLoaderViewModel },
                 { _librarySearchViewModel.Id, _librarySearchViewModel },
                 { _libraryManagerViewModel.Id, _libraryManagerViewModel },
+                { _libraryMaintainenceViewModel.Id, _libraryMaintainenceViewModel },
                 { _radioViewModel.Id, _radioViewModel }
 
             };

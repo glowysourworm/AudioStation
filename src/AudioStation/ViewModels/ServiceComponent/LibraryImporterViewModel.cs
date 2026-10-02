@@ -9,9 +9,9 @@ using AudioStation.Core.Service.Interface;
 using AudioStation.Event;
 using AudioStation.ViewModels.DataComponent;
 using AudioStation.ViewModels.DataComponent.MainViewModels;
-using AudioStation.ViewModels.LibraryLoaderViewModels.Worker;
 using AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels;
 using AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Workflow;
+using AudioStation.ViewModels.ServiceComponent.LibraryLoaderViewModels.Worker;
 
 using SimpleWpf.IocFramework.EventAggregation;
 using SimpleWpf.UI.Command;
@@ -220,6 +220,7 @@ namespace AudioStation.ViewModels.ServiceComponent
                     throw new Exception("Unhandled import step type");
             }
 
+            PreLoadServices(_workflowCurrentStep);
             Update();
         }
         public void WorkflowPrevious()
@@ -387,45 +388,6 @@ namespace AudioStation.ViewModels.ServiceComponent
         }
         public override void Load(Guid? componentPartId, IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
         {
-            // Check Workers
-            if (this.WorkflowCurrentStep == LibraryImporterWorkflowStep.ServiceWorkers)
-            {
-                // AcoustID
-                if (this.WorkflowConfiguration.ServiceIncludeAcoustID &&
-                   !this.ServiceWorkflow.HasWorker<LibraryLoaderAcoustIDViewModel>())
-                {
-                    this.ServiceWorkflow.AddWorker(new LibraryLoaderAcoustIDViewModel(this.WorkflowConfiguration));
-                }
-
-                // Audio Duration
-                if (this.WorkflowConfiguration.ServiceIncludeAudioDuration &&
-                   !this.ServiceWorkflow.HasWorker<LibraryLoaderAudioDurationViewModel>())
-                {
-                    this.ServiceWorkflow.AddWorker(new LibraryLoaderAudioDurationViewModel());
-                }
-
-                // Music Brainz (basic)
-                if (this.WorkflowConfiguration.ServiceIncludeMusicBrainzBasic &&
-                   !this.ServiceWorkflow.HasWorker<LibraryLoaderMusicBrainzBasicViewModel>())
-                {
-                    this.ServiceWorkflow.AddWorker(new LibraryLoaderMusicBrainzBasicViewModel(this.WorkflowConfiguration));
-                }
-
-                // Music Brainz (artwork)
-                if (this.WorkflowConfiguration.ServiceIncludeMusicBrainzArtwork &&
-                   !this.ServiceWorkflow.HasWorker<LibraryLoaderMusicBrainzAlbumArtViewModel>())
-                {
-                    this.ServiceWorkflow.AddWorker(new LibraryLoaderMusicBrainzAlbumArtViewModel(this.WorkflowConfiguration));
-                }
-            }
-            else if (this.WorkflowCurrentStep == LibraryImporterWorkflowStep.ImportCompletion)
-            {
-                if (!this.ImportWorkflow.HasWorker<LibraryLoaderImportViewModel>())
-                {
-                    this.ImportWorkflow.AddWorker(new LibraryLoaderImportViewModel());
-                }
-            }
-
             // Component Part
             if (componentPartId != null)
             {
@@ -463,6 +425,73 @@ namespace AudioStation.ViewModels.ServiceComponent
                 {
                     componentPart.Reset(progressHandler);
                 }
+            }
+        }
+
+        private void PreLoadServices(LibraryImporterWorkflowStep workflowStep)
+        {
+            switch (workflowStep)
+            {
+                case LibraryImporterWorkflowStep.Configuration:
+                    break;
+                case LibraryImporterWorkflowStep.ConfigurationOptions:
+                    break;
+                case LibraryImporterWorkflowStep.Staging:
+                    break;
+                case LibraryImporterWorkflowStep.ServiceWorkers:
+                {
+                    // Service Workflow - AcoustID
+                    if (this.WorkflowConfiguration.ServiceIncludeAcoustID &&
+                       !this.ServiceWorkflow.HasWorker<LibraryLoaderAcoustIDViewModel>())
+                    {
+                        this.ServiceWorkflow.AddWorker(new LibraryLoaderAcoustIDViewModel(this.WorkflowConfiguration));
+                    }
+
+                    // Service Workflow - Audio Duration
+                    if (this.WorkflowConfiguration.ServiceIncludeAudioDuration &&
+                       !this.ServiceWorkflow.HasWorker<LibraryLoaderAudioDurationViewModel>())
+                    {
+                        this.ServiceWorkflow.AddWorker(new LibraryLoaderAudioDurationViewModel());
+                    }
+
+                    // Service Workflow - Music Brainz (basic)
+                    if (this.WorkflowConfiguration.ServiceIncludeMusicBrainzBasic &&
+                       !this.ServiceWorkflow.HasWorker<LibraryLoaderMusicBrainzBasicViewModel>())
+                    {
+                        this.ServiceWorkflow.AddWorker(new LibraryLoaderMusicBrainzBasicViewModel(this.WorkflowConfiguration));
+                    }
+
+                    // Service Workflow - Music Brainz (artwork)
+                    if (this.WorkflowConfiguration.ServiceIncludeMusicBrainzArtwork &&
+                       !this.ServiceWorkflow.HasWorker<LibraryLoaderMusicBrainzAlbumArtViewModel>())
+                    {
+                        this.ServiceWorkflow.AddWorker(new LibraryLoaderMusicBrainzAlbumArtViewModel(this.WorkflowConfiguration));
+                    }
+
+                    // -> Select Worker
+                    if (this.ServiceWorkflow.CanMoveNext())
+                        this.ServiceWorkflow.MoveNext();
+                }
+                break;
+                case LibraryImporterWorkflowStep.TagCompletion:
+                    break;
+                case LibraryImporterWorkflowStep.ImportCompletion:
+                {
+                    // Import Workflow (workers)
+                    if (!this.ImportWorkflow.HasWorker<LibraryLoaderImportViewModel>())
+                    {
+                        this.ImportWorkflow.AddWorker(new LibraryLoaderImportViewModel());
+                    }
+
+                    // -> Select Worker
+                    if (this.ImportWorkflow.CanMoveNext())
+                        this.ImportWorkflow.MoveNext();
+                }
+                break;
+                case LibraryImporterWorkflowStep.FinalReport:
+                    break;
+                default:
+                    throw new Exception("Unhandled workflow step");
             }
         }
 

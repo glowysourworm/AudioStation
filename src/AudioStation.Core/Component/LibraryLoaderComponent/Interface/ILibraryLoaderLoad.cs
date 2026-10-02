@@ -5,7 +5,7 @@
         /// <summary>
         /// Owner identifier for the load
         /// </summary>
-        int OwnerId { get; }
+        Guid OwnerId { get; }
 
         /// <summary>
         /// User friendly display name for the ILibraryLoaderLoad

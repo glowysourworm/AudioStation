@@ -5,7 +5,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent
     public class LibraryLoaderWorkItemUpdate
     {
         public int Id { get; private set; }
-        public int OwnerId { get; private set; }
+        public Guid OwnerId { get; private set; }
         public LibraryLoadType Type { get; private set; }
         public IEnumerable<LibraryWorkerStepResult> ResultStepsCompleted { get; set; }
         public IEnumerable<LogMessage> Log { get; set; }
@@ -13,7 +13,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent
         public LibraryWorkItemState State { get; set; }
 
         public LibraryLoaderWorkItemUpdate(int id,
-                                           int ownerId,
+                                           Guid ownerId,
                                            LibraryLoadType type,
                                            IEnumerable<LibraryWorkerStepResult> resultSteps,
                                            int numberOfSteps,

@@ -163,6 +163,10 @@ namespace AudioStation.ViewModels
         public abstract bool CanReset();
         public abstract bool CanLoad();
 
+        /// <summary>
+        /// Adds component part and listeners for loading, working, and status events. This will update
+        /// derived class property values for loading and working.
+        /// </summary>
         protected void AddComponentPart(ServiceComponentPartViewModelBase part)
         {
             part.LoadRequestEvent += Part_LoadRequestEvent;

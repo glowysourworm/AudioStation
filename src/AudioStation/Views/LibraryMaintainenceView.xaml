@@ -1,0 +1,31 @@
+﻿<UserControl x:Class="AudioStation.Views.LibraryMaintainenceView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:AudioStation.Views"
+             xmlns:region="clr-namespace:SimpleWpf.IocFramework.RegionManagement;assembly=SimpleWpf.IocFramework">
+    <Grid RowDefinitions="Auto, *">
+        
+        <!-- Header, Task Selection-->
+        <Border Style="{StaticResource HeaderBorderStyle}" Padding="10">
+            
+            <Grid ColumnDefinitions="Auto, *">
+                
+                <TextBlock Text="Library Maintainence" Style="{StaticResource HeaderMediumTextBlock}" />
+
+                <!-- Selected Worker -->
+                <ComboBox ItemsSource="{Binding ComponentParts}" 
+                          SelectedItem="{Binding SelectedWorker, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                          DisplayMemberPath="DisplayName"
+                          Width="200"
+                          Margin="10 0"
+                          HorizontalAlignment="Left"
+                          Grid.Column="1" />
+            </Grid>
+        </Border>
+        
+        <!-- Selected Worker -->
+        <region:IocRegion region:IocRegionManager.DefaultViewType="{x:Type local:LibraryLoaderWorkerView}"
+                          Grid.Row="1"
+                          DataContext="{Binding SelectedWorker}" />
+    </Grid>
+</UserControl>

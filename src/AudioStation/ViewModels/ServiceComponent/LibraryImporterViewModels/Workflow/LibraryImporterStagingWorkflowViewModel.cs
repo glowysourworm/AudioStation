@@ -96,7 +96,7 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Wor
         }
 
         public LibraryImporterStagingWorkflowViewModel(IDialogController dialogController, LibraryImporterConfigurationViewModel workflowConfiguration)
-            : base("Library Importer (staging)")
+            : base("Library Staging", "This workflow component will be used for staging files")
         {
             _workflowConfiguration = workflowConfiguration;
 

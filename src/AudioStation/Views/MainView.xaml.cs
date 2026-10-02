@@ -41,7 +41,7 @@ namespace AudioStation.Views
                     this.LibraryImportTab.IsSelected = true;
                     break;
                 case NavigationView.LibraryLoader:
-                    this.LibraryLoaderTab.IsSelected = true;
+                    this.LibraryMaintainenceTab.IsSelected = true;
                     break;
                 case NavigationView.LibraryManager:
                     this.LibraryManagerTab.IsSelected = true;
