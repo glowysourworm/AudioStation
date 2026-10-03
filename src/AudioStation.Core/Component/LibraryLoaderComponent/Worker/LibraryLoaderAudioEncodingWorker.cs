@@ -10,7 +10,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
 
         public static int NUMBER_STEPS = 1;
 
-        public LibraryLoaderAudioEncodingWorker(IAudioConverter audioConverter, LibraryLoaderWorkItem workItem) : base(workItem)
+        public LibraryLoaderAudioEncodingWorker(IAudioConverter audioConverter)
         {
             _audioConverter = audioConverter;
         }

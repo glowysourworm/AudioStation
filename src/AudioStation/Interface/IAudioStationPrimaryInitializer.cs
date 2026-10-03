@@ -11,6 +11,14 @@ namespace AudioStation.Interface
     {
         bool Initialized { get; }
 
+        /// <summary>
+        /// Method run on initialization of the application
+        /// </summary>
         void Initialize(AudioStationConfiguration configuration, DialogEventHandlers.DialogProgressHandler progressHandler);
+
+        /// <summary>
+        /// Method run during application shutdown
+        /// </summary>
+        void Shutdown();
     }
 }

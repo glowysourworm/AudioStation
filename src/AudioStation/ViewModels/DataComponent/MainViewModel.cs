@@ -411,11 +411,6 @@ public class MainViewModel : DataComponentViewModelBase
         this.StatusViewModel.PrimaryMessage = viewModel.Message;
     }
 
-    public override void Dispose()
-    {
-
-    }
-
     private void OnMainLoadingChanged(DialogEventData eventData)
     {
         //this.Loading = eventData.Show;
@@ -447,5 +442,10 @@ public class MainViewModel : DataComponentViewModelBase
     private void OnCurrentTimeUpdated(TimeSpan currentTime)
     {
         this.NowPlayingPlaylist.CurrentTrack?.UpdateCurrentTime(currentTime);
+    }
+
+    public override void Dispose()
+    {
+
     }
 }

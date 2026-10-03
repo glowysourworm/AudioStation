@@ -7,25 +7,32 @@ namespace AudioStation.Core.Component.Interface
 {
     public interface ILibraryLoader : IDisposable
     {
+        public enum WorkItemEventType
+        {
+            Queued,
+            Canceled,
+            Complete
+        }
+
         /// <summary>
         /// Sends updates for a work item. These occur between work item processing steps.
         /// </summary>
         public event SimpleEventHandler<LibraryLoaderWorkItemUpdate> WorkItemUpdate;
 
         /// <summary>
-        /// Sends completed event for a work item
+        /// Sends updates for a bulk work item. These occur between work item processing steps.
         /// </summary>
-        public event SimpleEventHandler<LibraryLoaderWorkItem> WorkItemComplete;
+        public event SimpleEventHandler<LibraryLoaderBulkWorkItemUpdate> BulkWorkItemUpdate;
 
         /// <summary>
-        /// Sends queued event for a work item
+        /// Sends event for a work item - specifying the type
         /// </summary>
-        public event SimpleEventHandler<LibraryLoaderWorkItem> WorkItemQueued;
+        public event SimpleEventHandler<LibraryLoaderWorkItem, WorkItemEventType> WorkItemEvent;
 
         /// <summary>
-        /// Sends canceled event for a work item
+        /// Sends event for a work item - specifying the type
         /// </summary>
-        public event SimpleEventHandler<LibraryLoaderWorkItem> WorkItemCanceled;
+        public event SimpleEventHandler<LibraryLoaderBulkWorkItem, WorkItemEventType> BulkWorkItemEvent;
 
         /// <summary>
         /// Sends an event when the library loader changes state
@@ -36,6 +43,11 @@ namespace AudioStation.Core.Component.Interface
         /// Initializes and runs a library loader task with the specified parameters. Returns ID of new work item.
         /// </summary>
         int QueueLoaderTask(ILibraryLoaderLoad workLoad);
+
+        /// <summary>
+        /// Initializes and runs a library loader bulk task. Returns ID of the new bulk work item.
+        /// </summary>
+        int QueueLoaderBulkTask(IEnumerable<ILibraryLoaderLoad> workLoad);
 
         /// <summary>
         /// Sets state of loader:  This will not alter any work items. It will only stop the loader from processing

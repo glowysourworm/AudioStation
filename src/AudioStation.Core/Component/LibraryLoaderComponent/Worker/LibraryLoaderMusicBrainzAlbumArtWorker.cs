@@ -21,8 +21,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
         public LibraryLoaderMusicBrainzAlbumArtWorker(
             IAudioStationDbClient audioStationDbClient,
             IMusicBrainzClient musicBrainzClient,
-            IAudioStationFileService fileController,
-            LibraryLoaderWorkItem workItem) : base(workItem)
+            IAudioStationFileService fileController)
         {
             _audioStationDbClient = audioStationDbClient;
             _musicBrainzClient = musicBrainzClient;

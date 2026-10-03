@@ -10,7 +10,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent
         T _payload;
 
         public Guid OwnerId { get; private set; }
-        public string DisplayName { get; set; }
+        public string DisplayName { get; private set; }
         public LibraryLoadType LoadType { get; private set; }
         public T Payload { get { return _payload; } }
         object ILibraryLoaderLoad.Payload { get { return _payload; } }
@@ -22,8 +22,8 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent
         {
             _payload = payload;
 
-            this.OwnerId = ownerId;
             this.DisplayName = displayName;
+            this.OwnerId = ownerId;
             this.LoadType = loadType;
         }
     }

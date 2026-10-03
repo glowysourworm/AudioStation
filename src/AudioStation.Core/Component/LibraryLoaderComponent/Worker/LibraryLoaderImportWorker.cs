@@ -36,12 +36,10 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
         bool _existingTagRecord;
 
 
-        public LibraryLoaderImportWorker(LibraryLoaderWorkItem workItem,
-                                         IAudioStationDbClient audioStationDbClient,
+        public LibraryLoaderImportWorker(IAudioStationDbClient audioStationDbClient,
                                          IAudioStationFileService fileController,
                                          ITagCache tagCacheController,
                                          IAudioConverter audioConverter)
-            : base(workItem)
         {
             _fileController = fileController;
             _audioStationDbClient = audioStationDbClient;

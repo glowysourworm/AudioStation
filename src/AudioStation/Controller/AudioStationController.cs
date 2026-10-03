@@ -128,5 +128,13 @@ namespace AudioStation.Controller
                 Type = eventType
             });
         }
+
+        public void Shutdown()
+        {
+            _dialogController.Dispose();
+            _audioStationServiceController.Shutdown();
+            _audioStationComponentController.Shutdown();
+            _libraryLoader.Dispose();
+        }
     }
 }

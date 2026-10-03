@@ -12,8 +12,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
 
         private static readonly int WORK_STEPS = 2;
 
-        public LibraryLoaderAcoustIDWorker(IAcoustIDClient acoustIDClient, IAudioStationDbClient audioStationDbClient, LibraryLoaderWorkItem workItem)
-            : base(workItem)
+        public LibraryLoaderAcoustIDWorker(IAcoustIDClient acoustIDClient, IAudioStationDbClient audioStationDbClient)
         {
             _acoustIDClient = acoustIDClient;
             _audioStationDbClient = audioStationDbClient;

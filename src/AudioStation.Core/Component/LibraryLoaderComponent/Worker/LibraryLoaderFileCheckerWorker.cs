@@ -13,9 +13,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
 
         private const int WORK_STEPS = 1;
 
-        public LibraryLoaderFileCheckerWorker(
-                IAudioStationDbClient audioStationDbClient,
-                LibraryLoaderWorkItem workItem) : base(workItem)
+        public LibraryLoaderFileCheckerWorker(IAudioStationDbClient audioStationDbClient)
         {
             _audioStationDbClient = audioStationDbClient;
         }

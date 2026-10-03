@@ -200,6 +200,18 @@ namespace AudioStation.Controller
             }
         }
 
+        public void Shutdown()
+        {
+            foreach (DataComponentViewModelBase component in _dataComponents.Values)
+            {
+                component.Dispose();
+            }
+            foreach (ServiceComponentViewModelBase component in _serviceComponents.Values)
+            {
+                component.Dispose();
+            }
+        }
+
         public T GetServiceComponent<T>() where T : ServiceComponentViewModelBase
         {
             var type = typeof(T);

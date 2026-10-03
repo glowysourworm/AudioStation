@@ -11,8 +11,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
         private const int WORK_STEPS = 1;
 
         public LibraryLoaderFileConverterWorker(
-                IAudioConverter audioConverter,
-                LibraryLoaderWorkItem workItem) : base(workItem)
+               IAudioConverter audioConverter)
         {
             _audioConverter = audioConverter;
         }

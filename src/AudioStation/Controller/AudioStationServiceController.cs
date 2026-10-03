@@ -47,6 +47,7 @@ namespace AudioStation.Controller
                                              IAudioStationDbClient audioStationDbClient,
                                              IAudioController audioController,
                                              IAudioStationLogService audioStationLogService,
+                                             IAudioStationFileService audioStationFileService,
                                              IAcoustIDClient acoustIDClient,
                                              IBandcampClient bandcampClient,
                                              IDiscogsClient discogsClient,
@@ -65,6 +66,7 @@ namespace AudioStation.Controller
             _audioStationDbClient = audioStationDbClient;
             _audioController = audioController;
             _audioStationLogService = audioStationLogService;
+            _audioStationFileService = audioStationFileService;
             _acoustIDClient = acoustIDClient;
             _bandcampClient = bandcampClient;
             _discogsClient = discogsClient;
@@ -79,6 +81,8 @@ namespace AudioStation.Controller
 
             _acoustIDClient.StatusChangeEvent += IAudioStationComponent_StatusChangeEvent;
             _audioStationDbClient.StatusChangeEvent += IAudioStationComponent_StatusChangeEvent;
+            _audioStationLogService.StatusChangeEvent += IAudioStationComponent_StatusChangeEvent;
+            _audioStationFileService.StatusChangeEvent += IAudioStationComponent_StatusChangeEvent;
             _audioController.StatusChangeEvent += IAudioStationComponent_StatusChangeEvent;
             _bandcampClient.StatusChangeEvent += IAudioStationComponent_StatusChangeEvent;
             _discogsClient.StatusChangeEvent += IAudioStationComponent_StatusChangeEvent;
@@ -105,7 +109,7 @@ namespace AudioStation.Controller
             // 2) Report between components
             //
 
-            var taskCount = 11;
+            var taskCount = 12;
             var task = 0;
 
             // IAudioStationService (these are primary service components)
@@ -116,6 +120,7 @@ namespace AudioStation.Controller
             // IAudioStationDataService (these display their status on the status bar)
             //
             InitializeImpl(_audioStationLogService, configuration, task++, taskCount, progressHandler);
+            InitializeImpl(_audioStationFileService, configuration, task++, taskCount, progressHandler);
             InitializeImpl(_audioStationDbClient, configuration, task++, taskCount, progressHandler);
             InitializeImpl(_audioController, configuration, task++, taskCount, progressHandler);
             InitializeImpl(_bandcampClient, configuration, task++, taskCount, progressHandler);
@@ -210,6 +215,30 @@ namespace AudioStation.Controller
         {
             if (this.ComponentStatusChangedEvent != null)
                 this.ComponentStatusChangedEvent(sender, status);
+        }
+
+        public void Shutdown()
+        {
+            _cdImportService.Dispose();
+            //_libraryLoaderService.Dispose();
+
+            // IAudioStationDataService
+            _audioStationDbClient.Dispose();
+            _audioStationFileService.Dispose();
+            _audioStationLogService.Dispose();
+            _audioController.Dispose();
+            _acoustIDClient.Dispose();
+            _bandcampClient.Dispose();
+            _discogsClient.Dispose();
+            _fanartClient.Dispose();
+            _iTunesClient.Dispose();
+            _lastFmClient.Dispose();
+            _musicBrainzClient.Dispose();
+            _spotifyClient.Dispose();
+
+            // IAudioStationCache
+            //_tagCache.Dispose();
+            //_imageCache.Dispose();
         }
     }
 }

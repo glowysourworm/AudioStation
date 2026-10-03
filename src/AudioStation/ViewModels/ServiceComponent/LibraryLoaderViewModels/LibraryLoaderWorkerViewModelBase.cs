@@ -262,16 +262,12 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryLoaderViewModels
             // NOTE*** These are shared events! Each instance must verify that they are holding
             //         the work item that belongs to them; and that the ID is verified!
             //
-            _libraryLoader.WorkItemComplete -= OnWorkItemComplete;
             _libraryLoader.WorkItemUpdate -= OnWorkItemUpdate;
-            _libraryLoader.WorkItemQueued -= OnWorkItemQueued;
-            _libraryLoader.WorkItemCanceled -= OnWorkItemCanceled;
+            _libraryLoader.WorkItemEvent -= OnWorkItemEvent;
             _libraryLoader.StateChangeEvent -= OnStateChangeEvent;
 
-            _libraryLoader.WorkItemComplete += OnWorkItemComplete;
+            _libraryLoader.WorkItemEvent += OnWorkItemEvent;
             _libraryLoader.WorkItemUpdate += OnWorkItemUpdate;
-            _libraryLoader.WorkItemQueued += OnWorkItemQueued;
-            _libraryLoader.WorkItemCanceled += OnWorkItemCanceled;
             _libraryLoader.StateChangeEvent += OnStateChangeEvent;
 
             // Initial Loader State
@@ -296,6 +292,7 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryLoaderViewModels
 
             OnUpdate();
         }
+
         public override void Execute(DialogEventHandlers.DialogProgressHandler progressHandler)
         {
             if (!CanExecute())
@@ -483,25 +480,13 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryLoaderViewModels
 
             OnUpdate();
         }
-        private void OnWorkItemQueued(LibraryLoaderWorkItem sender)
+        private void OnWorkItemEvent(LibraryLoaderWorkItem sender, ILibraryLoader.WorkItemEventType eventType)
         {
             if (sender.GetOwnerId() == this.Id)
             {
                 // This is essentially the same code (update/add)
-                AddUpdateWorkItem(sender, false);
+                AddUpdateWorkItem(sender, eventType == ILibraryLoader.WorkItemEventType.Complete);
             }
-        }
-        private void OnWorkItemCanceled(LibraryLoaderWorkItem sender)
-        {
-            if (sender.GetOwnerId() == this.Id)
-            {
-                // This is essentially the same code (update/add)
-                AddUpdateWorkItem(sender, true);
-            }
-        }
-        private void OnWorkItemComplete(LibraryLoaderWorkItem complete)
-        {
-            AddUpdateWorkItem(complete, true);
         }
         private void OnWorkItemUIPropertyChanged(object? sender, PropertyChangedEventArgs e)
         {

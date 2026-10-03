@@ -10,6 +10,11 @@ namespace AudioStation.Controller.Interface
         void Initialize(AudioStationConfiguration configuration, IAudioStationController audioStationController, DialogProgressHandler progressHandler);
 
         /// <summary>
+        /// Cleanup component resources
+        /// </summary>
+        void Shutdown();
+
+        /// <summary>
         /// Returns a component from the application's view model tree
         /// </summary>
         /// <typeparam name="T">Component type</typeparam>

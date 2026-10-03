@@ -38,5 +38,10 @@ namespace AudioStation.Controller.Interface
         /// Returns a cache based on the interface type
         /// </summary>
         T GetCache<T>() where T : IAudioStationCache;
+
+        /// <summary>
+        /// Cleanup service resources and shutdown
+        /// </summary>
+        void Shutdown();
     }
 }

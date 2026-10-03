@@ -6,8 +6,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
 {
     public class LibraryLoaderM3UAddUpdateWorker : LibraryLoaderWorker<LibraryLoaderFilePayload, LibraryLoaderNoOutput>
     {
-        public LibraryLoaderM3UAddUpdateWorker(LibraryLoaderWorkItem workItem)
-            : base(workItem)
+        public LibraryLoaderM3UAddUpdateWorker()
         {
         }
 

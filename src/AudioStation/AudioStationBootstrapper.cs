@@ -327,5 +327,16 @@ namespace AudioStation
         {
             return Application.Current.MainWindow as MainWindow;
         }
+
+        public override void Shutdown()
+        {
+            // Shutdown Procedure:  The IAudioStationPrimaryInitializer has a Shutdown() method for
+            //                      handling the applications component chain of command.
+            //
+            var mainController = IocContainer.Get<IAudioStationController>();
+
+            // -> Shutdown(...) -> each -> and -> every -> other -> running -> component
+            mainController.Shutdown();
+        }
     }
 }

@@ -1,4 +1,9 @@
 ﻿using System.Windows;
+using System.Windows.Threading;
+
+using AudioStation.Core.Utility;
+
+using Microsoft.Extensions.Logging;
 
 namespace AudioStation
 {
@@ -12,12 +17,17 @@ namespace AudioStation
 
             this.DispatcherUnhandledException += OnDispatcherUnhandledException;
         }
-
-        private void OnDispatcherUnhandledException(object sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)
+        protected override void OnExit(ExitEventArgs e)
         {
+            // Bootstrapper Shutdown
+            _bootstrapper.Shutdown();
 
+            base.OnExit(e);
         }
-
+        private void OnDispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
+        {
+            ApplicationHelpers.Log("Dispatcher Unhandled Exception:  " + e.Exception.Message, LogLevel.Error, e.Exception);
+        }
         private void InitializeResources()
         {
             // These aren't seen unless they're loaded by hand. This is some common WPF issue.

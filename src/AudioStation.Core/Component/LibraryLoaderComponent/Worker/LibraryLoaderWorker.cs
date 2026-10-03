@@ -9,14 +9,27 @@
         private int _workCurrentStep = 0;
         private object _lock = new object();
 
-        public LibraryLoaderWorker(LibraryLoaderWorkItem workItem) : base(workItem)
+        public LibraryLoaderWorker()
+        { }
+
+        protected override void LoadWork(LibraryLoaderWorkItem workItem)
         {
+            if (this.Load != null ||
+                this.Output != null)
+                throw new Exception("Trying to load work item before disposing old one");
+
             this.Load = workItem.GetWorkItem() as LibraryLoaderLoad<TIn>;
             this.Output = workItem.GetOutputItem() as LibraryLoaderOutput<TOut>;
 
             if (this.Load == null ||
                 this.Output == null)
                 throw new ArgumentException("Invalid Load / Output types");
+        }
+
+        protected override void UnloadWork()
+        {
+            this.Load = null;
+            this.Output = null;
         }
 
         /// <summary>

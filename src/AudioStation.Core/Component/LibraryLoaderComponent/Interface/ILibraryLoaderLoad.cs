@@ -8,7 +8,7 @@
         Guid OwnerId { get; }
 
         /// <summary>
-        /// User friendly display name for the ILibraryLoaderLoad
+        /// Display name for the load (problem was with casting of the payload)
         /// </summary>
         string DisplayName { get; }
 

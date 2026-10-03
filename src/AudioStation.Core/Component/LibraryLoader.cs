@@ -31,13 +31,16 @@ namespace AudioStation.Core.Component
         // table locking, or transactions!
 
         public event SimpleEventHandler<LibraryLoaderWorkItemUpdate> WorkItemUpdate;
-        public event SimpleEventHandler<LibraryLoaderWorkItem> WorkItemComplete;
-        public event SimpleEventHandler<LibraryLoaderWorkItem> WorkItemQueued;
-        public event SimpleEventHandler<LibraryLoaderWorkItem> WorkItemCanceled;
+        public event SimpleEventHandler<LibraryLoaderBulkWorkItemUpdate> BulkWorkItemUpdate;
+        public event SimpleEventHandler<LibraryLoaderWorkItem, ILibraryLoader.WorkItemEventType> WorkItemEvent;
+        public event SimpleEventHandler<LibraryLoaderBulkWorkItem, ILibraryLoader.WorkItemEventType> BulkWorkItemEvent;
+
         public event SimpleEventHandler<PlayStopPause> StateChangeEvent;
 
         private Dictionary<int, LibraryLoaderWorkItem> _workQueue;
         private Dictionary<int, LibraryLoaderWorkItem> _workItemsWorking;
+        private Dictionary<int, LibraryLoaderBulkWorkItem> _bulkWorkQueue;
+        private Dictionary<int, LibraryLoaderBulkWorkItem> _bulkWorkItemsWorking;
         private Dictionary<int, LibraryWorkerThreadBase> _workerThreads;
 
         // We're going to keep a history of the work items. An ID counter will supply id's to the
@@ -63,6 +66,8 @@ namespace AudioStation.Core.Component
             _audioConverter = audioConverter;
             _tagCacheController = tagCacheController;
 
+            _bulkWorkQueue = new Dictionary<int, LibraryLoaderBulkWorkItem>();
+            _bulkWorkItemsWorking = new Dictionary<int, LibraryLoaderBulkWorkItem>();
             _workQueue = new Dictionary<int, LibraryLoaderWorkItem>();
             _workItemsWorking = new Dictionary<int, LibraryLoaderWorkItem>();
             _workerThreads = new Dictionary<int, LibraryWorkerThreadBase>();
@@ -71,11 +76,66 @@ namespace AudioStation.Core.Component
             _loaderState = PlayStopPause.Stop;
         }
 
+        public int QueueLoaderBulkTask(IEnumerable<ILibraryLoaderLoad> workLoads)
+        {
+            var ownerId = Guid.Empty;
+            var workItems = new List<LibraryLoaderWorkItem>();
+
+            foreach (var workLoad in workLoads)
+            {
+                if (ownerId == Guid.Empty)
+                    ownerId = workLoad.OwnerId;
+
+                else if (ownerId != workLoad.OwnerId)
+                    throw new ArgumentException("Trying to load bulk work item from multiple owners is not allowed!");
+
+                workItems.Add(CreateWorkItem(workLoad));
+            }
+
+            if (ownerId == Guid.Empty)
+                throw new ArgumentException("Owner ID not specified for bulk work item load");
+
+            // Bulk Work Item:  Extra increment to ID counter!
+            var bulkWorkItem = new LibraryLoaderBulkWorkItem(_workItemIdCounter++, ownerId, workItems);
+
+            _bulkWorkQueue.Add(bulkWorkItem.GetId(), bulkWorkItem);
+
+            // Notify Listeners
+            if (this.BulkWorkItemEvent != null)
+                this.BulkWorkItemEvent(bulkWorkItem, ILibraryLoader.WorkItemEventType.Queued);
+
+            // -> State Change!
+            OnStateChange(PlayStopPause.Play);
+
+            CheckMoreWork();
+
+            return bulkWorkItem.GetId();
+        }
+
         public int QueueLoaderTask(ILibraryLoaderLoad workLoad)
         {
             if (BasicHelpers.IsDispatcher() == ApplicationIsDispatcherResult.False)
                 throw new Exception("ILibraryLoader must be accessed by the main thread");
 
+            var workItem = CreateWorkItem(workLoad);
+
+            // Queue Work Item
+            _workQueue.Add(workItem.GetId(), workItem);
+
+            // Notify Listeners
+            if (this.WorkItemEvent != null)
+                this.WorkItemEvent(workItem, ILibraryLoader.WorkItemEventType.Queued);
+
+            // -> State Change!
+            OnStateChange(PlayStopPause.Play);
+
+            CheckMoreWork();
+
+            return workItem.GetId();
+        }
+
+        private LibraryLoaderWorkItem CreateWorkItem(ILibraryLoaderLoad workLoad)
+        {
             // NOTE:  The incremental work item ID property is a unique identifier! This must be maintained
             //        properly here by incremeting. It is used to identify logs for the task; and to have a
             //        handle for later querying.
@@ -150,19 +210,7 @@ namespace AudioStation.Core.Component
             // Increment Work Counter
             _workItemIdCounter++;
 
-            // Queue Work Item
-            _workQueue.Add(workItem.GetId(), workItem);
-
-            // Notify Listeners
-            if (this.WorkItemQueued != null)
-                this.WorkItemQueued(workItem);
-
-            // -> State Change!
-            OnStateChange(PlayStopPause.Play);
-
-            CheckMoreWork();
-
-            return workItem.GetId();
+            return workItem;
         }
 
         public bool IsWorkCompleted()
@@ -170,7 +218,7 @@ namespace AudioStation.Core.Component
             if (BasicHelpers.IsDispatcher() == ApplicationIsDispatcherResult.False)
                 throw new Exception("ILibraryLoader must be accessed by the main thread");
 
-            return !_workerThreads.Any() && _workQueue.Count == 0;
+            return !_workerThreads.Any() && _workQueue.Count == 0 && _bulkWorkQueue.Count == 0;
         }
 
         public bool IsTaskQueued(int workItemId)
@@ -178,7 +226,7 @@ namespace AudioStation.Core.Component
             if (BasicHelpers.IsDispatcher() == ApplicationIsDispatcherResult.False)
                 throw new Exception("ILibraryLoader must be accessed by the main thread");
 
-            return _workQueue.ContainsKey(workItemId);
+            return _workQueue.ContainsKey(workItemId) || _bulkWorkQueue.ContainsKey(workItemId);
         }
 
         public bool IsTaskRunning(int workItemId)
@@ -200,20 +248,41 @@ namespace AudioStation.Core.Component
             if (_workerThreads.ContainsKey(workItemId))
                 throw new ArgumentException("Cannot dequeue task that is running. Must first cancel the task");
 
-            if (!_workQueue.ContainsKey(workItemId))
+            if (!_workQueue.ContainsKey(workItemId) &&
+                !_bulkWorkQueue.ContainsKey(workItemId))
                 throw new ArgumentException("Work item is not queued. Please check before dequeuing.");
 
-            // Work Item
-            var workItem = _workQueue[workItemId];
+            // Single
+            if (_workQueue.ContainsKey(workItemId))
+            {
+                // Work Item
+                var workItem = _workQueue[workItemId];
 
-            // Dequeue
-            _workQueue.Remove(workItemId);
+                // Dequeue
+                _workQueue.Remove(workItemId);
 
-            // -> Cancel
-            workItem.Update(LibraryWorkItemState.Canceled);
+                // -> Cancel
+                workItem.Update(LibraryWorkItemState.Canceled);
 
-            if (this.WorkItemCanceled != null)
-                this.WorkItemCanceled(workItem);
+                if (this.WorkItemEvent != null)
+                    this.WorkItemEvent(workItem, ILibraryLoader.WorkItemEventType.Canceled);
+            }
+
+            // Bulk
+            else if (_bulkWorkQueue.ContainsKey(workItemId))
+            {
+                // Bulk Work Item
+                var bulkWorkItem = _bulkWorkQueue[workItemId];
+
+                // Dequeue
+                _bulkWorkQueue.Remove(workItemId);
+
+                // -> Cancel
+                bulkWorkItem.Update(LibraryWorkItemState.Canceled);
+
+                if (this.BulkWorkItemEvent != null)
+                    this.BulkWorkItemEvent(bulkWorkItem, ILibraryLoader.WorkItemEventType.Canceled);
+            }
         }
 
         public void CancelTask(int workItemId)
@@ -230,6 +299,7 @@ namespace AudioStation.Core.Component
             // -> GC
             _workerThreads.Remove(workItemId);
 
+            // Single
             if (_workItemsWorking.ContainsKey(workItemId))
             {
                 // Work Item
@@ -241,8 +311,24 @@ namespace AudioStation.Core.Component
                 // -> Cancel
                 workItem.Update(LibraryWorkItemState.Canceled);
 
-                if (this.WorkItemCanceled != null)
-                    this.WorkItemCanceled(workItem);
+                if (this.WorkItemEvent != null)
+                    this.WorkItemEvent(workItem, ILibraryLoader.WorkItemEventType.Canceled);
+            }
+
+            // Bulk
+            if (_bulkWorkItemsWorking.ContainsKey(workItemId))
+            {
+                // Bulk Work Item
+                var bulkWorkItem = _bulkWorkItemsWorking[workItemId];
+
+                // Remove from working
+                _bulkWorkItemsWorking.Remove(workItemId);
+
+                // -> Cancel
+                bulkWorkItem.Update(LibraryWorkItemState.Canceled);
+
+                if (this.BulkWorkItemEvent != null)
+                    this.BulkWorkItemEvent(bulkWorkItem, ILibraryLoader.WorkItemEventType.Canceled);
             }
 
         }
@@ -304,49 +390,7 @@ namespace AudioStation.Core.Component
                 _workQueue.Remove(workItemId);
 
                 // Next Thread
-                LibraryWorkerThreadBase thread = null;
-
-                switch (workItem.GetLoadType())
-                {
-                    case LibraryLoadType.AudioEncoding:
-                    {
-                        thread = new LibraryLoaderAudioEncodingWorker(_audioConverter, workItem);
-                    }
-                    break;
-                    case LibraryLoadType.Import:
-                    {
-                        thread = new LibraryLoaderImportWorker(workItem, _audioStationDbClient, _fileController, _tagCacheController, _audioConverter);
-                    }
-                    break;
-                    case LibraryLoadType.AcoustID:
-                    {
-                        thread = new LibraryLoaderAcoustIDWorker(_acoustIDClient, _audioStationDbClient, workItem);
-                    }
-                    break;
-                    case LibraryLoadType.FileChecker:
-                    {
-                        thread = new LibraryLoaderFileCheckerWorker(_audioStationDbClient, workItem);
-                    }
-                    break;
-                    case LibraryLoadType.FileConverter:
-                    {
-                        thread = new LibraryLoaderFileConverterWorker(_audioConverter, workItem);
-                    }
-                    break;
-                    case LibraryLoadType.MusicBrainzBasic:
-                    {
-                        thread = new LibraryLoaderMusicBrainzBasicWorker(_audioStationMapper, _musicBrainzClient, _audioStationDbClient, workItem);
-                    }
-                    break;
-                    case LibraryLoadType.MusicBrainzAlbumArt:
-                    {
-                        thread = new LibraryLoaderMusicBrainzAlbumArtWorker(_audioStationDbClient, _musicBrainzClient, _fileController, workItem);
-                    }
-                    break;
-                    case LibraryLoadType.ImportRadio:
-                    default:
-                        throw new Exception("Unhandled work item type:  LibraryLoader.cs");
-                }
+                var thread = CreateThreadImpl(workItem.GetLoadType());
 
                 // -> Next Thread
                 if (thread != null)
@@ -355,6 +399,9 @@ namespace AudioStation.Core.Component
                     thread.ReportWorkStepStarted += Worker_ReportWorkStepStarted;
                     thread.ReportWorkStepComplete += Worker_ReportWorkStepComplete;
                     thread.ReportComplete += Worker_ReportComplete;
+
+                    // Load Thread
+                    thread.LoadWorkItem(workItem);
 
                     _workerThreads.Add(workItem.GetId(), thread);
                 }
@@ -366,12 +413,93 @@ namespace AudioStation.Core.Component
                 _workerThreads[workItem.GetId()].Start();
             }
 
-            else if (_workQueue.Count == 0)
+            // Bulk Work Items
+            else if (_bulkWorkQueue.Count > 0 && _workerThreads.Count == 0 && _loaderState == PlayStopPause.Play)
+            {
+                // -> Dequeue
+                var workItemId = _bulkWorkQueue.Keys.Min();
+                var bulkWorkItem = _bulkWorkQueue[workItemId];
+
+                _bulkWorkQueue.Remove(workItemId);
+
+                // Next Thread
+                var thread = CreateThreadImpl(bulkWorkItem.GetLoadType());
+
+                // -> Next Thread
+                if (thread != null)
+                {
+                    // Make sure to hook / unhook these events before start / after complete
+                    thread.BulkReportWorkStepStarted += Worker_BulkReportWorkStepStarted;
+                    thread.BulkReportWorkStepComplete += Worker_BulkReportWorkStepComplete;
+                    thread.BulkReportComplete += Worker_BulkReportComplete;
+
+                    // Load Thread
+                    thread.LoadWorkItem(bulkWorkItem);
+
+                    _workerThreads.Add(bulkWorkItem.GetId(), thread);
+                }
+
+                // -> Working
+                _bulkWorkItemsWorking.Add(bulkWorkItem.GetId(), bulkWorkItem);
+
+                // Start worker thread
+                _workerThreads[bulkWorkItem.GetId()].Start();
+            }
+
+            else if (_workQueue.Count == 0 && _bulkWorkQueue.Count == 0)
             {
                 OnStateChange(PlayStopPause.Stop);
             }
         }
+        private LibraryWorkerThreadBase CreateThreadImpl(LibraryLoadType loadType)
+        {
+            // Next Thread
+            LibraryWorkerThreadBase thread = null;
 
+            switch (loadType)
+            {
+                case LibraryLoadType.AudioEncoding:
+                {
+                    thread = new LibraryLoaderAudioEncodingWorker(_audioConverter);
+                }
+                break;
+                case LibraryLoadType.Import:
+                {
+                    thread = new LibraryLoaderImportWorker(_audioStationDbClient, _fileController, _tagCacheController, _audioConverter);
+                }
+                break;
+                case LibraryLoadType.AcoustID:
+                {
+                    thread = new LibraryLoaderAcoustIDWorker(_acoustIDClient, _audioStationDbClient);
+                }
+                break;
+                case LibraryLoadType.FileChecker:
+                {
+                    thread = new LibraryLoaderFileCheckerWorker(_audioStationDbClient);
+                }
+                break;
+                case LibraryLoadType.FileConverter:
+                {
+                    thread = new LibraryLoaderFileConverterWorker(_audioConverter);
+                }
+                break;
+                case LibraryLoadType.MusicBrainzBasic:
+                {
+                    thread = new LibraryLoaderMusicBrainzBasicWorker(_audioStationMapper, _musicBrainzClient, _audioStationDbClient);
+                }
+                break;
+                case LibraryLoadType.MusicBrainzAlbumArt:
+                {
+                    thread = new LibraryLoaderMusicBrainzAlbumArtWorker(_audioStationDbClient, _musicBrainzClient, _fileController);
+                }
+                break;
+                case LibraryLoadType.ImportRadio:
+                default:
+                    throw new Exception("Unhandled work item type:  LibraryLoader.cs");
+            }
+
+            return thread;
+        }
         private void CompleteWorker(LibraryWorkerThreadBase worker, LibraryLoaderWorkItem workItem)
         {
             if (BasicHelpers.IsDispatcher() == ApplicationIsDispatcherResult.False)
@@ -388,8 +516,29 @@ namespace AudioStation.Core.Component
             worker = null;
 
             // Final Report Event
-            if (this.WorkItemComplete != null)
-                this.WorkItemComplete(workItem);
+            if (this.WorkItemEvent != null)
+                this.WorkItemEvent(workItem, ILibraryLoader.WorkItemEventType.Complete);
+
+            CheckMoreWork();
+        }
+        private void CompleteBulkWorker(LibraryWorkerThreadBase worker, LibraryLoaderBulkWorkItem bulkWorkItem)
+        {
+            if (BasicHelpers.IsDispatcher() == ApplicationIsDispatcherResult.False)
+                throw new Exception("Worker collections must be accessed by the main thread");
+
+            // Remove worker from the list
+            _workerThreads.Remove(bulkWorkItem.GetId());
+
+            // Add work item to the history
+            _bulkWorkItemsWorking.Remove(bulkWorkItem.GetId());
+
+            // Worker has reported complete. Go ahead and wait for a join.
+            worker.Stop();
+            worker = null;
+
+            // Final Report Event
+            if (this.BulkWorkItemEvent != null)
+                this.BulkWorkItemEvent(bulkWorkItem, ILibraryLoader.WorkItemEventType.Complete);
 
             CheckMoreWork();
         }
@@ -439,6 +588,39 @@ namespace AudioStation.Core.Component
             {
                 if (this.WorkItemUpdate != null)
                     this.WorkItemUpdate(update);
+            }
+        }
+        private void Worker_BulkReportComplete(LibraryWorkerThreadBase sender, LibraryLoaderBulkWorkItem bulkWorkItem)
+        {
+            if (BasicHelpers.IsDispatcher() == ApplicationIsDispatcherResult.False)
+                BasicHelpers.BeginInvokeDispatcher(Worker_BulkReportComplete, DispatcherPriority.Background, sender, bulkWorkItem);
+
+            else
+            {
+                CompleteBulkWorker(sender, bulkWorkItem);
+            }
+        }
+
+        private void Worker_BulkReportWorkStepComplete(LibraryWorkerThreadBase sender, LibraryLoaderBulkWorkItemUpdate update)
+        {
+            if (BasicHelpers.IsDispatcher() == ApplicationIsDispatcherResult.False)
+                BasicHelpers.BeginInvokeDispatcher(Worker_BulkReportWorkStepComplete, DispatcherPriority.Background, sender, update);
+
+            else
+            {
+                if (this.BulkWorkItemUpdate != null)
+                    this.BulkWorkItemUpdate(update);
+            }
+        }
+        private void Worker_BulkReportWorkStepStarted(LibraryWorkerThreadBase sender, LibraryLoaderBulkWorkItemUpdate update)
+        {
+            if (BasicHelpers.IsDispatcher() == ApplicationIsDispatcherResult.False)
+                BasicHelpers.BeginInvokeDispatcher(Worker_BulkReportWorkStepStarted, DispatcherPriority.Background, sender, update);
+
+            else
+            {
+                if (this.BulkWorkItemUpdate != null)
+                    this.BulkWorkItemUpdate(update);
             }
         }
         #endregion
