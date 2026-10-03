@@ -44,15 +44,23 @@ namespace AudioStation.Controls
         }
 
         List<Size> _barSizes;
+        List<Size> _barHalfSizes;
+        List<Size> _barFullSizes;
         List<Size> _peakSizes;
         StreamGeometry _outputGeometry;
+        StreamGeometry _outputHalfGeometry;
+        StreamGeometry _outputFullGeometry;
         StreamGeometry _peakGeometry;
 
         public EqualizerOutputControl()
         {
             _barSizes = new List<Size>();
+            _barHalfSizes = new List<Size>();
+            _barFullSizes = new List<Size>();
             _peakSizes = new List<Size>();
             _outputGeometry = new StreamGeometry();
+            _outputHalfGeometry = new StreamGeometry();
+            _outputFullGeometry = new StreamGeometry();
             _peakGeometry = new StreamGeometry();
         }
 
@@ -67,68 +75,80 @@ namespace AudioStation.Controls
                 this.RenderSize.Height <= 0)
                 return;
 
-            var renderLength = resultSet.Result.Length / 4;
-            var resultIndexStart = (resultSet.Result.Length * 3 / 8) - 1;
-            var resultIndexEnd = (resultSet.Result.Length * 5 / 8) - 1;
-
-            var maxValue = 0.0001f;
-            var maxPeak = 0.0001f;
-
-            for (int resultIndex = resultIndexStart; resultIndex < resultIndexEnd; resultIndex++)
-            {
-                maxValue = Math.Max(maxValue, resultSet.Result[resultIndex]);
-                maxPeak = Math.Max(maxPeak, resultSet.ResultPeaks[resultIndex]);
-            }
-
-            if (_barSizes.Count != renderLength)
+            if (_barSizes.Count != resultSet.GetWindowedResultLength(EqualizerResultSet.ResultWindowType.SymmetricQuarter))
             {
                 _barSizes.Clear();
+                _barHalfSizes.Clear();
+                _barFullSizes.Clear();
                 _peakSizes.Clear();
             }
-
-            //var maxRatio = resultSet.ResultPeaks.Max();
-            //var maxRatio = resultSet.MaxPeak;
 
             // The FFT output will be symmetric. We'll take the first quarter of the output, which should
             // cover most audible frequencies. Otherwise, there's very little to look at.
             //
-            for (int resultIndex = resultIndexStart; resultIndex <= resultIndexEnd; resultIndex++)
+            resultSet.Iterate(EqualizerResultSet.ResultWindowType.SymmetricQuarter, (int index,
+                                                                                     int length,
+                                                                                     float result,
+                                                                                     float resultReleaseHalf,
+                                                                                     float resultReleaseFull,
+                                                                                     float resultPeak,
+                                                                                     float maxValue,
+                                                                                     float maxValueReleaseHalf,
+                                                                                     float maxValueReleaseFull,
+                                                                                     float maxPeak) =>
             {
-                var index = resultIndex - resultIndexStart;
-
-                // This may be off by one depending on what window we choose
-                if (index >= renderLength)
-                    break;
-
-                var peakRatio = resultSet.ResultPeaks[resultIndex];
-                var ratio = resultSet.Result[resultIndex];
-
                 // Normalizing the bar size: Not sure what to do here. Going to try Db scale..(?)
-                var scaledPeakRatio = peakRatio / maxPeak;
-                var scaledRatio = ratio / maxValue;
+                var scaledPeakRatio = maxPeak <= 0 ? 0 : resultPeak / maxPeak;
+                var scaledRatio = maxValue <= 0 ? 0 : result / maxValue;
+                var scaledRatioHalf = maxValueReleaseHalf <= 0 ? 0 : resultReleaseHalf / maxValueReleaseHalf;
+                var scaledRatioFull = maxValueReleaseFull <= 0 ? 0 : resultReleaseFull / maxValueReleaseFull;
 
-                var width = (this.RenderSize.Width / resultSet.Result.Length) - this.BarPadding.Left - this.BarPadding.Right;
-                var height = (this.RenderSize.Height * scaledRatio) - this.BarPadding.Top - this.BarPadding.Bottom;
+                var width = CalculateBarWidth(scaledRatio, length);
+                var height = CalculateBarHeight(scaledRatio);
 
-                var peakWidth = (this.RenderSize.Width / resultSet.Result.Length) - this.BarPadding.Left - this.BarPadding.Right;
-                var peakHeight = (this.RenderSize.Height * scaledPeakRatio) - this.BarPadding.Top - this.BarPadding.Bottom;
+                var widthHalf = CalculateBarWidth(scaledRatioHalf, length);
+                var heightHalf = CalculateBarHeight(scaledRatioHalf);
 
-                width = Math.Clamp(width, 0, this.RenderSize.Width);
-                height = Math.Clamp(height, 0, this.RenderSize.Height);
+                var widthFull = CalculateBarWidth(scaledRatioFull, length);
+                var heightFull = CalculateBarHeight(scaledRatioFull);
 
-                if (_barSizes.Count == renderLength)
+                var peakWidth = CalculateBarWidth(scaledPeakRatio, length);
+                var peakHeight = CalculateBarHeight(scaledPeakRatio);
+
+                if (index < _barSizes.Count - 1)
                 {
                     _barSizes[index] = new Size(width, height);
+                    _barHalfSizes[index] = new Size(widthHalf, heightHalf);
+                    _barFullSizes[index] = new Size(widthFull, heightFull);
                     _peakSizes[index] = new Size(peakWidth, peakHeight);
                 }
                 else
                 {
                     _barSizes.Add(new Size(width, height));
+                    _barHalfSizes.Add(new Size(widthHalf, heightHalf));
+                    _barFullSizes.Add(new Size(widthFull, heightFull));
                     _peakSizes.Add(new Size(peakWidth, peakHeight));
                 }
-            }
+            });
 
             InvalidateVisual();
+        }
+
+        private double CalculateBarWidth(double scaledRatio, int numberOfBars)
+        {
+            var width = (this.RenderSize.Width / numberOfBars) - this.BarPadding.Left - this.BarPadding.Right;
+
+            width = Math.Clamp(width, 0, this.RenderSize.Width);
+
+            return width;
+        }
+        private double CalculateBarHeight(double scaledRatio)
+        {
+            var height = (this.RenderSize.Height * scaledRatio) - this.BarPadding.Top - this.BarPadding.Bottom;
+
+            height = Math.Clamp(height, 0, this.RenderSize.Height);
+
+            return height;
         }
 
         protected override void OnRender(DrawingContext drawingContext)
@@ -147,31 +167,37 @@ namespace AudioStation.Controls
             var pointBR = new Point();
 
             _outputGeometry.Clear();
+            _outputHalfGeometry.Clear();
+            _outputFullGeometry.Clear();
 
+            //// Full (release coefficient)
+            //using (var stream = _outputFullGeometry.Open())
+            //{
+            //    for (int index = 0; index < _barFullSizes.Count; index++)
+            //    {
+            //        DrawBar(stream, _barFullSizes[index], barWidth, barHeight, index, pointTL, pointTR, pointBR, pointBL);
+            //    }
+            //}
+
+            //// Half (release coefficient)
+            //using (var stream = _outputHalfGeometry.Open())
+            //{
+            //    for (int index = 0; index < _barHalfSizes.Count; index++)
+            //    {
+            //        DrawBar(stream, _barHalfSizes[index], barWidth, barHeight, index, pointTL, pointTR, pointBR, pointBL);
+            //    }
+            //}
+
+            // Normal
             using (var stream = _outputGeometry.Open())
             {
                 for (int index = 0; index < _barSizes.Count; index++)
                 {
-                    pointTL.X = barWidth * index;
-                    pointTL.Y = barHeight - _barSizes[index].Height;
-
-                    pointTR.X = pointTL.X + barWidth;
-                    pointTR.Y = pointTL.Y;
-
-                    pointBR.X = pointTL.X + barWidth;
-                    pointBR.Y = pointTL.Y + _barSizes[index].Height;
-
-                    pointBL.X = pointTL.X;
-                    pointBL.Y = pointBR.Y;
-
-                    stream.BeginFigure(pointTL, true, true);
-                    stream.LineTo(pointTR, true, true);
-                    stream.LineTo(pointBR, true, true);
-                    stream.LineTo(pointBL, true, true);
-                    stream.LineTo(pointTL, true, true);
+                    DrawBar(stream, _barSizes[index], barWidth, barHeight, index, pointTL, pointTR, pointBR, pointBL);
                 }
             }
 
+            // This code differs from the DrawBar() subroutine
             using (var stream = _peakGeometry.Open())
             {
                 for (int index = 0; index < _barSizes.Count; index++)
@@ -200,7 +226,36 @@ namespace AudioStation.Controls
             drawingContext.DrawGeometry(this.PeakBrush, new Pen(this.BarBorder, 1), _peakGeometry);
 
             // Bars
+            //drawingContext.DrawGeometry(Brushes.Blue, new Pen(this.BarBorder, 1), _outputFullGeometry);
+            //drawingContext.DrawGeometry(this.BarBrush, new Pen(this.BarBorder, 1), _outputHalfGeometry);
             drawingContext.DrawGeometry(this.BarBrush, new Pen(this.BarBorder, 1), _outputGeometry);
+        }
+
+        private void DrawBar(StreamGeometryContext stream,
+                             Size barSize,
+                             double barRenderWidth,
+                             double barRenderHeight,
+                             int barIndex,
+                             Point pointTL, Point pointTR,
+                             Point pointBR, Point pointBL)
+        {
+            pointTL.X = barRenderWidth * barIndex;
+            pointTL.Y = barRenderHeight - barSize.Height;
+
+            pointTR.X = pointTL.X + barRenderWidth;
+            pointTR.Y = pointTL.Y;
+
+            pointBR.X = pointTL.X + barRenderWidth;
+            pointBR.Y = pointTL.Y + barSize.Height;
+
+            pointBL.X = pointTL.X;
+            pointBL.Y = pointBR.Y;
+
+            stream.BeginFigure(pointTL, true, true);
+            stream.LineTo(pointTR, true, true);
+            stream.LineTo(pointBR, true, true);
+            stream.LineTo(pointBL, true, true);
+            stream.LineTo(pointTL, true, true);
         }
     }
 }

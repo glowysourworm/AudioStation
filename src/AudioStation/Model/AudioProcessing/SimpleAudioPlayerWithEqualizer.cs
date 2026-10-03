@@ -45,7 +45,7 @@ namespace AudioStation.Model.AudioProcessing
             _equalizer = null;
 
             _fftPeriod = 1024;
-            _equalizerResult = new EqualizerResultSet(_fftPeriod, _fftPeriod, 1, 20, 0.80f);
+            _equalizerResult = new EqualizerResultSet(_fftPeriod, _fftPeriod, 5, 5, 0.95f);
             _fftBuffer = new Complex[_fftPeriod];
             _fftIndex = 0;
         }
