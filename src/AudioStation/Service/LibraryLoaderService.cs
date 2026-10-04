@@ -160,19 +160,16 @@ namespace AudioStation.Service
             try
             {
                 // Load first depth of the tree (TODO: Fix showing only the root, instead of starting with the child nodes)
-                return DirectoryTreeLoader.Load(directory, -1, directoryNode =>
+                var result = DirectoryTreeLoader.Load<FileTreeViewModel>(directory, -1, (baseDirectory, currentPath, fileCount, parent) =>
                 {
-                    return new FileTreeViewModel(directoryNode);
-
-                }, (directoryPath, directoryFileCount) =>
-                {
-                    return new FileTreeNodeViewModel(directory, directoryPath, directoryFileCount);
-
-                }, filePath =>
-                {
-                    return new FileTreeNodeViewModel(directory, filePath, 0);
+                    return new FileTreeViewModel(baseDirectory, currentPath, fileCount, parent);
 
                 }, progressHandler, searchPatterns);
+
+                // NOTE:  This is needed for multi-select inside of the SimpleTreeView
+                result.SetTreeNumbering();
+
+                return result;
             }
             catch (Exception ex)
             {
@@ -192,17 +189,9 @@ namespace AudioStation.Service
 
             try
             {
-                DirectoryTreeLoader.LoadToDepth(treeRoot, currentDepth + 1, directoryNode =>
+                DirectoryTreeLoader.LoadToDepth(treeRoot, currentDepth + 1, (baseDirectory, currentPath, fileCount, parent) =>
                 {
-                    return new FileTreeViewModel(directoryNode);
-
-                }, (directoryPath, directoryFileCount) =>
-                {
-                    return new FileTreeNodeViewModel(treeRoot.GetNodeValue().FullPath, directoryPath, directoryFileCount);
-
-                }, filePath =>
-                {
-                    return new FileTreeNodeViewModel(treeRoot.GetNodeValue().FullPath, filePath, 0);
+                    return new FileTreeViewModel(baseDirectory, currentPath, fileCount, parent);
 
                 }, progressHandler, searchPatterns);
             }

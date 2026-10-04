@@ -28,7 +28,7 @@ namespace AudioStation.Views.LibraryImportViews
 
         private void LibraryImportTagSelectionView_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
-            var viewModel = this.DataContext as LibraryImporterFileViewModel;
+            var viewModel = this.DataContext as LibraryImporterFileTreeViewModel;
 
             if (viewModel != null)
             {
@@ -48,7 +48,7 @@ namespace AudioStation.Views.LibraryImportViews
 
         private void ApplyButton_Click(object sender, RoutedEventArgs e)
         {
-            var viewModel = this.DataContext as LibraryImporterFileViewModel;
+            var viewModel = this.DataContext as LibraryImporterFileTreeViewModel;
 
             if (viewModel != null)
             {
@@ -80,7 +80,7 @@ namespace AudioStation.Views.LibraryImportViews
 
         private void RevertButton_Click(object sender, RoutedEventArgs e)
         {
-            var viewModel = this.DataContext as LibraryImporterFileViewModel;
+            var viewModel = this.DataContext as LibraryImporterFileTreeViewModel;
 
             if (viewModel != null)
             {
@@ -90,7 +90,7 @@ namespace AudioStation.Views.LibraryImportViews
 
         private void TagSourceCB_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            var viewModel = this.DataContext as LibraryImporterFileViewModel;
+            var viewModel = this.DataContext as LibraryImporterFileTreeViewModel;
 
             if (viewModel != null)
             {

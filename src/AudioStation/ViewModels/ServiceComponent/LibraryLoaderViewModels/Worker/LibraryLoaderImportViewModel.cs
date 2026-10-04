@@ -19,25 +19,25 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryLoaderViewModels.Worke
     /// This is a UI data class for the library importer. It will operate on the staged files for the 
     /// import function - setting the Load / Output properties during load.
     /// </summary>
-    public class LibraryLoaderImportViewModel : LibraryLoaderWorkerViewModelBase<LibraryImporterFileViewModel>
+    public class LibraryLoaderImportViewModel : LibraryLoaderWorkerViewModelBase<LibraryImporterFileTreeViewModel>
     {
         private readonly IAudioStationMapper _audioStationMapper;
 
-        private Dictionary<string, LibraryImporterFileViewModel> _loadItemDict;
+        private Dictionary<string, LibraryImporterFileTreeViewModel> _loadItemDict;
 
         public LibraryLoaderImportViewModel()
             : base("Library Import Worker", "Library import worker task is for importing library records during an import workflow")
         {
             _audioStationMapper = IocContainer.Get<IAudioStationMapper>();
-            _loadItemDict = new Dictionary<string, LibraryImporterFileViewModel>();
+            _loadItemDict = new Dictionary<string, LibraryImporterFileTreeViewModel>();
         }
 
-        protected override ILibraryLoaderLoad CreateWorkLoad(LibraryImporterFileViewModel loadItem, IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
+        protected override ILibraryLoaderLoad CreateWorkLoad(LibraryImporterFileTreeViewModel loadItem, IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
         {
-            return CreateWorkLoads(new LibraryImporterFileViewModel[] { loadItem }, configuration, audioStationController, progressHandler).First();
+            return CreateWorkLoads(new LibraryImporterFileTreeViewModel[] { loadItem }, configuration, audioStationController, progressHandler).First();
         }
 
-        protected override IEnumerable<ILibraryLoaderLoad> CreateWorkLoads(IEnumerable<LibraryImporterFileViewModel> loadItems, IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
+        protected override IEnumerable<ILibraryLoaderLoad> CreateWorkLoads(IEnumerable<LibraryImporterFileTreeViewModel> loadItems, IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
         {
             var result = new List<ILibraryLoaderLoad>();
             var counter = 0;
@@ -46,7 +46,7 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryLoaderViewModels.Worke
             //                 so that the view binding can happen without a big mess in the code. Also, the
             //                 back and forth with the backend for imports is kept clean by using these objects.
             //
-            foreach (LibraryImporterFileViewModel stagedFile in loadItems)
+            foreach (LibraryImporterFileTreeViewModel stagedFile in loadItems)
             {
                 progressHandler(1, 1, loadItems.Count(), counter++, "Staging: " + stagedFile.FullPath);
 
@@ -73,7 +73,7 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryLoaderViewModels.Worke
             return result;
         }
 
-        private ILibraryLoaderLoad CreateLoad(LibraryImporterFileViewModel loadItem)
+        private ILibraryLoaderLoad CreateLoad(LibraryImporterFileTreeViewModel loadItem)
         {
             var importLoad = _audioStationMapper.Map<LibraryLoaderImportInputViewModel, LibraryLoaderImportPayload>(loadItem.ImportLoad);
 

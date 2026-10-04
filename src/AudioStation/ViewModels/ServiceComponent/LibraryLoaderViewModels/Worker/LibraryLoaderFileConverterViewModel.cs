@@ -7,7 +7,6 @@ using AudioStation.Core.Model;
 using AudioStation.Core.Model.Interface;
 using AudioStation.Core.Utility.FileUtility;
 using AudioStation.Event;
-using AudioStation.ViewModels.ServiceComponent.LibraryLoaderViewModels;
 
 using SimpleWpf.IocFramework.Application;
 using SimpleWpf.SimpleCollections.Collection;
@@ -15,7 +14,7 @@ using SimpleWpf.UI.ViewModel.FileTreeView;
 
 namespace AudioStation.ViewModels.ServiceComponent.LibraryLoaderViewModels.Worker
 {
-    public class LibraryLoaderFileConverterViewModel : LibraryLoaderWorkerViewModelBase<FileTreeNodeViewModel>
+    public class LibraryLoaderFileConverterViewModel : LibraryLoaderWorkerViewModelBase<FileTreeViewModel>
     {
         // Use for extra performance
         SimpleDictionary<string, string> _workItemDict;
@@ -28,7 +27,7 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryLoaderViewModels.Worke
             _workItemDict = new SimpleDictionary<string, string>();
         }
 
-        protected override ILibraryLoaderLoad CreateWorkLoad(FileTreeNodeViewModel loadItem, IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
+        protected override ILibraryLoaderLoad CreateWorkLoad(FileTreeViewModel loadItem, IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
         {
             return new LibraryLoaderLoad<LibraryLoaderFileConverterPayload>(this.Id, LibraryLoadType.FileConverter, loadItem.FullPath,
                                            new LibraryLoaderFileConverterPayload()
@@ -39,7 +38,7 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryLoaderViewModels.Worke
                                            });
         }
 
-        protected override IEnumerable<ILibraryLoaderLoad> CreateWorkLoads(IEnumerable<FileTreeNodeViewModel> loadItems, IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
+        protected override IEnumerable<ILibraryLoaderLoad> CreateWorkLoads(IEnumerable<FileTreeViewModel> loadItems, IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
         {
             try
             {

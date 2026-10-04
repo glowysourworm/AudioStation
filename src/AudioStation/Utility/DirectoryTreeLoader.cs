@@ -23,17 +23,9 @@ namespace AudioStation.Utility
                                              DialogProgressHandler? progressHandler = null,
                                              params string[] searchPatterns)
         {
-            return Load(path, stopDepth, (directory) =>
+            return Load<FileTreeViewModel>(path, stopDepth, (baseDirectory, fullPath, fileCount, parent) =>
             {
-                return new FileTreeViewModel(directory);
-
-            }, (directory, fileCount) =>
-            {
-                return new FileTreeNodeViewModel(path, directory, fileCount);
-
-            }, file =>
-            {
-                return new FileTreeNodeViewModel(path, file, 0);
+                return new FileTreeViewModel(baseDirectory, fullPath, fileCount, parent);
 
             }, progressHandler, searchPatterns);
         }
@@ -45,21 +37,15 @@ namespace AudioStation.Utility
         /// <typeparam name="TDirectory">Type of directory node</typeparam>
         /// <typeparam name="TFile">Type of file node</typeparam>
         /// <param name="path">Root directory</param>
-        /// <param name="fileSearchPattern">File search pattern to filter file lookup</param>
-        /// <param name="treeConstructor">Constructor to create tree node</param>
+        /// <param name="fileSearchPatterns">File search pattern to filter file lookup</param>
         /// <param name="stopDepth">Recursion can be halted to simulate lazy loading. The stop depth of -1 will indicate no stop depth. Anything less will cause an argument exception.</param>
-        /// <param name="directoryConstructor">Constructor to create directory node value</param>
-        /// <param name="fileConstructor">Constructor to create file node value</param>
-        public static TTree Load<TTree, TDirectory, TFile>(
+        /// <param name="treeConstructor">Constructor to create tree node value</param>
+        public static TTree Load<TTree>(
                string path,
                int stopDepth,
-               Func<TDirectory, TTree> treeConstructor,
-               Func<string, int, TDirectory> directoryConstructor,
-               Func<string, TFile> fileConstructor,
+               Func<string, string, int, TTree, TTree> treeConstructor,
                DialogProgressHandler? progressHandler = null,
-               params string[] fileSearchPatterns) where TDirectory : FileTreeNodeViewModel
-                                                              where TFile : FileTreeNodeViewModel
-                                                              where TTree : FileTreeViewModel
+               params string[] fileSearchPatterns) where TTree : FileTreeViewModel
         {
             if (stopDepth < -1)
                 throw new ArgumentException("Must have a stop depth of -1 or greater. Please set stop depth properly.");
@@ -68,14 +54,11 @@ namespace AudioStation.Utility
             var fileData = BasicHelpers.FastGetFileData(path, true, SearchOption.TopDirectoryOnly, fileSearchPatterns);
             var directoryFileCount = fileData.Count(x => !x.IsDirectory);
 
-            // Directory (Root -> NodeValue)
-            var rootValue = directoryConstructor(path, directoryFileCount);
-
-            // File Tree (Recursive Node Container)
-            var root = treeConstructor(rootValue);
+            // Directory (Root -> null)
+            var root = treeConstructor(path, path, directoryFileCount, null);
 
             // Load to depth
-            LoadToDepth(root, stopDepth, treeConstructor, directoryConstructor, fileConstructor, progressHandler, fileSearchPatterns);
+            LoadToDepth(root, stopDepth, treeConstructor, progressHandler, fileSearchPatterns);
 
             return root;
         }
@@ -84,29 +67,21 @@ namespace AudioStation.Utility
         /// Loads recursive directory tree for view model purposes
         /// </summary>
         /// <typeparam name="TTree">Type of tree (must inherit from RecursiveDispatcherViewModel)</typeparam>
-        /// <typeparam name="TDirectory">Type of directory node</typeparam>
-        /// <typeparam name="TFile">Type of file node</typeparam>
         /// <param name="directoryTree">Current or root directory</param>
-        /// <param name="treeConstructor">Constructor to create tree node</param>
         /// <param name="stopDepth">Recursion can be halted to simulate lazy loading. The stop depth of -1 will indicate no stop depth. Must otherwise have a stop depth greater or equal to the directory tree</param>
-        /// <param name="directoryConstructor">Constructor to create directory node value</param>
-        /// <param name="fileConstructor">Constructor to create file node value</param>
-        public static void LoadToDepth<TTree, TDirectory, TFile>(
+        /// <param name="treeConstructor">Constructor to create node of the tree</param>
+        public static void LoadToDepth<TTree>(
                TTree directoryTree,
                int stopDepth,
-               Func<TDirectory, TTree> treeConstructor,
-               Func<string, int, TDirectory> directoryConstructor,
-               Func<string, TFile> fileConstructor,
+               Func<string, string, int, TTree, TTree> treeConstructor,
                DialogProgressHandler? progressHandler = null,
-               params string[] searchPatterns) where TDirectory : FileTreeNodeViewModel
-                                               where TFile : FileTreeNodeViewModel
-                                               where TTree : FileTreeViewModel
+               params string[] searchPatterns) where TTree : FileTreeViewModel
         {
             // Stop Depth
             if (stopDepth < -1)
                 throw new ArgumentException("Must have a stop depth of -1 or greater. Please set stop depth properly.");
 
-            else if (stopDepth < directoryTree.NodeValue.RecursionDepth && stopDepth != -1)
+            else if (stopDepth < directoryTree.RecursionDepth && stopDepth != -1)
                 throw new ArgumentException("Must have a stop depth of greater than or equal to the current directory. Please set stop depth properly.");
 
             try
@@ -123,19 +98,19 @@ namespace AudioStation.Utility
 
                     // Recursion Stop Depth (Lazy Loading)
                     //
-                    if (currentDirectory.NodeValue.RecursionDepth >= stopDepth &&
+                    if (currentDirectory.RecursionDepth >= stopDepth &&
                         stopDepth != -1)
                         break;
 
                     // Previously Loaded 
                     //
-                    if (currentDirectory.NodeValue.IsLoaded)
+                    if (currentDirectory.IsLoaded)
                     {
                         // Load next directories to continue
-                        foreach (var item in currentDirectory.Children)
+                        foreach (var item in currentDirectory.Children.Cast<TTree>())
                         {
-                            if (item.NodeValue.CanHaveChildren)
-                                directories.Push(item as TTree);
+                            if (item.CanHaveChildren)
+                                directories.Push(item);
                         }
 
                         continue;
@@ -143,7 +118,7 @@ namespace AudioStation.Utility
 
 
                     // Current Directory (FILES ONLY)
-                    var fileData = BasicHelpers.FastGetFileData(currentDirectory.GetNodeValue().FullPath, true, SearchOption.TopDirectoryOnly, searchPatterns);
+                    var fileData = BasicHelpers.FastGetFileData(currentDirectory.FullPath, true, SearchOption.TopDirectoryOnly, searchPatterns);
                     var fileCount = fileData.Count();
                     var fileIndex = 0;
 
@@ -158,22 +133,30 @@ namespace AudioStation.Utility
                             // Need file count for directory
                             var directoryData = BasicHelpers.FastGetFileData(file.FullPath, true, SearchOption.TopDirectoryOnly, searchPatterns);
 
-                            // Next Directory
-                            var nodeValue = directoryConstructor(file.FullPath, directoryData.Count(x => !x.IsDirectory));
+                            // Next Directory (current directory is parent)
+                            var nextDirectory = treeConstructor(directoryTree.BaseDirectory, file.FullPath, directoryData.Count(x => !x.IsDirectory), currentDirectory);
 
-                            // Current -> Next (adds parent)
-                            var nextDirectory = currentDirectory.Add(nodeValue) as TTree;
+                            // Current -> Next (add to child list)
+                            currentDirectory.Add(nextDirectory);
 
                             // Push (NodeValue, Parent)
                             directories.Push(nextDirectory);
                         }
 
+                        // File
                         else
-                            currentDirectory.Add(fileConstructor(file.FullPath));
+                        {
+                            // Next File (current directory is parent)
+                            var nextFile = treeConstructor(directoryTree.BaseDirectory, file.FullPath, 0, currentDirectory);
+
+                            // Current -> Next (add to child list)
+                            currentDirectory.Add(nextFile);
+                        }
+
                     }
 
                     // Current Directory: IsLoaded = true
-                    currentDirectory.NodeValue.IsLoaded = true;
+                    currentDirectory.IsLoaded = true;
                 }
             }
             catch (Exception ex)

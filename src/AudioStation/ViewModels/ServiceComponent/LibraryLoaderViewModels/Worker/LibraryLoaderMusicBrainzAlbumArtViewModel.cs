@@ -10,7 +10,7 @@ using AudioStation.ViewModels.ServiceComponent.LibraryLoaderViewModels;
 
 namespace AudioStation.ViewModels.ServiceComponent.LibraryLoaderViewModels.Worker
 {
-    public class LibraryLoaderMusicBrainzAlbumArtViewModel : LibraryLoaderWorkerViewModelBase<LibraryImporterFileViewModel>
+    public class LibraryLoaderMusicBrainzAlbumArtViewModel : LibraryLoaderWorkerViewModelBase<LibraryImporterFileTreeViewModel>
     {
         public LibraryLoaderMusicBrainzAlbumArtViewModel()
             : base("Music Brainz (album art)", "Downloads album art for any recordings which have a Music Brainz ID in the library")
@@ -22,7 +22,7 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryLoaderViewModels.Worke
         {
         }
 
-        protected override ILibraryLoaderLoad CreateWorkLoad(LibraryImporterFileViewModel loadItem, IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
+        protected override ILibraryLoaderLoad CreateWorkLoad(LibraryImporterFileTreeViewModel loadItem, IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
         {
             throw new NotImplementedException();
 
@@ -35,7 +35,7 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryLoaderViewModels.Worke
             else
                 throw new Exception("Invalid Music Brainz Album Art Input:  Missing valid TagSmallVendorMap");
         }
-        protected override IEnumerable<ILibraryLoaderLoad> CreateWorkLoads(IEnumerable<LibraryImporterFileViewModel> loadItems, IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
+        protected override IEnumerable<ILibraryLoaderLoad> CreateWorkLoads(IEnumerable<LibraryImporterFileTreeViewModel> loadItems, IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
         {
             throw new NotImplementedException();
             try

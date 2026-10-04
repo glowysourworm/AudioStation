@@ -1,6 +1,4 @@
-﻿using System.ComponentModel;
-
-using AudioStation.Controller.Interface;
+﻿using AudioStation.Controller.Interface;
 using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Database.AudioStationDatabase;
 using AudioStation.Core.Database.AudioStationDatabase.Interface;
@@ -19,7 +17,6 @@ using SimpleWpf.IocFramework.Application;
 using SimpleWpf.UI.Command;
 using SimpleWpf.UI.ViewModel.FileTreeView;
 using SimpleWpf.UI.ViewModel.TreeView;
-using SimpleWpf.UI.ViewModel.TreeView.Interface;
 
 namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Workflow
 {
@@ -47,8 +44,9 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Wor
         LibraryImporterStagedFileCollection _stagedFiles;
         LibraryImporterStagedFileFilterType _stagedFileFilterType;
 
-        // Import Directory:  Selected file count
+        // Import Directory:  Selection and selected files (the selected list is forwarded from the UI)
         //
+        IEnumerable<FileTreeViewModel>? _selectedFiles;
         int _totalFileCount;
         int _totalDirectoryCount;
         int _selectedFileCount;
@@ -95,6 +93,8 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Wor
             set { this.RaiseAndSetIfChanged(ref _unstageCommand, value); }
         }
 
+
+
         public LibraryImporterStagingWorkflowViewModel(IDialogController dialogController, LibraryImporterConfigurationViewModel workflowConfiguration)
             : base("Library Staging", "This workflow component will be used for staging files")
         {
@@ -122,7 +122,7 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Wor
             if (this.ImportDirectory == null)
                 return false;
 
-            return this.ImportDirectory.RecursiveCount(x => x.IsSelected) > 0;
+            return _selectedFiles != null && _selectedFiles.Any();
         }
         public bool CanUnstage()
         {
@@ -158,7 +158,7 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Wor
             // Import Directory:  1) Not Initialized; or 2) A different directory
             //
             if (this.ImportDirectory == null ||
-                this.ImportDirectory.GetNodeValue().BaseDirectory != _workflowConfiguration.ImportDirectory.Directory)
+                this.ImportDirectory.BaseDirectory != _workflowConfiguration.ImportDirectory.Directory)
             {
                 var libraryLoaderService = IocContainer.Get<ILibraryLoaderService>();
                 var directory = (_workflowConfiguration.ImportType == Core.Model.LibraryImportType.Migration) ? _workflowConfiguration.MigrationSourceDirectory :
@@ -166,16 +166,10 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Wor
                 // Clear Staged
                 this.StagedFiles.Clear();
 
-                // Unhook
-                this.ImportDirectory?.ItemPropertyChangedTreeEvent -= OnImportTreePropertyChanged;
-
                 this.ImportDirectory = libraryLoaderService.InitializeImporterTree(directory, _workflowConfiguration, progressHandler, searchPattern);
 
-                this.TotalFileCount = this.ImportDirectory.RecursiveCount(x => !x.CanHaveChildren);
-                this.TotalDirectoryCount = this.ImportDirectory.RecursiveCount(x => x.CanHaveChildren);
-
-                // Hook
-                this.ImportDirectory.ItemPropertyChangedTreeEvent += OnImportTreePropertyChanged;
+                this.TotalFileCount = this.ImportDirectory.RecursiveCount<FileTreeViewModel>(x => !x.CanHaveChildren);
+                this.TotalDirectoryCount = this.ImportDirectory.RecursiveCount<FileTreeViewModel>(x => x.CanHaveChildren);
             }
         }
 
@@ -207,26 +201,23 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Wor
                                                           .Where(x => x.MusicBrainzRecordingId != null)
                                                           .ToDictionary(x => x.TagSmallId, x => x);
 
-            var selectedFileCount = this.ImportDirectory.GetSelectedFileCount();
+            var selectedFileCount = this.ImportDirectory.RecursiveCount<FileTreeViewModel>(x => x.IsSelected);
             var counter = 0;
 
             // -> Select any selected files or any files in a sub-directory recursively
-            this.ImportDirectory.RecurseForEach(treeBase =>
+            this.ImportDirectory.RecurseForEach<FileTreeViewModel>(subNode =>
             {
                 // Selection Only
-                if (!treeBase.NodeValue.IsSelected)
+                if (!subNode.IsSelected)
                     return;
-
-                var subTree = treeBase as FileTreeViewModel;
-                var subNode = subTree.GetNodeValue();
 
                 // Careful to avoid other files that have been staged
                 if (!subNode.IsDirectory && !this.StagedFiles.Contains(subNode))
                 {
                     // Progress
-                    progressHandler(1, 1, selectedFileCount, counter++, "Loading:  " + treeBase.NodeValue.DisplayName);
+                    progressHandler(1, 1, selectedFileCount, counter++, "Loading:  " + subNode.DisplayName);
 
-                    var stagedFile = new LibraryImporterFileViewModel(subNode.FullPath, subNode.BaseDirectory, _workflowConfiguration);
+                    var stagedFile = new LibraryImporterFileTreeViewModel(subNode.FullPath, subNode.BaseDirectory, null, _workflowConfiguration);
 
                     // Tag
                     var tagData = _tagCache.GetFullTag(stagedFile.FullPath);
@@ -344,15 +335,38 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Wor
 
             this.Loaded = false;
         }
-        private void OnImportTreePropertyChanged(TreeViewModelBase treeSender, ITreeViewNode item, PropertyChangedEventArgs eventArgs)
+        public void UpdateImportTreeSelection(IEnumerable<TreeViewModelBase> selectedFiles)
+        {
+            _selectedFiles = selectedFiles.Cast<FileTreeViewModel>();
+            _selectedFileCount = 0;
+            _totalDirectoryCount = 0;
+
+            // Iterate once to manage performance
+            foreach (var file in _selectedFiles)
+            {
+                _selectedFileCount++;
+
+                if (file.IsDirectory)
+                    _totalDirectoryCount++;
+
+                else
+                    _totalFileCount++;
+            }
+
+            OnPropertyChanged(nameof(SelectedFileCount));
+            OnPropertyChanged(nameof(TotalDirectoryCount));
+            OnPropertyChanged(nameof(TotalFileCount));
+
+            UpdateCommands();
+        }
+        private void UpdateCommands()
         {
             this.StageCommand.RaiseCanExecuteChanged();
             this.UnstageCommand.RaiseCanExecuteChanged();
         }
         private void StagedFiles_SelectionChanged()
         {
-            this.StageCommand.RaiseCanExecuteChanged();
-            this.UnstageCommand.RaiseCanExecuteChanged();
+            UpdateCommands();
         }
         private void StagedFiles_CollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {

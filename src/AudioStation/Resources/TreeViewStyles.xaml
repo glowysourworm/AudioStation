@@ -47,5 +47,13 @@
             </Setter.Value>
         </Setter>
 
+        <Setter Property="ItemHeaderContentTemplate">
+            <Setter.Value>
+                <DataTemplate>
+                    <TextBlock Text="{Binding DisplayName}" Style="{StaticResource LabelTextBlock}" VerticalAlignment="Center" Margin="3" />
+                </DataTemplate>
+            </Setter.Value>
+        </Setter>
+
     </Style>
 </ResourceDictionary>

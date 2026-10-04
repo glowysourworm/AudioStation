@@ -13,21 +13,21 @@ using Microsoft.Extensions.Logging;
 
 namespace AudioStation.ViewModels.ServiceComponent.LibraryLoaderViewModels.Worker
 {
-    public class LibraryLoaderAudioDurationViewModel : LibraryLoaderWorkerViewModelBase<LibraryImporterFileViewModel>
+    public class LibraryLoaderAudioDurationViewModel : LibraryLoaderWorkerViewModelBase<LibraryImporterFileTreeViewModel>
     {
-        Dictionary<string, LibraryImporterFileViewModel> _loadItemDict;
+        Dictionary<string, LibraryImporterFileTreeViewModel> _loadItemDict;
 
         public LibraryLoaderAudioDurationViewModel() : base("Audio Encoding Checker", "Checks audio file for encoding and duration information; and stores the result with your import data.")
         {
-            _loadItemDict = new Dictionary<string, LibraryImporterFileViewModel>();
+            _loadItemDict = new Dictionary<string, LibraryImporterFileTreeViewModel>();
         }
 
-        protected override ILibraryLoaderLoad CreateWorkLoad(LibraryImporterFileViewModel loadItem, IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
+        protected override ILibraryLoaderLoad CreateWorkLoad(LibraryImporterFileTreeViewModel loadItem, IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
         {
-            return CreateWorkLoads(new LibraryImporterFileViewModel[] { loadItem }, configuration, audioStationController, progressHandler).First();
+            return CreateWorkLoads(new LibraryImporterFileTreeViewModel[] { loadItem }, configuration, audioStationController, progressHandler).First();
         }
 
-        protected override IEnumerable<ILibraryLoaderLoad> CreateWorkLoads(IEnumerable<LibraryImporterFileViewModel> loadItems, IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
+        protected override IEnumerable<ILibraryLoaderLoad> CreateWorkLoads(IEnumerable<LibraryImporterFileTreeViewModel> loadItems, IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
         {
             try
             {

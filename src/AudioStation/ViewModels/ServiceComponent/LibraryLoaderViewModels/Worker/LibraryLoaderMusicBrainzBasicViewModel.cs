@@ -20,12 +20,12 @@ using SimpleWpf.IocFramework.Application;
 
 namespace AudioStation.ViewModels.ServiceComponent.LibraryLoaderViewModels.Worker
 {
-    public class LibraryLoaderMusicBrainzBasicViewModel : LibraryLoaderWorkerViewModelBase<LibraryImporterFileViewModel>
+    public class LibraryLoaderMusicBrainzBasicViewModel : LibraryLoaderWorkerViewModelBase<LibraryImporterFileTreeViewModel>
     {
         private readonly IAudioStationMapper _audioStationMapper;
         private IAudioStationDbClient _audioStationDbClient;
 
-        Dictionary<string, LibraryImporterFileViewModel> _loadItemDict;
+        Dictionary<string, LibraryImporterFileTreeViewModel> _loadItemDict;
 
         private readonly bool _serviceMusicBrainzBasicIncludeTagLookup;
 
@@ -33,7 +33,7 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryLoaderViewModels.Worke
             : base("Music Brainz (basic)", "Downloads basic tag details for recordings in the library with a Music Brainz ID")
         {
             _audioStationMapper = IocContainer.Get<IAudioStationMapper>();
-            _loadItemDict = new Dictionary<string, LibraryImporterFileViewModel>();
+            _loadItemDict = new Dictionary<string, LibraryImporterFileTreeViewModel>();
             _serviceMusicBrainzBasicIncludeTagLookup = false;
         }
 
@@ -41,19 +41,19 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryLoaderViewModels.Worke
             : base("Music Brainz (basic)", "Downloads basic tag details for recordings in the library with a Music Brainz ID")
         {
             _audioStationMapper = IocContainer.Get<IAudioStationMapper>();
-            _loadItemDict = new Dictionary<string, LibraryImporterFileViewModel>();
+            _loadItemDict = new Dictionary<string, LibraryImporterFileTreeViewModel>();
             _serviceMusicBrainzBasicIncludeTagLookup = configuration.ServiceMusicBrainzBasicIncludeTagLookup;
         }
 
-        protected override ILibraryLoaderLoad CreateWorkLoad(LibraryImporterFileViewModel loadItem, IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
+        protected override ILibraryLoaderLoad CreateWorkLoad(LibraryImporterFileTreeViewModel loadItem, IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
         {
 
-            return CreateWorkLoads(new LibraryImporterFileViewModel[] { loadItem }, configuration, audioStationController, progressHandler).FirstOrDefault();
+            return CreateWorkLoads(new LibraryImporterFileTreeViewModel[] { loadItem }, configuration, audioStationController, progressHandler).FirstOrDefault();
 
             //return new LibraryLoaderLoad<IEnumerable<IAcoustIDLookupResult>>(this.Id, LibraryLoadType.MusicBrainzBasic, loadItem.DisplayName, new IAcoustIDLookupResult[] { loadItem.SelectedAcoustIDResult });
         }
 
-        protected override IEnumerable<ILibraryLoaderLoad> CreateWorkLoads(IEnumerable<LibraryImporterFileViewModel> loadItems, IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
+        protected override IEnumerable<ILibraryLoaderLoad> CreateWorkLoads(IEnumerable<LibraryImporterFileTreeViewModel> loadItems, IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
         {
             var audioConverter = IocContainer.Get<IAudioConverter>();
             var tagCache = audioStationController.ServiceController.GetCache<ITagCache>();

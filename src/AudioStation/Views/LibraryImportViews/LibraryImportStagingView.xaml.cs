@@ -22,13 +22,14 @@ namespace AudioStation.Views.LibraryImportViews
 
             InitializeComponent();
         }
+
         private void ImportTV_SelectedItemsChanged(SimpleTreeView treeView, IEnumerable<TreeViewModelBase> selectedItems)
         {
             var viewModel = this.DataContext as LibraryImporterViewModel;
 
             if (viewModel != null)
             {
-                viewModel.StagingWorkflow.SelectedFileCount = selectedItems.Count(x => !x.CanHaveChildren);
+                viewModel.StagingWorkflow.UpdateImportTreeSelection(selectedItems);
             }
         }
 
@@ -41,12 +42,12 @@ namespace AudioStation.Views.LibraryImportViews
             // Unrealized items have no binding, so selection changes are reflected to the
             // data here. e.AddedItems / e.RemovedItems contain every changed item,
             // regardless of container realization state.
-            foreach (LibraryImporterFileViewModel item in e.AddedItems)
+            foreach (LibraryImporterFileTreeViewModel item in e.AddedItems)
             {
                 item.IsSelected = true;
             }
 
-            foreach (LibraryImporterFileViewModel item in e.RemovedItems)
+            foreach (LibraryImporterFileTreeViewModel item in e.RemovedItems)
             {
                 item.IsSelected = false;
             }

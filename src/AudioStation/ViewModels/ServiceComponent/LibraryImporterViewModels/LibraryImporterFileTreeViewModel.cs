@@ -21,7 +21,7 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels
     /// PathViewModel provides the node VALUE for the recursive directory structure. The "Path" view model is essentially
     /// the container for this value.
     /// </summary>
-    public class LibraryImporterFileViewModel : FileTreeNodeViewModel
+    public class LibraryImporterFileTreeViewModel : FileTreeViewModel
     {
         private readonly IAudioStationMapper _audioStationMapper;
 
@@ -125,10 +125,11 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels
         /// <summary>
         /// Constructor for an import file view model. This may represent either a file or a directory.
         /// </summary>
-        public LibraryImporterFileViewModel(string fileFullPath,
-                                            string fileBaseDirectory,
-                                            LibraryImporterConfigurationViewModel importerConfiguration)
-            : base(fileBaseDirectory, fileFullPath, 0)
+        public LibraryImporterFileTreeViewModel(string fileFullPath,
+                                                string fileBaseDirectory,
+                                                LibraryImporterFileTreeViewModel? parent,
+                                                LibraryImporterConfigurationViewModel importerConfiguration)
+            : base(fileBaseDirectory, fileFullPath, 0, parent)
         {
             _audioStationMapper = IocContainer.Get<IAudioStationMapper>();
             var dialogController = IocContainer.Get<IDialogController>();
