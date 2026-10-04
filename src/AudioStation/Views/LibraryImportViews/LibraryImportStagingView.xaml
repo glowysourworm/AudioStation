@@ -17,7 +17,7 @@
         <TextBox Margin="5" 
                  IsReadOnly="True"
                  Style="{StaticResource UserInputTextBoxReadonly}"
-                 Text="{Binding ImportDirectory.NodeValue.FullPath}" 
+                 Text="{Binding ImportDirectory.FullPath}" 
                  Visibility="{Binding ImportOptions.ImportDirectory.ImportType, 
                                       Converter={StaticResource ParameterVisibilityCollapsedConverter}, 
                                       ConverterParameter={x:Static coreModel:LibraryImportType.InPlaceDirectory}}"
@@ -71,7 +71,7 @@
                                          Margin="5"
                                          Grid.Row="2"
                                          Style="{StaticResource FileTreeViewItemStyle}"
-                                         ItemsSource="{Binding ImportDirectory}">
+                                         ItemsSource="{Binding ImportDirectory, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}">
         </simpleUITreeview:SimpleTreeView>
         
         <!-- Stage / Unstage -->

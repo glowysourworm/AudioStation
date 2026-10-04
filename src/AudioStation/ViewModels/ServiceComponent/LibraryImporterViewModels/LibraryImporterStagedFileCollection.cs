@@ -1,12 +1,10 @@
 ﻿using System.Collections;
-using System.Collections.Specialized;
 using System.ComponentModel;
 
 using AudioStation.Core.Component.LibraryLoaderComponent;
 
-using SimpleWpf.Extensions.Event;
-using SimpleWpf.Extensions.ObservableCollection;
 using SimpleWpf.UI.ViewModel;
+using SimpleWpf.UI.ViewModel.TreeView;
 
 namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels
 {
@@ -15,111 +13,111 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels
     /// IsValid; (not) IsValid; Has Music Brianz Result(s); has (special) Music Brainz Tag Result; 
     /// has AcoustID Result; etc...
     /// </summary>
-    public class LibraryImporterStagedFileCollection : ViewModelBase, IEnumerable, IList<LibraryImporterFileTreeViewModel>, INotifyCollectionChanged
+    public class LibraryImporterStagedFileCollection : ViewModelBase, IList<LibraryImporterFileTreeNodeViewModel>
     {
-        private List<LibraryImporterFileTreeViewModel> _fileList;
-        private KeyedObservableCollection<string, LibraryImporterFileTreeViewModel> _files;
-        private KeyedObservableCollection<string, LibraryImporterFileTreeViewModel> _selectedFiles;
-        private KeyedObservableCollection<string, LibraryImporterFileTreeViewModel> _validFiles;
-        private KeyedObservableCollection<string, LibraryImporterFileTreeViewModel> _invalidFiles;
-        private KeyedObservableCollection<string, LibraryImporterFileTreeViewModel> _acoustIDFiles;
-        private KeyedObservableCollection<string, LibraryImporterFileTreeViewModel> _musicBrainzFiles;
-        private KeyedObservableCollection<string, LibraryImporterFileTreeViewModel> _musicBrainzSpecialTagFiles;
-        private KeyedObservableCollection<string, LibraryImporterFileTreeViewModel> _libraryConflictFiles;
-        private KeyedObservableCollection<string, LibraryImporterFileTreeViewModel> _importReadyFiles;
-        private KeyedObservableCollection<string, LibraryImporterFileTreeViewModel> _successfulFiles;
-        private KeyedObservableCollection<string, LibraryImporterFileTreeViewModel> _failureFiles;
+        private List<LibraryImporterFileTreeNodeViewModel> _fileList;
+        private LibraryImporterFileTreeViewModel _tree;
 
-        public event CollectionItemChangedHandler<LibraryImporterFileTreeViewModel> ItemPropertyChanged
-        {
-            add { _files.ItemPropertyChanged += value; }
-            remove { _files.ItemPropertyChanged -= value; }
-        }
-        public event NotifyCollectionChangedEventHandler? CollectionChanged
-        {
-            add { _files.CollectionChanged += value; }
-            remove { _files.CollectionChanged -= value; }
-        }
-        public event SimpleEventHandler SelectionChanged;
+        private LibraryImporterFileTreeViewModel _selectedFiles;
+        private LibraryImporterFileTreeViewModel _validFiles;
+        private LibraryImporterFileTreeViewModel _invalidFiles;
+        private LibraryImporterFileTreeViewModel _acoustIDFiles;
+        private LibraryImporterFileTreeViewModel _musicBrainzFiles;
+        private LibraryImporterFileTreeViewModel _musicBrainzSpecialTagFiles;
+        private LibraryImporterFileTreeViewModel _libraryConflictFiles;
+        private LibraryImporterFileTreeViewModel _importReadyFiles;
+        private LibraryImporterFileTreeViewModel _successfulFiles;
+        private LibraryImporterFileTreeViewModel _failureFiles;
 
         public LibraryImporterStagedFileCollection()
         {
-            _files = new KeyedObservableCollection<string, LibraryImporterFileTreeViewModel>();
-            _fileList = new List<LibraryImporterFileTreeViewModel>();
-            _selectedFiles = new KeyedObservableCollection<string, LibraryImporterFileTreeViewModel>();
-            _validFiles = new KeyedObservableCollection<string, LibraryImporterFileTreeViewModel>();
-            _invalidFiles = new KeyedObservableCollection<string, LibraryImporterFileTreeViewModel>();
-            _acoustIDFiles = new KeyedObservableCollection<string, LibraryImporterFileTreeViewModel>();
-            _musicBrainzFiles = new KeyedObservableCollection<string, LibraryImporterFileTreeViewModel>();
-            _musicBrainzSpecialTagFiles = new KeyedObservableCollection<string, LibraryImporterFileTreeViewModel>();
-            _libraryConflictFiles = new KeyedObservableCollection<string, LibraryImporterFileTreeViewModel>();
-            _importReadyFiles = new KeyedObservableCollection<string, LibraryImporterFileTreeViewModel>();
-            _successfulFiles = new KeyedObservableCollection<string, LibraryImporterFileTreeViewModel>();
-            _failureFiles = new KeyedObservableCollection<string, LibraryImporterFileTreeViewModel>();
+            _tree = new LibraryImporterFileTreeViewModel();
+            _fileList = new List<LibraryImporterFileTreeNodeViewModel>();
+            _selectedFiles = new LibraryImporterFileTreeViewModel();
+            _validFiles = new LibraryImporterFileTreeViewModel();
+            _invalidFiles = new LibraryImporterFileTreeViewModel();
+            _acoustIDFiles = new LibraryImporterFileTreeViewModel();
+            _musicBrainzFiles = new LibraryImporterFileTreeViewModel();
+            _musicBrainzSpecialTagFiles = new LibraryImporterFileTreeViewModel();
+            _libraryConflictFiles = new LibraryImporterFileTreeViewModel();
+            _importReadyFiles = new LibraryImporterFileTreeViewModel();
+            _successfulFiles = new LibraryImporterFileTreeViewModel();
+            _failureFiles = new LibraryImporterFileTreeViewModel();
+
+            _tree.ItemPropertyChangedEvent += File_PropertyChanged;
         }
-        public LibraryImporterStagedFileCollection(IEnumerable<LibraryImporterFileTreeViewModel> stagedFiles)
+
+        public LibraryImporterStagedFileCollection(IEnumerable<LibraryImporterFileTreeNodeViewModel> stagedFiles)
             : this()
         {
+            BeginUpdate();
+
             foreach (var file in stagedFiles)
             {
                 AddUpdate(file);
             }
+
+            EndUpdate(true);
         }
 
-        public LibraryImporterFileTreeViewModel this[int index]
+        public LibraryImporterFileTreeNodeViewModel this[int index]
         {
             get { return _fileList[index]; }
             set { throw new NotSupportedException(); }
         }
 
-        public IReadOnlyCollection<LibraryImporterFileTreeViewModel> Files
+        public LibraryImporterFileTreeViewModel Tree
         {
-            get { return _files; }
+            get { return _tree; }
         }
-        public IReadOnlyCollection<LibraryImporterFileTreeViewModel> SelectedFiles
+        public IReadOnlyCollection<LibraryImporterFileTreeNodeViewModel> Files
+        {
+            get { return _fileList; }
+        }
+        public IReadOnlyCollection<LibraryImporterFileTreeNodeViewModel> SelectedFiles
         {
             get { return _selectedFiles; }
         }
-        public IReadOnlyCollection<LibraryImporterFileTreeViewModel> ValidFiles
+        public IReadOnlyCollection<LibraryImporterFileTreeNodeViewModel> ValidFiles
         {
             get { return _validFiles; }
         }
-        public IReadOnlyCollection<LibraryImporterFileTreeViewModel> InvalidFiles
+        public IReadOnlyCollection<LibraryImporterFileTreeNodeViewModel> InvalidFiles
         {
             get { return _invalidFiles; }
         }
-        public IReadOnlyCollection<LibraryImporterFileTreeViewModel> AcoustIDFiles
+        public IReadOnlyCollection<LibraryImporterFileTreeNodeViewModel> AcoustIDFiles
         {
             get { return _acoustIDFiles; }
         }
-        public IReadOnlyCollection<LibraryImporterFileTreeViewModel> MusicBrainzFiles
+        public IReadOnlyCollection<LibraryImporterFileTreeNodeViewModel> MusicBrainzFiles
         {
             get { return _musicBrainzFiles; }
         }
-        public IReadOnlyCollection<LibraryImporterFileTreeViewModel> MusicBrainzSpecialTagFiles
+        public IReadOnlyCollection<LibraryImporterFileTreeNodeViewModel> MusicBrainzSpecialTagFiles
         {
             get { return _musicBrainzSpecialTagFiles; }
         }
-        public IReadOnlyCollection<LibraryImporterFileTreeViewModel> LibraryConflictFiles
+        public IReadOnlyCollection<LibraryImporterFileTreeNodeViewModel> LibraryConflictFiles
         {
             get { return _libraryConflictFiles; }
         }
-        public IReadOnlyCollection<LibraryImporterFileTreeViewModel> ImportReadyFiles
+        public IReadOnlyCollection<LibraryImporterFileTreeNodeViewModel> ImportReadyFiles
         {
             get { return _importReadyFiles; }
         }
-        public IReadOnlyCollection<LibraryImporterFileTreeViewModel> SuccessfulFiles
+        public IReadOnlyCollection<LibraryImporterFileTreeNodeViewModel> SuccessfulFiles
         {
             get { return _successfulFiles; }
         }
-        public IReadOnlyCollection<LibraryImporterFileTreeViewModel> FailureFiles
+        public IReadOnlyCollection<LibraryImporterFileTreeNodeViewModel> FailureFiles
         {
             get { return _failureFiles; }
         }
 
         public void BeginUpdate()
         {
-            _files.BeginUpdate();
+            _tree.BeginUpdate();
             _selectedFiles.BeginUpdate();
             _validFiles.BeginUpdate();
             _invalidFiles.BeginUpdate();
@@ -133,25 +131,25 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels
         }
         public void EndUpdate(bool notifyObservers = false)
         {
-            _files.EndUpdate(notifyObservers);
-            _selectedFiles.EndUpdate(notifyObservers);
-            _validFiles.EndUpdate(notifyObservers);
-            _invalidFiles.EndUpdate(notifyObservers);
-            _acoustIDFiles.EndUpdate(notifyObservers);
-            _musicBrainzFiles.EndUpdate(notifyObservers);
-            _musicBrainzSpecialTagFiles.EndUpdate(notifyObservers);
-            _libraryConflictFiles.EndUpdate(notifyObservers);
-            _importReadyFiles.EndUpdate(notifyObservers);
-            _successfulFiles.EndUpdate(notifyObservers);
-            _failureFiles.EndUpdate(notifyObservers);
+            _tree.EndUpdate();
+            _selectedFiles.EndUpdate();
+            _validFiles.EndUpdate();
+            _invalidFiles.EndUpdate();
+            _acoustIDFiles.EndUpdate();
+            _musicBrainzFiles.EndUpdate();
+            _musicBrainzSpecialTagFiles.EndUpdate();
+            _libraryConflictFiles.EndUpdate();
+            _importReadyFiles.EndUpdate();
+            _successfulFiles.EndUpdate();
+            _failureFiles.EndUpdate();
         }
 
-        private void AddUpdate(LibraryImporterFileTreeViewModel file)
+        private void AddUpdate(LibraryImporterFileTreeNodeViewModel file)
         {
             // All Files ~ O(1)
-            if (!_files.ContainsKey(file.FullPath))
+            if (!_tree.ContainsKey(file.FullPath))
             {
-                _files.Add(file.FullPath, file);
+                _tree.Add(file.FullPath, file);
                 _fileList.Add(file);
             }
 
@@ -159,21 +157,28 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels
             MaintainCollections(file);
 
             OnPropertyChanged("Count");
-
-            // Bubble Up Events (There are two on the staged file object)
-            file.PropertyChanged -= File_PropertyChanged;
-            file.PropertyChanged += File_PropertyChanged;
         }
 
-        private void File_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+        private void File_PropertyChanged(TreeViewNodeModelBase treeSender, object item, PropertyChangedEventArgs eventArgs)
         {
-            var file = sender as LibraryImporterFileTreeViewModel;
+            // The tree sender should be the root. We want the item itself.
+            var file = item as LibraryImporterFileTreeNodeViewModel;
 
             if (file != null)
+            {
+                var updating = _tree.IsUpdating();
+
+                if (!updating)
+                    BeginUpdate();
+
                 MaintainCollections(file);
+
+                if (!updating)
+                    EndUpdate();
+            }
         }
 
-        private void MaintainCollections(LibraryImporterFileTreeViewModel file)
+        private void MaintainCollections(LibraryImporterFileTreeNodeViewModel file)
         {
             // Maintain Collections Procedure:  We want to avoid performance degradataion.
             // So, this should be the only place we need to watch item properties - which
@@ -186,16 +191,10 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels
             if (file.IsSelected && !_selectedFiles.ContainsKey(file.FullPath))
             {
                 _selectedFiles.Add(file.FullPath, file);
-
-                if (this.SelectionChanged != null)
-                    this.SelectionChanged();
             }
             else if (!file.IsSelected && _selectedFiles.ContainsKey(file.FullPath))
             {
                 _selectedFiles.Remove(file.FullPath);
-
-                if (this.SelectionChanged != null)
-                    this.SelectionChanged();
             }
 
             // IsValid (Bubble Up Event)
@@ -297,17 +296,19 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels
         }
 
         #region (public) IList
-        public int Count { get { return _files.Count; } }
+        public int Count { get { return _tree.Count; } }
         public bool IsReadOnly { get { return false; } }
 
-        public void Add(LibraryImporterFileTreeViewModel item)
+        public void Add(LibraryImporterFileTreeNodeViewModel item)
         {
+            BeginUpdate();
             AddUpdate(item);
+            EndUpdate(true);
         }
 
         public void Clear()
         {
-            _files.Clear();
+            _tree.Clear();
             _fileList.Clear();
             _selectedFiles.Clear();
             _validFiles.Clear();
@@ -320,43 +321,37 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels
             _successfulFiles.Clear();
             _failureFiles.Clear();
 
-            if (this.SelectionChanged != null)
-                this.SelectionChanged();
-
             OnPropertyChanged("Count");
         }
 
-        public bool Contains(LibraryImporterFileTreeViewModel item)
+        public bool Contains(LibraryImporterFileTreeNodeViewModel item)
         {
-            return _files.ContainsKey(item.FullPath);
+            return _tree.ContainsKey(item.FullPath);
         }
 
-        public void CopyTo(LibraryImporterFileTreeViewModel[] array, int arrayIndex)
+        public void CopyTo(LibraryImporterFileTreeNodeViewModel[] array, int arrayIndex)
         {
             _fileList.CopyTo(array, arrayIndex);
         }
-        public int IndexOf(LibraryImporterFileTreeViewModel item)
+        public int IndexOf(LibraryImporterFileTreeNodeViewModel item)
         {
             return _fileList.IndexOf(item);
         }
 
-        public void Insert(int index, LibraryImporterFileTreeViewModel item)
+        public void Insert(int index, LibraryImporterFileTreeNodeViewModel item)
         {
             throw new NotSupportedException();
         }
 
-        public bool Remove(LibraryImporterFileTreeViewModel file)
+        public bool Remove(LibraryImporterFileTreeNodeViewModel file)
         {
-            _files.Remove(file.FullPath);
+            _tree.Remove(file.FullPath);
             _fileList.Remove(file);
 
             // IsSelected
             if (_selectedFiles.ContainsKey(file.FullPath))
             {
                 _selectedFiles.Remove(file.FullPath);
-
-                if (this.SelectionChanged != null)
-                    this.SelectionChanged();
             }
 
             // IsValid
@@ -406,13 +401,13 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels
 
             Remove(item);
         }
-        IEnumerator<LibraryImporterFileTreeViewModel> IEnumerable<LibraryImporterFileTreeViewModel>.GetEnumerator()
+        IEnumerator<LibraryImporterFileTreeNodeViewModel> IEnumerable<LibraryImporterFileTreeNodeViewModel>.GetEnumerator()
         {
             return _fileList.GetEnumerator();
         }
         public IEnumerator GetEnumerator()
         {
-            return _files.GetEnumerator();
+            return _tree.GetEnumerator();
         }
         #endregion
     }

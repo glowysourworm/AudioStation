@@ -12,7 +12,6 @@ using AudioStation.Core.Service.Interface;
 using AudioStation.Core.Utility;
 using AudioStation.Event;
 using AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels;
-using AudioStation.ViewModels.ServiceComponent.LibraryLoaderViewModels;
 using AudioStation.ViewModels.ServiceComponent.LibraryLoaderViewModels.Payload.Input;
 using AudioStation.ViewModels.Vendor.AcoustIDViewModel;
 
@@ -22,7 +21,7 @@ using SimpleWpf.IocFramework.Application;
 
 namespace AudioStation.ViewModels.ServiceComponent.LibraryLoaderViewModels.Worker
 {
-    public class LibraryLoaderAcoustIDViewModel : LibraryLoaderWorkerViewModelBase<LibraryImporterFileTreeViewModel>
+    public class LibraryLoaderAcoustIDViewModel : LibraryLoaderWorkerViewModelBase<LibraryImporterFileTreeNodeViewModel>
     {
         private readonly IAudioStationMapper _audioStationMapper;
 
@@ -30,14 +29,14 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryLoaderViewModels.Worke
 
         // Keep track of files that have been added (directory iteration was missing some)
         Dictionary<string, ILibraryLoaderLoad> _workLoadDict;
-        Dictionary<string, LibraryImporterFileTreeViewModel> _loadItemDict;
+        Dictionary<string, LibraryImporterFileTreeNodeViewModel> _loadItemDict;
 
         public LibraryLoaderAcoustIDViewModel()
             : base("AcoustID", "Identifies recordings using AcoustID acoustic fingerprint service")
         {
             _audioStationMapper = IocContainer.Get<IAudioStationMapper>();
             _workLoadDict = new Dictionary<string, ILibraryLoaderLoad>();
-            _loadItemDict = new Dictionary<string, LibraryImporterFileTreeViewModel>();
+            _loadItemDict = new Dictionary<string, LibraryImporterFileTreeNodeViewModel>();
             _workflowConfiguration = null;
         }
         public LibraryLoaderAcoustIDViewModel(LibraryImporterConfigurationViewModel configuration)
@@ -46,17 +45,17 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryLoaderViewModels.Worke
             _audioStationMapper = IocContainer.Get<IAudioStationMapper>();
             _workflowConfiguration = configuration;
             _workLoadDict = new Dictionary<string, ILibraryLoaderLoad>();
-            _loadItemDict = new Dictionary<string, LibraryImporterFileTreeViewModel>();
+            _loadItemDict = new Dictionary<string, LibraryImporterFileTreeNodeViewModel>();
         }
 
-        protected override ILibraryLoaderLoad CreateWorkLoad(LibraryImporterFileTreeViewModel loadItem, IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
+        protected override ILibraryLoaderLoad CreateWorkLoad(LibraryImporterFileTreeNodeViewModel loadItem, IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
         {
-            var result = CreateWorkLoads(new LibraryImporterFileTreeViewModel[] { loadItem }, configuration, audioStationController, progressHandler);
+            var result = CreateWorkLoads(new LibraryImporterFileTreeNodeViewModel[] { loadItem }, configuration, audioStationController, progressHandler);
 
             return result.FirstOrDefault();
         }
 
-        protected override IEnumerable<ILibraryLoaderLoad> CreateWorkLoads(IEnumerable<LibraryImporterFileTreeViewModel> loadItems, IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
+        protected override IEnumerable<ILibraryLoaderLoad> CreateWorkLoads(IEnumerable<LibraryImporterFileTreeNodeViewModel> loadItems, IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
         {
             var audioConverter = IocContainer.Get<IAudioConverter>();
             var tagCache = audioStationController.ServiceController.GetCache<ITagCache>();

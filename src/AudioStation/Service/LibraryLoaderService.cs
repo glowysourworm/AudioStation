@@ -148,7 +148,7 @@ namespace AudioStation.Service
             return result;
         }
 
-        public FileTreeViewModel InitializeImporterTree(
+        public FileTreeNodeViewModel InitializeImporterTree(
                                                  string directory,
                                                  LibraryImporterConfigurationViewModel importerOptions,
                                                  DialogProgressHandler progressHandler,
@@ -160,9 +160,9 @@ namespace AudioStation.Service
             try
             {
                 // Load first depth of the tree (TODO: Fix showing only the root, instead of starting with the child nodes)
-                var result = DirectoryTreeLoader.Load<FileTreeViewModel>(directory, -1, (baseDirectory, currentPath, fileCount, parent) =>
+                var result = DirectoryTreeLoader.Load<FileTreeNodeViewModel>(directory, -1, (baseDirectory, currentPath, fileCount, parent) =>
                 {
-                    return new FileTreeViewModel(baseDirectory, currentPath, fileCount, parent);
+                    return new FileTreeNodeViewModel(baseDirectory, currentPath, fileCount, parent);
 
                 }, progressHandler, searchPatterns);
 
@@ -179,7 +179,7 @@ namespace AudioStation.Service
         }
 
         public void LoadImporterTreeNextDepth(
-                        FileTreeViewModel treeRoot,
+                        FileTreeNodeViewModel treeRoot,
                         int currentDepth,
                         DialogProgressHandler progressHandler,
                         params string[] searchPatterns)
@@ -191,7 +191,7 @@ namespace AudioStation.Service
             {
                 DirectoryTreeLoader.LoadToDepth(treeRoot, currentDepth + 1, (baseDirectory, currentPath, fileCount, parent) =>
                 {
-                    return new FileTreeViewModel(baseDirectory, currentPath, fileCount, parent);
+                    return new FileTreeNodeViewModel(baseDirectory, currentPath, fileCount, parent);
 
                 }, progressHandler, searchPatterns);
             }

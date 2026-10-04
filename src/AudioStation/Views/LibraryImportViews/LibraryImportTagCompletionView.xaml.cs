@@ -1,5 +1,6 @@
 ﻿using System.Windows.Controls;
 
+using AudioStation.ViewModels.ServiceComponent;
 using AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels;
 
 using SimpleWpf.IocFramework.Application.Attribute;
@@ -20,14 +21,22 @@ namespace AudioStation.Views.LibraryImportViews
             // Unrealized items have no binding, so selection changes are reflected to the
             // data here. e.AddedItems / e.RemovedItems contain every changed item,
             // regardless of container realization state.
-            foreach (LibraryImporterFileTreeViewModel item in e.AddedItems)
+            foreach (LibraryImporterFileTreeNodeViewModel item in e.AddedItems)
             {
                 item.IsSelected = true;
             }
 
-            foreach (LibraryImporterFileTreeViewModel item in e.RemovedItems)
+            foreach (LibraryImporterFileTreeNodeViewModel item in e.RemovedItems)
             {
                 item.IsSelected = false;
+            }
+
+            // Trigger Command Updates
+            var viewModel = this.DataContext as LibraryImporterViewModel;
+
+            if (viewModel != null)
+            {
+                viewModel.CompletionWorkflow.UpdateCommands();
             }
         }
     }

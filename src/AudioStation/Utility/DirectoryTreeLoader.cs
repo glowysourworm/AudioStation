@@ -18,14 +18,14 @@ namespace AudioStation.Utility
         /// <param name="stopDepth">Recursion can be halted to simulate lazy loading. The stop depth of -1 will indicate no stop depth. Anything less will cause an argument exception.</param>
         /// <param name="path">Root directory</param>
         /// <param name="fileSearchPattern">File search pattern to filter file lookup</param>
-        public static FileTreeViewModel Load(string path,
+        public static FileTreeNodeViewModel Load(string path,
                                              int stopDepth,
                                              DialogProgressHandler? progressHandler = null,
                                              params string[] searchPatterns)
         {
-            return Load<FileTreeViewModel>(path, stopDepth, (baseDirectory, fullPath, fileCount, parent) =>
+            return Load<FileTreeNodeViewModel>(path, stopDepth, (baseDirectory, fullPath, fileCount, parent) =>
             {
-                return new FileTreeViewModel(baseDirectory, fullPath, fileCount, parent);
+                return new FileTreeNodeViewModel(baseDirectory, fullPath, fileCount, parent);
 
             }, progressHandler, searchPatterns);
         }
@@ -45,7 +45,7 @@ namespace AudioStation.Utility
                int stopDepth,
                Func<string, string, int, TTree, TTree> treeConstructor,
                DialogProgressHandler? progressHandler = null,
-               params string[] fileSearchPatterns) where TTree : FileTreeViewModel
+               params string[] fileSearchPatterns) where TTree : FileTreeNodeViewModel
         {
             if (stopDepth < -1)
                 throw new ArgumentException("Must have a stop depth of -1 or greater. Please set stop depth properly.");
@@ -75,7 +75,7 @@ namespace AudioStation.Utility
                int stopDepth,
                Func<string, string, int, TTree, TTree> treeConstructor,
                DialogProgressHandler? progressHandler = null,
-               params string[] searchPatterns) where TTree : FileTreeViewModel
+               params string[] searchPatterns) where TTree : FileTreeNodeViewModel
         {
             // Stop Depth
             if (stopDepth < -1)
@@ -109,7 +109,7 @@ namespace AudioStation.Utility
                         // Load next directories to continue
                         foreach (var item in currentDirectory.Children.Cast<TTree>())
                         {
-                            if (item.CanHaveChildren)
+                            if (item.IsDirectory)
                                 directories.Push(item);
                         }
 

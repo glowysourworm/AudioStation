@@ -56,7 +56,6 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Wor
             _dialogController = IocContainer.Get<IDialogController>();
 
             _stagedFiles = stagedFiles;
-            _stagedFiles.SelectionChanged += UpdateCommands;
 
             this.EditTagCommand = new SimpleCommand(EditTag, CanEditTag);
             this.EditTagGroupCommand = new SimpleCommand<string>(EditSelectedTagsField, CanEditSelectedTagsField);
@@ -140,7 +139,7 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Wor
         {
             this.Loaded = false;
         }
-        private void UpdateCommands()
+        public void UpdateCommands()
         {
             // These are needed for the base class
             this.ExecuteCommand.RaiseCanExecuteChanged();

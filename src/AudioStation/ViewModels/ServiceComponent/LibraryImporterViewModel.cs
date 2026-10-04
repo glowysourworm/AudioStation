@@ -319,7 +319,8 @@ namespace AudioStation.ViewModels.ServiceComponent
                     this.WorkflowPreviousEnabled = !this.Loading;
 
                     // Execute Recursive File Count (probably not a performance issue; but check for too much UI interaction) (IsSelected Binding)
-                    this.SourceFileCount = this.StagingWorkflow.ImportDirectory?.RecursiveCount<FileTreeViewModel>(x => !x.CanHaveChildren) ?? 0;
+                    if (this.StagingWorkflow.ImportDirectory?.IsUpdating() ?? false)
+                        this.SourceFileCount = this.StagingWorkflow.ImportDirectory?.RecursiveCount<FileTreeNodeViewModel>(x => !x.IsDirectory) ?? 0;
                     break;
 
                 // Validation: Service Workers (executed) (warnings?, errors?)

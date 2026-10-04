@@ -12,7 +12,6 @@ using AudioStation.Core.Utility.RecursiveComparer;
 using AudioStation.Event;
 using AudioStation.ViewModels.LibraryViewModels;
 using AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels;
-using AudioStation.ViewModels.ServiceComponent.LibraryLoaderViewModels;
 
 using SimpleWpf.Extensions.Collection;
 using SimpleWpf.Extensions.ObservableCollection;
@@ -20,12 +19,12 @@ using SimpleWpf.IocFramework.Application;
 
 namespace AudioStation.ViewModels.ServiceComponent.LibraryLoaderViewModels.Worker
 {
-    public class LibraryLoaderMusicBrainzBasicViewModel : LibraryLoaderWorkerViewModelBase<LibraryImporterFileTreeViewModel>
+    public class LibraryLoaderMusicBrainzBasicViewModel : LibraryLoaderWorkerViewModelBase<LibraryImporterFileTreeNodeViewModel>
     {
         private readonly IAudioStationMapper _audioStationMapper;
         private IAudioStationDbClient _audioStationDbClient;
 
-        Dictionary<string, LibraryImporterFileTreeViewModel> _loadItemDict;
+        Dictionary<string, LibraryImporterFileTreeNodeViewModel> _loadItemDict;
 
         private readonly bool _serviceMusicBrainzBasicIncludeTagLookup;
 
@@ -33,7 +32,7 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryLoaderViewModels.Worke
             : base("Music Brainz (basic)", "Downloads basic tag details for recordings in the library with a Music Brainz ID")
         {
             _audioStationMapper = IocContainer.Get<IAudioStationMapper>();
-            _loadItemDict = new Dictionary<string, LibraryImporterFileTreeViewModel>();
+            _loadItemDict = new Dictionary<string, LibraryImporterFileTreeNodeViewModel>();
             _serviceMusicBrainzBasicIncludeTagLookup = false;
         }
 
@@ -41,19 +40,19 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryLoaderViewModels.Worke
             : base("Music Brainz (basic)", "Downloads basic tag details for recordings in the library with a Music Brainz ID")
         {
             _audioStationMapper = IocContainer.Get<IAudioStationMapper>();
-            _loadItemDict = new Dictionary<string, LibraryImporterFileTreeViewModel>();
+            _loadItemDict = new Dictionary<string, LibraryImporterFileTreeNodeViewModel>();
             _serviceMusicBrainzBasicIncludeTagLookup = configuration.ServiceMusicBrainzBasicIncludeTagLookup;
         }
 
-        protected override ILibraryLoaderLoad CreateWorkLoad(LibraryImporterFileTreeViewModel loadItem, IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
+        protected override ILibraryLoaderLoad CreateWorkLoad(LibraryImporterFileTreeNodeViewModel loadItem, IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
         {
 
-            return CreateWorkLoads(new LibraryImporterFileTreeViewModel[] { loadItem }, configuration, audioStationController, progressHandler).FirstOrDefault();
+            return CreateWorkLoads(new LibraryImporterFileTreeNodeViewModel[] { loadItem }, configuration, audioStationController, progressHandler).FirstOrDefault();
 
             //return new LibraryLoaderLoad<IEnumerable<IAcoustIDLookupResult>>(this.Id, LibraryLoadType.MusicBrainzBasic, loadItem.DisplayName, new IAcoustIDLookupResult[] { loadItem.SelectedAcoustIDResult });
         }
 
-        protected override IEnumerable<ILibraryLoaderLoad> CreateWorkLoads(IEnumerable<LibraryImporterFileTreeViewModel> loadItems, IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
+        protected override IEnumerable<ILibraryLoaderLoad> CreateWorkLoads(IEnumerable<LibraryImporterFileTreeNodeViewModel> loadItems, IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
         {
             var audioConverter = IocContainer.Get<IAudioConverter>();
             var tagCache = audioStationController.ServiceController.GetCache<ITagCache>();

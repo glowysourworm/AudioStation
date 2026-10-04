@@ -14,7 +14,7 @@ using SimpleWpf.UI.ViewModel.FileTreeView;
 
 namespace AudioStation.ViewModels.ServiceComponent.LibraryLoaderViewModels.Worker
 {
-    public class LibraryLoaderFileConverterViewModel : LibraryLoaderWorkerViewModelBase<FileTreeViewModel>
+    public class LibraryLoaderFileConverterViewModel : LibraryLoaderWorkerViewModelBase<FileTreeNodeViewModel>
     {
         // Use for extra performance
         SimpleDictionary<string, string> _workItemDict;
@@ -27,7 +27,7 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryLoaderViewModels.Worke
             _workItemDict = new SimpleDictionary<string, string>();
         }
 
-        protected override ILibraryLoaderLoad CreateWorkLoad(FileTreeViewModel loadItem, IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
+        protected override ILibraryLoaderLoad CreateWorkLoad(FileTreeNodeViewModel loadItem, IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
         {
             return new LibraryLoaderLoad<LibraryLoaderFileConverterPayload>(this.Id, LibraryLoadType.FileConverter, loadItem.FullPath,
                                            new LibraryLoaderFileConverterPayload()
@@ -38,7 +38,7 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryLoaderViewModels.Worke
                                            });
         }
 
-        protected override IEnumerable<ILibraryLoaderLoad> CreateWorkLoads(IEnumerable<FileTreeViewModel> loadItems, IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
+        protected override IEnumerable<ILibraryLoaderLoad> CreateWorkLoads(IEnumerable<FileTreeNodeViewModel> loadItems, IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogEventHandlers.DialogProgressHandler progressHandler)
         {
             try
             {
