@@ -34,29 +34,22 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Wor
 
         // Import Source Directory
         //
-        SimpleTreeViewModel _importDirectory;
+        FileTreeViewModel _importDirectory;
 
         // Staged Files:  These will keep changes to the tag in memory until the tag data is saved (to
         //                the same file in the source direcotry. An "import" is complete when the file 
         //                finished - with the bare minimum tag data - and moved into the library's 
         //                directory structure.
         //
-        LibraryImporterStagedFileCollection _stagedFiles;
+        LibraryImporterFileTreeViewModel _stagedFiles;
         LibraryImporterStagedFileFilterType _stagedFileFilterType;
 
-        // Import Directory:  Selection and selected files (the selected list is forwarded from the UI)
-        //
-        IEnumerable<FileTreeNodeViewModel>? _selectedFiles;
-        int _totalFileCount;
-        int _totalDirectoryCount;
-        int _selectedFileCount;
-
-        public SimpleTreeViewModel ImportDirectory
+        public FileTreeViewModel ImportDirectory
         {
             get { return _importDirectory; }
             set { this.RaiseAndSetIfChanged(ref _importDirectory, value); }
         }
-        public LibraryImporterStagedFileCollection StagedFiles
+        public LibraryImporterFileTreeViewModel StagedFiles
         {
             get { return _stagedFiles; }
             set { this.RaiseAndSetIfChanged(ref _stagedFiles, value); }
@@ -65,21 +58,6 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Wor
         {
             get { return _stagedFileFilterType; }
             set { this.RaiseAndSetIfChanged(ref _stagedFileFilterType, value); }
-        }
-        public int TotalFileCount
-        {
-            get { return _totalFileCount; }
-            set { this.RaiseAndSetIfChanged(ref _totalFileCount, value); }
-        }
-        public int TotalDirectoryCount
-        {
-            get { return _totalDirectoryCount; }
-            set { this.RaiseAndSetIfChanged(ref _totalDirectoryCount, value); }
-        }
-        public int SelectedFileCount
-        {
-            get { return _selectedFileCount; }
-            set { this.RaiseAndSetIfChanged(ref _selectedFileCount, value); }
         }
 
         public SimpleCommand StageCommand
@@ -93,14 +71,16 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Wor
             set { this.RaiseAndSetIfChanged(ref _unstageCommand, value); }
         }
 
-
-
         public LibraryImporterStagingWorkflowViewModel(IDialogController dialogController, LibraryImporterConfigurationViewModel workflowConfiguration)
             : base("Library Staging", "This workflow component will be used for staging files")
         {
             _workflowConfiguration = workflowConfiguration;
 
-            this.StagedFiles = new LibraryImporterStagedFileCollection();
+            this.StagedFiles = new LibraryImporterFileTreeViewModel();
+            this.ImportDirectory = new FileTreeViewModel();
+
+            this.ImportDirectory.TreeSelectionChangedEvent += ImportDirectory_TreeSelectionChangedEvent;
+            this.StagedFiles.TreeSelectionChangedEvent += StagedFiles_TreeSelectionChangedEvent;
 
             this.StageCommand = new SimpleCommand(() => Stage(dialogController), CanStage);
             this.UnstageCommand = new SimpleCommand(Unstage, CanUnstage);
@@ -120,11 +100,11 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Wor
             if (this.ImportDirectory == null)
                 return false;
 
-            return _selectedFiles != null && _selectedFiles.Any();
+            return this.ImportDirectory.SelectedFileCount > 0;
         }
         public bool CanUnstage()
         {
-            return this.StagedFiles.Any(x => x.IsSelected);
+            return this.StagedFiles.SelectedFileCount > 0;
         }
 
         public override bool CanExecute()
@@ -155,25 +135,20 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Wor
 
             // Import Directory:  1) Not Initialized; or 2) A different directory
             //
-            if (this.ImportDirectory == null)
-            {
-                var libraryLoaderService = IocContainer.Get<ILibraryLoaderService>();
-                var directory = (_workflowConfiguration.ImportType == Core.Model.LibraryImportType.Migration) ? _workflowConfiguration.MigrationSourceDirectory :
-                                                                                                                _workflowConfiguration.ImportDirectory.Directory;
-                // Clear Staged
-                this.StagedFiles.Clear();
+            var libraryLoaderService = IocContainer.Get<ILibraryLoaderService>();
+            var directory = (_workflowConfiguration.ImportType == Core.Model.LibraryImportType.Migration) ? _workflowConfiguration.MigrationSourceDirectory :
+                                                                                                            _workflowConfiguration.ImportDirectory.Directory;
+            // Clear Staged
+            this.StagedFiles.BeginUpdate();
+            this.StagedFiles.Clear();
+            this.StagedFiles.EndUpdate();
 
-                this.ImportDirectory = new SimpleTreeViewModel();
-                this.ImportDirectory.BeginUpdate();
+            this.ImportDirectory.BeginUpdate();
 
-                var treeRoot = libraryLoaderService.InitializeImporterTree(directory, _workflowConfiguration, progressHandler, searchPattern);
+            var treeRoot = libraryLoaderService.InitializeImporterTree(directory, _workflowConfiguration, progressHandler, searchPattern);
 
-                this.ImportDirectory.Add(treeRoot);
-                this.ImportDirectory.EndUpdate();
-
-                this.TotalFileCount = this.ImportDirectory.RecursiveCount<FileTreeNodeViewModel>(x => !x.IsDirectory);
-                this.TotalDirectoryCount = this.ImportDirectory.RecursiveCount<FileTreeNodeViewModel>(x => x.IsDirectory);
-            }
+            this.ImportDirectory.Add(treeRoot);
+            this.ImportDirectory.EndUpdate();
         }
 
         public override void Execute(DialogEventHandlers.DialogProgressHandler progressHandler)
@@ -207,122 +182,70 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Wor
             var selectedFileCount = this.ImportDirectory.RecursiveCount<FileTreeNodeViewModel>(x => x.IsSelected);
             var counter = 0;
 
-            // -> Select any selected files or any files in a sub-directory recursively
-            this.ImportDirectory.RecursiveForEach<FileTreeNodeViewModel>(subNode =>
+            // Procedure:  We must take branches of the other tree view and 
+            //             create the staged file tree. Selected Items have
+            //             already been forwarded by the view.
+            //              
+            // Add Node:   The nodes must be added in order starting with 
+            //             the root. The tree view model looks for the matching
+            //             parent node by reference.
+            //
+            // Directories:  Each node is treated as part of the tree. Directories
+            //               are just going to be placeholders unless there is
+            //               some need for them.
+            //
+            foreach (var selectedItem in this.ImportDirectory.SelectedNodes)
             {
-                // Selection Only
-                if (!subNode.IsSelected)
-                    return;
+                // These are returned in order - down the tree!
+                var branch = this.ImportDirectory.GetBranch(selectedItem);
 
-                // Careful to avoid other files that have been staged
-                if (!subNode.IsDirectory && !this.StagedFiles.Contains(subNode))
+                LibraryImporterFileTreeNodeViewModel lastNode = null;
+
+                // Starting at the root
+                foreach (var branchNode in branch.Cast<FileTreeNodeViewModel>())
                 {
-                    // Progress
-                    progressHandler(1, 1, selectedFileCount, counter++, "Loading:  " + subNode.FullPath);
+                    var nodeCheck = this.StagedFiles.RecursiveFirst(x => x.FullPath == branchNode.FullPath);
 
-                    var stagedFile = new LibraryImporterFileTreeNodeViewModel(subNode.FullPath, subNode.BaseDirectory, null, _workflowConfiguration);
-
-                    // Tag
-                    var tagData = _tagCache.GetFullTag(stagedFile.FullPath);
-
-                    // (AcoustID / Music Brainz) Stored in Tag
-                    stagedFile.MusicBrainzReleaseTrackIDTag = tagData.GetMusicBrainzReleaseTrackId();
-
-                    // Tag (read only)
-                    if (tagData != null)
+                    if (nodeCheck != null)
                     {
-                        stagedFile.Tag = _audioStationMapper.Map<TagSmall, TagSmallViewModel>(TagMapper.Map(tagData));
+                        lastNode = nodeCheck;
+                        continue;
                     }
 
 
-                    // AcoustID Result
-                    if (acoustIDResults.ContainsKey(stagedFile.FullPath))
+                    // Root
+                    if (lastNode == null)
                     {
-                        stagedFile.ImportOutput.AcoustIDResults.AddRange(acoustIDResults[stagedFile.FullPath].Select(x =>
-                        {
-                            return _audioStationMapper.Map<AcoustIDLookupResult, AcoustIDLookupResultViewModel>(x);
-                        }));
+                        lastNode = CreateStagedFileNode(null, branchNode, libraryFiles,
+                                                        tagFileMaps, acoustIDResults,
+                                                        musicBrainzAcoustIDResults, musicBrainzResults);
+
+                        // -> Add (root)
+                        this.StagedFiles.Add(lastNode);
                     }
 
-                    // Music Brainz (basic)
-                    if (musicBrainzAcoustIDResults.ContainsKey(stagedFile.FullPath))
+                    // Check Staged File Tree (by key)
+                    else if (this.StagedFiles.RecursiveAny(x => x.FullPath == branchNode.FullPath))
                     {
-                        // Get all tag-recording maps for this file
-                        var results = musicBrainzAcoustIDResults[stagedFile.FullPath];
-
-                        foreach (var result in results)
-                        {
-                            var tagSmall = _audioStationDbClient.GetEntity<TagSmall>(result.TagSmallId);
-
-                            if (tagSmall != null)
-                            {
-                                stagedFile.ImportOutput
-                                          .MusicBrainzRecordingMatches
-                                          .Add(_audioStationMapper.Map<TagSmall, TagSmallViewModel>(tagSmall));
-                            }
-
-                            // Also, add this combined entity to our import output
-                            stagedFile.ImportOutput.MusicBrainzAcoustIDResults.Add(result);
-                        }
+                        // Get the follower node by key! (this should be built into the staged file collection)
+                        lastNode = this.StagedFiles.RecursiveFirst(x => x.FullPath == branchNode.FullPath);
                     }
 
-                    // Tag (Record) (Preference)
-                    switch (_workflowConfiguration.TagSourcePreference)
+                    // -> Next Node
+                    else
                     {
-                        case LibraryImportSource.File:
-                        {
-                            if (tagData != null)
-                            {
-                                var tagSmall = TagMapper.Map(tagData);
+                        lastNode = CreateStagedFileNode(lastNode, branchNode, libraryFiles,
+                                                    tagFileMaps, acoustIDResults,
+                                                    musicBrainzAcoustIDResults, musicBrainzResults);
 
-                                _audioStationMapper.MapOnto(tagSmall, stagedFile.TagRecordDirty);
-                                _audioStationMapper.MapOnto(tagSmall, stagedFile.TagRecordClean);
-
-                                //// Audio Duration (Deduce from IAudioConverter)
-                                //stagedFile.TagRecordDirty.DurationMilliseconds = (int)duration.TotalMilliseconds;
-                                //stagedFile.TagRecordClean.DurationMilliseconds = (int)duration.TotalMilliseconds;
-                            }
-                            else if (tagFileMaps.ContainsKey(stagedFile.FullPath))
-                            {
-                                _audioStationMapper.MapOnto(tagFileMaps[stagedFile.FullPath].TagSmall, stagedFile.TagRecordDirty);
-                                _audioStationMapper.MapOnto(tagFileMaps[stagedFile.FullPath].TagSmall, stagedFile.TagRecordClean);
-                            }
-                        }
-                        break;
-                        case LibraryImportSource.DataService:
-                        {
-                            if (tagFileMaps.ContainsKey(stagedFile.FullPath))
-                            {
-                                _audioStationMapper.MapOnto(tagFileMaps[stagedFile.FullPath].TagSmall, stagedFile.TagRecordDirty);
-                                _audioStationMapper.MapOnto(tagFileMaps[stagedFile.FullPath].TagSmall, stagedFile.TagRecordClean);
-                            }
-                            else if (tagData != null)
-                            {
-                                var tagSmall = TagMapper.Map(tagData);
-
-                                _audioStationMapper.MapOnto(tagSmall, stagedFile.TagRecordDirty);
-                                _audioStationMapper.MapOnto(tagSmall, stagedFile.TagRecordClean);
-
-                                //// Audio Duration (Deduce from IAudioConverter)
-                                //stagedFile.TagRecordDirty.DurationMilliseconds = (int)duration.TotalMilliseconds;
-                                //stagedFile.TagRecordClean.DurationMilliseconds = (int)duration.TotalMilliseconds;
-                            }
-                        }
-                        break;
-                        default:
-                            break;
+                        // -> Add
+                        this.StagedFiles.Add(lastNode);
                     }
-
-                    // Check For Library Conflict
-                    //
-                    stagedFile.LibraryConflict = libraryFiles.ContainsKey(stagedFile.FullPath);
-                    stagedFile.FileConflict = false;                                                  // Calculate migration path
-
-                    this.StagedFiles.Add(stagedFile);
                 }
-            });
+            }
 
-            this.StagedFiles.EndUpdate(true);
+
+            this.StagedFiles.EndUpdate();
         }
 
         public override void Reset(DialogEventHandlers.DialogProgressHandler progressHandler)
@@ -338,34 +261,135 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Wor
 
             this.Loaded = false;
         }
-        public void UpdateImportTreeSelection(IEnumerable<TreeViewNodeModelBase> selectedFiles)
+        private void StagedFiles_TreeSelectionChangedEvent(IEnumerable<TreeViewNodeModelBase> selectedNodes)
         {
-            _selectedFiles = selectedFiles.Cast<FileTreeNodeViewModel>();
-            _selectedFileCount = 0;
-            _totalDirectoryCount = 0;
+            UpdateCommands();
+        }
 
-            // Iterate once to manage performance
-            foreach (var file in _selectedFiles)
-            {
-                _selectedFileCount++;
-
-                if (file.IsDirectory)
-                    _totalDirectoryCount++;
-
-                else
-                    _totalFileCount++;
-            }
-
-            OnPropertyChanged(nameof(SelectedFileCount));
-            OnPropertyChanged(nameof(TotalDirectoryCount));
-            OnPropertyChanged(nameof(TotalFileCount));
-
+        private void ImportDirectory_TreeSelectionChangedEvent(IEnumerable<TreeViewNodeModelBase> selectedNodes)
+        {
             UpdateCommands();
         }
         public void UpdateCommands()
         {
             this.StageCommand.RaiseCanExecuteChanged();
             this.UnstageCommand.RaiseCanExecuteChanged();
+        }
+
+        private LibraryImporterFileTreeNodeViewModel CreateStagedFileNode(
+                    LibraryImporterFileTreeNodeViewModel? parent, FileTreeNodeViewModel fileNode,
+                    Dictionary<string, FileReference> libraryFiles,
+                    Dictionary<string, TagSmallFileReferenceMap> tagFileMaps,
+                    Dictionary<string, List<AcoustIDLookupResult>> acoustIDResults,
+                    Dictionary<string, List<MusicBrainzAcoustIDResult>> musicBrainzAcoustIDResults,
+                    Dictionary<int, TagSmallVendorMap> musicBrainzResults)
+        {
+            var stagedFileNode = new LibraryImporterFileTreeNodeViewModel(fileNode.FullPath, fileNode.BaseDirectory, fileNode.IsDirectory, parent, _workflowConfiguration);
+
+            // Directory
+            if (fileNode.IsDirectory)
+                return stagedFileNode;
+
+            // Tag
+            var tagData = _tagCache.GetFullTag(stagedFileNode.FullPath);
+
+            // (AcoustID / Music Brainz) Stored in Tag
+            stagedFileNode.ImportFile.MusicBrainzReleaseTrackIDTag = tagData.GetMusicBrainzReleaseTrackId();
+
+            // Tag (read only)
+            if (tagData != null)
+            {
+                stagedFileNode.ImportFile.Tag = _audioStationMapper.Map<TagSmall, TagSmallViewModel>(TagMapper.Map(tagData));
+            }
+
+
+            // AcoustID Result
+            if (acoustIDResults.ContainsKey(stagedFileNode.FullPath))
+            {
+                stagedFileNode.ImportFile.ImportOutput.AcoustIDResults.AddRange(acoustIDResults[stagedFileNode.FullPath].Select(x =>
+                {
+                    return _audioStationMapper.Map<AcoustIDLookupResult, AcoustIDLookupResultViewModel>(x);
+                }));
+            }
+
+            // Music Brainz (basic)
+            if (musicBrainzAcoustIDResults.ContainsKey(stagedFileNode.FullPath))
+            {
+                // Get all tag-recording maps for this file
+                var results = musicBrainzAcoustIDResults[stagedFileNode.FullPath];
+
+                foreach (var result in results)
+                {
+                    var tagSmall = _audioStationDbClient.GetEntity<TagSmall>(result.TagSmallId);
+
+                    if (tagSmall != null)
+                    {
+                        stagedFileNode.ImportFile
+                                  .ImportOutput
+                                  .MusicBrainzRecordingMatches
+                                  .Add(_audioStationMapper.Map<TagSmall, TagSmallViewModel>(tagSmall));
+                    }
+
+                    // Also, add this combined entity to our import output
+                    stagedFileNode.ImportFile
+                              .ImportOutput
+                              .MusicBrainzAcoustIDResults.Add(result);
+                }
+            }
+
+            // Tag (Record) (Preference)
+            switch (_workflowConfiguration.TagSourcePreference)
+            {
+                case LibraryImportSource.File:
+                {
+                    if (tagData != null)
+                    {
+                        var tagSmall = TagMapper.Map(tagData);
+
+                        _audioStationMapper.MapOnto(tagSmall, stagedFileNode.ImportFile.TagRecordDirty);
+                        _audioStationMapper.MapOnto(tagSmall, stagedFileNode.ImportFile.TagRecordClean);
+
+                        //// Audio Duration (Deduce from IAudioConverter)
+                        //stagedFile.TagRecordDirty.DurationMilliseconds = (int)duration.TotalMilliseconds;
+                        //stagedFile.TagRecordClean.DurationMilliseconds = (int)duration.TotalMilliseconds;
+                    }
+                    else if (tagFileMaps.ContainsKey(stagedFileNode.FullPath))
+                    {
+                        _audioStationMapper.MapOnto(tagFileMaps[stagedFileNode.FullPath].TagSmall, stagedFileNode.ImportFile.TagRecordDirty);
+                        _audioStationMapper.MapOnto(tagFileMaps[stagedFileNode.FullPath].TagSmall, stagedFileNode.ImportFile.TagRecordClean);
+                    }
+                }
+                break;
+                case LibraryImportSource.DataService:
+                {
+                    if (tagFileMaps.ContainsKey(stagedFileNode.FullPath))
+                    {
+                        _audioStationMapper.MapOnto(tagFileMaps[stagedFileNode.FullPath].TagSmall, stagedFileNode.ImportFile.TagRecordDirty);
+                        _audioStationMapper.MapOnto(tagFileMaps[stagedFileNode.FullPath].TagSmall, stagedFileNode.ImportFile.TagRecordClean);
+                    }
+                    else if (tagData != null)
+                    {
+                        var tagSmall = TagMapper.Map(tagData);
+
+                        _audioStationMapper.MapOnto(tagSmall, stagedFileNode.ImportFile.TagRecordDirty);
+                        _audioStationMapper.MapOnto(tagSmall, stagedFileNode.ImportFile.TagRecordClean);
+
+                        //// Audio Duration (Deduce from IAudioConverter)
+                        //stagedFile.TagRecordDirty.DurationMilliseconds = (int)duration.TotalMilliseconds;
+                        //stagedFile.TagRecordClean.DurationMilliseconds = (int)duration.TotalMilliseconds;
+                    }
+                }
+                break;
+                default:
+                    break;
+            }
+
+            // Check For Library Conflict
+            //
+            stagedFileNode.ImportFile.LibraryConflict = libraryFiles.ContainsKey(stagedFileNode.FullPath);
+            stagedFileNode.ImportFile.FileConflict = false;
+
+            return stagedFileNode;
         }
 
         public override void Dispose()

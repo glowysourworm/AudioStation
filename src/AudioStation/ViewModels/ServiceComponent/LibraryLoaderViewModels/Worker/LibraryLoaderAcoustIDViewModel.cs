@@ -83,7 +83,7 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryLoaderViewModels.Worke
 
                 foreach (var stagedFile in loadItems)
                 {
-                    progressHandler(1, 1, totalCount, counter++, "Loading: " + stagedFile.DisplayName);
+                    progressHandler(1, 1, totalCount, counter++, "Loading: " + stagedFile.FullPath);
 
                     // Keep track of load items for post processing
                     _loadItemDict.Add(stagedFile.FullPath, stagedFile);
@@ -169,8 +169,8 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryLoaderViewModels.Worke
             // Pass results to the Import Output
             foreach (var result in acoustIdResults)
             {
-                if (!loadItem.ImportOutput.AcoustIDResults.Any(x => x.LookupId == result.LookupId))
-                    loadItem.ImportOutput.AcoustIDResults.Add(result);
+                if (!loadItem.ImportFile.ImportOutput.AcoustIDResults.Any(x => x.LookupId == result.LookupId))
+                    loadItem.ImportFile.ImportOutput.AcoustIDResults.Add(result);
             }
 
         }

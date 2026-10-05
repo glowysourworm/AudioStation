@@ -36,7 +36,7 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryLoaderViewModels.Worke
 
                 foreach (var stagedFile in loadItems)
                 {
-                    progressHandler(1, 1, totalCount, counter++, "Loading: " + stagedFile.DisplayName);
+                    progressHandler(1, 1, totalCount, counter++, "Loading: " + stagedFile.ImportFile.ImportLoad.SourceFullPath);
 
                     // Keep track of load items for post processing
                     _loadItemDict.Add(stagedFile.FullPath, stagedFile);
@@ -97,7 +97,7 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryLoaderViewModels.Worke
             var loadItem = _loadItemDict[input.File];
 
             // Tag (record) Duration
-            loadItem.TagRecordDirty.DurationMilliseconds = (int)output.Duration.TotalMilliseconds;
+            loadItem.ImportFile.TagRecordDirty.DurationMilliseconds = (int)output.Duration.TotalMilliseconds;
         }
     }
 }

@@ -26,10 +26,10 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryLoaderViewModels.Worke
             throw new NotImplementedException();
 
             var audioStationDbClient = audioStationController.ServiceController.GetDataService<IAudioStationDbClient>();
-            var vendorMap = audioStationDbClient.FirstEntity<TagSmallVendorMap>(x => x.TagSmallId == loadItem.TagRecordClean.Id);
+            var vendorMap = audioStationDbClient.FirstEntity<TagSmallVendorMap>(x => x.TagSmallId == loadItem.ImportFile.TagRecordClean.Id);
 
             if (vendorMap != null)
-                return new LibraryLoaderLoad<TagSmallVendorMap>(this.Id, LibraryLoadType.MusicBrainzAlbumArt, loadItem.DisplayName, vendorMap);
+                return new LibraryLoaderLoad<TagSmallVendorMap>(this.Id, LibraryLoadType.MusicBrainzAlbumArt, loadItem.ImportFile.ImportLoad.SourceFullPath, vendorMap);
 
             else
                 throw new Exception("Invalid Music Brainz Album Art Input:  Missing valid TagSmallVendorMap");

@@ -67,10 +67,9 @@
 
         <!-- Input Files -->
         <simpleUITreeview:SimpleTreeView x:Name="ImportTV"
-                                         SelectedItemsChanged="ImportTV_SelectedItemsChanged"
                                          Margin="5"
                                          Grid.Row="2"
-                                         Style="{StaticResource FileTreeViewItemStyle}"
+                                         Style="{StaticResource FileTreeViewStyle}"
                                          ItemsSource="{Binding ImportDirectory, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}">
         </simpleUITreeview:SimpleTreeView>
         
@@ -79,51 +78,34 @@
                     VerticalAlignment="Center"
                     Grid.Row="2"
                     Grid.Column="1">
-            
+
             <Button Style="{StaticResource SmallControlButton}"
                     Command="{Binding StageCommand}"
                     ToolTip="Stage for Import"
                     Height="32"
                     Width="32">
-                    <fa5:SvgAwesome Icon="Solid_ArrowRight" Style="{StaticResource FontAwesomeIconControlPanelButton}" />
+                <fa5:SvgAwesome Icon="Solid_ArrowRight" Style="{StaticResource FontAwesomeIconControlPanelButton}" />
             </Button>
-            
+
             <Button Style="{StaticResource SmallControlButton}"
                     Command="{Binding UnstageCommand}"
                     ToolTip="Unstage from Import"
                     Height="32"
                     Width="32"
                     Margin="0 5 0 0">
-                    <fa5:SvgAwesome Icon="Solid_ArrowLeft" Style="{StaticResource FontAwesomeIconControlPanelButton}" />
+                <fa5:SvgAwesome Icon="Solid_ArrowLeft" Style="{StaticResource FontAwesomeIconControlPanelButton}" />
             </Button>
-            
+
         </StackPanel>
 
-
         <!-- Staged Files -->
-        <ListBox x:Name="StagedLB"
-                 SelectionChanged="StagedLB_SelectionChanged"
-                 Grid.Column="2"
-                 Grid.Row="2"
-                 Margin="5"
-                 ItemTemplate="{StaticResource LibraryImportFileSmallItemTemplate}"
-                 ItemContainerStyle="{StaticResource HoverSelectItemContainerStyleWithAlternation_LibraryImporter}"
-                 SelectedValuePath="IsSelected"
-                 SelectionMode="Extended"
-                 AlternationCount="2"                 
-                 ScrollViewer.CanContentScroll="True"
-                 HorizontalContentAlignment="Stretch"
-                 VirtualizingPanel.IsVirtualizing="True"
-                 VirtualizingPanel.VirtualizationMode="Recycling"
-                 VirtualizingPanel.CacheLength="3"
-                 VirtualizingPanel.CacheLengthUnit="Item">
-            <ListBox.ItemsSource>
-                <MultiBinding Converter="{StaticResource LibraryImporterStagedFileCollectionConverter}">
-                    <Binding Path="StagedFiles" UpdateSourceTrigger="PropertyChanged" />
-                    <Binding Path="StagedFileFilterType" Mode="TwoWay" UpdateSourceTrigger="PropertyChanged" />
-                </MultiBinding>
-            </ListBox.ItemsSource>
-        </ListBox>
+        <simpleUITreeview:SimpleTreeView x:Name="StagedTV"
+                                         Grid.Column="2"
+                                         Grid.Row="2"
+                                         Margin="5"
+                                         Style="{StaticResource LibraryImporterStagingFileTreeViewStyle}"
+                                         ItemsSource="{Binding StagedFiles, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}">
+        </simpleUITreeview:SimpleTreeView>
 
         <Border Grid.Column="0" 
                 Grid.Row="3" 
@@ -134,9 +116,9 @@
                 <TextBlock Text="Total Director(y|ies)" Style="{StaticResource LabelDetailDarkTextBlock}" Grid.Column="0" Grid.Row="1" />
                 <TextBlock Text="Selected File(s)" Style="{StaticResource LabelDetailDarkTextBlock}" Grid.Column="0" Grid.Row="2" />
 
-                <TextBlock Text="{Binding TotalFileCount}" Style="{StaticResource LabelDetailDarkTextBlock}" Grid.Column="1" HorizontalAlignment="Right" />
-                <TextBlock Text="{Binding TotalDirectoryCount}" Style="{StaticResource LabelDetailDarkTextBlock}" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Right" />
-                <TextBlock Text="{Binding SelectedFileCount}" Style="{StaticResource LabelDetailDarkTextBlock}" Grid.Column="1" Grid.Row="2" HorizontalAlignment="Right" />
+                <TextBlock Text="{Binding ImportDirectory.TotalFileCount}" Style="{StaticResource LabelDetailDarkTextBlock}" Grid.Column="1" HorizontalAlignment="Right" />
+                <TextBlock Text="{Binding ImportDirectory.TotalDirectoryCount}" Style="{StaticResource LabelDetailDarkTextBlock}" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Right" />
+                <TextBlock Text="{Binding ImportDirectory.SelectedFileCount}" Style="{StaticResource LabelDetailDarkTextBlock}" Grid.Column="1" Grid.Row="2" HorizontalAlignment="Right" />
             </Grid>
         </Border>
 
@@ -149,137 +131,11 @@
                 <TextBlock Text="Selected File(s)" Style="{StaticResource LabelDetailDarkTextBlock}" Grid.Column="0" Grid.Row="1" />
                 <TextBlock Text="Library Conflict(s)" Style="{StaticResource LabelDetailDarkTextBlock}" Grid.Column="0" Grid.Row="2" />
 
-                <TextBlock Style="{StaticResource LabelDetailDarkTextBlock}" Grid.Column="1" HorizontalAlignment="Right">
-                    <TextBlock.Text>
-                        <MultiBinding Converter="{StaticResource LibraryImporterStagedFileCollectionCountConverter}">
-                            <Binding Path="StagedFiles" UpdateSourceTrigger="PropertyChanged" />
-                            <Binding Path="StagedFileFilterType" UpdateSourceTrigger="PropertyChanged" />
-                        </MultiBinding>
-                    </TextBlock.Text>
-                </TextBlock>
-                <TextBlock Text="{Binding StagedFiles.SelectedFiles.Count}" Style="{StaticResource LabelDetailDarkTextBlock}" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Right" />
+                <TextBlock Text="{Binding StagedFiles.TotalFileCount}" Style="{StaticResource LabelDetailDarkTextBlock}" Grid.Column="1" HorizontalAlignment="Right" />
+                <TextBlock Text="{Binding StagedFiles.SelectedFileCount}" Style="{StaticResource LabelDetailDarkTextBlock}" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Right" />
                 <TextBlock Text="{Binding StagedFiles.LibraryConflictFiles.Count}" Style="{StaticResource LabelDetailDarkTextBlock}" Grid.Column="1" Grid.Row="2" HorizontalAlignment="Right" />
             </Grid>
         </Border>
-
-        <!--ScrollViewer Grid.Row="1" Margin="5" VerticalScrollBarVisibility="Auto">
-            
-            <controls:PathViewModelListBox x:Name="ImportLB"
-                                           SelectionChanged="ImportLB_SelectionChanged"
-                                           VirtualizingPanel.IsVirtualizing="True"
-                                           SelectionMode="Extended"
-                                           ItemContainerStyleSelector="{StaticResource LibraryLoaderImportTreeStyleSelector}"
-                                           HorizontalAlignment="Stretch"
-                                           HorizontalContentAlignment="Stretch">
-                <controls:PathViewModelListBox.ContextMenu>
-                    <ContextMenu>
-
-                        <MenuItem Style="{StaticResource UserMenuItemStyle}" BorderBrush="Gray" BorderThickness="0 0 0 1">
-                            <MenuItem.Header>
-                                <StackPanel Orientation="Horizontal">
-                                    <Image Source="/Resources/Images/icon.bmp" Width="20" Height="20"  />
-                                    <TextBlock Text="Library Importer" Margin="5 0 0 0" />
-                                </StackPanel>
-                            </MenuItem.Header>
-                        </MenuItem>
-
-                        <MenuItem Style="{StaticResource UserMenuItemStyle}" Header="Import" Command="{Binding RunImportCommand}"
-                              IsEnabled="{Binding RunImportCommand.IsReady, Converter={StaticResource BoolVisibilityCollapseConverter}}" />
-
-                        <MenuItem Style="{StaticResource UserMenuItemStyle}" Header="Edit Tag" Command="{Binding EditTagCommand}"
-                              IsEnabled="{Binding EditTagCommand.IsReady, Converter={StaticResource BoolVisibilityCollapseConverter}}" />
-
-                        <MenuItem x:Name="EditTagGroupMI" 
-                                  Style="{StaticResource UserMenuItemStyle}" 
-                                  Header="Edit Tag (Group)" 
-                                  Command="{Binding EditTagGroupCommand}"
-                                  IsEnabled="{Binding EditTagGroupCommand.IsReady}">
-
-                            <MenuItem Style="{StaticResource UserMenuItemStyle}" BorderBrush="Gray" BorderThickness="0 0 0 1">
-                                <MenuItem.Header>
-                                    <TextBlock Text="Tag (Group) Fields" Margin="5 0 0 0" />
-                                </MenuItem.Header>
-                            </MenuItem>
-                            <MenuItem Header="Artist" Command="{Binding EditTagGroupCommand}" CommandParameter="AlbumArtists" Style="{StaticResource UserMenuItemStyle}"  />
-                            <MenuItem Header="Album" Command="{Binding EditTagGroupCommand}" CommandParameter="Album" Style="{StaticResource UserMenuItemStyle}" />
-                            <MenuItem Header="Genre" Command="{Binding EditTagGroupCommand}" CommandParameter="Genres" Style="{StaticResource UserMenuItemStyle}" />
-                            <MenuItem Header="Track Count" Command="{Binding EditTagGroupCommand}" CommandParameter="TrackCount" Style="{StaticResource UserMenuItemStyle}" />
-                            <MenuItem Header="Disc Count" Command="{Binding EditTagGroupCommand}" CommandParameter="DiscCount" Style="{StaticResource UserMenuItemStyle}" />
-                            <MenuItem Header="Artwork" Command="{Binding EditTagGroupCommand}" CommandParameter="Artwork" Style="{StaticResource UserMenuItemStyle}" />
-                        </MenuItem>
-
-                        <MenuItem Style="{StaticResource UserMenuItemStyle}" Header="Save Tag" Command="{Binding SaveTagCommand}"
-                              IsEnabled="{Binding SaveTagCommand.IsReady, Converter={StaticResource BoolVisibilityCollapseConverter}}" />
-
-                        <MenuItem Style="{StaticResource UserMenuItemStyle}" Header="Run Music Brainz" Command="{Binding RunAcousticFingerprintCommand}"
-                              IsEnabled="{Binding RunAcousticFingerprintCommand.IsReady}"/>
-                    </ContextMenu>
-                </controls:PathViewModelListBox.ContextMenu>
-
-                <ListBoxItem DataContext="{Binding SourceDirectory}" />
-            </controls:PathViewModelListBox>
-        </ScrollViewer-->
-
-        <!--ListBox Grid.Row="1" Margin="5" x:Name="ImportLB"
-                 ItemsSource="{Binding SourceFiles}"
-                 ItemTemplateSelector="{StaticResource LibraryLoaderImportFileTemplateSelector}"
-                 ItemContainerStyle="{StaticResource HoverSelectItemContainerStyleWithAlternation_LibraryLoader}"
-                 MouseDoubleClick="ImportLB_MouseDoubleClick"
-                 SelectedValuePath="IsSelected"
-                 SelectionChanged="ImportLB_SelectionChanged"
-                 SelectionMode="Extended"
-                 AlternationCount="2"                 
-                 HorizontalContentAlignment="Stretch"
-                 VirtualizingPanel.IsVirtualizing="True"
-                 VirtualizingPanel.VirtualizationMode="Recycling"
-                 VirtualizingPanel.CacheLength="3">
-            
-            <ListBox.ContextMenu>
-                <ContextMenu>
-
-                    <MenuItem Style="{StaticResource UserMenuItemStyle}" BorderBrush="Gray" BorderThickness="0 0 0 1">
-                        <MenuItem.Header>
-                            <StackPanel Orientation="Horizontal">
-                                <Image Source="/Resources/Images/icon.bmp" Width="20" Height="20"  />
-                                <TextBlock Text="Library Importer" Margin="5 0 0 0" />
-                            </StackPanel>
-                        </MenuItem.Header>
-                    </MenuItem>
-
-                    <MenuItem Style="{StaticResource UserMenuItemStyle}" Header="Import" Command="{Binding RunImportCommand}"
-                              IsEnabled="{Binding RunImportCommand.IsReady, Converter={StaticResource BoolVisibilityCollapseConverter}}" />
-
-                    <MenuItem Style="{StaticResource UserMenuItemStyle}" Header="Edit Tag" Command="{Binding EditTagCommand}"
-                              IsEnabled="{Binding EditTagCommand.IsReady, Converter={StaticResource BoolVisibilityCollapseConverter}}" />
-
-                    <MenuItem x:Name="EditTagGroupMI" 
-                              Style="{StaticResource UserMenuItemStyle}" 
-                              Header="Edit Tag (Group)" 
-                              Command="{Binding EditTagGroupCommand}"
-                              IsEnabled="{Binding EditTagGroupCommand.IsReady}">
-
-                        <MenuItem Style="{StaticResource UserMenuItemStyle}" BorderBrush="Gray" BorderThickness="0 0 0 1">
-                            <MenuItem.Header>
-                                <TextBlock Text="Tag (Group) Fields" Margin="5 0 0 0" />
-                            </MenuItem.Header>
-                        </MenuItem>
-                        <MenuItem Header="Artist" Command="{Binding EditTagGroupCommand}" CommandParameter="AlbumArtists" Style="{StaticResource UserMenuItemStyle}"  />
-                        <MenuItem Header="Album" Command="{Binding EditTagGroupCommand}" CommandParameter="Album" Style="{StaticResource UserMenuItemStyle}" />
-                        <MenuItem Header="Genre" Command="{Binding EditTagGroupCommand}" CommandParameter="Genres" Style="{StaticResource UserMenuItemStyle}" />
-                        <MenuItem Header="Track Count" Command="{Binding EditTagGroupCommand}" CommandParameter="TrackCount" Style="{StaticResource UserMenuItemStyle}" />
-                        <MenuItem Header="Disc Count" Command="{Binding EditTagGroupCommand}" CommandParameter="DiscCount" Style="{StaticResource UserMenuItemStyle}" />
-                        <MenuItem Header="Artwork" Command="{Binding EditTagGroupCommand}" CommandParameter="Artwork" Style="{StaticResource UserMenuItemStyle}" />
-                    </MenuItem>
-
-                    <MenuItem Style="{StaticResource UserMenuItemStyle}" Header="Save Tag" Command="{Binding SaveTagCommand}"
-                              IsEnabled="{Binding SaveTagCommand.IsReady, Converter={StaticResource BoolVisibilityCollapseConverter}}" />
-
-                    <MenuItem Style="{StaticResource UserMenuItemStyle}" Header="Run Music Brainz" Command="{Binding RunAcousticFingerprintCommand}"
-                              IsEnabled="{Binding RunAcousticFingerprintCommand.IsReady}"/>
-                </ContextMenu>
-            </ListBox.ContextMenu>
-            
-        </ListBox-->
 
     </Grid>
 </UserControl>

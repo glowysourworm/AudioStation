@@ -36,7 +36,7 @@ namespace AudioStation.Views.LibraryImportViews
                 this.TagSourceCB.Items.Add(SOURCE_FILE_ITEM);
 
                 // Data Service (Music Brainz Tag)
-                if (viewModel.MusicBrainzReleaseTrackQuerySuccess)
+                if (viewModel.ImportFile.MusicBrainzReleaseTrackQuerySuccess)
                     this.TagSourceCB.Items.Add(SOURCE_MUSIC_BRAINZ);
 
                 this.TagSourceCB.Items.Add(SOURCE_DATA_SERVICE);
@@ -56,13 +56,13 @@ namespace AudioStation.Views.LibraryImportViews
                 {
                     // File
                     case SOURCE_FILE_ITEM:
-                        _audioStationMapper.MapOnto(viewModel.Tag, viewModel.TagRecordDirty);
+                        _audioStationMapper.MapOnto(viewModel.ImportFile.Tag, viewModel.ImportFile.TagRecordDirty);
                         break;
 
                     // Data Service (Music Brainz Tag)
                     case SOURCE_MUSIC_BRAINZ:
-                        if (viewModel.MusicBrainzReleaseTrackQuerySuccess)
-                            _audioStationMapper.MapOnto(viewModel.TagMusicBrainz, viewModel.TagRecordDirty);
+                        if (viewModel.ImportFile.MusicBrainzReleaseTrackQuerySuccess)
+                            _audioStationMapper.MapOnto(viewModel.ImportFile.TagMusicBrainz, viewModel.ImportFile.TagRecordDirty);
                         break;
 
                     // Data Service (AcoustID -> Music Brainz)
@@ -71,7 +71,7 @@ namespace AudioStation.Views.LibraryImportViews
                         var selectedItem = this.MusicBrainzCB.SelectedItem as TagSmallViewModel;
 
                         if (selectedItem != null)
-                            _audioStationMapper.MapOnto(selectedItem, viewModel.TagRecordDirty);
+                            _audioStationMapper.MapOnto(selectedItem, viewModel.ImportFile.TagRecordDirty);
 
                         break;
                 }
@@ -84,7 +84,7 @@ namespace AudioStation.Views.LibraryImportViews
 
             if (viewModel != null)
             {
-                _audioStationMapper.MapOnto(viewModel.TagRecordClean, viewModel.TagRecordDirty);
+                _audioStationMapper.MapOnto(viewModel.ImportFile.TagRecordClean, viewModel.ImportFile.TagRecordDirty);
             }
         }
 
@@ -111,9 +111,9 @@ namespace AudioStation.Views.LibraryImportViews
                         this.MusicBrainzView.Visibility = Visibility.Visible;
                         this.TagFileView.Visibility = Visibility.Collapsed;
 
-                        if (viewModel.MusicBrainzReleaseTrackQuerySuccess)
+                        if (viewModel.ImportFile.MusicBrainzReleaseTrackQuerySuccess)
                         {
-                            this.MusicBrainzCB.ItemsSource = new TagSmallViewModel[] { viewModel.TagMusicBrainz };
+                            this.MusicBrainzCB.ItemsSource = new TagSmallViewModel[] { viewModel.ImportFile.TagMusicBrainz };
                             this.MusicBrainzCB.SelectedIndex = 0;
                         }
                         break;
@@ -125,7 +125,7 @@ namespace AudioStation.Views.LibraryImportViews
                         this.MusicBrainzView.Visibility = Visibility.Visible;
                         this.TagFileView.Visibility = Visibility.Collapsed;
 
-                        this.MusicBrainzCB.ItemsSource = viewModel.ImportOutput.MusicBrainzAcoustIDResults;
+                        this.MusicBrainzCB.ItemsSource = viewModel.ImportFile.ImportOutput.MusicBrainzAcoustIDResults;
                         this.MusicBrainzCB.SelectedIndex = 0;
                         break;
                 }

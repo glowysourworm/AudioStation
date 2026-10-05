@@ -7,7 +7,117 @@
     <SolidColorBrush x:Key="FileTreeItemHoverBackground">#0F33AAFF</SolidColorBrush>
     <SolidColorBrush x:Key="FileTreeItemSelectBackground">#2F33AAFF</SolidColorBrush>
 
-    <Style x:Key="FileTreeViewItemStyle" TargetType="{x:Type treeViewUI:SimpleTreeView}">
+    <!-- Library Importer (Statging) -->
+    <DataTemplate x:Key="LibraryImporterStagingFileItemHeaderTemplate">
+
+        <Grid ColumnDefinitions="Auto, *">
+
+            <!-- Import File Name -->
+            <TextBlock Text="{Binding ShortPath}" 
+                       Style="{StaticResource LabelTextBlock}"
+                       Margin="3"
+                       VerticalAlignment="Center"
+                       TextWrapping="NoWrap"
+                       TextTrimming="CharacterEllipsis"
+                       Grid.Column="0" />
+
+            <!-- Import Indicators -->
+            <StackPanel Orientation="Horizontal" Grid.Column="1"
+                        HorizontalAlignment="Right"
+                        Visibility="{Binding IsDirectory, Converter={StaticResource BoolInverseVisibilityCollapseConverter}}">
+
+                <fa5:ImageAwesome Icon="Solid_VolumeUp" 
+                                      Margin="3"
+                                      Style="{StaticResource FontAwesomeIconManagerViewPager}"
+                                      ToolTip="AcoustID data may be downloaded prior to import; or after."
+                                      Foreground="{Binding ImportFile.ImportOutput.AcoustIDResults, 
+                                                           Converter={StaticResource ConfirmationCollectionNonEmptyForegroundParameterConverter},
+                                                           ConverterParameter={x:Static Brushes.DodgerBlue}}" />
+                <fa5:ImageAwesome Icon="Solid_Music" 
+                                      Margin="3"
+                                      ToolTip="Music Brainz data may be downloaded prior to import; or after."              
+                                      Style="{StaticResource FontAwesomeIconManagerViewPager}"
+                                      Foreground="{Binding ImportFile.ImportOutput.MusicBrainzRecordingMatches, 
+                                                           Converter={StaticResource ConfirmationCollectionNonEmptyForegroundParameterConverter},
+                                                           ConverterParameter={x:Static Brushes.DodgerBlue}}" />
+
+                <fa5:ImageAwesome Icon="Solid_Tag" 
+                                  Margin="3"
+                                  Foreground="{Binding ImportFile.TagRecordDirty.IsValid, Converter={StaticResource ValidationBoolForegroundParameterConverter}}"
+                                  Style="{StaticResource FontAwesomeIconManagerViewPager}"
+                                  ToolTip="Tag data is required to complete the import">
+                </fa5:ImageAwesome>
+
+            </StackPanel>            
+            
+        </Grid>
+    </DataTemplate>
+
+    <!-- Library Importer (Tag Completion) -->
+    <DataTemplate x:Key="LibraryImporterTagCompletionFileItemHeaderTemplate">
+
+        <Grid ColumnDefinitions="Auto, Auto, *">
+
+            <!-- Import Indicators -->
+            <StackPanel Orientation="Horizontal" Grid.Column="0">
+
+                <fa5:ImageAwesome Icon="Solid_Tag" 
+                                  Margin="3"
+                                  Foreground="{Binding TagRecordDirty.IsValid, Converter={StaticResource ValidationBoolForegroundParameterConverter}}"
+                                  Style="{StaticResource FontAwesomeIconManagerViewPager}"
+                                  ToolTip="Tag data is required to complete the import">
+                </fa5:ImageAwesome>
+
+                <fa5:ImageAwesome Icon="Solid_VolumeUp" 
+                                  Margin="3"
+                                  Style="{StaticResource FontAwesomeIconManagerViewPager}"
+                                  ToolTip="AcoustID data may be downloaded prior to import; or after."
+                                  Foreground="{Binding ImportOutput.AcoustIDResults, 
+                                                       Converter={StaticResource ConfirmationCollectionNonEmptyForegroundParameterConverter},
+                                                       ConverterParameter={x:Static Brushes.DodgerBlue}}" />
+                <fa5:ImageAwesome Icon="Solid_Music" 
+                                  Margin="3"
+                                  ToolTip="Music Brainz data may be downloaded prior to import; or after."              
+                                  Style="{StaticResource FontAwesomeIconManagerViewPager}"
+                                  Foreground="{Binding ImportOutput.MusicBrainzRecordingMatches, 
+                                                       Converter={StaticResource ConfirmationCollectionNonEmptyForegroundParameterConverter},
+                                                       ConverterParameter={x:Static Brushes.DodgerBlue}}" />
+            </StackPanel>
+
+            <!-- Import File Name -->
+            <TextBlock Text="{Binding ShortPath}" 
+                       Style="{StaticResource LabelTextBlock}"
+                       Margin="3"
+                       VerticalAlignment="Center"
+                       TextWrapping="NoWrap"
+                       TextTrimming="CharacterEllipsis"
+                       Grid.Column="1" />
+
+            <!-- Invalid Field Names -->
+            <TextBlock Text="{Binding TagRecordDirty.ValidationMessage}"
+                       Style="{StaticResource LabelDetailDarkTextBlock}"
+                       Visibility="{Binding TagRecordDirty.IsValid, Converter={StaticResource BoolInverseVisibilityCollapseConverter}}"
+                       VerticalAlignment="Center"                       
+                       HorizontalAlignment="Right"
+                       Margin="3"
+                       Grid.Column="2" />
+
+            <!-- Import Indicator (final) -->
+            <fa5:ImageAwesome Icon="Solid_Database" 
+                              Margin="3"
+                              Grid.Column="2"
+                              ToolTip="{Binding ImportOutput.ImportResult}"          
+                              VerticalAlignment="Center"                       
+                              HorizontalAlignment="Right"                              
+                              Visibility="{Binding TagRecordDirty.IsValid, Converter={StaticResource BoolVisibilityCollapseConverter}}"
+                              Style="{StaticResource FontAwesomeIconManagerViewPager}"
+                              Foreground="{Binding ImportOutput.ImportResult, 
+                                                   Converter={StaticResource LibraryWorkerResultLevelForegroundConverter}}" />
+
+        </Grid>
+    </DataTemplate>
+
+    <Style x:Key="FileTreeViewStyle" TargetType="{x:Type treeViewUI:SimpleTreeView}">
 
         <Setter Property="BorderBrush" Value="LightGray" />
         <Setter Property="BorderThickness" Value="1" />
@@ -19,16 +129,15 @@
         <Setter Property="ItemSelectionBrush" Value="{StaticResource FileTreeItemSelectBackground}" />
         <Setter Property="FontSize" Value="14" />
         <Setter Property="ItemIndent" Value="26" />
-        <Setter Property="ItemPadding" Value="2" />
+        <Setter Property="ItemPadding" Value="0" />
 
         <Setter Property="ItemExpanderOpenTemplate">
             <Setter.Value>
                 <DataTemplate>
                     <Grid Background="Transparent">
 
-                        <fa5:ImageAwesome Icon="Regular_FolderOpen"                                                     
-                                          Style="{StaticResource FontAwesomeIconManagerViewPager}"
-                                          Margin="3" />
+                        <fa5:SvgAwesome Icon="Regular_FolderOpen"                                                     
+                                        Style="{StaticResource FontAwesomeIconDefault}" />
                     </Grid>
                 </DataTemplate>
             </Setter.Value>
@@ -39,9 +148,8 @@
                 <DataTemplate>
                     <Grid Background="Transparent">
 
-                        <fa5:ImageAwesome Icon="Regular_Folder"                                                     
-                                          Style="{StaticResource FontAwesomeIconManagerViewPager}"
-                                          Margin="3" />
+                        <fa5:SvgAwesome Icon="Regular_Folder"                                                     
+                                        Style="{StaticResource FontAwesomeIconDefault}" />
                     </Grid>
                 </DataTemplate>
             </Setter.Value>
@@ -54,6 +162,48 @@
                 </DataTemplate>
             </Setter.Value>
         </Setter>
+
+    </Style>
+
+    <Style x:Key="LibraryImporterStagingFileTreeViewStyle" TargetType="{x:Type treeViewUI:SimpleTreeView}">
+
+        <Setter Property="BorderBrush" Value="LightGray" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="ItemBackground" Value="AliceBlue" />
+        <Setter Property="ItemBackgroundAlternation" Value="White" />
+        <Setter Property="ItemBorder" Value="Transparent" />
+        <Setter Property="ItemBorderThickness" Value="0" />
+        <Setter Property="ItemHoverBrush" Value="{StaticResource FileTreeItemHoverBackground}" />
+        <Setter Property="ItemSelectionBrush" Value="{StaticResource FileTreeItemSelectBackground}" />
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="ItemIndent" Value="26" />
+        <Setter Property="ItemPadding" Value="0" />
+
+        <Setter Property="ItemExpanderOpenTemplate">
+            <Setter.Value>
+                <DataTemplate>
+                    <Grid Background="Transparent">
+
+                        <fa5:SvgAwesome Icon="Regular_FolderOpen"                                                     
+                                        Style="{StaticResource FontAwesomeIconDefault}" />
+                    </Grid>
+                </DataTemplate>
+            </Setter.Value>
+        </Setter>
+
+        <Setter Property="ItemExpanderClosedTemplate">
+            <Setter.Value>
+                <DataTemplate>
+                    <Grid Background="Transparent">
+
+                        <fa5:SvgAwesome Icon="Regular_Folder"                                                     
+                                        Style="{StaticResource FontAwesomeIconDefault}" />
+                    </Grid>
+                </DataTemplate>
+            </Setter.Value>
+        </Setter>
+
+        <Setter Property="ItemHeaderContentTemplate" Value="{StaticResource LibraryImporterStagingFileItemHeaderTemplate}" />
 
     </Style>
 </ResourceDictionary>

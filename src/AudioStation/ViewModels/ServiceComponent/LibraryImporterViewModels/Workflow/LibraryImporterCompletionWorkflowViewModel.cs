@@ -7,6 +7,7 @@ using AudioStation.Event.DialogEvents.DialogEditorEvents;
 
 using SimpleWpf.IocFramework.Application;
 using SimpleWpf.UI.Command;
+using SimpleWpf.UI.ViewModel.TreeView;
 
 namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Workflow
 {
@@ -15,14 +16,17 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Wor
         private readonly IDialogController _dialogController;
 
         // Staged Files (carries the import load / output)
-        private readonly LibraryImporterStagedFileCollection _stagedFiles;
+        private readonly LibraryImporterFileTreeViewModel _stagedFiles;
         LibraryImporterStagedFileFilterType _stagedFileFilterType;
+
+        // These are forwarded directly from the UI
+        IEnumerable<LibraryImporterFileTreeNodeViewModel> _selectedNodes;
 
         SimpleCommand _editTagCommand;
         SimpleCommand _playAudioCommand;
         SimpleCommand<string> _editTagGroupCommand;
 
-        public LibraryImporterStagedFileCollection StagedFiles
+        public LibraryImporterFileTreeViewModel StagedFiles
         {
             get { return _stagedFiles; }
         }
@@ -49,7 +53,7 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Wor
         }
 
         public LibraryImporterCompletionWorkflowViewModel(
-                LibraryImporterStagedFileCollection stagedFiles,
+                LibraryImporterFileTreeViewModel stagedFiles,
                 LibraryImporterConfigurationViewModel workflowConfiguration)
             : base("Library Importer", "This workflow component will complete the import process")
         {
@@ -60,6 +64,8 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Wor
             this.EditTagCommand = new SimpleCommand(EditTag, CanEditTag);
             this.EditTagGroupCommand = new SimpleCommand<string>(EditSelectedTagsField, CanEditSelectedTagsField);
             this.PlayAudioCommand = new SimpleCommand(PlayAudio, CanPlayAudio);
+
+            _stagedFiles.TreeSelectionChangedEvent += OnStagedFileTreeSelectionChanged;
         }
 
         public override bool CanExecute()
@@ -76,15 +82,15 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Wor
         }
         private bool CanEditTag()
         {
-            return !_dialogController.IsShowing() && _stagedFiles.SelectedFiles.Count == 1;
+            return !_dialogController.IsShowing() && _selectedNodes.Count(x => !x.IsDirectory) == 1;
         }
         private bool CanEditSelectedTagsField(string fieldName)
         {
-            return !_dialogController.IsShowing() && _stagedFiles.Any(x => x.IsSelected);
+            return !_dialogController.IsShowing() && _selectedNodes.Any(x => !x.IsDirectory);
         }
         private bool CanPlayAudio()
         {
-            return !_dialogController.IsShowing() && _stagedFiles.SelectedFiles.Count == 1;
+            return !_dialogController.IsShowing() && _selectedNodes.Count(x => !x.IsDirectory) == 1;
         }
 
         private void EditSelectedTagsField(string fieldName)
@@ -95,34 +101,34 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Wor
             {
                 if (!string.IsNullOrWhiteSpace(viewModel.Value))
                 {
-                    foreach (var stagedFile in _stagedFiles.Where(x => x.IsSelected))
+                    foreach (var stagedFile in _stagedFiles.RecursiveWhere<LibraryImporterFileTreeNodeViewModel>(x => x.IsSelected))
                     {
-                        stagedFile.TagRecordDirty.SetField(fieldName, viewModel.Value);
+                        stagedFile.ImportFile.TagRecordDirty.SetField(fieldName, viewModel.Value);
                     }
                 }
             }
         }
         private void EditTag()
         {
-            var stagedFile = _stagedFiles.First(x => x.IsSelected);
+            var stagedFile = _stagedFiles.RecursiveWhere<LibraryImporterFileTreeNodeViewModel>(x => x.IsSelected).First();
 
             _dialogController.ShowDialogWindowSync(DialogEventData.ShowDialogEditor("Tag Source(s)", DialogEditorView.TagSourceView, stagedFile));
         }
         private void PlayAudio()
         {
-            var stagedFile = _stagedFiles.First(x => x.IsSelected);
+            var stagedFile = _stagedFiles.RecursiveWhere<LibraryImporterFileTreeNodeViewModel>(x => x.IsSelected).First();
 
             _dialogController.ShowDialogWindowSync(new DialogEventData(stagedFile.ShortPath, new DialogSmallAudioPlayerViewModel()
             {
                 FileName = stagedFile.FullPath,
                 SourceType = StreamSourceType.File,
-                Album = stagedFile.Tag.Album ?? "Unknown",
-                Artist = stagedFile.Tag.AlbumArtist ?? "Unknown",
+                Album = stagedFile.ImportFile.Tag.Album ?? "Unknown",
+                Artist = stagedFile.ImportFile.Tag.AlbumArtist ?? "Unknown",
                 CurrentTime = TimeSpan.Zero,
                 CurrentTimeRatio = 0,
-                Duration = TimeSpan.FromMilliseconds(stagedFile.Tag.DurationMilliseconds ?? 0),
+                Duration = TimeSpan.FromMilliseconds(stagedFile.ImportFile.Tag.DurationMilliseconds ?? 0),
                 PlayState = Core.Component.PlayStopPause.Play,
-                Track = (stagedFile.Tag.TrackNumber ?? 0).ToString()
+                Track = (stagedFile.ImportFile.Tag.TrackNumber ?? 0).ToString()
             }));
         }
 
@@ -138,6 +144,12 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Wor
         public override void Reset(DialogEventHandlers.DialogProgressHandler progressHandler)
         {
             this.Loaded = false;
+        }
+        private void OnStagedFileTreeSelectionChanged(IEnumerable<TreeViewNodeModelBase> selectedNodes)
+        {
+            _selectedNodes = selectedNodes.Cast<LibraryImporterFileTreeNodeViewModel>();
+
+            UpdateCommands();
         }
         public void UpdateCommands()
         {

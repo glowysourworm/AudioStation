@@ -464,6 +464,23 @@ namespace AudioStation.Core.Database.AudioStationDatabase
             }
         }
 
+        public IEnumerable<TEntity> GetEntitiesWhere<TEntity>(Func<TEntity, bool> predicate) where TEntity : AudioStationEntityBase
+        {
+            try
+            {
+                using (var context = CreateContext())
+                {
+                    // Must bring these into memory to execute search
+                    return GetEntitySet<TEntity>(context).ToList().Where(predicate);
+                }
+            }
+            catch (Exception ex)
+            {
+                ApplicationHelpers.Log("Error retrieving data:  " + ex.Message, LogMessageDbType.AudioStation, LogLevel.Error, ex);
+                throw ex;
+            }
+        }
+
         public IEnumerable<TView> GetViewEntities<TView>() where TView : AudioStationViewEntityBase
         {
             try

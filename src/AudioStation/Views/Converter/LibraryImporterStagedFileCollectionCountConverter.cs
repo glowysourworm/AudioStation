@@ -19,13 +19,13 @@ namespace AudioStation.Views.Converter
             if (values.Length != 2)
                 return Binding.DoNothing;
 
-            if (values[0] is not LibraryImporterStagedFileCollection)
+            if (values[0] is not LibraryImporterFileTreeViewModel)
                 return Binding.DoNothing;
 
             if (values[1] is not LibraryImporterStagedFileFilterType)
                 return Binding.DoNothing;
 
-            var collection = values[0] as LibraryImporterStagedFileCollection;
+            var collection = values[0] as LibraryImporterFileTreeViewModel;
             var filterType = (LibraryImporterStagedFileFilterType)values[1];
 
             if (collection == null)
@@ -34,21 +34,13 @@ namespace AudioStation.Views.Converter
             switch (filterType)
             {
                 case LibraryImporterStagedFileFilterType.None:
-                    return collection.Files.Count.ToString();
                 case LibraryImporterStagedFileFilterType.Valid:
-                    return collection.ValidFiles.Count.ToString();
                 case LibraryImporterStagedFileFilterType.Invalid:
-                    return collection.InvalidFiles.Count.ToString();
                 case LibraryImporterStagedFileFilterType.AcoustID:
-                    return collection.AcoustIDFiles.Count.ToString();
                 case LibraryImporterStagedFileFilterType.MusicBrainzBasic:
-                    return collection.MusicBrainzFiles.Count.ToString();
                 case LibraryImporterStagedFileFilterType.MusicBrainzSpecialTag:
-                    return collection.MusicBrainzSpecialTagFiles.Count.ToString();
                 case LibraryImporterStagedFileFilterType.LibraryConflict:
-                    return collection.LibraryConflictFiles.Count.ToString();
                 case LibraryImporterStagedFileFilterType.ImportReadyFiles:
-                    return collection.ImportReadyFiles.Count.ToString();
                 default:
                     throw new Exception("Unhandled staged file filter type");
             }

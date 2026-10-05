@@ -19,13 +19,13 @@ namespace AudioStation.Views.Converter
             if (values.Length != 2)
                 return Binding.DoNothing;
 
-            if (values[0] is not LibraryImporterStagedFileCollection)
+            if (values[0] is not LibraryImporterFileTreeViewModel)
                 return Binding.DoNothing;
 
             if (values[1] is not LibraryImporterStagedFileFilterType)
                 return Binding.DoNothing;
 
-            var collection = values[0] as LibraryImporterStagedFileCollection;
+            var collection = values[0] as LibraryImporterFileTreeViewModel;
             var filterType = (LibraryImporterStagedFileFilterType)values[1];
 
             if (collection == null)
@@ -34,21 +34,13 @@ namespace AudioStation.Views.Converter
             switch (filterType)
             {
                 case LibraryImporterStagedFileFilterType.None:
-                    return collection.Files;
                 case LibraryImporterStagedFileFilterType.Valid:
-                    return collection.ValidFiles;
                 case LibraryImporterStagedFileFilterType.Invalid:
-                    return collection.InvalidFiles;
                 case LibraryImporterStagedFileFilterType.AcoustID:
-                    return collection.AcoustIDFiles;
                 case LibraryImporterStagedFileFilterType.MusicBrainzBasic:
-                    return collection.MusicBrainzFiles;
                 case LibraryImporterStagedFileFilterType.MusicBrainzSpecialTag:
-                    return collection.MusicBrainzSpecialTagFiles;
                 case LibraryImporterStagedFileFilterType.LibraryConflict:
-                    return collection.LibraryConflictFiles;
                 case LibraryImporterStagedFileFilterType.ImportReadyFiles:
-                    return collection.ImportReadyFiles;
                 default:
                     throw new Exception("Unhandled staged file filter type");
             }

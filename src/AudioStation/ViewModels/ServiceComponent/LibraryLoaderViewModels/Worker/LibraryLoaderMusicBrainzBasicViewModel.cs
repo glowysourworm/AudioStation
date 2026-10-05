@@ -87,12 +87,12 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryLoaderViewModels.Worke
 
                     // Create Load
                     result.Add(new LibraryLoaderLoad<LibraryLoaderMusicBrainzBasicPayload>(
-                        this.Id, LibraryLoadType.MusicBrainzBasic, stagedFile.DisplayName,
+                        this.Id, LibraryLoadType.MusicBrainzBasic, stagedFile.ImportFile.ImportLoad.SourceFullPath,
                         new LibraryLoaderMusicBrainzBasicPayload()
                         {
                             AcoustIDResults = existingResults[stagedFile.FullPath],
                             FileName = stagedFile.FullPath,
-                            MusicBrainzReleaseTrackIDTag = stagedFile.MusicBrainzReleaseTrackIDTag,
+                            MusicBrainzReleaseTrackIDTag = stagedFile.ImportFile.MusicBrainzReleaseTrackIDTag,
                             PerformExtraTagLookup = _serviceMusicBrainzBasicIncludeTagLookup
                         }));
                 }
@@ -151,10 +151,10 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryLoaderViewModels.Worke
             // Music Brainz (special tag result)
             if (output.MusicBrainzResult != null)
             {
-                _audioStationMapper.MapOnto(output.MusicBrainzResult, loadItem.TagMusicBrainz);
+                _audioStationMapper.MapOnto(output.MusicBrainzResult, loadItem.ImportFile.TagMusicBrainz);
 
                 // Music Brainz (special tag result) Success!
-                loadItem.MusicBrainzReleaseTrackQuerySuccess = true;
+                loadItem.ImportFile.MusicBrainzReleaseTrackQuerySuccess = true;
             }
 
 
@@ -162,15 +162,15 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryLoaderViewModels.Worke
             foreach (var result in acoustIDResults)
             {
                 // Compare (by value)
-                if (!loadItem.ImportOutput.MusicBrainzRecordingMatches.Any(x => comparer.Compare(x, result)))
-                    loadItem.ImportOutput.MusicBrainzRecordingMatches.Add(result);
+                if (!loadItem.ImportFile.ImportOutput.MusicBrainzRecordingMatches.Any(x => comparer.Compare(x, result)))
+                    loadItem.ImportFile.ImportOutput.MusicBrainzRecordingMatches.Add(result);
             }
 
             // TODO: Re-situate workflow code
             var combinedResults = _audioStationDbClient.GetViewEntities<MusicBrainzAcoustIDResult>().ToList();
 
-            loadItem.ImportOutput.MusicBrainzAcoustIDResults.Clear();
-            loadItem.ImportOutput.MusicBrainzAcoustIDResults.AddRange(combinedResults.Where(x => x.FileName == loadItem.FullPath));
+            loadItem.ImportFile.ImportOutput.MusicBrainzAcoustIDResults.Clear();
+            loadItem.ImportFile.ImportOutput.MusicBrainzAcoustIDResults.AddRange(combinedResults.Where(x => x.FileName == loadItem.FullPath));
 
         }
     }

@@ -7,7 +7,6 @@ using AudioStation.Core.Component.LibraryLoaderComponent.Payload.Output;
 using AudioStation.Core.Model.Interface;
 using AudioStation.Event;
 using AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels;
-using AudioStation.ViewModels.ServiceComponent.LibraryLoaderViewModels;
 using AudioStation.ViewModels.ServiceComponent.LibraryLoaderViewModels.Payload.Input;
 using AudioStation.ViewModels.ServiceComponent.LibraryLoaderViewModels.Payload.Output;
 
@@ -75,7 +74,7 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryLoaderViewModels.Worke
 
         private ILibraryLoaderLoad CreateLoad(LibraryImporterFileTreeNodeViewModel loadItem)
         {
-            var importLoad = _audioStationMapper.Map<LibraryLoaderImportInputViewModel, LibraryLoaderImportPayload>(loadItem.ImportLoad);
+            var importLoad = _audioStationMapper.Map<LibraryLoaderImportInputViewModel, LibraryLoaderImportPayload>(loadItem.ImportFile.ImportLoad);
 
             return new LibraryLoaderLoad<LibraryLoaderImportPayload>(this.Id, LibraryLoadType.Import, loadItem.FullPath, importLoad);
         }
@@ -127,7 +126,7 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryLoaderViewModels.Worke
             output.ImportResult = workItem.WorkSteps.Max(x => x.Result);
 
             // ImportOutput (map onto!)
-            _audioStationMapper.MapOnto(output, _loadItemDict[input.SourceFullPath].ImportOutput);
+            _audioStationMapper.MapOnto(output, _loadItemDict[input.SourceFullPath].ImportFile.ImportOutput);
         }
     }
 }
