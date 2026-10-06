@@ -214,7 +214,8 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Wor
             // Load Workers:  This issue still has an overall casting problem we're avoiding. To templatize this whole
             //                LibraryLoader + Workflow design would take a couple more refactorings.
             //
-            this.SelectedWorker.AddWork(_stagedFiles);
+
+            this.SelectedWorker.AddWork(_stagedFiles.RecursiveToList());
 
             // -> Component Part Load
             this.SelectedWorker.Load(configuration, audioStationController, progressHandler);

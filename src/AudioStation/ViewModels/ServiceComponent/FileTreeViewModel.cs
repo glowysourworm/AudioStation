@@ -92,6 +92,22 @@ namespace AudioStation.ViewModels.ServiceComponent
         {
             base.RecursiveForEach<FileTreeNodeViewModel>(action);
         }
+        public List<FileTreeNodeViewModel> RecursiveToList()
+        {
+            var allNodes = new List<FileTreeNodeViewModel>();
+
+            RecursiveForEach(allNodes.Add);
+
+            return allNodes;
+        }
+        public List<T> RecursiveToList<T>() where T : TreeViewNodeModelBase
+        {
+            var allNodes = new List<T>();
+
+            RecursiveForEach<T>(allNodes.Add);
+
+            return allNodes;
+        }
 
         private void UpdateIndicators()
         {

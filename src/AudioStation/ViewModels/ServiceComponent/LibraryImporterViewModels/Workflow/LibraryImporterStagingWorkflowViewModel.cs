@@ -1,4 +1,6 @@
-﻿using AudioStation.Controller.Interface;
+﻿using System.ComponentModel;
+
+using AudioStation.Controller.Interface;
 using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Database.AudioStationDatabase;
 using AudioStation.Core.Database.AudioStationDatabase.Interface;
@@ -81,6 +83,10 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Wor
 
             this.ImportDirectory.TreeSelectionChangedEvent += ImportDirectory_TreeSelectionChangedEvent;
             this.StagedFiles.TreeSelectionChangedEvent += StagedFiles_TreeSelectionChangedEvent;
+
+            // Bubble Up Events
+            this.ImportDirectory.PropertyChanged += OnBubbleUpUIEvent;
+            this.StagedFiles.PropertyChanged += OnBubbleUpUIEvent;
 
             this.StageCommand = new SimpleCommand(() => Stage(dialogController), CanStage);
             this.UnstageCommand = new SimpleCommand(Unstage, CanUnstage);
@@ -269,6 +275,12 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Wor
         private void ImportDirectory_TreeSelectionChangedEvent(IEnumerable<TreeViewNodeModelBase> selectedNodes)
         {
             UpdateCommands();
+        }
+        private void OnBubbleUpUIEvent(object? sender, PropertyChangedEventArgs e)
+        {
+            // Bubble Up Events (these must be forwarded to the parent view model
+            OnPropertyChanged("ImportDirectory");
+            OnPropertyChanged("StagedFiles");
         }
         public void UpdateCommands()
         {
