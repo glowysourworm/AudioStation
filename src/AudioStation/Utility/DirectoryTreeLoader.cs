@@ -156,7 +156,7 @@ namespace AudioStation.Utility
                     }
 
                     // Current Directory: IsLoaded = true
-                    currentDirectory.IsLoaded = true;
+                    currentDirectory.SetLoaded();
                 }
             }
             catch (Exception ex)

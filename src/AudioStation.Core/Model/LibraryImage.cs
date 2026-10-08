@@ -36,14 +36,7 @@ namespace AudioStation.Core.Model
 
         private int CalculateHash()
         {
-            var hash = HashCode.Combine(this.MimeType, this.PictureType, this.Description);
-
-            foreach (var dataByte in this.Data)
-            {
-                hash = HashCode.Combine(hash, dataByte);
-            }
-
-            return hash;
+            return HashCode.Combine(this.MimeType, this.PictureType, this.Description, this.Data);
         }
 
         public override string ToString()

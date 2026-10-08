@@ -71,7 +71,14 @@ namespace AudioStation.ViewModels.ServiceComponent
 
             UpdateIndicators();
         }
-
+        public FileTreeNodeViewModel? GetNode(object key)
+        {
+            return base.GetNode<FileTreeNodeViewModel>(key);
+        }
+        public FileTreeNodeViewModel? GetNode(int recursionDepth, object key)
+        {
+            return base.GetNode<FileTreeNodeViewModel>(recursionDepth, key);
+        }
         public bool Any(Func<FileTreeNodeViewModel, bool> predicate)
         {
             return base.Any<FileTreeNodeViewModel>(predicate);

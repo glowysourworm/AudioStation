@@ -23,7 +23,14 @@
 
             EndUpdate();
         }
-
+        public new LibraryImporterFileTreeNodeViewModel? GetNode(object key)
+        {
+            return base.GetNode<LibraryImporterFileTreeNodeViewModel>(key);
+        }
+        public new LibraryImporterFileTreeNodeViewModel? GetNode(int recursionDepth, object key)
+        {
+            return base.GetNode<LibraryImporterFileTreeNodeViewModel>(recursionDepth, key);
+        }
         public bool Any(Func<LibraryImporterFileTreeNodeViewModel, bool> predicate)
         {
             return base.Any<LibraryImporterFileTreeNodeViewModel>(predicate);

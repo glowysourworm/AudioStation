@@ -184,9 +184,6 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Wor
                                                           .Where(x => x.MusicBrainzRecordingId != null)
                                                           .ToDictionary(x => x.TagSmallId, x => x);
 
-            var selectedFileCount = this.ImportDirectory.Count(x => x.IsSelected);
-            var counter = 0;
-
             // Procedure:  We must take branches of the other tree view and 
             //             create the staged file tree. Selected Items have
             //             already been forwarded by the view.
@@ -199,11 +196,16 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Wor
             //               are just going to be placeholders unless there is
             //               some need for them.
             //
+            var selectedFileCount = this.ImportDirectory.SelectedNodes.Count(x => x.IsSelected);
+            var counter = 0;
+
             foreach (var selectedItem in this.ImportDirectory
                                              .SelectedNodes
                                              .OrderBy(x => x.RecursionDepth)
                                              .Cast<FileTreeNodeViewModel>())
             {
+                progressHandler(1, 1, selectedFileCount, counter++, "Loading:  " + selectedItem.FullPath);
+
                 // Contains (by key)
                 if (this.StagedFiles.Contains(selectedItem))
                     continue;
@@ -220,7 +222,7 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Wor
                             continue;
 
                         // Parent (or) Root
-                        var ancestorParent = ancestor.Parent != null ? this.StagedFiles.First(x => x.Key == ancestor.Parent.Key) : null;
+                        var ancestorParent = ancestor.Parent != null ? this.StagedFiles.GetNode(ancestor.Parent.RecursionDepth, ancestor.Parent.Key) : null;
 
                         // Stage
                         var stagedAncestor = CreateStagedFileNode(ancestorParent, ancestor, libraryFiles,
@@ -236,7 +238,7 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Wor
                 else
                 {
                     // Parent (or) Root
-                    var parent = selectedItem.Parent != null ? this.StagedFiles.First(x => x.Key == selectedItem.Parent.Key) : null;
+                    var parent = selectedItem.Parent != null ? this.StagedFiles.GetNode(selectedItem.Parent.RecursionDepth, selectedItem.Parent.Key) : null;
 
                     var node = CreateStagedFileNode(parent, selectedItem, libraryFiles,
                                                     tagFileMaps, acoustIDResults,
