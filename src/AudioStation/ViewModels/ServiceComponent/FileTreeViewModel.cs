@@ -72,31 +72,36 @@ namespace AudioStation.ViewModels.ServiceComponent
             UpdateIndicators();
         }
 
-        public bool RecursiveAny(Func<FileTreeNodeViewModel, bool> predicate)
+        public bool Any(Func<FileTreeNodeViewModel, bool> predicate)
         {
-            return base.RecursiveAny<FileTreeNodeViewModel>(predicate);
+            return base.Any<FileTreeNodeViewModel>(predicate);
         }
-        public IEnumerable<FileTreeNodeViewModel> RecursiveWhere(Func<FileTreeNodeViewModel, bool> predicate)
+        public IEnumerable<FileTreeNodeViewModel> Where(Func<FileTreeNodeViewModel, bool> predicate)
         {
-            return base.RecursiveWhere(predicate);
+            return base.Where(predicate);
         }
-        public FileTreeNodeViewModel? RecursiveFirst(Func<FileTreeNodeViewModel, bool> predicate)
+        public FileTreeNodeViewModel? First(Func<FileTreeNodeViewModel, bool> predicate)
         {
-            return base.RecursiveFirst<FileTreeNodeViewModel>(predicate);
+            return base.First<FileTreeNodeViewModel>(predicate);
         }
-        public int RecursiveCount(Func<FileTreeNodeViewModel, bool> predicate)
+        public int Count(Func<FileTreeNodeViewModel, bool> predicate)
         {
-            return base.RecursiveCount<FileTreeNodeViewModel>(predicate);
+            return base.Count<FileTreeNodeViewModel>(predicate);
         }
-        public void RecursiveForEach(Action<FileTreeNodeViewModel> action)
+        public void ForEach(Action<FileTreeNodeViewModel> action)
         {
-            base.RecursiveForEach<FileTreeNodeViewModel>(action);
+            base.ForEach<FileTreeNodeViewModel>(action);
         }
+        public new IEnumerable<FileTreeNodeViewModel> GetBranch(TreeViewNodeModelBase node, bool includeDescendants = false)
+        {
+            return base.GetBranch(node, includeDescendants).Cast<FileTreeNodeViewModel>();
+        }
+
         public List<FileTreeNodeViewModel> RecursiveToList()
         {
             var allNodes = new List<FileTreeNodeViewModel>();
 
-            RecursiveForEach(allNodes.Add);
+            ForEach(allNodes.Add);
 
             return allNodes;
         }
@@ -104,7 +109,7 @@ namespace AudioStation.ViewModels.ServiceComponent
         {
             var allNodes = new List<T>();
 
-            RecursiveForEach<T>(allNodes.Add);
+            ForEach<T>(allNodes.Add);
 
             return allNodes;
         }
@@ -117,7 +122,7 @@ namespace AudioStation.ViewModels.ServiceComponent
             _totalDirectoryCount = 0;
             _totalFileCount = 0;
 
-            this.RecursiveForEach<FileTreeNodeViewModel>(node =>
+            this.ForEach(node =>
             {
                 if (node.IsDirectory)
                 {

@@ -166,9 +166,6 @@ namespace AudioStation.Service
 
                 }, progressHandler, searchPatterns);
 
-                // NOTE:  This is needed for multi-select inside of the SimpleTreeView
-                result.SetTreeNumbering();
-
                 return result;
             }
             catch (Exception ex)

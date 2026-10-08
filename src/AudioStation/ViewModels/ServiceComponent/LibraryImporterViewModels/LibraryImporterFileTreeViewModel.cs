@@ -8,7 +8,7 @@
 
         public void Remove(Func<LibraryImporterFileTreeNodeViewModel, bool> predicate)
         {
-            var nodes = this.RecursiveWhere(predicate);
+            var nodes = this.Where(predicate);
 
             BeginUpdate();
 
@@ -24,25 +24,29 @@
             EndUpdate();
         }
 
-        public bool RecursiveAny(Func<LibraryImporterFileTreeNodeViewModel, bool> predicate)
+        public bool Any(Func<LibraryImporterFileTreeNodeViewModel, bool> predicate)
         {
-            return base.RecursiveAny<LibraryImporterFileTreeNodeViewModel>(predicate);
+            return base.Any<LibraryImporterFileTreeNodeViewModel>(predicate);
         }
-        public IEnumerable<LibraryImporterFileTreeNodeViewModel> RecursiveWhere(Func<LibraryImporterFileTreeNodeViewModel, bool> predicate)
+        public IEnumerable<LibraryImporterFileTreeNodeViewModel> Where(Func<LibraryImporterFileTreeNodeViewModel, bool> predicate)
         {
-            return base.RecursiveWhere(predicate);
+            return base.Where(predicate);
         }
-        public LibraryImporterFileTreeNodeViewModel? RecursiveFirst(Func<LibraryImporterFileTreeNodeViewModel, bool> predicate)
+        public LibraryImporterFileTreeNodeViewModel? First(Func<LibraryImporterFileTreeNodeViewModel, bool> predicate)
         {
-            return base.RecursiveFirst<LibraryImporterFileTreeNodeViewModel>(predicate);
+            return base.First<LibraryImporterFileTreeNodeViewModel>(predicate);
         }
-        public int RecursiveCount(Func<LibraryImporterFileTreeNodeViewModel, bool> predicate)
+        public int Count(Func<LibraryImporterFileTreeNodeViewModel, bool> predicate)
         {
-            return base.RecursiveCount<LibraryImporterFileTreeNodeViewModel>(predicate);
+            return base.Count<LibraryImporterFileTreeNodeViewModel>(predicate);
         }
-        public void RecursiveForEach(Action<LibraryImporterFileTreeNodeViewModel> action)
+        public void ForEach(Action<LibraryImporterFileTreeNodeViewModel> action)
         {
-            base.RecursiveForEach<LibraryImporterFileTreeNodeViewModel>(action);
+            base.ForEach<LibraryImporterFileTreeNodeViewModel>(action);
+        }
+        public IEnumerable<LibraryImporterFileTreeNodeViewModel> GetBranch(LibraryImporterFileTreeNodeViewModel node, bool includeDescendants = false)
+        {
+            return base.GetBranch(node, includeDescendants).Cast<LibraryImporterFileTreeNodeViewModel>();
         }
     }
 }

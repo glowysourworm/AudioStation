@@ -101,7 +101,7 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Wor
             {
                 if (!string.IsNullOrWhiteSpace(viewModel.Value))
                 {
-                    foreach (var stagedFile in _stagedFiles.RecursiveWhere<LibraryImporterFileTreeNodeViewModel>(x => x.IsSelected))
+                    foreach (var stagedFile in _stagedFiles.Where(x => x.IsSelected))
                     {
                         stagedFile.ImportFile.TagRecordDirty.SetField(fieldName, viewModel.Value);
                     }
@@ -110,13 +110,13 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Wor
         }
         private void EditTag()
         {
-            var stagedFile = _stagedFiles.RecursiveWhere<LibraryImporterFileTreeNodeViewModel>(x => x.IsSelected).First();
+            var stagedFile = _stagedFiles.Where(x => x.IsSelected).First();
 
             _dialogController.ShowDialogWindowSync(DialogEventData.ShowDialogEditor("Tag Source(s)", DialogEditorView.TagSourceView, stagedFile));
         }
         private void PlayAudio()
         {
-            var stagedFile = _stagedFiles.RecursiveWhere<LibraryImporterFileTreeNodeViewModel>(x => x.IsSelected).First();
+            var stagedFile = _stagedFiles.Where(x => x.IsSelected).First();
 
             _dialogController.ShowDialogWindowSync(new DialogEventData(stagedFile.ShortPath, new DialogSmallAudioPlayerViewModel()
             {

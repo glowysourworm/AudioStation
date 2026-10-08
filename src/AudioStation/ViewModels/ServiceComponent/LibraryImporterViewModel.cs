@@ -315,7 +315,7 @@ namespace AudioStation.ViewModels.ServiceComponent
                 // Validation: Staged Files
                 //
                 case LibraryImporterWorkflowStep.Staging:
-                    this.WorkflowNextEnabled = !this.Loading && this.StagingWorkflow.StagedFiles.Count > 0;
+                    this.WorkflowNextEnabled = !this.Loading && this.StagingWorkflow.StagedFiles.TotalFileCount > 0;
                     this.WorkflowPreviousEnabled = !this.Loading;
 
                     // Execute Recursive File Count (probably not a performance issue; but check for too much UI interaction) (IsSelected Binding)
@@ -333,7 +333,7 @@ namespace AudioStation.ViewModels.ServiceComponent
                 // Validation: Staged Files (all have been imported or attempted) (warning?)
                 //
                 case LibraryImporterWorkflowStep.TagCompletion:
-                    this.WorkflowNextEnabled = !this.Loading && this.CompletionWorkflow.StagedFiles.RecursiveAny(x => x.ImportFile.TagRecordDirty.IsValid);
+                    this.WorkflowNextEnabled = !this.Loading && this.CompletionWorkflow.StagedFiles.Any(x => x.ImportFile.TagRecordDirty.IsValid);
                     this.WorkflowPreviousEnabled = !this.Loading;
                     break;
 
@@ -342,7 +342,7 @@ namespace AudioStation.ViewModels.ServiceComponent
                 case LibraryImporterWorkflowStep.ImportCompletion:
                     this.WorkflowNextEnabled = !this.Loading;
                     this.WorkflowPreviousEnabled = !this.Loading;
-                    this.SourceFileTodoCount = this.SourceFileCount - this.StagingWorkflow.StagedFiles.RecursiveCount(x => x.ImportFile.ImportOutput.ImportResult == LibraryWorkerResultLevel.Success);
+                    this.SourceFileTodoCount = this.SourceFileCount - this.StagingWorkflow.StagedFiles.Count(x => x.ImportFile.ImportOutput.ImportResult == LibraryWorkerResultLevel.Success);
                     break;
 
                 // Validation: TODO

@@ -130,6 +130,7 @@
         <Setter Property="FontSize" Value="14" />
         <Setter Property="ItemIndent" Value="26" />
         <Setter Property="ItemPadding" Value="0" />
+        <Setter Property="SelectionMode" Value="IncludeDescendants" />
 
         <Setter Property="ItemExpanderOpenTemplate">
             <Setter.Value>

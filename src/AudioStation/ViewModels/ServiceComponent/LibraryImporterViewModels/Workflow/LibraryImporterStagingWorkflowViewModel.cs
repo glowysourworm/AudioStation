@@ -102,15 +102,11 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Wor
         }
         public bool CanStage()
         {
-            // This needs to be completed... (Return bools from Initialize  and Load)
-            if (this.ImportDirectory == null)
-                return false;
-
-            return this.ImportDirectory.SelectedFileCount > 0;
+            return this.ImportDirectory.SelectedCount > 0;
         }
         public bool CanUnstage()
         {
-            return this.StagedFiles.SelectedFileCount > 0;
+            return this.StagedFiles.SelectedCount > 0;
         }
 
         public override bool CanExecute()
@@ -159,6 +155,9 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Wor
 
         public override void Execute(DialogEventHandlers.DialogProgressHandler progressHandler)
         {
+            if (this.ImportDirectory.SelectedNodes == null)
+                throw new ArgumentException("Import selected nodes aren't being forwarded from the view");
+
             // Block Events
             this.StagedFiles.BeginUpdate();
 
@@ -185,7 +184,7 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Wor
                                                           .Where(x => x.MusicBrainzRecordingId != null)
                                                           .ToDictionary(x => x.TagSmallId, x => x);
 
-            var selectedFileCount = this.ImportDirectory.RecursiveCount<FileTreeNodeViewModel>(x => x.IsSelected);
+            var selectedFileCount = this.ImportDirectory.Count(x => x.IsSelected);
             var counter = 0;
 
             // Procedure:  We must take branches of the other tree view and 
@@ -194,61 +193,98 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Wor
             //              
             // Add Node:   The nodes must be added in order starting with 
             //             the root. The tree view model looks for the matching
-            //             parent node by reference.
+            //             parent node by key reference.
             //
             // Directories:  Each node is treated as part of the tree. Directories
             //               are just going to be placeholders unless there is
             //               some need for them.
             //
-            foreach (var selectedItem in this.ImportDirectory.SelectedNodes)
+            foreach (var selectedItem in this.ImportDirectory
+                                             .SelectedNodes
+                                             .OrderBy(x => x.RecursionDepth)
+                                             .Cast<FileTreeNodeViewModel>())
             {
-                // These are returned in order - down the tree!
-                var branch = this.ImportDirectory.GetBranch(selectedItem);
+                // Contains (by key)
+                if (this.StagedFiles.Contains(selectedItem))
+                    continue;
 
-                LibraryImporterFileTreeNodeViewModel lastNode = null;
-
-                // Starting at the root
-                foreach (var branchNode in branch.Cast<FileTreeNodeViewModel>())
+                // Include Ancestors
+                if (selectedItem.Parent != null &&
+                   !this.StagedFiles.Contains(selectedItem.Parent))
                 {
-                    var nodeCheck = this.StagedFiles.RecursiveFirst(x => x.FullPath == branchNode.FullPath);
+                    var ancestors = this.ImportDirectory.GetBranch(selectedItem);
 
-                    if (nodeCheck != null)
+                    foreach (var ancestor in ancestors)
                     {
-                        lastNode = nodeCheck;
-                        continue;
-                    }
+                        if (this.StagedFiles.Contains(ancestor))
+                            continue;
 
+                        // Parent (or) Root
+                        var ancestorParent = ancestor.Parent != null ? this.StagedFiles.First(x => x.Key == ancestor.Parent.Key) : null;
 
-                    // Root
-                    if (lastNode == null)
-                    {
-                        lastNode = CreateStagedFileNode(null, branchNode, libraryFiles,
+                        // Stage
+                        var stagedAncestor = CreateStagedFileNode(ancestorParent, ancestor, libraryFiles,
                                                         tagFileMaps, acoustIDResults,
                                                         musicBrainzAcoustIDResults, musicBrainzResults);
 
                         // -> Add (root)
-                        this.StagedFiles.Add(lastNode);
+                        this.StagedFiles.Add(stagedAncestor);
                     }
+                }
 
-                    // Check Staged File Tree (by key)
-                    else if (this.StagedFiles.RecursiveAny(x => x.FullPath == branchNode.FullPath))
-                    {
-                        // Get the follower node by key! (this should be built into the staged file collection)
-                        lastNode = this.StagedFiles.RecursiveFirst(x => x.FullPath == branchNode.FullPath);
-                    }
+                // Leaf Only
+                else
+                {
+                    // Parent (or) Root
+                    var parent = selectedItem.Parent != null ? this.StagedFiles.First(x => x.Key == selectedItem.Parent.Key) : null;
 
-                    // -> Next Node
-                    else
-                    {
-                        lastNode = CreateStagedFileNode(lastNode, branchNode, libraryFiles,
+                    var node = CreateStagedFileNode(parent, selectedItem, libraryFiles,
                                                     tagFileMaps, acoustIDResults,
                                                     musicBrainzAcoustIDResults, musicBrainzResults);
 
-                        // -> Add
-                        this.StagedFiles.Add(lastNode);
-                    }
+                    // -> Add (root)
+                    this.StagedFiles.Add(node);
                 }
             }
+
+            //var removeList = new List<LibraryImporterFileTreeNodeViewModel>();
+
+            //// Set Mis-matching node parents
+            //this.StagedFiles.ForEach(stagedFile =>
+            //{
+            //    // Import File
+            //    var importFile = this.ImportDirectory.First(x => x.Key == stagedFile.Key);
+
+            //    if (importFile == null)
+            //        throw new Exception("Application error: improper handling of tree nodes");
+
+            //    if (importFile.Parent == null &&
+            //        stagedFile.Parent != null)
+            //        throw new Exception("Improper handling of staged file tree");
+
+            //    else if (importFile.Parent != null)
+            //    {
+            //        if (stagedFile.Parent == null)
+            //        {
+            //            var stagedParent = this.StagedFiles.First(x => x.Key == importFile.Parent.Key);
+
+            //            if (stagedParent == null)
+            //                throw new Exception("Parent node of import files not staged!");
+
+            //            removeList.Add(stagedFile);
+            //        }
+            //    }
+            //});
+
+            //// 1) Remove, 2) Set Parent, 3) Add
+            //foreach (var removeNode in removeList)
+            //{
+            //    this.StagedFiles.Remove(removeNode);
+            //}
+            //foreach (var removeNode in removeList)
+            //{
+            //    var stagedParent = this.StagedFiles.First(x => x.Key == importFile.Parent.Key);
+            //}
 
 
             this.StagedFiles.EndUpdate();
