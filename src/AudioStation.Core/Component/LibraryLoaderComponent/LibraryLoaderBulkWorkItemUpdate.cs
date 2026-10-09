@@ -7,6 +7,7 @@
     {
         public int Id { get; private set; }
         public Guid OwnerId { get; private set; }
+        public string Description { get; private set; }
         public LibraryLoadType Type { get; set; }
         public LibraryWorkItemState State { get; set; }
         public double Progress { get; set; }
@@ -23,10 +24,17 @@
 
         public int TotalCount { get; set; }
 
-        public LibraryLoaderBulkWorkItemUpdate(int id, Guid ownerId)
+        /// <summary>
+        /// Work item just completed (if the update is for a completed item)
+        /// </summary>
+        public LibraryLoaderWorkItem? CompletedWorkItem { get; private set; }
+
+        public LibraryLoaderBulkWorkItemUpdate(int id, Guid ownerId, string description, LibraryLoaderWorkItem? completedItem)
         {
             this.Id = id;
             this.OwnerId = ownerId;
+            this.Description = description;
+            this.CompletedWorkItem = completedItem;
         }
     }
 }

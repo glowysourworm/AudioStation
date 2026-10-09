@@ -308,11 +308,19 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Wor
         private void StagedFiles_TreeSelectionChangedEvent(IEnumerable<TreeViewNodeModelBase> selectedNodes)
         {
             UpdateCommands();
+
+            // Bubble Up Events (these must be forwarded to the parent view model
+            OnPropertyChanged("ImportDirectory");
+            OnPropertyChanged("StagedFiles");
         }
 
         private void ImportDirectory_TreeSelectionChangedEvent(IEnumerable<TreeViewNodeModelBase> selectedNodes)
         {
             UpdateCommands();
+
+            // Bubble Up Events (these must be forwarded to the parent view model
+            OnPropertyChanged("ImportDirectory");
+            OnPropertyChanged("StagedFiles");
         }
         private void OnBubbleUpUIEvent(object? sender, PropertyChangedEventArgs e)
         {

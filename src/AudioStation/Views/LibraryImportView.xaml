@@ -30,7 +30,7 @@
                     HorizontalAlignment="Right"
                     Margin="5 0 5 5"
                     Grid.Row="1"
-                    Visibility="{Binding Loading, Converter={StaticResource BoolInverseVisibilityCollapseConverter}}">
+                    IsEnabled="{Binding Loading, Converter={StaticResource BoolInverseConverter}}">
 
             <!-- Previous -->
             <Button x:Name="PreviousButton"

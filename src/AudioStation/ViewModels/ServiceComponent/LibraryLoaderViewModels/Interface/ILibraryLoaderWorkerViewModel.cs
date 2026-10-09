@@ -28,9 +28,20 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryLoaderViewModels.Inter
         /// </summary>
         event SimpleEventHandler<ILibraryLoaderWorkerViewModel, LibraryWorkItemViewModel> WorkItemUIChangedEvent;
 
+        /// <summary>
+        /// Executes when work item is updated
+        /// </summary>
+        event SimpleEventHandler<ILibraryLoaderWorkerViewModel, LibraryBulkWorkItemViewModel> BulkWorkItemChangedEvent;
+
+        /// <summary>
+        /// Event that fires when any of the UI properties of the work item are changed (e.g. IsSelected)
+        /// </summary>
+        event SimpleEventHandler<ILibraryLoaderWorkerViewModel, LibraryBulkWorkItemViewModel> BulkWorkItemUIChangedEvent;
+
         bool Complete { get; }
         bool Working { get; }
         bool Loaded { get; }
+        bool ExecuteAsBulk { get; }
         PlayStopPause LibraryLoaderState { get; }
 
         /// <summary>

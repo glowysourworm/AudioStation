@@ -28,16 +28,16 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryLoaderViewModels.Worke
 
         private readonly bool _serviceMusicBrainzBasicIncludeTagLookup;
 
-        public LibraryLoaderMusicBrainzBasicViewModel()
-            : base("Music Brainz (basic)", "Downloads basic tag details for recordings in the library with a Music Brainz ID")
+        public LibraryLoaderMusicBrainzBasicViewModel(bool executeAsBulk)
+            : base("Music Brainz (basic)", "Downloads basic tag details for recordings in the library with a Music Brainz ID", executeAsBulk)
         {
             _audioStationMapper = IocContainer.Get<IAudioStationMapper>();
             _loadItemDict = new Dictionary<string, LibraryImporterFileTreeNodeViewModel>();
             _serviceMusicBrainzBasicIncludeTagLookup = false;
         }
 
-        public LibraryLoaderMusicBrainzBasicViewModel(LibraryImporterConfigurationViewModel configuration)
-            : base("Music Brainz (basic)", "Downloads basic tag details for recordings in the library with a Music Brainz ID")
+        public LibraryLoaderMusicBrainzBasicViewModel(LibraryImporterConfigurationViewModel configuration, bool executeAsBulk)
+            : base("Music Brainz (basic)", "Downloads basic tag details for recordings in the library with a Music Brainz ID", executeAsBulk)
         {
             _audioStationMapper = IocContainer.Get<IAudioStationMapper>();
             _loadItemDict = new Dictionary<string, LibraryImporterFileTreeNodeViewModel>();

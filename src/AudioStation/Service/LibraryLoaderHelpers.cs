@@ -6,6 +6,40 @@ namespace AudioStation.Service
 {
     public static class LibraryLoaderHelpers
     {
+        public static void ApplyLibraryLoaderBulkWorkItem(LibraryLoaderBulkWorkItem sender,
+                                                          ref LibraryBulkWorkItemViewModel viewModel)
+        {
+            viewModel.CompletedCount = sender.GetCompletedCount();
+            viewModel.DataErrorCount = sender.GetCount(LibraryWorkerResultLevel.DataError);
+            viewModel.DataWarningCount = sender.GetCount(LibraryWorkerResultLevel.DataWarning);
+            viewModel.FailureCount = sender.GetCount(LibraryWorkerResultLevel.Failure);
+            viewModel.PendingCount = sender.GetCount(LibraryWorkItemState.Pending);
+            viewModel.ProcessingCount = sender.GetCount(LibraryWorkItemState.Processing);
+            viewModel.Progress = sender.GetProgress();
+            viewModel.ServiceFailureCount = sender.GetCount(LibraryWorkerResultLevel.ServiceFailure);
+            viewModel.ServiceNoResultCount = sender.GetCount(LibraryWorkerResultLevel.ServiceNoResult);
+            viewModel.State = sender.GetLoadState();
+            viewModel.SuccessCount = sender.GetCount(LibraryWorkerResultLevel.Success);
+            viewModel.TotalCount = sender.GetCount();
+        }
+        public static void ApplyLibraryLoaderBulkWorkItemUpdate(LibraryLoaderBulkWorkItemUpdate sender,
+                                                                ref LibraryBulkWorkItemViewModel bulkWorkItem)
+        {
+            bulkWorkItem.CompletedCount = sender.CompletedCount;
+            bulkWorkItem.DataErrorCount = sender.DataErrorCount;
+            bulkWorkItem.DataWarningCount = sender.DataWarningCount;
+            bulkWorkItem.FailureCount = sender.FailureCount;
+            bulkWorkItem.PendingCount = sender.PendingCount;
+            bulkWorkItem.ProcessingCount = sender.ProcessingCount;
+            bulkWorkItem.Progress = sender.Progress;
+            bulkWorkItem.ServiceFailureCount = sender.ServiceFailureCount;
+            bulkWorkItem.ServiceNoResultCount = sender.ServiceNoResultCount;
+            bulkWorkItem.State = sender.State;
+            bulkWorkItem.SuccessCount = sender.SuccessCount;
+            bulkWorkItem.TotalCount = sender.TotalCount;
+
+            // Work Item Reported Complete:  Not applied here
+        }
         public static void ApplyLibraryLoaderWorkItem(LibraryLoaderWorkItemUpdate sender, ref LibraryWorkItemViewModel viewModel)
         {
             // Log Messages

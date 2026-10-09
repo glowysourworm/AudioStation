@@ -47,7 +47,7 @@ namespace AudioStation.Core.Component.Interface
         /// <summary>
         /// Initializes and runs a library loader bulk task. Returns ID of the new bulk work item.
         /// </summary>
-        int QueueLoaderBulkTask(IEnumerable<ILibraryLoaderLoad> workLoad);
+        int QueueLoaderBulkTask(string description, IEnumerable<ILibraryLoaderLoad> workLoad);
 
         /// <summary>
         /// Sets state of loader:  This will not alter any work items. It will only stop the loader from processing

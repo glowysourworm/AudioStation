@@ -12,11 +12,33 @@
         <!-- Work Items -->
         <ListBox x:Name="LoaderWorkItemsLB"
                  ItemsSource="{Binding WorkItems}"
+                 Visibility="{Binding ExecuteAsBulk, Converter={StaticResource BoolInverseVisibilityCollapseConverter}}"
                  Grid.Column="0"
                  Grid.ColumnSpan="3"
                  Grid.Row="2"
                  Margin="0"                                  
                  ItemTemplate="{StaticResource LibraryWorkItemDataTemplate}"
+                 ItemContainerStyle="{StaticResource SimpleUIItemContainerStyle}"
+                 SelectionMode="Extended"
+                 AlternationCount="2"
+                 VirtualizingPanel.IsVirtualizing="True"
+                 VirtualizingPanel.CacheLength="3"
+                 VirtualizingPanel.CacheLengthUnit="Item"
+                 ScrollViewer.HorizontalScrollBarVisibility="Hidden"
+                 ScrollViewer.VerticalScrollBarVisibility="Auto"
+                 ScrollViewer.CanContentScroll="False"
+                 HorizontalContentAlignment="Stretch">
+        </ListBox>
+
+        <!-- Bulk Work Items -->
+        <ListBox x:Name="LoaderBulkWorkItemsLB"
+                 ItemsSource="{Binding BulkWorkItems}"
+                 Visibility="{Binding ExecuteAsBulk, Converter={StaticResource BoolVisibilityCollapseConverter}}"
+                 Grid.Column="0"
+                 Grid.ColumnSpan="3"
+                 Grid.Row="2"
+                 Margin="0"                                  
+                 ItemTemplate="{StaticResource LibraryBulkWorkItemDataTemplate}"
                  ItemContainerStyle="{StaticResource SimpleUIItemContainerStyle}"
                  SelectionMode="Extended"
                  AlternationCount="2"

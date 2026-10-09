@@ -7,6 +7,7 @@
     {
         int _id;
         Guid _ownerId;
+        string _description;
 
         Queue<LibraryLoaderWorkItem> _workItemsPending;
         Dictionary<int, LibraryLoaderWorkItem> _workItemsProcessing;
@@ -31,6 +32,13 @@
                 return _ownerId;
             }
         }
+        public string GetDescription()
+        {
+            lock (_lock)
+            {
+                return _description;
+            }
+        }
         public LibraryLoadType GetLoadType()
         {
             lock (_lock)
@@ -50,7 +58,7 @@
             lock (_lock)
             {
                 var totalPendingOrProcessing = _workItemsPending.Count + _workItemsProcessing.Count;
-                return totalPendingOrProcessing / (double)(totalPendingOrProcessing + _workItemsCompleted.Count);
+                return _workItemsCompleted.Count / (double)(totalPendingOrProcessing + _workItemsCompleted.Count);
             }
         }
         public int GetCount()
@@ -142,7 +150,7 @@
             }
         }
 
-        public LibraryLoaderBulkWorkItem(int id, Guid ownerId, IEnumerable<LibraryLoaderWorkItem> workItems)
+        public LibraryLoaderBulkWorkItem(int id, Guid ownerId, string description, IEnumerable<LibraryLoaderWorkItem> workItems)
         {
             if (!workItems.Any())
                 throw new ArgumentException("Library loader bulk item must contain work");
@@ -151,6 +159,7 @@
 
             _id = id;
             _ownerId = ownerId;
+            _description = description;
             _state = LibraryWorkItemState.Pending;
             _loadType = workItems.First().GetLoadType();
 

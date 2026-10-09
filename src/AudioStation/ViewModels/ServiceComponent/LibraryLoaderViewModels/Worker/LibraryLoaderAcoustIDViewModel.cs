@@ -31,16 +31,16 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryLoaderViewModels.Worke
         Dictionary<string, ILibraryLoaderLoad> _workLoadDict;
         Dictionary<string, LibraryImporterFileTreeNodeViewModel> _loadItemDict;
 
-        public LibraryLoaderAcoustIDViewModel()
-            : base("AcoustID", "Identifies recordings using AcoustID acoustic fingerprint service")
+        public LibraryLoaderAcoustIDViewModel(bool executeAsBulk)
+            : base("AcoustID", "Identifies recordings using AcoustID acoustic fingerprint service", executeAsBulk)
         {
             _audioStationMapper = IocContainer.Get<IAudioStationMapper>();
             _workLoadDict = new Dictionary<string, ILibraryLoaderLoad>();
             _loadItemDict = new Dictionary<string, LibraryImporterFileTreeNodeViewModel>();
             _workflowConfiguration = null;
         }
-        public LibraryLoaderAcoustIDViewModel(LibraryImporterConfigurationViewModel configuration)
-            : base("AcoustID", "Identifies recordings using AcoustID acoustic fingerprint service")
+        public LibraryLoaderAcoustIDViewModel(LibraryImporterConfigurationViewModel configuration, bool executeAsBulk)
+            : base("AcoustID", "Identifies recordings using AcoustID acoustic fingerprint service", executeAsBulk)
         {
             _audioStationMapper = IocContainer.Get<IAudioStationMapper>();
             _workflowConfiguration = configuration;

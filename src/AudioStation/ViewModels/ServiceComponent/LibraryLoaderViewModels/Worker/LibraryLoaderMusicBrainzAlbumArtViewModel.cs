@@ -11,13 +11,13 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryLoaderViewModels.Worke
 {
     public class LibraryLoaderMusicBrainzAlbumArtViewModel : LibraryLoaderWorkerViewModelBase<LibraryImporterFileTreeNodeViewModel>
     {
-        public LibraryLoaderMusicBrainzAlbumArtViewModel()
-            : base("Music Brainz (album art)", "Downloads album art for any recordings which have a Music Brainz ID in the library")
+        public LibraryLoaderMusicBrainzAlbumArtViewModel(bool executeAsBulk)
+            : base("Music Brainz (album art)", "Downloads album art for any recordings which have a Music Brainz ID in the library", executeAsBulk)
         {
         }
 
-        public LibraryLoaderMusicBrainzAlbumArtViewModel(LibraryImporterConfigurationViewModel configuration)
-            : base("Music Brainz (album art)", "Downloads album art for any recordings which have a Music Brainz ID in the library")
+        public LibraryLoaderMusicBrainzAlbumArtViewModel(LibraryImporterConfigurationViewModel configuration, bool executeAsBulk)
+            : base("Music Brainz (album art)", "Downloads album art for any recordings which have a Music Brainz ID in the library", executeAsBulk)
         {
         }
 

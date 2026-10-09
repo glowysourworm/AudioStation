@@ -29,10 +29,10 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryLoaderViewModels
         private List<ILibraryLoaderLoad> _workLoads;
         private List<T> _workPending;
 
-        string _description;
         bool _complete;
 
         KeyedObservableCollection<int, LibraryWorkItemViewModel> _workItems;
+        KeyedObservableCollection<int, LibraryBulkWorkItemViewModel> _bulkWorkItems;
 
         int _workPendingCount;
         int _workInProgressCount;
@@ -40,6 +40,9 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryLoaderViewModels
         int _workCanceledCount;
         int _workErrorCount;
         double _totalProgress;
+
+        // Bulk Execution
+        bool _executeAsBulk;
 
         // ILibraryLoader (current state)
         PlayStopPause _libraryLoaderState;
@@ -57,19 +60,33 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryLoaderViewModels
         /// </summary>
         public event SimpleEventHandler<ILibraryLoaderWorkerViewModel, LibraryWorkItemViewModel> WorkItemUIChangedEvent;
 
-        public string Description
-        {
-            get { return _description; }
-            set { this.RaiseAndSetIfChanged(ref _description, value); }
-        }
+        /// <summary>
+        /// Executes when work item is updated
+        /// </summary>
+        public event SimpleEventHandler<ILibraryLoaderWorkerViewModel, LibraryBulkWorkItemViewModel> BulkWorkItemChangedEvent;
+
+        /// <summary>
+        /// Event that fires when any of the UI properties of the work item are changed (e.g. IsSelected)
+        /// </summary>
+        public event SimpleEventHandler<ILibraryLoaderWorkerViewModel, LibraryBulkWorkItemViewModel> BulkWorkItemUIChangedEvent;
+
         public bool Complete
         {
             get { return _complete; }
             set { this.RaiseAndSetIfChanged(ref _complete, value); }
         }
+        public bool ExecuteAsBulk
+        {
+            get { return _executeAsBulk; }
+            private set { this.RaiseAndSetIfChanged(ref _executeAsBulk, value); }
+        }
         public IEnumerable<LibraryWorkItemViewModel> WorkItems
         {
             get { return _workItems; }
+        }
+        public IEnumerable<LibraryBulkWorkItemViewModel> BulkWorkItems
+        {
+            get { return _bulkWorkItems; }
         }
         public int WorkPendingCount
         {
@@ -133,15 +150,17 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryLoaderViewModels
             }
         }
 
-        public LibraryLoaderWorkerViewModelBase(string name, string description) : base(name, description)
+        public LibraryLoaderWorkerViewModelBase(string name, string description, bool executeAsBulk) : base(name, description)
         {
-            this.Description = description;
             this.Working = false;
+            this.ExecuteAsBulk = executeAsBulk;
 
+            _bulkWorkItems = new KeyedObservableCollection<int, LibraryBulkWorkItemViewModel>();
             _workItems = new KeyedObservableCollection<int, LibraryWorkItemViewModel>();
             _workLoads = new List<ILibraryLoaderLoad>();
             _workPending = new List<T>();
 
+            _bulkWorkItems.ItemPropertyChanged += OnBulkWorkItemUIPropertyChanged;
             _workItems.ItemPropertyChanged += OnWorkItemUIPropertyChanged;
         }
 
@@ -176,6 +195,7 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryLoaderViewModels
         {
             return this.Loaded &&
                    this.LibraryLoaderState != PlayStopPause.Play &&
+                   !_executeAsBulk &&
                    _workItems.Count > 0 &&
                    _workItems.Any(x => x.IsSelected && (x.State == LibraryWorkItemState.Canceled ||
                                                         x.State == LibraryWorkItemState.Error));
@@ -184,6 +204,7 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryLoaderViewModels
         {
             return this.Loaded &&
                    this.LibraryLoaderState != PlayStopPause.Play &&
+                   !_executeAsBulk &&
                    _workItems.Count > 0 &&
                    _workItems.Any(x => x.IsSelected && x.State == LibraryWorkItemState.Pending);
         }
@@ -264,10 +285,14 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryLoaderViewModels
             //
             _libraryLoader.WorkItemUpdate -= OnWorkItemUpdate;
             _libraryLoader.WorkItemEvent -= OnWorkItemEvent;
+            _libraryLoader.BulkWorkItemUpdate -= OnBulkWorkItemUpdate;
+            _libraryLoader.BulkWorkItemEvent -= OnBulkWorkItemEvent;
             _libraryLoader.StateChangeEvent -= OnStateChangeEvent;
 
             _libraryLoader.WorkItemEvent += OnWorkItemEvent;
             _libraryLoader.WorkItemUpdate += OnWorkItemUpdate;
+            _libraryLoader.BulkWorkItemUpdate += OnBulkWorkItemUpdate;
+            _libraryLoader.BulkWorkItemEvent += OnBulkWorkItemEvent;
             _libraryLoader.StateChangeEvent += OnStateChangeEvent;
 
             // Initial Loader State
@@ -303,41 +328,89 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryLoaderViewModels
             //             engage and start working.
             //
 
-            // -> Play (execute)
-            for (int index = _workLoads.Count - 1; index >= 0; index--)
+            // Bulk Execution:  Bulk items may be created by the loader and reported on that way - 
+            //                  which saves a lot of overhead. Simply call the bulk execution methods
+            //                  and prepare items based on the flag. Inherited classes do not need
+            //                  to know about bulk items (currently).
+            //
+
+            // Bulk
+            if (this.ExecuteAsBulk)
             {
-                var workLoad = _workLoads[index];
+                // -> Bulk Queue -> Play (execute) -> Updates via (bulk) events (only)
+                _libraryLoader.QueueLoaderBulkTask(this.Description, _workLoads);
 
-                // -> Updates via events
-                _libraryLoader.QueueLoaderTask(workLoad);
-
-                _workLoads.RemoveAt(index);
+                _workLoads.Clear();     // Empty
             }
+
+            // Single
+            else
+            {
+                for (int index = _workLoads.Count - 1; index >= 0; index--)
+                {
+                    var workLoad = _workLoads[index];
+
+                    // -> Play (execute) -> Updates via events
+                    _libraryLoader.QueueLoaderTask(workLoad);
+
+                    _workLoads.RemoveAt(index);
+                }
+            }
+
         }
         public override void Reset(DialogEventHandlers.DialogProgressHandler progressHandler)
         {
             if (!CanReset())
                 throw new Exception("Cannot reset library worker at this time. Please check first by using CanReset()");
 
-            // Work Items: The events change the UI state. So, these have to be queried before they
-            //             are modified.
-            //
-            var allItems = _workItems.Actualize();
-
-            foreach (var workItem in allItems)
+            // Bulk
+            if (this.ExecuteAsBulk)
             {
-                if (_libraryLoader.IsTaskQueued(workItem.Id))
-                {
-                    // Reset Work Item(s) (these data get set by backend updates)
-                    _libraryLoader.DequeueTask(workItem.Id);
-                }
+                // Bulk Work Items: The events change the UI state. So, these have to be queried before they
+                //                  are modified.
+                //
 
-                else if (_libraryLoader.IsTaskRunning(workItem.Id))
+                var allBulkItems = _bulkWorkItems.Actualize();
+
+                foreach (var bulkItem in allBulkItems)
                 {
-                    _libraryLoader.CancelTask(workItem.Id);
+                    if (_libraryLoader.IsTaskQueued(bulkItem.Id))
+                    {
+                        // Reset Work Item(s) (these data get set by backend updates)
+                        _libraryLoader.DequeueTask(bulkItem.Id);
+                    }
+
+                    else if (_libraryLoader.IsTaskRunning(bulkItem.Id))
+                    {
+                        _libraryLoader.CancelTask(bulkItem.Id);
+                    }
                 }
             }
 
+            // Single
+            else
+            {
+                // Work Items: The events change the UI state. So, these have to be queried before they
+                //             are modified.
+                //
+                var allItems = _workItems.Actualize();
+
+                foreach (var workItem in allItems)
+                {
+                    if (_libraryLoader.IsTaskQueued(workItem.Id))
+                    {
+                        // Reset Work Item(s) (these data get set by backend updates)
+                        _libraryLoader.DequeueTask(workItem.Id);
+                    }
+
+                    else if (_libraryLoader.IsTaskRunning(workItem.Id))
+                    {
+                        _libraryLoader.CancelTask(workItem.Id);
+                    }
+                }
+            }
+
+            _bulkWorkItems.Clear();
             _workItems.Clear();
             _workLoads.Clear();     // Clear out any other work loads
 
@@ -415,14 +488,28 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryLoaderViewModels
         {
             if (this.Loaded)
             {
-                this.WorkPendingCount = _workItems.Count(x => x.State == LibraryWorkItemState.Pending);
-                this.WorkInProgressCount = _workItems.Count(x => x.State == LibraryWorkItemState.Processing);
-                this.WorkSuccessCount = _workItems.Count(x => x.State == LibraryWorkItemState.Successful);
-                this.WorkErrorCount = _workItems.Count(x => x.State == LibraryWorkItemState.Error);
-                this.WorkCanceledCount = _workItems.Count(x => x.State == LibraryWorkItemState.Canceled);
-                this.TotalProgress = (this.WorkSuccessCount + this.WorkErrorCount + this.WorkCanceledCount) / (double)_workItems.Count;
-                this.Working = this.WorkPendingCount > 0 || this.WorkInProgressCount > 0;
-                this.Complete = this.WorkPendingCount == 0 && this.WorkInProgressCount == 0;
+                if (this.ExecuteAsBulk)
+                {
+                    this.WorkPendingCount = _bulkWorkItems.Count(x => x.State == LibraryWorkItemState.Pending);
+                    this.WorkInProgressCount = _bulkWorkItems.Count(x => x.State == LibraryWorkItemState.Processing);
+                    this.WorkSuccessCount = _bulkWorkItems.Count(x => x.State == LibraryWorkItemState.Successful);
+                    this.WorkErrorCount = _bulkWorkItems.Count(x => x.State == LibraryWorkItemState.Error);
+                    this.WorkCanceledCount = _bulkWorkItems.Count(x => x.State == LibraryWorkItemState.Canceled);
+                    this.TotalProgress = (this.WorkSuccessCount + this.WorkErrorCount + this.WorkCanceledCount) / (double)_bulkWorkItems.Count;
+                    this.Working = this.WorkPendingCount > 0 || this.WorkInProgressCount > 0;
+                    this.Complete = this.WorkPendingCount == 0 && this.WorkInProgressCount == 0;
+                }
+                else
+                {
+                    this.WorkPendingCount = _workItems.Count(x => x.State == LibraryWorkItemState.Pending);
+                    this.WorkInProgressCount = _workItems.Count(x => x.State == LibraryWorkItemState.Processing);
+                    this.WorkSuccessCount = _workItems.Count(x => x.State == LibraryWorkItemState.Successful);
+                    this.WorkErrorCount = _workItems.Count(x => x.State == LibraryWorkItemState.Error);
+                    this.WorkCanceledCount = _workItems.Count(x => x.State == LibraryWorkItemState.Canceled);
+                    this.TotalProgress = (this.WorkSuccessCount + this.WorkErrorCount + this.WorkCanceledCount) / (double)_workItems.Count;
+                    this.Working = this.WorkPendingCount > 0 || this.WorkInProgressCount > 0;
+                    this.Complete = this.WorkPendingCount == 0 && this.WorkInProgressCount == 0;
+                }
 
                 OnPropertyChanged("Status");
             }
@@ -447,6 +534,22 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryLoaderViewModels
         private void OnStateChangeEvent(PlayStopPause state)
         {
             this.LibraryLoaderState = state;
+        }
+        private void OnWorkItemEvent(LibraryLoaderWorkItem sender, ILibraryLoader.WorkItemEventType eventType)
+        {
+            if (sender.GetOwnerId() == this.Id)
+            {
+                // This is essentially the same code (update/add)
+                AddUpdateWorkItem(sender, eventType == ILibraryLoader.WorkItemEventType.Complete);
+            }
+        }
+        private void OnBulkWorkItemEvent(LibraryLoaderBulkWorkItem bulkWorkItem, ILibraryLoader.WorkItemEventType eventType)
+        {
+            if (bulkWorkItem.GetOwnerId() == this.Id)
+            {
+                // This is essentially the same code (update/add)
+                AddUpdateBulkWorkItem(bulkWorkItem, eventType == ILibraryLoader.WorkItemEventType.Complete);
+            }
         }
         private void OnWorkItemUpdate(LibraryLoaderWorkItemUpdate update)
         {
@@ -480,25 +583,79 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryLoaderViewModels
 
             OnUpdate();
         }
-        private void OnWorkItemEvent(LibraryLoaderWorkItem sender, ILibraryLoader.WorkItemEventType eventType)
+        private void OnBulkWorkItemUpdate(LibraryLoaderBulkWorkItemUpdate bulkUpdate)
         {
-            if (sender.GetOwnerId() == this.Id)
+            if (bulkUpdate.OwnerId != this.Id)
+                return;
+
+            LibraryBulkWorkItemViewModel bulkWorkItem;
+
+            // Update
+            if (_bulkWorkItems.ContainsKey(bulkUpdate.Id))
             {
-                // This is essentially the same code (update/add)
-                AddUpdateWorkItem(sender, eventType == ILibraryLoader.WorkItemEventType.Complete);
+                bulkWorkItem = _bulkWorkItems[bulkUpdate.Id];
             }
+
+            // Add
+            else
+            {
+                bulkWorkItem = new LibraryBulkWorkItemViewModel(bulkUpdate.Id, bulkUpdate.OwnerId, bulkUpdate.Description);
+
+                bulkWorkItem.LoadType = bulkUpdate.Type;
+
+                _bulkWorkItems.Add(bulkWorkItem.Id, bulkWorkItem);
+            }
+
+            // Apply
+            LibraryLoaderHelpers.ApplyLibraryLoaderBulkWorkItemUpdate(bulkUpdate, ref bulkWorkItem);
+
+            // Completed Work Item: This happens at the end of each work item pass
+            //
+            if (bulkUpdate.CompletedWorkItem != null)
+            {
+                var workItem = new LibraryWorkItemViewModel();
+
+                workItem.Id = bulkUpdate.CompletedWorkItem.GetId();
+                workItem.LoadType = bulkUpdate.CompletedWorkItem.GetLoadType();
+                workItem.Load = MapWorkLoad(bulkUpdate.CompletedWorkItem.GetWorkItem());
+                workItem.Output = MapWorkOutput(bulkUpdate.CompletedWorkItem.GetOutputItem());
+
+                LibraryLoaderHelpers.ApplyLibraryLoaderWorkItem(bulkUpdate.CompletedWorkItem, ref workItem);
+
+                // Allow inherited class to complete work
+                CompleteWorkItem(workItem);
+
+                bulkWorkItem.WorkItemsCompleted.Add(workItem);
+            }
+
+            if (this.BulkWorkItemChangedEvent != null)
+                this.BulkWorkItemChangedEvent(this, bulkWorkItem);
+
+            OnUpdate();
         }
-        private void OnWorkItemUIPropertyChanged(object? sender, PropertyChangedEventArgs e)
+        private void OnWorkItemUIPropertyChanged(LibraryWorkItemViewModel sender, PropertyChangedEventArgs propertyArgs)
         {
             // Updating:  Prevent event raising during updates
             if (_updating)
                 return;
 
-            if (e.PropertyName != "IsSelected")
+            if (propertyArgs.PropertyName != "IsSelected")
                 return;
 
             if (this.WorkItemUIChangedEvent != null)
-                this.WorkItemUIChangedEvent(this, sender as LibraryWorkItemViewModel);
+                this.WorkItemUIChangedEvent(this, sender);
+        }
+        private void OnBulkWorkItemUIPropertyChanged(LibraryBulkWorkItemViewModel sender, PropertyChangedEventArgs propertyArgs)
+        {
+            // Updating:  Prevent event raising during updates
+            if (_updating)
+                return;
+
+            if (propertyArgs.PropertyName != "IsSelected")
+                return;
+
+            if (this.BulkWorkItemChangedEvent != null)
+                this.BulkWorkItemChangedEvent(this, sender);
         }
         private void AddUpdateWorkItem(LibraryLoaderWorkItem sender, bool isComplete)
         {
@@ -534,6 +691,36 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryLoaderViewModels
 
             if (this.WorkItemChangedEvent != null)
                 this.WorkItemChangedEvent(this, workItem);
+
+            OnUpdate();
+        }
+        private void AddUpdateBulkWorkItem(LibraryLoaderBulkWorkItem sender, bool isComplete)
+        {
+            if (sender.GetOwnerId() != this.Id)
+                return;
+
+            LibraryBulkWorkItemViewModel bulkWorkItem;
+
+            // Update
+            if (_bulkWorkItems.ContainsKey(sender.GetId()))
+            {
+                bulkWorkItem = _bulkWorkItems[sender.GetId()];
+            }
+
+            // Add
+            else
+            {
+                bulkWorkItem = new LibraryBulkWorkItemViewModel(sender.GetId(), sender.GetOwnerId(), sender.GetDescription());
+
+                bulkWorkItem.LoadType = sender.GetLoadType();
+
+                _bulkWorkItems.Add(bulkWorkItem.Id, bulkWorkItem);
+            }
+
+            LibraryLoaderHelpers.ApplyLibraryLoaderBulkWorkItem(sender, ref bulkWorkItem);
+
+            if (this.BulkWorkItemChangedEvent != null)
+                this.BulkWorkItemChangedEvent(this, bulkWorkItem);
 
             OnUpdate();
         }

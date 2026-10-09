@@ -174,7 +174,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
                 //              send a report back to the UI.
                 //
                 if (this.BulkReportWorkStepStarted != null)
-                    this.BulkReportWorkStepStarted(this, CreateBulkUpdate(_bulkWorkItem));
+                    this.BulkReportWorkStepStarted(this, CreateBulkUpdate(_bulkWorkItem, null));
 
                 // Single Work Item:  The processing will follow a step-by-step processing. Then, we will call Reset() to
                 //                    utilize the worker again.
@@ -210,8 +210,11 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
                 // -> Bulk Report
                 //
                 if (this.BulkReportWorkStepComplete != null)
-                    this.BulkReportWorkStepComplete(this, CreateBulkUpdate(_bulkWorkItem));
+                    this.BulkReportWorkStepComplete(this, CreateBulkUpdate(_bulkWorkItem, workItem));
             }
+
+            // BULK ERROR:  Not sure how to report errors; but we have the work items themselves
+            _bulkWorkItem.Update(LibraryWorkItemState.Successful);
 
             if (this.BulkReportComplete != null)
                 this.BulkReportComplete(this, _bulkWorkItem);
@@ -227,9 +230,9 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
                                             workItem.GetOutputItem().CurrentLog,
                                             workItem.GetLoadState());
         }
-        private LibraryLoaderBulkWorkItemUpdate CreateBulkUpdate(LibraryLoaderBulkWorkItem bulkWorkItem)
+        private LibraryLoaderBulkWorkItemUpdate CreateBulkUpdate(LibraryLoaderBulkWorkItem bulkWorkItem, LibraryLoaderWorkItem completedItem)
         {
-            return new LibraryLoaderBulkWorkItemUpdate(bulkWorkItem.GetId(), bulkWorkItem.GetOwnerId())
+            return new LibraryLoaderBulkWorkItemUpdate(bulkWorkItem.GetId(), bulkWorkItem.GetOwnerId(), bulkWorkItem.GetDescription(), completedItem)
             {
                 CompletedCount = bulkWorkItem.GetCompletedCount(),
                 DataErrorCount = bulkWorkItem.GetCount(LibraryWorkerResultLevel.DataError),

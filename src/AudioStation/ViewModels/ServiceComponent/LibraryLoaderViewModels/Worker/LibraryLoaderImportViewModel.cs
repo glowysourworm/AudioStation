@@ -24,8 +24,8 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryLoaderViewModels.Worke
 
         private Dictionary<string, LibraryImporterFileTreeNodeViewModel> _loadItemDict;
 
-        public LibraryLoaderImportViewModel()
-            : base("Library Import Worker", "Library import worker task is for importing library records during an import workflow")
+        public LibraryLoaderImportViewModel(bool executeAsBulk)
+            : base("Library Import Worker", "Library import worker task is for importing library records during an import workflow", executeAsBulk)
         {
             _audioStationMapper = IocContainer.Get<IAudioStationMapper>();
             _loadItemDict = new Dictionary<string, LibraryImporterFileTreeNodeViewModel>();

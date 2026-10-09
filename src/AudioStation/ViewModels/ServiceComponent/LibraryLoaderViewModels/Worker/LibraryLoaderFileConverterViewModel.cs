@@ -20,8 +20,8 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryLoaderViewModels.Worke
         SimpleDictionary<string, string> _workItemDict;
         AudioEncoderInfo _destinationFormat;
 
-        public LibraryLoaderFileConverterViewModel(AudioEncoderInfo destinationFormat)
-            : base("File Converter", "Verifies integrity of files related to Audio Station's library")
+        public LibraryLoaderFileConverterViewModel(AudioEncoderInfo destinationFormat, bool executeAsBulk)
+            : base("File Converter", "Verifies integrity of files related to Audio Station's library", executeAsBulk)
         {
             _destinationFormat = destinationFormat;
             _workItemDict = new SimpleDictionary<string, string>();

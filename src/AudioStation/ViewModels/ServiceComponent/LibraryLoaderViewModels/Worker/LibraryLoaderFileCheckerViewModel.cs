@@ -4,14 +4,13 @@ using AudioStation.Core.Component.LibraryLoaderComponent.Interface;
 using AudioStation.Core.Database.AudioStationDatabase;
 using AudioStation.Core.Model.Interface;
 using AudioStation.Event;
-using AudioStation.ViewModels.ServiceComponent.LibraryLoaderViewModels;
 
 namespace AudioStation.ViewModels.ServiceComponent.LibraryLoaderViewModels.Worker
 {
     public class LibraryLoaderFileCheckerViewModel : LibraryLoaderWorkerViewModelBase<FileReference>
     {
-        public LibraryLoaderFileCheckerViewModel()
-            : base("File Checker", "Verifies integrity of files related to Audio Station's library")
+        public LibraryLoaderFileCheckerViewModel(bool executeAsBulk)
+            : base("File Checker", "Verifies integrity of files related to Audio Station's library", executeAsBulk)
         {
 
         }

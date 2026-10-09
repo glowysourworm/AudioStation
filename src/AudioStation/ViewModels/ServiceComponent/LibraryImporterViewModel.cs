@@ -446,28 +446,28 @@ namespace AudioStation.ViewModels.ServiceComponent
                     if (this.WorkflowConfiguration.ServiceIncludeAcoustID &&
                        !this.ServiceWorkflow.HasWorker<LibraryLoaderAcoustIDViewModel>())
                     {
-                        this.ServiceWorkflow.AddWorker(new LibraryLoaderAcoustIDViewModel(this.WorkflowConfiguration));
+                        this.ServiceWorkflow.AddWorker(new LibraryLoaderAcoustIDViewModel(this.WorkflowConfiguration, true));
                     }
 
                     // Service Workflow - Audio Duration
                     if (this.WorkflowConfiguration.ServiceIncludeAudioDuration &&
                        !this.ServiceWorkflow.HasWorker<LibraryLoaderAudioDurationViewModel>())
                     {
-                        this.ServiceWorkflow.AddWorker(new LibraryLoaderAudioDurationViewModel());
+                        this.ServiceWorkflow.AddWorker(new LibraryLoaderAudioDurationViewModel(true));
                     }
 
                     // Service Workflow - Music Brainz (basic)
                     if (this.WorkflowConfiguration.ServiceIncludeMusicBrainzBasic &&
                        !this.ServiceWorkflow.HasWorker<LibraryLoaderMusicBrainzBasicViewModel>())
                     {
-                        this.ServiceWorkflow.AddWorker(new LibraryLoaderMusicBrainzBasicViewModel(this.WorkflowConfiguration));
+                        this.ServiceWorkflow.AddWorker(new LibraryLoaderMusicBrainzBasicViewModel(this.WorkflowConfiguration, true));
                     }
 
                     // Service Workflow - Music Brainz (artwork)
                     if (this.WorkflowConfiguration.ServiceIncludeMusicBrainzArtwork &&
                        !this.ServiceWorkflow.HasWorker<LibraryLoaderMusicBrainzAlbumArtViewModel>())
                     {
-                        this.ServiceWorkflow.AddWorker(new LibraryLoaderMusicBrainzAlbumArtViewModel(this.WorkflowConfiguration));
+                        this.ServiceWorkflow.AddWorker(new LibraryLoaderMusicBrainzAlbumArtViewModel(this.WorkflowConfiguration, true));
                     }
 
                     // -> Select Worker
@@ -482,7 +482,7 @@ namespace AudioStation.ViewModels.ServiceComponent
                     // Import Workflow (workers)
                     if (!this.ImportWorkflow.HasWorker<LibraryLoaderImportViewModel>())
                     {
-                        this.ImportWorkflow.AddWorker(new LibraryLoaderImportViewModel());
+                        this.ImportWorkflow.AddWorker(new LibraryLoaderImportViewModel(true));
                     }
 
                     // -> Select Worker

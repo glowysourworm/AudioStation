@@ -16,7 +16,8 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryLoaderViewModels.Worke
     {
         Dictionary<string, LibraryImporterFileTreeNodeViewModel> _loadItemDict;
 
-        public LibraryLoaderAudioDurationViewModel() : base("Audio Encoding Checker", "Checks audio file for encoding and duration information; and stores the result with your import data.")
+        public LibraryLoaderAudioDurationViewModel(bool executeAsBulk)
+            : base("Audio Encoding Checker", "Checks audio file for encoding and duration information; and stores the result with your import data.", executeAsBulk)
         {
             _loadItemDict = new Dictionary<string, LibraryImporterFileTreeNodeViewModel>();
         }

@@ -17,7 +17,7 @@ namespace AudioStation.ViewModels.ServiceComponent
 
         public LibraryMaintainenceViewModel() : base("Library Maintainence")
         {
-            this.AddComponentPart(new LibraryLoaderFileCheckerViewModel());
+            this.AddComponentPart(new LibraryLoaderFileCheckerViewModel(true));
 
             // Initial Worker
             this.SelectedWorker = this.ComponentParts.First();

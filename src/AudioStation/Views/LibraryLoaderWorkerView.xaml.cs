@@ -35,17 +35,20 @@ namespace AudioStation.Views
             if (oldVM != null)
             {
                 oldVM.WorkItemChangedEvent -= ServiceWorkflow_WorkItemChangedEvent;
+                oldVM.BulkWorkItemChangedEvent -= ServiceWorkflow_BulkWorkItemChangedEvent;
                 oldVM.StatusChangeEvent -= ServiceWorkflow_StatusChangeEvent;
             }
             if (newVM != null)
             {
                 newVM.WorkItemChangedEvent += ServiceWorkflow_WorkItemChangedEvent;
+                newVM.BulkWorkItemChangedEvent += ServiceWorkflow_BulkWorkItemChangedEvent;
                 newVM.StatusChangeEvent += ServiceWorkflow_StatusChangeEvent;
             }
 
 
             UpdateViewContext();
         }
+
         private void UpdateViewContext()
         {
             var viewModel = this.DataContext as LibraryImporterViewModel;
@@ -74,6 +77,18 @@ namespace AudioStation.Views
                 this.LoaderWorkItemsLB.SelectedItem = item;
             }
         }
+        private void ScrollIntoView(ILibraryLoaderWorkerViewModel sender, LibraryBulkWorkItemViewModel item)
+        {
+            // Scroll the item into view
+            this.LoaderBulkWorkItemsLB.ScrollIntoView(item);
+
+            // An exception occurs when the dialog window is open. There may be a way around the exception; but
+            // it doesn't yet make sense.. something to do with other data binding to the work items
+            if (!_dialogController.IsShowing())
+            {
+                this.LoaderBulkWorkItemsLB.SelectedItem = item;
+            }
+        }
         private void ServiceWorkflow_StatusChangeEvent(ServiceComponentPartViewModelBase sender, bool working, bool loaded)
         {
             UpdateViewContext();
@@ -84,6 +99,12 @@ namespace AudioStation.Views
             UpdateViewContext();
             ScrollIntoView(sender, item);
         }
+        private void ServiceWorkflow_BulkWorkItemChangedEvent(ILibraryLoaderWorkerViewModel sender, LibraryBulkWorkItemViewModel item)
+        {
+            UpdateViewContext();
+            ScrollIntoView(sender, item);
+        }
+
         private void ExecuteButton_Click(object sender, RoutedEventArgs e)
         {
             var viewModel = this.DataContext as LibraryImporterViewModel;

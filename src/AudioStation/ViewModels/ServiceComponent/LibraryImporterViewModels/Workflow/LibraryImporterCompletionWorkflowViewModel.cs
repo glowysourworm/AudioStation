@@ -19,9 +19,6 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Wor
         private readonly LibraryImporterFileTreeViewModel _stagedFiles;
         LibraryImporterStagedFileFilterType _stagedFileFilterType;
 
-        // These are forwarded directly from the UI
-        IEnumerable<LibraryImporterFileTreeNodeViewModel> _selectedNodes;
-
         SimpleCommand _editTagCommand;
         SimpleCommand _playAudioCommand;
         SimpleCommand<string> _editTagGroupCommand;
@@ -82,15 +79,15 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Wor
         }
         private bool CanEditTag()
         {
-            return !_dialogController.IsShowing() && _selectedNodes.Count(x => !x.IsDirectory) == 1;
+            return !_dialogController.IsShowing() && this.StagedFiles.SelectedFileCount == 1;
         }
         private bool CanEditSelectedTagsField(string fieldName)
         {
-            return !_dialogController.IsShowing() && _selectedNodes.Any(x => !x.IsDirectory);
+            return !_dialogController.IsShowing() && this.StagedFiles.SelectedFileCount >= 1;
         }
         private bool CanPlayAudio()
         {
-            return !_dialogController.IsShowing() && _selectedNodes.Count(x => !x.IsDirectory) == 1;
+            return !_dialogController.IsShowing() && this.StagedFiles.SelectedFileCount == 1;
         }
 
         private void EditSelectedTagsField(string fieldName)
@@ -147,8 +144,6 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Wor
         }
         private void OnStagedFileTreeSelectionChanged(IEnumerable<TreeViewNodeModelBase> selectedNodes)
         {
-            _selectedNodes = selectedNodes.Cast<LibraryImporterFileTreeNodeViewModel>();
-
             UpdateCommands();
         }
         public void UpdateCommands()

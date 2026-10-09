@@ -76,7 +76,7 @@ namespace AudioStation.Core.Component
             _loaderState = PlayStopPause.Stop;
         }
 
-        public int QueueLoaderBulkTask(IEnumerable<ILibraryLoaderLoad> workLoads)
+        public int QueueLoaderBulkTask(string description, IEnumerable<ILibraryLoaderLoad> workLoads)
         {
             var ownerId = Guid.Empty;
             var workItems = new List<LibraryLoaderWorkItem>();
@@ -96,7 +96,7 @@ namespace AudioStation.Core.Component
                 throw new ArgumentException("Owner ID not specified for bulk work item load");
 
             // Bulk Work Item:  Extra increment to ID counter!
-            var bulkWorkItem = new LibraryLoaderBulkWorkItem(_workItemIdCounter++, ownerId, workItems);
+            var bulkWorkItem = new LibraryLoaderBulkWorkItem(_workItemIdCounter++, ownerId, description, workItems);
 
             _bulkWorkQueue.Add(bulkWorkItem.GetId(), bulkWorkItem);
 
