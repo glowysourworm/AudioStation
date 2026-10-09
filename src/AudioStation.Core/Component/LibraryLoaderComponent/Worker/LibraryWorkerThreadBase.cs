@@ -68,6 +68,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
 
         public abstract int GetNumberOfWorkSteps();
         public abstract int GetCurrentWorkStep();
+        public abstract void ResetWorkStep();
 
         public void Start()
         {
@@ -201,6 +202,9 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
 
                 // Unload work item data in derived classes
                 UnloadWork();
+
+                // Reset the work step (in the base)
+                ResetWorkStep();
 
                 // Bulk Update:  Work Item "reports in" to the bulk item. This will alter the tallies which are send with
                 //               the report event.

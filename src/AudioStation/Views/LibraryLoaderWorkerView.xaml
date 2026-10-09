@@ -11,34 +11,11 @@
 
         <!-- Work Items -->
         <ListBox x:Name="LoaderWorkItemsLB"
-                 ItemsSource="{Binding WorkItems}"
-                 Visibility="{Binding ExecuteAsBulk, Converter={StaticResource BoolInverseVisibilityCollapseConverter}}"
                  Grid.Column="0"
                  Grid.ColumnSpan="3"
                  Grid.Row="2"
                  Margin="0"                                  
                  ItemTemplate="{StaticResource LibraryWorkItemDataTemplate}"
-                 ItemContainerStyle="{StaticResource SimpleUIItemContainerStyle}"
-                 SelectionMode="Extended"
-                 AlternationCount="2"
-                 VirtualizingPanel.IsVirtualizing="True"
-                 VirtualizingPanel.CacheLength="3"
-                 VirtualizingPanel.CacheLengthUnit="Item"
-                 ScrollViewer.HorizontalScrollBarVisibility="Hidden"
-                 ScrollViewer.VerticalScrollBarVisibility="Auto"
-                 ScrollViewer.CanContentScroll="False"
-                 HorizontalContentAlignment="Stretch">
-        </ListBox>
-
-        <!-- Bulk Work Items -->
-        <ListBox x:Name="LoaderBulkWorkItemsLB"
-                 ItemsSource="{Binding BulkWorkItems}"
-                 Visibility="{Binding ExecuteAsBulk, Converter={StaticResource BoolVisibilityCollapseConverter}}"
-                 Grid.Column="0"
-                 Grid.ColumnSpan="3"
-                 Grid.Row="2"
-                 Margin="0"                                  
-                 ItemTemplate="{StaticResource LibraryBulkWorkItemDataTemplate}"
                  ItemContainerStyle="{StaticResource SimpleUIItemContainerStyle}"
                  SelectionMode="Extended"
                  AlternationCount="2"
@@ -128,7 +105,7 @@
         </Border>
 
         <!-- Worker Details -->
-        <Border Grid.Column="1" 
+        <!--Border Grid.Column="1" 
                 Grid.RowSpan="1"
                 BorderBrush="LightGray"
                 BorderThickness="1"
@@ -145,7 +122,6 @@
                                   Style="{StaticResource LibraryLoaderWorkflowItemProgressBarStyle}">
                 </controls:ProgressBar>
 
-                <!-- Latest Log Message-->
                 <Grid Grid.Row="3" ColumnDefinitions="Auto, *">
                     <TextBlock Text="Message:" Margin="5" Style="{StaticResource LabelDetailDarkTextBlock}" />
 
@@ -167,10 +143,10 @@
                 </Grid>
 
             </Grid>
-        </Border>
+        </Border-->
 
         <!-- Workflow Details -->
-        <Border Grid.Column="2" 
+        <!--Border Grid.Column="2" 
                 Grid.RowSpan="1"
                 DataContext="{Binding}"
                 BorderBrush="LightGray"
@@ -187,7 +163,7 @@
                 <propertyGrid:PropertyLabelControl LabelColumnWidth="200" LabelText="Status" Grid.Row="5" Margin="5 0 5 5" IsReadOnly="True" Value="{Binding Status}" Style="{StaticResource PropertyGridDetailUserControl}" />
 
             </Grid>
-        </Border>
+        </Border-->
 
     </Grid>
 </UserControl>

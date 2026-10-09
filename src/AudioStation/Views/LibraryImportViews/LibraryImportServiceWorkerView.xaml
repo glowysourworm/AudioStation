@@ -10,7 +10,7 @@
              xmlns:controls="clr-namespace:AudioStation.Controls">
 
     <!-- DataContext:  The LibraryImporterServiceWorkflowViewModel must be the data context; and there may be multiple instances -->
-    <Grid ColumnDefinitions="Auto, *, Auto" RowDefinitions="Auto, Auto, *">
+    <Grid ColumnDefinitions="Auto, *" RowDefinitions="Auto, Auto, *">
 
         <!-- Loader Tasks (workflow) -->
         <ListBox x:Name="LoaderLB"
@@ -22,7 +22,8 @@
                  SelectedItem="{Binding SelectedWorker}"
                  ItemsSource="{Binding ServiceWorkers}"
                  ItemTemplate="{StaticResource LibraryImporterWorkflowItemTemplate}"
-                 ItemContainerStyle="{StaticResource SimpleItemContainerStyle}">
+                 ItemContainerStyle="{StaticResource SimpleItemContainerStyle}"
+                 Visibility="{Binding ExecuteAsBulk, Converter={StaticResource BoolVisibilityCollapseConverter}}">
         </ListBox>
 
         <region:IocRegion Grid.Column="1"

@@ -168,9 +168,35 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryLoaderViewModels
         /// Attempts a state change of the loader service. This will not affect the front end workflow items except
         /// for whatever occurs in the proceeding state.
         /// </summary>
-        public void ChangeState(PlayStopPause loaderState)
+        public void ChangeLoaderState(PlayStopPause loaderState)
         {
+            if (!CanChangeLoaderState(loaderState))
+                throw new Exception("Cannot change loader state - please check before trying to change");
+
             _libraryLoader.ChangeState(loaderState);
+        }
+        public bool CanChangeLoaderState(PlayStopPause loaderState)
+        {
+            switch (loaderState)
+            {
+                case PlayStopPause.Play:
+                    if (!this.Complete &&
+                         this.LibraryLoaderState != PlayStopPause.Play)
+                        return true;
+
+                    break;
+                case PlayStopPause.Pause:
+                case PlayStopPause.Stop:
+                    if (this.Working &&
+                        this.LibraryLoaderState == PlayStopPause.Play)
+                        return true;
+
+                    break;
+                default:
+                    throw new Exception("Unhandled library loader state");
+            }
+
+            return false;
         }
         public override bool CanLoad()
         {

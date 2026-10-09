@@ -44,6 +44,9 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryLoaderViewModels.Inter
         bool ExecuteAsBulk { get; }
         PlayStopPause LibraryLoaderState { get; }
 
+        IEnumerable<LibraryWorkItemViewModel> WorkItems { get; }
+        IEnumerable<LibraryBulkWorkItemViewModel> BulkWorkItems { get; }
+
         /// <summary>
         /// The work item object is expected to be of the proper type implemented by the class. This may
         /// only be called while the worker is idle. Please use "CanAddWork" to check before adding.
@@ -55,6 +58,16 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryLoaderViewModels.Inter
         /// only be called while the worker is idle. Please use "CanAddWork" to check before adding.
         /// </summary>
         void AddWork(IEnumerable<object> workItem);
+
+        /// <summary>
+        /// Returns true if user can change the loader state to the requested state
+        /// </summary>
+        bool CanChangeLoaderState(PlayStopPause state);
+
+        /// <summary>
+        /// Executes a change of loader state
+        /// </summary>
+        void ChangeLoaderState(PlayStopPause state);
 
         /// <summary>
         /// Returns true if the worker can add work
@@ -75,8 +88,6 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryLoaderViewModels.Inter
 
         bool CanRerunSelected();
         bool CanSkipSelected();
-
-        void ChangeState(PlayStopPause loaderState);
 
         void RerunSelected();
         void SkipSelected();

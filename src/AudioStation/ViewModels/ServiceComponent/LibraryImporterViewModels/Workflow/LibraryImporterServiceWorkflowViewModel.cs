@@ -90,32 +90,11 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Wor
             if (!CanChangeLoaderState(loaderState))
                 throw new Exception("Cannot change loader state - please check before trying to change");
 
-            this.SelectedWorker.ChangeState(loaderState);
+            this.SelectedWorker.ChangeLoaderState(loaderState);
         }
         public bool CanChangeLoaderState(PlayStopPause loaderState)
         {
-            switch (loaderState)
-            {
-                case PlayStopPause.Play:
-                    if (this.SelectedWorker != null &&
-                       !this.SelectedWorker.Complete &&
-                        this.LibraryLoaderState != PlayStopPause.Play)
-                        return true;
-
-                    break;
-                case PlayStopPause.Pause:
-                case PlayStopPause.Stop:
-                    if (this.SelectedWorker != null &&
-                        this.SelectedWorker.Working &&
-                        this.LibraryLoaderState == PlayStopPause.Play)
-                        return true;
-
-                    break;
-                default:
-                    throw new Exception("Unhandled library loader state");
-            }
-
-            return false;
+            return this.SelectedWorker != null && this.SelectedWorker.CanChangeLoaderState(loaderState);
         }
 
         public override bool CanExecute()

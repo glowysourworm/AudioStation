@@ -106,5 +106,12 @@
                 _workCurrentStep++;
             }
         }
+        public sealed override void ResetWorkStep()
+        {
+            lock (_lock)
+            {
+                _workCurrentStep = 0;
+            }
+        }
     }
 }
