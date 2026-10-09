@@ -1,5 +1,7 @@
 ﻿using AudioStation.Core.Model;
 
+using SimpleWpf.Extensions.Collection;
+
 namespace AudioStation.Core.Component.LibraryLoaderComponent
 {
     public class LibraryLoaderWorkItemUpdate
@@ -23,9 +25,17 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent
             this.Id = id;
             this.OwnerId = ownerId;
             this.Type = type;
-            this.ResultStepsCompleted = resultSteps;
+            this.ResultStepsCompleted = resultSteps.Select(x => new LibraryWorkerStepResult()
+            {
+                Completed = x.Completed,
+                Message = x.Message,
+                Result = x.Result,
+                StepNumber = x.StepNumber
+
+            }).Actualize();
             this.ResultStepCount = numberOfSteps;
-            this.Log = log;
+            this.Log = log.Select(x => new LogMessage(x)).Actualize();
+
             this.State = state;
         }
     }

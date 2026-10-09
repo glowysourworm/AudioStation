@@ -43,7 +43,7 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryLoaderViewModels
         public LibraryLoadType LoadType
         {
             get { return _loadType; }
-            set { this.RaiseAndSetIfChanged(ref _loadType, value); }
+            private set { this.RaiseAndSetIfChanged(ref _loadType, value); }
         }
         public ObservableCollection<LibraryLoaderWorkStepViewModel> WorkSteps
         {
@@ -91,8 +91,10 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryLoaderViewModels
             }
         }
 
-        public LibraryWorkItemViewModel()
+        public LibraryWorkItemViewModel(int id, LibraryLoadType loadType)
         {
+            this.Id = id;
+            this.LoadType = loadType;
             this.WorkSteps = new ObservableCollection<LibraryLoaderWorkStepViewModel>();
             this.LogMessages = new ObservableCollection<LogMessageViewModel>();
             this.Progress = 0;

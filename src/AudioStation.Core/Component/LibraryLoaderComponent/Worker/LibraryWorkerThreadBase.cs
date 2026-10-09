@@ -265,8 +265,8 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
             {
                 if (_thread.IsAlive)
                 {
-                    if (!_thread.Join(THREAD_JOIN_WAIT))
-                        _thread.Abort();
+                    while (!_thread.Join(THREAD_JOIN_WAIT))
+                    { }
                 }
 
                 _thread = null;

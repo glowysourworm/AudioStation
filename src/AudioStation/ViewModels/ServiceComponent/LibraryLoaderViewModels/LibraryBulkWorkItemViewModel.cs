@@ -1,7 +1,6 @@
-﻿using System.Collections.ObjectModel;
+﻿using AudioStation.Core.Component.LibraryLoaderComponent;
 
-using AudioStation.Core.Component.LibraryLoaderComponent;
-
+using SimpleWpf.Extensions.ObservableCollection;
 using SimpleWpf.UI.ViewModel;
 
 namespace AudioStation.ViewModels.ServiceComponent.LibraryLoaderViewModels
@@ -23,9 +22,7 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryLoaderViewModels
         int _failureCount;
         int _totalCount;
 
-        ObservableCollection<LibraryWorkItemViewModel> _workItemsPending;
-        ObservableCollection<LibraryWorkItemViewModel> _workItemsProcessing;
-        ObservableCollection<LibraryWorkItemViewModel> _workItemsCompleted;
+        KeyedObservableCollection<int, LibraryWorkItemViewModel> _workItems;
 
         LibraryLoadType _loadType;
         LibraryWorkItemState _state;
@@ -108,20 +105,10 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryLoaderViewModels
             get { return _totalCount; }
             set { this.RaiseAndSetIfChanged(ref _totalCount, value); }
         }
-        public ObservableCollection<LibraryWorkItemViewModel> WorkItemsPending
+        public KeyedObservableCollection<int, LibraryWorkItemViewModel> WorkItems
         {
-            get { return _workItemsPending; }
-            set { this.RaiseAndSetIfChanged(ref _workItemsPending, value); }
-        }
-        public ObservableCollection<LibraryWorkItemViewModel> WorkItemsProcessing
-        {
-            get { return _workItemsProcessing; }
-            set { this.RaiseAndSetIfChanged(ref _workItemsProcessing, value); }
-        }
-        public ObservableCollection<LibraryWorkItemViewModel> WorkItemsCompleted
-        {
-            get { return _workItemsCompleted; }
-            set { this.RaiseAndSetIfChanged(ref _workItemsCompleted, value); }
+            get { return _workItems; }
+            set { this.RaiseAndSetIfChanged(ref _workItems, value); }
         }
         public LibraryLoadType LoadType
         {
@@ -139,9 +126,7 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryLoaderViewModels
             this.Id = id;
             this.OwnerId = ownerId;
             this.Description = description;
-            this.WorkItemsCompleted = new ObservableCollection<LibraryWorkItemViewModel>();
-            this.WorkItemsPending = new ObservableCollection<LibraryWorkItemViewModel>();
-            this.WorkItemsProcessing = new ObservableCollection<LibraryWorkItemViewModel>();
+            this.WorkItems = new KeyedObservableCollection<int, LibraryWorkItemViewModel>();
         }
     }
 }

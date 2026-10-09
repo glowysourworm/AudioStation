@@ -7,7 +7,7 @@ using AudioStation.Core.Component.LibraryLoaderComponent;
 using AudioStation.Core.Component.LibraryLoaderComponent.Interface;
 using AudioStation.Core.Model.Interface;
 using AudioStation.Event;
-using AudioStation.Service;
+using AudioStation.ViewModels.DataComponent.LogViewModels;
 using AudioStation.ViewModels.ServiceComponent.LibraryLoaderViewModels.Interface;
 
 using SimpleWpf.Extensions.Collection;
@@ -594,15 +594,12 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryLoaderViewModels
             else
             {
                 // NOTE*** No Load/Output! (this may be ok)(we mostly just visualize the work status)
-                workItem = new LibraryWorkItemViewModel();
-
-                workItem.Id = update.Id;
-                workItem.LoadType = update.Type;
+                workItem = new LibraryWorkItemViewModel(update.Id, update.Type);
 
                 _workItems.Add(workItem.Id, workItem);
             }
 
-            LibraryLoaderHelpers.ApplyLibraryLoaderWorkItem(update, ref workItem);
+            ApplyLibraryLoaderWorkItem(update, workItem);
 
             if (this.WorkItemChangedEvent != null)
                 this.WorkItemChangedEvent(this, workItem);
@@ -633,26 +630,11 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryLoaderViewModels
             }
 
             // Apply
-            LibraryLoaderHelpers.ApplyLibraryLoaderBulkWorkItemUpdate(bulkUpdate, ref bulkWorkItem);
+            ApplyLibraryLoaderBulkWorkItemUpdate(bulkUpdate, bulkWorkItem);
 
-            // Completed Work Item: This happens at the end of each work item pass
-            //
+            // Completed Work Item: Allow inherited class to complete work
             if (bulkUpdate.CompletedWorkItem != null)
-            {
-                var workItem = new LibraryWorkItemViewModel();
-
-                workItem.Id = bulkUpdate.CompletedWorkItem.GetId();
-                workItem.LoadType = bulkUpdate.CompletedWorkItem.GetLoadType();
-                workItem.Load = MapWorkLoad(bulkUpdate.CompletedWorkItem.GetWorkItem());
-                workItem.Output = MapWorkOutput(bulkUpdate.CompletedWorkItem.GetOutputItem());
-
-                LibraryLoaderHelpers.ApplyLibraryLoaderWorkItem(bulkUpdate.CompletedWorkItem, ref workItem);
-
-                // Allow inherited class to complete work
-                CompleteWorkItem(workItem);
-
-                bulkWorkItem.WorkItemsCompleted.Add(workItem);
-            }
+                CompleteWorkItem(bulkWorkItem.WorkItems[bulkUpdate.CompletedWorkItem.GetId()]);
 
             if (this.BulkWorkItemChangedEvent != null)
                 this.BulkWorkItemChangedEvent(this, bulkWorkItem);
@@ -699,17 +681,15 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryLoaderViewModels
             // Add
             else
             {
-                workItem = new LibraryWorkItemViewModel();
+                workItem = new LibraryWorkItemViewModel(sender.GetId(), sender.GetLoadType());
 
-                workItem.Id = sender.GetId();
-                workItem.LoadType = sender.GetLoadType();
                 workItem.Load = MapWorkLoad(sender.GetWorkItem());
                 workItem.Output = MapWorkOutput(sender.GetOutputItem());
 
                 _workItems.Add(workItem.Id, workItem);
             }
 
-            LibraryLoaderHelpers.ApplyLibraryLoaderWorkItem(sender, ref workItem);
+            ApplyLibraryLoaderWorkItem(sender, workItem);
 
             // Allow inherited class to complete work
             if (isComplete)
@@ -743,12 +723,155 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryLoaderViewModels
                 _bulkWorkItems.Add(bulkWorkItem.Id, bulkWorkItem);
             }
 
-            LibraryLoaderHelpers.ApplyLibraryLoaderBulkWorkItem(sender, ref bulkWorkItem);
+            ApplyLibraryLoaderBulkWorkItem(sender, bulkWorkItem);
 
             if (this.BulkWorkItemChangedEvent != null)
                 this.BulkWorkItemChangedEvent(this, bulkWorkItem);
 
             OnUpdate();
+        }
+
+        private void ApplyLibraryLoaderBulkWorkItem(LibraryLoaderBulkWorkItem sender, LibraryBulkWorkItemViewModel viewModel)
+        {
+            viewModel.CompletedCount = sender.GetCompletedCount();
+            viewModel.DataErrorCount = sender.GetCount(LibraryWorkerResultLevel.DataError);
+            viewModel.DataWarningCount = sender.GetCount(LibraryWorkerResultLevel.DataWarning);
+            viewModel.FailureCount = sender.GetCount(LibraryWorkerResultLevel.Failure);
+            viewModel.PendingCount = sender.GetCount(LibraryWorkItemState.Pending);
+            viewModel.ProcessingCount = sender.GetCount(LibraryWorkItemState.Processing);
+            viewModel.Progress = sender.GetProgress();
+            viewModel.ServiceFailureCount = sender.GetCount(LibraryWorkerResultLevel.ServiceFailure);
+            viewModel.ServiceNoResultCount = sender.GetCount(LibraryWorkerResultLevel.ServiceNoResult);
+            viewModel.State = sender.GetLoadState();
+            viewModel.SuccessCount = sender.GetCount(LibraryWorkerResultLevel.Success);
+            viewModel.TotalCount = sender.GetCount();
+
+            // Work Items:  These will have contention on the worker thread
+            //
+            sender.IterateWorkItems(workItem =>
+            {
+                var existingItem = viewModel.WorkItems.ContainsKey(workItem.GetId());
+
+                LibraryWorkItemViewModel itemVM = null;
+
+                if (existingItem)
+                    itemVM = viewModel.WorkItems[workItem.GetId()];
+
+                else
+                {
+                    itemVM = new LibraryWorkItemViewModel(workItem.GetId(), workItem.GetLoadType());
+                    itemVM.Load = MapWorkLoad(workItem.GetWorkItem());
+                    itemVM.Output = MapWorkOutput(workItem.GetOutputItem());
+                }
+
+                // Apply Update
+                ApplyLibraryLoaderWorkItem(workItem, itemVM);
+
+                // -> Bulk Work Item (add)
+                if (!existingItem)
+                    viewModel.WorkItems.Add(itemVM.Id, itemVM);
+            });
+        }
+        private void ApplyLibraryLoaderBulkWorkItemUpdate(LibraryLoaderBulkWorkItemUpdate sender, LibraryBulkWorkItemViewModel bulkWorkItem)
+        {
+            bulkWorkItem.CompletedCount = sender.CompletedCount;
+            bulkWorkItem.DataErrorCount = sender.DataErrorCount;
+            bulkWorkItem.DataWarningCount = sender.DataWarningCount;
+            bulkWorkItem.FailureCount = sender.FailureCount;
+            bulkWorkItem.PendingCount = sender.PendingCount;
+            bulkWorkItem.ProcessingCount = sender.ProcessingCount;
+            bulkWorkItem.Progress = sender.Progress;
+            bulkWorkItem.ServiceFailureCount = sender.ServiceFailureCount;
+            bulkWorkItem.ServiceNoResultCount = sender.ServiceNoResultCount;
+            bulkWorkItem.State = sender.State;
+            bulkWorkItem.SuccessCount = sender.SuccessCount;
+            bulkWorkItem.TotalCount = sender.TotalCount;
+
+            // Completed Work Item: This happens at the end of each work item pass
+            //
+            if (sender.CompletedWorkItem != null)
+            {
+                // This work item is already in the bulk collection
+                var workItem = bulkWorkItem.WorkItems[sender.CompletedWorkItem.GetId()];
+
+                ApplyLibraryLoaderWorkItem(sender.CompletedWorkItem, workItem);
+            }
+        }
+        private void ApplyLibraryLoaderWorkItem(LibraryLoaderWorkItemUpdate sender, LibraryWorkItemViewModel viewModel)
+        {
+            // Log Messages
+            foreach (var message in sender.Log)
+            {
+                if (!viewModel.LogMessages.Any(x => x.Timestamp.Equals(message.Timestamp)))
+                {
+                    viewModel.LogMessages.Add(new LogMessageViewModel()
+                    {
+                        Level = message.Level,
+                        Message = message.Message,
+                        Timestamp = message.Timestamp,
+                        Type = message.Type
+                    });
+                }
+            }
+
+            // Work Steps
+            foreach (var workStep in sender.ResultStepsCompleted)
+            {
+                if (!viewModel.WorkSteps.Any(x => x.StepNumber == workStep.StepNumber))
+                {
+                    viewModel.WorkSteps.Add(new LibraryLoaderWorkStepViewModel()
+                    {
+                        Complete = workStep.Completed,
+                        Message = workStep.Message,
+                        StepNumber = workStep.StepNumber,
+                        Result = workStep.Result
+                    });
+                }
+            }
+
+            viewModel.LastMessage = sender.Log.LastOrDefault()?.Message ?? string.Empty;
+            viewModel.ErrorLevel = sender.ResultStepsCompleted.Any() ? sender.ResultStepsCompleted.Max(x => x.Result) : LibraryWorkerResultLevel.None;
+            viewModel.State = sender.State;
+            viewModel.Progress = !sender.ResultStepsCompleted.Any() ? 0 : (sender.ResultStepsCompleted.Count() / (double)sender.ResultStepCount);
+        }
+
+        private void ApplyLibraryLoaderWorkItem(LibraryLoaderWorkItem sender, LibraryWorkItemViewModel viewModel)
+        {
+            // Log Messages
+            foreach (var message in sender.GetOutputItem().CurrentLog)
+            {
+                if (!viewModel.LogMessages.Any(x => x.Timestamp.Equals(message.Timestamp)))
+                {
+                    viewModel.LogMessages.Add(new LogMessageViewModel()
+                    {
+                        Level = message.Level,
+                        Message = message.Message,
+                        Timestamp = message.Timestamp,
+                        Type = message.Type
+                    });
+                }
+            }
+
+            // Work Steps
+            foreach (var workStep in sender.GetOutputItem().ResultSteps)
+            {
+                if (!viewModel.WorkSteps.Any(x => x.StepNumber == workStep.StepNumber))
+                {
+                    viewModel.WorkSteps.Add(new LibraryLoaderWorkStepViewModel()
+                    {
+                        Complete = workStep.Completed,
+                        Message = workStep.Message,
+                        StepNumber = workStep.StepNumber,
+                        Result = workStep.Result
+                    });
+                }
+            }
+
+            viewModel.LastMessage = sender.GetOutputItem().CurrentLog.LastOrDefault()?.Message ?? string.Empty;
+            viewModel.ErrorLevel = sender.GetOutputItem().ResultSteps.Any() ? sender.GetOutputItem().ResultSteps.Max(x => x.Result) : LibraryWorkerResultLevel.None;
+            viewModel.State = sender.GetLoadState();
+            viewModel.Progress = !sender.GetOutputItem().ResultSteps.Any(x => x.Completed) ? 0
+                                    : (sender.GetOutputItem().ResultSteps.Count(x => x.Completed) / (double)sender.GetOutputItem().ResultSteps.Count());
         }
 
         public override void Dispose()

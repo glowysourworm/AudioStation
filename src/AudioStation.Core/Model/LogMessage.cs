@@ -172,6 +172,9 @@ namespace AudioStation.Core.Model
         {
 
         }
+        public LogMessage(LogMessage copy)
+            : this(copy.Message, copy.Type, copy.ComponentType, copy.ServiceType, copy.DatabaseType, copy.Level, copy.Exception)
+        { }
 
         // Full Constructor Without Exception
         private LogMessage(string message,

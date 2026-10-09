@@ -3,7 +3,6 @@ using System.Windows.Controls;
 
 using AudioStation.Controller.Interface;
 using AudioStation.Core.Component;
-using AudioStation.Core.Component.LibraryLoaderComponent;
 using AudioStation.ViewModels;
 using AudioStation.ViewModels.ServiceComponent.LibraryLoaderViewModels;
 using AudioStation.ViewModels.ServiceComponent.LibraryLoaderViewModels.Interface;
@@ -35,11 +34,13 @@ namespace AudioStation.Views
             if (oldVM != null)
             {
                 oldVM.WorkItemChangedEvent -= ServiceWorkflow_WorkItemChangedEvent;
+                oldVM.BulkWorkItemChangedEvent -= ServiceWorkflow_BulkWorkItemChangedEvent;
                 oldVM.StatusChangeEvent -= ServiceWorkflow_StatusChangeEvent;
             }
             if (newVM != null)
             {
                 newVM.WorkItemChangedEvent += ServiceWorkflow_WorkItemChangedEvent;
+                newVM.BulkWorkItemChangedEvent += ServiceWorkflow_BulkWorkItemChangedEvent;
                 newVM.StatusChangeEvent += ServiceWorkflow_StatusChangeEvent;
             }
 
@@ -59,20 +60,6 @@ namespace AudioStation.Views
                 this.ExecuteButton.IsChecked = viewModel.LibraryLoaderState == PlayStopPause.Play;
                 this.CancelButton.IsChecked = viewModel.LibraryLoaderState == PlayStopPause.Stop;
                 this.PauseButton.IsChecked = viewModel.LibraryLoaderState == PlayStopPause.Pause;
-
-                // Single Execution
-                if (!viewModel.ExecuteAsBulk)
-                    this.LoaderWorkItemsLB.ItemsSource = viewModel.WorkItems;
-
-                // Bulk Execution
-                else
-                {
-                    var bulkWorkItem = viewModel.BulkWorkItems
-                                                .FirstOrDefault(x => x.State != LibraryWorkItemState.Successful);
-
-                    if (bulkWorkItem != null && this.LoaderWorkItemsLB.ItemsSource != bulkWorkItem.WorkItemsCompleted)
-                        this.LoaderWorkItemsLB.ItemsSource = bulkWorkItem.WorkItemsCompleted;
-                }
             }
         }
 
@@ -88,12 +75,29 @@ namespace AudioStation.Views
                 this.LoaderWorkItemsLB.SelectedItem = item;
             }
         }
+        private void ScrollIntoView(ILibraryLoaderWorkerViewModel sender, LibraryBulkWorkItemViewModel item)
+        {
+            // Scroll the item into view
+            this.LoaderBulkWorkItemsLB.ScrollIntoView(item);
+
+            // An exception occurs when the dialog window is open. There may be a way around the exception; but
+            // it doesn't yet make sense.. something to do with other data binding to the work items
+            if (!_dialogController.IsShowing())
+            {
+                this.LoaderBulkWorkItemsLB.SelectedItem = item;
+            }
+        }
         private void ServiceWorkflow_StatusChangeEvent(ServiceComponentPartViewModelBase sender, bool working, bool loaded)
         {
             UpdateViewContext();
         }
 
         private void ServiceWorkflow_WorkItemChangedEvent(ILibraryLoaderWorkerViewModel sender, LibraryWorkItemViewModel item)
+        {
+            UpdateViewContext();
+            ScrollIntoView(sender, item);
+        }
+        private void ServiceWorkflow_BulkWorkItemChangedEvent(ILibraryLoaderWorkerViewModel sender, LibraryBulkWorkItemViewModel item)
         {
             UpdateViewContext();
             ScrollIntoView(sender, item);

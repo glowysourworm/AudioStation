@@ -101,10 +101,32 @@
         }
 
         /// <summary>
+        /// Iterates work items with lock protection. The callback may be used to run user code; and it
+        /// may be run from any other thread. 
+        /// </summary>
+        public void IterateWorkItems(Action<LibraryLoaderWorkItem> callback)
+        {
+            // This thread contention may be: After the work is queued; but, Before the work item begins processing.
+            lock (_lock)
+            {
+                foreach (var workItem in _workItemsPending)
+                    callback(workItem);
+
+                foreach (var workItem in _workItemsProcessing.Values)
+                    callback(workItem);
+
+                foreach (var workItem in _workItemsCompleted.Values)
+                    callback(workItem);
+            }
+        }
+
+
+        /// <summary>
         /// Returns a reference to next work item for processing
         /// </summary>
         public LibraryLoaderWorkItem Dequeue()
         {
+            // This thread contention may be: After the work is queued; but, Before the work item begins processing.
             lock (_lock)
             {
                 if (_workItemsPending.Count == 0)
