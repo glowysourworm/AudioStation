@@ -41,7 +41,7 @@
             <propertyGrid:PropertyLabelControl LabelColumnWidth="240"
                                                LabelText="Staged File Count"
                                                Style="{StaticResource PropertyGridUserControl}"
-                                               Value="{Binding StagingWorkflow.StagedFiles.Count}" />
+                                               Value="{Binding StagingWorkflow.StagedFiles.TotalFileCount}" />
 
             <!-- Valid Staged File(s) -->
             <propertyGrid:PropertyLabelControl LabelColumnWidth="240"

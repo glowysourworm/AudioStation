@@ -458,9 +458,37 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
                 var fileRef = tagMap != null ? tagMap.FileReference : null;
                 var fileRefExisting = _audioStationDbClient.FirstEntity<FileReference>(x => x.FileName == _destinationPath);
                 var genre = _audioStationDbClient.FirstEntity<Genre>(x => x.Name == workLoad.TagFinal.Genre);
-                var artist = _audioStationDbClient.FirstEntity<Artist>(x => x.Name == workLoad.TagFinal.AlbumArtist);
-                var album = _audioStationDbClient.FirstEntity<Album>(x => x.Name == workLoad.TagFinal.Album);
                 var track = _audioStationDbClient.FirstEntity<Track>(x => x.Title == workLoad.TagFinal.Title);
+
+                // TODO:  (besides library conflicts) these need to warn the user about multiple artists and albums
+                var artists = _audioStationDbClient.GetEntitiesWhere<Artist>(x => x.Name == workLoad.TagFinal.AlbumArtist);
+                var albums = _audioStationDbClient.GetEntitiesWhere<Album>(x => x.Name == workLoad.TagFinal.Album);
+
+                Artist? artist = artists.FirstOrDefault();
+                Album? album = albums.FirstOrDefault();
+
+                if (albums.Count() > 1)
+                {
+                    return new LibraryWorkerStepResult()
+                    {
+                        Completed = false,
+                        Message = "Library (Album) conflict:  multiple albums found with name " + workLoad.TagFinal.Album,
+                        Result = LibraryWorkerResultLevel.DataError,
+                        StepNumber = stepNumber
+                    };
+                }
+
+                if (artists.Count() > 1)
+                {
+                    return new LibraryWorkerStepResult()
+                    {
+                        Completed = false,
+                        Message = "Library (Artist) conflict:  multiple artists found with name " + workLoad.TagFinal.AlbumArtist,
+                        Result = LibraryWorkerResultLevel.DataError,
+                        StepNumber = stepNumber
+                    };
+                }
+
 
                 // Library Conflicts
                 //

@@ -35,12 +35,20 @@ namespace AudioStation.ViewModels
         public bool Working
         {
             get { return _working; }
-            protected set { this.RaiseAndSetIfChanged(ref _working, value); RaiseStatusChangedEvent(); }
+            protected set
+            {
+                if (this.RaiseAndSetIfChanged(ref _working, value))
+                    RaiseStatusChangedEvent();
+            }
         }
         public bool Loaded
         {
             get { return _loaded; }
-            protected set { this.RaiseAndSetIfChanged(ref _loaded, value); RaiseStatusChangedEvent(); }
+            protected set
+            {
+                if (this.RaiseAndSetIfChanged(ref _loaded, value))
+                    RaiseStatusChangedEvent();
+            }
         }
         public string DisplayName
         {
@@ -76,6 +84,11 @@ namespace AudioStation.ViewModels
         /// Event that executes when the working status has changed
         /// </summary>
         public event ServiceComponentStatusUpdateHandler StatusChangeEvent;
+
+        /// <summary>
+        /// Event that executes when the work is complete
+        /// </summary>
+        public event ServiceComponentStatusUpdateHandler WorkCompleteEvent;
 
         public ServiceComponentPartViewModelBase(string displayName, string description)
         {
@@ -130,6 +143,12 @@ namespace AudioStation.ViewModels
         {
             if (this.StatusChangeEvent != null)
                 this.StatusChangeEvent(this, this.Working, this.Loaded);
+        }
+
+        protected void RaiseWorkCompleteEvent()
+        {
+            if (this.WorkCompleteEvent != null)
+                this.WorkCompleteEvent(this, this.Working, this.Loaded);
         }
 
         public abstract void Load(IAudioStationConfiguration configuration, IAudioStationController audioStationController, DialogProgressHandler progressHandler);

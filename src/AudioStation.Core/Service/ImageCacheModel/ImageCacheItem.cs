@@ -38,6 +38,16 @@ namespace AudioStation.Core.Service.ImageCacheModel
         {
             this.Images = new SimpleDictionary<PictureType, BitmapImageData>(images);
         }
+        public ImageCacheItem(IEnumerable<KeyValuePair<PictureType, BitmapImageData>> sources)
+        {
+            this.Images = new SimpleDictionary<PictureType, BitmapImageData>();
+
+            foreach (var source in sources)
+            {
+                if (!this.Images.ContainsKey(source.Key))
+                    this.Images.Add(source.Key, source.Value);
+            }
+        }
 
         public void Dispose()
         {

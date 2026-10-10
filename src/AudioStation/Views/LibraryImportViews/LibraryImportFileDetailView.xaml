@@ -30,28 +30,28 @@
                                                Value="{Binding LastWriteUtc}" ToolTip="{Binding FullPath}" />
 
         <propertyGrid:PropertyLabelControl LabelColumnWidth="160" LabelText="Import Type"
-                                           Value="{Binding ImportLoad.ImportType}" />
+                                           Value="{Binding ImportFile.ImportLoad.ImportType}" />
 
         <propertyGrid:PropertyLabelControl LabelColumnWidth="160" LabelText="Migration Path"
                                            Value="{Binding FileImportFullPath, TargetNullValue='(Tag must be completed before import)'}" ToolTip="{Binding FileMigrationFullPath}"
-                                           IsEnabled="{Binding ImportLoad.ImportType, Converter={StaticResource ParameterEqualityInverseBoolConverter}, ConverterParameter={x:Static coreModel:LibraryImportType.Migration}}"
+                                           IsEnabled="{Binding ImportFile.ImportLoad.ImportType, Converter={StaticResource ParameterEqualityInverseBoolConverter}, ConverterParameter={x:Static coreModel:LibraryImportType.Migration}}"
                                            Foreground="{Binding MinimumImportValid, Converter={StaticResource ValidationBoolForegroundParameterConverter}, ConverterParameter={StaticResource LabelForeground}}" />
 
         <!-- File / AcoustID / Music Brainz -->
         <propertyGrid:PropertyLabelControl LabelColumnWidth="160" LabelText="AcoustID"
-                                           Value="{Binding ImportOutput.AcoustIDResults.Count, StringFormat='Results ({0})'}" />
+                                           Value="{Binding ImportFile.ImportOutput.AcoustIDResults.Count, StringFormat='Results ({0})'}" />
 
         <propertyGrid:PropertyLabelControl LabelColumnWidth="160" LabelText="Music Brainz (basic)"
-                                           Value="{Binding ImportOutput.MusicBrainzRecordingMatches.Count, StringFormat='Results ({0})'}" />
+                                           Value="{Binding ImportFile.ImportOutput.MusicBrainzRecordingMatches.Count, StringFormat='Results ({0})'}" />
 
         <propertyGrid:PropertyLabelControl LabelColumnWidth="160" LabelText="Music Brainz (artwork)"
-                                           Value="{Binding ImportOutput.AcoustIDResults.Count, StringFormat='Results ({0})'}" />
+                                           Value="{Binding ImportFile.ImportOutput.AcoustIDResults.Count, StringFormat='Results ({0})'}" />
 
         <propertyGrid:PropertyLabelControl LabelColumnWidth="160" LabelText="File Conflict"
-                                           Value="{Binding FileConflict}" />
+                                           Value="{Binding ImportFile.FileConflict}" />
 
         <propertyGrid:PropertyLabelControl LabelColumnWidth="160" LabelText="Library Conflict"
-                                           Value="{Binding LibraryConflict}" />
+                                           Value="{Binding ImportFile.LibraryConflict}" />
 
     </controls:NoSelectListBox>
 </UserControl>

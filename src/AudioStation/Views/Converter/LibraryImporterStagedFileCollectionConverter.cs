@@ -42,8 +42,11 @@ namespace AudioStation.Views.Converter
                 case LibraryImporterStagedFileFilterType.LibraryConflict:
                 case LibraryImporterStagedFileFilterType.ImportReadyFiles:
                 default:
-                    throw new Exception("Unhandled staged file filter type");
+                    //throw new Exception("Unhandled staged file filter type");
+                    break;
             }
+
+            return Binding.DoNothing;
         }
 
         public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)

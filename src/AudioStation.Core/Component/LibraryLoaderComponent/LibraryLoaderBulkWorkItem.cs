@@ -171,6 +171,15 @@
                 _state = state;
             }
         }
+        public bool GetIsComplete()
+        {
+            lock (_lock)
+            {
+                return _state == LibraryWorkItemState.Successful ||
+                       _state == LibraryWorkItemState.Canceled ||
+                       _state == LibraryWorkItemState.Error;
+            }
+        }
 
         public LibraryLoaderBulkWorkItem(int id, Guid ownerId, string description, IEnumerable<LibraryLoaderWorkItem> workItems)
         {

@@ -11,6 +11,7 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryLoaderViewModels
         Guid _ownerId;
         string _description;
         double _progress;
+        bool _isComplete;
         int _pendingCount;
         int _processingCount;
         int _completedCount;
@@ -49,6 +50,11 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryLoaderViewModels
         {
             get { return _isSelected; }
             set { this.RaiseAndSetIfChanged(ref _isSelected, value); }
+        }
+        public bool IsComplete
+        {
+            get { return _isComplete; }
+            set { this.RaiseAndSetIfChanged(ref _isComplete, value); }
         }
         public double Progress
         {

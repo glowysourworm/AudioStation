@@ -68,6 +68,23 @@ namespace AudioStation.ViewModels.DataComponent
             return _playlists[playlistId];
         }
 
+        public bool ContainsGenre(int id)
+        {
+            return _genres.ContainsKey(id);
+        }
+        public bool ContainsArtist(int id)
+        {
+            return _artists.ContainsKey(id);
+        }
+        public bool ContainsAlbum(int id)
+        {
+            return _albums.ContainsKey(id);
+        }
+        public bool ContainsTrack(int id)
+        {
+            return _tracks.ContainsKey(id);
+        }
+
         public void AddGenre(GenreViewModel genre)
         {
             if (_genres.ContainsKey(genre.Id))

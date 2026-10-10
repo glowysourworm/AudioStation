@@ -31,8 +31,6 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryLoaderViewModels
         private List<ILibraryLoaderLoad> _workLoads;
         private List<T> _workPending;
 
-        bool _complete;
-
         KeyedObservableCollection<int, LibraryWorkItemViewModel> _workItems;
         KeyedObservableCollection<int, LibraryBulkWorkItemViewModel> _bulkWorkItems;
 
@@ -72,11 +70,6 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryLoaderViewModels
         /// </summary>
         public event SimpleEventHandler<ILibraryLoaderWorkerViewModel, LibraryBulkWorkItemViewModel> BulkWorkItemUIChangedEvent;
 
-        public bool Complete
-        {
-            get { return _complete; }
-            set { this.RaiseAndSetIfChanged(ref _complete, value); }
-        }
         public bool ExecuteAsBulk
         {
             get { return _executeAsBulk; }
@@ -132,9 +125,6 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryLoaderViewModels
                 if (!this.Loaded)
                     return "Not Loaded";
 
-                else if (this.Complete)
-                    return "Complete";
-
                 else
                 {
                     switch (this.LibraryLoaderState)
@@ -182,8 +172,8 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryLoaderViewModels
             switch (loaderState)
             {
                 case PlayStopPause.Play:
-                    if (!this.Complete &&
-                         this.LibraryLoaderState != PlayStopPause.Play)
+                    if (this.Loaded &&
+                        this.LibraryLoaderState != PlayStopPause.Play)
                         return true;
 
                     break;
@@ -285,6 +275,8 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryLoaderViewModels
 
             // Add pending work and wait for the next Load command
             _workPending.Add(workItem as T);
+
+            OnUpdate();
         }
         public void AddWork(IEnumerable<object> workItems)
         {
@@ -294,6 +286,8 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryLoaderViewModels
 
             // Add pending work and wait for the next Load command
             _workPending.AddRange(workItems.Cast<T>());
+
+            OnUpdate();
         }
 
 
@@ -530,14 +524,13 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryLoaderViewModels
             {
                 if (this.ExecuteAsBulk)
                 {
-                    this.WorkPendingCount = _bulkWorkItems.Count(x => x.State == LibraryWorkItemState.Pending);
-                    this.WorkInProgressCount = _bulkWorkItems.Count(x => x.State == LibraryWorkItemState.Processing);
-                    this.WorkSuccessCount = _bulkWorkItems.Count(x => x.State == LibraryWorkItemState.Successful);
-                    this.WorkErrorCount = _bulkWorkItems.Count(x => x.State == LibraryWorkItemState.Error);
-                    this.WorkCanceledCount = _bulkWorkItems.Count(x => x.State == LibraryWorkItemState.Canceled);
-                    this.TotalProgress = (this.WorkSuccessCount + this.WorkErrorCount + this.WorkCanceledCount) / (double)_bulkWorkItems.Count;
+                    this.WorkPendingCount = _bulkWorkItems.Sum(x => x.PendingCount);
+                    this.WorkInProgressCount = _bulkWorkItems.Sum(x => x.ProcessingCount);
+                    this.WorkSuccessCount = _bulkWorkItems.Sum(x => x.SuccessCount);
+                    this.WorkErrorCount = _bulkWorkItems.Sum(x => x.FailureCount);
+                    this.WorkCanceledCount = _bulkWorkItems.SelectMany(x => x.WorkItems.Where(z => z.State == LibraryWorkItemState.Canceled)).Count();
+                    this.TotalProgress = _bulkWorkItems.Sum(x => x.WorkItems.Count(z => z.State == LibraryWorkItemState.Successful)) / (double)_bulkWorkItems.Sum(x => x.WorkItems.Count);
                     this.Working = this.WorkPendingCount > 0 || this.WorkInProgressCount > 0;
-                    this.Complete = this.WorkPendingCount == 0 && this.WorkInProgressCount == 0;
                 }
                 else
                 {
@@ -548,7 +541,6 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryLoaderViewModels
                     this.WorkCanceledCount = _workItems.Count(x => x.State == LibraryWorkItemState.Canceled);
                     this.TotalProgress = (this.WorkSuccessCount + this.WorkErrorCount + this.WorkCanceledCount) / (double)_workItems.Count;
                     this.Working = this.WorkPendingCount > 0 || this.WorkInProgressCount > 0;
-                    this.Complete = this.WorkPendingCount == 0 && this.WorkInProgressCount == 0;
                 }
 
                 OnPropertyChanged("Status");
@@ -679,6 +671,7 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryLoaderViewModels
             if (this.BulkWorkItemChangedEvent != null)
                 this.BulkWorkItemChangedEvent(this, sender);
         }
+
         private void AddUpdateWorkItem(LibraryLoaderWorkItem sender, bool isComplete)
         {
             if (sender.GetOwnerId() != this.Id)
@@ -742,15 +735,20 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryLoaderViewModels
             if (this.BulkWorkItemChangedEvent != null)
                 this.BulkWorkItemChangedEvent(this, bulkWorkItem);
 
+            if (isComplete && _bulkWorkItems.All(workItem => workItem.IsComplete))
+                RaiseWorkCompleteEvent();
+
             OnUpdate();
         }
 
+        #region (private) Mapper Methods
         private void ApplyLibraryLoaderBulkWorkItem(LibraryLoaderBulkWorkItem sender, LibraryBulkWorkItemViewModel viewModel)
         {
             viewModel.CompletedCount = sender.GetCompletedCount();
             viewModel.DataErrorCount = sender.GetCount(LibraryWorkerResultLevel.DataError);
             viewModel.DataWarningCount = sender.GetCount(LibraryWorkerResultLevel.DataWarning);
             viewModel.FailureCount = sender.GetCount(LibraryWorkerResultLevel.Failure);
+            viewModel.IsComplete = sender.GetIsComplete();
             viewModel.PendingCount = sender.GetCount(LibraryWorkItemState.Pending);
             viewModel.ProcessingCount = sender.GetCount(LibraryWorkItemState.Processing);
             viewModel.Progress = sender.GetProgress();
@@ -848,7 +846,6 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryLoaderViewModels
             viewModel.State = sender.State;
             viewModel.Progress = !sender.ResultStepsCompleted.Any() ? 0 : (sender.ResultStepsCompleted.Count() / (double)sender.ResultStepCount);
         }
-
         private void ApplyLibraryLoaderWorkItem(LibraryLoaderWorkItem sender, LibraryWorkItemViewModel viewModel)
         {
             // Log Messages
@@ -887,6 +884,7 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryLoaderViewModels
             viewModel.Progress = !sender.GetOutputItem().ResultSteps.Any(x => x.Completed) ? 0
                                     : (sender.GetOutputItem().ResultSteps.Count(x => x.Completed) / (double)sender.GetOutputItem().ResultSteps.Count());
         }
+        #endregion
 
         public override void Dispose()
         {

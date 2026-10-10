@@ -4,6 +4,8 @@ using AudioStation.ViewModels.ServiceComponent;
 using AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels;
 
 using SimpleWpf.IocFramework.Application.Attribute;
+using SimpleWpf.UI.Controls.TreeViewUI;
+using SimpleWpf.UI.ViewModel.TreeView;
 
 namespace AudioStation.Views.LibraryImportViews
 {
@@ -31,6 +33,17 @@ namespace AudioStation.Views.LibraryImportViews
                 item.IsSelected = false;
             }
 
+            // Trigger Command Updates
+            var viewModel = this.DataContext as LibraryImporterViewModel;
+
+            if (viewModel != null)
+            {
+                viewModel.CompletionWorkflow.UpdateCommands();
+            }
+        }
+
+        private void StagedFileTV_SelectedItemsChanged(SimpleTreeView sender, IEnumerable<TreeViewNodeModelBase> selectedItems)
+        {
             // Trigger Command Updates
             var viewModel = this.DataContext as LibraryImporterViewModel;
 

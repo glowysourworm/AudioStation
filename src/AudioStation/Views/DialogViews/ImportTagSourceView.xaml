@@ -22,7 +22,7 @@
                         <TextBlock Text="Source File" Style="{StaticResource LabelTextBlock}" />
                         <TextBlock Text="*" 
                                    Style="{StaticResource LabelDetailDarkTextBlock}" VerticalAlignment="Center"
-                                   Visibility="{Binding Tag.IsModified, Converter={StaticResource BoolVisibilityCollapseConverter}}" />
+                                   Visibility="{Binding ImportFile.Tag.IsModified, Converter={StaticResource BoolVisibilityCollapseConverter}}" />
                         <TextBlock Text="{Binding LastWriteUtc, StringFormat='({0})'}" Margin="5 0 0 0" Style="{StaticResource LabelDetailDarkTextBlock}" VerticalAlignment="Center" />
                     </StackPanel>
                 </Grid>
@@ -49,8 +49,8 @@
                                       ToolTip="Tag data is required to complete the import">
                         <fa5:SvgAwesome.Foreground>
                             <MultiBinding Converter="{StaticResource LibraryLoaderImportTagForegroundConverter}">
-                                <Binding Path="TagRecordDirty.IsValid" />
-                                <Binding Path="TagRecordDirty.IsModified" />
+                                <Binding Path="ImportFile.TagRecordDirty.IsValid" />
+                                <Binding Path="ImportFile.TagRecordDirty.IsModified" />
                             </MultiBinding>
                         </fa5:SvgAwesome.Foreground>
                     </fa5:SvgAwesome>
@@ -67,7 +67,7 @@
         <TabItem Header="Log Messages" Style="{StaticResource SimpleTabItemStyle}">
             <ListBox AlternationCount="2"
                      ItemContainerStyle="{StaticResource PlainItemContainerStyleWithAlternation_AliceBlue}"
-                     ItemsSource="{Binding ImportOutput.LogMessages}">
+                     ItemsSource="{Binding ImportFile.ImportOutput.LogMessages}">
                 <ListBox.ItemTemplate>
                     <DataTemplate>
                         <TextBlock Text="{Binding}" Style="{StaticResource LabelTextBlock}" Margin="3" />

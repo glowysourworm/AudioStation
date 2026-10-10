@@ -63,7 +63,7 @@
                 <Button x:Name="RevertButton" 
                         Click="RevertButton_Click"
                         Style="{StaticResource UserControlButton}" 
-                        IsEnabled="{Binding TagRecordDirty.IsModified}"
+                        IsEnabled="{Binding ImportFile.TagRecordDirty.IsModified}"
                         ToolTip="Revert Final Record"
                         Grid.Column="5">
 
@@ -80,7 +80,7 @@
         </Border>
 
         <!-- Tag (Record) (this is our target) -->
-        <importView:LibraryImportTagIssuesView DataContext="{Binding TagRecordDirty}" 
+        <importView:LibraryImportTagIssuesView DataContext="{Binding ImportFile.TagRecordDirty}" 
                                                IsReadOnly="False"
                                                CanCopy="False"
                                                UseRequiredFields="False"
@@ -97,8 +97,8 @@
 
         <!-- Tag (File) -->
         <importView:LibraryImportTagIssuesView x:Name="TagFileView"
-                                               DataContext="{Binding Tag}" 
-                                               CopyTarget="{Binding DataContext.TagRecordDirty, ElementName=BaseControl}"
+                                               DataContext="{Binding ImportFile.Tag}" 
+                                               CopyTarget="{Binding DataContext.ImportFile.TagRecordDirty, ElementName=BaseControl}"
                                                CanCopy="True"
                                                IsReadOnly="True"
                                                Grid.Row="1" Grid.Column="1">
@@ -115,7 +115,7 @@
         <!-- Data Service (Music Brainz, ...) -->
         <importView:LibraryImportTagIssuesView x:Name="MusicBrainzView"
                                                Visibility="Collapsed"
-                                               CopyTarget="{Binding DataContext.TagRecordDirty, ElementName=BaseControl}"
+                                               CopyTarget="{Binding DataContext.ImportFile.TagRecordDirty, ElementName=BaseControl}"
                                                CanCopy="True"
                                                IsReadOnly="True"
                                                UseRequiredFields="False"

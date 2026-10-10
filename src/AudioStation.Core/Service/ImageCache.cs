@@ -251,11 +251,11 @@ namespace AudioStation.Core.Service
                               .Actualize();
 
             // Convert all images
-            Dictionary<PictureType, BitmapImageData> imageSources = new Dictionary<PictureType, BitmapImageData>();
+            var imageSources = images.Select(picture =>
+            {
+                return new KeyValuePair<PictureType, BitmapImageData>(picture.PictureType, _bitmapConverter.BitmapDataToBitmapSource(picture.Data, new ImageSize(cacheAsType), picture.MimeType));
 
-            // Contention for web image loading (Task)
-            imageSources = images.ToDictionary(picture => picture.PictureType,
-                                               picture => (BitmapImageData)_bitmapConverter.BitmapDataToBitmapSource(picture.Data, new ImageSize(cacheAsType), picture.MimeType));
+            }).Actualize();
 
             var cacheItem = new ImageCacheItem(imageSources);
 

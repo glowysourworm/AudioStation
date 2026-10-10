@@ -134,10 +134,10 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Wor
                 throw new Exception("Service workers list is empty. Please first add service workers before executing.");
 
             // Next
-            var nextWorker = this.ServiceWorkers.Next(this.SelectedWorker);
+            var nextWorker = this.ServiceWorkers.Next(this.SelectedWorker, false);
 
             // End of List
-            if (nextWorker == this.SelectedWorker)
+            if (nextWorker == null)
                 return false;
 
             // Select Worker
@@ -167,6 +167,7 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Wor
         public void AddWorker(ILibraryLoaderWorkerViewModel worker)
         {
             worker.StatusChangeEvent += OnWorkerStatusChangeEvent;
+            worker.WorkCompleteEvent += OnWorkerCompleteEvent;
             worker.WorkItemChangedEvent += OnWorkerItemChangedEvent;
             worker.WorkItemUIChangedEvent += OnWorkerItemChangedEvent;
             worker.PropertyChanged += OnWorkerPropertyChanged;
@@ -211,7 +212,13 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Wor
         {
             // Call to unload some memory before completing workflow step
             foreach (var worker in this.ServiceWorkers)
-                worker.Reset(progressHandler);
+            {
+                // These reset calls may be out of order
+                if (worker.CanReset())
+                    worker.Reset(progressHandler);
+            }
+
+            this.Loaded = false;
         }
         private void OnWorkerStatusChangeEvent(ServiceComponentPartViewModelBase sender, bool working, bool loaded)
         {
@@ -219,6 +226,30 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Wor
             this.LibraryLoaderState = (sender as ILibraryLoaderWorkerViewModel).LibraryLoaderState;
 
             UpdateCommands();
+        }
+        private void OnWorkerCompleteEvent(ServiceComponentPartViewModelBase sender, bool working, bool loaded)
+        {
+            this.Working = this.ServiceWorkers.Any(x => x.Working);
+            this.LibraryLoaderState = (sender as ILibraryLoaderWorkerViewModel).LibraryLoaderState;
+
+            UpdateCommands();
+
+            // (left -> to -> right) Checks to see if there is more work to execute
+            //
+            if (CanMoveNext() && MoveNext())
+            {
+                // Clear Workers
+                if (CanReset())
+                    RaiseResetEvent();
+
+                // Add Work -> Load (next worker)
+                if (CanLoad())
+                    RaiseLoadEvent();
+
+                // Execute (next worker)
+                if (CanExecute())
+                    RaiseExecuteEvent();
+            }
         }
         private void OnWorkerItemChangedEvent(ILibraryLoaderWorkerViewModel worker, LibraryWorkItemViewModel workItem)
         {

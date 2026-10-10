@@ -14,6 +14,11 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryLoaderViewModels.Inter
     public interface ILibraryLoaderWorkerViewModel : INotifyPropertyChanged, IDisposable
     {
         /// <summary>
+        /// Event that executes when the work is complete
+        /// </summary>
+        public event ServiceComponentStatusUpdateHandler WorkCompleteEvent;
+
+        /// <summary>
         /// Event that executes when the working status has changed
         /// </summary>
         public event ServiceComponentStatusUpdateHandler StatusChangeEvent;
@@ -38,7 +43,6 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryLoaderViewModels.Inter
         /// </summary>
         event SimpleEventHandler<ILibraryLoaderWorkerViewModel, LibraryBulkWorkItemViewModel> BulkWorkItemUIChangedEvent;
 
-        bool Complete { get; }
         bool Working { get; }
         bool Loaded { get; }
         bool ExecuteAsBulk { get; }
