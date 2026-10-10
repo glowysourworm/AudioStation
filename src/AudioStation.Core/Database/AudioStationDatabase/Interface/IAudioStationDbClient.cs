@@ -1,17 +1,10 @@
 ﻿using AudioStation.Core.Model;
-using AudioStation.Core.Model.Interface;
 using AudioStation.Core.Service.Interface;
 
 namespace AudioStation.Core.Database.AudioStationDatabase.Interface
 {
     public interface IAudioStationDbClient : IAudioStationDataService
     {
-        /// <summary>
-        /// Adds LibraryEntry to database. Does NOT update any existing, similar, entry. The tag data
-        /// is also used to initialize the LibraryEntry, adding supporting data to the database.
-        /// </summary>
-        Track AddUpdateLibraryEntry(string fileName, DateTime creationDate, DateTime modifiedDate, int crc32, bool fileAvailable, bool fileLoadError, string fileLoadErrorMessage, ITagFull tagRef);
-
         /// <summary>
         /// Add / Update M3UStream based on unique Id, and Name
         /// </summary>
@@ -26,17 +19,17 @@ namespace AudioStation.Core.Database.AudioStationDatabase.Interface
         /// Returns all files associated with the artist
         /// </summary>
         /// <param name="artistId">Database id of the artist</param>
-        IEnumerable<Track> GetArtistFiles(int artistId);
+        IEnumerable<Track> GetArtistTracks(Guid artistId);
 
         /// <summary>
         /// Returns all albums associated with this artist
         /// </summary>
-        IEnumerable<Album> GetArtistAlbums(int artistId, bool isPrimaryArtist);
+        IEnumerable<Album> GetArtistAlbums(Guid artistId);
 
         /// <summary>
         /// Returns tracks associated with an album
         /// </summary>
-        IEnumerable<Track> GetAlbumTracks(int albumId);
+        IEnumerable<Track> GetAlbumTracks(Guid albumId);
 
         /// <summary>
         /// Add entity using property reflection
@@ -77,7 +70,17 @@ namespace AudioStation.Core.Database.AudioStationDatabase.Interface
         /// <summary>
         /// Gets entity by ID from the database
         /// </summary>
-        TEntity? GetEntity<TEntity>(int id) where TEntity : AudioStationEntityBase;
+        TEntity? GetEntity<TEntity>(Guid id) where TEntity : AudioStationEntityBase;
+
+        /// <summary>
+        /// Gets entity by ID from the database
+        /// </summary>
+        TEntity? GetEnumEntity<TEnum, TEntity>(TEnum enumValue) where TEntity : AudioStationEnumEntityBase;
+
+        /// <summary>
+        /// Gets entity by ID from the database
+        /// </summary>
+        TEntity? GetEnumEntity<TEnum, TEntity>(string enumName) where TEntity : AudioStationEnumEntityBase;
 
         /// <summary>
         /// Finds first entity that matches the delegate

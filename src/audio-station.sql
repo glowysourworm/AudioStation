@@ -5,7 +5,7 @@
 -- Dumped from database version 17.4
 -- Dumped by pg_dump version 17.4
 
--- Started on 2026-10-01 13:43:50
+-- Started on 2026-10-10 10:47:08
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -24,71 +24,56 @@ SET default_tablespace = '';
 SET default_table_access_method = heap;
 
 --
--- TOC entry 233 (class 1259 OID 50663)
+-- TOC entry 223 (class 1259 OID 50663)
 -- Name: AcoustIDLookupResult; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."AcoustIDLookupResult" (
-    "Id" integer NOT NULL,
     "LookupId" uuid NOT NULL,
     "MusicBrainzRecordingId" uuid NOT NULL,
     "Score" double precision NOT NULL,
-    "FileName" character varying NOT NULL
+    "FileName" character varying NOT NULL,
+    "Id" uuid NOT NULL
 );
 
 
 ALTER TABLE public."AcoustIDLookupResult" OWNER TO postgres;
 
 --
--- TOC entry 232 (class 1259 OID 50662)
--- Name: AcoustIDResult_Id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
---
-
-ALTER TABLE public."AcoustIDLookupResult" ALTER COLUMN "Id" ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME public."AcoustIDResult_Id_seq"
-    START WITH 0
-    INCREMENT BY 1
-    MINVALUE 0
-    NO MAXVALUE
-    CACHE 1
-);
-
-
---
--- TOC entry 225 (class 1259 OID 16844)
+-- TOC entry 221 (class 1259 OID 16844)
 -- Name: Album; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."Album" (
-    "Id" integer NOT NULL,
     "Name" character varying NOT NULL,
     "MediaCount" integer NOT NULL,
     "Year" integer NOT NULL,
     "MediaFormat" character varying NOT NULL,
-    "TrackCount" integer NOT NULL
+    "TrackCount" integer NOT NULL,
+    "Id" uuid NOT NULL,
+    "ArtistId" uuid NOT NULL
 );
 
 
 ALTER TABLE public."Album" OWNER TO postgres;
 
 --
--- TOC entry 242 (class 1259 OID 52170)
+-- TOC entry 228 (class 1259 OID 52170)
 -- Name: AlbumFileReferenceMap; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."AlbumFileReferenceMap" (
-    "Id" integer NOT NULL,
-    "AlbumId" integer NOT NULL,
-    "FileReferenceId" integer NOT NULL,
-    "FileTypeId" integer NOT NULL
+    "Id" uuid NOT NULL,
+    "AlbumId" uuid NOT NULL,
+    "FileReferenceId" uuid NOT NULL
 );
 
 
 ALTER TABLE public."AlbumFileReferenceMap" OWNER TO postgres;
 
 --
--- TOC entry 5026 (class 0 OID 0)
--- Dependencies: 242
+-- TOC entry 4997 (class 0 OID 0)
+-- Dependencies: 228
 -- Name: TABLE "AlbumFileReferenceMap"; Type: COMMENT; Schema: public; Owner: postgres
 --
 
@@ -96,147 +81,96 @@ COMMENT ON TABLE public."AlbumFileReferenceMap" IS 'This table should track any 
 
 
 --
--- TOC entry 241 (class 1259 OID 52169)
--- Name: AlbumFileReferenceMap_Id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
---
-
-ALTER TABLE public."AlbumFileReferenceMap" ALTER COLUMN "Id" ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME public."AlbumFileReferenceMap_Id_seq"
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1
-);
-
-
---
--- TOC entry 223 (class 1259 OID 16831)
+-- TOC entry 220 (class 1259 OID 16831)
 -- Name: Artist; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."Artist" (
-    "Id" integer NOT NULL,
-    "Name" character varying NOT NULL
+    "Name" character varying NOT NULL,
+    "Id" uuid NOT NULL
 );
 
 
 ALTER TABLE public."Artist" OWNER TO postgres;
 
 --
--- TOC entry 243 (class 1259 OID 52175)
+-- TOC entry 229 (class 1259 OID 52175)
 -- Name: ArtistFileReferenceMap; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."ArtistFileReferenceMap" (
-    "Id" integer NOT NULL,
-    "ArtistId" integer NOT NULL,
-    "FileReferenceId" integer NOT NULL,
-    "FileTypeId" integer NOT NULL
+    "Id" uuid NOT NULL,
+    "ArtistId" uuid NOT NULL,
+    "FileReferenceId" uuid NOT NULL
 );
 
 
 ALTER TABLE public."ArtistFileReferenceMap" OWNER TO postgres;
 
 --
--- TOC entry 238 (class 1259 OID 50706)
+-- TOC entry 226 (class 1259 OID 50706)
 -- Name: FileReference; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."FileReference" (
-    "Id" integer NOT NULL,
     "FileName" character varying NOT NULL,
-    "Created" timestamp with time zone NOT NULL,
-    "LastModified" timestamp with time zone NOT NULL,
-    "IsFileAvailable" boolean NOT NULL,
-    "IsFileCorrupt" boolean NOT NULL,
-    "IsFileLoadError" boolean NOT NULL,
-    "FileErrorMessage" character varying,
-    "FileCorruptMessage" character varying,
-    "CRC32" integer NOT NULL
+    "DateAdded" timestamp with time zone NOT NULL,
+    "DateLastModified" timestamp with time zone NOT NULL,
+    "Id" uuid NOT NULL,
+    "FileTypeId" uuid NOT NULL
 );
 
 
 ALTER TABLE public."FileReference" OWNER TO postgres;
 
 --
--- TOC entry 248 (class 1259 OID 52234)
--- Name: FileReference_Id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
---
-
-ALTER TABLE public."FileReference" ALTER COLUMN "Id" ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME public."FileReference_Id_seq"
-    START WITH 0
-    INCREMENT BY 1
-    MINVALUE 0
-    NO MAXVALUE
-    CACHE 1
-);
-
-
---
--- TOC entry 244 (class 1259 OID 52180)
+-- TOC entry 230 (class 1259 OID 52180)
 -- Name: FileType; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."FileType" (
-    "Id" integer NOT NULL,
-    "Name" character varying NOT NULL
+    "Name" character varying NOT NULL,
+    "Id" uuid NOT NULL
 );
 
 
 ALTER TABLE public."FileType" OWNER TO postgres;
 
 --
--- TOC entry 245 (class 1259 OID 52217)
--- Name: FileType_Id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
---
-
-ALTER TABLE public."FileType" ALTER COLUMN "Id" ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME public."FileType_Id_seq"
-    START WITH 0
-    INCREMENT BY 1
-    MINVALUE 0
-    NO MAXVALUE
-    CACHE 1
-);
-
-
---
--- TOC entry 227 (class 1259 OID 16857)
+-- TOC entry 222 (class 1259 OID 16857)
 -- Name: Genre; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."Genre" (
-    "Id" integer NOT NULL,
-    "Name" character varying NOT NULL
+    "Name" character varying NOT NULL,
+    "Id" uuid NOT NULL
 );
 
 
 ALTER TABLE public."Genre" OWNER TO postgres;
 
 --
--- TOC entry 218 (class 1259 OID 16769)
+-- TOC entry 217 (class 1259 OID 16769)
 -- Name: M3UStream; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."M3UStream" (
-    "Id" integer NOT NULL,
     "Duration" integer NOT NULL,
     "Name" character varying NOT NULL,
     "GroupName" character varying,
     "LogoUrl" character varying,
     "HomepageUrl" character varying,
     "StreamSourceUrl" character varying NOT NULL,
-    "UserExcluded" boolean NOT NULL
+    "UserExcluded" boolean NOT NULL,
+    "Id" uuid NOT NULL
 );
 
 
 ALTER TABLE public."M3UStream" OWNER TO postgres;
 
 --
--- TOC entry 5027 (class 0 OID 0)
--- Dependencies: 218
+-- TOC entry 4998 (class 0 OID 0)
+-- Dependencies: 217
 -- Name: TABLE "M3UStream"; Type: COMMENT; Schema: public; Owner: postgres
 --
 
@@ -244,176 +178,11 @@ COMMENT ON TABLE public."M3UStream" IS 'Details of an M3U file. This example is 
 
 
 --
--- TOC entry 217 (class 1259 OID 16768)
--- Name: M3UInfo_Id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
---
-
-ALTER TABLE public."M3UStream" ALTER COLUMN "Id" ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME public."M3UInfo_Id_seq"
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1
-);
-
-
---
--- TOC entry 224 (class 1259 OID 16843)
--- Name: Mp3FileReferenceAlbum_Id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
---
-
-ALTER TABLE public."Album" ALTER COLUMN "Id" ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME public."Mp3FileReferenceAlbum_Id_seq"
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1
-);
-
-
---
--- TOC entry 229 (class 1259 OID 16875)
--- Name: TrackArtistMap; Type: TABLE; Schema: public; Owner: postgres
---
-
-CREATE TABLE public."TrackArtistMap" (
-    "Id" integer NOT NULL,
-    "TrackId" integer NOT NULL,
-    "ArtistId" integer NOT NULL,
-    "IsPrimaryArtist" boolean NOT NULL
-);
-
-
-ALTER TABLE public."TrackArtistMap" OWNER TO postgres;
-
---
--- TOC entry 228 (class 1259 OID 16874)
--- Name: Mp3FileReferenceArtistMap_Id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
---
-
-ALTER TABLE public."TrackArtistMap" ALTER COLUMN "Id" ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME public."Mp3FileReferenceArtistMap_Id_seq"
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1
-);
-
-
---
--- TOC entry 222 (class 1259 OID 16830)
--- Name: Mp3FileReferenceArtist_Id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
---
-
-ALTER TABLE public."Artist" ALTER COLUMN "Id" ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME public."Mp3FileReferenceArtist_Id_seq"
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1
-);
-
-
---
--- TOC entry 231 (class 1259 OID 16896)
--- Name: TrackGenreMap; Type: TABLE; Schema: public; Owner: postgres
---
-
-CREATE TABLE public."TrackGenreMap" (
-    "Id" integer NOT NULL,
-    "TrackId" integer NOT NULL,
-    "GenreId" integer NOT NULL,
-    "IsPrimaryGenre" boolean NOT NULL
-);
-
-
-ALTER TABLE public."TrackGenreMap" OWNER TO postgres;
-
---
--- TOC entry 230 (class 1259 OID 16895)
--- Name: Mp3FileReferenceGenreMap_Id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
---
-
-ALTER TABLE public."TrackGenreMap" ALTER COLUMN "Id" ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME public."Mp3FileReferenceGenreMap_Id_seq"
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1
-);
-
-
---
--- TOC entry 226 (class 1259 OID 16856)
--- Name: Mp3FileReferenceGenre_Id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
---
-
-ALTER TABLE public."Genre" ALTER COLUMN "Id" ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME public."Mp3FileReferenceGenre_Id_seq"
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1
-);
-
-
---
--- TOC entry 221 (class 1259 OID 16823)
--- Name: Track; Type: TABLE; Schema: public; Owner: postgres
---
-
-CREATE TABLE public."Track" (
-    "Id" integer NOT NULL,
-    "Title" character varying NOT NULL,
-    "TrackNumber" integer NOT NULL,
-    "AlbumId" integer NOT NULL,
-    "ArtistId" integer NOT NULL,
-    "DurationMilliseconds" integer NOT NULL,
-    "GenreId" integer NOT NULL,
-    "FileReferenceId" integer NOT NULL,
-    "MediaNumber" integer NOT NULL
-);
-
-
-ALTER TABLE public."Track" OWNER TO postgres;
-
---
--- TOC entry 5028 (class 0 OID 0)
--- Dependencies: 221
--- Name: TABLE "Track"; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON TABLE public."Track" IS 'Portion of an mp3 file''s data used to quickly load the library on startup. Mp3 files are also loaded at runtime to verify tag data and use / modify tags. Artwork is also loaded at runtime.';
-
-
---
--- TOC entry 220 (class 1259 OID 16822)
--- Name: Mp3FileReference_Id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
---
-
-ALTER TABLE public."Track" ALTER COLUMN "Id" ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME public."Mp3FileReference_Id_seq"
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1
-);
-
-
---
--- TOC entry 235 (class 1259 OID 50669)
+-- TOC entry 224 (class 1259 OID 50669)
 -- Name: TagSmall; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."TagSmall" (
-    "Id" integer NOT NULL,
     "AlbumArtist" character varying,
     "Album" character varying,
     "Title" character varying,
@@ -424,29 +193,30 @@ CREATE TABLE public."TagSmall" (
     "MediaTotal" integer,
     "MediaFormat" character varying,
     "DurationMilliseconds" integer,
-    "Year" integer
+    "Year" integer,
+    "Id" uuid NOT NULL
 );
 
 
 ALTER TABLE public."TagSmall" OWNER TO postgres;
 
 --
--- TOC entry 240 (class 1259 OID 52115)
+-- TOC entry 227 (class 1259 OID 52115)
 -- Name: TagSmallVendorMap; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."TagSmallVendorMap" (
-    "Id" integer NOT NULL,
-    "TagSmallId" integer NOT NULL,
-    "VendorId" integer NOT NULL,
-    "MusicBrainzRecordingId" uuid
+    "MusicBrainzRecordingId" uuid,
+    "Id" uuid NOT NULL,
+    "TagSmallId" uuid NOT NULL,
+    "VendorId" uuid NOT NULL
 );
 
 
 ALTER TABLE public."TagSmallVendorMap" OWNER TO postgres;
 
 --
--- TOC entry 249 (class 1259 OID 58154)
+-- TOC entry 232 (class 1259 OID 58284)
 -- Name: MusicBrainzAcoustIDResult; Type: VIEW; Schema: public; Owner: postgres
 --
 
@@ -476,12 +246,11 @@ CREATE VIEW public."MusicBrainzAcoustIDResult" AS
 ALTER VIEW public."MusicBrainzAcoustIDResult" OWNER TO postgres;
 
 --
--- TOC entry 219 (class 1259 OID 16815)
+-- TOC entry 218 (class 1259 OID 16815)
 -- Name: RadioBrowserStation; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."RadioBrowserStation" (
-    "Id" integer NOT NULL,
     "StationUUID" uuid NOT NULL,
     "ServerUUID" uuid NOT NULL,
     "Name" character varying NOT NULL,
@@ -497,110 +266,80 @@ CREATE TABLE public."RadioBrowserStation" (
     "Codec" character varying NOT NULL,
     "Bitrate" integer NOT NULL,
     "Hls" integer NOT NULL,
-    "UserExcluded" bit(1) NOT NULL
+    "UserExcluded" bit(1) NOT NULL,
+    "Id" uuid NOT NULL
 );
 
 
 ALTER TABLE public."RadioBrowserStation" OWNER TO postgres;
 
 --
--- TOC entry 247 (class 1259 OID 52219)
+-- TOC entry 231 (class 1259 OID 52219)
 -- Name: TagSmallFileReferenceMap; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."TagSmallFileReferenceMap" (
-    "Id" integer NOT NULL,
-    "TagSmallId" integer NOT NULL,
-    "FileReferenceId" integer NOT NULL
+    "Id" uuid NOT NULL,
+    "TagSmallId" uuid NOT NULL,
+    "FileReferenceId" uuid NOT NULL
 );
 
 
 ALTER TABLE public."TagSmallFileReferenceMap" OWNER TO postgres;
 
 --
--- TOC entry 246 (class 1259 OID 52218)
--- Name: TagSmallFileReferenceMap_Id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- TOC entry 219 (class 1259 OID 16823)
+-- Name: Track; Type: TABLE; Schema: public; Owner: postgres
 --
 
-ALTER TABLE public."TagSmallFileReferenceMap" ALTER COLUMN "Id" ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME public."TagSmallFileReferenceMap_Id_seq"
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1
+CREATE TABLE public."Track" (
+    "Title" character varying NOT NULL,
+    "TrackNumber" integer NOT NULL,
+    "DurationMilliseconds" integer NOT NULL,
+    "MediaNumber" integer NOT NULL,
+    "Id" uuid NOT NULL,
+    "AlbumId" uuid NOT NULL,
+    "ArtistId" uuid NOT NULL,
+    "GenreId" uuid NOT NULL,
+    "FileReferenceId" uuid NOT NULL
 );
 
 
+ALTER TABLE public."Track" OWNER TO postgres;
+
 --
--- TOC entry 239 (class 1259 OID 52114)
--- Name: TagSmallVendorMap_Id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- TOC entry 4999 (class 0 OID 0)
+-- Dependencies: 219
+-- Name: TABLE "Track"; Type: COMMENT; Schema: public; Owner: postgres
 --
 
-ALTER TABLE public."TagSmallVendorMap" ALTER COLUMN "Id" ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME public."TagSmallVendorMap_Id_seq"
-    START WITH 0
-    INCREMENT BY 1
-    MINVALUE 0
-    NO MAXVALUE
-    CACHE 1
-);
+COMMENT ON TABLE public."Track" IS 'Portion of an mp3 file''s data used to quickly load the library on startup. Mp3 files are also loaded at runtime to verify tag data and use / modify tags. Artwork is also loaded at runtime.';
 
 
 --
--- TOC entry 237 (class 1259 OID 50677)
+-- TOC entry 225 (class 1259 OID 50677)
 -- Name: Vendor; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."Vendor" (
-    "Id" integer NOT NULL,
-    "VendorName" character varying NOT NULL
+    "Name" character varying NOT NULL,
+    "Id" uuid NOT NULL
 );
 
 
 ALTER TABLE public."Vendor" OWNER TO postgres;
 
 --
--- TOC entry 234 (class 1259 OID 50668)
--- Name: VendorTagSmall_Id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
---
-
-ALTER TABLE public."TagSmall" ALTER COLUMN "Id" ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME public."VendorTagSmall_Id_seq"
-    START WITH 0
-    INCREMENT BY 1
-    MINVALUE 0
-    NO MAXVALUE
-    CACHE 1
-);
-
-
---
--- TOC entry 236 (class 1259 OID 50676)
--- Name: VendorType_Id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
---
-
-ALTER TABLE public."Vendor" ALTER COLUMN "Id" ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME public."VendorType_Id_seq"
-    START WITH 0
-    INCREMENT BY 1
-    MINVALUE 0
-    NO MAXVALUE
-    CACHE 1
-);
-
-
---
--- TOC entry 4842 (class 2606 OID 50667)
--- Name: AcoustIDLookupResult AcoustIDResult_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+-- TOC entry 4815 (class 2606 OID 58255)
+-- Name: AcoustIDLookupResult AcoustIDLookupResult_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."AcoustIDLookupResult"
-    ADD CONSTRAINT "AcoustIDResult_pkey" PRIMARY KEY ("Id");
+    ADD CONSTRAINT "AcoustIDLookupResult_pkey" PRIMARY KEY ("Id");
 
 
 --
--- TOC entry 4850 (class 2606 OID 52174)
+-- TOC entry 4825 (class 2606 OID 58259)
 -- Name: AlbumFileReferenceMap AlbumFileReferenceMap_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -609,7 +348,7 @@ ALTER TABLE ONLY public."AlbumFileReferenceMap"
 
 
 --
--- TOC entry 4834 (class 2606 OID 16850)
+-- TOC entry 4811 (class 2606 OID 58281)
 -- Name: Album Album_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -618,7 +357,7 @@ ALTER TABLE ONLY public."Album"
 
 
 --
--- TOC entry 4852 (class 2606 OID 52179)
+-- TOC entry 4827 (class 2606 OID 58261)
 -- Name: ArtistFileReferenceMap ArtistFileReferenceMap_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -627,16 +366,7 @@ ALTER TABLE ONLY public."ArtistFileReferenceMap"
 
 
 --
--- TOC entry 4838 (class 2606 OID 16879)
--- Name: TrackArtistMap ArtistMap_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public."TrackArtistMap"
-    ADD CONSTRAINT "ArtistMap_pkey" PRIMARY KEY ("Id");
-
-
---
--- TOC entry 4832 (class 2606 OID 16837)
+-- TOC entry 4809 (class 2606 OID 58279)
 -- Name: Artist Artist_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -645,7 +375,7 @@ ALTER TABLE ONLY public."Artist"
 
 
 --
--- TOC entry 4848 (class 2606 OID 50712)
+-- TOC entry 4821 (class 2606 OID 58277)
 -- Name: FileReference FileReference_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -654,7 +384,7 @@ ALTER TABLE ONLY public."FileReference"
 
 
 --
--- TOC entry 4854 (class 2606 OID 52186)
+-- TOC entry 4829 (class 2606 OID 58275)
 -- Name: FileType FileType_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -663,16 +393,7 @@ ALTER TABLE ONLY public."FileType"
 
 
 --
--- TOC entry 4840 (class 2606 OID 16900)
--- Name: TrackGenreMap GenreMap_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public."TrackGenreMap"
-    ADD CONSTRAINT "GenreMap_pkey" PRIMARY KEY ("Id");
-
-
---
--- TOC entry 4836 (class 2606 OID 16863)
+-- TOC entry 4813 (class 2606 OID 58273)
 -- Name: Genre Genre_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -681,16 +402,16 @@ ALTER TABLE ONLY public."Genre"
 
 
 --
--- TOC entry 4825 (class 2606 OID 16775)
--- Name: M3UStream M3UInfo_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+-- TOC entry 4802 (class 2606 OID 58271)
+-- Name: M3UStream M3UStream_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."M3UStream"
-    ADD CONSTRAINT "M3UInfo_pkey" PRIMARY KEY ("Id");
+    ADD CONSTRAINT "M3UStream_pkey" PRIMARY KEY ("Id");
 
 
 --
--- TOC entry 4828 (class 2606 OID 16821)
+-- TOC entry 4805 (class 2606 OID 58269)
 -- Name: RadioBrowserStation RadioBrowserStation_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -699,7 +420,7 @@ ALTER TABLE ONLY public."RadioBrowserStation"
 
 
 --
--- TOC entry 4856 (class 2606 OID 52223)
+-- TOC entry 4831 (class 2606 OID 58265)
 -- Name: TagSmallFileReferenceMap TagSmallFileReferenceMap_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -708,7 +429,25 @@ ALTER TABLE ONLY public."TagSmallFileReferenceMap"
 
 
 --
--- TOC entry 4830 (class 2606 OID 16829)
+-- TOC entry 4823 (class 2606 OID 58267)
+-- Name: TagSmallVendorMap TagSmallVendorMap_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."TagSmallVendorMap"
+    ADD CONSTRAINT "TagSmallVendorMap_pkey" PRIMARY KEY ("Id");
+
+
+--
+-- TOC entry 4817 (class 2606 OID 58263)
+-- Name: TagSmall TagSmall_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."TagSmall"
+    ADD CONSTRAINT "TagSmall_pkey" PRIMARY KEY ("Id");
+
+
+--
+-- TOC entry 4807 (class 2606 OID 58257)
 -- Name: Track Track_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -717,25 +456,16 @@ ALTER TABLE ONLY public."Track"
 
 
 --
--- TOC entry 4844 (class 2606 OID 50675)
--- Name: TagSmall VendorTagSmall_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public."TagSmall"
-    ADD CONSTRAINT "VendorTagSmall_pkey" PRIMARY KEY ("Id");
-
-
---
--- TOC entry 4846 (class 2606 OID 50683)
--- Name: Vendor VendorType_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+-- TOC entry 4819 (class 2606 OID 58283)
+-- Name: Vendor Vendor_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Vendor"
-    ADD CONSTRAINT "VendorType_pkey" PRIMARY KEY ("Id");
+    ADD CONSTRAINT "Vendor_pkey" PRIMARY KEY ("Id");
 
 
 --
--- TOC entry 4826 (class 1259 OID 17220)
+-- TOC entry 4803 (class 1259 OID 17220)
 -- Name: NameIndex; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -743,168 +473,132 @@ CREATE INDEX "NameIndex" ON public."M3UStream" USING btree ("Name") WITH (dedupl
 
 
 --
--- TOC entry 4857 (class 2606 OID 16869)
--- Name: Track Album_ForeignKey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public."Track"
-    ADD CONSTRAINT "Album_ForeignKey" FOREIGN KEY ("AlbumId") REFERENCES public."Album"("Id");
-
-
---
--- TOC entry 4861 (class 2606 OID 16885)
--- Name: TrackArtistMap Artist_ForeignKey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public."TrackArtistMap"
-    ADD CONSTRAINT "Artist_ForeignKey" FOREIGN KEY ("ArtistId") REFERENCES public."Artist"("Id");
-
-
---
--- TOC entry 4858 (class 2606 OID 16890)
--- Name: Track Artist_ForeignKey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public."Track"
-    ADD CONSTRAINT "Artist_ForeignKey" FOREIGN KEY ("ArtistId") REFERENCES public."Artist"("Id") NOT VALID;
-
-
---
--- TOC entry 4859 (class 2606 OID 50713)
--- Name: Track FileReference_ForeignKey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public."Track"
-    ADD CONSTRAINT "FileReference_ForeignKey" FOREIGN KEY ("FileReferenceId") REFERENCES public."FileReference"("Id") NOT VALID;
-
-
---
--- TOC entry 4863 (class 2606 OID 16906)
--- Name: TrackGenreMap Genre_ForeignKey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public."TrackGenreMap"
-    ADD CONSTRAINT "Genre_ForeignKey" FOREIGN KEY ("GenreId") REFERENCES public."Genre"("Id");
-
-
---
--- TOC entry 4860 (class 2606 OID 17237)
--- Name: Track Genre_ForeignKey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public."Track"
-    ADD CONSTRAINT "Genre_ForeignKey" FOREIGN KEY ("GenreId") REFERENCES public."Genre"("Id") NOT VALID;
-
-
---
--- TOC entry 4867 (class 2606 OID 52202)
--- Name: AlbumFileReferenceMap Map_Album_FK; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- TOC entry 4840 (class 2606 OID 58294)
+-- Name: AlbumFileReferenceMap AlbumFileReferenceMap_Album_FK; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."AlbumFileReferenceMap"
-    ADD CONSTRAINT "Map_Album_FK" FOREIGN KEY ("AlbumId") REFERENCES public."Album"("Id") NOT VALID;
+    ADD CONSTRAINT "AlbumFileReferenceMap_Album_FK" FOREIGN KEY ("AlbumId") REFERENCES public."Album"("Id") NOT VALID;
 
 
 --
--- TOC entry 4870 (class 2606 OID 52187)
--- Name: ArtistFileReferenceMap Map_Artist_FK; Type: FK CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public."ArtistFileReferenceMap"
-    ADD CONSTRAINT "Map_Artist_FK" FOREIGN KEY ("ArtistId") REFERENCES public."Artist"("Id") NOT VALID;
-
-
---
--- TOC entry 4871 (class 2606 OID 52192)
--- Name: ArtistFileReferenceMap Map_FileReference_FK; Type: FK CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public."ArtistFileReferenceMap"
-    ADD CONSTRAINT "Map_FileReference_FK" FOREIGN KEY ("FileReferenceId") REFERENCES public."FileReference"("Id") NOT VALID;
-
-
---
--- TOC entry 4868 (class 2606 OID 52207)
--- Name: AlbumFileReferenceMap Map_FileReference_FK; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- TOC entry 4841 (class 2606 OID 58299)
+-- Name: AlbumFileReferenceMap AlbumFileReferenceMap_FileReference_FK; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."AlbumFileReferenceMap"
-    ADD CONSTRAINT "Map_FileReference_FK" FOREIGN KEY ("FileReferenceId") REFERENCES public."FileReference"("Id") NOT VALID;
+    ADD CONSTRAINT "AlbumFileReferenceMap_FileReference_FK" FOREIGN KEY ("FileReferenceId") REFERENCES public."FileReference"("Id") NOT VALID;
 
 
 --
--- TOC entry 4873 (class 2606 OID 52229)
--- Name: TagSmallFileReferenceMap Map_FileReference_FK; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- TOC entry 4836 (class 2606 OID 58289)
+-- Name: Album Album_Artist_FK; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Album"
+    ADD CONSTRAINT "Album_Artist_FK" FOREIGN KEY ("ArtistId") REFERENCES public."Artist"("Id") NOT VALID;
+
+
+--
+-- TOC entry 4842 (class 2606 OID 58304)
+-- Name: ArtistFileReferenceMap ArtistFileReferenceMap_Artist_FK; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."ArtistFileReferenceMap"
+    ADD CONSTRAINT "ArtistFileReferenceMap_Artist_FK" FOREIGN KEY ("ArtistId") REFERENCES public."Artist"("Id") NOT VALID;
+
+
+--
+-- TOC entry 4843 (class 2606 OID 58309)
+-- Name: ArtistFileReferenceMap ArtistFileReferenceMap_FileReference_FK; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."ArtistFileReferenceMap"
+    ADD CONSTRAINT "ArtistFileReferenceMap_FileReference_FK" FOREIGN KEY ("FileReferenceId") REFERENCES public."FileReference"("Id") NOT VALID;
+
+
+--
+-- TOC entry 4837 (class 2606 OID 58314)
+-- Name: FileReference FileReference_FileType_FK; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."FileReference"
+    ADD CONSTRAINT "FileReference_FileType_FK" FOREIGN KEY ("FileTypeId") REFERENCES public."FileType"("Id") NOT VALID;
+
+
+--
+-- TOC entry 4844 (class 2606 OID 58324)
+-- Name: TagSmallFileReferenceMap TagSmallFileReferenceMap_FileReference_FK; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."TagSmallFileReferenceMap"
-    ADD CONSTRAINT "Map_FileReference_FK" FOREIGN KEY ("FileReferenceId") REFERENCES public."FileReference"("Id") NOT VALID;
+    ADD CONSTRAINT "TagSmallFileReferenceMap_FileReference_FK" FOREIGN KEY ("FileReferenceId") REFERENCES public."FileReference"("Id") NOT VALID;
 
 
 --
--- TOC entry 4872 (class 2606 OID 52197)
--- Name: ArtistFileReferenceMap Map_FileType_FK; Type: FK CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public."ArtistFileReferenceMap"
-    ADD CONSTRAINT "Map_FileType_FK" FOREIGN KEY ("FileTypeId") REFERENCES public."FileType"("Id") NOT VALID;
-
-
---
--- TOC entry 4869 (class 2606 OID 52212)
--- Name: AlbumFileReferenceMap Map_FileType_FK; Type: FK CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public."AlbumFileReferenceMap"
-    ADD CONSTRAINT "Map_FileType_FK" FOREIGN KEY ("FileTypeId") REFERENCES public."FileType"("Id") NOT VALID;
-
-
---
--- TOC entry 4874 (class 2606 OID 52224)
--- Name: TagSmallFileReferenceMap Map_TagSmall_FK; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- TOC entry 4845 (class 2606 OID 58319)
+-- Name: TagSmallFileReferenceMap TagSmallFileReferenceMap_TagSmall_FK; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."TagSmallFileReferenceMap"
-    ADD CONSTRAINT "Map_TagSmall_FK" FOREIGN KEY ("TagSmallId") REFERENCES public."TagSmall"("Id") NOT VALID;
+    ADD CONSTRAINT "TagSmallFileReferenceMap_TagSmall_FK" FOREIGN KEY ("TagSmallId") REFERENCES public."TagSmall"("Id") NOT VALID;
 
 
 --
--- TOC entry 4865 (class 2606 OID 52123)
+-- TOC entry 4838 (class 2606 OID 58329)
 -- Name: TagSmallVendorMap TagSmallVendorMap_TagSmall_FK; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."TagSmallVendorMap"
-    ADD CONSTRAINT "TagSmallVendorMap_TagSmall_FK" FOREIGN KEY ("TagSmallId") REFERENCES public."TagSmall"("Id");
+    ADD CONSTRAINT "TagSmallVendorMap_TagSmall_FK" FOREIGN KEY ("TagSmallId") REFERENCES public."TagSmall"("Id") NOT VALID;
 
 
 --
--- TOC entry 4866 (class 2606 OID 52118)
+-- TOC entry 4839 (class 2606 OID 58334)
 -- Name: TagSmallVendorMap TagSmallVendorMap_Vendor_FK; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."TagSmallVendorMap"
-    ADD CONSTRAINT "TagSmallVendorMap_Vendor_FK" FOREIGN KEY ("VendorId") REFERENCES public."Vendor"("Id");
+    ADD CONSTRAINT "TagSmallVendorMap_Vendor_FK" FOREIGN KEY ("VendorId") REFERENCES public."Vendor"("Id") NOT VALID;
 
 
 --
--- TOC entry 4862 (class 2606 OID 16880)
--- Name: TrackArtistMap Track_ForeignKey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- TOC entry 4832 (class 2606 OID 58344)
+-- Name: Track Track_Album_FK; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
-ALTER TABLE ONLY public."TrackArtistMap"
-    ADD CONSTRAINT "Track_ForeignKey" FOREIGN KEY ("TrackId") REFERENCES public."Track"("Id");
+ALTER TABLE ONLY public."Track"
+    ADD CONSTRAINT "Track_Album_FK" FOREIGN KEY ("AlbumId") REFERENCES public."Album"("Id") NOT VALID;
 
 
 --
--- TOC entry 4864 (class 2606 OID 16901)
--- Name: TrackGenreMap Track_ForeignKey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- TOC entry 4833 (class 2606 OID 58339)
+-- Name: Track Track_Artist_FK; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
-ALTER TABLE ONLY public."TrackGenreMap"
-    ADD CONSTRAINT "Track_ForeignKey" FOREIGN KEY ("TrackId") REFERENCES public."Track"("Id");
+ALTER TABLE ONLY public."Track"
+    ADD CONSTRAINT "Track_Artist_FK" FOREIGN KEY ("ArtistId") REFERENCES public."Artist"("Id") NOT VALID;
 
 
--- Completed on 2026-10-01 13:43:50
+--
+-- TOC entry 4834 (class 2606 OID 58354)
+-- Name: Track Track_FileReference_FK; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Track"
+    ADD CONSTRAINT "Track_FileReference_FK" FOREIGN KEY ("FileReferenceId") REFERENCES public."FileReference"("Id") NOT VALID;
+
+
+--
+-- TOC entry 4835 (class 2606 OID 58349)
+-- Name: Track Track_Genre_FK; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Track"
+    ADD CONSTRAINT "Track_Genre_FK" FOREIGN KEY ("GenreId") REFERENCES public."Genre"("Id") NOT VALID;
+
+
+-- Completed on 2026-10-10 10:47:09
 
 --
 -- PostgreSQL database dump complete

@@ -34,16 +34,14 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Payload.Output
             get { return _musicBrainzAcoustIDResults; }
             set { _musicBrainzAcoustIDResults = new List<MusicBrainzAcoustIDResult>(value); }
         }
-        public int TagSmallId { get; set; }
-        public int TagSmallFileReferenceMapId { get; set; }
-        public int TagSmallVendorMapId { get; set; }
-        public int FileReferenceId { get; set; }
-        public int GenreId { get; set; }
-        public int ArtistId { get; set; }
-        public int AlbumId { get; set; }
-        public int TrackId { get; set; }
-        public int TrackGenreMapId { get; set; }
-        public int TrackArtistMapId { get; set; }
+        public Guid TagSmallId { get; set; }
+        public Guid TagSmallFileReferenceMapId { get; set; }
+        public Guid TagSmallVendorMapId { get; set; }
+        public Guid FileReferenceId { get; set; }
+        public Guid GenreId { get; set; }
+        public Guid ArtistId { get; set; }
+        public Guid AlbumId { get; set; }
+        public Guid TrackId { get; set; }
         public bool AcoustIDSuccess { get; set; }
         public bool MusicBrainzBasicSuccess { get; set; }
         public bool MusicBrainzArtworkSuccess { get; set; }

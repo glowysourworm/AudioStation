@@ -9,10 +9,10 @@ namespace AudioStation.Core.Database.AudioStationDatabase
     public class TagSmallFileReferenceMap : AudioStationEntityBase
     {
         [ForeignKey("TagSmall")]
-        public int TagSmallId { get; set; }
+        public Guid TagSmallId { get; set; }
 
         [ForeignKey("FileReference")]
-        public int FileReferenceId { get; set; }
+        public Guid FileReferenceId { get; set; }
 
         public TagSmall TagSmall { get; set; }
         public FileReference FileReference { get; set; }

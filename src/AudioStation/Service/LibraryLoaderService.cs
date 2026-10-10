@@ -230,7 +230,7 @@ namespace AudioStation.Service
             foreach (var artist in artistEntities.OrderBy(x => x.Name))
             {
                 // Database:  Load the album entities
-                var albums = _audioStationDbClient.GetArtistAlbums(artist.Id, true);
+                var albums = _audioStationDbClient.GetArtistAlbums(artist.Id);
 
                 // Create Artist Result
                 var artistViewModel = new ArtistViewModel(artist.Id)
@@ -293,13 +293,10 @@ namespace AudioStation.Service
                     Artist = track.Artist.Name,
                     Duration = TimeSpan.FromMilliseconds(track.DurationMilliseconds),
                     FileName = track.FileReference.FileName,
-                    FileCorruptMessage = track.FileReference.FileCorruptMessage,
-                    FileLoadErrorMessage = track.FileReference.FileErrorMessage,
-                    Crc32 = track.FileReference.CRC32,
+                    FileLoadErrorMessage = "Error Loading File",
                     Genre = track.Genre.Name,
-                    IsFileAvailable = !track.FileReference.IsFileLoadError,
-                    IsFileCorrupt = track.FileReference.IsFileCorrupt,
-                    IsFileLoadError = track.FileReference.IsFileLoadError,
+                    IsFileAvailable = true,
+                    IsFileLoadError = false,
                     MediaFormat = track.Album.MediaFormat,
                     MediaNumber = track.MediaNumber,
                     Title = track.Title,

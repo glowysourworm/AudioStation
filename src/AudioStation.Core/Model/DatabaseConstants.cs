@@ -31,7 +31,7 @@ namespace AudioStation.Core.Model
     /// </summary>
     public enum FileTypes
     {
-        [Display(Name = "AudioFile", ShortName = "AudioFile", Description = "Some sort of audio file")]
+        [Display(Name = "AudioFile", ShortName = "AudioFile", Description = "Audio file of any type supported by Audio Station")]
         AudioFile,
 
         [Display(Name = "FrontCover", ShortName = "FrontCover", Description = "Front cover artwork for an album")]

@@ -4,7 +4,7 @@ namespace AudioStation.Core.Model
 {
     public class TagValidation : ITagSmallValidation
     {
-        public int Id { get; set; }
+        public Guid Id { get; set; }
         public bool IsAlbumArtistValid { get; set; }
         public bool IsAlbumValid { get; set; }
         public bool IsTitleValid { get; set; }

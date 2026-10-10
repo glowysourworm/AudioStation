@@ -16,7 +16,7 @@ namespace AudioStation.Core.Utility
         /// <param name="id">(required) for database use</param>
         /// <param name="tag">Data record</param>
         /// <returns>A new TagSmall instance (not linked to database)</returns>
-        public static TagSmall MapDatabase(int id, ITagFull tag)
+        public static TagSmall MapDatabase(Guid id, ITagFull tag)
         {
             return new TagSmall()
             {
@@ -47,6 +47,7 @@ namespace AudioStation.Core.Utility
         {
             return new TagSmall()
             {
+                Id = Guid.Empty,
                 Album = tag.Album,
                 AlbumArtist = tag.AlbumArtist,
                 DurationMilliseconds = tag.DurationMilliseconds,

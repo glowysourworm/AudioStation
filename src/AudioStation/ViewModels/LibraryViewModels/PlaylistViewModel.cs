@@ -6,7 +6,7 @@ namespace AudioStation.ViewModels.LibraryViewModels
 {
     public class PlaylistViewModel : ViewModelBase
     {
-        int _id;
+        Guid _id;
         string _name;
 
         // Each entry will have all the data needed to reconstruct the album-based grouping. There
@@ -14,7 +14,7 @@ namespace AudioStation.ViewModels.LibraryViewModels
         // the playlist is loaded.
         ObservableCollection<PlaylistEntryViewModel> _entries;
 
-        public int Id
+        public Guid Id
         {
             get { return _id; }
             set { this.RaiseAndSetIfChanged(ref _id, value); }
@@ -32,7 +32,7 @@ namespace AudioStation.ViewModels.LibraryViewModels
 
         public PlaylistViewModel()
         {
-            this.Id = 0;
+            this.Id = Guid.Empty;
             this.Name = "New Playlist";
             this.Entries = new ObservableCollection<PlaylistEntryViewModel>();
         }

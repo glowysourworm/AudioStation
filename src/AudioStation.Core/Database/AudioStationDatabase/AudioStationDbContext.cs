@@ -30,8 +30,6 @@ namespace AudioStation.Core.Database.AudioStationDatabase
         public DbSet<TagSmallFileReferenceMap> TagSmallFileReferenceMaps { get; set; }
         public DbSet<TagSmallVendorMap> TagSmallVendorMaps { get; set; }
         public DbSet<Track> Tracks { get; set; }
-        public DbSet<TrackArtistMap> TrackArtistMaps { get; set; }
-        public DbSet<TrackGenreMap> TrackGenreMaps { get; set; }
         public DbSet<Vendor> Vendors { get; set; }
 
 
@@ -53,15 +51,19 @@ namespace AudioStation.Core.Database.AudioStationDatabase
             //
             modelBuilder.Entity<M3UStream>().HasIndex("Name");
 
+            modelBuilder.Entity<Album>().Navigation(x => x.Artist).AutoInclude(true);
+
             modelBuilder.Entity<Track>().Navigation(x => x.Artist).AutoInclude(true);
             modelBuilder.Entity<Track>().Navigation(x => x.Album).AutoInclude(true);
             modelBuilder.Entity<Track>().Navigation(x => x.Genre).AutoInclude(true);
             modelBuilder.Entity<Track>().Navigation(x => x.FileReference).AutoInclude(true);
 
-            modelBuilder.Entity<Album>();
-            modelBuilder.Entity<Artist>();
-            modelBuilder.Entity<Genre>();
-            modelBuilder.Entity<RadioBrowserStation>();
+            modelBuilder.Entity<FileReference>().Navigation(x => x.FileType).AutoInclude(true);
+
+            //modelBuilder.Entity<Album>();
+            //modelBuilder.Entity<Artist>();
+            //modelBuilder.Entity<Genre>();
+            //modelBuilder.Entity<RadioBrowserStation>();
 
             modelBuilder.Entity<ArtistFileReferenceMap>().Navigation(x => x.Artist).AutoInclude(true);
             modelBuilder.Entity<ArtistFileReferenceMap>().Navigation(x => x.FileReference).AutoInclude(true);
@@ -72,12 +74,6 @@ namespace AudioStation.Core.Database.AudioStationDatabase
             modelBuilder.Entity<AlbumFileReferenceMap>().Navigation(x => x.FileType).AutoInclude(true);
 
             modelBuilder.Entity<MusicBrainzAcoustIDResult>().ToView("MusicBrainzAcoustIDResult").HasNoKey();
-
-            modelBuilder.Entity<TrackArtistMap>().Navigation(x => x.Artist).AutoInclude(true);
-            modelBuilder.Entity<TrackArtistMap>().Navigation(x => x.Track).AutoInclude(true);
-
-            modelBuilder.Entity<TrackGenreMap>().Navigation(x => x.Genre).AutoInclude(true);
-            modelBuilder.Entity<TrackGenreMap>().Navigation(x => x.Track).AutoInclude(true);
 
             modelBuilder.Entity<TagSmallFileReferenceMap>().Navigation(x => x.TagSmall).AutoInclude(true);
             modelBuilder.Entity<TagSmallFileReferenceMap>().Navigation(x => x.FileReference).AutoInclude(true);

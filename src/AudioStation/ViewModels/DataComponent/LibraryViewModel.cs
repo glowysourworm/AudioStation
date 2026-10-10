@@ -7,11 +7,11 @@ namespace AudioStation.ViewModels.DataComponent
 {
     public class LibraryViewModel : DataComponentViewModelBase
     {
-        KeyedObservableCollection<int, TrackViewModel> _tracks;
-        KeyedObservableCollection<int, AlbumViewModel> _albums;
-        KeyedObservableCollection<int, ArtistViewModel> _artists;
-        KeyedObservableCollection<int, GenreViewModel> _genres;
-        KeyedObservableCollection<int, PlaylistViewModel> _playlists;
+        KeyedObservableCollection<Guid, TrackViewModel> _tracks;
+        KeyedObservableCollection<Guid, AlbumViewModel> _albums;
+        KeyedObservableCollection<Guid, ArtistViewModel> _artists;
+        KeyedObservableCollection<Guid, GenreViewModel> _genres;
+        KeyedObservableCollection<Guid, PlaylistViewModel> _playlists;
 
         public IReadOnlyCollection<TrackViewModel> Tracks
         {
@@ -40,47 +40,47 @@ namespace AudioStation.ViewModels.DataComponent
         /// </summary>
         public LibraryViewModel() : base("Library")
         {
-            _tracks = new KeyedObservableCollection<int, TrackViewModel>();
-            _albums = new KeyedObservableCollection<int, AlbumViewModel>();
-            _artists = new KeyedObservableCollection<int, ArtistViewModel>();
-            _genres = new KeyedObservableCollection<int, GenreViewModel>();
-            _playlists = new KeyedObservableCollection<int, PlaylistViewModel>();
+            _tracks = new KeyedObservableCollection<Guid, TrackViewModel>();
+            _albums = new KeyedObservableCollection<Guid, AlbumViewModel>();
+            _artists = new KeyedObservableCollection<Guid, ArtistViewModel>();
+            _genres = new KeyedObservableCollection<Guid, GenreViewModel>();
+            _playlists = new KeyedObservableCollection<Guid, PlaylistViewModel>();
         }
 
-        public GenreViewModel GetGenre(int genreId)
+        public GenreViewModel GetGenre(Guid genreId)
         {
             return _genres[genreId];
         }
-        public ArtistViewModel GetArtist(int artistId)
+        public ArtistViewModel GetArtist(Guid artistId)
         {
             return _artists[artistId];
         }
-        public AlbumViewModel GetAlbum(int albumId)
+        public AlbumViewModel GetAlbum(Guid albumId)
         {
             return _albums[albumId];
         }
-        public TrackViewModel GetTrack(int trackId)
+        public TrackViewModel GetTrack(Guid trackId)
         {
             return _tracks[trackId];
         }
-        public PlaylistViewModel GetPlaylist(int playlistId)
+        public PlaylistViewModel GetPlaylist(Guid playlistId)
         {
             return _playlists[playlistId];
         }
 
-        public bool ContainsGenre(int id)
+        public bool ContainsGenre(Guid id)
         {
             return _genres.ContainsKey(id);
         }
-        public bool ContainsArtist(int id)
+        public bool ContainsArtist(Guid id)
         {
             return _artists.ContainsKey(id);
         }
-        public bool ContainsAlbum(int id)
+        public bool ContainsAlbum(Guid id)
         {
             return _albums.ContainsKey(id);
         }
-        public bool ContainsTrack(int id)
+        public bool ContainsTrack(Guid id)
         {
             return _tracks.ContainsKey(id);
         }

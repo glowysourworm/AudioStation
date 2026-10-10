@@ -1,5 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.IO;
+﻿using System.IO;
 
 using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Component.LibraryLoaderComponent.Payload.Input;
@@ -10,8 +9,6 @@ using AudioStation.Core.Model;
 using AudioStation.Core.Model.Interface;
 using AudioStation.Core.Service.Interface;
 using AudioStation.Core.Utility;
-
-using SimpleWpf.Extensions;
 
 namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
 {
@@ -278,11 +275,8 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
                 // Tag Source Vendor
                 if (workLoad.MusicBrainzRecordingId != null)
                 {
-                    // Vendor Name
-                    var vendorName = VendorNames.MusicBrainz.GetAttribute<DisplayAttribute>().Name;
-
                     // Vendor Entity
-                    _tagSourceVendor = _audioStationDbClient.FirstEntity<Vendor>(x => x.VendorName == vendorName);
+                    _tagSourceVendor = _audioStationDbClient.GetEnumEntity<VendorNames, Vendor>(VendorNames.MusicBrainz);
 
                     switch (workLoad.TagSourceVendor)
                     {
@@ -298,7 +292,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
                                 return LibraryWorkerStepResult.Failure(stepNumber, "Vendor name not found in database:  Expecting Music Brainz!");
 
                             else
-                                Log("Vendor tag source verified: " + vendorName);
+                                Log("Vendor tag source verified: " + VendorNames.MusicBrainz);
                         }
                         break;
                         default:
@@ -453,6 +447,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
                 var workLoad = this.Load.Payload;
                 var workOutput = this.Output.Payload;
 
+                var fileType = _audioStationDbClient.GetEnumEntity<FileTypes, FileType>(FileTypes.AudioFile);
                 var tagMap = _existingTagRecord ? _audioStationDbClient.FirstEntity<TagSmallFileReferenceMap>(x => x.TagSmallId == workLoad.TagFinal.Id) : null;
                 var vendorMap = _existingTagRecord ? _audioStationDbClient.FirstEntity<TagSmallVendorMap>(x => x.TagSmallId == workLoad.TagFinal.Id) : null;
                 var fileRef = tagMap != null ? tagMap.FileReference : null;
@@ -484,6 +479,17 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
                     {
                         Completed = false,
                         Message = "Library (Artist) conflict:  multiple artists found with name " + workLoad.TagFinal.AlbumArtist,
+                        Result = LibraryWorkerResultLevel.DataError,
+                        StepNumber = stepNumber
+                    };
+                }
+
+                if (fileType == null)
+                {
+                    return new LibraryWorkerStepResult()
+                    {
+                        Completed = false,
+                        Message = "File type not found: " + FileTypes.AudioFile,
                         Result = LibraryWorkerResultLevel.DataError,
                         StepNumber = stepNumber
                     };
@@ -570,21 +576,18 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
                 {
                     fileRef = new FileReference()
                     {
-                        CRC32 = 0,
-                        Created = DateTime.Now.ToUniversalTime(),
-                        FileCorruptMessage = null,
-                        FileErrorMessage = null,
+                        Id = Guid.NewGuid(),
                         FileName = _destinationPath,
-                        IsFileAvailable = true,
-                        IsFileCorrupt = false,
-                        IsFileLoadError = false,
-                        LastModified = DateTime.Now.ToUniversalTime()
+                        DateAdded = DateTime.Now.ToUniversalTime(),
+                        DateLastModified = DateTime.Now.ToUniversalTime(),
+                        FileTypeId = fileType.Id
                     };
 
                     AddEntity(fileRef, "File Reference");
 
                     tagMap = new TagSmallFileReferenceMap()
                     {
+                        Id = Guid.NewGuid(),
                         TagSmallId = workLoad.TagFinal.Id,
                         FileReferenceId = fileRef.Id
                     };
@@ -593,15 +596,10 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
                 }
                 else // Foreign Key (FileReference)
                 {
-                    fileRef.CRC32 = 0;
-                    fileRef.Created = DateTime.Now.ToUniversalTime();
-                    fileRef.FileCorruptMessage = null;
-                    fileRef.FileErrorMessage = null;
+                    fileRef.DateAdded = DateTime.Now.ToUniversalTime();
                     fileRef.FileName = _destinationPath;
-                    fileRef.IsFileAvailable = true;
-                    fileRef.IsFileCorrupt = false;
-                    fileRef.IsFileLoadError = false;
-                    fileRef.LastModified = DateTime.Now.ToUniversalTime();
+                    fileRef.DateLastModified = DateTime.Now.ToUniversalTime();
+                    fileRef.FileTypeId = fileType.Id;
 
                     UpdateEntity(fileRef, "File Reference Map");
                 }
@@ -611,6 +609,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
                 {
                     vendorMap = new TagSmallVendorMap()
                     {
+                        Id = Guid.NewGuid(),
                         MusicBrainzRecordingId = workLoad.MusicBrainzRecordingId,
                         TagSmallId = workLoad.TagFinal.Id,
                         VendorId = _tagSourceVendor.Id                                  // Validated above                        
@@ -622,7 +621,11 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
                 // Genre
                 if (genre == null)
                 {
-                    genre = new Genre() { Name = workLoad.TagFinal.Genre };
+                    genre = new Genre()
+                    {
+                        Id = Guid.NewGuid(),
+                        Name = workLoad.TagFinal.Genre
+                    };
 
                     AddEntity(genre, "Genre");
                 }
@@ -630,7 +633,11 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
                 // Artist
                 if (artist == null)
                 {
-                    artist = new Artist() { Name = workLoad.TagFinal.AlbumArtist };
+                    artist = new Artist()
+                    {
+                        Id = Guid.NewGuid(),
+                        Name = workLoad.TagFinal.AlbumArtist
+                    };
 
                     AddEntity(artist, "Artist");
                 }
@@ -640,6 +647,8 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
                 {
                     album = new Album()
                     {
+                        Id = Guid.NewGuid(),
+                        ArtistId = artist.Id,
                         Name = workLoad.TagFinal.Album,
                         MediaCount = workLoad.TagFinal.MediaTotal ?? 0,
                         MediaFormat = workLoad.TagFinal.MediaFormat ?? string.Empty,
@@ -665,6 +674,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
                 {
                     track = new Track()
                     {
+                        Id = Guid.NewGuid(),
                         AlbumId = album.Id,
                         DurationMilliseconds = workLoad.TagFinal.DurationMilliseconds ?? 0,
                         FileReferenceId = fileRef.Id,
@@ -676,27 +686,6 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
                     };
 
                     AddEntity(track, "Track");
-
-                    var trackArtistMap = new TrackArtistMap()
-                    {
-                        ArtistId = artist.Id,
-                        IsPrimaryArtist = true,
-                        TrackId = track.Id,
-                    };
-
-                    AddEntity(trackArtistMap, "Track Artist Map");
-
-                    var trackGenreMap = new TrackGenreMap()
-                    {
-                        GenreId = genre.Id,
-                        IsPrimaryGenre = true,
-                        TrackId = track.Id,
-                    };
-
-                    AddEntity(trackGenreMap, "Track Genre Map");
-
-                    workOutput.TrackGenreMapId = trackGenreMap.Id;
-                    workOutput.TrackArtistMapId = trackArtistMap.Id;
                 }
                 else
                 {
@@ -710,58 +699,12 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
                     track.Title = workLoad.TagFinal.Title ?? string.Empty;
 
                     UpdateEntity(track, "Track");
-
-                    var trackArtistMap = _audioStationDbClient.FirstEntity<TrackArtistMap>(x => x.TrackId == track.Id);
-                    var trackGenreMap = _audioStationDbClient.FirstEntity<TrackGenreMap>(x => x.TrackId == track.Id);
-
-                    if (trackArtistMap == null)
-                    {
-                        trackArtistMap = new TrackArtistMap()
-                        {
-                            ArtistId = artist.Id,
-                            IsPrimaryArtist = true,
-                            TrackId = track.Id,
-                        };
-
-                        AddEntity(trackArtistMap, "Track Artist Map");
-                    }
-                    else
-                    {
-                        trackArtistMap.TrackId = track.Id;
-                        trackArtistMap.ArtistId = artist.Id;
-                        trackArtistMap.IsPrimaryArtist = true;
-
-                        UpdateEntity(trackArtistMap, "Track Artist Map");
-                    }
-
-                    if (trackGenreMap == null)
-                    {
-                        trackGenreMap = new TrackGenreMap()
-                        {
-                            GenreId = genre.Id,
-                            IsPrimaryGenre = true,
-                            TrackId = track.Id,
-                        };
-
-                        AddEntity(trackGenreMap, "Track Genre Map");
-                    }
-                    else
-                    {
-                        trackGenreMap.TrackId = track.Id;
-                        trackGenreMap.GenreId = artist.Id;
-                        trackGenreMap.IsPrimaryGenre = true;
-
-                        UpdateEntity(trackGenreMap, "Track Genre Map");
-                    }
-
-                    workOutput.TrackGenreMapId = trackGenreMap.Id;
-                    workOutput.TrackArtistMapId = trackArtistMap.Id;
                 }
 
                 // Reference Database Id's
                 workOutput.TagSmallId = workLoad.TagFinal.Id;
                 workOutput.TagSmallFileReferenceMapId = tagMap.Id;
-                workOutput.TagSmallVendorMapId = vendorMap != null ? vendorMap.Id : 0;
+                workOutput.TagSmallVendorMapId = vendorMap != null ? vendorMap.Id : Guid.Empty;
                 workOutput.FileReferenceId = fileRef.Id;
                 workOutput.GenreId = genre.Id;
                 workOutput.ArtistId = artist.Id;
@@ -822,8 +765,6 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
                 Log("Audio Station (Artist):                        Id=({0})", workOutput.ArtistId);
                 Log("Audio Station (Album):                         Id=({0})", workOutput.AlbumId);
                 Log("Audio Station (Track):                         Id=({0})", workOutput.TrackId);
-                Log("Audio Station (TrackGenreMap):                 Id=({0})", workOutput.TrackGenreMapId);
-                Log("Audio Station (TrackArtistMap):                Id=({0})", workOutput.TrackArtistMapId);
 
                 return LibraryWorkerStepResult.Success(stepNumber, "Import Process Complete!");
             }
@@ -835,6 +776,12 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
 
         private void AddEntity<T>(T entity, string entityName) where T : AudioStationEntityBase
         {
+            // This may be a database constraint of some kind. It probably won't matter as long as
+            // we encapsulate entity changes.
+            //
+            if (entity.Id == Guid.Empty)
+                entity.Id = Guid.NewGuid();
+
             Log("Adding {0} to the Audio Station database", entityName);
 
             _audioStationDbClient.AddEntity(entity);
@@ -844,6 +791,9 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
 
         private void UpdateEntity<T>(T entity, string entityName) where T : AudioStationEntityBase
         {
+            if (entity.Id == Guid.Empty)
+                throw new ArgumentException("Trying to update an entity with no ID:  " + entityName);
+
             Log("Updating {0} in the Audio Station database:  Id=({1})", entityName, entity.Id);
 
             _audioStationDbClient.UpdateEntity(entity);

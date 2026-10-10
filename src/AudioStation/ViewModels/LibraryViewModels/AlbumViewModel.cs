@@ -48,7 +48,7 @@ namespace AudioStation.ViewModels.LibraryViewModels
             set { this.RaiseAndSetIfChanged(ref _media, value); }
         }
 
-        public AlbumViewModel(int id) : base(id, LibraryEntryType.Album)
+        public AlbumViewModel(Guid id) : base(id, LibraryEntryType.Album)
         {
             this.Media = new SortedObservableCollection<MediaViewModel>(new PropertyComparer<int, MediaViewModel>(x => x.MediaNumber));
             this.Duration = TimeSpan.Zero;

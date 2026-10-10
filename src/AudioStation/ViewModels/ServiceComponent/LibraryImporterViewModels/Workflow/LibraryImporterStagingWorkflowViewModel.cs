@@ -340,7 +340,7 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Wor
                     Dictionary<string, TagSmallFileReferenceMap> tagFileMaps,
                     Dictionary<string, List<AcoustIDLookupResult>> acoustIDResults,
                     Dictionary<string, List<MusicBrainzAcoustIDResult>> musicBrainzAcoustIDResults,
-                    Dictionary<int, TagSmallVendorMap> musicBrainzResults)
+                    Dictionary<Guid, TagSmallVendorMap> musicBrainzResults)
         {
             var stagedFileNode = new LibraryImporterFileTreeNodeViewModel(fileNode.FullPath, fileNode.BaseDirectory, fileNode.IsDirectory, parent, _workflowConfiguration);
 

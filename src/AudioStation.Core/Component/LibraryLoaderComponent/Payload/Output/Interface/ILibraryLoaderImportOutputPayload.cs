@@ -12,16 +12,14 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Payload.Output.Inte
         public IEnumerable<IAcoustIDLookupResult> AcoustIDResults { get; set; }
         public IEnumerable<ITagSmall> MusicBrainzRecordingMatches { get; set; }
         public IEnumerable<MusicBrainzAcoustIDResult> MusicBrainzAcoustIDResults { get; set; }
-        public int TagSmallId { get; set; }
-        public int TagSmallFileReferenceMapId { get; set; }
-        public int TagSmallVendorMapId { get; set; }
-        public int FileReferenceId { get; set; }
-        public int GenreId { get; set; }
-        public int ArtistId { get; set; }
-        public int AlbumId { get; set; }
-        public int TrackId { get; set; }
-        public int TrackGenreMapId { get; set; }
-        public int TrackArtistMapId { get; set; }
+        public Guid TagSmallId { get; set; }
+        public Guid TagSmallFileReferenceMapId { get; set; }
+        public Guid TagSmallVendorMapId { get; set; }
+        public Guid FileReferenceId { get; set; }
+        public Guid GenreId { get; set; }
+        public Guid ArtistId { get; set; }
+        public Guid AlbumId { get; set; }
+        public Guid TrackId { get; set; }
         //public MusicBrainzPicture? BestFrontCover { get; set; }
         //public MusicBrainzPicture? BestBackCover { get; set; }
         public bool AcoustIDSuccess { get; set; }

@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-using AudioStation.Core.Component.Interface;
+﻿using AudioStation.Core.Component.Interface;
 using AudioStation.Core.Component.LibraryLoaderComponent.Payload.Input;
 using AudioStation.Core.Component.LibraryLoaderComponent.Payload.Output;
 using AudioStation.Core.Database.AudioStationDatabase;
@@ -12,8 +10,6 @@ using AudioStation.Core.Service.Payload.Input;
 using AudioStation.Core.Service.Payload.Output;
 using AudioStation.Core.Service.Vendor.Interface;
 using AudioStation.Core.Utility;
-
-using IF.Lastfm.Core.Api.Helpers;
 
 namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
 {
@@ -224,8 +220,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
                 var added = 0;
                 var index = 0;
 
-                var vendorName = VendorNames.MusicBrainz.GetAttribute<DisplayAttribute>().Name;
-                var vendor = _audioStationDbClient.FirstEntity<Vendor>(x => x.VendorName == vendorName);
+                var vendor = _audioStationDbClient.GetEnumEntity<VendorNames, Vendor>(VendorNames.MusicBrainz);
 
                 if (vendor == null)
                 {
@@ -272,14 +267,14 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
                     {
 
                         // PostGres ID constraint (database will find these using the foreign keys)
-                        result.Id = 0;
+                        result.Id = Guid.NewGuid();
 
                         // Add -> Save -> assigns TagSmall.Id
                         _audioStationDbClient.AddEntity(result);
 
                         var resultMap = new TagSmallVendorMap()
                         {
-                            Id = 0,
+                            Id = Guid.NewGuid(),
                             TagSmallId = result.Id,
                             VendorId = vendor.Id,
                             MusicBrainzRecordingId = inputLoad.MusicBrainzRecordingId

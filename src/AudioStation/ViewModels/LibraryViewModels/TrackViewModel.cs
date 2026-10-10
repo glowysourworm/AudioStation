@@ -4,8 +4,8 @@ namespace AudioStation.ViewModels.LibraryViewModels
 {
     public class TrackViewModel : EntityViewModel
     {
-        int _albumId;
-        int _artistId;
+        Guid _albumId;
+        Guid _artistId;
 
         string _fileName;
         string _artist;
@@ -18,11 +18,8 @@ namespace AudioStation.ViewModels.LibraryViewModels
         TimeSpan _duration;
 
         bool _isFileAvailable;
-        bool _isFileCorrupt;
         bool _isFileLoadError;
         string _fileLoadErrorMessage;
-        string _fileCorruptMessage;
-        int _crc32;
 
         /// <summary>
         /// File on the system for the matching database entry
@@ -32,12 +29,12 @@ namespace AudioStation.ViewModels.LibraryViewModels
             get { return _fileName; }
             set { this.RaiseAndSetIfChanged(ref _fileName, value); }
         }
-        public int AlbumId
+        public Guid AlbumId
         {
             get { return _albumId; }
             private set { this.RaiseAndSetIfChanged(ref _albumId, value); }
         }
-        public int ArtistId
+        public Guid ArtistId
         {
             get { return _artistId; }
             private set { this.RaiseAndSetIfChanged(ref _artistId, value); }
@@ -87,11 +84,6 @@ namespace AudioStation.ViewModels.LibraryViewModels
             get { return _isFileAvailable; }
             set { this.RaiseAndSetIfChanged(ref _isFileAvailable, value); }
         }
-        public bool IsFileCorrupt
-        {
-            get { return _isFileCorrupt; }
-            set { this.RaiseAndSetIfChanged(ref _isFileCorrupt, value); }
-        }
         public bool IsFileLoadError
         {
             get { return _isFileLoadError; }
@@ -102,18 +94,8 @@ namespace AudioStation.ViewModels.LibraryViewModels
             get { return _fileLoadErrorMessage; }
             set { this.RaiseAndSetIfChanged(ref _fileLoadErrorMessage, value); }
         }
-        public string FileCorruptMessage
-        {
-            get { return _fileCorruptMessage; }
-            set { this.RaiseAndSetIfChanged(ref _fileCorruptMessage, value); }
-        }
-        public int Crc32
-        {
-            get { return _crc32; }
-            set { this.RaiseAndSetIfChanged(ref _crc32, value); }
-        }
 
-        public TrackViewModel(int id, int albumId, int artistId) : base(id, LibraryEntryType.Track)
+        public TrackViewModel(Guid id, Guid albumId, Guid artistId) : base(id, LibraryEntryType.Track)
         {
             this.AlbumId = albumId;
             this.ArtistId = artistId;
@@ -124,8 +106,6 @@ namespace AudioStation.ViewModels.LibraryViewModels
             this.Genre = string.Empty;
             this.Duration = TimeSpan.Zero;
             this.FileLoadErrorMessage = string.Empty;
-            this.FileCorruptMessage = string.Empty;
-            this.Crc32 = 0;
         }
     }
 }

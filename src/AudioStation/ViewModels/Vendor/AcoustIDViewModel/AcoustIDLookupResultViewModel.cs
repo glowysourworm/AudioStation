@@ -6,13 +6,13 @@ namespace AudioStation.ViewModels.Vendor.AcoustIDViewModel
 {
     public class AcoustIDLookupResultViewModel : ViewModelBase, IAcoustIDLookupResult
     {
-        int _id;
+        Guid _id;
         string _fileName;
         Guid _lookupId;
         Guid _musicBrainzRecordingId;
         double _score;
 
-        public int Id
+        public Guid Id
         {
             get { return _id; }
             set { this.RaiseAndSetIfChanged(ref _id, value); }

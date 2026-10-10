@@ -9,10 +9,10 @@ namespace AudioStation.Core.Database.AudioStationDatabase
     public class TagSmallVendorMap : AudioStationEntityBase
     {
         [ForeignKey("TagSmall")]
-        public int TagSmallId { get; set; }
+        public Guid TagSmallId { get; set; }
 
         [ForeignKey("Vendor")]
-        public int VendorId { get; set; }
+        public Guid VendorId { get; set; }
 
         public Guid? MusicBrainzRecordingId { get; set; }           // Add columns per vendor as needed
 

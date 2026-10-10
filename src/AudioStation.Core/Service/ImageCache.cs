@@ -134,7 +134,7 @@ namespace AudioStation.Core.Service
             }
         }
 
-        public async Task<BitmapImageData> GetForArtist(int artistId, ImageCacheType cacheAsType)
+        public async Task<BitmapImageData> GetForArtist(Guid artistId, ImageCacheType cacheAsType)
         {
             try
             {
@@ -148,7 +148,7 @@ namespace AudioStation.Core.Service
             return this.DefaultImageCache[cacheAsType];
         }
 
-        public async Task<BitmapImageData> GetForAlbum(int albumId, ImageCacheType cacheAsType)
+        public async Task<BitmapImageData> GetForAlbum(Guid albumId, ImageCacheType cacheAsType)
         {
             try
             {
@@ -219,7 +219,7 @@ namespace AudioStation.Core.Service
             return null;
         }
 
-        private async Task<BitmapImageData> Get(int entityId, ImageCacheType cacheAsType, bool forArtist)
+        private async Task<BitmapImageData> Get(Guid entityId, ImageCacheType cacheAsType, bool forArtist)
         {
             var cacheKey = CreateKey(entityId, cacheAsType);
 
@@ -241,7 +241,7 @@ namespace AudioStation.Core.Service
             }
 
             // Fetch the mp3 files for this artist
-            var files = forArtist ? _audioStationDbClient.GetArtistFiles(entityId) : _audioStationDbClient.GetAlbumTracks(entityId);
+            var files = forArtist ? _audioStationDbClient.GetArtistTracks(entityId) : _audioStationDbClient.GetAlbumTracks(entityId);
 
             // Take all the artwork - consolidating the images
             var images = files.Select(entity => _tagCache.GetFullTag(entity.FileReference.FileName))
@@ -280,7 +280,7 @@ namespace AudioStation.Core.Service
             return forArtist ? cacheItem.GetArtistImage() : cacheItem.GetAlbumImage();
         }
 
-        private ImageCacheKey CreateKey(int entityId, ImageCacheType cacheAsType)
+        private ImageCacheKey CreateKey(Guid entityId, ImageCacheType cacheAsType)
         {
             return new ImageCacheKey(entityId, new ImageSize(cacheAsType));
         }

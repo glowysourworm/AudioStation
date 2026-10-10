@@ -9,16 +9,16 @@ namespace AudioStation.Core.Database.AudioStationDatabase
     public class Track : AudioStationEntityBase
     {
         [ForeignKey("FileReference")]
-        public int FileReferenceId { get; set; }
+        public Guid FileReferenceId { get; set; }
 
         [ForeignKey("Album")]
-        public int AlbumId { get; set; }
+        public Guid AlbumId { get; set; }
 
         [ForeignKey("PrimaryArtist")]
-        public int ArtistId { get; set; }
+        public Guid ArtistId { get; set; }
 
         [ForeignKey("PrimaryGenre")]
-        public int GenreId { get; set; }
+        public Guid GenreId { get; set; }
 
         public string Title { get; set; }
         public int TrackNumber { get; set; }

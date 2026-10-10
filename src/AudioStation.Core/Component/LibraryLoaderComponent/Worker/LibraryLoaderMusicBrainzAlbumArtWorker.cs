@@ -6,7 +6,6 @@ using AudioStation.Core.Service.Interface;
 using AudioStation.Core.Service.Payload.Input;
 using AudioStation.Core.Service.Payload.Output;
 using AudioStation.Core.Service.Vendor.Interface;
-using AudioStation.Core.Utility.FileUtility;
 
 namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
 {
@@ -61,7 +60,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
             try
             {
                 var vendorMap = this.Load.Payload;
-                Guid musicBrainzRecordingId = vendorMap.MusicBrainzRecordingId ?? Guid.Empty;
+                var musicBrainzRecordingId = vendorMap.MusicBrainzRecordingId ?? Guid.Empty;
 
                 if (vendorMap.MusicBrainzRecordingId == null)
                 {
@@ -74,9 +73,28 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
                     };
                 }
 
+                Log("File Type lookup started: " + fileType.ToString());
+
+                FileType? fileTypeEntity = null;
+                fileTypeEntity = _audioStationDbClient.GetEnumEntity<FileTypes, FileType>(fileType);
+
+                if (fileTypeEntity == null)
+                {
+                    return new LibraryWorkerStepResult()
+                    {
+                        Completed = false,
+                        Message = "Invalid or missing File Type: " + fileType.ToString(),
+                        StepNumber = stepNumber,
+                        Result = LibraryWorkerResultLevel.DataError
+                    };
+                }
+
+                Log("File Type lookup complete");
+
                 Log("Music Brainz album art lookup started:  " + vendorMap.MusicBrainzRecordingId);
 
                 AudioStationTagServiceResponse response = null;
+
 
                 switch (fileType)
                 {
@@ -131,14 +149,9 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
                     // Update
                     if (fileReference != null)
                     {
-                        fileReference.FileErrorMessage = null;
-                        fileReference.FileCorruptMessage = null;
-                        fileReference.IsFileLoadError = false;
-                        fileReference.Created = System.IO.File.GetCreationTime(filePath).ToUniversalTime();
-                        fileReference.LastModified = System.IO.File.GetLastWriteTime(filePath).ToUniversalTime();
-                        fileReference.CRC32 = FileHelpers.CalculateCRC32(filePath);
+                        // TODO: Update Dates (?)
 
-                        _audioStationDbClient.UpdateEntity(fileReference);
+                        //_audioStationDbClient.UpdateEntity(fileReference);
                     }
 
                     // Add
@@ -146,15 +159,11 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
                     {
                         fileReference = new FileReference()
                         {
-                            CRC32 = FileHelpers.CalculateCRC32(filePath),
-                            Created = System.IO.File.GetCreationTimeUtc(filePath).ToUniversalTime(),
+                            Id = Guid.NewGuid(),
                             FileName = filePath,
-                            FileErrorMessage = null,
-                            FileCorruptMessage = null,
-                            IsFileAvailable = true,
-                            IsFileCorrupt = false,
-                            IsFileLoadError = false,
-                            LastModified = System.IO.File.GetLastWriteTimeUtc(filePath).ToUniversalTime(),
+                            DateLastModified = System.IO.File.GetLastWriteTimeUtc(filePath).ToUniversalTime(),
+                            DateAdded = System.IO.File.GetCreationTimeUtc(filePath).ToUniversalTime(),
+                            FileTypeId = fileTypeEntity.Id
                         };
 
                         _audioStationDbClient.AddEntity(fileReference);
@@ -164,6 +173,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
 
                         var tagSmallFileReferenceMap = new TagSmallFileReferenceMap()
                         {
+                            Id = Guid.NewGuid(),
                             TagSmallId = vendorMap.TagSmallId,
                             FileReferenceId = fileReference.Id
                         };

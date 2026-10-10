@@ -3,7 +3,6 @@
 using AudioStation.Core.Component.LibraryLoaderComponent.Payload.Output;
 using AudioStation.Core.Database.AudioStationDatabase;
 using AudioStation.Core.Database.AudioStationDatabase.Interface;
-using AudioStation.Core.Utility.FileUtility;
 
 namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
 {
@@ -59,22 +58,14 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
 
                 var created = exists ? File.GetCreationTime(entity.FileName).ToUniversalTime() : DateTime.MinValue.ToUniversalTime();
                 var modified = exists ? File.GetLastWriteTime(entity.FileName).ToUniversalTime() : DateTime.MinValue.ToUniversalTime();
-                var crc32 = exists ? FileHelpers.CalculateCRC32(entity.FileName) : 0;
-                var corruptCRC = (crc32 != entity.CRC32 && entity.CRC32 != 0) || crc32 == 0;
                 var buffer = exists ? File.ReadAllBytes(entity.FileName) : new byte[] { };
 
-                entity.CRC32 = crc32;
-                entity.Created = created;
-                entity.FileCorruptMessage = corruptCRC ? "CRC32 does not match previous CRC32" : entity.FileCorruptMessage;
-                entity.FileErrorMessage = exists ? null : "File does not exist";
-                entity.IsFileAvailable = exists;
-                entity.IsFileCorrupt = corruptCRC || entity.IsFileCorrupt;
-                entity.IsFileLoadError = buffer.Length == 0;
-                entity.LastModified = modified;
+                entity.DateAdded = created;
+                entity.DateLastModified = modified;
 
                 _audioStationDbClient.UpdateEntity(entity);
 
-                var invalid = !exists || corruptCRC || entity.IsFileCorrupt;
+                var invalid = !exists;
 
                 var message = "File Reference check successful:  ";
                 message += invalid ? "(file load error, corrupt, or missing)" : "(file integrity OK)";

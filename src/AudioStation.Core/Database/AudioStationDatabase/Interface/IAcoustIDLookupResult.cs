@@ -2,7 +2,7 @@
 {
     public interface IAcoustIDLookupResult
     {
-        int Id { get; set; }
+        Guid Id { get; set; }
         string FileName { get; set; }
         Guid LookupId { get; set; }
         Guid MusicBrainzRecordingId { get; set; }

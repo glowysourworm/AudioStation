@@ -133,7 +133,7 @@ namespace AudioStation.ViewModels.LibraryViewModels
 
         public LibrarySearchRequestViewModel()
         {
-            this.TrackSearch = new TrackViewModel(-1, -1, -1);
+            this.TrackSearch = new TrackViewModel(Guid.Empty, Guid.Empty, Guid.Empty);
 
             // Manager Grid (pager)
             this.TrackPageRequestCommand = new SimpleCommand(() =>
@@ -218,9 +218,9 @@ namespace AudioStation.ViewModels.LibraryViewModels
                 case LibraryManagerErrorFilterType.None:
                     return true;
                 case LibraryManagerErrorFilterType.FileLoadError:
-                    return entity.FileReference.IsFileLoadError;
+                    return false;
                 case LibraryManagerErrorFilterType.FileUnavailable:
-                    return !entity.FileReference.IsFileAvailable;
+                    return false;
                 default:
                     throw new Exception("Unhandled LibraryManagerErrorFilterType:  LibraryViewModel.cs");
             }
@@ -239,16 +239,16 @@ namespace AudioStation.ViewModels.LibraryViewModels
             if (result && this.TrackSearch.MediaNumber > 0)
                 result &= entity.MediaNumber == this.TrackSearch.MediaNumber;
 
-            if (result && this.TrackSearch.FileCorruptMessage != string.Empty)
-                result &= entity.FileReference.FileCorruptMessage?.Contains(this.TrackSearch.FileCorruptMessage, StringComparison.OrdinalIgnoreCase) ?? false;
+            //if (result && this.TrackSearch.FileCorruptMessage != string.Empty)
+            //    result &= entity.FileReference.FileCorruptMessage?.Contains(this.TrackSearch.FileCorruptMessage, StringComparison.OrdinalIgnoreCase) ?? false;
 
-            if (result && this.TrackSearch.FileLoadErrorMessage != string.Empty)
-                result &= entity.FileReference.FileErrorMessage?.Contains(this.TrackSearch.FileLoadErrorMessage, StringComparison.OrdinalIgnoreCase) ?? false;
+            //if (result && this.TrackSearch.FileLoadErrorMessage != string.Empty)
+            //    result &= entity.FileReference.FileErrorMessage?.Contains(this.TrackSearch.FileLoadErrorMessage, StringComparison.OrdinalIgnoreCase) ?? false;
 
             if (result && this.TrackSearch.FileName != string.Empty)
                 result &= entity.FileReference.FileName?.Contains(this.TrackSearch.FileName) ?? false;
 
-            if (result && this.TrackSearch.Id > 0)
+            if (result && this.TrackSearch.Id != Guid.Empty)
                 result &= entity.Id.ToString().Contains(this.TrackSearch.Id.ToString());
 
             if (result && this.TrackSearch.Artist != string.Empty)

@@ -2,7 +2,7 @@
 {
     public interface ITagSmall
     {
-        int Id { get; set; }
+        Guid Id { get; set; }
 
         [LibraryFormat(Name = "Artist", Description = "Artist of the track", TokenName = "artist", Use = LibraryFormatUse.File | LibraryFormatUse.Folder)]
         public string? AlbumArtist { get; set; }

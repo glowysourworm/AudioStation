@@ -7,7 +7,7 @@ namespace AudioStation.ViewModels.LibraryViewModels
 {
     public class TagSmallViewModel : ViewModelBase, ITagSmall
     {
-        int _id;
+        Guid _id;
 
         string? _albumArtist;
         string? _album;
@@ -21,7 +21,7 @@ namespace AudioStation.ViewModels.LibraryViewModels
         string? _mediaFormat;
         int? _durationMilliseconds;
 
-        public int Id
+        public Guid Id
         {
             get { return _id; }
             set { this.RaiseAndSetIfChanged(ref _id, value); }

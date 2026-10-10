@@ -3,8 +3,6 @@ DELETE FROM public."AlbumFileReferenceMap";
 DELETE FROM public."ArtistFileReferenceMap";
 DELETE FROM public."TagSmallVendorMap";
 DELETE FROM public."TagSmallFileReferenceMap";
-DELETE FROM public."TrackGenreMap";
-DELETE FROM public."TrackArtistMap";
 
 DELETE FROM public."Track";
 DELETE FROM public."TagSmall";
@@ -14,7 +12,7 @@ DELETE FROM public."Genre";
 DELETE FROM public."Artist";
 DELETE FROM public."Album";
 DELETE FROM public."RadioBrowserStation";
-DELETE FROM public."FileType";
 DELETE FROM public."FileReference";
+DELETE FROM public."FileType";
 DELETE FROM public."Vendor";
 

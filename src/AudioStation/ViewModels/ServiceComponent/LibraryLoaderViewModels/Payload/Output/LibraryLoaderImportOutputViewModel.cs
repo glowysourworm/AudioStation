@@ -20,16 +20,14 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryLoaderViewModels.Paylo
         ObservableCollection<ITagSmall> _musicBrainzRecordingMatches;
         ObservableCollection<MusicBrainzAcoustIDResult> _musicBrainzAcoustIDResults;
 
-        int _tagSmallId;
-        int _tagSmallFileReferenceMapId;
-        int _tagSmallVendorMapId;
-        int _fileReferenceId;
-        int _genreId;
-        int _artistId;
-        int _albumId;
-        int _trackId;
-        int _trackGenreMapId;
-        int _trackArtistMapId;
+        Guid _tagSmallId;
+        Guid _tagSmallFileReferenceMapId;
+        Guid _tagSmallVendorMapId;
+        Guid _fileReferenceId;
+        Guid _genreId;
+        Guid _artistId;
+        Guid _albumId;
+        Guid _trackId;
 
         //MusicBrainzPicture? _bestFrontCover;
         //MusicBrainzPicture? _bestBackCover;
@@ -74,55 +72,45 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryLoaderViewModels.Paylo
             get { return _musicBrainzAcoustIDResults; }
             set { this.RaiseAndSetIfChanged(ref _musicBrainzAcoustIDResults, value); }
         }
-        public int TagSmallId
+        public Guid TagSmallId
         {
             get { return _tagSmallId; }
             set { this.RaiseAndSetIfChanged(ref _tagSmallId, value); }
         }
-        public int TagSmallFileReferenceMapId
+        public Guid TagSmallFileReferenceMapId
         {
             get { return _tagSmallFileReferenceMapId; }
             set { this.RaiseAndSetIfChanged(ref _tagSmallFileReferenceMapId, value); }
         }
-        public int TagSmallVendorMapId
+        public Guid TagSmallVendorMapId
         {
             get { return _tagSmallVendorMapId; }
             set { this.RaiseAndSetIfChanged(ref _tagSmallVendorMapId, value); }
         }
-        public int FileReferenceId
+        public Guid FileReferenceId
         {
             get { return _fileReferenceId; }
             set { this.RaiseAndSetIfChanged(ref _fileReferenceId, value); }
         }
-        public int GenreId
+        public Guid GenreId
         {
             get { return _genreId; }
             set { this.RaiseAndSetIfChanged(ref _genreId, value); }
         }
-        public int ArtistId
+        public Guid ArtistId
         {
             get { return _artistId; }
             set { this.RaiseAndSetIfChanged(ref _artistId, value); }
         }
-        public int AlbumId
+        public Guid AlbumId
         {
             get { return _albumId; }
             set { this.RaiseAndSetIfChanged(ref _albumId, value); }
         }
-        public int TrackId
+        public Guid TrackId
         {
             get { return _trackId; }
             set { this.RaiseAndSetIfChanged(ref _trackId, value); }
-        }
-        public int TrackGenreMapId
-        {
-            get { return _trackGenreMapId; }
-            set { this.RaiseAndSetIfChanged(ref _trackGenreMapId, value); }
-        }
-        public int TrackArtistMapId
-        {
-            get { return _trackArtistMapId; }
-            set { this.RaiseAndSetIfChanged(ref _trackArtistMapId, value); }
         }
         public bool AcoustIDSuccess
         {

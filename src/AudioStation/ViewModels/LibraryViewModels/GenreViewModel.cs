@@ -1,7 +1,5 @@
 ﻿using AudioStation.Core.Model;
 
-using SimpleWpf.Extensions;
-
 namespace AudioStation.ViewModels.LibraryViewModels
 {
     public class GenreViewModel : EntityViewModel
@@ -14,7 +12,7 @@ namespace AudioStation.ViewModels.LibraryViewModels
             set { this.RaiseAndSetIfChanged(ref _name, value); }
         }
 
-        public GenreViewModel(int id) : base(id, LibraryEntryType.Genre)
+        public GenreViewModel(Guid id) : base(id, LibraryEntryType.Genre)
         {
             this.Name = string.Empty;
         }

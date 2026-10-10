@@ -9,13 +9,13 @@ namespace AudioStation.Core.Database.AudioStationDatabase
     public class AlbumFileReferenceMap : AudioStationEntityBase
     {
         [ForeignKey("Album")]
-        public int AlbumId { get; set; }
+        public Guid AlbumId { get; set; }
 
         [ForeignKey("FileReference")]
-        public int FileReferenceId { get; set; }
+        public Guid FileReferenceId { get; set; }
 
         [ForeignKey("FileType")]
-        public int FileTypeId { get; set; }
+        public Guid FileTypeId { get; set; }
 
         public Album Album { get; set; }
         public FileReference FileReference { get; set; }
