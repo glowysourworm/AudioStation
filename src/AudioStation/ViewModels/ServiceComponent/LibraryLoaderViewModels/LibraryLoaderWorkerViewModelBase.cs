@@ -25,6 +25,8 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryLoaderViewModels
     /// <typeparam name="T">Any type of "load" to be operated on by the derived class</typeparam>
     public abstract class LibraryLoaderWorkerViewModelBase<T> : ServiceComponentPartViewModelBase, ILibraryLoaderWorkerViewModel where T : class
     {
+        private const int BULK_WORK_SIZE = 150;
+
         private ILibraryLoader _libraryLoader;
         private List<ILibraryLoaderLoad> _workLoads;
         private List<T> _workPending;
@@ -363,8 +365,20 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryLoaderViewModels
             // Bulk
             if (this.ExecuteAsBulk)
             {
-                // -> Bulk Queue -> Play (execute) -> Updates via (bulk) events (only)
-                _libraryLoader.QueueLoaderBulkTask(this.Description, _workLoads);
+                // Bulk Execution:  Concerns are mostly about performance
+                //
+                // 1) UI Binding (keep below 5000 total on screen at once)
+                // 2) Memory (try and keep a level load)
+                //
+                // There will be a memory spike; but it helps a great deal
+                // when we can deal with pieces at a time - and dispose of
+                // all the back-and-forth memory afterwards.
+                //
+                _workLoads.Batch(BULK_WORK_SIZE, (startIndex, endIndex, batch) =>
+                {
+                    // -> Bulk Queue -> Play (execute) -> Updates via (bulk) events (only)
+                    _libraryLoader.QueueLoaderBulkTask(this.Description + string.Format(" Items:  {0} - {1}", startIndex + 1, endIndex + 1), batch);
+                });
 
                 _workLoads.Clear();     // Empty
             }
