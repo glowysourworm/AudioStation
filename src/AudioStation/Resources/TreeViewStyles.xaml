@@ -64,6 +64,11 @@
                 <Setter TargetName="ItemTextBlock" Property="Text" Value="{Binding Key}" />
                 <Setter TargetName="IconStack" Property="Visibility" Value="Collapsed" />
             </DataTrigger>
+
+            <DataTrigger Binding="{Binding RecursionDepth}" Value="2">
+                <Setter TargetName="ItemTextBlock" Property="Text" Value="{Binding Key}" />
+                <Setter TargetName="IconStack" Property="Visibility" Value="Collapsed" />
+            </DataTrigger>
         </DataTemplate.Triggers>
         
     </DataTemplate>

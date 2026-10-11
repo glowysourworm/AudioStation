@@ -1,6 +1,6 @@
 ﻿using SimpleWpf.UI.ViewModel.TreeView;
 
-namespace AudioStation.ViewModels.LibraryViewModels
+namespace AudioStation.ViewModels.LibraryViewModels.LibraryTree
 {
     public class LibraryTreeGenreNodeViewModel : TreeViewNodeModelBase
     {

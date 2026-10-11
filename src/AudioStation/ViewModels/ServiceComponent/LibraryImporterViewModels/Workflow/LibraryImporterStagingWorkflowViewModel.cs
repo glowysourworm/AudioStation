@@ -11,6 +11,7 @@ using AudioStation.Core.Utility;
 using AudioStation.Event;
 using AudioStation.Service.Interface;
 using AudioStation.ViewModels.LibraryViewModels;
+using AudioStation.ViewModels.LibraryViewModels.LibraryTree;
 using AudioStation.ViewModels.Vendor.AcoustIDViewModel;
 
 using SimpleWpf.Extensions.Collection;
@@ -208,7 +209,9 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Wor
 
             var treeDepthArtist = 0;
             var treeDepthAlbum = 1;
-            var treeDepthTrack = 2;
+            var treeDepthAlbumMedia = 2;
+            var treeDepthTrack = 3;
+
 
             foreach (var selectedItem in selectedNodes)
             {
@@ -222,6 +225,15 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Wor
 
                 LibraryTreeArtistNodeViewModel? artistNode = null;
                 LibraryTreeAlbumNodeViewModel? albumNode = null;
+                LibraryTreeAlbumMediaNodeViewModel? albumMediaNode = null;
+
+                // Defaults if pertinent
+                var albumNameDefault = "(Unknown)";
+                var artistNameDefault = "(Unknown)";
+
+                var mediaNodeValid = LibraryTreeAlbumMediaNodeViewModel.ValidateKey(tagSmall.MediaNumber ?? 0,
+                                                                                    tagSmall.MediaTotal ?? 0,
+                                                                                    tagSmall.Album ?? albumNameDefault);
 
                 // Grouping:  Artist -> Album (TODO: Complete Grouping Types)
                 //
@@ -231,12 +243,21 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Wor
                 if (!string.IsNullOrWhiteSpace(tagSmall.Album))
                     albumNode = this.StagedFiles.GetNode<LibraryTreeAlbumNodeViewModel>(1, tagSmall.Album);
 
+                if (mediaNodeValid)
+                {
+                    albumMediaNode = this.StagedFiles
+                                         .GetNode<LibraryTreeAlbumMediaNodeViewModel>(
+                    LibraryTreeAlbumMediaNodeViewModel.GenerateKey(tagSmall.MediaNumber ?? 0,
+                                                                   tagSmall.MediaTotal ?? 0,
+                                                                   tagSmall.Album ?? albumNameDefault));
+                }
+
                 if (artistNode == null)
                 {
                     // -> Parent:  Root (null)
                     artistNode = new LibraryTreeArtistNodeViewModel(treeDepthArtist, new ArtistViewModel(Guid.Empty)
                     {
-                        Artist = string.IsNullOrWhiteSpace(tagSmall.AlbumArtist) ? "(Unknown)" : tagSmall.AlbumArtist
+                        Artist = string.IsNullOrWhiteSpace(tagSmall.AlbumArtist) ? artistNameDefault : tagSmall.AlbumArtist
 
                     }, null);
 
@@ -250,7 +271,7 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Wor
                     // -> Parent:  Artist Node
                     albumNode = new LibraryTreeAlbumNodeViewModel(treeDepthAlbum, new AlbumViewModel(Guid.Empty)
                     {
-                        Album = string.IsNullOrWhiteSpace(tagSmall.Album) ? "(Unknown)" : tagSmall.Album
+                        Album = string.IsNullOrWhiteSpace(tagSmall.Album) ? albumNameDefault : tagSmall.Album
 
                     }, artistNode);
 
@@ -259,11 +280,29 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Wor
                         this.StagedFiles.Add(albumNode);
                 }
 
+                if (albumMediaNode == null)
+                {
+                    // Album Media Node:  Essentially, the media node will take care of improper media numbers; but not
+                    //                    an improper album name. The album node must be present; and we'll create an 
+                    //                    "invalid" media node until the numbers are setup properly.
+                    //
+
+                    // -> Parent:  Album Node
+                    albumMediaNode = new LibraryTreeAlbumMediaNodeViewModel(treeDepthAlbumMedia,
+                                                                            tagSmall.Album ?? albumNameDefault,
+                                                                            tagSmall.MediaNumber ?? 0,
+                                                                            tagSmall.MediaTotal ?? 0, albumNode);
+
+                    // Staged Files:  This will check for the album media node by key (media number)
+                    if (!this.StagedFiles.Contains(albumMediaNode))
+                        this.StagedFiles.Add(albumMediaNode);
+                }
+
                 // Leaf:  Next File Node (this would be a library track node; but we're just using those to have an abstract tree
                 //                        for this import process)
 
                 // -> Parent:  Album Node
-                var trackNode = CreateStagedFileNode(treeDepthTrack, albumNode, selectedItem, tagData, tagSmall, libraryFiles,
+                var trackNode = CreateStagedFileNode(treeDepthTrack, albumMediaNode, selectedItem, tagData, tagSmall, libraryFiles,
                                                      tagFileMaps, acoustIDResults,
                                                      musicBrainzAcoustIDResults, musicBrainzResults);
 
@@ -359,7 +398,7 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Wor
 
         private LibraryImporterFileTreeNodeViewModel CreateStagedFileNode(
                     int treeDepth,
-                    LibraryTreeAlbumNodeViewModel? parent,
+                    LibraryTreeAlbumMediaNodeViewModel? parent,
                     FileTreeNodeViewModel fileNode,
                     ITagFull tagData,
                     TagSmallViewModel tagSmallEdit,
