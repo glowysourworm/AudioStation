@@ -19,7 +19,7 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Wor
     /// </summary>
     public class LibraryImporterServiceWorkflowViewModel : ServiceComponentPartViewModelBase
     {
-        private readonly LibraryImporterFileTreeViewModel _stagedFiles;
+        private readonly LibraryImporterTreeViewModel _stagedFiles;
 
         private ObservableCollection<ILibraryLoaderWorkerViewModel> _serviceWorkers;
 
@@ -62,7 +62,7 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Wor
             set { this.RaiseAndSetIfChanged(ref _skipSelectedWorkItemsCommand, value); }
         }
 
-        public LibraryImporterServiceWorkflowViewModel(LibraryImporterFileTreeViewModel stagedFiles)
+        public LibraryImporterServiceWorkflowViewModel(LibraryImporterTreeViewModel stagedFiles)
             : base("Library Service(s)", "This workflow component will execute your selected services")
         {
             _stagedFiles = stagedFiles;

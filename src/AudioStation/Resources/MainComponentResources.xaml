@@ -67,6 +67,16 @@
                                             FalseValue="{x:Static Visibility.Collapsed}"
                                             Comparison="GreaterThan" />
 
+    <simpleConverter:ParameterConverterBase x:Key="ParameterVisibilityLessThanConverter"
+                                            TrueValue="{x:Static Visibility.Visible}"
+                                            FalseValue="{x:Static Visibility.Collapsed}"
+                                            Comparison="LessThan" />
+
+    <simpleConverter:ParameterConverterBase x:Key="ParameterVisibilityEqualToConverter"
+                                            TrueValue="{x:Static Visibility.Visible}"
+                                            FalseValue="{x:Static Visibility.Collapsed}"
+                                            Comparison="Equality" />
+
     <simpleConverter:BoolORMultiConverter x:Key="BoolORMultiConverter" />
     <simpleConverter:BoolANDMultiConverter x:Key="BoolANDMultiConverter" />
     <simpleConverter:BoolANDParameterMultiConverter x:Key="BoolANDParameterMultiConverter" />

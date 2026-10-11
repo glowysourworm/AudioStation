@@ -19,13 +19,13 @@ namespace AudioStation.Views.Converter
             if (values.Length != 2)
                 return Binding.DoNothing;
 
-            if (values[0] is not LibraryImporterFileTreeViewModel)
+            if (values[0] is not LibraryImporterTreeViewModel)
                 return Binding.DoNothing;
 
             if (values[1] is not LibraryImporterStagedFileFilterType)
                 return Binding.DoNothing;
 
-            var collection = values[0] as LibraryImporterFileTreeViewModel;
+            var collection = values[0] as LibraryImporterTreeViewModel;
             var filterType = (LibraryImporterStagedFileFilterType)values[1];
 
             if (collection == null)

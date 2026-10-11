@@ -16,14 +16,14 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Wor
         private readonly IDialogController _dialogController;
 
         // Staged Files (carries the import load / output)
-        private readonly LibraryImporterFileTreeViewModel _stagedFiles;
+        private readonly LibraryImporterTreeViewModel _stagedFiles;
         LibraryImporterStagedFileFilterType _stagedFileFilterType;
 
         SimpleCommand _editTagCommand;
         SimpleCommand _playAudioCommand;
         SimpleCommand<string> _editTagGroupCommand;
 
-        public LibraryImporterFileTreeViewModel StagedFiles
+        public LibraryImporterTreeViewModel StagedFiles
         {
             get { return _stagedFiles; }
         }
@@ -50,7 +50,7 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Wor
         }
 
         public LibraryImporterCompletionWorkflowViewModel(
-                LibraryImporterFileTreeViewModel stagedFiles,
+                LibraryImporterTreeViewModel stagedFiles,
                 LibraryImporterConfigurationViewModel workflowConfiguration)
             : base("Library Importer", "This workflow component will complete the import process")
         {
@@ -98,7 +98,7 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Wor
             {
                 if (!string.IsNullOrWhiteSpace(viewModel.Value))
                 {
-                    foreach (var stagedFile in _stagedFiles.Where(x => x.IsSelected))
+                    foreach (var stagedFile in _stagedFiles.WhereFiles(x => x.IsSelected))
                     {
                         stagedFile.ImportFile.TagRecordDirty.SetField(fieldName, viewModel.Value);
                     }
@@ -113,7 +113,7 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Wor
         }
         private void PlayAudio()
         {
-            var stagedFile = _stagedFiles.Where(x => x.IsSelected).First();
+            var stagedFile = _stagedFiles.WhereFiles(x => x.IsSelected).First();
 
             _dialogController.ShowDialogWindowSync(new DialogEventData(stagedFile.ShortPath, new DialogSmallAudioPlayerViewModel()
             {

@@ -1,4 +1,5 @@
 ﻿using SimpleWpf.UI.ViewModel.FileTreeView;
+using SimpleWpf.UI.ViewModel.TreeView;
 
 namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels
 {
@@ -9,17 +10,11 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels
     public class LibraryImporterFileTreeNodeViewModel : FileTreeNodeViewModel
     {
         LibraryImporterFileViewModel _importFile;
-        LibraryImporterDirectoryViewModel _importDirectory;
 
         public LibraryImporterFileViewModel ImportFile
         {
             get { return _importFile; }
             set { this.RaiseAndSetIfChanged(ref _importFile, value); }
-        }
-        public LibraryImporterDirectoryViewModel ImportDirectory
-        {
-            get { return _importDirectory; }
-            set { this.RaiseAndSetIfChanged(ref _importDirectory, value); }
         }
 
         /// <summary>
@@ -28,16 +23,35 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels
         public LibraryImporterFileTreeNodeViewModel(string fullPath,
                                                     string baseDirectory,
                                                     bool isDirectory,
-                                                    LibraryImporterFileTreeNodeViewModel? parent,
+                                                    TreeViewNodeModelBase? parent,
                                                     LibraryImporterConfigurationViewModel importerConfiguration)
             : base(baseDirectory, fullPath, 0, parent)
         {
             // Directories are just placeholders (at the moment)
             if (this.IsDirectory)
-                this.ImportDirectory = new LibraryImporterDirectoryViewModel();
+                throw new ArgumentException("Cannot set imporeter file tree node with directory file information");
 
             else
-                this.ImportFile = new LibraryImporterFileViewModel(fullPath, baseDirectory, parent, importerConfiguration);
+                this.ImportFile = new LibraryImporterFileViewModel(fullPath, baseDirectory, importerConfiguration);
+        }
+
+        /// <summary>
+        /// Constructor for an import file view model with a custom tree depth. This may represent either a file or a directory.
+        /// </summary>
+        public LibraryImporterFileTreeNodeViewModel(int treeDepth,
+                                                    string fullPath,
+                                                    string baseDirectory,
+                                                    bool isDirectory,
+                                                    TreeViewNodeModelBase? parent,
+                                                    LibraryImporterConfigurationViewModel importerConfiguration)
+            : base(treeDepth, baseDirectory, fullPath, 0, parent)
+        {
+            // Directories are just placeholders (at the moment)
+            if (this.IsDirectory)
+                throw new ArgumentException("Cannot set imporeter file tree node with directory file information");
+
+            else
+                this.ImportFile = new LibraryImporterFileViewModel(fullPath, baseDirectory, importerConfiguration);
         }
 
         public override string ToString()

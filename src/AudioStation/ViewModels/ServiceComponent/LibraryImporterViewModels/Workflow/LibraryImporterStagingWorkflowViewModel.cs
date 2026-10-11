@@ -43,7 +43,7 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Wor
         //                finished - with the bare minimum tag data - and moved into the library's 
         //                directory structure.
         //
-        LibraryImporterFileTreeViewModel _stagedFiles;
+        LibraryImporterTreeViewModel _stagedFiles;
         LibraryImporterStagedFileFilterType _stagedFileFilterType;
 
         public FileTreeViewModel ImportDirectory
@@ -51,7 +51,7 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Wor
             get { return _importDirectory; }
             set { this.RaiseAndSetIfChanged(ref _importDirectory, value); }
         }
-        public LibraryImporterFileTreeViewModel StagedFiles
+        public LibraryImporterTreeViewModel StagedFiles
         {
             get { return _stagedFiles; }
             set { this.RaiseAndSetIfChanged(ref _stagedFiles, value); }
@@ -78,7 +78,7 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Wor
         {
             _workflowConfiguration = workflowConfiguration;
 
-            this.StagedFiles = new LibraryImporterFileTreeViewModel();
+            this.StagedFiles = new LibraryImporterTreeViewModel();
             this.ImportDirectory = new FileTreeViewModel();
 
             this.ImportDirectory.TreeSelectionChangedEvent += ImportDirectory_TreeSelectionChangedEvent;
@@ -196,57 +196,80 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Wor
             //               are just going to be placeholders unless there is
             //               some need for them.
             //
-            var selectedFileCount = this.ImportDirectory.SelectedNodes.Count(x => x.IsSelected);
+            var selectedNodes = this.ImportDirectory
+                                    .SelectedNodes
+                                    .OrderBy(x => x.RecursionDepth)
+                                    .Cast<FileTreeNodeViewModel>()
+                                    .Where(x => !x.IsDirectory)
+                                    .ToList();
+
+            var selectedFileCount = selectedNodes.Count;
             var counter = 0;
 
-            foreach (var selectedItem in this.ImportDirectory
-                                             .SelectedNodes
-                                             .OrderBy(x => x.RecursionDepth)
-                                             .Cast<FileTreeNodeViewModel>())
+            var treeDepthArtist = 0;
+            var treeDepthAlbum = 1;
+            var treeDepthTrack = 2;
+
+            foreach (var selectedItem in selectedNodes)
             {
                 progressHandler(1, 1, selectedFileCount, counter++, "Loading:  " + selectedItem.FullPath);
 
-                // Contains (by key)
-                if (this.StagedFiles.Contains(selectedItem))
-                    continue;
+                // Tag (for the initial grouping)
+                var tagData = _tagCache.GetFullTag(selectedItem.FullPath);
 
-                // Include Ancestors
-                if (selectedItem.Parent != null &&
-                   !this.StagedFiles.Contains(selectedItem.Parent))
+                // ITagSmall
+                var tagSmall = _audioStationMapper.Map<TagSmall, TagSmallViewModel>(TagMapper.Map(tagData));
+
+                LibraryTreeArtistNodeViewModel? artistNode = null;
+                LibraryTreeAlbumNodeViewModel? albumNode = null;
+
+                // Grouping:  Artist -> Album (TODO: Complete Grouping Types)
+                //
+                if (!string.IsNullOrWhiteSpace(tagSmall.AlbumArtist))
+                    artistNode = this.StagedFiles.GetNode<LibraryTreeArtistNodeViewModel>(0, tagSmall.AlbumArtist);
+
+                if (!string.IsNullOrWhiteSpace(tagSmall.Album))
+                    albumNode = this.StagedFiles.GetNode<LibraryTreeAlbumNodeViewModel>(1, tagSmall.Album);
+
+                if (artistNode == null)
                 {
-                    var ancestors = this.ImportDirectory.GetBranch(selectedItem);
-
-                    foreach (var ancestor in ancestors)
+                    // -> Parent:  Root (null)
+                    artistNode = new LibraryTreeArtistNodeViewModel(treeDepthArtist, new ArtistViewModel(Guid.Empty)
                     {
-                        if (this.StagedFiles.Contains(ancestor))
-                            continue;
+                        Artist = string.IsNullOrWhiteSpace(tagSmall.AlbumArtist) ? "(Unknown)" : tagSmall.AlbumArtist
 
-                        // Parent (or) Root
-                        var ancestorParent = ancestor.Parent != null ? this.StagedFiles.GetNode(ancestor.Parent.RecursionDepth, ancestor.Parent.Key) : null;
+                    }, null);
 
-                        // Stage
-                        var stagedAncestor = CreateStagedFileNode(ancestorParent, ancestor, libraryFiles,
-                                                        tagFileMaps, acoustIDResults,
-                                                        musicBrainzAcoustIDResults, musicBrainzResults);
-
-                        // -> Add (root)
-                        this.StagedFiles.Add(stagedAncestor);
-                    }
+                    // Staged Files:  This will check for the artist by key (artist name)
+                    if (!this.StagedFiles.Contains(artistNode))
+                        this.StagedFiles.Add(artistNode);
                 }
 
-                // Leaf Only
-                else
+                if (albumNode == null)
                 {
-                    // Parent (or) Root
-                    var parent = selectedItem.Parent != null ? this.StagedFiles.GetNode(selectedItem.Parent.RecursionDepth, selectedItem.Parent.Key) : null;
+                    // -> Parent:  Artist Node
+                    albumNode = new LibraryTreeAlbumNodeViewModel(treeDepthAlbum, new AlbumViewModel(Guid.Empty)
+                    {
+                        Album = string.IsNullOrWhiteSpace(tagSmall.Album) ? "(Unknown)" : tagSmall.Album
 
-                    var node = CreateStagedFileNode(parent, selectedItem, libraryFiles,
-                                                    tagFileMaps, acoustIDResults,
-                                                    musicBrainzAcoustIDResults, musicBrainzResults);
+                    }, artistNode);
 
-                    // -> Add (root)
-                    this.StagedFiles.Add(node);
+                    // Staged Files:  This will check for the album by key (album name)
+                    if (!this.StagedFiles.Contains(albumNode))
+                        this.StagedFiles.Add(albumNode);
                 }
+
+                // Leaf:  Next File Node (this would be a library track node; but we're just using those to have an abstract tree
+                //                        for this import process)
+
+                // -> Parent:  Album Node
+                var trackNode = CreateStagedFileNode(treeDepthTrack, albumNode, selectedItem, tagData, tagSmall, libraryFiles,
+                                                     tagFileMaps, acoustIDResults,
+                                                     musicBrainzAcoustIDResults, musicBrainzResults);
+
+                // -> Staged Files:  Add track (leaf node) - which has a key of the file's full path. So, this should be unique.
+                if (!this.StagedFiles.Contains(trackNode))
+                    this.StagedFiles.Add(trackNode);
             }
 
             //var removeList = new List<LibraryImporterFileTreeNodeViewModel>();
@@ -335,21 +358,22 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Wor
         }
 
         private LibraryImporterFileTreeNodeViewModel CreateStagedFileNode(
-                    LibraryImporterFileTreeNodeViewModel? parent, FileTreeNodeViewModel fileNode,
+                    int treeDepth,
+                    LibraryTreeAlbumNodeViewModel? parent,
+                    FileTreeNodeViewModel fileNode,
+                    ITagFull tagData,
+                    TagSmallViewModel tagSmallEdit,
                     Dictionary<string, FileReference> libraryFiles,
                     Dictionary<string, TagSmallFileReferenceMap> tagFileMaps,
                     Dictionary<string, List<AcoustIDLookupResult>> acoustIDResults,
                     Dictionary<string, List<MusicBrainzAcoustIDResult>> musicBrainzAcoustIDResults,
                     Dictionary<Guid, TagSmallVendorMap> musicBrainzResults)
         {
-            var stagedFileNode = new LibraryImporterFileTreeNodeViewModel(fileNode.FullPath, fileNode.BaseDirectory, fileNode.IsDirectory, parent, _workflowConfiguration);
+            var stagedFileNode = new LibraryImporterFileTreeNodeViewModel(treeDepth, fileNode.FullPath, fileNode.BaseDirectory, fileNode.IsDirectory, parent, _workflowConfiguration);
 
             // Directory
             if (fileNode.IsDirectory)
                 return stagedFileNode;
-
-            // Tag
-            var tagData = _tagCache.GetFullTag(stagedFileNode.FullPath);
 
             // (AcoustID / Music Brainz) Stored in Tag
             stagedFileNode.ImportFile.MusicBrainzReleaseTrackIDTag = tagData.GetMusicBrainzReleaseTrackId();
@@ -357,7 +381,7 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Wor
             // Tag (read only)
             if (tagData != null)
             {
-                stagedFileNode.ImportFile.Tag = _audioStationMapper.Map<TagSmall, TagSmallViewModel>(TagMapper.Map(tagData));
+                stagedFileNode.ImportFile.Tag = tagSmallEdit;
             }
 
 

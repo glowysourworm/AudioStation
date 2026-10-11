@@ -1,7 +1,8 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:fa5="http://schemas.fontawesome.com/icons/"
-                    xmlns:treeViewUI="clr-namespace:SimpleWpf.UI.Controls.TreeViewUI;assembly=SimpleWpf.UI">
+                    xmlns:treeViewUI="clr-namespace:SimpleWpf.UI.Controls.TreeViewUI;assembly=SimpleWpf.UI"
+                    xmlns:sys="clr-namespace:System;assembly=System.Core">
 
     <!-- Theme Brushes (TODO: put these in the primary theme resources after we're done styling) -->
     <SolidColorBrush x:Key="FileTreeItemHoverBackground">#0F33AAFF</SolidColorBrush>
@@ -12,8 +13,9 @@
 
         <Grid ColumnDefinitions="Auto, *">
 
-            <!-- Import File Name -->
-            <TextBlock Text="{Binding ShortPath}" 
+            <!-- Track (We want to just use the short path here, not the entire key) -->
+            <TextBlock x:Name="ItemTextBlock"
+                       Text="{Binding ShortPath}"
                        Style="{StaticResource LabelTextBlock}"
                        Margin="3"
                        VerticalAlignment="Center"
@@ -22,17 +24,17 @@
                        Grid.Column="0" />
 
             <!-- Import Indicators -->
-            <StackPanel Orientation="Horizontal" Grid.Column="1"
-                        HorizontalAlignment="Right"
-                        Visibility="{Binding IsDirectory, Converter={StaticResource BoolInverseVisibilityCollapseConverter}}">
+            <StackPanel x:Name="IconStack"
+                        Orientation="Horizontal" Grid.Column="1"
+                        HorizontalAlignment="Right">
 
                 <fa5:ImageAwesome Icon="Solid_VolumeUp" 
-                                      Margin="3"
-                                      Style="{StaticResource FontAwesomeIconManagerViewPager}"
-                                      ToolTip="AcoustID data may be downloaded prior to import; or after."
-                                      Foreground="{Binding ImportFile.ImportOutput.AcoustIDResults, 
-                                                           Converter={StaticResource ConfirmationCollectionNonEmptyForegroundParameterConverter},
-                                                           ConverterParameter={x:Static Brushes.DodgerBlue}}" />
+                                    Margin="3"
+                                    Style="{StaticResource FontAwesomeIconManagerViewPager}"
+                                    ToolTip="AcoustID data may be downloaded prior to import; or after."
+                                    Foreground="{Binding ImportFile.ImportOutput.AcoustIDResults, 
+                                                        Converter={StaticResource ConfirmationCollectionNonEmptyForegroundParameterConverter},
+                                                        ConverterParameter={x:Static Brushes.DodgerBlue}}" />
                 <fa5:ImageAwesome Icon="Solid_Music" 
                                       Margin="3"
                                       ToolTip="Music Brainz data may be downloaded prior to import; or after."              
@@ -51,6 +53,19 @@
             </StackPanel>            
             
         </Grid>
+
+        <DataTemplate.Triggers>
+            <DataTrigger Binding="{Binding RecursionDepth}" Value="0">
+                <Setter TargetName="ItemTextBlock" Property="Text" Value="{Binding Key}" />
+                <Setter TargetName="IconStack" Property="Visibility" Value="Collapsed" />
+            </DataTrigger>
+
+            <DataTrigger Binding="{Binding RecursionDepth}" Value="1">
+                <Setter TargetName="ItemTextBlock" Property="Text" Value="{Binding Key}" />
+                <Setter TargetName="IconStack" Property="Visibility" Value="Collapsed" />
+            </DataTrigger>
+        </DataTemplate.Triggers>
+        
     </DataTemplate>
 
     <!-- Library Importer (Tag Completion) -->
@@ -183,11 +198,12 @@
         <Setter Property="ItemExpanderOpenTemplate">
             <Setter.Value>
                 <DataTemplate>
-                    <Grid Background="Transparent">
 
-                        <fa5:SvgAwesome Icon="Regular_FolderOpen"                                                     
-                                        Style="{StaticResource FontAwesomeIconDefault}" />
+                    <Grid Background="Transparent">
+                        <fa5:SvgAwesome Icon="Regular_PlayCircle"
+                                    Style="{StaticResource FontAwesomeIconDefault}" />
                     </Grid>
+
                 </DataTemplate>
             </Setter.Value>
         </Setter>
@@ -195,11 +211,12 @@
         <Setter Property="ItemExpanderClosedTemplate">
             <Setter.Value>
                 <DataTemplate>
-                    <Grid Background="Transparent">
 
-                        <fa5:SvgAwesome Icon="Regular_Folder"                                                     
-                                        Style="{StaticResource FontAwesomeIconDefault}" />
+                    <Grid Background="Transparent">
+                        <fa5:SvgAwesome Icon="Brands_Playstation"
+                                    Style="{StaticResource FontAwesomeIconDefault}" />
                     </Grid>
+
                 </DataTemplate>
             </Setter.Value>
         </Setter>

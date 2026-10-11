@@ -45,7 +45,7 @@ namespace AudioStation.ViewModels.ServiceComponent
             set { this.RaiseAndSetIfChanged(ref _totalDirectoryCount, value); }
         }
 
-        public FileTreeViewModel()
+        public FileTreeViewModel() : base(new SimpleTreeCollectionViewModel(SimpleTreeViewBranchingStrategy.CommonParent))
         {
             _selectedCount = 0;
             _selectedFileCount = 0;
@@ -129,24 +129,29 @@ namespace AudioStation.ViewModels.ServiceComponent
             _totalDirectoryCount = 0;
             _totalFileCount = 0;
 
-            this.ForEach(node =>
+            this.ForEach<TreeViewNodeModelBase>(node =>
             {
-                if (node.IsDirectory)
+                if (node is not FileTreeNodeViewModel)
+                    return;
+
+                var fileNode = node as FileTreeNodeViewModel;
+
+                if (fileNode.IsDirectory)
                 {
                     _totalDirectoryCount++;
 
-                    if (node.IsSelected)
+                    if (fileNode.IsSelected)
                         _selectedDirectoryCount++;
                 }
                 else
                 {
                     _totalFileCount++;
 
-                    if (node.IsSelected)
+                    if (fileNode.IsSelected)
                         _selectedFileCount++;
                 }
 
-                if (node.IsSelected)
+                if (fileNode.IsSelected)
                     _selectedCount++;
             });
         }
