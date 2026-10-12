@@ -16,10 +16,82 @@
     <None Remove="placeholder_Medium.png" />
     <None Remove="placeholder_Small.png" />
     <None Remove="placeholder_Thumbnail.png" />
+    <None Remove="Resources\Images\acoustID-active.png" />
+    <None Remove="Resources\Images\acoustID-disabled.png" />
+    <None Remove="Resources\Images\acoustID-enabled.png" />
+    <None Remove="Resources\Images\acoustID-error.png" />
+    <None Remove="Resources\Images\acoustID.png" />
+    <None Remove="Resources\Images\audioDB-active.png" />
+    <None Remove="Resources\Images\audioDB-disabled.png" />
+    <None Remove="Resources\Images\audioDB-enabled.png" />
+    <None Remove="Resources\Images\audioDB-error.png" />
+    <None Remove="Resources\Images\audioDB.png" />
+    <None Remove="Resources\Images\discogs-active.png" />
+    <None Remove="Resources\Images\discogs-disabled.png" />
+    <None Remove="Resources\Images\discogs-enabled.png" />
+    <None Remove="Resources\Images\discogs-error.png" />
+    <None Remove="Resources\Images\fanart-active.png" />
+    <None Remove="Resources\Images\fanart-disabled.png" />
+    <None Remove="Resources\Images\fanart-enabled.png" />
+    <None Remove="Resources\Images\fanart-error.png" />
+    <None Remove="Resources\Images\fanart.png" />
+    <None Remove="Resources\Images\icon-active.png" />
+    <None Remove="Resources\Images\icon-disabled.png" />
+    <None Remove="Resources\Images\icon-enabled.png" />
+    <None Remove="Resources\Images\icon-error.png" />
+    <None Remove="Resources\Images\music-brainz-active.png" />
+    <None Remove="Resources\Images\music-brainz-disabled.png" />
+    <None Remove="Resources\Images\music-brainz-enabled.png" />
+    <None Remove="Resources\Images\music-brainz-error.png" />
+    <None Remove="Resources\Images\music-brainz.png" />
+    <None Remove="Resources\Images\placeholder_FullSized.png" />
+    <None Remove="Resources\Images\placeholder_Medium.png" />
+    <None Remove="Resources\Images\placeholder_Small.png" />
+    <None Remove="Resources\Images\placeholder_Thumbnail.png" />
+    <None Remove="Resources\Images\radio-active.png" />
+    <None Remove="Resources\Images\radio-disabled.png" />
+    <None Remove="Resources\Images\radio-enabled.png" />
+    <None Remove="Resources\Images\radio-error.png" />
+    <None Remove="Resources\Images\radio.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\Images\acoustID-active.png" />
+    <EmbeddedResource Include="Resources\Images\acoustID-disabled.png" />
+    <EmbeddedResource Include="Resources\Images\acoustID-enabled.png" />
+    <EmbeddedResource Include="Resources\Images\acoustID-error.png" />
+    <EmbeddedResource Include="Resources\Images\audioDB-active.png" />
+    <EmbeddedResource Include="Resources\Images\audioDB-disabled.png" />
+    <EmbeddedResource Include="Resources\Images\audioDB-enabled.png" />
+    <EmbeddedResource Include="Resources\Images\audioDB-error.png" />
+    <EmbeddedResource Include="Resources\Images\discogs-active.png" />
+    <EmbeddedResource Include="Resources\Images\discogs-disabled.png" />
+    <EmbeddedResource Include="Resources\Images\discogs-enabled.png" />
+    <EmbeddedResource Include="Resources\Images\discogs-error.png" />
+    <EmbeddedResource Include="Resources\Images\fanart-active.png" />
+    <EmbeddedResource Include="Resources\Images\fanart-disabled.png" />
+    <EmbeddedResource Include="Resources\Images\fanart-enabled.png" />
+    <EmbeddedResource Include="Resources\Images\fanart-error.png" />
+    <EmbeddedResource Include="Resources\Images\icon-active.png" />
+    <EmbeddedResource Include="Resources\Images\icon-disabled.png" />
+    <EmbeddedResource Include="Resources\Images\icon-enabled.png" />
+    <EmbeddedResource Include="Resources\Images\icon-error.png" />
+    <EmbeddedResource Include="Resources\Images\music-brainz-active.png" />
+    <EmbeddedResource Include="Resources\Images\music-brainz-disabled.png" />
+    <EmbeddedResource Include="Resources\Images\music-brainz-enabled.png" />
+    <EmbeddedResource Include="Resources\Images\music-brainz-error.png" />
+    <EmbeddedResource Include="Resources\Images\placeholder_FullSized.png" />
+    <EmbeddedResource Include="Resources\Images\placeholder_Medium.png" />
+    <EmbeddedResource Include="Resources\Images\placeholder_Small.png" />
+    <EmbeddedResource Include="Resources\Images\placeholder_Thumbnail.png" />
   </ItemGroup>
 
   <ItemGroup>
     <Resource Include="icon.ico" />
+    <EmbeddedResource Include="Resources\Images\radio-active.png" />
+    <EmbeddedResource Include="Resources\Images\radio-disabled.png" />
+    <EmbeddedResource Include="Resources\Images\radio-enabled.png" />
+    <EmbeddedResource Include="Resources\Images\radio-error.png" />
   </ItemGroup>
 
   <ItemGroup>

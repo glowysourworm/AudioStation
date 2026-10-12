@@ -9,6 +9,11 @@
     <SolidColorBrush x:Key="LoadingBarFill">#FFDDDDDD</SolidColorBrush>
     <SolidColorBrush x:Key="LoadingBarStroke">#FFEEEEEE</SolidColorBrush>
 
+    <SolidColorBrush x:Key="IconDisabledBrush">#FFDDDDDD</SolidColorBrush>
+    <SolidColorBrush x:Key="IconEnabledBrush">#FF555555</SolidColorBrush>
+    <SolidColorBrush x:Key="IconActiveBrush">DodgerBlue</SolidColorBrush>
+    <SolidColorBrush x:Key="IconErrorBrush">Red</SolidColorBrush>
+
     <SolidColorBrush x:Key="PropertyGridControlDefaultBorder">#FFAAAAAA</SolidColorBrush>
     
     <SolidColorBrush x:Key="HeaderBackground">#FFEEEEEE</SolidColorBrush>

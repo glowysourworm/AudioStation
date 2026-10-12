@@ -100,21 +100,82 @@
 
         <!-- Status Bar (Footer) -->
         <Border x:Name="StatusBorder" Grid.Row="3" Grid.ColumnSpan="2" Background="#EEEEEE">
-            <Grid ColumnDefinitions="Auto, *, Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto">
+            <Grid ColumnDefinitions="Auto, *, Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto">
 
-                <Button ToolTip="{Binding Message}" DataContext="{Binding StatusViewModel.AudioPlayerStatus}" BorderThickness="0 0 1 0" Style="{StaticResource FontAwesomeStatusIcon}" Tag="{x:Static fa5assembly:EFontAwesomeIcon.Solid_Music}" Grid.Column="0" />
-
+                <controls:AudioStationIconControl DataContext="{Binding StatusViewModel.AudioPlayerStatus}"
+                                                  IconType="AudioStation"                                    
+                                                  Width="22"
+                                                  Height="22"
+                                                  Style="{StaticResource AudioStationStatusIcon}"
+                                                  IconState="{Binding IconState}" 
+                                                  ActivityBadgeCount="{Binding ActivityBadgeCount}" 
+                                                  ToolTip="{Binding Message}" />
+                
                 <TextBlock Margin="10 0 0 0" VerticalAlignment="Center" Style="{StaticResource LabelTextBlock}" Text="{Binding StatusViewModel.PrimaryMessage}" Grid.Column="1" />
 
-                <Button ToolTip="{Binding Message}" DataContext="{Binding StatusViewModel.OutputControllerStatus}" Style="{StaticResource FontAwesomeStatusIcon}" Tag="{x:Static fa5assembly:EFontAwesomeIcon.Regular_FileWord}" Grid.Column="2" />
-                <Button ToolTip="{Binding Message}" DataContext="{Binding StatusViewModel.AudioStationDbStatus}" BorderThickness="1 0 0 0" Style="{StaticResource FontAwesomeStatusIcon}" Tag="{x:Static fa5assembly:EFontAwesomeIcon.Solid_Database}" Grid.Column="3" />
-                <Button ToolTip="{Binding Message}" DataContext="{Binding StatusViewModel.BandcampClient}" BorderThickness="1 0 0 0" Style="{StaticResource FontAwesomeStatusIcon}" Tag="{x:Static fa5assembly:EFontAwesomeIcon.Brands_Bandcamp}" Grid.Column="4" />
-                <Button ToolTip="{Binding Message}" DataContext="{Binding StatusViewModel.AcoustIDClient}" BorderThickness="1 0 0 0" Style="{StaticResource FontAwesomeStatusIcon}" Tag="{x:Static fa5assembly:EFontAwesomeIcon.Solid_IdBadge}" Grid.Column="5" />
-                <Button ToolTip="{Binding Message}" DataContext="{Binding StatusViewModel.DiscogsClient}" BorderThickness="1 0 0 0" Style="{StaticResource FontAwesomeStatusIcon}" Tag="{x:Static fa5assembly:EFontAwesomeIcon.Solid_RecordVinyl}" Grid.Column="6" />
-                <Button ToolTip="{Binding Message}" DataContext="{Binding StatusViewModel.FanartClient}" BorderThickness="1 0 0 0" Style="{StaticResource FontAwesomeStatusIcon}" Tag="{x:Static fa5assembly:EFontAwesomeIcon.Solid_Music}" Grid.Column="7" />
-                <Button ToolTip="{Binding Message}" DataContext="{Binding StatusViewModel.ITunesClient}" BorderThickness="1 0 0 0" Style="{StaticResource FontAwesomeStatusIcon}" Tag="{x:Static fa5assembly:EFontAwesomeIcon.Brands_Itunes}" Grid.Column="8" />
-                <Button ToolTip="{Binding Message}" DataContext="{Binding StatusViewModel.LastFmClient}" BorderThickness="1 0 1 0" Style="{StaticResource FontAwesomeStatusIcon}" Tag="{x:Static fa5assembly:EFontAwesomeIcon.Brands_Lastfm}" Grid.Column="9" />
-                <Button ToolTip="{Binding Message}" DataContext="{Binding StatusViewModel.MusicBrainzClient}" Style="{StaticResource FontAwesomeStatusIcon}" Tag="{x:Static fa5assembly:EFontAwesomeIcon.Solid_Music}" Grid.Column="10" />
+                <controls:AudioStationIconControl DataContext="{Binding StatusViewModel.OutputControllerStatus}"
+                                                  Grid.Column="2"
+                                                  Style="{StaticResource AudioStationStatusIcon}"
+                                                  IconType="AudioStationLog"  
+                                                  IconState="{Binding IconState}" 
+                                                  ActivityBadgeCount="{Binding ActivityBadgeCount}" 
+                                                  ToolTip="{Binding Message}" />
+
+                <controls:AudioStationIconControl DataContext="{Binding StatusViewModel.AudioStationDbStatus}"
+                                                  Grid.Column="3"                         
+                                                  Style="{StaticResource AudioStationStatusIcon}"
+                                                  IconType="Database"  
+                                                  IconState="{Binding IconState}" 
+                                                  ActivityBadgeCount="{Binding ActivityBadgeCount}" 
+                                                  ToolTip="{Binding Message}" />
+
+                <controls:AudioStationIconControl DataContext="{Binding StatusViewModel.AcoustIDClient}"
+                                                  Grid.Column="4"                
+                                                  Style="{StaticResource AudioStationStatusIcon}"
+                                                  IconType="AcoustID"  
+                                                  IconState="{Binding IconState}" 
+                                                  ActivityBadgeCount="{Binding ActivityBadgeCount}" 
+                                                  ToolTip="{Binding Message}" />
+
+                <controls:AudioStationIconControl DataContext="{Binding StatusViewModel.DiscogsClient}"
+                                                  Grid.Column="5"
+                                                  Style="{StaticResource AudioStationStatusIcon}"
+                                                  IconType="Discogs"  
+                                                  IconState="{Binding IconState}" 
+                                                  ActivityBadgeCount="{Binding ActivityBadgeCount}" 
+                                                  ToolTip="{Binding Message}" />
+
+                <controls:AudioStationIconControl DataContext="{Binding StatusViewModel.FanartClient}"
+                                                  Grid.Column="6"
+                                                  Style="{StaticResource AudioStationStatusIcon}"
+                                                  IconType="Fanart"  
+                                                  IconState="{Binding IconState}" 
+                                                  ActivityBadgeCount="{Binding ActivityBadgeCount}" 
+                                                  ToolTip="{Binding Message}" />
+
+                <controls:AudioStationIconControl DataContext="{Binding StatusViewModel.ITunesClient}"
+                                                  Grid.Column="7"                                                  
+                                                  Style="{StaticResource AudioStationStatusIcon}"
+                                                  IconType="iTunes"  
+                                                  IconState="{Binding IconState}" 
+                                                  ActivityBadgeCount="{Binding ActivityBadgeCount}" 
+                                                  ToolTip="{Binding Message}" />
+
+                <controls:AudioStationIconControl DataContext="{Binding StatusViewModel.LastFmClient}"
+                                                  Grid.Column="8"
+                                                  Style="{StaticResource AudioStationStatusIcon}"
+                                                  IconType="LastFm"  
+                                                  IconState="{Binding IconState}" 
+                                                  ActivityBadgeCount="{Binding ActivityBadgeCount}" 
+                                                  ToolTip="{Binding Message}" />
+
+                <controls:AudioStationIconControl DataContext="{Binding StatusViewModel.MusicBrainzClient}"
+                                                  Grid.Column="9"
+                                                  Style="{StaticResource AudioStationStatusIcon}"
+                                                  IconType="MusicBrainz"  
+                                                  IconState="{Binding IconState}" 
+                                                  ActivityBadgeCount="{Binding ActivityBadgeCount}" 
+                                                  ToolTip="{Binding Message}" />
 
             </Grid>
         </Border>

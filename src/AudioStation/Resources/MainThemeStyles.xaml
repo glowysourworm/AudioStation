@@ -17,118 +17,22 @@
         <Setter Property="Foreground" Value="Gray" />
     </Style>
     
-    <Style TargetType="{x:Type Button}" x:Key="FontAwesomeStatusIcon">
-        <Setter Property="Foreground" Value="#FFAAAAAA" />
-        <Setter Property="BorderThickness" Value="0 0" />
-        <Setter Property="Template">
+    <Style TargetType="{x:Type controls:AudioStationIconControl}" x:Key="AudioStationStatusIcon">
+        <!--Setter Property="BorderThickness" Value="0 0 1 0" /-->
+        <Setter Property="Width" Value="20" />
+        <Setter Property="Height" Value="20" />
+        <Setter Property="Margin" Value="2 0" />
+        <Setter Property="Padding" Value="2" />
+        <Setter Property="BorderBrush">
             <Setter.Value>
-                <ControlTemplate TargetType="Button">
-
-                    <Border BorderThickness="{TemplateBinding BorderThickness}">
-                        <Border.BorderBrush>
-                            <LinearGradientBrush StartPoint="0.5, 0" EndPoint="0.5, 1">
-                                <LinearGradientBrush.GradientStops>
-                                    <GradientStop Color="Transparent" Offset="0" />
-                                    <GradientStop Color="#FFAAAAAA" Offset="0.33" />
-                                    <GradientStop Color="#FFAAAAAA" Offset="0.66" />
-                                    <GradientStop Color="Transparent" Offset="1" />
-                                </LinearGradientBrush.GradientStops>
-                            </LinearGradientBrush>
-                        </Border.BorderBrush>
-                        <Grid>
-                            <fa5:ImageAwesome x:Name="FaIcon"
-                                          Icon="{TemplateBinding Tag}"
-                                          Width="16"
-                                          Height="16"
-                                          Margin="5 2"
-                                          Foreground="{TemplateBinding Foreground}"
-                                          />
-                        </Grid>
-                    </Border>
-
-                    <ControlTemplate.Triggers>
-
-                        <!-- Mouse Over (True) (Disalbed) (Nothing Happens) -->
-                        <!-- Mouse Over (True) (Idle) -->
-                        <MultiDataTrigger>
-                            <MultiDataTrigger.Conditions>
-                                <Condition Binding="{Binding ElementName=FaIcon, Path=IsMouseOver}" Value="True" />
-                                <Condition Binding="{Binding Status}" Value="{x:Static coreInterface:IAudioStationDataService+Status.Idle}" />
-                            </MultiDataTrigger.Conditions>
-                            <MultiDataTrigger.Setters>
-                                <Setter Property="Foreground" Value="#FF555555" />
-                            </MultiDataTrigger.Setters>
-                        </MultiDataTrigger>
-
-                        <!-- Mouse Over (True) (Working) -->
-                        <MultiDataTrigger>
-                            <MultiDataTrigger.Conditions>
-                                <Condition Binding="{Binding ElementName=FaIcon, Path=IsMouseOver}" Value="True" />
-                                <Condition Binding="{Binding Status}" Value="{x:Static coreInterface:IAudioStationDataService+Status.Working}" />
-                            </MultiDataTrigger.Conditions>
-                            <MultiDataTrigger.Setters>
-                                <Setter Property="Foreground" Value="DeepSkyBlue" />
-                            </MultiDataTrigger.Setters>
-                        </MultiDataTrigger>
-
-                        <!-- Mouse Over (True) (Error) -->
-                        <MultiDataTrigger>
-                            <MultiDataTrigger.Conditions>
-                                <Condition Binding="{Binding ElementName=FaIcon, Path=IsMouseOver}" Value="True" />
-                                <Condition Binding="{Binding Status}" Value="{x:Static coreInterface:IAudioStationDataService+Status.Error}" />
-                            </MultiDataTrigger.Conditions>
-                            <MultiDataTrigger.Setters>
-                                <Setter Property="Foreground" Value="Crimson"/>
-                            </MultiDataTrigger.Setters>
-                        </MultiDataTrigger>
-
-                        <!-- Mouse Over (False) (Disabled) -->
-                        <MultiDataTrigger>
-                            <MultiDataTrigger.Conditions>
-                                <Condition Binding="{Binding ElementName=FaIcon, Path=IsMouseOver}" Value="False" />
-                                <Condition Binding="{Binding Status}" Value="{x:Static coreInterface:IAudioStationDataService+Status.Disabled}" />
-                            </MultiDataTrigger.Conditions>
-                            <MultiDataTrigger.Setters>
-                                <Setter Property="Foreground" Value="#FFAAAAAA" />
-                            </MultiDataTrigger.Setters>
-                        </MultiDataTrigger>
-
-                        <!-- Mouse Over (False) (Idle) -->
-                        <MultiDataTrigger>
-                            <MultiDataTrigger.Conditions>
-                                <Condition Binding="{Binding ElementName=FaIcon, Path=IsMouseOver}" Value="False" />
-                                <Condition Binding="{Binding Status}" Value="{x:Static coreInterface:IAudioStationDataService+Status.Idle}" />
-                            </MultiDataTrigger.Conditions>
-                            <MultiDataTrigger.Setters>
-                                <Setter Property="Foreground" Value="Gray" />
-                            </MultiDataTrigger.Setters>
-                        </MultiDataTrigger>
-
-
-                        <!-- Mouse Over (False) (Working) -->
-                        <MultiDataTrigger>
-                            <MultiDataTrigger.Conditions>
-                                <Condition Binding="{Binding ElementName=FaIcon, Path=IsMouseOver}" Value="False" />
-                                <Condition Binding="{Binding Status}" Value="{x:Static coreInterface:IAudioStationDataService+Status.Working}" />
-                            </MultiDataTrigger.Conditions>
-                            <MultiDataTrigger.Setters>
-                                <Setter Property="Foreground" Value="{StaticResource ScrubberTimelinePlayedDefaultBrush}" />
-                            </MultiDataTrigger.Setters>
-                        </MultiDataTrigger>
-
-                        <!-- Mouse Over (False) (Error) -->
-                        <MultiDataTrigger>
-                            <MultiDataTrigger.Conditions>
-                                <Condition Binding="{Binding ElementName=FaIcon, Path=IsMouseOver}" Value="False" />
-                                <Condition Binding="{Binding Status}" Value="{x:Static coreInterface:IAudioStationDataService+Status.Error}" />
-                            </MultiDataTrigger.Conditions>
-                            <MultiDataTrigger.Setters>
-                                <Setter Property="Foreground" Value="Red" />
-                            </MultiDataTrigger.Setters>
-                        </MultiDataTrigger>
-
-                    </ControlTemplate.Triggers>
-                </ControlTemplate>
+                <LinearGradientBrush StartPoint="0.5, 0" EndPoint="0.5, 1">
+                    <LinearGradientBrush.GradientStops>
+                        <GradientStop Color="Transparent" Offset="0" />
+                        <GradientStop Color="#FFAAAAAA" Offset="0.33" />
+                        <GradientStop Color="#FFAAAAAA" Offset="0.66" />
+                        <GradientStop Color="Transparent" Offset="1" />
+                    </LinearGradientBrush.GradientStops>
+                </LinearGradientBrush>
             </Setter.Value>
         </Setter>
     </Style>    
