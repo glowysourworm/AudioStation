@@ -26,7 +26,7 @@ namespace AudioStation.Views.Converter
             if (string.IsNullOrEmpty(fileName))
                 return null;
 
-            var fileRef = _tagCacheController.Get(fileName);
+            var fileRef = _tagCacheController.GetSmall(fileName);
 
             return null;
 

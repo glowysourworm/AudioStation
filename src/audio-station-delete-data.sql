@@ -9,8 +9,8 @@ DELETE FROM public."TagSmall";
 
 DELETE FROM public."M3UStream";
 DELETE FROM public."Genre";
-DELETE FROM public."Artist";
 DELETE FROM public."Album";
+DELETE FROM public."Artist";
 DELETE FROM public."RadioBrowserStation";
 DELETE FROM public."FileReference";
 DELETE FROM public."FileType";

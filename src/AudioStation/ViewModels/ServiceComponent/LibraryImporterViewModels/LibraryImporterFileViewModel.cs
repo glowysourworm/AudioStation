@@ -114,7 +114,6 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels
         }
 
         public LibraryImporterFileViewModel(string fileFullPath,
-                                            string fileBaseDirectory,
                                             LibraryImporterConfigurationViewModel importerConfiguration)
         {
             var dialogController = IocContainer.Get<IDialogController>();

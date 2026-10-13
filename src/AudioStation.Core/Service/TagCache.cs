@@ -23,32 +23,36 @@ namespace AudioStation.Core.Service
     [IocExport(typeof(ITagCache))]
     public class TagCache : ITagCache
     {
+        private readonly IAudioStationMapper _audioStationMapper;
         private readonly IAudioConverter _audioConverter;
 
-        SimpleDictionary<string, TagSmall> _tags;
+        SimpleDictionary<string, TagSmall> _tagSmallCache;
+        SimpleDictionary<string, TagFull> _tagFullCache;
 
         public event SimpleEventHandler<IAudioStationDataService, IAudioStationDataService.Status> StatusChangeEvent;
 
         [IocImportingConstructor]
-        public TagCache(IAudioConverter audioConverter)
+        public TagCache(IAudioStationMapper audioStationMapper, IAudioConverter audioConverter)
         {
+            _audioStationMapper = audioStationMapper;
             _audioConverter = audioConverter;
-            _tags = new SimpleDictionary<string, TagSmall>();
+            _tagSmallCache = new SimpleDictionary<string, TagSmall>();
+            _tagFullCache = new SimpleDictionary<string, TagFull>();
         }
 
-        public TagSmall Get(string fileName)
+        public TagSmall GetSmall(string fileName)
         {
             try
             {
-                if (_tags.ContainsKey(fileName))
-                    return _tags[fileName];
+                if (_tagSmallCache.ContainsKey(fileName))
+                    return _tagSmallCache[fileName];
 
                 Set(fileName);
 
-                if (!_tags.ContainsKey(fileName))
+                if (!_tagSmallCache.ContainsKey(fileName))
                     throw new Exception("Unable to open tag file:  " + fileName);
 
-                return _tags[fileName];
+                return _tagSmallCache[fileName];
             }
             catch (Exception ex)
             {
@@ -56,28 +60,54 @@ namespace AudioStation.Core.Service
                 throw ex;
             }
         }
-        public TagSmall GetCopy(string fileName)
+        public TagFull GetFull(string fileName)
         {
-            var fullTag = FromFileFull(fileName);
+            try
+            {
+                if (_tagFullCache.ContainsKey(fileName))
+                    return _tagFullCache[fileName];
 
-            return TagMapper.Map(fullTag);
+                Set(fileName);
+
+                if (!_tagFullCache.ContainsKey(fileName))
+                    throw new Exception("Unable to open tag file:  " + fileName);
+
+                return _tagFullCache[fileName];
+            }
+            catch (Exception ex)
+            {
+                ApplicationHelpers.Log("Error initializing tag data:  {0}", LogLevel.Error, ex, ex.Message);
+                throw ex;
+            }
         }
-        public TagFull GetFullTag(string fileName)
+        public TagSmall GetCopySmall(string fileName)
         {
-            return FromFileFull(fileName);
+            var tagSmall = GetSmall(fileName);
+
+            return _audioStationMapper.Map<TagSmall, TagSmall>(tagSmall);
+        }
+        public TagFull GetCopyFull(string fileName)
+        {
+            var tagFull = GetFull(fileName);
+
+            return _audioStationMapper.Map<TagFull, TagFull>(tagFull);
         }
         public void Set(string fileName)
         {
-            if (_tags.ContainsKey(fileName))
-                _tags.Remove(fileName);
+            if (_tagSmallCache.ContainsKey(fileName))
+                _tagSmallCache.Remove(fileName);
+
+            if (_tagFullCache.ContainsKey(fileName))
+                _tagFullCache.Remove(fileName);
 
             // IdSharp -> AudioStation
-            var tagFile = FromFileFull(fileName);
+            var tagFull = FromFile(fileName);
 
             // ITagFull -> ITagSmall
-            var tagFileSmall = TagMapper.Map(tagFile);
+            var tagFileSmall = TagMapper.Map(tagFull);
 
-            _tags.Add(fileName, tagFileSmall);
+            _tagSmallCache.Add(fileName, tagFileSmall);
+            _tagFullCache.Add(fileName, tagFull);
         }
 
         public void SetData(string fileName, ITagSmall tagData, bool save = true)
@@ -93,8 +123,14 @@ namespace AudioStation.Core.Service
         {
             try
             {
-                if (_tags.ContainsKey(fileName))
-                    _tags.Remove(fileName);
+                if (_tagSmallCache.ContainsKey(fileName))
+                    _tagSmallCache.Remove(fileName);
+
+                else
+                    throw new Exception("Trying to evict tag file that was not yet cached! Please use this cache to get / set all tag files!");
+
+                if (_tagFullCache.ContainsKey(fileName))
+                    _tagFullCache.Remove(fileName);
 
                 else
                     throw new Exception("Trying to evict tag file that was not yet cached! Please use this cache to get / set all tag files!");
@@ -108,17 +144,8 @@ namespace AudioStation.Core.Service
 
         private void ToFile(string fileName, ITagSmall tag)
         {
-            throw new NotImplementedException();
-
             try
             {
-                // AudioStation -> ATL:  Some properties are ready only. All fields have been put in their proper place by
-                //                       this point. (see IAudioStationTag)
-                //
-                //var atlTrack = TagMapper.MapTo(tag, fileName);
-
-                // ATL:  Save (to ATL.Track.Path = fileName)
-                //atlTrack.Save();
             }
             catch (Exception ex)
             {
@@ -127,7 +154,7 @@ namespace AudioStation.Core.Service
             }
         }
 
-        private TagFull FromFileFull(string fileName)
+        private TagFull FromFile(string fileName)
         {
             try
             {

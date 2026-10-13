@@ -195,7 +195,7 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Wor
             //                LibraryLoader + Workflow design would take a couple more refactorings.
             //
 
-            this.SelectedWorker.AddWork(_stagedFiles.Where(x => !x.IsDirectory));
+            this.SelectedWorker.AddWork(_stagedFiles.WhereFiles(x => true));
 
             // -> Component Part Load
             this.SelectedWorker.Load(configuration, audioStationController, progressHandler);

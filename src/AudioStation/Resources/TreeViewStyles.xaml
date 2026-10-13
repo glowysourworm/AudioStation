@@ -205,9 +205,24 @@
                 <DataTemplate>
 
                     <Grid Background="Transparent">
-                        <fa5:SvgAwesome Icon="Regular_PlayCircle"
-                                    Style="{StaticResource FontAwesomeIconDefault}" />
+                        <fa5:SvgAwesome x:Name="FAIcon" 
+                                        Icon="Regular_PlayCircle"
+                                        Style="{StaticResource FontAwesomeIconDefault}" />
                     </Grid>
+
+                    <DataTemplate.Triggers>
+                        <DataTrigger Binding="{Binding RecursionDepth}" Value="0">
+                            <Setter TargetName="FAIcon" Property="Icon" Value="Regular_MinusSquare" />
+                        </DataTrigger>
+
+                        <DataTrigger Binding="{Binding RecursionDepth}" Value="1">
+                            <Setter TargetName="FAIcon" Property="Icon" Value="Regular_MinusSquare" />
+                        </DataTrigger>
+
+                        <DataTrigger Binding="{Binding RecursionDepth}" Value="2">
+                            <Setter TargetName="FAIcon" Property="Icon" Value="Solid_RecordVinyl" />
+                        </DataTrigger>
+                    </DataTemplate.Triggers>
 
                 </DataTemplate>
             </Setter.Value>
@@ -218,9 +233,23 @@
                 <DataTemplate>
 
                     <Grid Background="Transparent">
-                        <fa5:SvgAwesome Icon="Brands_Playstation"
-                                    Style="{StaticResource FontAwesomeIconDefault}" />
+                        <fa5:SvgAwesome x:Name="FAIcon" Icon="Brands_Playstation"
+                                        Style="{StaticResource FontAwesomeIconDefault}" />
                     </Grid>
+
+                    <DataTemplate.Triggers>
+                        <DataTrigger Binding="{Binding RecursionDepth}" Value="0">
+                            <Setter TargetName="FAIcon" Property="Icon" Value="Regular_PlusSquare" />
+                        </DataTrigger>
+
+                        <DataTrigger Binding="{Binding RecursionDepth}" Value="1">
+                            <Setter TargetName="FAIcon" Property="Icon" Value="Regular_PlusSquare" />
+                        </DataTrigger>
+
+                        <DataTrigger Binding="{Binding RecursionDepth}" Value="2">
+                            <Setter TargetName="FAIcon" Property="Icon" Value="Solid_CompactDisc" />
+                        </DataTrigger>
+                    </DataTemplate.Triggers>
 
                 </DataTemplate>
             </Setter.Value>

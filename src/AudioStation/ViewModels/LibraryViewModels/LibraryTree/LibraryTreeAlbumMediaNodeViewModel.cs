@@ -2,7 +2,7 @@
 
 namespace AudioStation.ViewModels.LibraryViewModels.LibraryTree
 {
-    public class LibraryTreeAlbumMediaNodeViewModel : TreeViewNodeModelBase
+    public class LibraryTreeAlbumMediaNodeViewModel : LibraryTreeNodeBase
     {
         private object _key;
 
@@ -11,16 +11,16 @@ namespace AudioStation.ViewModels.LibraryViewModels.LibraryTree
             get { return _key; }
         }
 
-        public LibraryTreeAlbumMediaNodeViewModel(int recursionDepth, string albumName, int mediaNumber, int mediaTotal, TreeViewNodeModelBase? parent)
+        public LibraryTreeAlbumMediaNodeViewModel(int recursionDepth, string mediaFormat, int mediaNumber, int mediaTotal, TreeViewNodeModelBase? parent)
             : base(recursionDepth, parent)
         {
-            if (!ValidateKey(mediaNumber, mediaTotal, albumName))
+            if (!ValidateKey(mediaNumber, mediaTotal, mediaFormat))
                 throw new ArgumentException("Invalid Media Node");
 
-            _key = GenerateKey(mediaNumber, mediaTotal, albumName);
+            _key = GenerateKey(mediaNumber, mediaTotal, mediaFormat);
         }
 
-        public static bool ValidateKey(int mediaNumber, int mediaTotal, string albumName)
+        public static bool ValidateKey(int mediaNumber, int mediaTotal, string mediaFormat)
         {
             //return mediaNumber > 0 &&
             //       mediaTotal > 0 &&
@@ -28,22 +28,22 @@ namespace AudioStation.ViewModels.LibraryViewModels.LibraryTree
 
             return true;
         }
-        public static object GenerateKey(int mediaNumber, int mediaTotal, string albumName)
+        public static object GenerateKey(int mediaNumber, int mediaTotal, string mediaFormat)
         {
-            if (!ValidateKey(mediaNumber, mediaTotal, albumName))
+            if (!ValidateKey(mediaNumber, mediaTotal, mediaFormat))
                 throw new ArgumentException("Invalid album media node key generation. Please first validate fields.");
 
             // We're going to handle key generation here; and use defaults for grouping tracks 
             // until the media numbers are setup.
 
-            var albumName_ = albumName;
+            var mediaFormat_ = mediaFormat;
             var mediaTotal_ = mediaTotal;
             var mediaNumber_ = mediaNumber;
             var improper = false;
 
-            if (string.IsNullOrWhiteSpace(albumName_))
+            if (string.IsNullOrWhiteSpace(mediaFormat_))
             {
-                albumName_ = "(Unknown)";
+                mediaFormat_ = "Format Unknown";
                 improper = true;
             }
 
@@ -58,10 +58,10 @@ namespace AudioStation.ViewModels.LibraryViewModels.LibraryTree
                 improper = true;
 
             if (improper)
-                return string.Format("Album {0} Media Invalid", albumName_);
+                return string.Format("Media Invalid");
 
             else
-                return string.Format("{0} Media {1} of {2}", albumName_, mediaNumber_, mediaTotal_);
+                return string.Format("{0} {1} of {2}", mediaFormat_, mediaNumber_, mediaTotal_);
         }
     }
 }

@@ -17,6 +17,8 @@ using AudioStation.ViewModels.Vendor.AcoustIDViewModel;
 using SimpleWpf.Extensions.Collection;
 using SimpleWpf.Extensions.ObservableCollection;
 using SimpleWpf.IocFramework.Application;
+using SimpleWpf.SimpleCollections.Collection;
+using SimpleWpf.SimpleCollections.Extension;
 using SimpleWpf.UI.Command;
 using SimpleWpf.UI.ViewModel.FileTreeView;
 using SimpleWpf.UI.ViewModel.TreeView;
@@ -146,12 +148,7 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Wor
             this.StagedFiles.Clear();
             this.StagedFiles.EndUpdate();
 
-            this.ImportDirectory.BeginUpdate();
-
-            var treeRoot = libraryLoaderService.InitializeImporterTree(directory, _workflowConfiguration, progressHandler, searchPattern);
-
-            this.ImportDirectory.Add(treeRoot);
-            this.ImportDirectory.EndUpdate();
+            libraryLoaderService.InitializeImporterTree(this.ImportDirectory, directory, _workflowConfiguration, progressHandler, searchPattern);
         }
 
         public override void Execute(DialogEventHandlers.DialogProgressHandler progressHandler)
@@ -212,13 +209,68 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Wor
             var treeDepthAlbumMedia = 2;
             var treeDepthTrack = 3;
 
+            // Disambiguation:  Artist, and Album names have to be clarified by the user
+            //
+            // Clarification:  There will be some simple methods to move things around - 
+            //                 drag / drop, right-click, also delete from staging. The
+            //                 user can stage by dragging and dropping (also). 
+            //
+            // The final staged file collection should be imported the way it is grouped.
+            //
+            var duplicateAlbums = new SimpleDictionary<string, List<FileTreeNodeViewModel>>();
+            var duplicateArtists = new SimpleDictionary<string, List<FileTreeNodeViewModel>>();
+
+            // THIS HAS TO BE MADE FOR ALL GROUPINGS
+            foreach (var selectedItem in selectedNodes)
+            {
+                // FOR NOW:  Artist -> Album
+
+                var artistDirectroyNode = selectedItem.Parent as FileTreeNodeViewModel;
+
+                if (artistDirectroyNode == null || !artistDirectroyNode.IsDirectory)
+                    continue;
+
+                var albumDirectoryNode = artistDirectroyNode.Parent as FileTreeNodeViewModel;
+
+                if (albumDirectoryNode == null || !albumDirectoryNode.IsDirectory)
+                    continue;
+
+                if (string.IsNullOrWhiteSpace(artistDirectroyNode.ShortPath) ||
+                    string.IsNullOrWhiteSpace(albumDirectoryNode.ShortPath))
+                {
+
+                }
+
+                // Tag
+                var tagData = _tagCache.GetFull(selectedItem.FullPath);
+
+                // Duplicate Albums
+                if (!string.IsNullOrWhiteSpace(tagData.Album) &&
+                    !duplicateAlbums.ContainsKey(tagData.Album))
+                    duplicateAlbums.Add(tagData.Album, new List<FileTreeNodeViewModel>() { selectedItem });
+
+                else if (!string.IsNullOrWhiteSpace(tagData.Album))
+                    duplicateAlbums[tagData.Album].Add(selectedItem);
+
+                // Duplicate Artists (AlbumArtist is the field used by both tag formats)
+                if (!string.IsNullOrWhiteSpace(tagData.AlbumArtist) &&
+                    !duplicateArtists.ContainsKey(tagData.AlbumArtist))
+                    duplicateArtists.Add(tagData.AlbumArtist, new List<FileTreeNodeViewModel>() { selectedItem });
+
+                else if (!string.IsNullOrWhiteSpace(tagData.AlbumArtist))
+                    duplicateArtists[tagData.AlbumArtist].Add(selectedItem);
+            }
+
+            // Remove Non-Duplicates
+            duplicateAlbums.Filter(x => x.Value.Count <= 1);
+            duplicateArtists.Filter(x => x.Value.Count <= 1);
 
             foreach (var selectedItem in selectedNodes)
             {
                 progressHandler(1, 1, selectedFileCount, counter++, "Loading:  " + selectedItem.FullPath);
 
                 // Tag (for the initial grouping)
-                var tagData = _tagCache.GetFullTag(selectedItem.FullPath);
+                var tagData = _tagCache.GetFull(selectedItem.FullPath);
 
                 // ITagSmall
                 var tagSmall = _audioStationMapper.Map<TagSmall, TagSmallViewModel>(TagMapper.Map(tagData));
@@ -233,7 +285,7 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Wor
 
                 var mediaNodeValid = LibraryTreeAlbumMediaNodeViewModel.ValidateKey(tagSmall.MediaNumber ?? 0,
                                                                                     tagSmall.MediaTotal ?? 0,
-                                                                                    tagSmall.Album ?? albumNameDefault);
+                                                                                    tagSmall.MediaFormat ?? string.Empty);
 
                 // Grouping:  Artist -> Album (TODO: Complete Grouping Types)
                 //
@@ -249,7 +301,7 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Wor
                                          .GetNode<LibraryTreeAlbumMediaNodeViewModel>(
                     LibraryTreeAlbumMediaNodeViewModel.GenerateKey(tagSmall.MediaNumber ?? 0,
                                                                    tagSmall.MediaTotal ?? 0,
-                                                                   tagSmall.Album ?? albumNameDefault));
+                                                                   tagSmall.MediaFormat ?? string.Empty));
                 }
 
                 if (artistNode == null)
@@ -289,7 +341,7 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Wor
 
                     // -> Parent:  Album Node
                     albumMediaNode = new LibraryTreeAlbumMediaNodeViewModel(treeDepthAlbumMedia,
-                                                                            tagSmall.Album ?? albumNameDefault,
+                                                                            tagSmall.MediaFormat ?? string.Empty,
                                                                             tagSmall.MediaNumber ?? 0,
                                                                             tagSmall.MediaTotal ?? 0, albumNode);
 
@@ -309,6 +361,14 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Wor
                 // -> Staged Files:  Add track (leaf node) - which has a key of the file's full path. So, this should be unique.
                 if (!this.StagedFiles.Contains(trackNode))
                     this.StagedFiles.Add(trackNode);
+
+                // Set Duplicate Messages:
+                //
+                if (duplicateAlbums.ContainsKey(albumNode.Album.Album))
+                    albumNode.SetDuplicate("Duplicate");
+
+                if (duplicateArtists.ContainsKey(artistNode.Artist.Artist))
+                    artistNode.SetDuplicate("Duplicate");
             }
 
             //var removeList = new List<LibraryImporterFileTreeNodeViewModel>();
@@ -408,7 +468,7 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Wor
                     Dictionary<string, List<MusicBrainzAcoustIDResult>> musicBrainzAcoustIDResults,
                     Dictionary<Guid, TagSmallVendorMap> musicBrainzResults)
         {
-            var stagedFileNode = new LibraryImporterFileTreeNodeViewModel(treeDepth, fileNode.FullPath, fileNode.BaseDirectory, fileNode.IsDirectory, parent, _workflowConfiguration);
+            var stagedFileNode = new LibraryImporterFileTreeNodeViewModel(treeDepth, fileNode.FullPath, fileNode.IsDirectory, parent, _workflowConfiguration);
 
             // Directory
             if (fileNode.IsDirectory)

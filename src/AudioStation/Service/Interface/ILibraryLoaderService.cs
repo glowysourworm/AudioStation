@@ -2,9 +2,8 @@
 using AudioStation.Core.Model;
 using AudioStation.ViewModels.DataComponent;
 using AudioStation.ViewModels.LibraryViewModels;
+using AudioStation.ViewModels.LibraryViewModels.LibraryTree;
 using AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels;
-
-using SimpleWpf.UI.ViewModel.FileTreeView;
 
 using static AudioStation.Event.DialogEventHandlers;
 
@@ -45,17 +44,19 @@ namespace AudioStation.Service.Interface
         /// <summary>
         /// Initializes the library importer directory to recursion depth 0.
         /// </summary>
-        FileTreeNodeViewModel InitializeImporterTree(string directory,
-                                                 LibraryImporterConfigurationViewModel importerOptions,
-                                                 DialogProgressHandler progressHandler,
-                                                 params string[] searchPatterns);
+        void InitializeImporterTree(FileTreeViewModel treeRoot,
+                                    string directory,
+                                    LibraryImporterConfigurationViewModel importerOptions,
+                                    DialogProgressHandler progressHandler,
+                                    params string[] searchPatterns);
 
         /// <summary>
         /// Loads further directories of the importer tree
         /// </summary>
-        void LoadImporterTreeNextDepth(FileTreeNodeViewModel treeRoot,
-                                        int currentDepth,
-                                        DialogProgressHandler progressHandler,
-                                        params string[] searchPatterns);
+        void LoadImporterTreeToDepth(FileTreeViewModel treeRoot,
+                                     int startDepth,
+                                     int stopDepth,
+                                     DialogProgressHandler progressHandler,
+                                     params string[] searchPatterns);
     }
 }

@@ -1,7 +1,7 @@
 ﻿using SimpleWpf.UI.ViewModel.FileTreeView;
 using SimpleWpf.UI.ViewModel.TreeView;
 
-namespace AudioStation.ViewModels.ServiceComponent
+namespace AudioStation.ViewModels.LibraryViewModels.LibraryTree
 {
     public class FileTreeViewModel : SimpleTreeViewModel
     {

@@ -9,6 +9,7 @@ using AudioStation.Service.Interface;
 using AudioStation.Utility;
 using AudioStation.ViewModels.DataComponent;
 using AudioStation.ViewModels.LibraryViewModels;
+using AudioStation.ViewModels.LibraryViewModels.LibraryTree;
 using AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels;
 
 using Microsoft.Extensions.Logging;
@@ -148,36 +149,10 @@ namespace AudioStation.Service
             return result;
         }
 
-        public FileTreeNodeViewModel InitializeImporterTree(
-                                                 string directory,
-                                                 LibraryImporterConfigurationViewModel importerOptions,
-                                                 DialogProgressHandler progressHandler,
-                                                 params string[] searchPatterns)
-        {
-            if (BasicHelpers.IsDispatcher() == ApplicationIsDispatcherResult.False)
-                throw new Exception("Trying to load library on a non-dispatcher thread is not allowed");
-
-            try
-            {
-                // Load first depth of the tree (TODO: Fix showing only the root, instead of starting with the child nodes)
-                var result = DirectoryTreeLoader.Load<FileTreeNodeViewModel>(directory, -1, (baseDirectory, currentPath, fileCount, parent) =>
-                {
-                    return new FileTreeNodeViewModel(baseDirectory, currentPath, fileCount, parent);
-
-                }, progressHandler, searchPatterns);
-
-                return result;
-            }
-            catch (Exception ex)
-            {
-                ApplicationHelpers.Log("Error loading import files:  {0}", LogLevel.Error, ex, ex.Message);
-                throw ex;
-            }
-        }
-
-        public void LoadImporterTreeNextDepth(
-                        FileTreeNodeViewModel treeRoot,
-                        int currentDepth,
+        public void InitializeImporterTree(
+                        FileTreeViewModel treeRoot,
+                        string directory,
+                        LibraryImporterConfigurationViewModel importerOptions,
                         DialogProgressHandler progressHandler,
                         params string[] searchPatterns)
         {
@@ -186,9 +161,38 @@ namespace AudioStation.Service
 
             try
             {
-                DirectoryTreeLoader.LoadToDepth(treeRoot, currentDepth + 1, (baseDirectory, currentPath, fileCount, parent) =>
+                // Load tree to completion:  Option is to load to depth - which would be lazy loading
+                //
+                DirectoryTreeLoader.Load<FileTreeViewModel, FileTreeNodeViewModel>(treeRoot, directory, -1,
+                (recursionDepth, currentFile, fileCount, parent) =>
                 {
-                    return new FileTreeNodeViewModel(baseDirectory, currentPath, fileCount, parent);
+                    return new FileTreeNodeViewModel(recursionDepth, currentFile.FullPath, fileCount, parent);
+
+                }, progressHandler, searchPatterns);
+            }
+            catch (Exception ex)
+            {
+                ApplicationHelpers.Log("Error loading import files:  {0}", LogLevel.Error, ex, ex.Message);
+                throw ex;
+            }
+        }
+
+        public void LoadImporterTreeToDepth(
+                        FileTreeViewModel treeRoot,
+                        int startDepth,
+                        int stopDepth,
+                        DialogProgressHandler progressHandler,
+                        params string[] searchPatterns)
+        {
+            if (BasicHelpers.IsDispatcher() == ApplicationIsDispatcherResult.False)
+                throw new Exception("Trying to load library on a non-dispatcher thread is not allowed");
+
+            try
+            {
+                DirectoryTreeLoader.LoadToDepth<FileTreeViewModel, FileTreeNodeViewModel>(treeRoot, startDepth, stopDepth,
+                (recursionDepth, currentFile, fileCount, parent) =>
+                {
+                    return new FileTreeNodeViewModel(recursionDepth, currentFile.FullPath, fileCount, parent);
 
                 }, progressHandler, searchPatterns);
             }

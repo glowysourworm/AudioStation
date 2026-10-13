@@ -2,7 +2,7 @@
 
 namespace AudioStation.ViewModels.LibraryViewModels.LibraryTree
 {
-    public class LibraryTreeMediaFormatNodeViewModel : TreeViewNodeModelBase
+    public class LibraryTreeMediaFormatNodeViewModel : LibraryTreeNodeBase
     {
         private string _mediaFormat;
 
@@ -10,7 +10,11 @@ namespace AudioStation.ViewModels.LibraryViewModels.LibraryTree
         {
             get { return _mediaFormat; }
         }
-
+        public string MediaFormat
+        {
+            get { return _mediaFormat; }
+            set { this.RaiseAndSetIfChanged(ref _mediaFormat, value); }
+        }
 
         public LibraryTreeMediaFormatNodeViewModel(int recursionDepth, string mediaFormat, TreeViewNodeModelBase? parent)
             : base(recursionDepth, parent)

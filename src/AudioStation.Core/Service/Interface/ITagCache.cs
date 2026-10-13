@@ -9,17 +9,22 @@ namespace AudioStation.Core.Service.Interface
         /// <summary>
         /// Gets a tag file from the cache
         /// </summary>
-        TagSmall Get(string fileName);
+        TagSmall GetSmall(string fileName);
+
+        /// <summary>
+        /// Gets a tag file from the cache
+        /// </summary>
+        TagFull GetFull(string fileName);
 
         /// <summary>
         /// Gets a copy of the tag file from the cache
         /// </summary>
-        TagSmall GetCopy(string fileName);
+        TagSmall GetCopySmall(string fileName);
 
         /// <summary>
-        /// Returns the full tag after reading the specified file. These tags are not cached.
+        /// Gets a copy of the tag file from the cache
         /// </summary>
-        TagFull GetFullTag(string fileName);
+        TagFull GetCopyFull(string fileName);
 
         /// <summary>
         /// Sets a tag file into the cache. You must set the full tag explicitly. Otherwise,

@@ -18,40 +18,21 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels
         }
 
         /// <summary>
-        /// Constructor for an import file view model. This may represent either a file or a directory.
-        /// </summary>
-        public LibraryImporterFileTreeNodeViewModel(string fullPath,
-                                                    string baseDirectory,
-                                                    bool isDirectory,
-                                                    TreeViewNodeModelBase? parent,
-                                                    LibraryImporterConfigurationViewModel importerConfiguration)
-            : base(baseDirectory, fullPath, 0, parent)
-        {
-            // Directories are just placeholders (at the moment)
-            if (this.IsDirectory)
-                throw new ArgumentException("Cannot set imporeter file tree node with directory file information");
-
-            else
-                this.ImportFile = new LibraryImporterFileViewModel(fullPath, baseDirectory, importerConfiguration);
-        }
-
-        /// <summary>
         /// Constructor for an import file view model with a custom tree depth. This may represent either a file or a directory.
         /// </summary>
         public LibraryImporterFileTreeNodeViewModel(int treeDepth,
                                                     string fullPath,
-                                                    string baseDirectory,
                                                     bool isDirectory,
                                                     TreeViewNodeModelBase? parent,
                                                     LibraryImporterConfigurationViewModel importerConfiguration)
-            : base(treeDepth, baseDirectory, fullPath, 0, parent)
+            : base(treeDepth, fullPath, 0, parent)
         {
             // Directories are just placeholders (at the moment)
             if (this.IsDirectory)
                 throw new ArgumentException("Cannot set imporeter file tree node with directory file information");
 
             else
-                this.ImportFile = new LibraryImporterFileViewModel(fullPath, baseDirectory, importerConfiguration);
+                this.ImportFile = new LibraryImporterFileViewModel(fullPath, importerConfiguration);
         }
 
         public override string ToString()

@@ -381,7 +381,7 @@ namespace AudioStation.Core.Component.LibraryLoaderComponent.Worker
                     return LibraryWorkerStepResult.Success(stepNumber, "Import file tag embedding option not selected");
                 }
 
-                _sourceTag = _tagCache.Get(_destinationPath);
+                _sourceTag = _tagCache.GetSmall(_destinationPath);
 
                 if (_sourceTag == null)
                 {

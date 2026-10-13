@@ -2,7 +2,7 @@
 
 namespace AudioStation.ViewModels.LibraryViewModels.LibraryTree
 {
-    public class LibraryTreeAlbumNodeViewModel : TreeViewNodeModelBase
+    public class LibraryTreeAlbumNodeViewModel : LibraryTreeNodeBase
     {
         private AlbumViewModel _album;
 
@@ -10,7 +10,11 @@ namespace AudioStation.ViewModels.LibraryViewModels.LibraryTree
         {
             get { return _album.Album; }
         }
-
+        public AlbumViewModel Album
+        {
+            get { return _album; }
+            set { this.RaiseAndSetIfChanged(ref _album, value); }
+        }
 
         public LibraryTreeAlbumNodeViewModel(int recursionDepth, AlbumViewModel album, TreeViewNodeModelBase? parent)
             : base(recursionDepth, parent)
