@@ -17,7 +17,7 @@ using Microsoft.Extensions.Logging;
 using SimpleWpf.Extensions.Collection;
 using SimpleWpf.Extensions.ObservableCollection;
 using SimpleWpf.IocFramework.Application.Attribute;
-using SimpleWpf.UI.ViewModel.FileTreeView;
+using SimpleWpf.UI.ViewModel.TreeView;
 using SimpleWpf.Utilities;
 
 using static AudioStation.Event.DialogEventHandlers;
@@ -149,52 +149,82 @@ namespace AudioStation.Service
             return result;
         }
 
-        public void InitializeImporterTree(
-                        FileTreeViewModel treeRoot,
-                        string directory,
-                        LibraryImporterConfigurationViewModel importerOptions,
-                        DialogProgressHandler progressHandler,
-                        params string[] searchPatterns)
+        public void LoadImporterTree(FileTreeViewModel treeView,
+                                     LibraryImporterConfigurationViewModel workflowConfiguration,
+                                     DialogProgressHandler progressHandler,
+                                     params string[] searchPatterns)
         {
-            if (BasicHelpers.IsDispatcher() == ApplicationIsDispatcherResult.False)
-                throw new Exception("Trying to load library on a non-dispatcher thread is not allowed");
-
             try
             {
-                // Load tree to completion:  Option is to load to depth - which would be lazy loading
+                // Library Folder Format:  Artist, Album, Genre, Media Format (?)
                 //
-                DirectoryTreeLoader.Load<FileTreeViewModel, FileTreeNodeViewModel>(treeRoot, directory, -1,
-                (recursionDepth, currentFile, fileCount, parent) =>
+                string directory;
+                TrackGroupingType directoryFormat;
+                string customFormat;
+
+                switch (workflowConfiguration.ImportType)
                 {
-                    return new FileTreeNodeViewModel(recursionDepth, currentFile.FullPath, fileCount, parent);
+                    case LibraryImportType.InPlaceDirectory:
+                        directory = workflowConfiguration.ImportDirectory.Directory;
+                        directoryFormat = workflowConfiguration.ImportDirectory.FolderFormatType;
+                        customFormat = workflowConfiguration.ImportDirectory.CustomFolderFormat;
+                        break;
+                    case LibraryImportType.Migration:
+                        directory = workflowConfiguration.MigrationSourceDirectory;
+                        directoryFormat = workflowConfiguration.MigrationDirectoryFormat;
+                        customFormat = workflowConfiguration.MigrationDirectoryCustomFormat;
+                        break;
+                    default:
+                        throw new Exception("Unhandled import type");
+                }
+
+                // Node Loading:  The structure of the tree depends on the user's format (grouping)
+                //                selection. The parent follower will follow the depth-first searching
+                //                of the directory structure, recursively.
+                //
+
+                // Directory Tree Format (grouping):  The format fields are all those supported, for directories,
+                //                                    by the ITagSmall attributes.
+                //
+                //                                    These can be retrieved, by recursion depth, while iterating.
+                //
+                var parents = new Dictionary<string, TreeViewNodeModelBase>();
+                int currentDepth = 0;
+
+                treeView.BeginUpdate();
+
+                DirectoryTreeLoader.RecurseDirectory(directory, (currentDirectory, recursionDepth, currentPath, currentFileCount) =>
+                {
+                    // NOTE:  The recursion depth starts at zero for the root. We're going to shift it by one and use the first 
+                    //        depth as the "root depth" to avoid the actual root.
+                    //
+                    TreeViewNodeModelBase parent = null;
+
+                    if (parents.ContainsKey(currentDirectory))
+                    {
+                        parent = parents[currentDirectory];
+                    }
+
+                    else if (recursionDepth != 1)
+                        throw new Exception("Parent not found for node:  " + currentDirectory);
+
+                    var nextNode = new FileTreeFormatNodeViewModel(recursionDepth - 1,
+                                                                   currentPath.FullPath,
+                                                                   currentFileCount ?? 0,
+                                                                   directoryFormat,
+                                                                   customFormat,
+                                                                   parent);
+
+                    // Simple Tree View: Add
+                    treeView.Add(nextNode);
+
+                    // Add directory to parent collection
+                    if (currentPath.IsDirectory)
+                        parents.Add(currentPath.FullPath, nextNode);
 
                 }, progressHandler, searchPatterns);
-            }
-            catch (Exception ex)
-            {
-                ApplicationHelpers.Log("Error loading import files:  {0}", LogLevel.Error, ex, ex.Message);
-                throw ex;
-            }
-        }
 
-        public void LoadImporterTreeToDepth(
-                        FileTreeViewModel treeRoot,
-                        int startDepth,
-                        int stopDepth,
-                        DialogProgressHandler progressHandler,
-                        params string[] searchPatterns)
-        {
-            if (BasicHelpers.IsDispatcher() == ApplicationIsDispatcherResult.False)
-                throw new Exception("Trying to load library on a non-dispatcher thread is not allowed");
-
-            try
-            {
-                DirectoryTreeLoader.LoadToDepth<FileTreeViewModel, FileTreeNodeViewModel>(treeRoot, startDepth, stopDepth,
-                (recursionDepth, currentFile, fileCount, parent) =>
-                {
-                    return new FileTreeNodeViewModel(recursionDepth, currentFile.FullPath, fileCount, parent);
-
-                }, progressHandler, searchPatterns);
+                treeView.EndUpdate();
             }
             catch (Exception ex)
             {

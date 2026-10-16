@@ -154,6 +154,12 @@ namespace AudioStation.ViewModels.LibraryViewModels.LibraryTree
                 if (fileNode.IsSelected)
                     _selectedCount++;
             });
+
+            OnPropertyChanged(nameof(SelectedCount));
+            OnPropertyChanged(nameof(SelectedFileCount));
+            OnPropertyChanged(nameof(SelectedDirectoryCount));
+            OnPropertyChanged(nameof(TotalDirectoryCount));
+            OnPropertyChanged(nameof(TotalFileCount));
         }
     }
 }

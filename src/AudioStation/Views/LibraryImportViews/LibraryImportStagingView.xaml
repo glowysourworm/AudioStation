@@ -70,7 +70,7 @@
                                          Margin="5"
                                          Grid.Row="2"
                                          Style="{StaticResource FileTreeViewStyle}"
-                                         ItemsSource="{Binding ImportDirectory, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}">
+                                         ItemsSource="{Binding ImportDirectory, UpdateSourceTrigger=PropertyChanged}">
         </simpleUITreeview:SimpleTreeView>
         
         <!-- Stage / Unstage -->

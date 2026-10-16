@@ -51,6 +51,8 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels
         bool _migrationDeleteSourceFiles;
         bool _migrationDeleteSourceFolders;
         bool _migrationOverwriteDestinationFiles;
+        TrackGroupingType _migrationDirectoryFormat;
+        string _migrationDirectoryCustomFormat;
 
         SimpleCommand _selectSourceFolderCommand;
 
@@ -168,6 +170,16 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels
         {
             get { return _migrationOverwriteDestinationFiles; }
             set { this.RaiseAndSetIfChanged(ref _migrationOverwriteDestinationFiles, value); }
+        }
+        public TrackGroupingType MigrationDirectoryFormat
+        {
+            get { return _migrationDirectoryFormat; }
+            set { this.RaiseAndSetIfChanged(ref _migrationDirectoryFormat, value); }
+        }
+        public string MigrationDirectoryCustomFormat
+        {
+            get { return _migrationDirectoryCustomFormat; }
+            set { this.RaiseAndSetIfChanged(ref _migrationDirectoryCustomFormat, value); }
         }
 
         [JsonIgnore]

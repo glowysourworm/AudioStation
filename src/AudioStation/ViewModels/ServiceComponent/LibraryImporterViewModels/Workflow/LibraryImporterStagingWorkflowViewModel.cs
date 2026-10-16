@@ -17,8 +17,6 @@ using AudioStation.ViewModels.Vendor.AcoustIDViewModel;
 using SimpleWpf.Extensions.Collection;
 using SimpleWpf.Extensions.ObservableCollection;
 using SimpleWpf.IocFramework.Application;
-using SimpleWpf.SimpleCollections.Collection;
-using SimpleWpf.SimpleCollections.Extension;
 using SimpleWpf.UI.Command;
 using SimpleWpf.UI.ViewModel.FileTreeView;
 using SimpleWpf.UI.ViewModel.TreeView;
@@ -148,228 +146,233 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Wor
             this.StagedFiles.Clear();
             this.StagedFiles.EndUpdate();
 
-            libraryLoaderService.InitializeImporterTree(this.ImportDirectory, directory, _workflowConfiguration, progressHandler, searchPattern);
+            // Clear Import
+            this.ImportDirectory.BeginUpdate();
+            this.ImportDirectory.Clear();
+            this.ImportDirectory.EndUpdate();
+
+            libraryLoaderService.LoadImporterTree(this.ImportDirectory, _workflowConfiguration, progressHandler, searchPattern);
         }
 
         public override void Execute(DialogEventHandlers.DialogProgressHandler progressHandler)
         {
-            if (this.ImportDirectory.SelectedNodes == null)
-                throw new ArgumentException("Import selected nodes aren't being forwarded from the view");
+            //if (this.ImportDirectory.SelectedNodes == null)
+            //    throw new ArgumentException("Import selected nodes aren't being forwarded from the view");
 
-            // Block Events
-            this.StagedFiles.BeginUpdate();
+            //// Block Events
+            //this.StagedFiles.BeginUpdate();
 
-            progressHandler(1, 1, 1, 0, "Loading Library Files");
+            //progressHandler(1, 1, 1, 0, "Loading Library Files");
 
-            // Library Files
-            var libraryFiles = _audioStationDbClient.GetEntities<FileReference>().ToDictionary(x => x.FileName);
+            //// Library Files
+            //var libraryFiles = _audioStationDbClient.GetEntities<FileReference>().ToDictionary(x => x.FileName);
 
-            // Tag Records (linked to FileReference)
-            var tagFileMaps = _audioStationDbClient.GetEntities<TagSmallFileReferenceMap>().ToDictionary(x => x.FileReference.FileName);
+            //// Tag Records (linked to FileReference)
+            //var tagFileMaps = _audioStationDbClient.GetEntities<TagSmallFileReferenceMap>().ToDictionary(x => x.FileReference.FileName);
 
-            // AcoustID Results
-            var acoustIDResults = _audioStationDbClient.GetEntities<AcoustIDLookupResult>()
-                                                       .GroupBy(x => x.FileName)
-                                                       .ToDictionary(x => x.Key, x => x.ToList());
+            //// AcoustID Results
+            //var acoustIDResults = _audioStationDbClient.GetEntities<AcoustIDLookupResult>()
+            //                                           .GroupBy(x => x.FileName)
+            //                                           .ToDictionary(x => x.Key, x => x.ToList());
 
-            // MusitBrainz-AcoustID View
-            var musicBrainzAcoustIDResults = _audioStationDbClient.GetViewEntities<MusicBrainzAcoustIDResult>()
-                                                                  .GroupBy(x => x.FileName)
-                                                                  .ToDictionary(x => x.Key, x => x.ToList());
+            //// MusitBrainz-AcoustID View
+            //var musicBrainzAcoustIDResults = _audioStationDbClient.GetViewEntities<MusicBrainzAcoustIDResult>()
+            //                                                      .GroupBy(x => x.FileName)
+            //                                                      .ToDictionary(x => x.Key, x => x.ToList());
 
-            // Music Brainz (basic) (TagSmallVendorMap)
-            var musicBrainzResults = _audioStationDbClient.GetEntities<TagSmallVendorMap>()
-                                                          .Where(x => x.MusicBrainzRecordingId != null)
-                                                          .ToDictionary(x => x.TagSmallId, x => x);
+            //// Music Brainz (basic) (TagSmallVendorMap)
+            //var musicBrainzResults = _audioStationDbClient.GetEntities<TagSmallVendorMap>()
+            //                                              .Where(x => x.MusicBrainzRecordingId != null)
+            //                                              .ToDictionary(x => x.TagSmallId, x => x);
 
-            // Procedure:  We must take branches of the other tree view and 
-            //             create the staged file tree. Selected Items have
-            //             already been forwarded by the view.
-            //              
-            // Add Node:   The nodes must be added in order starting with 
-            //             the root. The tree view model looks for the matching
-            //             parent node by key reference.
-            //
-            // Directories:  Each node is treated as part of the tree. Directories
-            //               are just going to be placeholders unless there is
-            //               some need for them.
-            //
-            var selectedNodes = this.ImportDirectory
-                                    .SelectedNodes
-                                    .OrderBy(x => x.RecursionDepth)
-                                    .Cast<FileTreeNodeViewModel>()
-                                    .Where(x => !x.IsDirectory)
-                                    .ToList();
+            //// Procedure:  We must take branches of the other tree view and 
+            ////             create the staged file tree. Selected Items have
+            ////             already been forwarded by the view.
+            ////              
+            //// Add Node:   The nodes must be added in order starting with 
+            ////             the root. The tree view model looks for the matching
+            ////             parent node by key reference.
+            ////
+            //// Directories:  Each node is treated as part of the tree. Directories
+            ////               are just going to be placeholders unless there is
+            ////               some need for them.
+            ////
+            //var selectedNodes = this.ImportDirectory
+            //                        .SelectedNodes
+            //                        .OrderBy(x => x.RecursionDepth)
+            //                        .Cast<FileTreeNodeViewModel>()
+            //                        .Where(x => !x.IsDirectory)
+            //                        .ToList();
 
-            var selectedFileCount = selectedNodes.Count;
-            var counter = 0;
+            //var selectedFileCount = selectedNodes.Count;
+            //var counter = 0;
 
-            var treeDepthArtist = 0;
-            var treeDepthAlbum = 1;
-            var treeDepthAlbumMedia = 2;
-            var treeDepthTrack = 3;
+            //var treeDepthArtist = 0;
+            //var treeDepthAlbum = 1;
+            //var treeDepthAlbumMedia = 2;
+            //var treeDepthTrack = 3;
 
-            // Disambiguation:  Artist, and Album names have to be clarified by the user
-            //
-            // Clarification:  There will be some simple methods to move things around - 
-            //                 drag / drop, right-click, also delete from staging. The
-            //                 user can stage by dragging and dropping (also). 
-            //
-            // The final staged file collection should be imported the way it is grouped.
-            //
-            var duplicateAlbums = new SimpleDictionary<string, List<FileTreeNodeViewModel>>();
-            var duplicateArtists = new SimpleDictionary<string, List<FileTreeNodeViewModel>>();
+            //// Disambiguation:  Artist, and Album names have to be clarified by the user
+            ////
+            //// Clarification:  There will be some simple methods to move things around - 
+            ////                 drag / drop, right-click, also delete from staging. The
+            ////                 user can stage by dragging and dropping (also). 
+            ////
+            //// The final staged file collection should be imported the way it is grouped.
+            ////
+            //var duplicateAlbums = new SimpleDictionary<string, List<FileTreeNodeViewModel>>();
+            //var duplicateArtists = new SimpleDictionary<string, List<FileTreeNodeViewModel>>();
 
-            // THIS HAS TO BE MADE FOR ALL GROUPINGS
-            foreach (var selectedItem in selectedNodes)
-            {
-                // FOR NOW:  Artist -> Album
+            //// THIS HAS TO BE MADE FOR ALL GROUPINGS
+            //foreach (var selectedItem in selectedNodes)
+            //{
+            //    // FOR NOW:  Artist -> Album
 
-                var artistDirectroyNode = selectedItem.Parent as FileTreeNodeViewModel;
+            //    var artistDirectroyNode = selectedItem.Parent as FileTreeNodeViewModel;
 
-                if (artistDirectroyNode == null || !artistDirectroyNode.IsDirectory)
-                    continue;
+            //    if (artistDirectroyNode == null || !artistDirectroyNode.IsDirectory)
+            //        continue;
 
-                var albumDirectoryNode = artistDirectroyNode.Parent as FileTreeNodeViewModel;
+            //    var albumDirectoryNode = artistDirectroyNode.Parent as FileTreeNodeViewModel;
 
-                if (albumDirectoryNode == null || !albumDirectoryNode.IsDirectory)
-                    continue;
+            //    if (albumDirectoryNode == null || !albumDirectoryNode.IsDirectory)
+            //        continue;
 
-                if (string.IsNullOrWhiteSpace(artistDirectroyNode.ShortPath) ||
-                    string.IsNullOrWhiteSpace(albumDirectoryNode.ShortPath))
-                {
+            //    if (string.IsNullOrWhiteSpace(artistDirectroyNode.ShortPath) ||
+            //        string.IsNullOrWhiteSpace(albumDirectoryNode.ShortPath))
+            //    {
 
-                }
+            //    }
 
-                // Tag
-                var tagData = _tagCache.GetFull(selectedItem.FullPath);
+            //    // Tag
+            //    var tagData = _tagCache.GetFull(selectedItem.FullPath);
 
-                // Duplicate Albums
-                if (!string.IsNullOrWhiteSpace(tagData.Album) &&
-                    !duplicateAlbums.ContainsKey(tagData.Album))
-                    duplicateAlbums.Add(tagData.Album, new List<FileTreeNodeViewModel>() { selectedItem });
+            //    // Duplicate Albums
+            //    if (!string.IsNullOrWhiteSpace(tagData.Album) &&
+            //        !duplicateAlbums.ContainsKey(tagData.Album))
+            //        duplicateAlbums.Add(tagData.Album, new List<FileTreeNodeViewModel>() { selectedItem });
 
-                else if (!string.IsNullOrWhiteSpace(tagData.Album))
-                    duplicateAlbums[tagData.Album].Add(selectedItem);
+            //    else if (!string.IsNullOrWhiteSpace(tagData.Album))
+            //        duplicateAlbums[tagData.Album].Add(selectedItem);
 
-                // Duplicate Artists (AlbumArtist is the field used by both tag formats)
-                if (!string.IsNullOrWhiteSpace(tagData.AlbumArtist) &&
-                    !duplicateArtists.ContainsKey(tagData.AlbumArtist))
-                    duplicateArtists.Add(tagData.AlbumArtist, new List<FileTreeNodeViewModel>() { selectedItem });
+            //    // Duplicate Artists (AlbumArtist is the field used by both tag formats)
+            //    if (!string.IsNullOrWhiteSpace(tagData.AlbumArtist) &&
+            //        !duplicateArtists.ContainsKey(tagData.AlbumArtist))
+            //        duplicateArtists.Add(tagData.AlbumArtist, new List<FileTreeNodeViewModel>() { selectedItem });
 
-                else if (!string.IsNullOrWhiteSpace(tagData.AlbumArtist))
-                    duplicateArtists[tagData.AlbumArtist].Add(selectedItem);
-            }
+            //    else if (!string.IsNullOrWhiteSpace(tagData.AlbumArtist))
+            //        duplicateArtists[tagData.AlbumArtist].Add(selectedItem);
+            //}
 
-            // Remove Non-Duplicates
-            duplicateAlbums.Filter(x => x.Value.Count <= 1);
-            duplicateArtists.Filter(x => x.Value.Count <= 1);
+            //// Remove Non-Duplicates
+            //duplicateAlbums.Filter(x => x.Value.Count <= 1);
+            //duplicateArtists.Filter(x => x.Value.Count <= 1);
 
-            foreach (var selectedItem in selectedNodes)
-            {
-                progressHandler(1, 1, selectedFileCount, counter++, "Loading:  " + selectedItem.FullPath);
+            //foreach (var selectedItem in selectedNodes)
+            //{
+            //    progressHandler(1, 1, selectedFileCount, counter++, "Loading:  " + selectedItem.FullPath);
 
-                // Tag (for the initial grouping)
-                var tagData = _tagCache.GetFull(selectedItem.FullPath);
+            //    // Tag (for the initial grouping)
+            //    var tagData = _tagCache.GetFull(selectedItem.FullPath);
 
-                // ITagSmall
-                var tagSmall = _audioStationMapper.Map<TagSmall, TagSmallViewModel>(TagMapper.Map(tagData));
+            //    // ITagSmall
+            //    var tagSmall = _audioStationMapper.Map<TagSmall, TagSmallViewModel>(TagMapper.Map(tagData));
 
-                LibraryTreeArtistNodeViewModel? artistNode = null;
-                LibraryTreeAlbumNodeViewModel? albumNode = null;
-                LibraryTreeAlbumMediaNodeViewModel? albumMediaNode = null;
+            //    LibraryTreeArtistNodeViewModel? artistNode = null;
+            //    LibraryTreeAlbumNodeViewModel? albumNode = null;
+            //    LibraryTreeAlbumMediaNodeViewModel? albumMediaNode = null;
 
-                // Defaults if pertinent
-                var albumNameDefault = "(Unknown)";
-                var artistNameDefault = "(Unknown)";
+            //    // Defaults if pertinent
+            //    var albumNameDefault = "(Unknown)";
+            //    var artistNameDefault = "(Unknown)";
 
-                var mediaNodeValid = LibraryTreeAlbumMediaNodeViewModel.ValidateKey(tagSmall.MediaNumber ?? 0,
-                                                                                    tagSmall.MediaTotal ?? 0,
-                                                                                    tagSmall.MediaFormat ?? string.Empty);
+            //    var mediaNodeValid = LibraryTreeAlbumMediaNodeViewModel.ValidateKey(tagSmall.MediaNumber ?? 0,
+            //                                                                        tagSmall.MediaTotal ?? 0,
+            //                                                                        tagSmall.MediaFormat ?? string.Empty);
 
-                // Grouping:  Artist -> Album (TODO: Complete Grouping Types)
-                //
-                if (!string.IsNullOrWhiteSpace(tagSmall.AlbumArtist))
-                    artistNode = this.StagedFiles.GetNode<LibraryTreeArtistNodeViewModel>(0, tagSmall.AlbumArtist);
+            //    // Grouping:  Artist -> Album (TODO: Complete Grouping Types)
+            //    //
+            //    if (!string.IsNullOrWhiteSpace(tagSmall.AlbumArtist))
+            //        artistNode = this.StagedFiles.GetNode<LibraryTreeArtistNodeViewModel>(0, tagSmall.AlbumArtist);
 
-                if (!string.IsNullOrWhiteSpace(tagSmall.Album))
-                    albumNode = this.StagedFiles.GetNode<LibraryTreeAlbumNodeViewModel>(1, tagSmall.Album);
+            //    if (!string.IsNullOrWhiteSpace(tagSmall.Album))
+            //        albumNode = this.StagedFiles.GetNode<LibraryTreeAlbumNodeViewModel>(1, tagSmall.Album);
 
-                if (mediaNodeValid)
-                {
-                    albumMediaNode = this.StagedFiles
-                                         .GetNode<LibraryTreeAlbumMediaNodeViewModel>(
-                    LibraryTreeAlbumMediaNodeViewModel.GenerateKey(tagSmall.MediaNumber ?? 0,
-                                                                   tagSmall.MediaTotal ?? 0,
-                                                                   tagSmall.MediaFormat ?? string.Empty));
-                }
+            //    if (mediaNodeValid)
+            //    {
+            //        albumMediaNode = this.StagedFiles
+            //                             .GetNode<LibraryTreeAlbumMediaNodeViewModel>(
+            //        LibraryTreeAlbumMediaNodeViewModel.GenerateKey(tagSmall.MediaNumber ?? 0,
+            //                                                       tagSmall.MediaTotal ?? 0,
+            //                                                       tagSmall.MediaFormat ?? string.Empty));
+            //    }
 
-                if (artistNode == null)
-                {
-                    // -> Parent:  Root (null)
-                    artistNode = new LibraryTreeArtistNodeViewModel(treeDepthArtist, new ArtistViewModel(Guid.Empty)
-                    {
-                        Artist = string.IsNullOrWhiteSpace(tagSmall.AlbumArtist) ? artistNameDefault : tagSmall.AlbumArtist
+            //    if (artistNode == null)
+            //    {
+            //        // -> Parent:  Root (null)
+            //        artistNode = new LibraryTreeArtistNodeViewModel(treeDepthArtist, new ArtistViewModel(Guid.Empty)
+            //        {
+            //            Artist = string.IsNullOrWhiteSpace(tagSmall.AlbumArtist) ? artistNameDefault : tagSmall.AlbumArtist
 
-                    }, null);
+            //        }, null);
 
-                    // Staged Files:  This will check for the artist by key (artist name)
-                    if (!this.StagedFiles.Contains(artistNode))
-                        this.StagedFiles.Add(artistNode);
-                }
+            //        // Staged Files:  This will check for the artist by key (artist name)
+            //        if (!this.StagedFiles.Contains(artistNode))
+            //            this.StagedFiles.Add(artistNode);
+            //    }
 
-                if (albumNode == null)
-                {
-                    // -> Parent:  Artist Node
-                    albumNode = new LibraryTreeAlbumNodeViewModel(treeDepthAlbum, new AlbumViewModel(Guid.Empty)
-                    {
-                        Album = string.IsNullOrWhiteSpace(tagSmall.Album) ? albumNameDefault : tagSmall.Album
+            //    if (albumNode == null)
+            //    {
+            //        // -> Parent:  Artist Node
+            //        albumNode = new LibraryTreeAlbumNodeViewModel(treeDepthAlbum, new AlbumViewModel(Guid.Empty)
+            //        {
+            //            Album = string.IsNullOrWhiteSpace(tagSmall.Album) ? albumNameDefault : tagSmall.Album
 
-                    }, artistNode);
+            //        }, artistNode);
 
-                    // Staged Files:  This will check for the album by key (album name)
-                    if (!this.StagedFiles.Contains(albumNode))
-                        this.StagedFiles.Add(albumNode);
-                }
+            //        // Staged Files:  This will check for the album by key (album name)
+            //        if (!this.StagedFiles.Contains(albumNode))
+            //            this.StagedFiles.Add(albumNode);
+            //    }
 
-                if (albumMediaNode == null)
-                {
-                    // Album Media Node:  Essentially, the media node will take care of improper media numbers; but not
-                    //                    an improper album name. The album node must be present; and we'll create an 
-                    //                    "invalid" media node until the numbers are setup properly.
-                    //
+            //    if (albumMediaNode == null)
+            //    {
+            //        // Album Media Node:  Essentially, the media node will take care of improper media numbers; but not
+            //        //                    an improper album name. The album node must be present; and we'll create an 
+            //        //                    "invalid" media node until the numbers are setup properly.
+            //        //
 
-                    // -> Parent:  Album Node
-                    albumMediaNode = new LibraryTreeAlbumMediaNodeViewModel(treeDepthAlbumMedia,
-                                                                            tagSmall.MediaFormat ?? string.Empty,
-                                                                            tagSmall.MediaNumber ?? 0,
-                                                                            tagSmall.MediaTotal ?? 0, albumNode);
+            //        // -> Parent:  Album Node
+            //        albumMediaNode = new LibraryTreeAlbumMediaNodeViewModel(treeDepthAlbumMedia,
+            //                                                                tagSmall.MediaFormat ?? string.Empty,
+            //                                                                tagSmall.MediaNumber ?? 0,
+            //                                                                tagSmall.MediaTotal ?? 0, albumNode);
 
-                    // Staged Files:  This will check for the album media node by key (media number)
-                    if (!this.StagedFiles.Contains(albumMediaNode))
-                        this.StagedFiles.Add(albumMediaNode);
-                }
+            //        // Staged Files:  This will check for the album media node by key (media number)
+            //        if (!this.StagedFiles.Contains(albumMediaNode))
+            //            this.StagedFiles.Add(albumMediaNode);
+            //    }
 
-                // Leaf:  Next File Node (this would be a library track node; but we're just using those to have an abstract tree
-                //                        for this import process)
+            //    // Leaf:  Next File Node (this would be a library track node; but we're just using those to have an abstract tree
+            //    //                        for this import process)
 
-                // -> Parent:  Album Node
-                var trackNode = CreateStagedFileNode(treeDepthTrack, albumMediaNode, selectedItem, tagData, tagSmall, libraryFiles,
-                                                     tagFileMaps, acoustIDResults,
-                                                     musicBrainzAcoustIDResults, musicBrainzResults);
+            //    // -> Parent:  Album Node
+            //    var trackNode = CreateStagedFileNode(treeDepthTrack, albumMediaNode, selectedItem, tagData, tagSmall, libraryFiles,
+            //                                         tagFileMaps, acoustIDResults,
+            //                                         musicBrainzAcoustIDResults, musicBrainzResults);
 
-                // -> Staged Files:  Add track (leaf node) - which has a key of the file's full path. So, this should be unique.
-                if (!this.StagedFiles.Contains(trackNode))
-                    this.StagedFiles.Add(trackNode);
+            //    // -> Staged Files:  Add track (leaf node) - which has a key of the file's full path. So, this should be unique.
+            //    if (!this.StagedFiles.Contains(trackNode))
+            //        this.StagedFiles.Add(trackNode);
 
-                // Set Duplicate Messages:
-                //
-                if (duplicateAlbums.ContainsKey(albumNode.Album.Album))
-                    albumNode.SetDuplicate("Duplicate");
+            //    // Set Duplicate Messages:
+            //    //
+            //    if (duplicateAlbums.ContainsKey(albumNode.Album.Album))
+            //        albumNode.SetDuplicate("Duplicate");
 
-                if (duplicateArtists.ContainsKey(artistNode.Artist.Artist))
-                    artistNode.SetDuplicate("Duplicate");
-            }
+            //    if (duplicateArtists.ContainsKey(artistNode.Artist.Artist))
+            //        artistNode.SetDuplicate("Duplicate");
+            //}
 
             //var removeList = new List<LibraryImporterFileTreeNodeViewModel>();
 
@@ -458,7 +461,7 @@ namespace AudioStation.ViewModels.ServiceComponent.LibraryImporterViewModels.Wor
 
         private LibraryImporterFileTreeNodeViewModel CreateStagedFileNode(
                     int treeDepth,
-                    LibraryTreeAlbumMediaNodeViewModel? parent,
+                    LibraryTreeEntityNodeViewModel? parent,
                     FileTreeNodeViewModel fileNode,
                     ITagFull tagData,
                     TagSmallViewModel tagSmallEdit,

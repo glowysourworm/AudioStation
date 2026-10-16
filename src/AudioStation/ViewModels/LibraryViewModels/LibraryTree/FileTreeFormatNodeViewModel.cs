@@ -1,28 +1,24 @@
-﻿using SimpleWpf.UI.ViewModel.FileTreeView;
+﻿using AudioStation.Core.Model;
+
+using SimpleWpf.UI.ViewModel.FileTreeView;
 using SimpleWpf.UI.ViewModel.TreeView;
 
 namespace AudioStation.ViewModels.LibraryViewModels.LibraryTree
 {
     /// <summary>
-    /// Node for showing grouping issues prior to import; or when browsing the library files.
+    /// Node for using showing a file / folder tree that has entity data formatted into the path names. 
     /// </summary>
-    public class FileTreeGroupNodeViewModel : FileTreeNodeViewModel
+    public class FileTreeFormatNodeViewModel : FileTreeNodeViewModel
     {
-        // Grouping:  Issues tend to be based on non-matching, duplicate, or string format 
-        //            related data. These will be shown to the user by adding a couple of
-        //            extra fields.
+        // File / Folder Formatting:  The directory structure will have a format that may contain
+        //                            multiple field names for the track grouping.
+        //
 
-        string _groupFieldName;
         string _duplicateMessage;
         string _validationMessage;
         bool _isValid;
         bool _isDuplicate;
 
-        public string GroupFieldName
-        {
-            get { return _groupFieldName; }
-            set { this.RaiseAndSetIfChanged(ref _groupFieldName, value); }
-        }
         public string DuplicateMessage
         {
             get { return _duplicateMessage; }
@@ -44,11 +40,22 @@ namespace AudioStation.ViewModels.LibraryViewModels.LibraryTree
             protected set { this.RaiseAndSetIfChanged(ref _isDuplicate, value); }
         }
 
+        private LibraryGrouping _grouping;
 
-        public FileTreeGroupNodeViewModel(int recursionDepth, string groupFieldName, string path, int directoryFileCount, TreeViewNodeModelBase? parent)
+
+        public FileTreeFormatNodeViewModel(int recursionDepth,
+                                           string path,
+                                           int directoryFileCount,
+                                           TrackGroupingType directoryFormat,
+                                           string? customFormat,
+                                           TreeViewNodeModelBase? parent)
+
             : base(recursionDepth, path, directoryFileCount, parent)
         {
-            _groupFieldName = groupFieldName;
+            // Create a grouping object for handling the format parsing
+            //
+            _grouping = new LibraryGrouping(directoryFormat, customFormat);
+
             _validationMessage = string.Empty;
             _duplicateMessage = string.Empty;
         }

@@ -42,21 +42,16 @@ namespace AudioStation.Service.Interface
         PageResult<TrackViewModel> LoadEntryPage(PageRequest<Track, int> request);
 
         /// <summary>
-        /// Initializes the library importer directory to recursion depth 0.
+        /// Importer Tree:  The importer (source) tree is an import tree based on the import directory that has
+        ///                 the library entity grouping format used to build the tree for the initial viewing of
+        ///                 the import load.
+        ///                 
+        ///                 The groupings are based on the (custom) library format for that folder; and the user
+        ///                 may use any of the fields in the format specification to group the eventual tracks.
         /// </summary>
-        void InitializeImporterTree(FileTreeViewModel treeRoot,
-                                    string directory,
-                                    LibraryImporterConfigurationViewModel importerOptions,
-                                    DialogProgressHandler progressHandler,
-                                    params string[] searchPatterns);
-
-        /// <summary>
-        /// Loads further directories of the importer tree
-        /// </summary>
-        void LoadImporterTreeToDepth(FileTreeViewModel treeRoot,
-                                     int startDepth,
-                                     int stopDepth,
-                                     DialogProgressHandler progressHandler,
-                                     params string[] searchPatterns);
+        void LoadImporterTree(FileTreeViewModel treeRoot,
+                              LibraryImporterConfigurationViewModel workflowConfiguration,
+                              DialogProgressHandler progressHandler,
+                              params string[] searchPatterns);
     }
 }

@@ -5,6 +5,9 @@
         Track = 0,
         Album,
         Artist,
-        Genre
+        Genre,
+        MediaFormat,
+        Playlist,
+        PlaylistEntry
     }
 }
